@@ -56,6 +56,15 @@ case**, then either fixes the code or **consciously amends a rule** (a logged de
 `entry_stage` is recorded in `state.yaml` so the harness stays honest about which gates were
 satisfied vs deliberately skipped (skipped gates carry a recorded assumption).
 
+## Standing audit — the tribunal
+Beyond the per-phase gates and the per-sprint `/close-sprint` conformance audit, Keel offers a
+**standing, on-demand adversarial debate**: `/keel-tribunal`. It puts the *whole* project on trial
+(idea, market, business model, architecture, scope, rules, code) with opposing persona-lenses and an
+independent Opus judge who rules per claim against on-disk evidence. Where the gates ask "does the code
+conform to what we decided?", the tribunal asks "were those decisions right?" — run it before big gates
+(pre-architecture-freeze, pre-go/no-go, pre-ship) or any time. It informs the human and the gates but
+never advances `stage` itself.
+
 ## Cost-aware execution
 Each phase names an orchestrate/build/scout tier (see [`docs/agents-and-models.md`](../docs/agents-and-models.md)).
 Opus is reserved for the ~6 irreversible decisions (idea framing, stack choice, architecture audit,

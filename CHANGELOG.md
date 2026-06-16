@@ -9,7 +9,16 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
-_Nothing yet._
+### Added
+- `/keel-tribunal` — standing whole-project **adversarial debate** skill. Convenes a tribunal (steelman
+  Defense vs red-team Prosecution + a dissent-forcing Catfish) across 11 decision-science lenses
+  (Premortem, ATAM, FMEA, STRIDE, YAGNI, Economist, Competitor, Inverter, …). Debaters run on
+  build/scout tiers; `keel-orchestrator` (Opus) judges **per claim**; every claim cites on-disk evidence
+  or is struck. Scope modes (`whole|architecture|scope|idea|market|unit-economics|security|rules`) and a
+  cost-clamped depth dial (`quick|standard|tribunal`). Freezes a ranked findings report to
+  `.harness/debates/debate-NN.md` with a findings→action bridge. Complements `/close-sprint` (sprint
+  conformance) by arguing *whether the decisions themselves are right*. Example:
+  `examples/taskpilot/.harness/debates/debate-01.md`.
 
 ---
 

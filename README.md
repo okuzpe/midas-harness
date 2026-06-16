@@ -79,6 +79,15 @@ Three self-contained agents ship with Keel — `keel-orchestrator` (Opus, think/
 installed, Keel prefers them; otherwise it works with the three built-ins. One bump point for model
 IDs: [`docs/agents-and-models.md`](./docs/agents-and-models.md).
 
+## Deep audits — put the project on trial
+`/keel-tribunal` runs a standing, **whole-project adversarial debate**: a steelman Defense vs a
+red-team Prosecution plus a dissent-forcing Catfish argue every assumption across idea, market,
+business model, architecture, scope, rules, and code. Cheaper tiers debate; the Opus judge rules
+**per claim** and every claim must cite on-disk evidence or it's struck. It complements `/close-sprint`
+(which checks a sprint against the frozen rules) by asking the prior question — *were those decisions
+right?* Output is a ranked findings report frozen to `.harness/debates/debate-NN.md`. See a worked
+run in [`examples/taskpilot/.harness/debates/debate-01.md`](./examples/taskpilot/.harness/debates/debate-01.md).
+
 ## Worked example
 [`examples/taskpilot/`](./examples/taskpilot/) is a fully-populated greenfield product showing every
 phase artifact, a per-sprint audit, and a runnable code slice.
