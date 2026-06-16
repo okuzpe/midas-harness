@@ -1,0 +1,72 @@
+keel_version: 0.1.0
+name: taskpilot
+mode: greenfield
+language: en
+created: 2026-06-16
+updated: 2026-06-16
+
+stage: sprint_execution
+stage_status: in_progress
+entry_stage: idea_intake
+
+cost_profile: balanced
+routing:
+  orchestrate: claude-opus-4-8
+  build:       claude-sonnet-4-6
+  scout:       claude-haiku-4-5
+
+tools: [claude-code]
+mcp:   [context7, sequential-thinking]
+
+phases:
+  idea_intake:
+    status: passed
+    gate: passed
+    artifacts: [product/idea.md]
+  contextualize:
+    status: passed
+    gate: passed
+    artifacts: [product/idea.md, product/open-questions.md]
+  market_research:
+    status: passed
+    gate: passed
+    artifacts: [product/market.md]
+  business_case:
+    status: passed
+    gate: passed
+    artifacts: [product/business-plan.md]
+  tech_architecture:
+    status: passed
+    gate: passed
+    artifacts: [product/architecture.md, product/adr/ADR-001-stack.md]
+  architecture_rules:
+    status: passed
+    gate: passed
+    artifacts: [product/design-system.md]
+  sprint_planning:
+    status: passed
+    gate: passed
+    artifacts: [product/roadmap.md, product/sprints/01-auth-and-task-crud.md]
+  sprint_execution:
+    status: in_progress
+    gate: pending
+    artifacts:
+      - product/src/lib/db/schema.ts
+      - product/src/lib/db/schema.test.ts
+      - product/src/app/api/tasks/route.ts
+  audit:
+    status: not_started
+    gate: pending
+    artifacts: []
+
+sprints:
+  - id: "01"
+    title: "Auth + task CRUD"
+    status: active
+    audit_notes: ""
+    last_touched: 2026-06-16
+
+last_audit:
+  phase: sprint_planning
+  verdict: pass
+  at: 2026-06-16

@@ -1,0 +1,58 @@
+{
+  "{{!": "TEMPLATE — rendered by /keel-init into project-root .mcp.json. Placeholders use ${ENV_VAR} syntax (shell-style, secret-free). Never commit real credentials. Re-render with /keel-doctor.",
+
+  "mcpServers": {
+
+    "context7": {
+      "{{!comment}}": "ESSENTIAL — fetch live library docs before any third-party code (harness/rules/context7-usage.md).",
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "{{!note}}": "Optional — add CONTEXT7_API_KEY in your env to raise the rate limit (free tier at context7.com).",
+        "Authorization": "Bearer ${CONTEXT7_API_KEY}"
+      }
+    },
+
+    "sequential-thinking": {
+      "{{!comment}}": "ESSENTIAL — structured multi-step reasoning for architecture and audit phases.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequentialthinking"]
+    },
+
+    "{{!recommended-git}}": "RECOMMENDED — uncomment to enable git MCP (read-only by default; least-privilege).",
+    "{{!git}}": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-git", "--repository", "."],
+      "env": {}
+    },
+
+    "{{!recommended-github}}": "RECOMMENDED — uncomment to enable GitHub MCP (requires PAT with minimal scopes).",
+    "{{!github}}": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      }
+    },
+
+    "{{!recommended-fetch}}": "RECOMMENDED — uncomment to enable HTTP fetch MCP for web fallback when Context7 is unavailable.",
+    "{{!fetch}}": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fetch"]
+    },
+
+    "{{!recommended-filesystem}}": "RECOMMENDED — uncomment to enable filesystem MCP. Scope to project root; never grant write to home dir.",
+    "{{!filesystem}}": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "."],
+      "env": {}
+    },
+
+    "{{!optional-playwright}}": "OPTIONAL — uncomment for browser automation (E2E tests, screenshot verification).",
+    "{{!playwright}}": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-playwright"]
+    }
+
+  }
+}

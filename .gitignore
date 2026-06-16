@@ -1,0 +1,15 @@
+# Secrets — never commit
+.env
+.env.*
+*.key
+.claude/settings.local.json
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Keel volatile state (the durable state.yaml IS committed; caches/hashes are not)
+.harness/cache/
+.harness/*.hash
+**/.DS_Store
+Thumbs.db
