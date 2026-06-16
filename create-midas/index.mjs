@@ -86,7 +86,8 @@ function report() {
     console.log('       Gemini CLI (GEMINI.md) · GitHub Copilot / Codex (read AGENTS.md natively)');
   }
   if (skipped.some((f) => /^(AGENTS\.md|CLAUDE\.md|\.mcp\.json)$/.test(f))) {
-    console.log('     note: kept your existing AGENTS.md / CLAUDE.md / .mcp.json — run /midas-init to merge.');
+    console.log('     note: kept your existing AGENTS.md / CLAUDE.md / .mcp.json (brownfield).');
+    console.log('           run /midas-init, then /midas-adopt to merge them with a dry-run + diff-confirm.');
   }
   const cd = targetArg === '.' ? '' : `cd ${targetArg} && `;
   console.log('\n  Next steps:');

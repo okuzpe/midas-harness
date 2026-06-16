@@ -51,7 +51,7 @@ case**, then either fixes the code or **consciously amends a rule** (a logged de
 | Scenario | Enters at | Notes |
 |---|---|---|
 | Greenfield (raw idea, empty repo) | Phase 0 | Full pipeline. **Supported in v1.** |
-| Brownfield (existing code) | Phase 4/5 in "audit-existing" mode | Derives rules from the real code, then 6→7→8. **v1 prints a safe manual path; full support lands in a later release** with a mandatory dry-run + diff-confirm before writing to any pre-existing `AGENTS.md`/`CLAUDE.md`. |
+| Brownfield (existing code) | Phase 4/5 "audit-existing" via **`/midas-adopt`** | Inventories the codebase, reverse-engineers architecture + rules from the real code (codify reality; violations logged as debt), then 6→7→8. Writes into any pre-existing `AGENTS.md`/`CLAUDE.md`/source only after a **dry-run + diff-confirm**. Playbook: `harness/pipeline/0b-codebase-inventory.md`. |
 
 `entry_stage` is recorded in `state.yaml` so the harness stays honest about which gates were
 satisfied vs deliberately skipped (skipped gates carry a recorded assumption).

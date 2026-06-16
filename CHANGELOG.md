@@ -9,6 +9,12 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+_Nothing yet._
+
+---
+
+## [0.2.0] — 2026-06-17
+
 ### Added
 - `/midas-tribunal` — standing whole-project **adversarial debate** skill. Convenes a tribunal (steelman
   Defense vs red-team Prosecution + a dissent-forcing Catfish) across 11 decision-science lenses
@@ -42,6 +48,13 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
   `INSTALL.md` covering every method, flags, and uninstall.
 - **`GEMINI.md` adapter** — a fourth generated tool adapter so Gemini CLI honors the harness too; the
   installer now prints a per-tool coverage summary on completion.
+- **Brownfield adoption** — `/midas-adopt` brings Midas to an existing project: inventories the codebase
+  (`harness/pipeline/0b-codebase-inventory.md`), reverse-engineers architecture + rules from the real
+  code (codify reality; violations logged as debt), and wires the harness with **dry-run + diff-confirm**
+  — it never overwrites a pre-existing `AGENTS.md`/`CLAUDE.md`/source without a confirmed diff.
+  `/midas-init` now branches to it on brownfield repos.
+- **Gemini CLI extension** — `gemini-extension.json` registers Midas as a Gemini CLI extension (context
+  file `GEMINI.md`). Codex is covered by `AGENTS.md`, which it reads natively.
 
 ---
 
@@ -104,5 +117,6 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/okuzpe/midas-harness/releases/tag/v0.1.0
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/okuzpe/midas-harness/releases/tag/v0.2.0
+[0.1.0]: https://github.com/okuzpe/midas-harness/commit/f7868fd

@@ -66,12 +66,13 @@ for every applicable question. **Batch 1 (identity & shape):**
 
 ## Phase C — GENERATE (write last; one read-modify-write of state)
 
-### Brownfield guard (v1)
-If `mode == brownfield`, do **not** write into any pre-existing `AGENTS.md` / `CLAUDE.md` / source.
-Instead print a **safe manual path**: the exact files Midas *would* create, a recommended entry stage
-(Phase 4/5 "audit-existing"), and the note that automatic brownfield writes (with mandatory dry-run +
-diff-confirm) land in a later release. Still write `harness/state.yaml` (with `entry_stage` recorded)
-and the `product/` skeleton, since those are additive and non-destructive. Then stop with next steps.
+### Brownfield branch → `/midas-adopt`
+If `mode == brownfield` (the repo already has code), do only the additive, non-destructive setup here —
+write `harness/state.yaml` (with `mode: brownfield` + `entry_stage` recorded) and the `product/`
+skeleton — but do **not** touch any pre-existing `AGENTS.md` / `CLAUDE.md` / source. Then **hand off to
+`/midas-adopt`**, which inventories the codebase, reverse-engineers architecture + rules from the real
+code, and wires the harness with **dry-run + diff-confirm** (it shows a diff and asks before writing
+into any existing file). Print that next step and stop — do **not** run the greenfield writes below.
 
 ### Greenfield writes
 Write in this order (state file last):

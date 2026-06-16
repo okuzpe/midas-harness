@@ -116,7 +116,7 @@ phase artifact, a per-sprint audit, and a runnable code slice.
 **v0.2 (build-phase 2):** the full greenfield lifecycle from idea to code — Claude Code + AGENTS.md
 floor (Cursor/Windsurf/Copilot/Codex via standards), the complete skill set incl. `/market-research`,
 `/business-plan`, and `/midas-tribunal`, Context7, and a Claude Code **plugin marketplace** rail.
-Roadmap: brownfield (with dry-run + diff-confirm), monorepo, design-system components, Playwright-gated
+Roadmap: monorepo/polyglot, design-system components, Playwright-gated
 verify, docs site. See [`CHANGELOG.md`](./CHANGELOG.md) and [`VERSIONING.md`](./VERSIONING.md).
 
 ## License
