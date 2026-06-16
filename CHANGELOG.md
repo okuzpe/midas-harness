@@ -27,6 +27,10 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
   (rendered from `.claude/` by `scripts/build-plugin.mjs`), so Claude Code users can install with
   `/plugin marketplace add OWNER/midas-harness` → `/plugin install midas@midas`. Plugins do not
   auto-install rules/`CLAUDE.md`, so run `/midas-init` once after install.
+- **Test suite + CI** — `scripts/test.mjs` (dependency-free, 84 checks) validates JSON, skill/agent
+  frontmatter, ritual-guard presence, adapter sync, plugin-tree sync, the example state shape, and the
+  absence of stale brand tokens. A GitHub Actions workflow (`.github/workflows/ci.yml`) runs it plus
+  `doctor` and a plugin-sync check on every push/PR.
 
 ---
 

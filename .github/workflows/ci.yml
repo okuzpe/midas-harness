@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Structural test suite
+        run: node scripts/test.mjs
+
+      - name: Generated adapters in sync with source
+        run: node scripts/doctor.mjs
+
+      - name: Plugin tree in sync with .claude/
+        run: |
+          node scripts/build-plugin.mjs
+          git diff --exit-code -- plugins .claude-plugin \
+            || (echo "::error::plugins/ is stale — run 'node scripts/build-plugin.mjs' and commit" && exit 1)
