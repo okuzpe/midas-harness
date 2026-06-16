@@ -9,7 +9,7 @@ the MCP servers Midas ships with as securely as possible.
 
 **Do not file a public GitHub issue for security vulnerabilities.**
 
-Send a private report via GitHub's [Security Advisories](https://github.com/OWNER/midas-harness/security/advisories/new)
+Send a private report via GitHub's [Security Advisories](https://github.com/okuzpe/midas-harness/security/advisories/new)
 feature (Repository → Security → Advisories → New draft advisory).
 
 Include:

@@ -25,7 +25,7 @@ not stale memory.
 
 ```bash
 # 1. Fetch Midas into your project (greenfield)
-npx giget@latest gh:OWNER/midas-harness ./my-product
+npx giget@latest gh:okuzpe/midas-harness ./my-product
 cd ./my-product
 
 # 2. Open in Claude Code (or Cursor) and talk to the installer
@@ -41,7 +41,7 @@ No Claude Code? The same `AGENTS.md` + `.claude/skills/` are read natively by Cu
 Codex; run the phases by name.
 
 **Prefer a plugin?** Claude Code users can instead run
-`/plugin marketplace add OWNER/midas-harness` → `/plugin install midas@midas`, then `/midas-init`
+`/plugin marketplace add okuzpe/midas-harness` → `/plugin install midas@midas`, then `/midas-init`
 (plugins deliver the skills/agents/MCP but not the project rules, so the installer still runs once).
 
 ## The 9 phases

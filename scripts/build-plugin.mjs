@@ -9,7 +9,7 @@
 // The whole `plugins/midas/` tree is GENERATED — do not hand-edit it; edit `.claude/` and re-run:
 //   node scripts/build-plugin.mjs
 // Then a user installs Midas with:
-//   /plugin marketplace add OWNER/midas-harness   →   /plugin install midas@midas
+//   /plugin marketplace add okuzpe/midas-harness   →   /plugin install midas@midas
 //
 // No npm dependencies: only node:fs and node:path. Runs on Windows. Requires Node 16.7+ (cpSync).
 
@@ -20,7 +20,7 @@ const SCRIPT_DIR = dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-
 const ROOT = resolve(SCRIPT_DIR, '..');
 
 // --- metadata (edit these before publishing) ---------------------------------------------------
-const OWNER = 'OWNER'; // GitHub owner/org — replace before publishing the marketplace
+const OWNER = 'okuzpe'; // GitHub owner/org
 const AUTHOR = { name: 'Midas' };
 const DESCRIPTION =
   'Portable product-development harness: drive a product from idea to shipped code through 9 audited ' +
@@ -89,4 +89,4 @@ writeJson(join(MARKETPLACE_DIR, 'marketplace.json'), {
 });
 
 console.log('midas build-plugin: rendered plugins/midas/ + .claude-plugin/marketplace.json');
-console.log('  reminder: replace OWNER and author metadata before publishing.');
+console.log('  owner=okuzpe; adjust author metadata in this script before publishing if desired.');

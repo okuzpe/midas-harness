@@ -25,7 +25,7 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
   metrics, and a go/no-go with **human sign-off** → `product/business-plan.md`.
 - **Plugin marketplace rail** — `.claude-plugin/marketplace.json` + a generated `plugins/midas/` tree
   (rendered from `.claude/` by `scripts/build-plugin.mjs`), so Claude Code users can install with
-  `/plugin marketplace add OWNER/midas-harness` → `/plugin install midas@midas`. Plugins do not
+  `/plugin marketplace add okuzpe/midas-harness` → `/plugin install midas@midas`. Plugins do not
   auto-install rules/`CLAUDE.md`, so run `/midas-init` once after install.
 - **Test suite + CI** — `scripts/test.mjs` (dependency-free, 84 checks) validates JSON, skill/agent
   frontmatter, ritual-guard presence, adapter sync, plugin-tree sync, the example state shape, and the
@@ -93,5 +93,5 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/OWNER/midas-harness/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/OWNER/midas-harness/releases/tag/v0.1.0
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/okuzpe/midas-harness/releases/tag/v0.1.0
