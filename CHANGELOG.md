@@ -37,6 +37,11 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
   and generates the tool adapters, then points the user at `/midas-init`. The same initializer is also
   packaged as `create-midas` for a future `npm create midas`; `scripts/build-create.mjs` bundles its
   template from source and CI fails on drift.
+- **Shell one-liners + `INSTALL.md`** — `install.sh` (`curl … | bash`) and `install.ps1` (`irm … | iex`)
+  thin shims that bootstrap the same Node installer (no parallel logic to drift), plus a full
+  `INSTALL.md` covering every method, flags, and uninstall.
+- **`GEMINI.md` adapter** — a fourth generated tool adapter so Gemini CLI honors the harness too; the
+  installer now prints a per-tool coverage summary on completion.
 
 ---
 

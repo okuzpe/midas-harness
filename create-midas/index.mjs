@@ -80,7 +80,11 @@ function report() {
     `     ${written.length} files written` +
       (skipped.length ? `, ${skipped.length} skipped (already present — use --force to overwrite)` : ''),
   );
-  if (rendered) console.log('     tool adapters generated: CLAUDE.md, .cursor/rules, .windsurf/rules');
+  if (rendered) {
+    console.log('     tool adapters generated — configured for:');
+    console.log('       Claude Code (CLAUDE.md) · Cursor (.cursor/rules) · Windsurf (.windsurf/rules)');
+    console.log('       Gemini CLI (GEMINI.md) · GitHub Copilot / Codex (read AGENTS.md natively)');
+  }
   if (skipped.some((f) => /^(AGENTS\.md|CLAUDE\.md|\.mcp\.json)$/.test(f))) {
     console.log('     note: kept your existing AGENTS.md / CLAUDE.md / .mcp.json — run /midas-init to merge.');
   }

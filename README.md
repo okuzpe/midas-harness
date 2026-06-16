@@ -23,11 +23,22 @@ not stale memory.
 
 ## 60-second quickstart
 
-Install Midas into any project (new **or** existing) with **one command, straight from GitHub** — no
-npm account needed. It only adds files (never deletes yours):
+Install Midas into any project (new **or** existing) with **one command** — it only adds files
+(never deletes yours). Run it inside the project:
 
 ```bash
-npx github:okuzpe/midas-harness     # pnpm dlx github:okuzpe/midas-harness · bunx github:okuzpe/midas-harness
+# macOS / Linux
+curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash
+```
+```powershell
+# Windows (PowerShell)
+irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | iex
+```
+
+…or with any package manager, no shell script:
+
+```bash
+npx github:okuzpe/midas-harness     # pnpm dlx · bunx github:okuzpe/midas-harness
 ```
 
 Then open the project in **Claude Code** (or Cursor) and drive the lifecycle:
@@ -44,7 +55,8 @@ Then open the project in **Claude Code** (or Cursor) and drive the lifecycle:
 - **Claude Code plugin:** `/plugin marketplace add okuzpe/midas-harness` → `/plugin install midas@midas` → `/midas-init`.
 - **Copy only (any tool):** `npx giget@latest gh:okuzpe/midas-harness ./my-project`.
 
-No Claude Code? The same `AGENTS.md` + `.claude/skills/` are read natively by Cursor, Copilot and Codex.
+Full guide with every method, flags, and uninstall: **[INSTALL.md](./INSTALL.md)**. No Claude Code? The
+same `AGENTS.md` + `.claude/skills/` are read natively by Cursor, Copilot, Codex and Gemini.
 
 ## The 9 phases
 
@@ -69,7 +81,8 @@ audits before advancing. State lives in one file: `harness/state.yaml`. Full spe
 | Claude Code | native | via `@AGENTS.md` in `CLAUDE.md` | `CLAUDE.md` | ✅ per-agent |
 | Cursor | native (`.claude/skills/`) | native | `.cursor/rules/00-midas.mdc` | prose intent |
 | GitHub Copilot / VS Code | native | native | — | prose intent |
-| Codex / Gemini CLI | native | native | — | prose intent |
+| Gemini CLI | native | native | `GEMINI.md` | prose intent |
+| OpenAI Codex | native | native | — | prose intent |
 | Windsurf | partial | native | `.windsurf/rules/00-midas.md` | prose intent |
 
 Generated adapters are re-rendered from a single source by `/midas-doctor` — no hand-editing, no drift.

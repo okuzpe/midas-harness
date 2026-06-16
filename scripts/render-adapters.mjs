@@ -136,6 +136,10 @@ export function computeAdapters(root = ROOT) {
     sharedBody;
   const windsurfAbs = join(root, '.windsurf', 'rules', '00-midas.md');
 
+  // --- GEMINI.md: Gemini CLI reads this file as project memory (inlined, no frontmatter) --------
+  const geminiContent = '# Project memory — Midas (Gemini CLI)\n\n' + sharedBody;
+  const geminiAbs = join(root, 'GEMINI.md');
+
   return {
     root,
     hash,
@@ -143,6 +147,7 @@ export function computeAdapters(root = ROOT) {
       { path: 'CLAUDE.md', abs: claudeAbs, content: claudeContent },
       { path: '.cursor/rules/00-midas.mdc', abs: cursorAbs, content: cursorContent },
       { path: '.windsurf/rules/00-midas.md', abs: windsurfAbs, content: windsurfContent },
+      { path: 'GEMINI.md', abs: geminiAbs, content: geminiContent },
     ],
   };
 }
