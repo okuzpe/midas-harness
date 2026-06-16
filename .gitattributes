@@ -1,0 +1,11 @@
+# Normalize line endings to LF in the repo (deterministic across contributors / OSes).
+* text=auto eol=lf
+
+# Scripts and data files are always LF.
+*.mjs text eol=lf
+*.json text eol=lf
+*.css text eol=lf
+*.ts text eol=lf
+*.md text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
