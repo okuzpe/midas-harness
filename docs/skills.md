@@ -1,7 +1,8 @@
 # Skills reference
 
-Every skill is a markdown file under `.claude/skills/<name>/SKILL.md`. Skills are read natively by
-Claude Code, Cursor, Copilot, Codex, Windsurf, and Gemini — no per-tool copies.
+Every skill is a markdown file under `.claude/skills/<name>/SKILL.md`. **Claude Code** reads them
+natively (as skills + subagents); Cursor, Copilot and Codex read them via the Agent Skills standard
+where supported. See the [tools matrix](../README.md#supported-tools) for the honest per-tool picture.
 
 ---
 
@@ -30,6 +31,9 @@ Claude Code, Cursor, Copilot, Codex, Windsurf, and Gemini — no per-tool copies
 | `/midas-adopt` | Brownfield | Adopt Midas into an existing project — inventory, reverse-engineer rules, baseline audit. | orchestrate |
 | `/midas-doctor` | Maintenance | Re-derive generated adapters from `harness/conventions.md`, diff against disk, re-render. | build |
 | `/midas-tribunal` | Audit | Whole-project adversarial debate — Defense vs Prosecution vs Catfish; Opus judges per claim. | orchestrate |
+| `/midas-monorepo` | Scale | Set Midas up across a monorepo — nested `AGENTS.md` per package, per-package rules. | orchestrate |
+| `/midas-verify` | Audit | Playwright-gated E2E/UI verification (UI sprints only) — per-claim verdict + screenshots. | build |
+| `/midas-update` | Maintenance | Migrate an install to the current engine — dry-run + diff-confirm, bump version stamp. | build |
 
 ---
 

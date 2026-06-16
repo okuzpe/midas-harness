@@ -19,15 +19,15 @@ and `state.yaml` records `gate: passed`. The **producer** never grades its own h
 
 | # | Phase | Playbook | Output |
 |---|---|---|---|
-| 0 | Idea Intake | `pipeline/00-idea-intake.md` | `product/idea.md`, `harness/state.yaml` |
-| 1 | Contextualize & Gap Audit | `pipeline/01-contextualize.md` | `product/idea.md` v2, `product/open-questions.md` |
-| 2 | Market Research | `pipeline/02-market-research.md` | `product/market.md` |
-| 3 | Business Case | `pipeline/03-business-case.md` | `product/business-plan.md` |
-| 4 | Tech & Architecture | `pipeline/04-tech-architecture.md` | `product/architecture.md`, `product/adr/ADR-*.md` |
-| 5 | Architecture-as-Rules + Design System | `pipeline/05-architecture-rules.md` | `harness/rules/*`, `product/design-system.md` |
-| 6 | Sprint Planning | `pipeline/06-sprint-planning.md` | `product/roadmap.md`, `product/sprints/NN-*.md` |
-| 7 | Sprint Execution Loop | `pipeline/07-sprint-execution.md` | code + tests + updated sprint |
-| 8 | Per-sprint Audit & Adjust | `pipeline/08-audit-adjust.md` | `.harness/audits/audit-NN.md` |
+| 0 | Idea Intake | `pipeline/0-idea-intake.md` | `product/idea.md`, `harness/state.yaml` |
+| 1 | Contextualize & Gap Audit | `pipeline/1-contextualize.md` | `product/idea.md` v2, `product/open-questions.md` |
+| 2 | Market Research | `pipeline/2-market-research.md` | `product/market.md` |
+| 3 | Business Case | `pipeline/3-business-case.md` | `product/business-plan.md` |
+| 4 | Tech & Architecture | `pipeline/4-tech-architecture.md` | `product/architecture.md`, `product/adr/ADR-*.md` |
+| 5 | Architecture-as-Rules + Design System | `pipeline/5-architecture-rules.md` | `harness/rules/*`, `product/design-system.md` |
+| 6 | Sprint Planning | `pipeline/6-sprint-planning.md` | `product/roadmap.md`, `product/sprints/NN-*.md` |
+| 7 | Sprint Execution Loop | `pipeline/7-sprint-execution.md` | code + tests + updated sprint |
+| 8 | Per-sprint Audit & Adjust | `pipeline/8-audit-adjust.md` | `.harness/audits/audit-NN.md` |
 
 ## State machine
 

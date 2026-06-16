@@ -12,7 +12,7 @@ recommended-model: claude-opus-4-8
 
 Phase 0 turns a raw, possibly messy idea into a normalized, preserved artifact so the rest of the
 pipeline has a stable starting point. **Preservation is sacred:** never rewrite the user's words away —
-capture them verbatim, then add a normalized layer beside them. Playbook: `harness/pipeline/00-idea-intake.md`.
+capture them verbatim, then add a normalized layer beside them. Playbook: `harness/pipeline/0-idea-intake.md`.
 
 **Precondition:** `harness/state.yaml` exists at `stage: idea_intake` (set by `/midas-init`). Read it
 first; if Midas is not initialized, direct the user to `/midas-init`. Read first, write last.

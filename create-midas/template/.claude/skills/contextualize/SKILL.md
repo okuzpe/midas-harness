@@ -13,7 +13,7 @@ recommended-model: claude-opus-4-8
 This is Midas's signature phase. A raw idea is full of unstated assumptions; building on them is the
 most expensive mistake. Phase 1 systematically surfaces every **blocking** unknown and resolves it
 with the user **before** any market, business, or architecture work. Playbook:
-`harness/pipeline/01-contextualize.md`.
+`harness/pipeline/1-contextualize.md`.
 
 **Precondition:** `harness/state.yaml` at `stage: contextualize`, with `product/idea.md` from Phase 0.
 Read state first; write last.

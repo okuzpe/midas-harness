@@ -169,6 +169,33 @@ if (engineVersion) {
   }
 }
 
+// also assert the YAML/MD version stamps match the engine version
+if (engineVersion) {
+  for (const [f, re] of [
+    ['harness/state.schema.md', /midas_version:\s*([0-9][^\s#]*)/],
+    ['examples/taskpilot/harness/state.yaml', /^midas_version:\s*([0-9][^\s#]*)/m],
+  ]) {
+    const p = join(ROOT, f);
+    if (existsSync(p)) {
+      const m = readFileSync(p, 'utf8').match(re);
+      check(`version:${f}`, !!m && m[1] === engineVersion, m ? `${m[1]} != ${engineVersion}` : 'no midas_version');
+    }
+  }
+}
+
+// --- J. referenced pipeline playbooks resolve (regression guard for the 00- vs 0- bug) ----------
+const refSources = [join(ROOT, 'harness', 'methodology.md'), ...walk(skillsDir).filter((p) => p.endsWith('SKILL.md'))];
+const pipeRe = /harness\/pipeline\/([0-9a-z][a-z0-9-]*\.md)/g;
+for (const f of refSources) {
+  if (!existsSync(f)) continue;
+  const rel = f.slice(ROOT.length + 1).replace(/\\/g, '/');
+  const text = readFileSync(f, 'utf8');
+  let m;
+  while ((m = pipeRe.exec(text))) {
+    check(`pipeline-ref:${m[1]} (in ${rel})`, existsSync(join(ROOT, 'harness', 'pipeline', m[1])));
+  }
+}
+
 console.log(`midas test: ${passed} passed, ${failures.length} failed`);
 if (failures.length) {
   console.log('\nFailures:');

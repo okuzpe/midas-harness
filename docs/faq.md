@@ -24,10 +24,11 @@ a missing key.
 
 **Q: I use Cursor / Copilot / Windsurf, not Claude Code. Does this work?**
 
-Yes. `AGENTS.md` and `.claude/skills/` are read natively by Cursor, GitHub Copilot, Codex,
-Windsurf, and Gemini. Methodology and MCP wiring are fully preserved. The one thing lost is
-automatic per-subagent model routing — on those tools the tiers collapse to prose intent in
-`AGENTS.md` ("use your fastest model for research, your strongest for architecture").
+Yes — with honest nuance. `AGENTS.md` carries the project law to Cursor, Copilot and Codex natively
+(Codex/Copilot also read the Agent Skills standard); Windsurf reads `.windsurf/rules/` and Gemini reads
+`GEMINI.md` (both generated adapters). Skill/command *execution* is fullest on Claude Code; elsewhere
+you still get the methodology, rules, and MCP wiring. The one thing lost everywhere off Claude Code is
+automatic per-subagent model routing — the tiers collapse to prose intent in `AGENTS.md`.
 
 ---
 

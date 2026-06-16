@@ -23,6 +23,28 @@ We aim to acknowledge reports within 3 business days and to publish a patch or a
 
 ---
 
+## Installing Midas securely
+
+Midas's recommended one-line installers **execute a remote script with your user's privileges**:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash
+# Windows: irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | iex
+```
+
+This is *pipe-to-shell* — you run code you haven't read. Treat it like any `curl | bash`:
+
+- **Read it first** if that's a concern: [`install.sh`](./install.sh) / [`install.ps1`](./install.ps1)
+  are thin shims that only check Node and delegate to `npx`.
+- **Prefer the `npx` form**, which runs the same dependency-free installer without a shell pipe:
+  `npx github:okuzpe/midas-harness`.
+- **Pin a release for a reproducible, reviewable install.** The shims and `npx` resolve from the
+  mutable `main` branch (not a signed tag), so for supply-chain assurance install a tagged version:
+  `npx github:okuzpe/midas-harness#v0.3.0`.
+- The installer is **non-destructive** (only adds files, never deletes) and writes **no secrets**.
+
+---
+
 ## MCP least-privilege guidance
 
 Midas ships a secret-free [`.mcp.json`](./.mcp.json) that wires two servers by default:
@@ -136,3 +158,4 @@ The following findings were recorded during the 2026 security audit of the v0.1 
 | SEC-002 | `context7` remote endpoint receives library-ID queries; no auth required | Accepted; documented in guidance §4 above |
 | SEC-003 | No version pin guidance in the default `.mcp.json` for optional servers | Mitigated: guidance added in this document (§1) |
 | SEC-004 | `${ENV_VAR}` pattern not enforced by tooling; relies on author discipline | Mitigated: documented in `harness/conventions.md`; Phase-8 audit checklist item |
+| SEC-005 | `curl\|bash` / `irm\|iex` installers pipe a remote script from the mutable `main` branch | Documented (§Installing Midas securely); `npx` and pinned-tag (`#v0.3.0`) alternatives provided |

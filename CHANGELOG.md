@@ -18,6 +18,17 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
   detail lives in `product/*` / `.harness/*`.
 - Published formal GitHub Releases for v0.2.0 and v0.3.0.
 
+### Fixed (ship-audit pass)
+- **Broken references that shipped into every install.** Pipeline playbook links were zero-padded
+  (`pipeline/00-…`) but the files are single-digit (`pipeline/0-…`) — fixed across `methodology.md` and
+  the phase skills. Dead `/midas-business-case` "next" pointer in the market template → `/business-plan`.
+- `docs/skills.md` now lists `/midas-update`, `/midas-verify`, `/midas-monorepo`; the `docs/skills.md`
+  intro and `docs/faq.md` no longer overclaim non-Claude "native" support.
+- `CONTRIBUTING.md` release step points at `harness/VERSION`, not a non-existent script constant.
+- `SECURITY.md` now documents the `curl|bash` / `irm|iex` pipe-to-shell trust model (+ SEC-005).
+- `scripts/test.mjs` now asserts the schema/example version stamps and that every referenced pipeline
+  playbook resolves on disk (regression guard for the broken-link class).
+
 ---
 
 ## [0.3.0] — 2026-06-17
@@ -105,7 +116,7 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 - `harness/conventions.md` — always-on base conventions (code quality, naming, errors, testing, deps, git, security, design system); single body inlined into generated adapters.
 - `harness/state.schema.md` — schema reference for `harness/state.yaml`, the single source of truth for phase progress.
 - `harness/rules/context7-usage.md` — mandatory rule: fetch live library docs via Context7 before writing any third-party code; web fallback documented.
-- `harness/pipeline/00-idea-intake.md` through `harness/pipeline/08-audit-adjust.md` — per-phase playbooks covering actor, inputs, steps, exit gate, and artifacts for each of the 9 phases.
+- `harness/pipeline/0-idea-intake.md` through `harness/pipeline/8-audit-adjust.md` — per-phase playbooks covering actor, inputs, steps, exit gate, and artifacts for each of the 9 phases.
 
 #### Agent Skills (`.claude/skills/`)
 - `/midas-init` — interactive installer; writes `harness/state.yaml` and generates adapters; guarded ritual.

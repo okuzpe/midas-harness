@@ -75,7 +75,8 @@ Changes to `harness/state.schema.md` that rename or remove fields are breaking (
 If your change is breaking:
 
 - Add a `harness/migrations/v0.X.md` migration note.
-- Bump the version constant in `scripts/render-adapters.mjs`.
+- Bump `harness/VERSION` (the canonical engine version); `package.json`, `create-midas/package.json`,
+  and `gemini-extension.json` mirror it, and `scripts/test.mjs` asserts they match.
 - Document the migration in the `CHANGELOG.md` entry under a `### Migration` subsection.
 
 ---
