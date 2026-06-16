@@ -83,4 +83,4 @@ the next action is `/define-conventions` (Phase 5). On fail: report the specific
 Reasoning/trade-offs/ADRs → **orchestrate** (Opus). Context7 doc fetches and version lookups →
 **scout** (Haiku). Prefer an installed architecture-review specialist
 (`feature-dev:code-architect`, `voltagent-qa-sec:architect-reviewer`) if present; otherwise
-`keel-orchestrator`.
+`midas-orchestrator`.

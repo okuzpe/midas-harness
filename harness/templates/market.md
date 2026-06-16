@@ -54,4 +54,4 @@
 ---
 
 *Gate check: ≥3 competitors ✓, differentiation thesis written ✓, all claims cited ✓, top-3 risks present ✓.*
-*Next: run `/keel-business-case` (Phase 3).*
+*Next: run `/midas-business-case` (Phase 3).*

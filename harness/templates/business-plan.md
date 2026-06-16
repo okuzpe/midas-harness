@@ -67,4 +67,4 @@
 ---
 
 *Gate check: MVP scope + non-goals ✓, measurable metrics ✓, model ✓, go/no-go ✓, human sign-off ✓.*
-*Next: run `/keel-tech-architecture` (Phase 4).*
+*Next: run `/midas-tech-architecture` (Phase 4).*

@@ -56,5 +56,5 @@ Sprints cover MVP only — no scope creep. Dependencies must be ordered.
 
 ## Recommended tier + agents
 
-- **Sequence + audit:** `orchestrate` (`keel-orchestrator`, `claude-opus-4-8`)
-- **Write sprint files:** `build` (`keel-builder`, `claude-sonnet-4-6`)
+- **Sequence + audit:** `orchestrate` (`midas-orchestrator`, `claude-opus-4-8`)
+- **Write sprint files:** `build` (`midas-builder`, `claude-sonnet-4-6`)

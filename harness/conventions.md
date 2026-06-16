@@ -1,8 +1,8 @@
-# Keel base conventions (always-on)
+# Midas base conventions (always-on)
 
 This file is the **single body** of project law. Its contents are inlined into the generated tool
-adapters (`CLAUDE.md`, `.cursor/rules/00-keel.mdc`, `.windsurf/rules/00-keel.md`) and summarized in
-`AGENTS.md`. Edit it here; run `/keel-doctor` (or `node scripts/render-adapters.mjs`) to propagate.
+adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`) and summarized in
+`AGENTS.md`. Edit it here; run `/midas-doctor` (or `node scripts/render-adapters.mjs`) to propagate.
 
 ## Precedence (when rules conflict, higher wins)
 

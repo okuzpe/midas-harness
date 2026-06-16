@@ -14,7 +14,7 @@ mcp-required: [context7]
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
 > First read `harness/state.yaml`; if the precondition stage is wrong, report and stop.
 
-This is the **keystone** of Keel: it converts the pinned architecture into **machine-checkable rules**
+This is the **keystone** of Midas: it converts the pinned architecture into **machine-checkable rules**
 and a **design system** that every Phase-7 sprint is built to and every Phase-8 audit grades against.
 A vague rule here weakens every downstream audit, so each rule MUST be checkable (a reviewer can say
 pass/fail with on-disk evidence). Orchestrate-tier decides the rules; **build** writes the files.
@@ -60,8 +60,8 @@ stack-specific rules  >  product/conventions.md  >  product/design-system.md  > 
 This is the single taxonomy — do not introduce a parallel "standards" layer.
 
 ### 4. Re-render adapters (sync engine)
-Generated adapters (`CLAUDE.md`, `.cursor/rules/00-keel.mdc`, `.windsurf/rules/00-keel.md`) must
-reflect the new rules. Run `node scripts/render-adapters.mjs` (or `/keel-doctor`). **Never** hand-edit
+Generated adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`) must
+reflect the new rules. Run `node scripts/render-adapters.mjs` (or `/midas-doctor`). **Never** hand-edit
 a generated adapter. Confirm the render succeeded and adapters are in sync.
 
 ### 5. Record state
@@ -75,7 +75,7 @@ the adapters were rendered for. Do not self-advance the stage.
 - Stack rules are **Context7-verified** at pinned versions.
 - The **design system** exists: tokens (color, type, spacing, radii) + UI framework, referenced from
   `product/design-system.md`, with the "tokens not hardcoded values" rule.
-- **Adapters are rendered** and in sync (no drift reported by `/keel-doctor`).
+- **Adapters are rendered** and in sync (no drift reported by `/midas-doctor`).
 
 On pass: freeze the verdict in `.harness/audits/`, set the gate passed; next action is `/plan-sprints`
 (Phase 6). On fail: report the uncheckable rule or unrendered adapter.
@@ -84,4 +84,4 @@ On pass: freeze the verdict in `.harness/audits/`, set the gate passed; next act
 Deciding the rule set and design-system structure → **orchestrate** (Opus). Writing the rule files,
 `product/design-system.md`, and tokens → **build** (Sonnet). Context7 fetches for stack/UI-framework
 rules → **scout** (Haiku). Prefer a UI/design specialist (`voltagent-core-dev:ui-designer`,
-`frontend-design`) for the design system if installed; otherwise `keel-builder`.
+`frontend-design`) for the design system if installed; otherwise `midas-builder`.

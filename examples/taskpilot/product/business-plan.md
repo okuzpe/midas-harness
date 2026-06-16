@@ -91,4 +91,4 @@ Rationale:
 - [x] Go/no-go decision made with rationale
 - [x] Human sign-off recorded
 
-Phase 3 exit gate: **PASSED**. Audited by: keel-orchestrator on 2026-06-16.
+Phase 3 exit gate: **PASSED**. Audited by: midas-orchestrator on 2026-06-16.

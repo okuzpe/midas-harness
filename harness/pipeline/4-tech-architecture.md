@@ -54,6 +54,6 @@ that constrain Phase 7. Context7 is mandatory for all library choices.
 
 ## Recommended tier + agents
 
-- **All steps + audit:** `orchestrate` (`keel-orchestrator`, `claude-opus-4-8`)
+- **All steps + audit:** `orchestrate` (`midas-orchestrator`, `claude-opus-4-8`)
   Stack choice is an irreversible decision; Opus is required.
-- **Context7 fetches:** `scout` (`keel-scout`, `claude-haiku-4-5`) — mechanical retrieval
+- **Context7 fetches:** `scout` (`midas-scout`, `claude-haiku-4-5`) — mechanical retrieval

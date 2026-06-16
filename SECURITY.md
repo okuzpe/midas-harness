@@ -1,7 +1,7 @@
 # Security
 
-This document covers two things: how to report a vulnerability in Keel itself, and how to configure
-the MCP servers Keel ships with as securely as possible.
+This document covers two things: how to report a vulnerability in Midas itself, and how to configure
+the MCP servers Midas ships with as securely as possible.
 
 ---
 
@@ -9,13 +9,13 @@ the MCP servers Keel ships with as securely as possible.
 
 **Do not file a public GitHub issue for security vulnerabilities.**
 
-Send a private report via GitHub's [Security Advisories](https://github.com/OWNER/keel-harness/security/advisories/new)
+Send a private report via GitHub's [Security Advisories](https://github.com/OWNER/midas-harness/security/advisories/new)
 feature (Repository → Security → Advisories → New draft advisory).
 
 Include:
 - A clear description of the vulnerability and its potential impact.
 - Steps to reproduce (skill name, config excerpt, or `.mcp.json` snippet).
-- The Keel version (`keel_version` in `harness/state.yaml`) and tool/platform.
+- The Midas version (`midas_version` in `harness/state.yaml`) and tool/platform.
 - Whether you have a proposed fix or patch.
 
 We aim to acknowledge reports within 3 business days and to publish a patch or advisory within
@@ -25,7 +25,7 @@ We aim to acknowledge reports within 3 business days and to publish a patch or a
 
 ## MCP least-privilege guidance
 
-Keel ships a secret-free [`.mcp.json`](./.mcp.json) that wires two servers by default:
+Midas ships a secret-free [`.mcp.json`](./.mcp.json) that wires two servers by default:
 
 | Server | Type | What it does |
 |---|---|---|

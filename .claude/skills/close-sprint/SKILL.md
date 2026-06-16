@@ -42,7 +42,7 @@ For every failed check or scope mismatch, choose **one** and record it:
 - **Fix now** — queue/apply the correction to restore conformance, or
 - **Consciously amend the rule** — if the rule is wrong, update `harness/rules/` (+ ADR if
   architectural) with a logged rationale and re-render adapters (`node scripts/render-adapters.mjs` /
-  `/keel-doctor`).
+  `/midas-doctor`).
 
 Drift is never left silent: the sprint closes only when every fail is fixed or every amendment logged.
 
@@ -71,4 +71,4 @@ The audit, drift decisions, and ship/continue call → **orchestrate** (Opus). M
 extraction → **scout** (Haiku). Any fix work routes to **build** (Sonnet) under the next
 `/start-sprint`. Prefer an installed code-review/security specialist
 (`voltagent-qa-sec:code-reviewer`/`security-auditor`, `/code-review`) if present; otherwise
-`keel-orchestrator`.
+`midas-orchestrator`.

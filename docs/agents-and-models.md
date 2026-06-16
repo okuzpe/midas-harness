@@ -1,6 +1,6 @@
 # Agents & models — the single bump point
 
-**All model IDs in Keel live here.** Skills and rules reference *tier names* (`orchestrate`,
+**All model IDs in Midas live here.** Skills and rules reference *tier names* (`orchestrate`,
 `build`, `scout`), not literal model IDs, wherever possible. When a new model ships, update this
 file and the three agent files in `.claude/agents/` — nowhere else.
 
@@ -10,7 +10,7 @@ file and the three agent files in `.claude/agents/` — nowhere else.
 |---|---|---|---|
 | `orchestrate` | think / plan / audit / decide | `claude-opus-4-8` | Phase 1 gap loop, Phase 4 stack choice, Phase 8 audit, code-review, security-review — the ~6 irreversible decisions |
 | `build` | implement / write artifacts | `claude-sonnet-4-6` | Phase 7 implementation, writing docs/ADRs/sprint files, tests |
-| `scout` | search / extract / mechanical / status | `claude-haiku-4-5` | Context7 fetches, file/status extraction, `/keel-status` |
+| `scout` | search / extract / mechanical / status | `claude-haiku-4-5` | Context7 fetches, file/status extraction, `/midas-status` |
 
 ## Cost profiles
 
@@ -24,12 +24,12 @@ The active profile is recorded in `harness/state.yaml -> routing`.
 
 ## First-party agents (self-contained, zero external dependency)
 
-`.claude/agents/keel-orchestrator.md` (`model: claude-opus-4-8`),
-`.claude/agents/keel-builder.md` (`model: claude-sonnet-4-6`),
-`.claude/agents/keel-scout.md` (`model: claude-haiku-4-5`).
+`.claude/agents/midas-orchestrator.md` (`model: claude-opus-4-8`),
+`.claude/agents/midas-builder.md` (`model: claude-sonnet-4-6`),
+`.claude/agents/midas-scout.md` (`model: claude-haiku-4-5`).
 
 These always work on a clean install. The built-in `Explore` agent (Haiku, read-only) is a valid
-substitute for `keel-scout` on research tasks.
+substitute for `midas-scout` on research tasks.
 
 ## Optional enrichment (only if installed)
 
@@ -39,12 +39,12 @@ thin agent if a vendor's pinned model disagrees with the desired tier.
 
 | Need | Preferred specialist (if present) | Falls back to |
 |---|---|---|
-| Architecture review | `voltagent-qa-sec:architect-reviewer`, official `feature-dev:code-architect` | `keel-orchestrator` |
-| Code review | `voltagent-qa-sec:code-reviewer`, `/code-review` | `keel-orchestrator` |
-| Security review | `voltagent-qa-sec:security-auditor` | `keel-orchestrator` |
-| Backend / frontend build | `voltagent-core-dev:backend-developer` / `frontend-developer` | `keel-builder` |
-| UI / design system | `voltagent-core-dev:ui-designer`, `frontend-design` | `keel-builder` |
-| Research | built-in `Explore`, `/deep-research` | `keel-scout` |
+| Architecture review | `voltagent-qa-sec:architect-reviewer`, official `feature-dev:code-architect` | `midas-orchestrator` |
+| Code review | `voltagent-qa-sec:code-reviewer`, `/code-review` | `midas-orchestrator` |
+| Security review | `voltagent-qa-sec:security-auditor` | `midas-orchestrator` |
+| Backend / frontend build | `voltagent-core-dev:backend-developer` / `frontend-developer` | `midas-builder` |
+| UI / design system | `voltagent-core-dev:ui-designer`, `frontend-design` | `midas-builder` |
+| Research | built-in `Explore`, `/deep-research` | `midas-scout` |
 
 ## Non-Claude tools
 

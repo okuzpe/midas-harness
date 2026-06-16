@@ -4,7 +4,7 @@
 |---|---|
 | Status | Accepted |
 | Date | 2026-06-16 |
-| Deciders | Product owner + keel-orchestrator |
+| Deciders | Product owner + midas-orchestrator |
 | Context7 verified | Yes (Drizzle 0.40.x, Next.js 15.3.x) |
 
 ---

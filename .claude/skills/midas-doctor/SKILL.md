@@ -1,5 +1,5 @@
 ---
-name: keel-doctor
+name: midas-doctor
 description: The sync engine and health check — re-derives the generated tool adapters from harness/conventions.md + rules, diffs them against disk, reports drift, and offers to re-render. Run after editing conventions/rules or when adapters look stale.
 user-invocable: true
 disable-model-invocation: true
@@ -9,13 +9,13 @@ recommended-model: claude-sonnet-4-6
 mcp-required: [context7]
 ---
 
-# keel-doctor — the only sync engine
+# midas-doctor — the only sync engine
 
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
 > First read `harness/state.yaml`; if the precondition stage is wrong, report and stop.
 
-Generated adapters (`CLAUDE.md`, `.cursor/rules/00-keel.mdc`, `.windsurf/rules/00-keel.md`) are
-**rendered** from `harness/conventions.md` + `harness/rules/*` — never hand-edited. `keel-doctor` is the
+Generated adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`) are
+**rendered** from `harness/conventions.md` + `harness/rules/*` — never hand-edited. `midas-doctor` is the
 **single** path that keeps them in sync, plus a fast health check on the rest of the install. It diffs
 first and writes only with the user's go-ahead.
 
@@ -23,8 +23,8 @@ first and writes only with the user's go-ahead.
 
 1. **Re-derive** the expected adapters by running `node scripts/render-adapters.mjs` in dry-run/diff
    mode (no external dependencies; it reads conventions + rules and emits the canonical adapter text).
-2. **Diff** each rendered adapter against the on-disk file, comparing **only** the Keel-managed regions
-   between `<!-- keel:begin -->` and `<!-- keel:end -->`. Content outside the markers is the user's and
+2. **Diff** each rendered adapter against the on-disk file, comparing **only** the Midas-managed regions
+   between `<!-- midas:begin -->` and `<!-- midas:end -->`. Content outside the markers is the user's and
    is left untouched.
 3. **Report drift** per adapter: `in sync` / `drifted (N regions)` / `missing`, with a short diff
    summary of what changed.

@@ -1,4 +1,4 @@
-# Contributing to Keel
+# Contributing to Midas
 
 Thank you for improving the harness. This document covers the mechanics: what to edit, how to
 structure changes, and what the bar is for a contribution to land.
@@ -12,9 +12,9 @@ structure changes, and what the bar is for a contribution to land.
 - **Markdown + dependency-free scripts only.** The harness ships as plain `.md` files and two
   optional Node scripts (`render-adapters.mjs`, `doctor.mjs`). Do not add npm packages, lock files,
   or build steps. Scripts must run with `node <script>` and zero installs.
-- **Edit the source; never hand-edit generated adapters.** `CLAUDE.md`, `.cursor/rules/00-keel.mdc`,
-  and `.windsurf/rules/00-keel.md` are generated from `harness/conventions.md` + `AGENTS.md` by
-  `scripts/render-adapters.mjs`. Edit the source file, then run `/keel-doctor` (or
+- **Edit the source; never hand-edit generated adapters.** `CLAUDE.md`, `.cursor/rules/00-midas.mdc`,
+  and `.windsurf/rules/00-midas.md` are generated from `harness/conventions.md` + `AGENTS.md` by
+  `scripts/render-adapters.mjs`. Edit the source file, then run `/midas-doctor` (or
   `node scripts/render-adapters.mjs`) to re-render. PRs that touch generated adapters directly
   will be asked to revert those edits.
 - **One concern per PR.** Small, reviewable diffs merge faster.
@@ -91,21 +91,21 @@ Signed-off-by: Your Name <your@email.com>
 ```
 
 Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`.  
-Scope: optional, use the affected path segment (`skills/keel-init`, `harness/rules`, `scripts`, etc.).
+Scope: optional, use the affected path segment (`skills/midas-init`, `harness/rules`, `scripts`, etc.).
 
 Examples:
 ```
 feat(skills/start-sprint): add guard for gate: pending stage
 fix(render-adapters): preserve trailing newline in generated CLAUDE.md
 docs(contributing): clarify skill ritual guard requirement
-chore: bump keel_version to 0.2.0
+chore: bump midas_version to 0.2.0
 ```
 
 ---
 
 ## DCO sign-off
 
-Keel uses the [Developer Certificate of Origin](https://developercertificate.org/) in place of a
+Midas uses the [Developer Certificate of Origin](https://developercertificate.org/) in place of a
 CLA. Add a sign-off to every commit:
 
 ```
@@ -135,7 +135,7 @@ Before opening a PR, confirm:
 ## Reporting bugs
 
 Open a GitHub issue. Include:
-- Keel version (`keel_version` from `harness/state.yaml`).
+- Midas version (`midas_version` from `harness/state.yaml`).
 - Tool (Claude Code / Cursor / Copilot / etc.) and version.
 - The skill or command that misbehaved.
 - Expected behavior vs. actual behavior.

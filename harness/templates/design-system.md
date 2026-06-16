@@ -7,7 +7,7 @@
 
 ## Purpose
 
-This document records the project's design decisions on top of the Keel base design-system
+This document records the project's design decisions on top of the Midas base design-system
 (`harness/design-system/tokens.json` / `tokens.css`). The rendered token files live here:
 
 - `product/design-system/tokens.json` — W3C-style project tokens (overrides + additions)
@@ -26,11 +26,11 @@ type size, or radius values.
 
 ## Brand decisions (project-specific)
 
-<!-- TODO: fill in any deviations from the Keel base token set -->
+<!-- TODO: fill in any deviations from the Midas base token set -->
 
 ### Brand hue
 
-<!-- The Keel base uses HSL 220° (blue-indigo). Override here if the product has a different brand colour. -->
+<!-- The Midas base uses HSL 220° (blue-indigo). Override here if the product has a different brand colour. -->
 
 - **Brand hue:** <!-- e.g. HSL 142° (green) for a sustainability app -->
 - **Override rationale:** …
@@ -74,13 +74,13 @@ type size, or radius values.
 
 ## Adapter status
 
-<!-- TODO: updated by /keel-doctor after Phase 5 closes -->
+<!-- TODO: updated by /midas-doctor after Phase 5 closes -->
 
 - [ ] `CLAUDE.md` re-rendered
-- [ ] `.cursor/rules/00-keel.mdc` re-rendered
-- [ ] `.windsurf/rules/00-keel.md` re-rendered
+- [ ] `.cursor/rules/00-midas.mdc` re-rendered
+- [ ] `.windsurf/rules/00-midas.md` re-rendered
 
 ---
 
 *Gate check: tokens present ✓, framework Context7-verified ✓, every token checkable ✓, adapters rendered ✓.*
-*Next: run `/keel-sprint-planning` (Phase 6).*
+*Next: run `/midas-sprint-planning` (Phase 6).*

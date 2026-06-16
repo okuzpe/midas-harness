@@ -8,7 +8,7 @@
 node_modules/
 npm-debug.log*
 
-# Keel volatile state (the durable state.yaml IS committed; caches/hashes are not)
+# Midas volatile state (the durable state.yaml IS committed; caches/hashes are not)
 .harness/cache/
 .harness/*.hash
 **/.DS_Store

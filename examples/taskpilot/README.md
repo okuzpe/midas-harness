@@ -1,7 +1,7 @@
-# TaskPilot — Keel worked example
+# TaskPilot — Midas worked example
 
 TaskPilot is a **minimal team task manager** used as a complete, fictional greenfield example to
-show every Keel phase artifact populated with real, consistent content.
+show every Midas phase artifact populated with real, consistent content.
 
 ## What this example demonstrates
 
@@ -32,5 +32,5 @@ show every Keel phase artifact populated with real, consistent content.
 
 - Not a production-ready codebase. Files are illustrative; imports reference packages that would be
   installed via `npm install` in a real project.
-- Not a tutorial for TaskPilot-the-product. It is a tutorial for **Keel** and how its artifacts
+- Not a tutorial for TaskPilot-the-product. It is a tutorial for **Midas** and how its artifacts
   connect phase-to-phase.

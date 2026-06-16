@@ -60,6 +60,6 @@ library touched. The build tier drives; the orchestrate tier reviews before clos
 
 ## Recommended tier + agents
 
-- **Implement + write tests:** `build` (`keel-builder`, `claude-sonnet-4-6`)
-- **Context7 fetches:** `scout` (`keel-scout`, `claude-haiku-4-5`)
-- **Final review before handoff:** `orchestrate` (`keel-orchestrator`, `claude-opus-4-8`)
+- **Implement + write tests:** `build` (`midas-builder`, `claude-sonnet-4-6`)
+- **Context7 fetches:** `scout` (`midas-scout`, `claude-haiku-4-5`)
+- **Final review before handoff:** `orchestrate` (`midas-orchestrator`, `claude-opus-4-8`)

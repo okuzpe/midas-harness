@@ -64,6 +64,6 @@ or declare the MVP complete. The producer never grades its own work.
 
 ## Recommended tier + agents
 
-- **Audit + decide:** `orchestrate` (`keel-orchestrator`, `claude-opus-4-8`)
+- **Audit + decide:** `orchestrate` (`midas-orchestrator`, `claude-opus-4-8`)
   This is one of the ~6 irreversible decisions; do not downgrade.
-- **Apply conformance fixes:** `build` (`keel-builder`, `claude-sonnet-4-6`)
+- **Apply conformance fixes:** `build` (`midas-builder`, `claude-sonnet-4-6`)

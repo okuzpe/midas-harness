@@ -62,7 +62,7 @@ The sprint is done when **all** of the following are true:
 1. **Acceptance criteria** — every checkbox above is checked with evidence (test output or manual
    verification note).
 2. **Tests pass** — `npm run test` exits 0; no skipped tests that cover sprint-2 requirements.
-3. **Conformance** — Phase 8 audit (`audit-01.md`) run by keel-orchestrator finds no unresolved
+3. **Conformance** — Phase 8 audit (`audit-01.md`) run by midas-orchestrator finds no unresolved
    `fail` rows. Any `fail` is either fixed or consciously amended and logged.
 4. **No dead code** — no commented-out blocks, no unused imports (enforced by `eslint`
    `no-unused-vars`).

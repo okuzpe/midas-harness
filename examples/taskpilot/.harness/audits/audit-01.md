@@ -4,7 +4,7 @@
 |---|---|
 | Sprint | `01` |
 | Audit date | 2026-06-16 |
-| Auditor | keel-orchestrator (claude-opus-4-8) |
+| Auditor | midas-orchestrator (claude-opus-4-8) |
 | Verdict | **PASS with one consciously-amended rule** (see § Amendments) |
 
 ---
@@ -83,7 +83,7 @@ protection against cross-site POST CSRF while still allowing top-level navigatio
 would break the invite-accept link flow planned for Sprint 3 and requires thought about the full
 auth flow before being set. This is a known, informed choice, not an oversight.
 
-**Logged by:** keel-orchestrator on 2026-06-16.
+**Logged by:** midas-orchestrator on 2026-06-16.
 
 **Remediation deadline:** Must be revisited in Sprint 3 audit before pilot launch. The Phase 8
 audit for Sprint 3 must explicitly verify `sameSite` policy.

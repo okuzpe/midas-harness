@@ -1,19 +1,19 @@
 {{!
-  TEMPLATE — rendered by /keel-init into the project-root AGENTS.md.
+  TEMPLATE — rendered by /midas-init into the project-root AGENTS.md.
   Placeholders: {{PROJECT_NAME}}, {{STACK}}, {{TOOLS}}.
   Do NOT confuse this with the engine's own root AGENTS.md (harness source of truth).
-  Never hand-edit the rendered AGENTS.md; edit harness/conventions.md and re-run /keel-doctor.
+  Never hand-edit the rendered AGENTS.md; edit harness/conventions.md and re-run /midas-doctor.
 }}
 # AGENTS.md — {{PROJECT_NAME}}
 
 > This file is project law for **any** AI agent working in this repository
 > (Claude Code, Cursor, Copilot, Codex, Windsurf, …).
-> It is **generated** from the Keel harness. Edit `harness/conventions.md`
-> and re-run `/keel-doctor` to propagate changes — never edit this file directly.
+> It is **generated** from the Midas harness. Edit `harness/conventions.md`
+> and re-run `/midas-doctor` to propagate changes — never edit this file directly.
 
 ## What this project is
 
-<!-- TODO: one-paragraph product description filled in by /keel-init from product/idea.md -->
+<!-- TODO: one-paragraph product description filled in by /midas-init from product/idea.md -->
 
 - Stack: **{{STACK}}**
 - AI tools wired: **{{TOOLS}}**
@@ -57,8 +57,8 @@ On tools without per-agent model selection, apply as intent: fastest for researc
 
 ## Safety
 
-- Side-effecting skills (`/keel-init`, `/define-conventions`, `/start-sprint`, `/close-sprint`, `/keel-doctor`)
+- Side-effecting skills (`/midas-init`, `/define-conventions`, `/start-sprint`, `/close-sprint`, `/midas-doctor`)
   run **only** when the user explicitly invokes them — each guards this in its own body.
 - Secrets only via `${ENV_VAR}`; never write a key to disk or commit one.
-- Generated adapters (`CLAUDE.md`, `.cursor/rules/00-keel.mdc`, `.windsurf/rules/00-keel.md`) must not be
-  hand-edited; they are re-rendered by `/keel-doctor`.
+- Generated adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`) must not be
+  hand-edited; they are re-rendered by `/midas-doctor`.

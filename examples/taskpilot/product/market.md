@@ -98,4 +98,4 @@ Linear or Asana** and frustrated by Trello's shallow accountability model.
 - [x] All cited claims link to external sources
 - [x] Top-3 risks identified with likelihood, impact, and mitigation
 
-Phase 2 exit gate: **PASSED**. Audited by: keel-orchestrator on 2026-06-16.
+Phase 2 exit gate: **PASSED**. Audited by: midas-orchestrator on 2026-06-16.

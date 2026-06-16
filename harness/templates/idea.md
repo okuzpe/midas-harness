@@ -1,4 +1,4 @@
-<!-- Phase 0 — Idea Intake artifact. Filled by /keel-init (scout) from the user's raw input.
+<!-- Phase 0 — Idea Intake artifact. Filled by /midas-init (scout) from the user's raw input.
      Exit gate: raw idea preserved, 1-line pitch, mode set. -->
 
 # Idea: {{PROJECT_NAME}}
@@ -23,10 +23,10 @@
 
 ## Initial observations
 
-<!-- TODO: brief notes from /keel-init — ambiguities spotted, obvious risks, adjacent spaces -->
+<!-- TODO: brief notes from /midas-init — ambiguities spotted, obvious risks, adjacent spaces -->
 
 - …
 
 ---
 
-*Next: run `/keel-contextualize` (Phase 1) to identify gaps and define user/problem/metric/non-goals.*
+*Next: run `/midas-contextualize` (Phase 1) to identify gaps and define user/problem/metric/non-goals.*

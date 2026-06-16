@@ -1,6 +1,6 @@
 ---
 name: idea-intake
-description: Phase 0 of Keel — capture the raw product idea verbatim, normalize it into product/idea.md with a one-line pitch and mode, and initialize/advance harness/state.yaml. Use to start a new product or record its founding idea.
+description: Phase 0 of Midas — capture the raw product idea verbatim, normalize it into product/idea.md with a one-line pitch and mode, and initialize/advance harness/state.yaml. Use to start a new product or record its founding idea.
 user-invocable: true
 disable-model-invocation: false
 model: inherit
@@ -14,8 +14,8 @@ Phase 0 turns a raw, possibly messy idea into a normalized, preserved artifact s
 pipeline has a stable starting point. **Preservation is sacred:** never rewrite the user's words away —
 capture them verbatim, then add a normalized layer beside them. Playbook: `harness/pipeline/00-idea-intake.md`.
 
-**Precondition:** `harness/state.yaml` exists at `stage: idea_intake` (set by `/keel-init`). Read it
-first; if Keel is not initialized, direct the user to `/keel-init`. Read first, write last.
+**Precondition:** `harness/state.yaml` exists at `stage: idea_intake` (set by `/midas-init`). Read it
+first; if Midas is not initialized, direct the user to `/midas-init`. Read first, write last.
 
 ## Steps
 

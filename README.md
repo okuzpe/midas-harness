@@ -1,6 +1,7 @@
-# Keel 🛟 — a portable product-development harness for AI agents
+# Midas ✨ — a portable product-development harness for AI agents
 
-> **Working name `Keel` is provisional** — vet a final name on GitHub/npm/USPTO before publishing the namespace.
+> Turn a raw idea into a shipped product. Distributed as `midas-harness` (repo) · `npx create-midas`.
+> Reserve the GitHub/npm namespace before publishing — "Midas" is a crowded trademark, fine for OSS but worth noting for discoverability.
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
 [![AGENTS.md](https://img.shields.io/badge/AGENTS.md-compatible-success)](https://agents.md)
@@ -8,13 +9,13 @@
 [![Context7](https://img.shields.io/badge/Context7-enabled-6E56CF)](https://context7.com)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
 
-**Keel** is a copy-in kit of plain markdown — skills, rules, slash-commands, and agent definitions —
+**Midas** is a copy-in kit of plain markdown — skills, rules, slash-commands, and agent definitions —
 that drives a software **product** from a raw idea to shipped code through **9 audited phases**. It is
 a *methodology engine*: stateful, auditable, and resumable. It installs into any repo and works across
 **Claude Code, Cursor, GitHub Copilot, Codex, Windsurf** and any AGENTS.md-aware agent.
 
 ## Why
-Most AI coding setups jump straight to code. Keel front-loads the thinking — clarify the idea, research
+Most AI coding setups jump straight to code. Midas front-loads the thinking — clarify the idea, research
 the market, decide architecture, **freeze the rules**, plan sprints — then makes every sprint a control
 loop that re-audits the living code against those frozen rules. The best model **thinks**; cheaper
 models **execute**. Live library docs come from **Context7**, so code is written against current APIs,
@@ -23,15 +24,15 @@ not stale memory.
 ## 60-second quickstart
 
 ```bash
-# 1. Fetch Keel into your project (greenfield)
-npx giget@latest gh:OWNER/keel-harness ./my-product
+# 1. Fetch Midas into your project (greenfield)
+npx giget@latest gh:OWNER/midas-harness ./my-product
 cd ./my-product
 
 # 2. Open in Claude Code (or Cursor) and talk to the installer
-/keel-init        # detects your project, asks ~8 questions, writes config + state
+/midas-init        # detects your project, asks ~8 questions, writes config + state
 
 # 3. Drive the lifecycle, one audited step at a time
-/keel-status      # → "Phase 0. Next: capture your idea"
+/midas-status      # → "Phase 0. Next: capture your idea"
 /idea-intake      # … then /contextualize, /choose-architecture, /define-conventions,
                   #     /plan-sprints, /start-sprint, /close-sprint
 ```
@@ -60,27 +61,27 @@ audits before advancing. State lives in one file: `harness/state.yaml`. Full spe
 | Tool | Procedures (skills) | Project law (AGENTS.md) | Always-on rule | Model tiering |
 |---|---|---|---|---|
 | Claude Code | native | via `@AGENTS.md` in `CLAUDE.md` | `CLAUDE.md` | ✅ per-agent |
-| Cursor | native (`.claude/skills/`) | native | `.cursor/rules/00-keel.mdc` | prose intent |
+| Cursor | native (`.claude/skills/`) | native | `.cursor/rules/00-midas.mdc` | prose intent |
 | GitHub Copilot / VS Code | native | native | — | prose intent |
 | Codex / Gemini CLI | native | native | — | prose intent |
-| Windsurf | partial | native | `.windsurf/rules/00-keel.md` | prose intent |
+| Windsurf | partial | native | `.windsurf/rules/00-midas.md` | prose intent |
 
-Generated adapters are re-rendered from a single source by `/keel-doctor` — no hand-editing, no drift.
+Generated adapters are re-rendered from a single source by `/midas-doctor` — no hand-editing, no drift.
 
 ## MCP / Context7
-Keel ships a secret-free [`.mcp.json`](./.mcp.json) wiring **Context7** (essential, live library docs)
+Midas ships a secret-free [`.mcp.json`](./.mcp.json) wiring **Context7** (essential, live library docs)
 and **sequential-thinking**. A free Context7 key is recommended for active build sprints. Optional:
 git/GitHub, fetch, filesystem, Playwright (UI sprints only). See [`SECURITY.md`](./SECURITY.md) for the
 least-privilege guidance.
 
 ## Cost-aware orchestration
-Three self-contained agents ship with Keel — `keel-orchestrator` (Opus, think/audit),
-`keel-builder` (Sonnet, implement), `keel-scout` (Haiku, search). If you have specialist packs
-installed, Keel prefers them; otherwise it works with the three built-ins. One bump point for model
+Three self-contained agents ship with Midas — `midas-orchestrator` (Opus, think/audit),
+`midas-builder` (Sonnet, implement), `midas-scout` (Haiku, search). If you have specialist packs
+installed, Midas prefers them; otherwise it works with the three built-ins. One bump point for model
 IDs: [`docs/agents-and-models.md`](./docs/agents-and-models.md).
 
 ## Deep audits — put the project on trial
-`/keel-tribunal` runs a standing, **whole-project adversarial debate**: a steelman Defense vs a
+`/midas-tribunal` runs a standing, **whole-project adversarial debate**: a steelman Defense vs a
 red-team Prosecution plus a dissent-forcing Catfish argue every assumption across idea, market,
 business model, architecture, scope, rules, and code. Cheaper tiers debate; the Opus judge rules
 **per claim** and every claim must cite on-disk evidence or it's struck. It complements `/close-sprint`

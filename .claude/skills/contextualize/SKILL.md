@@ -1,6 +1,6 @@
 ---
 name: contextualize
-description: Phase 1 of Keel — the gap loop. Generate and rank blocking questions, ask them in batches, fold answers into product/idea.md, track product/open-questions.md, and loop until zero blockers remain. Use after idea-intake to pin down user, problem, metric, and non-goals.
+description: Phase 1 of Midas — the gap loop. Generate and rank blocking questions, ask them in batches, fold answers into product/idea.md, track product/open-questions.md, and loop until zero blockers remain. Use after idea-intake to pin down user, problem, metric, and non-goals.
 user-invocable: true
 disable-model-invocation: false
 model: inherit
@@ -10,7 +10,7 @@ recommended-model: claude-opus-4-8
 
 # contextualize — Phase 1: the gap loop
 
-This is Keel's signature phase. A raw idea is full of unstated assumptions; building on them is the
+This is Midas's signature phase. A raw idea is full of unstated assumptions; building on them is the
 most expensive mistake. Phase 1 systematically surfaces every **blocking** unknown and resolves it
 with the user **before** any market, business, or architecture work. Playbook:
 `harness/pipeline/01-contextualize.md`.
@@ -36,7 +36,7 @@ Repeat until there are **zero blocking** open questions:
 5. **Maintain the ledger.** Keep `product/open-questions.md` current: each question with its status
    (`open` / `answered` / `deferred`), severity, the answer or the recorded assumption, and the date.
    A **deferred** blocker is only allowed if the user explicitly accepts a written assumption in its
-   place — that assumption is logged here and surfaced by `/keel-status`.
+   place — that assumption is logged here and surfaced by `/midas-status`.
 6. **Re-rank and loop.** New answers often spawn new questions. Regenerate, re-rank, and continue until
    no `blocking` question remains `open`.
 

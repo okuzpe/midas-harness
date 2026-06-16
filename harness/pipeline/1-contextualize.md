@@ -55,5 +55,5 @@ question loop with the human before advancing. Zero unresolved blockers is the g
 
 ## Recommended tier + agents
 
-- **Gap loop + audit:** `orchestrate` (`keel-orchestrator`, `claude-opus-4-8`)
-- **File writes:** `build` (`keel-builder`, `claude-sonnet-4-6`)
+- **Gap loop + audit:** `orchestrate` (`midas-orchestrator`, `claude-opus-4-8`)
+- **File writes:** `build` (`midas-builder`, `claude-sonnet-4-6`)

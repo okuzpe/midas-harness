@@ -44,5 +44,5 @@ This is the cheapest phase; speed matters more than depth.
 
 ## Recommended tier + agents
 
-- **Dispatch/audit:** `orchestrate` (`keel-orchestrator`, `claude-opus-4-8`)
-- **Write artifacts:** `scout` (`keel-scout`, `claude-haiku-4-5`) — this phase is mechanical
+- **Dispatch/audit:** `orchestrate` (`midas-orchestrator`, `claude-opus-4-8`)
+- **Write artifacts:** `scout` (`midas-scout`, `claude-haiku-4-5`) — this phase is mechanical

@@ -1,6 +1,6 @@
 # Versioning
 
-Keel's harness ENGINE follows [Semantic Versioning 2.0.0](https://semver.org/).
+Midas's harness ENGINE follows [Semantic Versioning 2.0.0](https://semver.org/).
 
 ---
 
@@ -8,7 +8,7 @@ Keel's harness ENGINE follows [Semantic Versioning 2.0.0](https://semver.org/).
 
 The engine is the **harness itself** — the skill contracts, phase taxonomy, adapter-generation
 contract, state schema, and command namespace — not any product built with the harness.  
-Products built with Keel maintain their own version numbers independently.
+Products built with Midas maintain their own version numbers independently.
 
 ---
 
@@ -68,22 +68,22 @@ A change is breaking if an existing install would need a migration step to stay 
 Every `harness/state.yaml` carries:
 
 ```yaml
-keel_version: 0.1.0   # engine version that wrote or last migrated this file
+midas_version: 0.1.0   # engine version that wrote or last migrated this file
 ```
 
-`/keel-init` writes `keel_version` on first install.  
-`/keel-doctor` checks whether `keel_version` matches the installed engine and warns if they diverge.
+`/midas-init` writes `midas_version` on first install.  
+`/midas-doctor` checks whether `midas_version` matches the installed engine and warns if they diverge.
 
 ---
 
-## Migration: `/keel-update`
+## Migration: `/midas-update`
 
 When upgrading across a breaking version boundary:
 
-1. Run `/keel-update` — it reads `keel_version` from `harness/state.yaml`, diffs it against the
+1. Run `/midas-update` — it reads `midas_version` from `harness/state.yaml`, diffs it against the
    target version's migration notes, and proposes the minimal set of file edits required.
 2. Review the diff. Confirm before any writes.
-3. `/keel-update` bumps `keel_version` in `state.yaml` on success.
+3. `/midas-update` bumps `midas_version` in `state.yaml` on success.
 
 Migration notes for each breaking version live in `harness/migrations/vX.Y.md` (created when the
 version is cut). For pre-1.0 minor bumps, migration notes live in the relevant `CHANGELOG.md` entry

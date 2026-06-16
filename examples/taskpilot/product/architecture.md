@@ -115,4 +115,4 @@ taskpilot/
 - [x] ≥ 1 ADR written (ADR-001)
 - [x] Folder structure defined
 
-Phase 4 exit gate: **PASSED**. Audited by: keel-orchestrator on 2026-06-16.
+Phase 4 exit gate: **PASSED**. Audited by: midas-orchestrator on 2026-06-16.

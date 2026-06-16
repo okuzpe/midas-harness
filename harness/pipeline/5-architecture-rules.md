@@ -29,9 +29,9 @@ rules before any code is written; the Phase 8 audit references exactly these fil
      typography, component vocabulary, do/don't examples.
    - `harness/design-system/tokens.json` — machine-readable token map.
    - `harness/design-system/tokens.css` — CSS custom properties derived from the token map.
-5. **Render adapters.** Run `node scripts/render-adapters.mjs` (or `/keel-doctor`) to
-   propagate the new rules into `CLAUDE.md`, `.cursor/rules/00-keel.mdc`, and
-   `.windsurf/rules/00-keel.md`. Do not hand-edit the generated adapters.
+5. **Render adapters.** Run `node scripts/render-adapters.mjs` (or `/midas-doctor`) to
+   propagate the new rules into `CLAUDE.md`, `.cursor/rules/00-midas.mdc`, and
+   `.windsurf/rules/00-midas.md`. Do not hand-edit the generated adapters.
 6. **Advance.** Set `stage_status: gate_pending`; run the exit gate.
    On pass, write `gate: passed` and set `stage: sprint_planning`.
 
@@ -58,5 +58,5 @@ rules before any code is written; the Phase 8 audit references exactly these fil
 
 ## Recommended tier + agents
 
-- **Define rules + audit:** `orchestrate` (`keel-orchestrator`, `claude-opus-4-8`)
-- **Write files:** `build` (`keel-builder`, `claude-sonnet-4-6`)
+- **Define rules + audit:** `orchestrate` (`midas-orchestrator`, `claude-opus-4-8`)
+- **Write files:** `build` (`midas-builder`, `claude-sonnet-4-6`)

@@ -1,12 +1,12 @@
 # Tribunal debate-01 — scope: whole-project — depth: tribunal
-Convened: 2026-06-16 · Judge: keel-orchestrator (claude-opus-4-8) · cost_profile: balanced
+Convened: 2026-06-16 · Judge: midas-orchestrator (claude-opus-4-8) · cost_profile: balanced
 
-> Example output of `/keel-tribunal` on the TaskPilot product. Every claim cites a real line in the
+> Example output of `/midas-tribunal` on the TaskPilot product. Every claim cites a real line in the
 > example artifacts. Frozen and immutable, mirroring `.harness/audits/audit-NN.md`.
 
 ## Verdict tally
 UPHELD: 1 (CRIT 1 · HIGH 0 · MED 0)  ·  REJECTED: 1  ·  UNPROVEN: 1  ·  DISSENTS: 1
-KEEL_TRIBUNAL_RESULT: criticals=1 highs=0
+MIDAS_TRIBUNAL_RESULT: criticals=1 highs=0
 
 ## Ranked findings  (severity × confidence)
 

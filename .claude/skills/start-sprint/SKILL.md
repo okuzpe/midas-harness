@@ -40,7 +40,7 @@ For each drift or scope mismatch, choose **one** and **log it**:
 - **Fix the code** — add a task to this sprint to bring it back into conformance, or
 - **Consciously amend a rule** — if the rule is wrong, update the rule in `harness/rules/`, record a
   one-line rationale (and an ADR if architectural), and re-render adapters via
-  `node scripts/render-adapters.mjs` / `/keel-doctor`.
+  `node scripts/render-adapters.mjs` / `/midas-doctor`.
 
 **Never** let code silently diverge from a rule. Every amendment is a deliberate, recorded decision —
 this is the only legitimate way a rule changes after Phase 5.
@@ -49,7 +49,7 @@ this is the only legitimate way a rule changes after Phase 5.
 Route work by tier (`docs/agents-and-models.md`): **orchestrate** for this audit/planning, **build**
 for implementation, **scout** for Context7 fetches and extraction. **Prefer an installed specialist**
 matching the sprint's work (e.g. `voltagent-core-dev:backend-developer`/`frontend-developer`,
-`ui-designer`) if present; otherwise fall back to the first-party `keel-builder` / `keel-scout`.
+`ui-designer`) if present; otherwise fall back to the first-party `midas-builder` / `midas-scout`.
 Never depend on or mutate vendor packs.
 
 ### 5. Emit the working plan and set the sprint active

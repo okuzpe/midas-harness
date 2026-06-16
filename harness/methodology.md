@@ -1,13 +1,13 @@
-# Keel methodology — idea → shipped product
+# Midas methodology — idea → shipped product
 
-Keel governs how a product is built through **9 audited phases**. Each phase produces named
+Midas governs how a product is built through **9 audited phases**. Each phase produces named
 artifacts on disk and is guarded by an **exit gate** the orchestrator audits before advancing.
 The per-phase playbooks live in [`harness/pipeline/`](./pipeline/); this file is the overview.
 
 ## The harness contract
 - **Stateful** — one source of truth, [`harness/state.yaml`](./state.schema.md). Read first, write last.
 - **Auditable** — every phase yields artifacts + a gate verdict frozen in `.harness/audits/`.
-- **Resumable** — `/keel-status` reads the state and prints the single next action; any agent on any
+- **Resumable** — `/midas-status` reads the state and prints the single next action; any agent on any
   tool can resume because the methodology is markdown, not a tool's memory.
 
 **Transition rule:** advance from phase N to N+1 **iff** the orchestrator (Opus) ran the phase-N exit
@@ -57,8 +57,8 @@ case**, then either fixes the code or **consciously amends a rule** (a logged de
 satisfied vs deliberately skipped (skipped gates carry a recorded assumption).
 
 ## Standing audit — the tribunal
-Beyond the per-phase gates and the per-sprint `/close-sprint` conformance audit, Keel offers a
-**standing, on-demand adversarial debate**: `/keel-tribunal`. It puts the *whole* project on trial
+Beyond the per-phase gates and the per-sprint `/close-sprint` conformance audit, Midas offers a
+**standing, on-demand adversarial debate**: `/midas-tribunal`. It puts the *whole* project on trial
 (idea, market, business model, architecture, scope, rules, code) with opposing persona-lenses and an
 independent Opus judge who rules per claim against on-disk evidence. Where the gates ask "does the code
 conform to what we decided?", the tribunal asks "were those decisions right?" — run it before big gates

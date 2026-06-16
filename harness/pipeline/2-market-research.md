@@ -21,12 +21,12 @@ decision. Every claim must be cited; opinions must be flagged as such.
 1. **Frame the search.** Orchestrator derives 3–5 search queries from the problem statement
    and the target user. Prioritize: (a) direct competitors, (b) adjacent solutions the user
    might substitute, (c) recent funding/M&A signals.
-2. **Run research.** Use `/deep-research` or invoke `keel-scout` with `WebSearch` + `WebFetch`
+2. **Run research.** Use `/deep-research` or invoke `midas-scout` with `WebSearch` + `WebFetch`
    to gather raw evidence. Collect at minimum 3 distinct competitors with public evidence.
 3. **Write `product/market.md`.** Build uses the template below:
    - `## Market snapshot` — size estimate with source and date
    - `## Competitors` — table: name | segment | key differentiator | weakness (one row per competitor)
-   - `## Differentiation thesis` — 2–4 sentences; what Keel enables that incumbents cannot
+   - `## Differentiation thesis` — 2–4 sentences; what Midas enables that incumbents cannot
    - `## Top risks` — exactly 3 ordered risks with mitigation note
    - `## Sources` — numbered citation list; all URLs with access date
 4. **Cite everything.** Inline citation format: `[N]` pointing to the `## Sources` list.
@@ -52,6 +52,6 @@ decision. Every claim must be cited; opinions must be flagged as such.
 
 ## Recommended tier + agents
 
-- **Frame + audit:** `orchestrate` (`keel-orchestrator`, `claude-opus-4-8`)
-- **Write artifact:** `build` (`keel-builder`, `claude-sonnet-4-6`)
-- **Search / fetch:** `scout` (`keel-scout`, `claude-haiku-4-5`) or built-in Explore agent
+- **Frame + audit:** `orchestrate` (`midas-orchestrator`, `claude-opus-4-8`)
+- **Write artifact:** `build` (`midas-builder`, `claude-sonnet-4-6`)
+- **Search / fetch:** `scout` (`midas-scout`, `claude-haiku-4-5`) or built-in Explore agent

@@ -1,6 +1,6 @@
 # Rule: Always use Context7 before writing third-party code (always-on)
 
-**This is the highest-leverage rule in Keel. It applies in every tool, every phase that touches
+**This is the highest-leverage rule in Midas. It applies in every tool, every phase that touches
 code (4 Tech/Architecture and 7 Sprint Execution).**
 
 > Before generating, modifying, or reviewing any code that calls a **third-party library or

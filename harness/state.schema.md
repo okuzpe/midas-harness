@@ -1,7 +1,7 @@
 # `harness/state.yaml` — State Schema (the spine)
 
-`harness/state.yaml` is the **single source of truth** for where a project is in the Keel
-lifecycle. Every Keel skill **reads it first and writes it last**. There is exactly one state
+`harness/state.yaml` is the **single source of truth** for where a project is in the Midas
+lifecycle. Every Midas skill **reads it first and writes it last**. There is exactly one state
 file, one path, one format (YAML). Do not introduce a second state model.
 
 It is committed to the project's git (reproducible memory). Volatile caches/hashes are gitignored.
@@ -26,11 +26,11 @@ It is committed to the project's git (reproducible memory). Volatile caches/hash
 ## Schema
 
 ```yaml
-keel_version: 0.1.0          # engine version that wrote this file (for /keel-update)
+midas_version: 0.1.0          # engine version that wrote this file (for /midas-update)
 name: taskpilot              # project slug
 mode: greenfield             # greenfield | brownfield
 language: en                 # artifact language
-created: 2026-06-16          # ISO date (set by /keel-init; never use a live clock in scripts)
+created: 2026-06-16          # ISO date (set by /midas-init; never use a live clock in scripts)
 updated: 2026-06-16
 
 stage: tech_architecture     # current stage enum (see table)

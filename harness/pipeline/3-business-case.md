@@ -58,5 +58,5 @@ This is an irreversible decision point; use the orchestrate tier.
 
 ## Recommended tier + agents
 
-- **All steps + audit:** `orchestrate` (`keel-orchestrator`, `claude-opus-4-8`)
+- **All steps + audit:** `orchestrate` (`midas-orchestrator`, `claude-opus-4-8`)
   This is one of the ~6 irreversible decisions; do not downgrade to build tier.

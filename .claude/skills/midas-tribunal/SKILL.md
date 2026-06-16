@@ -1,6 +1,6 @@
 ---
-name: keel-tribunal
-description: Standing whole-project adversarial debate. Convene a tribunal — steelman Defense vs red-team Prosecution plus a dissent-forcing Catfish — across idea, market, business model, architecture, scope, rules, and code. Every claim cites on-disk evidence or is struck; keel-orchestrator (Opus) judges per claim, records dissent, and freezes a ranked findings report to .harness/debates/debate-NN.md. Use on demand or before big gates (pre-architecture-freeze, pre-go/no-go, pre-ship). Not tied to a sprint — distinct from /close-sprint.
+name: midas-tribunal
+description: Standing whole-project adversarial debate. Convene a tribunal — steelman Defense vs red-team Prosecution plus a dissent-forcing Catfish — across idea, market, business model, architecture, scope, rules, and code. Every claim cites on-disk evidence or is struck; midas-orchestrator (Opus) judges per claim, records dissent, and freezes a ranked findings report to .harness/debates/debate-NN.md. Use on demand or before big gates (pre-architecture-freeze, pre-go/no-go, pre-ship). Not tied to a sprint — distinct from /close-sprint.
 user-invocable: true
 disable-model-invocation: true
 model: inherit
@@ -10,7 +10,7 @@ mcp-required: [sequential-thinking]
 argument-hint: "[whole|architecture|scope|idea|market|unit-economics|security|rules] [--depth quick|standard|tribunal]"
 ---
 
-# keel-tribunal — Whole-Project Adversarial Debate
+# midas-tribunal — Whole-Project Adversarial Debate
 
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
 > First read `harness/state.yaml`; this skill has no precondition stage — it runs at any stage — but
@@ -107,11 +107,11 @@ gates decide.
 
 ```markdown
 # Tribunal debate-NN — scope: <scope> — depth: <depth>
-Convened: <YYYY-MM-DD> · Judge: keel-orchestrator (claude-opus-4-8) · cost_profile: <profile>
+Convened: <YYYY-MM-DD> · Judge: midas-orchestrator (claude-opus-4-8) · cost_profile: <profile>
 
 ## Verdict tally
 UPHELD: n (CRIT a · HIGH b · MED c)  ·  REJECTED: n  ·  UNPROVEN: n  ·  DISSENTS: n
-KEEL_TRIBUNAL_RESULT: criticals=X highs=Y        # gate-parseable line
+MIDAS_TRIBUNAL_RESULT: criticals=X highs=Y        # gate-parseable line
 
 ## Ranked findings  (severity × confidence)
 | ID | Lens | Severity | Conf | Claim | Evidence (path / file:line) | Verdict | Action |
@@ -149,11 +149,11 @@ Convene + per-claim verdict + freeze → **orchestrate** (Opus, the irreversible
 Prosecution / Defense / Catfish debaters → **build** (Sonnet, parallel). Evidence packs + re-verification
 → **scout** (Haiku). Prefer an installed specialist for the security/code lenses if present
 (`voltagent-qa-sec:code-reviewer` / `security-auditor`, `/code-review`), exactly as `/close-sprint`
-does; otherwise the first-party `keel-builder` / `keel-scout`. Respect `state.yaml.cost_profile`.
+does; otherwise the first-party `midas-builder` / `midas-scout`. Respect `state.yaml.cost_profile`.
 
 ## Exit gate (tribunal complete)
 - [ ] Every surviving claim cites on-disk evidence; uncited claims struck (logged).
 - [ ] A per-claim verdict rendered; minority/dissent recorded; LOW nits capped.
-- [ ] `.harness/debates/debate-NN.md` frozen with the `KEEL_TRIBUNAL_RESULT` tally line.
+- [ ] `.harness/debates/debate-NN.md` frozen with the `MIDAS_TRIBUNAL_RESULT` tally line.
 - [ ] Each upheld finding carries one action; the action bridge is proposed to the user.
 - [ ] `stage` NOT advanced and no gate marked passed (the tribunal only informs).

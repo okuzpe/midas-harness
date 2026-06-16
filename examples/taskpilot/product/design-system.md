@@ -21,7 +21,7 @@ Design tokens are defined in two canonical files — **do not hardcode any value
 | File | Purpose |
 |---|---|
 | `harness/design-system/tokens.json` | Machine-readable token definitions (used by build tools / Storybook) |
-| `harness/design-system/tokens.css` | CSS custom properties rendered from `tokens.json` by `/keel-doctor` |
+| `harness/design-system/tokens.css` | CSS custom properties rendered from `tokens.json` by `/midas-doctor` |
 
 In code, always reference the CSS variable:
 
