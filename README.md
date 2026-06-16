@@ -23,26 +23,27 @@ not stale memory.
 
 ## 60-second quickstart
 
+Install Midas into any project (new **or** existing) with the standard initializer — works with every
+package manager and only adds files (never deletes yours):
+
 ```bash
-# 1. Fetch Midas into your project (greenfield)
-npx giget@latest gh:okuzpe/midas-harness ./my-product
-cd ./my-product
-
-# 2. Open in Claude Code (or Cursor) and talk to the installer
-/midas-init        # detects your project, asks ~8 questions, writes config + state
-
-# 3. Drive the lifecycle, one audited step at a time
-/midas-status      # → "Phase 0. Next: capture your idea"
-/idea-intake      # … then /contextualize, /choose-architecture, /define-conventions,
-                  #     /plan-sprints, /start-sprint, /close-sprint
+npm create midas        # or: pnpm create midas · yarn create midas · npx create-midas · bunx create-midas
 ```
 
-No Claude Code? The same `AGENTS.md` + `.claude/skills/` are read natively by Cursor, Copilot and
-Codex; run the phases by name.
+Then open the project in **Claude Code** (or Cursor) and drive the lifecycle:
 
-**Prefer a plugin?** Claude Code users can instead run
-`/plugin marketplace add okuzpe/midas-harness` → `/plugin install midas@midas`, then `/midas-init`
-(plugins deliver the skills/agents/MCP but not the project rules, so the installer still runs once).
+```text
+/midas-init        # configure the harness (asks ~8 questions, writes state + adapters)
+/midas-status      # → "Phase 0. Next: capture your idea"
+/idea-intake       # … then /contextualize, /market-research, /business-plan, /choose-architecture,
+                   #     /define-conventions, /plan-sprints, /start-sprint, /close-sprint
+/midas-tribunal    # any time: a whole-project adversarial debate
+```
+
+**Claude Code plugin** (alternative): `/plugin marketplace add okuzpe/midas-harness` →
+`/plugin install midas@midas` → `/midas-init`.
+
+No Claude Code? The same `AGENTS.md` + `.claude/skills/` are read natively by Cursor, Copilot and Codex.
 
 ## The 9 phases
 

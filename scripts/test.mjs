@@ -103,6 +103,23 @@ if (existsSync(join(ROOT, 'plugins', 'midas'))) {
   check('plugin:agents-match', JSON.stringify(srcAgents) === JSON.stringify(plgAgents), 're-run build-plugin.mjs');
 }
 
+// --- E2. create-midas bundled template matches source -----------------------------------------
+const tplRoot = join(ROOT, 'create-midas', 'template');
+if (existsSync(tplRoot)) {
+  check(
+    'create-template:skills-match',
+    JSON.stringify(dirNames(join(tplRoot, '.claude', 'skills'))) === JSON.stringify(dirNames(skillsDir)),
+    're-run build-create.mjs',
+  );
+  for (const f of ['AGENTS.md', '.mcp.json', 'harness/methodology.md', 'harness/conventions.md', 'scripts/render-adapters.mjs', 'docs/agents-and-models.md']) {
+    check(`create-template:has:${f}`, existsSync(join(tplRoot, f)));
+  }
+  // The template must NOT carry repo-internal trees into a user project.
+  for (const d of ['examples', 'plugins', '.github', 'create-midas']) {
+    check(`create-template:excludes:${d}`, !existsSync(join(tplRoot, d)));
+  }
+}
+
 // --- F. example state.yaml has the required shape ----------------------------------------------
 const stateFile = join(ROOT, 'examples', 'taskpilot', 'harness', 'state.yaml');
 if (existsSync(stateFile)) {

@@ -25,3 +25,9 @@ jobs:
           node scripts/build-plugin.mjs
           git diff --exit-code -- plugins .claude-plugin \
             || (echo "::error::plugins/ is stale — run 'node scripts/build-plugin.mjs' and commit" && exit 1)
+
+      - name: create-midas template in sync with source
+        run: |
+          node scripts/build-create.mjs
+          git diff --exit-code -- create-midas/template \
+            || (echo "::error::create-midas/template is stale — run 'node scripts/build-create.mjs' and commit" && exit 1)
