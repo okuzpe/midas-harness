@@ -70,3 +70,7 @@ last_audit: { phase: contextualize, verdict: pass, at: 2026-06-15 }
    scratch (idempotent), so resuming = re-run the gate and report what's missing.
 4. Skipped gates (e.g. brownfield entering at `tech_architecture`) carry an explicit
    `entry_stage` + a recorded assumption in `STATE.md`, exactly like deferred Phase-1 questions.
+5. **Keep it minimal.** `state.yaml` holds only *operational* state — the program counter (stage,
+   gates, routing, tool/MCP lists, and short pointers like the current sprint id or `last_audit`).
+   Long-form detail (sprint bodies, audit findings, package inventories, verification logs) lives in
+   `product/*` and `.harness/*`; `state.yaml` references them by path. Do not let it grow into a data dump.

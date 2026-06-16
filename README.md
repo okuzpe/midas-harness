@@ -1,7 +1,7 @@
-# Midas ✨ — a portable product-development harness for AI agents
+# Midas ✨ — a lifecycle, rules, and audit gates for AI coding agents
 
-> Turn a raw idea into a shipped product. Distributed as `midas-harness` (repo) · `npx create-midas`.
-> Reserve the GitHub/npm namespace before publishing — "Midas" is a crowded trademark, fine for OSS but worth noting for discoverability.
+> Midas gives AI coding agents a **project lifecycle, rules, state, and audit gates** — so they build
+> with context instead of jumping straight to code. **Copy it into your repo and the agent stops improvising.**
 
 [![CI](https://github.com/okuzpe/midas-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/okuzpe/midas-harness/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
@@ -12,8 +12,8 @@
 
 **Midas** is a copy-in kit of plain markdown — skills, rules, slash-commands, and agent definitions —
 that drives a software **product** from a raw idea to shipped code through **9 audited phases**. It is
-a *methodology engine*: stateful, auditable, and resumable. It installs into any repo and works across
-**Claude Code, Cursor, GitHub Copilot, Codex, Windsurf** and any AGENTS.md-aware agent.
+a *methodology engine*: stateful, auditable, and resumable. It runs best on **Claude Code**, with
+generated adapters and `AGENTS.md` carrying the rules to Cursor, Copilot, Codex, Windsurf and Gemini.
 
 ## Why
 Most AI coding setups jump straight to code. Midas front-loads the thinking — clarify the idea, research
@@ -21,6 +21,13 @@ the market, decide architecture, **freeze the rules**, plan sprints — then mak
 loop that re-audits the living code against those frozen rules. The best model **thinks**; cheaper
 models **execute**. Live library docs come from **Context7**, so code is written against current APIs,
 not stale memory.
+
+## When to use Midas — and when not to
+**Use it** when you want an agent to respect architecture, conventions, and tests instead of improvising —
+on a new product (full lifecycle) or an existing repo (`/midas-adopt`).
+
+**Skip it** for a quick one-off script, a throwaway prototype, or when you already have an agent setup
+you're happy with. Midas adds process; that's overhead you don't want for a 20-line tool.
 
 ## 60-second quickstart
 
@@ -51,17 +58,19 @@ Then open the project in **Claude Code** (or Cursor) and drive the lifecycle:
 ```text
 /midas-init        # configure the harness (asks ~8 questions, writes state + adapters)
 /midas-status      # → "Phase 0. Next: capture your idea"
-/idea-intake       # … then /contextualize, /market-research, /business-plan, /choose-architecture,
-                   #     /define-conventions, /plan-sprints, /start-sprint, /close-sprint
-/midas-tribunal    # any time: a whole-project adversarial debate
+/idea-intake       # start the lifecycle — /midas-status always tells you the next command
 ```
+
+That's the whole core loop: `/midas-status` walks you through the 9 phases one command at a time. Power
+tools (`/midas-tribunal`, `/midas-verify`, `/midas-monorepo`) live under **[Core vs advanced](#core-vs-advanced)** below.
 
 **Alternatives:**
 - **Claude Code plugin:** `/plugin marketplace add okuzpe/midas-harness` → `/plugin install midas@midas` → `/midas-init`.
 - **Copy only (any tool):** `npx giget@latest gh:okuzpe/midas-harness ./my-project`.
 
-Full guide with every method, flags, and uninstall: **[INSTALL.md](./INSTALL.md)**. No Claude Code? The
-same `AGENTS.md` + `.claude/skills/` are read natively by Cursor, Copilot, Codex and Gemini.
+Full guide with every method, flags, and uninstall: **[INSTALL.md](./INSTALL.md)**. No Claude Code?
+`AGENTS.md` carries the project law to Cursor, Copilot, Codex and Windsurf (and Gemini via `GEMINI.md`);
+skill/command behavior and model routing vary by tool — see the [tools matrix](#supported-tools).
 
 ## The 9 phases
 
@@ -79,24 +88,34 @@ Each phase writes named artifacts under `product/` and is guarded by an **exit g
 audits before advancing. State lives in one file: `harness/state.yaml`. Full spec:
 [`harness/methodology.md`](./harness/methodology.md).
 
+## Core vs advanced
+| Track | For | Commands |
+|---|---|---|
+| **Core** | drive any project through the lifecycle | `/midas-init` · `/midas-status` · the phase commands (`/idea-intake` → `/close-sprint`) · `/midas-doctor` |
+| **Brownfield** | adopt Midas into an existing repo | `/midas-adopt` |
+| **Advanced** | deeper audits & scale | `/midas-tribunal` (whole-project debate) · `/midas-verify` (Playwright UI checks) · `/midas-monorepo` |
+| **Maintenance** | keep an install current | `/midas-update` · `/midas-doctor` |
+
+Most users only need **Core** (+ `/midas-adopt` for an existing repo). Everything else is opt-in.
+
 ## Supported tools
 
-| Tool | Procedures (skills) | Project law (AGENTS.md) | Always-on rule | Model tiering |
+| Tool | Reads `AGENTS.md` | Skills / commands | Model routing | Recommended level |
 |---|---|---|---|---|
-| Claude Code | native | via `@AGENTS.md` in `CLAUDE.md` | `CLAUDE.md` | ✅ per-agent |
-| Cursor | native (`.claude/skills/`) | native | `.cursor/rules/00-midas.mdc` | prose intent |
-| GitHub Copilot / VS Code | native | native | — | prose intent |
-| Gemini CLI | native | native | `GEMINI.md` | prose intent |
-| OpenAI Codex | native | native | — | prose intent |
-| Windsurf | partial | native | `.windsurf/rules/00-midas.md` | prose intent |
+| **Claude Code** | via `@AGENTS.md` in `CLAUDE.md` | native (`.claude/skills/`) + subagents | ✅ per-agent | **Full** |
+| Cursor | native | partial (`.cursor/rules` + skills where supported) | advisory | Good |
+| OpenAI Codex | native | partial (Agent Skills) | advisory | Good |
+| GitHub Copilot | native | partial (Agent Skills) | advisory | Good |
+| Gemini CLI | via `GEMINI.md` | via extensions | advisory | Basic |
+| Windsurf | native | partial (rules) | advisory | Basic |
 
-Generated adapters are re-rendered from a single source by `/midas-doctor` — no hand-editing, no drift.
+Generated adapters (`CLAUDE.md`, `.cursor/rules`, `.windsurf/rules`, `GEMINI.md`) are re-rendered from a
+single source by `/midas-doctor` — no hand-editing, no drift.
 
-> **Compatibility varies by tool.** "native" above means the file/skill is read **without conversion** —
-> not feature parity. Claude Code is the most complete target (native skills, subagents, **and** per-agent
-> model tiering). Cursor/Windsurf consume the generated rule adapters; Copilot, Codex and Gemini consume
-> `AGENTS.md`/`GEMINI.md` guidance where supported. **Non-Claude model routing is advisory (prose), not
-> enforced** — you get the methodology and the rules everywhere, automatic cost-routing only on Claude Code.
+> **Honest scope.** "native" means read **without conversion**, not feature parity. **Claude Code is the
+> primary target** (skills, subagents, and per-agent model tiering). Other tools get the methodology and
+> rules via `AGENTS.md` / `GEMINI.md` / generated adapters; **model routing is advisory (prose), not
+> enforced** there. You get the *process* everywhere — automatic cost-routing only on Claude Code.
 
 ## MCP / Context7
 Midas ships a secret-free [`.mcp.json`](./.mcp.json) wiring **Context7** (essential, live library docs)

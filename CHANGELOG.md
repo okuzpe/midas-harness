@@ -9,7 +9,14 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
-_Nothing yet._
+### Changed (positioning / honesty pass)
+- README restructured: clearer one-line pitch, a **When to use / when not to** section, a **Core vs
+  advanced** table, and a slimmer quickstart (advanced commands moved out of the core loop).
+- **More honest tools matrix** — replaced the blanket "native" claims with per-tool skill/routing
+  support and a recommended level (Full/Good/Basic); Claude Code is stated as the primary target.
+- `state.schema.md`: added a **minimalism rule** — `state.yaml` holds only operational state; long
+  detail lives in `product/*` / `.harness/*`.
+- Published formal GitHub Releases for v0.2.0 and v0.3.0.
 
 ---
 
