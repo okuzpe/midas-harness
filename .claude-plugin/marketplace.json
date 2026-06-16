@@ -1,0 +1,20 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "midas",
+  "description": "Marketplace for the Midas product-development harness.",
+  "owner": {
+    "name": "Midas"
+  },
+  "plugins": [
+    {
+      "name": "midas",
+      "description": "Portable product-development harness: drive a product from idea to shipped code through 9 audited phases, with cost-tiered agents, a Context7-first rule, and a whole-project adversarial debate (/midas-tribunal).",
+      "author": {
+        "name": "Midas"
+      },
+      "source": "./plugins/midas",
+      "category": "development",
+      "homepage": "https://github.com/OWNER/midas-harness"
+    }
+  ]
+}

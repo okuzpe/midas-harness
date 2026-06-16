@@ -40,6 +40,10 @@ cd ./my-product
 No Claude Code? The same `AGENTS.md` + `.claude/skills/` are read natively by Cursor, Copilot and
 Codex; run the phases by name.
 
+**Prefer a plugin?** Claude Code users can instead run
+`/plugin marketplace add OWNER/midas-harness` → `/plugin install midas@midas`, then `/midas-init`
+(plugins deliver the skills/agents/MCP but not the project rules, so the installer still runs once).
+
 ## The 9 phases
 
 ```mermaid
@@ -94,9 +98,11 @@ run in [`examples/taskpilot/.harness/debates/debate-01.md`](./examples/taskpilot
 phase artifact, a per-sprint audit, and a runnable code slice.
 
 ## Status
-**v0.1 (build-phase 1):** greenfield, Claude Code + AGENTS.md floor, core skills, Context7. Roadmap:
-market/business skills, full Cursor/Windsurf re-render, plugin marketplace, brownfield (with dry-run),
-design-system components. See [`CHANGELOG.md`](./CHANGELOG.md) and [`VERSIONING.md`](./VERSIONING.md).
+**v0.2 (build-phase 2):** the full greenfield lifecycle from idea to code — Claude Code + AGENTS.md
+floor (Cursor/Windsurf/Copilot/Codex via standards), the complete skill set incl. `/market-research`,
+`/business-plan`, and `/midas-tribunal`, Context7, and a Claude Code **plugin marketplace** rail.
+Roadmap: brownfield (with dry-run + diff-confirm), monorepo, design-system components, Playwright-gated
+verify, docs site. See [`CHANGELOG.md`](./CHANGELOG.md) and [`VERSIONING.md`](./VERSIONING.md).
 
 ## License
 [Apache-2.0](./LICENSE). Contributions welcome — see [`CONTRIBUTING.md`](./CONTRIBUTING.md).

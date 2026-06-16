@@ -2,9 +2,8 @@
 
 **Stage enum:** `business_case` | **Tier:** orchestrate (decide)
 
-> **v1 note:** This playbook ships the structure and template. A dedicated `/business-plan`
-> skill lands in a later release. For now, run this phase manually or via `/deep-research`
-> to supplement financial benchmarks.
+> Run this phase with the **`/business-plan`** skill (it captures MVP scope, measurable metrics, and the
+> go/no-go with human sign-off). This playbook is its reference.
 
 ## Purpose
 

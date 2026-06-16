@@ -2,9 +2,8 @@
 
 **Stage enum:** `market_research` | **Tier:** orchestrate (frame) + build (write) + scout (search)
 
-> **v1 note:** This playbook ships the structure and template. A dedicated `/market-research`
-> skill lands in a later release. For now, run this phase manually or via `/deep-research`
-> (see Key steps below).
+> Run this phase with the **`/market-research`** skill (it fans out research, reuses `/deep-research`
+> when present, and verifies every claim with a citation). This playbook is its reference.
 
 ## Purpose
 

@@ -19,6 +19,14 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
   `.harness/debates/debate-NN.md` with a findings→action bridge. Complements `/close-sprint` (sprint
   conformance) by arguing *whether the decisions themselves are right*. Example:
   `examples/taskpilot/.harness/debates/debate-01.md`.
+- `/market-research` — Phase 2 skill: fans out research (reuses `/deep-research`), verifies claims with
+  citations, and writes `product/market.md`.
+- `/business-plan` — Phase 3 skill: value proposition, MVP scope vs non-goals, measurable success
+  metrics, and a go/no-go with **human sign-off** → `product/business-plan.md`.
+- **Plugin marketplace rail** — `.claude-plugin/marketplace.json` + a generated `plugins/midas/` tree
+  (rendered from `.claude/` by `scripts/build-plugin.mjs`), so Claude Code users can install with
+  `/plugin marketplace add OWNER/midas-harness` → `/plugin install midas@midas`. Plugins do not
+  auto-install rules/`CLAUDE.md`, so run `/midas-init` once after install.
 
 ---
 
