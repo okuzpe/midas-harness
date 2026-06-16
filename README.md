@@ -3,6 +3,7 @@
 > Turn a raw idea into a shipped product. Distributed as `midas-harness` (repo) · `npx create-midas`.
 > Reserve the GitHub/npm namespace before publishing — "Midas" is a crowded trademark, fine for OSS but worth noting for discoverability.
 
+[![CI](https://github.com/okuzpe/midas-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/okuzpe/midas-harness/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
 [![AGENTS.md](https://img.shields.io/badge/AGENTS.md-compatible-success)](https://agents.md)
 [![Agent Skills](https://img.shields.io/badge/Agent_Skills-compatible-success)](https://agentskills.io)
@@ -40,6 +41,10 @@ irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | ie
 ```bash
 npx github:okuzpe/midas-harness     # pnpm dlx · bunx github:okuzpe/midas-harness
 ```
+
+> For a **reproducible** install, pin a release: `npx github:okuzpe/midas-harness#v0.3.0`. The
+> `curl … | bash` / `irm … | iex` shims run a remote script — if that's a concern, read
+> [`install.sh`](./install.sh) first or just use the `npx` form (same dependency-free installer).
 
 Then open the project in **Claude Code** (or Cursor) and drive the lifecycle:
 
@@ -87,6 +92,12 @@ audits before advancing. State lives in one file: `harness/state.yaml`. Full spe
 
 Generated adapters are re-rendered from a single source by `/midas-doctor` — no hand-editing, no drift.
 
+> **Compatibility varies by tool.** "native" above means the file/skill is read **without conversion** —
+> not feature parity. Claude Code is the most complete target (native skills, subagents, **and** per-agent
+> model tiering). Cursor/Windsurf consume the generated rule adapters; Copilot, Codex and Gemini consume
+> `AGENTS.md`/`GEMINI.md` guidance where supported. **Non-Claude model routing is advisory (prose), not
+> enforced** — you get the methodology and the rules everywhere, automatic cost-routing only on Claude Code.
+
 ## MCP / Context7
 Midas ships a secret-free [`.mcp.json`](./.mcp.json) wiring **Context7** (essential, live library docs)
 and **sequential-thinking**. A free Context7 key is recommended for active build sprints. Optional:
@@ -113,11 +124,12 @@ run in [`examples/taskpilot/.harness/debates/debate-01.md`](./examples/taskpilot
 phase artifact, a per-sprint audit, and a runnable code slice.
 
 ## Status
-**v0.2 (build-phase 2):** the full greenfield lifecycle from idea to code — Claude Code + AGENTS.md
-floor (Cursor/Windsurf/Copilot/Codex via standards), the complete skill set incl. `/market-research`,
-`/business-plan`, and `/midas-tribunal`, Context7, and a Claude Code **plugin marketplace** rail.
-Roadmap: monorepo/polyglot, design-system components, Playwright-gated
-verify, docs site. See [`CHANGELOG.md`](./CHANGELOG.md) and [`VERSIONING.md`](./VERSIONING.md).
+**v0.3.0 — pre-1.0, actively developed (not yet a stable API).** The full lifecycle from idea to code,
+**greenfield and brownfield** (`/midas-adopt`), plus `/midas-monorepo`, `/midas-verify` (Playwright), a
+component design system, four install methods, the plugin marketplace, and `/midas-tribunal`. Most
+complete on **Claude Code**; other tools get the methodology + adapters but not automatic model routing
+(see the compatibility note above). See [`CHANGELOG.md`](./CHANGELOG.md), [`VERSIONING.md`](./VERSIONING.md),
+and the docs site (`mkdocs.yml`).
 
 ## License
 [Apache-2.0](./LICENSE). Contributions welcome — see [`CONTRIBUTING.md`](./CONTRIBUTING.md).

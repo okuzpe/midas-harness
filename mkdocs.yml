@@ -1,0 +1,46 @@
+site_name: Midas
+site_description: A portable AI product-development harness — idea to shipped code in 9 audited phases.
+site_url: https://okuzpe.github.io/midas-harness
+repo_url: https://github.com/okuzpe/midas-harness
+repo_name: okuzpe/midas-harness
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - content.code.copy
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Methodology: methodology.md
+  - Skills Reference: skills.md
+  - Agents & Models: agents-and-models.md
+  - FAQ: faq.md
+
+markdown_extensions:
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - admonition
+  - toc:
+      permalink: true

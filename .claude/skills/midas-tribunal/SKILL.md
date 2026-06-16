@@ -22,7 +22,7 @@ render a verdict **per claim**. This is distinct from `/close-sprint` (single-sp
 frozen rules): the tribunal argues *whether the decisions themselves are right*, across the whole
 `product/*` + `harness/rules/*` + `src/*` surface.
 
-Why this shape (grounded in research): multi-agent debate only beats single-pass critique when every
+Why this shape (grounded in research; sources in `harness/research/debate-method.md`): multi-agent debate only beats single-pass critique when every
 claim cites **checkable evidence**, the **producer is separated from the grader**, and **genuine
 dissent is forced** — otherwise it degenerates to premature consensus, sycophancy, and judge bias.
 Every rule below exists to defend one of those failure modes.

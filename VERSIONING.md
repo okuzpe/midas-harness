@@ -68,7 +68,7 @@ A change is breaking if an existing install would need a migration step to stay 
 Every `harness/state.yaml` carries:
 
 ```yaml
-midas_version: 0.1.0   # engine version that wrote or last migrated this file
+midas_version: 0.3.0   # engine version that wrote or last migrated this file
 ```
 
 `/midas-init` writes `midas_version` on first install.  
@@ -94,7 +94,8 @@ under a `### Migration` subsection.
 ## Release checklist (maintainers)
 
 1. Update `CHANGELOG.md` — move items from `[Unreleased]` to the new version section.
-2. Bump the version in `scripts/render-adapters.mjs` (the single in-code version constant).
+2. Bump `harness/VERSION` (the single canonical engine version). `package.json`,
+   `create-midas/package.json`, and `gemini-extension.json` mirror it; `scripts/test.mjs` asserts they all match.
 3. Tag: `git tag v0.X.Y && git push origin v0.X.Y`.
 4. If breaking: add `harness/migrations/v0.X.md` before tagging.
 5. Update the `[Unreleased]` diff link in `CHANGELOG.md`.

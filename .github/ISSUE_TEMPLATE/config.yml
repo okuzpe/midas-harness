@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or discussion
+    url: https://github.com/okuzpe/midas-harness/discussions
+    about: Ask a question or discuss an idea before opening an issue.
+  - name: Security report (private)
+    url: https://github.com/okuzpe/midas-harness/security/advisories/new
+    about: Report a vulnerability privately via a Security Advisory.

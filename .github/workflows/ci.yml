@@ -31,3 +31,13 @@ jobs:
           node scripts/build-create.mjs
           git diff --exit-code -- create-midas/template \
             || (echo "::error::create-midas/template is stale — run 'node scripts/build-create.mjs' and commit" && exit 1)
+
+      - name: Installer smoke test (install into a temp dir + run doctor)
+        run: |
+          node create-midas/index.mjs /tmp/midas-smoke
+          test -f /tmp/midas-smoke/AGENTS.md
+          test -f /tmp/midas-smoke/.mcp.json
+          test -f /tmp/midas-smoke/CLAUDE.md
+          test -f /tmp/midas-smoke/GEMINI.md
+          test -d /tmp/midas-smoke/.claude/skills
+          node /tmp/midas-smoke/scripts/doctor.mjs

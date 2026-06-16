@@ -13,6 +13,35 @@ _Nothing yet._
 
 ---
 
+## [0.3.0] — 2026-06-17
+
+### Added
+- `/midas-monorepo` — set Midas up across a monorepo/polyglot repo: nested `AGENTS.md` per package
+  (nearest-file-wins), per-package rules/stack (Context7-verified), with dry-run + diff-confirm.
+- `/midas-verify` — Playwright-gated end-to-end / UI verification (hard-gated to UI sprints); per-claim
+  pass/fail with screenshot evidence frozen to `.harness/verifications/verify-NN.md`.
+- `/midas-update` — migrate an install to the current engine: compares `state.yaml` `midas_version`
+  against `harness/VERSION`, applies the minimal migration with dry-run + diff-confirm, bumps the stamp.
+- Design-system **components** (`harness/design-system/components.md`) — a token-driven base set
+  (Button, Input, Card, Dialog, …) with states + WCAG AA accessibility.
+- **Docs site** — MkDocs-Material (`mkdocs.yml` + `docs/`) with a GitHub Pages deploy workflow.
+- OSS polish — `NOTICE`, `CODE_OF_CONDUCT.md`, PR + issue templates.
+
+### Changed / Fixed (external-audit pass)
+- **Version is single-sourced** at `harness/VERSION` (`0.3.0`); `package.json`,
+  `create-midas/package.json`, `gemini-extension.json`, `state.schema.md`, and the example all match,
+  and `scripts/test.mjs` asserts it. (Was inconsistently `0.1.0`/`0.2.0`.)
+- **`/midas-doctor` now runs real health checks** (version stamp vs engine, required `state.yaml` keys,
+  secret-free `.mcp.json`, skills frontmatter, critical files) — not just adapter drift.
+- **`market-research`** no longer hard-requires the `fetch` MCP (uses built-in `WebSearch` + Context7);
+  `mcp-required: [context7]`.
+- **README compatibility claims softened** — "native" = read-without-conversion, not feature parity;
+  non-Claude model routing is advisory. Added a CI badge and a pinned-install recommendation.
+- **CI** runs a real installer smoke test (install into a temp dir, then `doctor`).
+- Tribunal "grounded in research" now cites sources in `harness/research/debate-method.md`.
+
+---
+
 ## [0.2.0] — 2026-06-17
 
 ### Added
@@ -117,6 +146,7 @@ _Nothing yet._
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/okuzpe/midas-harness/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/okuzpe/midas-harness/releases/tag/v0.2.0
 [0.1.0]: https://github.com/okuzpe/midas-harness/commit/f7868fd

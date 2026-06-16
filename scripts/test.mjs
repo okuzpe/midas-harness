@@ -153,6 +153,22 @@ if (existsSync(rootPkg)) {
 }
 
 // --- report ------------------------------------------------------------------------------------
+// --- I. engine version single-sourced at harness/VERSION, mirrored everywhere ------------------
+function ver(rel, json) {
+  const p = join(ROOT, rel);
+  if (!existsSync(p)) return null;
+  const raw = readFileSync(p, 'utf8');
+  return json ? JSON.parse(raw).version || null : raw.trim();
+}
+const engineVersion = ver('harness/VERSION', false);
+check('version:harness/VERSION-present', !!engineVersion, 'missing harness/VERSION');
+if (engineVersion) {
+  for (const f of ['package.json', 'create-midas/package.json', 'gemini-extension.json']) {
+    const v = ver(f, true);
+    check(`version:${f}`, v === engineVersion, `${v} != ${engineVersion}`);
+  }
+}
+
 console.log(`midas test: ${passed} passed, ${failures.length} failed`);
 if (failures.length) {
   console.log('\nFailures:');

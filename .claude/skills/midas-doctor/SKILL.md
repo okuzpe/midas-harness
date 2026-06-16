@@ -34,7 +34,9 @@ first and writes only with the user's go-ahead.
 
 ## Phase 2 — Health assertions (warn, don't fix silently)
 
-Read `harness/state.yaml` once, then assert and report pass/warn for each:
+`node scripts/doctor.mjs` now prints the **mechanical** subset of these checks (version stamp vs
+`harness/VERSION`, required `state.yaml` keys, secret-free `.mcp.json`, skills frontmatter, critical
+files). Read `harness/state.yaml` once, then add the **judgment** assertions and report pass/warn for each:
 
 - **`AGENTS.md` present** and contains its managed markers.
 - **`state.yaml` parses** as valid YAML and matches the schema in `harness/state.schema.md`

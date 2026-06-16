@@ -1,0 +1,36 @@
+Midas
+Copyright 2026 Omar Perez Kuzma and contributors
+
+This product is licensed under the Apache License, Version 2.0 (the "License");
+you may not use this product except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the License for the
+specific language governing permissions and limitations under the License.
+
+---
+
+This product includes software and documentation contributions from the Midas
+open-source community. See the repository commit history for a full list of
+contributors: https://github.com/okuzpe/midas-harness/graphs/contributors
+
+---
+
+Third-party components bundled or referenced by this product:
+
+- Context7 MCP server (context7.com) — used to fetch live library documentation
+  at runtime. Not distributed with this package; fetched on demand via npx.
+  License: MIT — https://github.com/upstash/context7
+
+- Sequential Thinking MCP server (@modelcontextprotocol/server-sequential-thinking)
+  — used for structured reasoning at runtime. Not distributed with this package;
+  fetched on demand via npx.
+  License: MIT — https://github.com/modelcontextprotocol/servers
+
+The Contributor Covenant (CODE_OF_CONDUCT.md) is authored by Coraline Ada Ehmke
+and is used here under the Creative Commons Attribution 4.0 International license:
+https://www.contributor-covenant.org/version/2/1/code_of_conduct/

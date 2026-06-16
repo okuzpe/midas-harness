@@ -1,0 +1,32 @@
+name: Skill proposal
+description: Propose a new Midas skill or slash-command.
+labels: ["skill-proposal"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Skill name
+      placeholder: "/midas-..."
+    validations:
+      required: true
+  - type: dropdown
+    id: role
+    attributes:
+      label: Phase or role
+      options:
+        - Phase 0-8 lifecycle
+        - Utility
+        - Audit
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What it does and when to use it
+    validations:
+      required: true
+  - type: textarea
+    id: writes
+    attributes:
+      label: What it writes / its exit gate

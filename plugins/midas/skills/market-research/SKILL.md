@@ -6,7 +6,7 @@ disable-model-invocation: false
 model: inherit
 harness-tier: orchestrate
 recommended-model: claude-opus-4-8
-mcp-required: [fetch]
+mcp-required: [context7]
 ---
 
 # market-research — Phase 2
