@@ -23,11 +23,11 @@ not stale memory.
 
 ## 60-second quickstart
 
-Install Midas into any project (new **or** existing) with the standard initializer — works with every
-package manager and only adds files (never deletes yours):
+Install Midas into any project (new **or** existing) with **one command, straight from GitHub** — no
+npm account needed. It only adds files (never deletes yours):
 
 ```bash
-npm create midas        # or: pnpm create midas · yarn create midas · npx create-midas · bunx create-midas
+npx github:okuzpe/midas-harness     # pnpm dlx github:okuzpe/midas-harness · bunx github:okuzpe/midas-harness
 ```
 
 Then open the project in **Claude Code** (or Cursor) and drive the lifecycle:
@@ -40,8 +40,9 @@ Then open the project in **Claude Code** (or Cursor) and drive the lifecycle:
 /midas-tribunal    # any time: a whole-project adversarial debate
 ```
 
-**Claude Code plugin** (alternative): `/plugin marketplace add okuzpe/midas-harness` →
-`/plugin install midas@midas` → `/midas-init`.
+**Alternatives:**
+- **Claude Code plugin:** `/plugin marketplace add okuzpe/midas-harness` → `/plugin install midas@midas` → `/midas-init`.
+- **Copy only (any tool):** `npx giget@latest gh:okuzpe/midas-harness ./my-project`.
 
 No Claude Code? The same `AGENTS.md` + `.claude/skills/` are read natively by Cursor, Copilot and Codex.
 

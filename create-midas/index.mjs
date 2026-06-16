@@ -96,9 +96,9 @@ function printHelp() {
   console.log(`create-midas — install the Midas harness into a project
 
 Usage:
-  npm create midas              install into the current directory
-  npm create midas my-app       install into ./my-app
-  npx create-midas [dir]        same (works with pnpm / yarn / bun too)
+  npx github:okuzpe/midas-harness          install into the current directory (from GitHub)
+  npx github:okuzpe/midas-harness my-app   install into ./my-app
+  npm create midas                         if/when published to npm (pnpm/yarn/bun create midas too)
 
 Options:
   --force      overwrite files that already exist

@@ -1,0 +1,33 @@
+{
+  "name": "midas-harness",
+  "version": "0.2.0",
+  "description": "Portable product-development harness for AI agents — install into any repo with `npx github:okuzpe/midas-harness`. Drives a product from idea to shipped code through 9 audited phases.",
+  "bin": {
+    "midas": "create-midas/index.mjs"
+  },
+  "files": [
+    "create-midas"
+  ],
+  "engines": {
+    "node": ">=16.7"
+  },
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/okuzpe/midas-harness#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/okuzpe/midas-harness.git"
+  },
+  "bugs": {
+    "url": "https://github.com/okuzpe/midas-harness/issues"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "ai",
+    "agents",
+    "agents.md",
+    "harness",
+    "scaffold",
+    "context7"
+  ]
+}

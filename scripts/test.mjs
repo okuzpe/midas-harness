@@ -142,6 +142,17 @@ for (const f of walk(ROOT)) {
 }
 
 // --- report ------------------------------------------------------------------------------------
+// --- H. root package.json bin target exists (the `npx github:` entry point) -------------------
+const rootPkg = join(ROOT, 'package.json');
+if (existsSync(rootPkg)) {
+  let pkg = {};
+  try { pkg = JSON.parse(readFileSync(rootPkg, 'utf8')); } catch { check('root-pkg:parses', false); }
+  const bins = pkg.bin ? Object.values(pkg.bin) : [];
+  check('root-pkg:has-bin', bins.length > 0, 'no bin → `npx github:` install would not work');
+  for (const b of bins) check(`root-bin-exists:${b}`, existsSync(join(ROOT, b)));
+}
+
+// --- report ------------------------------------------------------------------------------------
 console.log(`midas test: ${passed} passed, ${failures.length} failed`);
 if (failures.length) {
   console.log('\nFailures:');

@@ -31,11 +31,12 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
   frontmatter, ritual-guard presence, adapter sync, plugin-tree sync, the example state shape, and the
   absence of stale brand tokens. A GitHub Actions workflow (`.github/workflows/ci.yml`) runs it plus
   `doctor` and a plugin-sync check on every push/PR.
-- **`create-midas` initializer** — a dependency-free npm package so anyone can install Midas into any
-  project with the standard `npm create midas` (also `pnpm create midas`, `yarn create midas`,
-  `npx create-midas`, `bunx create-midas`). It copies the harness non-destructively and generates the
-  tool adapters, then points the user at `/midas-init`. `scripts/build-create.mjs` bundles the kit into
-  `create-midas/template/` from source; CI fails on any drift.
+- **One-command install from GitHub** — `npx github:okuzpe/midas-harness` (also `pnpm dlx` / `bunx`)
+  installs Midas into any project, no npm account needed: a root `package.json` `bin` runs the
+  dependency-free initializer (`create-midas/index.mjs`), which copies the harness non-destructively
+  and generates the tool adapters, then points the user at `/midas-init`. The same initializer is also
+  packaged as `create-midas` for a future `npm create midas`; `scripts/build-create.mjs` bundles its
+  template from source and CI fails on drift.
 
 ---
 
