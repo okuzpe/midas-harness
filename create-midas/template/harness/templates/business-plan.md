@@ -42,9 +42,19 @@
 
 …
 
+## Validation status
+
+<!-- Desk validation (Phase 2) is required; field validation is strongly recommended but MAY be deferred
+     with a logged assumption — the founder is not hard-walled. -->
+
+- **Desk validation (Phase 2):** demand verdict <!-- strong | mixed | weak --> (see `product/market.md`).
+- **Field validation** (interviews / a real preorder / a paid-ad demand test): <!-- done (summary + evidence) | DEFERRED -->
+- **If deferred — assumption:** "real-customer demand is unproven; field validation deferred." Logged as a
+  top risk; re-surface before launch/scale and in `/midas-tribunal`.
+
 ## Go / no-go recommendation
 
-<!-- TODO: orchestrator verdict — go | no-go | conditional-go (with conditions listed) -->
+<!-- TODO: orchestrator verdict — go | go-with-field-validation-deferred | conditional-go | no-go -->
 
 **Verdict:** <!-- go | no-go | conditional-go -->
 
@@ -66,5 +76,5 @@
 
 ---
 
-*Gate check: MVP scope + non-goals ✓, measurable metrics ✓, model ✓, go/no-go ✓, human sign-off ✓.*
-*Next: run `/midas-tech-architecture` (Phase 4).*
+*Gate check: MVP scope + non-goals ✓, measurable metrics ✓, model ✓, validation status ✓, go/no-go ✓, human sign-off ✓.*
+*Next: run `/choose-architecture` (Phase 4).*

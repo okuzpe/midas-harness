@@ -13,6 +13,27 @@ _Nothing yet._
 
 ---
 
+## [0.5.1] — 2026-06-17
+
+### Changed — validation is now two-tier (so an AI-only founder isn't hard-walled)
+From real-project feedback: the lifecycle was letting the AI invent a hard "go interview N people +
+preorders" gate that blocks a founder whose only tool is the AI. Validation is now explicitly split:
+- **Desk validation (Phase 2 `/market-research`) — the AI does it, required.** Market-research now gathers
+  **demand signals** (competitor traction/reviews, complaints, search/community interest, willingness-to-pay)
+  and ends in a frank **demand verdict** (strong/mixed/weak), not just a competitor list. It states plainly
+  what the desk can prove (a market exists) and cannot (that *these* customers pay).
+- **Field validation (Phase 3 `/business-plan`) — strongest evidence, recommended, but deferrable.** Customer
+  interviews / a real preorder / a paid-ad test are strongly recommended; if not feasible now they may be
+  **deferred with a logged assumption** ("real-customer demand unproven"), re-surfaced before launch/scale.
+  The go/no-go gains a **GO-with-field-validation-deferred** verdict — the founder's informed risk call, not a wall.
+- New `## Demand signals` (`market.md`) and `## Validation status` (`business-plan.md`) template sections +
+  gate items. Also fixed a stale `/midas-tech-architecture` → `/choose-architecture` pointer in the template.
+
+### Engine
+- Version single-sourced to `0.5.1` (`harness/VERSION` + all mirrors).
+
+---
+
 ## [0.5.0] — 2026-06-17
 
 > **Breaking (pre-1.0 minor).** Context7 is no longer a bundled/mandatory dependency. Existing installs
@@ -368,7 +389,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/okuzpe/midas-harness/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/okuzpe/midas-harness/compare/v0.4.2...v0.5.0
 [0.4.2]: https://github.com/okuzpe/midas-harness/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/okuzpe/midas-harness/compare/v0.4.0...v0.4.1

@@ -26,13 +26,19 @@ This is an irreversible decision point; use the orchestrate tier.
 3. **Sketch the revenue/sustainability model.** One paragraph: how does this sustain itself
    (freemium, subscription, open-core, grant, internal tool, etc.)? No financial projections
    are required unless the human asks — just name the model.
-4. **Identify top 3 risks** (pull from `product/market.md` `## Top risks`; update if needed).
+4. **Identify top 3 risks** (pull from `product/market.md` `## Top risks`; update if needed). If
+   **field validation** (interviews / a real preorder / a paid-ad demand test) has not been done, list
+   *"real-customer demand unproven — field validation deferred"* as an explicit risk + assumption. Recommend
+   field validation, but do **NOT** hard-block a resource-constrained founder; the go/no-go is their call.
 5. **Draft `product/business-plan.md`** with sections:
    - `## MVP scope` — feature list + explicit non-goals
    - `## Success metrics` — primary + secondary + health
    - `## Revenue / sustainability model`
    - `## Top risks & mitigations`
-   - `## Go / No-go recommendation` — orchestrator's recommendation with reasoning
+   - `## Validation status` — desk demand verdict (from Phase 2) + field-validation status (done, or
+     deferred with a logged assumption)
+   - `## Go / No-go recommendation` — orchestrator's recommendation with reasoning (a valid verdict is
+     **GO with field validation deferred** when desk demand is ≥ mixed and the human accepts the risk)
 6. **HUMAN SIGN-OFF.** Present the plan to the user. Wait for explicit approval
    (`go`, `approved`, `proceed`, or equivalent). Do not advance on silence.
    Record the approval in `harness/state.yaml` under `phases.business_case.human_approved: true`.
@@ -51,6 +57,7 @@ This is an irreversible decision point; use the orchestrate tier.
 - [ ] MVP scope names features AND explicit non-goals
 - [ ] At least one measurable, time-bound success metric is defined
 - [ ] Revenue/sustainability model is named (one paragraph minimum)
+- [ ] `## Validation status` present: desk demand verdict + field-validation status (done / deferred-with-assumption); founder not hard-walled
 - [ ] Go/no-go recommendation is present with explicit reasoning
 - [ ] Human sign-off is recorded (`human_approved: true` in `state.yaml`)
 - [ ] Gate verdict written to `.harness/audits/audit-03.md`

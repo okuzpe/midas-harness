@@ -19,13 +19,17 @@ decision. Every claim must be cited; opinions must be flagged as such.
 
 1. **Frame the search.** Orchestrator derives 3–5 search queries from the problem statement
    and the target user. Prioritize: (a) direct competitors, (b) adjacent solutions the user
-   might substitute, (c) recent funding/M&A signals.
+   might substitute, (c) recent funding/M&A signals, (d) **demand signals** — complaints/reviews about
+   the problem, search/community interest, and what people already pay for substitutes (the desk-doable
+   proof that demand is real).
 2. **Run research.** Use `/deep-research` or invoke `midas-scout` with `WebSearch` + `WebFetch`
    to gather raw evidence. Collect at minimum 3 distinct competitors with public evidence.
 3. **Write `product/market.md`.** Build uses the template below:
    - `## Market snapshot` — size estimate with source and date
    - `## Competitors` — table: name | segment | key differentiator | weakness (one row per competitor)
    - `## Differentiation thesis` — 2–4 sentences; what Midas enables that incumbents cannot
+   - `## Demand signals` — evidence the problem is real and paid-for (traction, complaints, search
+     interest, willingness-to-pay), ending in a frank **demand verdict**: strong / mixed / weak
    - `## Top risks` — exactly 3 ordered risks with mitigation note
    - `## Sources` — numbered citation list; all URLs with access date
 4. **Cite everything.** Inline citation format: `[N]` pointing to the `## Sources` list.
@@ -44,6 +48,7 @@ decision. Every claim must be cited; opinions must be flagged as such.
 - [ ] `product/market.md` exists with all five sections present
 - [ ] At least 3 named competitors with evidence (not hypothetical)
 - [ ] Differentiation thesis is present and specific (not generic)
+- [ ] `## Demand signals` present with a frank demand verdict (strong/mixed/weak) and cited evidence
 - [ ] Exactly 3 top risks are listed with mitigation notes
 - [ ] Every factual claim has an inline citation `[N]`
 - [ ] `## Sources` list contains at least 3 URLs with access dates

@@ -33,6 +33,17 @@
 
 …
 
+## Demand signals
+
+<!-- TODO: evidence the problem is real and paid-for — competitor traction/reviews/funding, complaints
+     in forums/reviews, search/community interest, what people pay for substitutes. End with a verdict.
+     This is the part you CAN validate from the desk; whether THESE customers pay is field validation (Phase 3). -->
+
+- **Traction / pain evidence:** … [cite]
+- **Search / community interest:** … [cite]
+- **Willingness-to-pay signal:** … [cite]
+- **Demand verdict:** <!-- strong | mixed | weak -->
+
 ## Top 3 risks
 
 <!-- TODO: each risk needs a likelihood (H/M/L), impact (H/M/L), and a mitigation hypothesis -->
@@ -53,5 +64,5 @@
 
 ---
 
-*Gate check: ≥3 competitors ✓, differentiation thesis written ✓, all claims cited ✓, top-3 risks present ✓.*
+*Gate check: ≥3 competitors ✓, differentiation thesis ✓, all claims cited ✓, demand verdict ✓, top-3 risks ✓.*
 *Next: run `/business-plan` (Phase 3).*

@@ -21,14 +21,20 @@ frames the questions and audits the gate — it does not rubber-stamp its own re
 
 ## Steps
 1. **Derive research questions** from `product/idea.md`: market-size signals, direct competitors,
-   substitutes/alternatives, pricing norms, distribution channels, regulatory/compliance constraints.
+   substitutes/alternatives, pricing norms, distribution channels, regulatory/compliance constraints,
+   and **demand signals** — evidence that the problem is real and people pay to solve it (competitor
+   traction/reviews/funding, complaints in forums/Reddit/app-store reviews, search/community interest,
+   what people already pay for substitutes). This is the part you CAN validate from the desk.
 2. **Fan out the research.** Prefer the **`/deep-research`** skill if available (it already fans out
    searches, fetches sources, and adversarially verifies). Otherwise dispatch **scout** subagents
    (Haiku) to `WebSearch` + `fetch` each question; for any technology/landscape facts, use Context7.
 3. **Adversarially verify.** Every material claim must cite a source URL. Strike or flag uncited
    claims. Distinguish primary sources from blog hearsay.
 4. **Synthesize** (build tier) into a competitor matrix (who, what, price, gap), a one-paragraph
-   **differentiation thesis**, and the **top 3 market risks** with their early signals.
+   **differentiation thesis**, the **top 3 market risks** with their early signals, and a frank
+   **demand verdict** — *strong / mixed / weak* desk-signal — citing the evidence behind it (traction,
+   pain complaints, search interest, willingness-to-pay). State plainly what the desk can and **cannot**
+   prove: it shows a market exists, not that *these* customers will pay — that is field validation (Phase 3).
 5. **Write `product/market.md`** from `harness/templates/market.md`. Update `harness/state.yaml`
    (`market_research: in_progress` → leave the gate verdict to the orchestrator).
 
@@ -41,5 +47,7 @@ search/extraction. Build (Sonnet) writes the synthesis. Reuse `/deep-research` w
 - [ ] A differentiation thesis is stated explicitly.
 - [ ] Every material claim carries a citation (source URL).
 - [ ] Top 3 market risks named, each with an early signal.
+- [ ] **Demand signals** assessed with a frank desk-demand verdict (strong/mixed/weak) and evidence —
+      not just a competitor list. (Whether *these* customers pay is field validation, weighed in Phase 3.)
 - [ ] `product/market.md` written; gate verdict rendered by the orchestrator before advancing to
       `business_case`.
