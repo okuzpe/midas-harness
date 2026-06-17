@@ -24,7 +24,7 @@ and `state.yaml` records `gate: passed`. The **producer** never grades its own h
 | 2 | Market Research | `pipeline/2-market-research.md` | `product/market.md` |
 | 3 | Business Case | `pipeline/3-business-case.md` | `product/business-plan.md` |
 | 4 | Tech & Architecture | `pipeline/4-tech-architecture.md` | `product/architecture.md`, `product/adr/ADR-*.md` |
-| 5 | Architecture-as-Rules + Design System | `pipeline/5-architecture-rules.md` | `harness/rules/*`, `product/design-system.md` |
+| 5 | Architecture-as-Rules + Design System | `pipeline/5-architecture-rules.md` | `harness/rules/*`, `product/design-system.md`, `product/playbooks/*` |
 | 6 | Sprint Planning | `pipeline/6-sprint-planning.md` | `product/roadmap.md`, `product/sprints/NN-*.md` |
 | 7 | Sprint Execution Loop | `pipeline/7-sprint-execution.md` | code + tests + updated sprint |
 | 8 | Per-sprint Audit & Adjust | `pipeline/8-audit-adjust.md` | `.harness/audits/audit-NN.md` |

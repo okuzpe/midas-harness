@@ -30,7 +30,8 @@ Load `harness/state.yaml`, the active `product/sprints/NN-*.md`, all `harness/ru
 ### 2. Conformance audit (every rule, pass/fail, with evidence)
 For **each** rule in `harness/rules/*` and the design-system token rule, evaluate the rule's CHECK
 against the sprint diff and render **pass/fail with on-disk evidence** (file:line). Confirm
-third-party code was written against Context7-verified docs at the pinned version. No rule is skipped;
+third-party code was written against Context7-verified docs at the pinned version. Where a task
+followed a `product/playbooks/*` recipe, confirm its **done-when** checks hold too. No rule is skipped;
 "not applicable this sprint" is itself a recorded verdict.
 
 ### 3. Scope audit vs the business case

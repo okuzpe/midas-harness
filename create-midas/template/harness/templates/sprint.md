@@ -45,7 +45,9 @@
 
 ## Tasks
 
-<!-- TODO: break down the goal into implementation tasks. Each task: title, owner tier, status. -->
+<!-- TODO: break down the goal into implementation tasks. Each task: title, owner tier, status.
+     If a task follows a product/playbooks/* recipe, note it as `playbook: <slug>` so the Phase 8
+     audit can confirm that playbook's done-when checks. -->
 
 | # | Task | Tier | Status | Notes |
 |---|---|---|---|---|

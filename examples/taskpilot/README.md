@@ -12,7 +12,7 @@ show every Midas phase artifact populated with real, consistent content.
 | 2 Market Research | `product/market.md` |
 | 3 Business Case | `product/business-plan.md` |
 | 4 Tech Architecture | `product/architecture.md`, `product/adr/ADR-001-stack.md` |
-| 5 Architecture Rules & Design System | `product/design-system.md` |
+| 5 Architecture Rules & Design System | `product/design-system.md`, `product/playbooks/*` (recipes for repeated tasks) |
 | 6 Sprint Planning | `product/roadmap.md`, `product/sprints/01-auth-and-task-crud.md` |
 | 7 Sprint Execution | `product/src/` (the full Sprint-1 vertical slice: auth, task CRUD, middleware, board stub + tests) |
 | 8 Per-sprint Audit | `.harness/audits/audit-01.md` — a **closed** 7 → 8 loop: verdict **PASS** + gate-parseable tally line |
@@ -36,5 +36,10 @@ show every Midas phase artifact populated with real, consistent content.
 
 - Not a production-ready codebase. Files are illustrative; imports reference packages that would be
   installed via `npm install` in a real project.
+- Not a fully-materialized rule set. To stay tiny, the example ships the audit trail + code slice, **not**
+  the Phase-5 `harness/rules/*.md` bodies; the two `product/playbooks/` recipes reference those slugs
+  (`security.md`, `code-quality.md`, …) at the paths where a real project's rules would live. The two
+  playbooks are genuine — both `/api/*` routes and schema changes recur across the three sprints — not a
+  count to hit (zero playbooks is a valid outcome).
 - Not a tutorial for TaskPilot-the-product. It is a tutorial for **Midas** and how its artifacts
   connect phase-to-phase.

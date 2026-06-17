@@ -29,10 +29,16 @@ rules before any code is written; the Phase 8 audit references exactly these fil
      typography, component vocabulary, do/don't examples.
    - `harness/design-system/tokens.json` — machine-readable token map.
    - `harness/design-system/tokens.css` — CSS custom properties derived from the token map.
-5. **Render adapters.** Run `node scripts/render-adapters.mjs` (or `/midas-doctor`) to
+5. **Write the project playbooks.** Emit **up to 4** markdown recipes (zero is valid) to
+   `product/playbooks/<verb-noun>.md` for the tasks that *repeat* in this stack (e.g. add an API
+   endpoint, add a DB migration, scaffold a component). Each: use-when, steps, the rules/tokens it
+   honors (reference by `<slug>.md`, don't restate), a Context7 fetch for any third-party API, and a
+   done-when check that is the procedure's own signal. **CHECK:** each playbook has ≥1 step no single
+   rule states (1:1-to-rules → cut). Playbooks are markdown the build agent follows — **not** slash-commands.
+6. **Render adapters.** Run `node scripts/render-adapters.mjs` (or `/midas-doctor`) to
    propagate the new rules into `CLAUDE.md`, `.cursor/rules/00-midas.mdc`, and
    `.windsurf/rules/00-midas.md`. Do not hand-edit the generated adapters.
-6. **Advance.** Set `stage_status: gate_pending`; run the exit gate.
+7. **Advance.** Set `stage_status: gate_pending`; run the exit gate.
    On pass, write `gate: passed` and set `stage: sprint_planning`.
 
 ## Output artifacts
@@ -41,6 +47,7 @@ rules before any code is written; the Phase 8 audit references exactly these fil
 |---|---|
 | `harness/rules/<slug>.md` | One file per rule; folder-structure required |
 | `product/conventions.md` | Stack-specific overrides |
+| `product/playbooks/<verb-noun>.md` | 2–4 recipes for the project's repeated tasks |
 | `product/design-system.md` | Human-readable design reference |
 | `harness/design-system/tokens.json` | Token map |
 | `harness/design-system/tokens.css` | CSS custom properties |
@@ -52,6 +59,7 @@ rules before any code is written; the Phase 8 audit references exactly these fil
 - [ ] Each rule is CHECKABLE (grep pattern, lint rule, or explicit verification command given)
 - [ ] `product/conventions.md` is present and references the base `harness/conventions.md`
 - [ ] `product/design-system.md` defines colors, spacing, type, and components
+- [ ] `product/playbooks/` holds 0–4 recipes for repeated tasks (use-when/steps/rules/Context7/done-when); each has ≥1 step no single rule states (none duplicates a rule)
 - [ ] `harness/design-system/tokens.json` and `tokens.css` are consistent with each other
 - [ ] `node scripts/render-adapters.mjs` ran without errors; generated adapters are up to date
 - [ ] Gate verdict written to `.harness/audits/audit-05.md`

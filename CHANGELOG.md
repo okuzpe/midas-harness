@@ -13,6 +13,31 @@ _Nothing yet._
 
 ---
 
+## [0.4.1] — 2026-06-17
+
+### Added — Phase 5 emits project playbooks (not just rules)
+`/define-conventions` now generates, **beyond the rules**, a small bounded set of **playbooks** — markdown
+recipes for the tasks that recur in the chosen stack — so every sprint does a repeated task the same way.
+(Built, then reviewed by a 3-lens adversarial pass; verdict ship-after-must-fix, all must-fix applied.)
+
+- **Rules are constraints the audit checks; playbooks are procedures the build agent follows.** Each
+  playbook in `product/playbooks/<verb-noun>.md`: use-when, steps, the rules/tokens it honors (by
+  `<slug>.md` — never restated), a Context7 fetch, and a done-when check that is the procedure's *own*
+  signal.
+- **Anti-bloat by design:** **0–4** playbooks (zero is valid); a task earns one only if it recurs AND has a
+  non-obvious project-specific "right way". CHECK: each playbook must have ≥1 step no single rule states —
+  a 1:1-to-rules playbook is cut. Playbooks are markdown the agent reads, **not** new slash-commands.
+- Wired into the loop: `/start-sprint` loads and follows the matching playbook; `/close-sprint` confirms a
+  followed playbook's done-when. A `harness/templates/playbook.md` template + an optional `playbook: <slug>`
+  task linkage in the sprint template.
+- Worked example: `examples/taskpilot/product/playbooks/` ships two real recipes (`add-api-route`,
+  `add-drizzle-migration`), grounded in the example's Next.js + Drizzle code.
+
+### Engine
+- Version single-sourced to `0.4.1` (`harness/VERSION` + all mirrors).
+
+---
+
 ## [0.4.0] — 2026-06-17
 
 ### Added — `/midas-init` is now an adaptive intake
