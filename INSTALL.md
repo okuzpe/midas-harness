@@ -86,14 +86,13 @@ Your existing `AGENTS.md` / `CLAUDE.md` / `.mcp.json` are kept (skipped) — run
 harness conventions into them.
 
 ## After installing
-1. Open the project in **Claude Code** (or Cursor).
-2. `/midas-status` — works immediately (the installer wrote a default state); it shows the current
-   phase and the next command.
-3. Drive the lifecycle: `/idea-intake` → `/contextualize` → `/market-research` → `/business-plan` →
+1. Open the project in **Claude Code**.
+2. `/midas-init` — the **one-time guided setup** (a few questions once; for an existing repo it runs the
+   brownfield adoption for you). It then retires — you won't run it again.
+3. `/midas-status` — from here on, shows the current phase and the single next command.
+4. Drive the lifecycle: `/idea-intake` → `/contextualize` → `/market-research` → `/business-plan` →
    `/choose-architecture` → `/define-conventions` → `/plan-sprints` → `/start-sprint` → `/close-sprint`.
    Run `/midas-tribunal` any time for a whole-project adversarial debate.
-4. **Optional:** `/midas-init` to refine the defaults (cost profile, tools, Context7 key); `/midas-adopt`
-   to wire an existing codebase (brownfield).
 
 ## Updating
 Re-run the install command (it skips files you've edited; pass `--force` to refresh the engine), or

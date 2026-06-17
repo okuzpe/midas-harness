@@ -15,8 +15,10 @@ completion — it reports the truth already on disk. Safe to run at any time, in
 
 ## Steps
 
-1. **Read `harness/state.yaml`.** If it is missing, report that Midas is not initialized and direct the
-   user to `/midas-init`. If it exists but does not parse, say so plainly and point at `/midas-doctor`.
+1. **Read `harness/state.yaml`.** If it is missing, report that Midas is not installed → `/midas-init`.
+   **If it exists but `setup_complete` is not `true`,** the single next action is **`/midas-init`** (finish
+   the one-time setup) regardless of `stage` — say so and stop. If it exists but does not parse, say so
+   plainly and point at `/midas-doctor`.
 2. **Resolve the current stage** from `stage` + `stage_status` against the 9-phase table in
    `harness/state.schema.md` and `harness/methodology.md`.
 3. **Re-derive gate status (read-only).** For the current phase, check whether its required `artifacts`
@@ -28,6 +30,7 @@ completion — it reports the truth already on disk. Safe to run at any time, in
    | stage | next action |
    |---|---|
    | (no state file) | `/midas-init` |
+   | `setup_complete: false` | `/midas-init` (finish one-time setup) |
    | `idea_intake` | `/idea-intake` |
    | `contextualize` | `/contextualize` |
    | `market_research` | `/deep-research` then the market-research phase |

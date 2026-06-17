@@ -9,9 +9,25 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+_Nothing yet._
+
+---
+
+## [0.3.2] — 2026-06-17
+
+### Fixed — onboarding (from real-project validation)
+- **The installed `AGENTS.md` now describes YOUR project, not Midas.** The initializer used to render the
+  engine's own `AGENTS.md` (which read "Midas is a portable harness…") into every project; it now renders
+  the project template (`harness/templates/AGENTS.md.tmpl`) and fills in the project name.
+- **`/midas-init` is now a true one-time setup that retires itself.** It asks config in one batched round,
+  sets `setup_complete: true`, and on re-run just points at `/midas-status`. On a **brownfield** repo it
+  now **continues straight into `/midas-adopt` in the same run** — no more two separate commands.
+  `/midas-status` directs you to `/midas-init` until setup is complete.
+- `harness/state.yaml` gains a `setup_complete` flag (written `false` by the installer).
+
 ### Added
 - `docs/context-hierarchy.md` — a single map of every file Midas writes (role, who edits it, which tools
-  read it) and the rule-precedence order, consolidating guidance that was scattered across `AGENTS.md`,
+  read it) and the rule-precedence order, consolidating guidance scattered across `AGENTS.md`,
   `harness/conventions.md`, the README, and `state.schema.md`. Added to the docs-site nav.
 
 ---
@@ -179,7 +195,8 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/okuzpe/midas-harness/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/okuzpe/midas-harness/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/okuzpe/midas-harness/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/okuzpe/midas-harness/releases/tag/v0.2.0

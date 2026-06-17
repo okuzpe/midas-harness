@@ -26,12 +26,13 @@ It is committed to the project's git (reproducible memory). Volatile caches/hash
 ## Schema
 
 ```yaml
-midas_version: 0.3.1          # engine version that wrote this file (for /midas-update)
+midas_version: 0.3.2          # engine version that wrote this file (for /midas-update)
 name: taskpilot              # project slug
 mode: greenfield             # greenfield | brownfield
 language: en                 # artifact language
 created: 2026-06-16          # ISO date (set by /midas-init; never use a live clock in scripts)
 updated: 2026-06-16
+setup_complete: false        # the installer writes false; /midas-init flips it true when setup is done
 
 stage: tech_architecture     # current stage enum (see table)
 stage_status: in_progress    # not_started | in_progress | gate_pending | passed

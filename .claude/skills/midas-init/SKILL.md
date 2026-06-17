@@ -14,17 +14,22 @@ mcp-required: [context7]
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
 > First read `harness/state.yaml`; if the precondition stage is wrong, report and stop.
 
-**When to run:** the installer (`npx github:okuzpe/midas-harness`) already writes a working default
-`harness/state.yaml` plus the adapters, so this skill is **optional refinement**, not a required step:
-- **State already exists (the common case):** treat this as REFINEMENT — confirm or adjust
-  `cost_profile`, `tools`, `language`, and the Context7 key in the existing `state.yaml`
-  (read-modify-write the whole file). Do **not** re-init or touch `product/*`. If `mode: brownfield`,
-  hand off to `/midas-adopt`.
-- **No `state.yaml` (e.g. a manual file copy):** run the full setup below.
+**Run this once.** The installer wrote a default `harness/state.yaml` so nothing is broken, but it made
+no decisions — `/midas-init` is the **one-time guided setup**:
 
-This skill is **idempotent**: it only owns the regions between the managed markers
-`<!-- midas:begin -->` … `<!-- midas:end -->` and never overwrites content outside them. Never write a
-secret to disk. The flow is **DETECT → ASK → GENERATE** (skip steps the default state already satisfies).
+- **If `state.yaml` has `setup_complete: true`** → setup is already done. **STOP** and point the user at
+  `/midas-status`. (You will not be needed again.)
+- **Otherwise** → run the guided setup below, then set `setup_complete: true` in `state.yaml` and tell
+  the user verbatim: *"Setup complete — from here, just use `/midas-status`; you won't need `/midas-init`
+  again."* Branch by mode:
+  - **Greenfield:** finish by pointing at `/midas-status` → `/idea-intake`.
+  - **Brownfield:** after the additive writes, **continue straight into adoption in the same run** —
+    perform the `/midas-adopt` procedure so the whole thing is **one flow, not two commands**.
+
+Keep it tight: **ask in a SINGLE batched round** (`AskUserQuestion`), pre-filled from DETECT so the user
+confirms-or-adjusts rather than answering blank prompts. This skill is **idempotent**: it owns only the
+regions between `<!-- midas:begin -->` … `<!-- midas:end -->` and never overwrites content outside them.
+Never write a secret to disk. Flow: **DETECT → ASK (one batch) → GENERATE → set `setup_complete: true`**.
 
 ---
 
@@ -71,13 +76,14 @@ for every applicable question. **Batch 1 (identity & shape):**
 
 ## Phase C — GENERATE (write last; one read-modify-write of state)
 
-### Brownfield branch → `/midas-adopt`
-If `mode == brownfield` (the repo already has code), do only the additive, non-destructive setup here —
-write `harness/state.yaml` (with `mode: brownfield` + `entry_stage` recorded) and the `product/`
-skeleton — but do **not** touch any pre-existing `AGENTS.md` / `CLAUDE.md` / source. Then **hand off to
-`/midas-adopt`**, which inventories the codebase, reverse-engineers architecture + rules from the real
-code, and wires the harness with **dry-run + diff-confirm** (it shows a diff and asks before writing
-into any existing file). Print that next step and stop — do **not** run the greenfield writes below.
+### Brownfield branch → continue into adoption (same run)
+If `mode == brownfield` (the repo already has code), do the additive, non-destructive writes here —
+`harness/state.yaml` (`mode: brownfield`, `entry_stage` recorded, `setup_complete: true`) and the
+`product/` skeleton — without touching any pre-existing `AGENTS.md` / `CLAUDE.md` / source. Then, **in the
+same run, perform the `/midas-adopt` procedure** (`.claude/skills/midas-adopt/SKILL.md`: inventory →
+reverse-engineer architecture + rules from the real code → baseline audit → wire with **dry-run +
+diff-confirm**). Do **not** stop and make the user launch a second command, and do **not** run the
+greenfield writes below.
 
 ### Greenfield writes
 Write in this order (state file last):

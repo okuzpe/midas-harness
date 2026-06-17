@@ -1,46 +1,58 @@
-# AGENTS.md — midas-harness
+# AGENTS.md — {{PROJECT_NAME}}
 
-> This file is project law for **any** AI agent working in this repository (Claude Code, Cursor,
-> Copilot, Codex, Windsurf, …). It is the source of truth; `CLAUDE.md`, `.cursor/rules/*.mdc` and
-> `.windsurf/rules/*.md` are **generated** from it and from `harness/conventions.md`.
+> This file is project law for **any** AI agent working in this repository
+> (Claude Code, Cursor, Copilot, Codex, Windsurf, …).
+> It is **generated** from the Midas harness. Edit `harness/conventions.md`
+> and re-run `/midas-doctor` to propagate changes — never edit this file directly.
 
-## What this repo is
-**Midas** is a portable, AI-tool-agnostic **product-development harness**: a copy-in kit of markdown
-(skills, rules, slash-commands, agent definitions) that drives a software product from raw idea to
-shipped code through 9 audited phases. It installs into any project and works across many AI tools.
+## What this project is
 
-- Methodology: `harness/methodology.md` (+ per-phase guides in `harness/pipeline/`)
-- Source of truth: `harness/`, `.claude/skills/`, this `AGENTS.md`
-- Generated adapters (do not hand-edit): `CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`
+<!-- TODO: one-paragraph product description filled in by /midas-init from product/idea.md -->
 
-## How to work on Midas
-- Edit conventions in `harness/conventions.md`, then run `/midas-doctor` (or `node scripts/render-adapters.mjs`)
-  to re-render the adapters. Never edit a generated adapter directly.
-- Skills are authored once as `.claude/skills/<name>/SKILL.md` (Agent Skills standard) — Cursor,
-  Copilot and Codex read them natively too. No per-tool copies.
-- Keep everything plain markdown + the two optional Node scripts (`render-adapters`, `doctor`).
+- Stack: **{{STACK}}**
+- AI tools wired: **{{TOOLS}}**
+- Methodology: `harness/methodology.md` (9 audited phases, idea → shipped)
+- State: `harness/state.yaml` (single source of truth — read it for current phase)
 
-## Build / test / verify
-- No build step (markdown-first). Optional scripts: `node scripts/render-adapters.mjs`, `node scripts/doctor.mjs`.
-- `/midas-doctor` is the only sync engine: it detects adapter drift and can re-render it.
+## Conventions (always-on)
 
-## Conventions
-Follow `harness/conventions.md` (code quality, naming, errors, testing, deps, git, security, design
-system) and the always-on rules in `harness/rules/`. Precedence: stack rules > product/conventions >
-design-system > base conventions.
+All rules in `harness/conventions.md` apply unconditionally. Key points:
+
+- **Code quality** — match surrounding code; prefer reuse over new abstractions; no dead code.
+- **Naming** — kebab-case files, PascalCase types, per-language idiom for functions/vars.
+- **Errors** — validate at boundaries; fail fast with actionable messages; never swallow errors.
+- **Testing** — every behaviour change ships with a test; test behaviour, not implementation.
+- **Dependencies** — justify before adding; pin versions; run Context7 before any third-party code.
+- **Git** — Conventional Commits (`feat:` `fix:` `docs:` `refactor:` `test:` `chore:`); small reviewable commits.
+- **Security** — secrets only in `${ENV_VAR}`; never commit them; least-privilege MCP scopes.
+- **Design system** — all UI uses `product/design-system.md` tokens; never hardcode colour/spacing/type.
+
+Stack-specific rules (generated in Phase 5) live in `harness/rules/` and take highest precedence.
 
 ## Context7 (mandatory)
-Before writing code against any third-party library, fetch current docs via Context7
-(`resolve-library-id` → `get-library-docs` at the in-use version). See `harness/rules/context7-usage.md`.
-If Context7 is down, use the documented web fallback — never generate third-party code from memory.
 
-## Model routing (cost-aware)
-Use the strongest model to **think/plan/audit** (orchestrate), a mid model to **implement** (build),
-and the fastest/cheapest to **search/extract** (scout). IDs and profiles: `docs/agents-and-models.md`.
-On tools without per-agent model selection, apply this as intent: fastest model for research,
-strongest for architecture and audits.
+Before writing code against any third-party library:
+1. Call `resolve-library-id` with the library name.
+2. Call `get-library-docs` with the resolved id, version in use, and a topic filter.
+3. Write code against the returned docs — not from memory.
+
+See `harness/rules/context7-usage.md` for the full rule, fallback procedure, and cost guidance.
+
+## Model routing
+
+| Tier | Role | Model |
+|---|---|---|
+| `orchestrate` | think / plan / audit / decide | `claude-opus-4-8` |
+| `build` | implement / write artifacts | `claude-sonnet-4-6` |
+| `scout` | search / extract / mechanical | `claude-haiku-4-5` |
+
+Active profile and resolved IDs: `harness/state.yaml → routing`.
+On tools without per-agent model selection, apply as intent: fastest for research, strongest for architecture and audits.
 
 ## Safety
-- Side-effecting skills (`/midas-init`, `/define-conventions`, `/start-sprint`, `/close-sprint`,
-  `/midas-doctor`) must only run when the user explicitly invokes them — each guards this in its body.
+
+- Side-effecting skills (`/midas-init`, `/define-conventions`, `/start-sprint`, `/close-sprint`, `/midas-doctor`)
+  run **only** when the user explicitly invokes them — each guards this in its own body.
 - Secrets only via `${ENV_VAR}`; never write a key to disk or commit one.
+- Generated adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`) must not be
+  hand-edited; they are re-rendered by `/midas-doctor`.
