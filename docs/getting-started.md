@@ -57,8 +57,10 @@ After installing, open the project in **Claude Code** (or Cursor) and run:
 /midas-init
 ```
 
-This conversational installer asks ~8 questions and writes `harness/state.yaml` plus the tool
-adapters (CLAUDE.md, .cursor/rules/, GEMINI.md, etc.).
+This adaptive intake **scans what the project already has** (code, manifests, README, docs),
+classifies its maturity (E0 empty → E3 mature), pre-fills what it can infer, asks only the genuine
+gaps in one batched round, and writes `harness/state.yaml` plus the tool adapters (CLAUDE.md,
+.cursor/rules/, GEMINI.md, etc.) — placing you at the right phase.
 
 ```text
 /midas-status
@@ -87,5 +89,5 @@ Drive phases in order — each command runs when its predecessor's exit gate pas
 
 Run `/midas-tribunal` at any time for a whole-project adversarial debate.
 
-For brownfield (existing code), use `/midas-adopt` instead of `/idea-intake`. See the
-[Skills Reference](skills.md) for every command.
+For an existing codebase, `/midas-init` classifies it as **E2/E3** and runs `/midas-adopt` for you
+(no need to call it manually). See the [Skills Reference](skills.md) for every command.

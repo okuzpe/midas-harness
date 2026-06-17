@@ -31,8 +31,8 @@ Phases 0–6 run once (front-loaded). Phases 7–8 loop every sprint. Each phase
 artifacts under `product/` and is guarded by an exit gate the orchestrator audits before advancing.
 One file holds all state: `harness/state.yaml`.
 
-See [Methodology](methodology.md) for the full phase table and greenfield vs brownfield entry
-points, or read the canonical [`harness/methodology.md`](https://github.com/okuzpe/midas-harness/blob/main/harness/methodology.md)
+See [Methodology](methodology.md) for the full phase table and the maturity-based entry points
+(E0–E3), or read the canonical [`harness/methodology.md`](https://github.com/okuzpe/midas-harness/blob/main/harness/methodology.md)
 in the repo.
 
 ## Key properties

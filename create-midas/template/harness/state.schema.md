@@ -21,14 +21,17 @@ It is committed to the project's git (reproducible memory). Volatile caches/hash
 | `audit` | 8 | conformance audit frozen, drift resolved |
 | `shipped` | — | no sprints left + success metrics met |
 
-`stage` advances **only** after the orchestrator (Opus) writes a passing gate audit.
+`stage` advances **only** after the orchestrator (Opus) writes a passing gate audit. The *initial* `stage`
+is set by `/midas-init` from the project's maturity (E0–E3, see `harness/methodology.md`), with
+`stage_status: not_started` and a recorded assumption per skipped gate; gate-only advancement governs every
+transition after that.
 
 ## Schema
 
 ```yaml
-midas_version: 0.3.4          # engine version that wrote this file (for /midas-update)
+midas_version: 0.4.0          # engine version that wrote this file (for /midas-update)
 name: taskpilot              # project slug
-mode: greenfield             # greenfield | brownfield
+mode: greenfield             # greenfield | brownfield  (maturity: E0/E1 → greenfield, E2/E3 → brownfield)
 language: en                 # artifact language
 created: 2026-06-16          # ISO date (set by /midas-init; never use a live clock in scripts)
 updated: 2026-06-16
@@ -69,8 +72,9 @@ last_audit: { phase: contextualize, verdict: pass, at: 2026-06-15 }
 2. `STATE.md` (human mirror) is regenerated from this file — never hand-edit it as primary.
 3. A half-finished phase keeps `stage_status: in_progress`; the gate is always re-run from
    scratch (idempotent), so resuming = re-run the gate and report what's missing.
-4. Skipped gates (e.g. brownfield entering at `tech_architecture`) carry an explicit
-   `entry_stage` + a recorded assumption in `STATE.md`, exactly like deferred Phase-1 questions.
+4. Skipped gates (e.g. an E2/E3 brownfield repo entering past `idea_intake`) carry an explicit
+   `entry_stage` + a recorded assumption in `state.yaml` (mirrored to `STATE.md`, never primary),
+   exactly like deferred Phase-1 questions.
 5. **Keep it minimal.** `state.yaml` holds only *operational* state — the program counter (stage,
    gates, routing, tool/MCP lists, and short pointers like the current sprint id or `last_audit`).
    Long-form detail (sprint bodies, audit findings, package inventories, verification logs) lives in

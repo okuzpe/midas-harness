@@ -11,7 +11,8 @@ Build a faithful, evidence-based picture of what the project **is**, so Midas ca
 architecture) instead of inventing it.
 
 ## Inputs
-The existing repository: code, manifests, CI, and any `AGENTS.md` / `CLAUDE.md` / `.cursor` / `.windsurf`.
+The existing repository: code, manifests, CI, any `AGENTS.md` / `CLAUDE.md` / `.cursor` / `.windsurf`, **and
+the project's written intent** — `README*`, `docs/`, briefs/specs/`NOTES`, the manifest `description`.
 
 ## Key steps
 1. **Tree + size** — enumerate the directory structure and the dominant languages.
@@ -20,6 +21,8 @@ The existing repository: code, manifests, CI, and any `AGENTS.md` / `CLAUDE.md` 
 4. **Existing agent config** — catalogue any `AGENTS.md`/`CLAUDE.md`/`.cursor`/`.windsurf` so they can be
    **merged inside managed markers**, never clobbered.
 5. **Build / test / CI** — how the project is built, tested, and deployed.
+6. **Stated intent** — harvest the product's purpose/audience/scope from the README and docs, so the
+   `/midas-adopt` Step 4 backfill records *what's written*, not an invention (cite the source).
 
 ## Output artifacts
 `product/inventory.md` — the factual snapshot.

@@ -46,15 +46,28 @@ The **7 ⇄ 8 loop** is "applying the harness each sprint": before/after each sp
 re-audits the **living code** against the **rules frozen in Phase 5** and the **scope in the business
 case**, then either fixes the code or **consciously amends a rule** (a logged decision, never silent).
 
-## Entry points (greenfield vs brownfield)
+## Entry points — the maturity spectrum
 
-| Scenario | Enters at | Notes |
-|---|---|---|
-| Greenfield (raw idea, empty repo) | Phase 0 | Full pipeline. **Supported in v1.** |
-| Brownfield (existing code) | Phase 4/5 "audit-existing" via **`/midas-adopt`** | Inventories the codebase, reverse-engineers architecture + rules from the real code (codify reality; violations logged as debt), then 6→7→8. Writes into any pre-existing `AGENTS.md`/`CLAUDE.md`/source only after a **dry-run + diff-confirm**. Playbook: `harness/pipeline/0b-codebase-inventory.md`. |
+`/midas-init` is an **adaptive intake**: it scans everything the project already has (code, manifests,
+README, docs, notes), classifies its **maturity**, pre-fills every artifact it can infer (idea from a
+README, architecture-as-built from the code), asks only the genuine gaps, and **places the project at the
+right phase** — so a finished product is never marched back through `/idea-intake`, and a project that is
+"just an idea written down" doesn't start from a blank page.
 
-`entry_stage` is recorded in `state.yaml` so the harness stays honest about which gates were
-satisfied vs deliberately skipped (skipped gates carry a recorded assumption).
+| Level | What's there | Enters at | How |
+|---|---|---|---|
+| **E0 — Empty** | nothing | Phase 0 (`/idea-intake`) | Full pipeline from a raw idea. |
+| **E1 — Idea-only** | a README/brief/notes, little/no code | Phase 1 (`/contextualize`) | Pre-fills `product/idea.md` from the docs; the gap loop fills the rest. |
+| **E2 — Partial** | real but incomplete code | Phase 5 (`/define-conventions`) via **`/midas-adopt`** | Reverse-engineers an as-built architecture + a stack from the real code (Phase 4 recorded as a skipped gate). |
+| **E3 — Mature** | structured codebase + tests/CI | Phase 6 (`/plan-sprints`) via **`/midas-adopt`** | Full as-built inventory, rules derived from reality (violations → debt), a baseline audit, then improve from there. |
+
+E2/E3 run the **`/midas-adopt`** branch (inventory → reverse-engineer architecture + rules **and product
+context from the harvested docs** → baseline audit → wire with **dry-run + diff-confirm**, never clobbering
+a pre-existing `AGENTS.md`/`CLAUDE.md`/source). Playbook: `harness/pipeline/0b-codebase-inventory.md`.
+
+Classification follows **infer → show → confirm**: the user confirms or corrects the level before anything
+is written. `entry_stage` is recorded in `state.yaml` so the harness stays honest about which gates were
+satisfied vs deliberately skipped (every skipped gate carries a recorded assumption).
 
 ## Standing audit — the tribunal
 Beyond the per-phase gates and the per-sprint `/close-sprint` conformance audit, Midas offers a

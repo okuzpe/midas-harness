@@ -88,5 +88,5 @@ rules and decisions right in the first place?
 
 Yes, with an explicit recorded assumption. The `entry_stage` field in `harness/state.yaml` marks
 where you entered, and any skipped gate carries a `recorded_assumption` entry so the harness stays
-honest. This is the standard path for brownfield projects (entering at Phase 4 or 5 via
-`/midas-adopt`) and for teams that already have a market analysis or business case on file.
+honest. This is the standard path for brownfield projects (an E2 repo enters at Phase 5 via
+`/midas-adopt`; E3 at Phase 6) and for teams that already have a market analysis or business case on file.

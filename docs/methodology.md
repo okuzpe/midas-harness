@@ -47,15 +47,24 @@ failure is either fixed or the rule is consciously amended (logged, never silent
 
 ---
 
-## Greenfield vs brownfield
+## Entry points — the maturity spectrum
 
-| Scenario | Entry point | Notes |
+`/midas-init` is an **adaptive intake**: it scans everything the project already has (code, manifests,
+README, docs, notes), classifies its **maturity**, pre-fills what it can infer, asks only the genuine
+gaps, and places the project at the right phase — so a finished product is never marched back through
+`/idea-intake`, and a "just an idea written down" repo doesn't start from a blank page.
+
+| Level | What's there | Enters at |
 |---|---|---|
-| Greenfield (raw idea / empty repo) | Phase 0 (`/idea-intake`) | Full pipeline. |
-| Brownfield (existing code) | Phase 4/5 via `/midas-adopt` | Inventories the codebase, reverse-engineers architecture and rules from real code, logs violations as debt. Writes into any pre-existing file only after a dry-run diff and explicit confirm. |
+| **E0 — Empty** | nothing | Phase 0 (`/idea-intake`) |
+| **E1 — Idea-only** | a README/brief/notes, little or no code | Phase 1 (`/contextualize`) — pre-fills `product/idea.md` from the docs |
+| **E2 — Partial** | real but incomplete code | Phase 5 (`/define-conventions`) via `/midas-adopt` (Phase 4 recorded as a skipped gate) |
+| **E3 — Mature** | structured codebase + tests/CI | Phase 6 (`/plan-sprints`) via `/midas-adopt` |
 
-The `entry_stage` is recorded in `state.yaml` so the harness stays honest about which gates were
-passed vs deliberately skipped (skipped gates carry a recorded assumption).
+E2/E3 run the `/midas-adopt` branch (inventory → reverse-engineer architecture + rules **and product
+context from the harvested docs** → baseline audit → wire with dry-run + diff-confirm). Classification
+follows infer → show → confirm. The `entry_stage` is recorded in `state.yaml` so the harness stays honest
+about which gates were passed vs deliberately skipped (skipped gates carry a recorded assumption).
 
 ---
 

@@ -13,6 +13,34 @@ _Nothing yet._
 
 ---
 
+## [0.4.0] — 2026-06-17
+
+### Added — `/midas-init` is now an adaptive intake
+Setup no longer forces every repo through a blank `/idea-intake`. `/midas-init` now **scans what the
+project already has, classifies its maturity, pre-fills what it can infer, asks only the genuine gaps,
+and places the project at the right phase** — reviewed by a 4-lens adversarial pass before shipping.
+
+- **Scans code AND intent.** Beyond manifests/source, it reads `README`, `docs/`, briefs, notes, and the
+  manifest `description` — so a project that is "just an idea written down" skips the blank idea-intake.
+- **Maturity spectrum (E0–E3), not binary greenfield/brownfield.** E0 empty → `/idea-intake`; E1 idea-only
+  → pre-fills `product/idea.md`, enters at `/contextualize`; E2 partial code → `/midas-adopt` → enters at
+  `/define-conventions` (Phase 4 recorded as a skipped gate); E3 mature → full `/midas-adopt` → `/plan-sprints`.
+  E0/E1 persist `mode: greenfield`, E2/E3 `mode: brownfield`.
+- **Infer → SHOW → confirm.** Every inference (the maturity level, a `product/idea.md` drafted from the
+  README, an as-built architecture) is shown for the user to accept or correct — never silently baked.
+  Conflicts between a stale README and the code are flagged `DISPUTED`, not silently resolved.
+- **Gap-only questions.** One batched round, scaled to the project: a mature repo confirms a classification
+  and a couple of operational questions; a blank repo answers the full set. Confirming a level shows the
+  gates it skips so the choice is informed. Monorepos are detected and routed to `/midas-monorepo`.
+- `/midas-adopt` now harvests the written intent (README/docs) to backfill product context, not just code,
+  and is framed as the E2/E3 branch of the intake. `methodology.md`, `state.schema.md`, the pipeline 0b
+  playbook, and the docs site are updated to the maturity model.
+
+### Engine
+- Version single-sourced to `0.4.0` (`harness/VERSION` + all mirrors).
+
+---
+
 ## [0.3.4] — 2026-06-17
 
 ### Fixed — MCP `sequential-thinking` server (caught by real-project validation)

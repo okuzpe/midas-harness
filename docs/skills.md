@@ -26,7 +26,7 @@ where supported. See the [tools matrix](../README.md#supported-tools) for the ho
 
 | Command | Role | One-line description | Tier |
 |---|---|---|---|
-| `/midas-init` | Setup | Conversational installer — asks ~8 questions, writes state and adapters. Run once per project. | orchestrate |
+| `/midas-init` | Setup | Adaptive intake — scans the project (code + README/docs), classifies maturity (E0–E3), pre-fills what it can infer, asks only the gaps, places you at the right phase. Run once per project. | orchestrate |
 | `/midas-status` | Navigation | Read-only — print current phase, gate status, and single next action. | scout |
 | `/midas-adopt` | Brownfield | Adopt Midas into an existing project — inventory, reverse-engineer rules, baseline audit. | orchestrate |
 | `/midas-doctor` | Maintenance | Re-derive generated adapters from `harness/conventions.md`, diff against disk, re-render. | build |

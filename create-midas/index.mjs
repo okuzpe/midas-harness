@@ -126,6 +126,8 @@ function fixMcpForWindows() {
   if (changed) writeFileSync(f, JSON.stringify(json, null, 2) + '\n', 'utf8');
 }
 
+// Coarse greenfield/brownfield guess for the default state.yaml — a provisional placeholder that
+// `/midas-init` re-classifies into the E0–E3 maturity spectrum (it can read README/docs; this can't).
 // Greenfield unless the target already has source/manifests or a kept AGENTS.md/CLAUDE.md.
 function detectMode() {
   const manifests = ['package.json', 'pyproject.toml', 'go.mod', 'Cargo.toml', 'pom.xml', 'build.gradle', 'composer.json', 'Gemfile', 'requirements.txt'];
@@ -188,8 +190,7 @@ function report() {
   const cd = targetArg === '.' ? '' : `cd ${targetArg} && `;
   console.log('\n  Next steps:');
   console.log(`     1. ${cd}open the project in Claude Code`);
-  console.log('     2. run  /midas-init   — one-time guided setup' +
-    (stateMode === 'brownfield' ? ' (it adopts your existing codebase)' : '') + '. You won\'t need it again.');
+  console.log('     2. run  /midas-init   — one-time setup: scans what you have and places you at the right phase. You won\'t need it again.');
   console.log('     3. then  /midas-status  drives the rest.');
   console.log('\n  Docs: https://github.com/okuzpe/midas-harness\n');
 }
@@ -321,7 +322,7 @@ function printHelp() {
 Install:
   npx github:okuzpe/midas-harness          into the current directory (from GitHub)
   npx github:okuzpe/midas-harness my-app   into ./my-app
-  npx github:okuzpe/midas-harness#v0.3.4   pin a release for a reproducible install
+  npx github:okuzpe/midas-harness#v0.4.0   pin a release for a reproducible install
 
 Uninstall (surgical — removes only Midas's files, keeps your work):
   npx github:okuzpe/midas-harness --uninstall             remove the engine, keep product/ + .harness/ + state.yaml
