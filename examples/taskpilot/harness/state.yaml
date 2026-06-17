@@ -1,4 +1,4 @@
-midas_version: 0.4.1
+midas_version: 0.4.2
 name: taskpilot
 mode: greenfield
 language: en
@@ -47,6 +47,7 @@ phases:
       - product/design-system.md
       - product/playbooks/add-api-route.md
       - product/playbooks/add-drizzle-migration.md
+      # harness/rules/* bodies are intentionally elided in this trimmed example (see examples/taskpilot/README.md)
   sprint_planning:
     status: passed
     gate: passed

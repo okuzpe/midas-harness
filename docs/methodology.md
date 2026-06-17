@@ -15,7 +15,7 @@ and the per-phase playbooks in `harness/pipeline/`.
 | 2 | Market Research | `product/market.md` |
 | 3 | Business Case | `product/business-plan.md` |
 | 4 | Tech & Architecture | `product/architecture.md`, `product/adr/ADR-*.md` |
-| 5 | Architecture-as-Rules + Design System | `harness/rules/*`, `product/design-system.md` |
+| 5 | Architecture-as-Rules + Design System | `harness/rules/*`, `product/design-system.md`, `product/playbooks/*` |
 | 6 | Sprint Planning | `product/roadmap.md`, `product/sprints/NN-*.md` |
 | 7 | Sprint Execution | code + tests + updated sprint |
 | 8 | Per-sprint Audit & Adjust | `.harness/audits/audit-NN.md` |
@@ -23,6 +23,16 @@ and the per-phase playbooks in `harness/pipeline/`.
 **Transition rule:** advance phase N to N+1 only when the orchestrator (Opus) ran the exit gate,
 every item is satisfied with on-disk evidence, the verdict is frozen to `.harness/audits/`, and
 `state.yaml` records `gate: passed`. The producer never grades its own homework.
+
+**Gates are mechanically checkable, not just prose.** Every `harness/rules/*` item ships a concrete
+`CHECK:` (a grep/command or a `manual:` observable). `/close-sprint` freezes a gate-parseable tally line —
+`MIDAS_AUDIT_RESULT: rules_failed=X unresolved=Y amended=Z verdict=pass|blocked` — and
+`node scripts/doctor.mjs` parses it against `state.yaml`, warning when a sprint is marked `done` while its
+audit still shows `unresolved>0` or `verdict=blocked`. That doctor check is the first gate signal that
+lives **outside the model**.
+
+**Phase 5 also emits project playbooks:** 0–4 `product/playbooks/*` recipes (zero is valid) for the
+tasks that recur in the chosen stack — procedures the build agent follows, not new slash-commands.
 
 ---
 

@@ -38,8 +38,7 @@ completion — it reports the truth already on disk. Safe to run at any time, in
    | `tech_architecture` | `/choose-architecture` |
    | `architecture_rules` | `/define-conventions` |
    | `sprint_planning` | `/plan-sprints` |
-   | `sprint_execution` | `/start-sprint` (or continue the active sprint) |
-   | `audit` | `/close-sprint` |
+   | `sprint_execution` | `/close-sprint` once the active sprint's tasks are done and tests run; otherwise `/start-sprint` (or continue the active sprint) |
    | `shipped` | none — MVP complete |
 
 ## Output format

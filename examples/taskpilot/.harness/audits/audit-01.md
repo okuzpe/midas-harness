@@ -56,6 +56,13 @@ boundaries (`product/architecture.md`), and the design-token rule (`product/desi
 | R-14 | Sprint DoD: all acceptance criteria met | PASS | All 10 acceptance criteria checked with evidence (below); all 9 tasks `done` |
 | R-15 | Account enumeration resistance | PASS | `login` returns one `invalid credentials` 401 for both unknown email and wrong password |
 
+### Playbook conformance
+
+Sprint 1's recurring tasks followed `product/playbooks/`: T-01–T-02 (`add-drizzle-migration`) and
+T-03–T-05 (`add-api-route`). Each playbook's **done-when** holds — the schema change is additive with a
+`workspaceId`-guard test; every route guards the session, validates input, scopes by `workspaceId`, and
+ships an integration test (evidence in the per-criterion table below).
+
 ---
 
 ## Acceptance criteria status

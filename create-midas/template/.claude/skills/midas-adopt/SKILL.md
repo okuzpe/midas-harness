@@ -79,7 +79,7 @@ repo** once rules + a baseline audit are in place. Record an assumption in `stat
 - [ ] No pre-existing `AGENTS.md`/`CLAUDE.md`/source modified without a confirmed diff.
 - [ ] Baseline audit frozen to `.harness/audits/`.
 - [ ] `state.yaml` records `mode: brownfield`, `entry_stage`, and assumptions for skipped gates.
-- [ ] Next action printed (usually `/plan-sprints` to start improving from the baseline).
+- [ ] Next action printed: `/define-conventions` for an E2 (partial) repo, `/plan-sprints` for an E3 (mature) repo.
 
 ## Tier & cost
 Inventory + evidence → **scout** (Haiku). Architecture inference, rule derivation, baseline audit, and

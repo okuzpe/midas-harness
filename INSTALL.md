@@ -60,7 +60,9 @@ Adds the skills/agents/MCP to Claude Code via the plugin marketplace:
 
 ## Copy only (no installer logic)
 
-Fetch the kit without running the installer (you then generate adapters yourself, or run `/midas-init`):
+Fetch the kit without running the installer (you then generate adapters yourself, or run `/midas-init`).
+**On Windows,** the raw `.mcp.json` launches MCP servers with bare `npx`, which won't spawn — run
+`/midas-init` (or the full installer), which wraps them in `cmd /c`, or wrap them by hand. Then:
 ```bash
 npx giget@latest gh:okuzpe/midas-harness ./my-project
 ```
@@ -132,7 +134,7 @@ npx github:okuzpe/midas-harness --uninstall
 - **Keeps your product work** (`product/`, `.harness/`, `harness/state.yaml`) unless you pass `--purge`.
 
 For exact removal of a pinned install, uninstall with the same release:
-`npx github:okuzpe/midas-harness#v0.4.1 --uninstall`.
+`npx github:okuzpe/midas-harness#v0.4.2 --uninstall`.
 
 > Prefer to do it by hand? Midas only ever adds files — delete `.claude/`, `harness/`, `AGENTS.md`,
 > `CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `.mcp.json`,

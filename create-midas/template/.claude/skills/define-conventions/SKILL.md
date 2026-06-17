@@ -103,7 +103,7 @@ On pass: freeze the verdict in `.harness/audits/`, set the gate passed; next act
 (Phase 6). On fail: report the uncheckable rule or unrendered adapter.
 
 ## Tier & cost
-Deciding the rule set, the design-system structure, and **which 2–4 tasks deserve a playbook** →
+Deciding the rule set, the design-system structure, and **which 0–4 tasks deserve a playbook** →
 **orchestrate** (Opus). Writing the rule files, `product/design-system.md`, tokens, and the playbooks →
 **build** (Sonnet). Context7 fetches for stack/UI-framework
 rules → **scout** (Haiku). Prefer a UI/design specialist (`voltagent-core-dev:ui-designer`,

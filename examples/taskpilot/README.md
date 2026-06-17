@@ -37,9 +37,9 @@ show every Midas phase artifact populated with real, consistent content.
 - Not a production-ready codebase. Files are illustrative; imports reference packages that would be
   installed via `npm install` in a real project.
 - Not a fully-materialized rule set. To stay tiny, the example ships the audit trail + code slice, **not**
-  the Phase-5 `harness/rules/*.md` bodies; the two `product/playbooks/` recipes reference those slugs
-  (`security.md`, `code-quality.md`, …) at the paths where a real project's rules would live. The two
-  playbooks are genuine — both `/api/*` routes and schema changes recur across the three sprints — not a
-  count to hit (zero playbooks is a valid outcome).
+  the Phase-5 `harness/rules/*.md` bodies or the `harness/design-system/tokens.{json,css}` files; the two
+  `product/playbooks/` recipes (and `product/design-system.md`) reference those slugs/paths where a real
+  project's rules and tokens would live. The two playbooks are genuine — both `/api/*` routes and schema
+  changes recur across the three sprints — not a count to hit (zero playbooks is a valid outcome).
 - Not a tutorial for TaskPilot-the-product. It is a tutorial for **Midas** and how its artifacts
   connect phase-to-phase.

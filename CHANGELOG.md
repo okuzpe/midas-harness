@@ -13,6 +13,29 @@ _Nothing yet._
 
 ---
 
+## [0.4.2] — 2026-06-17
+
+### Fixed — whole-project alignment audit (5-lens workflow)
+A multi-agent alignment audit after the v0.3.x–v0.4.1 work caught and fixed several cross-file
+inconsistencies (verdict: needs-work → all must-fix applied):
+
+- **Dead `/close-sprint` route.** `/midas-status` routed `stage: audit → /close-sprint`, but no skill ever
+  sets `stage: audit` — Phase 8 runs *in place* during `sprint_execution`. `/midas-status` now routes
+  `sprint_execution → /close-sprint` once the active sprint's work has landed; the transient `audit` label
+  is annotated as such in `state.schema.md` and `8-audit-adjust.md`.
+- **`docs/faq.md` uninstall answer** rewritten to the shipped `--uninstall` (it told users to delete
+  `.harness/` — their audit trail — and a `.midas` directory that never existed).
+- **CHANGELOG compare links** added for every release (were missing/stale).
+- **Playbook count** normalized to `0–4 (zero is valid)` everywhere (three sites still read `2–4`);
+  `docs/methodology.md` gained the playbooks + mechanical-gate (`CHECK:` / `MIDAS_AUDIT_RESULT` / doctor)
+  story; `/midas-adopt`'s exit now routes E2 → `/define-conventions`, E3 → `/plan-sprints`.
+- The worked example now exercises the playbook → sprint → audit linkage (sprint-01 tags + audit-01 done-when).
+
+### Engine
+- Version single-sourced to `0.4.2` (`harness/VERSION` + all mirrors).
+
+---
+
 ## [0.4.1] — 2026-06-17
 
 ### Added — Phase 5 emits project playbooks (not just rules)
@@ -310,7 +333,12 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.3.2...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/okuzpe/midas-harness/compare/v0.4.1...v0.4.2
+[0.4.1]: https://github.com/okuzpe/midas-harness/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/okuzpe/midas-harness/compare/v0.3.4...v0.4.0
+[0.3.4]: https://github.com/okuzpe/midas-harness/compare/v0.3.3...v0.3.4
+[0.3.3]: https://github.com/okuzpe/midas-harness/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/okuzpe/midas-harness/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/okuzpe/midas-harness/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/okuzpe/midas-harness/compare/v0.2.0...v0.3.0

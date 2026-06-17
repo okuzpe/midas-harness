@@ -59,17 +59,20 @@ Re-run the install command in the project root:
 curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash
 ```
 It skips files you have edited (non-destructive by default). Pass `--force` to refresh the engine
-files. After updating, run `/midas-doctor` to re-sync the generated tool adapters with the new
-conventions.
+files — note `--force` **overwrites** engine files you changed (e.g. a Phase-8-amended rule). After
+updating, run `/midas-doctor` to re-sync the generated tool adapters with the new conventions.
 
 ---
 
 **Q: How do I uninstall Midas?**
 
-Midas only adds files — it never modifies your existing source. Remove:
-`.claude/`, `harness/`, `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`,
-`.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `.mcp.json`,
-and the `.midas` / `.harness` state directory if present. Your source code is untouched.
+Run the same one command with `--uninstall`: `npx github:okuzpe/midas-harness --uninstall` (or
+`curl -fsSL …/install.sh | bash -s -- --uninstall`). It is **surgical** — it removes only Midas's own
+engine files and **keeps your work** (`product/`, `.harness/`, `harness/state.yaml`) unless you pass
+`--purge`; use `--dry-run` to preview. Prefer to remove it by hand? Delete `.claude/`, `harness/` (keep
+`state.yaml` if you want), `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`,
+`.windsurf/rules/00-midas.md`, and `.mcp.json`. Your source code is untouched. See
+[INSTALL.md](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md#uninstalling).
 
 ---
 

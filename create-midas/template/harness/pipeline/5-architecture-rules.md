@@ -47,7 +47,7 @@ rules before any code is written; the Phase 8 audit references exactly these fil
 |---|---|
 | `harness/rules/<slug>.md` | One file per rule; folder-structure required |
 | `product/conventions.md` | Stack-specific overrides |
-| `product/playbooks/<verb-noun>.md` | 2–4 recipes for the project's repeated tasks |
+| `product/playbooks/<verb-noun>.md` | 0–4 recipes for the project's repeated tasks (zero is valid) |
 | `product/design-system.md` | Human-readable design reference |
 | `harness/design-system/tokens.json` | Token map |
 | `harness/design-system/tokens.css` | CSS custom properties |

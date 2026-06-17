@@ -40,7 +40,7 @@ This is *pipe-to-shell* — you run code you haven't read. Treat it like any `cu
   `npx github:okuzpe/midas-harness`.
 - **Pin a release for a reproducible, reviewable install.** The shims and `npx` resolve from the
   mutable `main` branch (not a signed tag), so for supply-chain assurance install a tagged version:
-  `npx github:okuzpe/midas-harness#v0.4.1`.
+  `npx github:okuzpe/midas-harness#v0.4.2`.
 - The installer is **non-destructive** (only adds files, never deletes) and writes **no secrets**.
 
 ---
@@ -158,4 +158,4 @@ The following findings were recorded during the 2026 security audit of the v0.1 
 | SEC-002 | `context7` remote endpoint receives library-ID queries; no auth required | Accepted; documented in guidance §4 above |
 | SEC-003 | No version pin guidance in the default `.mcp.json` for optional servers | Mitigated: guidance added in this document (§1) |
 | SEC-004 | `${ENV_VAR}` pattern not enforced by tooling; relies on author discipline | Mitigated: documented in `harness/conventions.md`; Phase-8 audit checklist item |
-| SEC-005 | `curl\|bash` / `irm\|iex` installers pipe a remote script from the mutable `main` branch | Documented (§Installing Midas securely); `npx` and pinned-tag (`#v0.4.1`) alternatives provided |
+| SEC-005 | `curl\|bash` / `irm\|iex` installers pipe a remote script from the mutable `main` branch | Documented (§Installing Midas securely); `npx` and pinned-tag (`#v0.4.2`) alternatives provided |

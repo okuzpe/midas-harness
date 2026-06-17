@@ -37,6 +37,8 @@ No polish, no kanban drag-and-drop — that is Sprint 2. This sprint is about th
 | T-08 | Unit tests: schema shape, session helpers, password helpers | builder | done |
 | T-09 | Integration test: full register → create-task → list-tasks flow | builder | done |
 
+**Playbooks followed** (`product/playbooks/`): T-01–T-02 → `add-drizzle-migration`; T-03–T-05 → `add-api-route`.
+
 ---
 
 ## Acceptance criteria

@@ -13,7 +13,7 @@ or declare the MVP complete. The producer never grades its own work.
 - Completed sprint file `product/sprints/NN-<slug>.md` (Phase 7, status `done`)
 - `harness/rules/*` (Phase 5 — frozen; amendments require a logged decision)
 - `product/business-plan.md` (Phase 3 — scope reference)
-- `harness/state.yaml` (stage must be `audit`)
+- `harness/state.yaml` (stage `sprint_execution`, the active sprint's work landed — Phase 8 runs in place)
 
 ## Key steps
 

@@ -30,7 +30,7 @@ extension under `harness/rules/` that overrides or supplements the items here.
       **CHECK:** `manual:`/AST: no signature in the diff declares > 4 positional parameters.
 - [ ] Module/layer boundaries defined in `product/architecture.md` are respected — no
       cross-layer imports.
-      **CHECK:** grep imports against `harness/rules/folder-structure.md` (e.g. `grep -rn "from '@/db'" src/ui/` → empty); any forbidden cross-layer import is a fail.
+      **CHECK:** grep imports against `harness/rules/folder-structure.md` (the project's Phase-5-generated rule; e.g. `grep -rn "from '@/db'" src/ui/` → empty); any forbidden cross-layer import is a fail.
 
 ### Cleanliness
 - [ ] No dead code (unreachable branches, unused variables, unreferenced exports).
