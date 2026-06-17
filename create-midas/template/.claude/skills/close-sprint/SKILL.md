@@ -47,9 +47,18 @@ For every failed check or scope mismatch, choose **one** and record it:
 Drift is never left silent: the sprint closes only when every fail is fixed or every amendment logged.
 
 ### 5. Freeze the audit
-Write `.harness/audits/audit-NN.md` (NN = sprint id): the per-rule pass/fail table with evidence, the
-scope reconciliation, the drift resolutions/amendments, and the overall verdict. This file is the
-immutable record of the sprint gate.
+Write `.harness/audits/audit-NN.md` (NN = sprint id): a **gate-parseable tally line**, the per-rule
+pass/fail table with evidence, the scope reconciliation, the drift resolutions/amendments, and the
+overall verdict. This file is the immutable record of the sprint gate. The tally line mirrors
+verify/tribunal so `/midas-doctor` can read the verdict without a model:
+
+```
+MIDAS_AUDIT_RESULT: rules_failed=X unresolved=Y amended=Z verdict=pass|blocked
+```
+
+`unresolved` counts fails neither fixed nor consciously amended. **Close the sprint only when
+`unresolved=0` and `verdict=pass`** — a blocked or unresolved tally must not be paired with a
+`status: done` sprint in `state.yaml` (doctor flags that mismatch).
 
 ### 6. Plan adjustment + update state
 Update `harness/state.yaml`: set the sprint `status: done`, write its `audit_notes`, refresh

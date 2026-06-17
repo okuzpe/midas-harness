@@ -35,6 +35,14 @@ or declare the MVP complete. The producer never grades its own work.
    the updated rule to confirm nothing else is affected.
 6. **Write `.harness/audits/audit-NN.md`.** One file per sprint audit. Include:
    - Sprint ID + title
+   - The **gate-parseable tally line** (mirrors `MIDAS_VERIFY_RESULT` / `MIDAS_TRIBUNAL_RESULT`)
+     so a script — not just a model — can read the verdict:
+     ```
+     MIDAS_AUDIT_RESULT: rules_failed=X unresolved=Y amended=Z verdict=pass|blocked
+     ```
+     `unresolved` counts fails neither fixed nor consciously amended; a `pass` verdict **requires
+     `unresolved=0`**. `/midas-doctor` reads this line and warns if a frozen record shows
+     `unresolved>0` (or `verdict=blocked`) while `state.yaml` marks that sprint done.
    - Rule-by-rule verdict table: rule | result | evidence
    - Scope reconciliation verdict
    - List of fixes applied (or "none")

@@ -1,26 +1,41 @@
-# Midas ✨ — a lifecycle, rules, and audit gates for AI coding agents
+# Midas ✨ — a stateful, auditable, resumable product lifecycle for AI coding agents
 
-> Midas gives AI coding agents a **project lifecycle, rules, state, and audit gates** — so they build
-> with context instead of jumping straight to code. **Copy it into your repo and the agent stops improvising.**
+> **Copy Midas into your repo and your AI agent builds with context instead of improvising.**
+> Nine audited phases take a raw idea to shipped code — the rules are **frozen**, the gates are
+> **machine-checkable** (not just model-graded), and the whole run is **resumable** from one state file.
 
 [![CI](https://github.com/okuzpe/midas-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/okuzpe/midas-harness/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
+[![Docs](https://img.shields.io/badge/docs-mkdocs-6E56CF)](https://okuzpe.github.io/midas-harness/)
 [![AGENTS.md](https://img.shields.io/badge/AGENTS.md-compatible-success)](https://agents.md)
 [![Agent Skills](https://img.shields.io/badge/Agent_Skills-compatible-success)](https://agentskills.io)
 [![Context7](https://img.shields.io/badge/Context7-enabled-6E56CF)](https://context7.com)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
 
 **Midas** is a copy-in kit of plain markdown — skills, rules, slash-commands, and agent definitions —
-that drives a software **product** from a raw idea to shipped code through **9 audited phases**. It is
-a *methodology engine*: stateful, auditable, and resumable. It runs best on **Claude Code**, with
-generated adapters and `AGENTS.md` carrying the rules to Cursor, Copilot, Codex, Windsurf and Gemini.
+that drives a software **product** from a raw idea to shipped code through **9 audited phases**. It runs
+best on **Claude Code**; generated adapters and `AGENTS.md` carry the rules to Cursor, Copilot, Codex,
+Windsurf and Gemini (see [Supported tools](#supported-tools) for what carries to other tools).
+
+Full docs: **[okuzpe.github.io/midas-harness](https://okuzpe.github.io/midas-harness/)**.
 
 ## Why
 Most AI coding setups jump straight to code. Midas front-loads the thinking — clarify the idea, research
 the market, decide architecture, **freeze the rules**, plan sprints — then makes every sprint a control
-loop that re-audits the living code against those frozen rules. The best model **thinks**; cheaper
-models **execute**. Live library docs come from **Context7**, so code is written against current APIs,
-not stale memory.
+loop that re-audits the living code against those frozen rules.
+
+## What makes Midas different
+- **Gates are real, not prose.** Every floor rule in `harness/rules/*` ships a concrete `CHECK:`
+  (a grep/command or a `manual:` observable), and `/midas-doctor` parses each frozen sprint audit
+  against `harness/state.yaml` — flagging any sprint marked `done` while its audit still shows
+  unresolved critical findings. *The first gate check that lives outside the model.*
+- **It closes the loop on disk.** [`examples/taskpilot`](./examples/taskpilot/) drives Sprint 1 to
+  `done` — build → [`audit-01.md`](./examples/taskpilot/.harness/audits/audit-01.md) (verdict **PASS**,
+  one rule consciously amended and tracked forward to Sprint 3) → Sprint 2 queued. The signature
+  execute ⇄ audit loop (phases 7 and 8), demonstrated.
+- **Cost-aware by default.** Opus runs only the ~6 irreversible decisions (idea framing, stack choice,
+  the audits); Sonnet builds, Haiku scouts. Live library docs come from [Context7](#mcp--context7), so
+  third-party code is written against current APIs, not training-cutoff memory.
 
 ## When to use Midas — and when not to
 **Use it** when you want an agent to respect architecture, conventions, and tests instead of improvising —
@@ -28,53 +43,6 @@ on a new product (full lifecycle) or an existing repo (`/midas-adopt`).
 
 **Skip it** for a quick one-off script, a throwaway prototype, or when you already have an agent setup
 you're happy with. Midas adds process; that's overhead you don't want for a 20-line tool.
-
-## 60-second quickstart
-
-Install Midas into any project (new **or** existing) with **one command** — it only adds files
-(never deletes yours). Run it inside the project:
-
-```bash
-# macOS / Linux
-curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash
-```
-```powershell
-# Windows (PowerShell)
-irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | iex
-```
-
-…or with any package manager, no shell script:
-
-```bash
-npx github:okuzpe/midas-harness     # pnpm dlx · bunx github:okuzpe/midas-harness
-```
-
-> For a **reproducible** install, pin a release: `npx github:okuzpe/midas-harness#v0.3.2`. The
-> `curl … | bash` / `irm … | iex` shims run a remote script — if that's a concern, read
-> [`install.sh`](./install.sh) first or just use the `npx` form (same dependency-free installer).
-
-The installer leaves the project ready (it writes `harness/state.yaml` + the adapters). Open it in
-**Claude Code** and run the **one-time setup**, then let `/midas-status` drive the rest:
-
-```text
-/midas-init        # one-time guided setup — a few questions once; for an existing repo it adopts it.
-                   #   You won't need to run it again.
-/midas-status      # from here on: the current phase and the single next command
-/idea-intake       # …then the phases in order — /midas-status always tells you what's next
-```
-
-`/midas-status` walks you through the 9 phases one command at a time; `/midas-adopt` handles an existing
-codebase (and `/midas-init` runs it for you on a brownfield repo).
-Power tools (`/midas-tribunal`, `/midas-verify`, `/midas-monorepo`) live under
-**[Core vs advanced](#core-vs-advanced)** below.
-
-**Alternatives:**
-- **Claude Code plugin:** `/plugin marketplace add okuzpe/midas-harness` → `/plugin install midas@midas` → `/midas-init`.
-- **Copy only (any tool):** `npx giget@latest gh:okuzpe/midas-harness ./my-project`.
-
-Full guide with every method, flags, and uninstall: **[INSTALL.md](./INSTALL.md)**. No Claude Code?
-`AGENTS.md` carries the project law to Cursor, Copilot, Codex and Windsurf (and Gemini via `GEMINI.md`);
-skill/command behavior and model routing vary by tool — see the [tools matrix](#supported-tools).
 
 ## The 9 phases
 
@@ -89,10 +57,41 @@ flowchart LR
 ```
 
 Each phase writes named artifacts under `product/` and is guarded by an **exit gate** the orchestrator
-audits before advancing. State lives in one file: `harness/state.yaml`. Full spec:
-[`harness/methodology.md`](./harness/methodology.md).
+audits before advancing — and a human signs off on the irreversible calls (go/no-go, each ADR, every
+rule amendment, ship). State lives in one file, `harness/state.yaml`, so any agent on any tool can
+resume. Full spec: [`harness/methodology.md`](./harness/methodology.md).
 
-## Core vs advanced
+## Quickstart
+
+Install Midas into any project (new **or** existing) — it only adds files (never deletes yours). Run it
+**inside the project**:
+
+```bash
+# macOS / Linux
+curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash
+```
+```powershell
+# Windows (PowerShell)
+irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | iex
+```
+
+The installer writes `harness/state.yaml` + the adapters and leaves the project ready. Open it in
+**Claude Code** and run the one-time setup, then let `/midas-status` drive the rest:
+
+```text
+/midas-init        # one-time guided setup — a few questions once (adopts an existing repo for you)
+/midas-status      # from here on: the current phase and the single next command
+/idea-intake       # …then the phases in order — /midas-status always tells you what's next
+```
+
+Other install methods (`npx github:okuzpe/midas-harness`, the Claude Code plugin, copy-only, pinned
+releases) and installer-safety notes are in **[INSTALL.md](./INSTALL.md)**.
+
+---
+
+## Reference
+
+### Core vs advanced
 | Track | For | Commands |
 |---|---|---|
 | **Core** | drive any project through the lifecycle | `/midas-init` · `/midas-status` · the phase commands (`/idea-intake` → `/close-sprint`) · `/midas-doctor` |
@@ -102,7 +101,7 @@ audits before advancing. State lives in one file: `harness/state.yaml`. Full spe
 
 Most users only need **Core** (+ `/midas-adopt` for an existing repo). Everything else is opt-in.
 
-## Supported tools
+### Supported tools
 
 | Tool | Reads `AGENTS.md` | Skills / commands | Model routing | Recommended level |
 |---|---|---|---|---|
@@ -116,43 +115,40 @@ Most users only need **Core** (+ `/midas-adopt` for an existing repo). Everythin
 Generated adapters (`CLAUDE.md`, `.cursor/rules`, `.windsurf/rules`, `GEMINI.md`) are re-rendered from a
 single source by `/midas-doctor` — no hand-editing, no drift.
 
-> **Honest scope.** "native" means read **without conversion**, not feature parity. **Claude Code is the
-> primary target** (skills, subagents, and per-agent model tiering). Other tools get the methodology and
-> rules via `AGENTS.md` / `GEMINI.md` / generated adapters; **model routing is advisory (prose), not
-> enforced** there. You get the *process* everywhere — automatic cost-routing only on Claude Code.
+> **Honest scope.** Claude Code gets the full experience — skills, subagents, and per-agent model
+> tiering. Every other tool reads the same methodology and rules via `AGENTS.md` / `GEMINI.md` /
+> generated adapters, so you get the *process* everywhere; there, **model routing is advisory (prose),
+> not enforced**. "native" means read **without conversion**, not feature parity.
 
-## MCP / Context7
-Midas ships a secret-free [`.mcp.json`](./.mcp.json) wiring **Context7** (essential, live library docs)
-and **sequential-thinking**. A free Context7 key is recommended for active build sprints. Optional:
-git/GitHub, fetch, filesystem, Playwright (UI sprints only). See [`SECURITY.md`](./SECURITY.md) for the
-least-privilege guidance.
+### MCP / Context7
+Midas ships a secret-free [`.mcp.json`](./.mcp.json) wiring **Context7** (essential — live, version-
+accurate library docs before any third-party code) and **sequential-thinking**. A free Context7 key is
+recommended for active build sprints. Optional: git/GitHub, fetch, filesystem, Playwright (UI sprints
+only). See [`SECURITY.md`](./SECURITY.md) for least-privilege guidance.
 
-## Cost-aware orchestration
+### Cost-aware orchestration
 Three self-contained agents ship with Midas — `midas-orchestrator` (Opus, think/audit),
 `midas-builder` (Sonnet, implement), `midas-scout` (Haiku, search). If you have specialist packs
 installed, Midas prefers them; otherwise it works with the three built-ins. One bump point for model
 IDs: [`docs/agents-and-models.md`](./docs/agents-and-models.md).
 
-## Deep audits — put the project on trial
+### Deep audits — put the project on trial
 `/midas-tribunal` runs a standing, **whole-project adversarial debate**: a steelman Defense vs a
 red-team Prosecution plus a dissent-forcing Catfish argue every assumption across idea, market,
 business model, architecture, scope, rules, and code. Cheaper tiers debate; the Opus judge rules
 **per claim** and every claim must cite on-disk evidence or it's struck. It complements `/close-sprint`
 (which checks a sprint against the frozen rules) by asking the prior question — *were those decisions
-right?* Output is a ranked findings report frozen to `.harness/debates/debate-NN.md`. See a worked
-run in [`examples/taskpilot/.harness/debates/debate-01.md`](./examples/taskpilot/.harness/debates/debate-01.md).
+right?* Output is a ranked findings report frozen to `.harness/debates/debate-NN.md`. See a worked run
+in [`examples/taskpilot/.harness/debates/debate-01.md`](./examples/taskpilot/.harness/debates/debate-01.md).
 
-## Worked example
-[`examples/taskpilot/`](./examples/taskpilot/) is a fully-populated greenfield product showing every
-phase artifact, a per-sprint audit, and a runnable code slice.
+### Worked example
+A runnable Sprint-1 vertical slice — auth, task CRUD, middleware, board stub + tests — plus every phase
+artifact on disk. See [`examples/taskpilot/`](./examples/taskpilot/).
 
 ## Status
-**v0.3.0 — pre-1.0, actively developed (not yet a stable API).** The full lifecycle from idea to code,
-**greenfield and brownfield** (`/midas-adopt`), plus `/midas-monorepo`, `/midas-verify` (Playwright), a
-component design system, four install methods, the plugin marketplace, and `/midas-tribunal`. Most
-complete on **Claude Code**; other tools get the methodology + adapters but not automatic model routing
-(see the compatibility note above). See [`CHANGELOG.md`](./CHANGELOG.md), [`VERSIONING.md`](./VERSIONING.md),
-and the docs site (`mkdocs.yml`).
+**v0.3.3 — pre-1.0, actively developed (not yet a stable API).** Most complete on **Claude Code**
+(see [Honest scope](#supported-tools)). Details: [`CHANGELOG.md`](./CHANGELOG.md) ·
+[`VERSIONING.md`](./VERSIONING.md) · [docs site](https://okuzpe.github.io/midas-harness/).
 
 ## License
 [Apache-2.0](./LICENSE). Contributions welcome — see [`CONTRIBUTING.md`](./CONTRIBUTING.md).

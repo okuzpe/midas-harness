@@ -7,8 +7,11 @@
 #   curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash
 #   curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash -s -- --force
 #
+# Uninstall (surgical — removes only Midas's files, keeps your work; --purge to remove everything):
+#   curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash -s -- --uninstall
+#
 # From a local clone:
-#   bash install.sh [target-dir] [--force]
+#   bash install.sh [target-dir] [--force | --uninstall [--dry-run|--purge]]
 
 set -euo pipefail
 REPO="okuzpe/midas-harness"

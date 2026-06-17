@@ -3,7 +3,8 @@
 Midas installs **into any project** (new or existing). Every method runs the same dependency-free Node
 installer, which copies the harness in **non-destructively** (it only adds files — it never deletes
 yours), generates the tool adapters, and writes a default `harness/state.yaml` so the project is ready
-to use. Run `/midas-init` only to refine the defaults.
+to use. Then run `/midas-init` once — the **one-time guided setup** (it adopts an existing repo for
+you); it retires itself afterward and `/midas-status` drives the rest.
 
 **Requirement:** Node.js ≥ 16.7 (ships with `npx`). Check with `node -v`.
 
@@ -99,6 +100,40 @@ Re-run the install command (it skips files you've edited; pass `--force` to refr
 pull the latest and run `node scripts/render-adapters.mjs` / `/midas-doctor` to re-sync adapters.
 
 ## Uninstalling
-Midas only adds files. Remove `.claude/`, `harness/`, `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`,
-`.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `.mcp.json`, and the `.midas`/`.harness`
-state directory if present.
+
+Same one command, with `--uninstall`. It is **surgical**: it removes only Midas's own files and
+**keeps your work** — `product/`, the `.harness/` audit trail, and `harness/state.yaml` — unless you
+ask otherwise. Run it **inside the project**.
+
+```bash
+# macOS / Linux
+curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash -s -- --uninstall
+```
+```powershell
+# Windows (PowerShell)
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1))) --uninstall
+```
+```bash
+# Any platform, no shell script
+npx github:okuzpe/midas-harness --uninstall
+```
+
+### Uninstall flags
+- `--dry-run` — print exactly what **would** be removed (and what is kept); delete nothing.
+- `--purge` — also delete your `product/`, `.harness/`, and `harness/state.yaml`.
+- a positional `target-dir` — uninstall from that directory instead of the current one.
+
+### What it removes — and what it keeps
+- **Removes** the pristine engine: `.claude/`, the engine files under `harness/`, the generated
+  adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `GEMINI.md`),
+  `.mcp.json`, `scripts/`, and the now-empty engine directories.
+- **Keeps** anything you edited (e.g. a Phase-8-amended rule) and any file Midas didn't author (a
+  pre-existing `AGENTS.md`, your own scripts) — each is reported so you can remove it by hand.
+- **Keeps your product work** (`product/`, `.harness/`, `harness/state.yaml`) unless you pass `--purge`.
+
+For exact removal of a pinned install, uninstall with the same release:
+`npx github:okuzpe/midas-harness#v0.3.3 --uninstall`.
+
+> Prefer to do it by hand? Midas only ever adds files — delete `.claude/`, `harness/`, `AGENTS.md`,
+> `CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `.mcp.json`,
+> and (if you want your artifacts gone too) `product/` and `.harness/`.

@@ -13,6 +13,51 @@ _Nothing yet._
 
 ---
 
+## [0.3.3] — 2026-06-17
+
+A "make the gate mechanically real" pass, driven by an internal audit + landscape review. Six
+markdown/tiny-script improvements that close the self-grading gap **without adding any runtime**.
+
+### Added — gates that something other than the model can read
+- **Floor rules now ship with `CHECK:` lines.** Every item in `harness/rules/{code-quality,security,
+  git-commits,naming,testing,docs}.md` carries a concrete pass/fail condition (a grep/command, or a
+  `manual:` observable). This resolves a real self-contradiction: `/define-conventions` mandates that
+  *generated* rules be checkable while the *shipped* floor rules had no checks at all.
+- **`MIDAS_AUDIT_RESULT` tally line** on the per-sprint audit (`MIDAS_AUDIT_RESULT: rules_failed=X
+  unresolved=Y amended=Z verdict=pass|blocked`), mirroring the existing verify/tribunal tally lines.
+  Specified in `8-audit-adjust.md` + `/close-sprint`.
+- **`/midas-doctor` now parses those frozen tally lines** — the first check *outside the model* that
+  validates a verdict. It warns when an `audit-NN.md`/`verify-NN.md` record shows unresolved CRITs (or
+  `verdict=blocked`) while `state.yaml` marks that sprint `done`. Per-sprint records only; the tribunal
+  stays advisory by design.
+- **"Human sign-off points"** subsection in `methodology.md` — the canonical list of decisions the
+  harness never makes for you (go/no-go, rule amendments, scope-drift acceptance, applying the
+  tribunal, ship, commit/push), each with where it is recorded.
+- **EARS acceptance-criteria convention** (`WHEN <trigger>, the system SHALL <response>`) in
+  `harness/conventions.md`, `/plan-sprints`, and the sprint template — so Phase-8 can map each
+  criterion to a passing test.
+
+### Changed — worked example now closes the 7 ⇄ 8 loop
+- **`examples/taskpilot` completes one full sprint close.** Sprint 1 is driven to `done` with the full
+  vertical slice (auth register/login/logout + sessions, task CRUD incl. `/api/tasks/[id]`, middleware,
+  a `/board` stub, unit + integration tests), a **closing `audit-01.md`** (verdict PASS + tally line),
+  and `state.yaml` advanced to point at Sprint 2. The signature loop is now demonstrated, not just
+  described. (Also fixes a latent gap: `route.ts` imported `@/lib/auth/session`, which did not exist.)
+
+### Added — uninstaller (same one command, `--uninstall`)
+- **`--uninstall` on the installer**, following the caveman pattern (no separate `uninstall.sh`):
+  `curl … | bash -s -- --uninstall`, `npx github:okuzpe/midas-harness --uninstall`, or the PowerShell
+  scriptblock form. It is **surgical** — removes only pristine engine files + the marker-tagged
+  generated adapters, prunes the empty engine directories, and **keeps your work** (`product/`,
+  `.harness/`, `harness/state.yaml`) and any file you edited or that Midas didn't author. Flags:
+  `--dry-run` (preview, delete nothing) and `--purge` (also remove your artifacts + state). Idempotent.
+  Documented in `INSTALL.md` and both installer shims.
+
+### Engine
+- Version single-sourced to `0.3.3` (`harness/VERSION` + all mirrors).
+
+---
+
 ## [0.3.2] — 2026-06-17
 
 ### Fixed — onboarding (from real-project validation)

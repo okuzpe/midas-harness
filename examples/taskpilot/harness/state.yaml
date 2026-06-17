@@ -1,12 +1,13 @@
-midas_version: 0.3.2
+midas_version: 0.3.3
 name: taskpilot
 mode: greenfield
 language: en
 created: 2026-06-16
-updated: 2026-06-16
+updated: 2026-06-27
+setup_complete: true
 
 stage: sprint_execution
-stage_status: in_progress
+stage_status: not_started
 entry_stage: idea_intake
 
 cost_profile: balanced
@@ -48,25 +49,36 @@ phases:
     gate: passed
     artifacts: [product/roadmap.md, product/sprints/01-auth-and-task-crud.md]
   sprint_execution:
-    status: in_progress
-    gate: pending
+    status: passed
+    gate: passed
     artifacts:
       - product/src/lib/db/schema.ts
-      - product/src/lib/db/schema.test.ts
+      - product/src/lib/auth/session.ts
       - product/src/app/api/tasks/route.ts
   audit:
-    status: not_started
-    gate: pending
-    artifacts: []
+    status: passed
+    gate: passed
+    artifacts: [.harness/audits/audit-01.md]
 
 sprints:
   - id: "01"
     title: "Auth + task CRUD"
-    status: active
+    status: done
+    audit_notes: "PASS (audit-01); amendment A-01 (sameSite=strict) deferred to Sprint 3"
+    last_touched: 2026-06-27
+  - id: "02"
+    title: "Kanban board + list view"
+    status: planned
     audit_notes: ""
-    last_touched: 2026-06-16
+    last_touched: 2026-06-27
+  - id: "03"
+    title: "Comments + invite flow + pilot launch"
+    status: planned
+    audit_notes: ""
+    last_touched: 2026-06-27
 
 last_audit:
-  phase: sprint_planning
+  phase: audit
+  sprint: "01"
   verdict: pass
-  at: 2026-06-16
+  at: 2026-06-27

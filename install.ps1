@@ -5,8 +5,11 @@
 # One-line install (run INSIDE the project you want to add Midas to):
 #   irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | iex
 #
+# Uninstall (surgical — removes only Midas's files, keeps your work; --purge to remove everything):
+#   & ([scriptblock]::Create((irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1))) --uninstall
+#
 # From a local clone:
-#   pwsh install.ps1 [target-dir] [--force]
+#   pwsh install.ps1 [target-dir] [--force | --uninstall [--dry-run|--purge]]
 
 [CmdletBinding()]
 param(

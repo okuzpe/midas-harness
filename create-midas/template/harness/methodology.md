@@ -65,6 +65,24 @@ conform to what we decided?", the tribunal asks "were those decisions right?" �
 (pre-architecture-freeze, pre-go/no-go, pre-ship) or any time. It informs the human and the gates but
 never advances `stage` itself.
 
+## Human sign-off points
+
+Midas automates the *work*, never the *irreversible judgment*. The gates below are not model-graded —
+a human must approve before the harness advances. Each is recorded on disk so a skipped one is visible.
+
+| Where | Decision that needs a human | Recorded in |
+|---|---|---|
+| Phase 1 — Contextualize | The blocking open questions are answered (the gap loop will not advance with any open) | `product/open-questions.md` |
+| Phase 3 — Business Case | **Go / no-go** to build the MVP at all | `product/business-plan.md` § go/no-go (sign-off line) |
+| Phase 4 — Architecture | Each irreversible stack/architecture decision | `product/adr/ADR-*.md` (one ADR per decision) |
+| Phase 5 / Phase 8 | Every **rule amendment** — changing a frozen rule is a conscious choice, never silent | the rule file's `## Amendment` entry (date + who) |
+| Phase 8 — Scope drift | Accepting or deferring a feature outside MVP scope | `.harness/audits/audit-NN.md` § scope reconciliation |
+| Any time | **Applying** `/midas-tribunal` findings (it only reports; the human decides what to act on) | the follow-up that consumes `.harness/debates/debate-NN.md` |
+| Ship | Declaring the MVP done when success metrics are met | the final `.harness/audits/audit-NN.md` + `stage: shipped` |
+| Always | **Committing / pushing** code — only when the human explicitly asks (see `rules/git-commits.md`) | git history |
+
+The producer never grades its own homework, and the harness never signs off for the human on any row above.
+
 ## Cost-aware execution
 Each phase names an orchestrate/build/scout tier (see [`docs/agents-and-models.md`](../docs/agents-and-models.md)).
 Opus is reserved for the ~6 irreversible decisions (idea framing, stack choice, architecture audit,

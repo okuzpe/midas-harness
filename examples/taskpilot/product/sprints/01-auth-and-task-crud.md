@@ -3,10 +3,11 @@
 | Field | Value |
 |---|---|
 | Sprint ID | `01` |
-| Status | active |
+| Status | done |
 | Dates | 2026-06-16 → 2026-06-27 |
 | Goal | A user can register, log in, create a workspace, and perform full CRUD on tasks |
 | Tier | build (claude-sonnet-4-6) |
+| Closing audit | `.harness/audits/audit-01.md` — verdict **PASS** (1 logged amendment) |
 
 ---
 
@@ -28,30 +29,36 @@ No polish, no kanban drag-and-drop — that is Sprint 2. This sprint is about th
 |---|---|---|---|
 | T-01 | Write Drizzle schema (`users`, `workspaces`, `workspace_members`, `tasks`, `sessions`) | builder | done |
 | T-02 | Generate and apply initial migration | builder | done |
-| T-03 | Implement `POST /api/auth/register` (bcrypt, session create) | builder | in-progress |
-| T-04 | Implement `POST /api/auth/login` and `DELETE /api/auth/logout` | builder | todo |
-| T-05 | Implement `POST /api/tasks`, `GET /api/tasks`, `PATCH /api/tasks/[id]`, `DELETE /api/tasks/[id]` | builder | todo |
-| T-06 | Auth middleware (`middleware.ts`) — redirect unauthenticated users | builder | todo |
-| T-07 | Stub `/board` page (server component; lists task titles from DB) | builder | todo |
-| T-08 | Unit tests: schema shape, session helpers, password helpers | builder | in-progress |
-| T-09 | Integration test: full register → create-task → list-tasks flow | builder | todo |
+| T-03 | Implement `POST /api/auth/register` (bcrypt, session create) | builder | done |
+| T-04 | Implement `POST /api/auth/login` and `DELETE /api/auth/logout` | builder | done |
+| T-05 | Implement `POST /api/tasks`, `GET /api/tasks`, `PATCH /api/tasks/[id]`, `DELETE /api/tasks/[id]` | builder | done |
+| T-06 | Auth middleware (`middleware.ts`) — redirect unauthenticated users | builder | done |
+| T-07 | Stub `/board` page (server component; lists task titles from DB) | builder | done |
+| T-08 | Unit tests: schema shape, session helpers, password helpers | builder | done |
+| T-09 | Integration test: full register → create-task → list-tasks flow | builder | done |
 
 ---
 
 ## Acceptance criteria
 
-- [ ] `POST /api/auth/register` with valid email + password returns 201, sets session cookie, creates
-      user + workspace in DB.
-- [ ] `POST /api/auth/login` with valid credentials returns 200, sets session cookie.
-- [ ] `DELETE /api/auth/logout` clears session cookie and deletes session from DB.
-- [ ] `POST /api/tasks` with a valid session creates a task scoped to the user's workspace; returns
-      201 with the full task record.
-- [ ] `GET /api/tasks` returns only tasks belonging to the current workspace (tenant isolation).
-- [ ] `PATCH /api/tasks/[id]` updates allowed fields; returns 404 if task belongs to another workspace.
-- [ ] `DELETE /api/tasks/[id]` deletes the task; returns 404 if not found in current workspace.
-- [ ] All API routes return 401 for unauthenticated requests.
-- [ ] Middleware redirects unauthenticated requests to `/login`.
-- [ ] All Drizzle migrations apply cleanly on a fresh Postgres instance.
+<!-- EARS form (see harness/conventions.md § Acceptance criteria). All met — see audit-01.md. -->
+
+- [x] WHEN a `POST /api/auth/register` arrives with a valid email + password, the system SHALL return
+      201, set the session cookie, and create the user + workspace in the DB.
+- [x] WHEN a `POST /api/auth/login` arrives with valid credentials, the system SHALL return 200 and
+      set the session cookie.
+- [x] WHEN a `DELETE /api/auth/logout` arrives, the system SHALL clear the session cookie and delete
+      the session row.
+- [x] WHEN a `POST /api/tasks` arrives with a valid session, the system SHALL create a task scoped to
+      the caller's workspace and return 201 with the full task record.
+- [x] WHEN a `GET /api/tasks` arrives, the system SHALL return only tasks belonging to the current
+      workspace (tenant isolation).
+- [x] WHEN a `PATCH /api/tasks/[id]` targets a task in another workspace, the system SHALL return 404.
+- [x] WHEN a `DELETE /api/tasks/[id]` targets a task not in the current workspace, the system SHALL
+      return 404.
+- [x] WHEN any API route is called without a valid session, the system SHALL return 401.
+- [x] WHEN an unauthenticated request hits an app page, the middleware SHALL redirect it to `/login`.
+- [x] The system SHALL apply all Drizzle migrations cleanly on a fresh Postgres instance.
 
 ---
 

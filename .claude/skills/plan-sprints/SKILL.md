@@ -44,7 +44,9 @@ Zero-padded, sequential. Each sprint file contains:
 - **Goal** — one sentence; the demonstrable outcome.
 - **Scope / non-scope** — what is in, what is explicitly deferred.
 - **Tasks** — ordered, concrete units of work.
-- **Acceptance criteria** — observable conditions that prove the goal is met.
+- **Acceptance criteria** — observable, testable conditions that prove the goal is met. Write them in
+  **EARS** form (`WHEN <trigger>, the system SHALL <response>`; see `harness/conventions.md` §
+  Acceptance criteria), one behavior per line, so Phase 8 can map each to a passing test.
 - **Definition of Done** — references the **frozen rules** by name (folder-structure, conventions,
   testing rule, design-system token rule, Context7 rule) plus "acceptance criteria met, tests pass".
   The DoD is what Phase 8 audits, so it must point at checkable rules, not restate them.

@@ -22,6 +22,27 @@ function read(rel) {
   return existsSync(p) ? readFileSync(p, 'utf8') : null;
 }
 
+/** Parse the sprints block of state.yaml into a Map(id → status) without a YAML dependency. */
+function parseSprints(yaml) {
+  const out = new Map();
+  let inSprints = false, id = null;
+  for (const line of yaml.split(/\r?\n/)) {
+    if (/^[A-Za-z_][\w-]*:/.test(line)) { inSprints = /^sprints:/.test(line); id = null; continue; }
+    if (!inSprints) continue;
+    const idM = line.match(/^\s*-\s*id:\s*"?([\w.-]+)"?/);
+    if (idM) { id = idM[1]; out.set(id, ''); continue; }
+    const stM = line.match(/^\s*status:\s*"?(\w+)"?/);
+    if (stM && id !== null) out.set(id, stM[1]);
+  }
+  return out;
+}
+
+/** Pull `key=<int>` out of a frozen tally line (default 0). */
+function tallyNum(line, key) {
+  const m = line.match(new RegExp(key + '=(\\d+)'));
+  return m ? Number(m[1]) : 0;
+}
+
 // --- --fix: rewrite adapters via the shared render path ----------------------------------------
 if (FIX) {
   const { hash, results } = renderAdapters(ROOT);
@@ -91,6 +112,54 @@ if (!existsSync(skillsDir)) {
     if (!s || !/^---\r?\n[\s\S]*?\bname:\s*\S/m.test(s)) bad++;
   }
   check('skills:frontmatter', bad ? 'warn' : 'ok', `${total - bad}/${total} valid`);
+}
+
+// frozen gate records vs state: the first check OUTSIDE the model that validates a verdict.
+// A producing model can write "PASS" into an audit/verify record and advance the sprint; this
+// catches the mismatch — a record whose tally shows unresolved CRITs while state marks the sprint
+// done. Per-sprint records only (audit/verify); the tribunal is advisory by design and not gated.
+const harnessDir = join(ROOT, '.harness');
+if (!stateRaw) {
+  check('gate:records', 'skip', 'no state.yaml');
+} else if (!existsSync(harnessDir)) {
+  check('gate:records', 'skip', 'no .harness records yet');
+} else {
+  const sprintStatus = parseSprints(stateRaw);
+  const shipped = /^stage:\s*shipped\b/m.test(stateRaw);
+  const isClosed = (nn) => shipped || sprintStatus.get(nn) === 'done';
+  let scanned = 0, flagged = 0;
+
+  const audits = join(harnessDir, 'audits');
+  if (existsSync(audits)) for (const f of readdirSync(audits)) {
+    const nn = (f.match(/^audit-([\w.-]+)\.md$/) || [])[1];
+    if (!nn) continue;
+    const line = (read(join('.harness', 'audits', f)) || '').match(/MIDAS_AUDIT_RESULT:[^\n\r]*/);
+    if (!line) continue;
+    scanned++;
+    const unresolved = tallyNum(line[0], 'unresolved');
+    const blocked = /verdict=blocked/.test(line[0]);
+    if (isClosed(nn) && (unresolved > 0 || blocked)) {
+      flagged++;
+      check(`gate:audit-${nn}`, 'warn', `record has unresolved=${unresolved}${blocked ? ' verdict=blocked' : ''} but sprint ${nn} is closed in state.yaml`);
+    }
+  }
+
+  const verifs = join(harnessDir, 'verifications');
+  if (existsSync(verifs)) for (const f of readdirSync(verifs)) {
+    const nn = (f.match(/^verify-([\w.-]+)\.md$/) || [])[1];
+    if (!nn) continue;
+    const line = (read(join('.harness', 'verifications', f)) || '').match(/MIDAS_VERIFY_RESULT:[^\n\r]*/);
+    if (!line) continue;
+    scanned++;
+    const criticals = tallyNum(line[0], 'criticals');
+    if (isClosed(nn) && criticals > 0) {
+      flagged++;
+      check(`gate:verify-${nn}`, 'warn', `verify criticals=${criticals} but sprint ${nn} is closed in state.yaml`);
+    }
+  }
+
+  if (scanned === 0) check('gate:records', 'skip', 'no parseable MIDAS_*_RESULT tally lines');
+  else if (flagged === 0) check('gate:records', 'ok', `${scanned} record(s) consistent with state`);
 }
 
 console.log('\nmidas doctor — health');

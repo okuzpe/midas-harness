@@ -41,6 +41,13 @@ do not introduce a parallel "standards" layer.
 - Every behavior change ships with a test. Test the behavior, not the implementation.
 - A sprint's Definition of Done references the testing rule; the Phase-8 audit checks it.
 
+## Acceptance criteria (EARS)
+- Write each sprint acceptance criterion as a **testable** statement, not a vague goal. Prefer EARS:
+  `WHEN <trigger>, the system SHALL <response>` (unconditional: `The system SHALL <response>`; use
+  `WHILE <state>` / `IF <condition> THEN` for state and edge cases). One observable behavior per line.
+- Mirror each criterion with a test named `given / when / then`, so the Phase-8 audit maps every
+  criterion to a passing test. A criterion no test could prove is a goal, not a criterion — rewrite it.
+
 ## Dependencies
 - Before adding a dependency, justify it (size, maintenance, license). Pin versions.
 - Before writing code against any third-party library, follow [`context7-usage.md`](./rules/context7-usage.md).
