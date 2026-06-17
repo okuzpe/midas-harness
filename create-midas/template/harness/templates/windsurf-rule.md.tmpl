@@ -63,7 +63,7 @@ These rules apply to **all files** in this workspace, always-on.
 - All UI references tokens from `product/design-system.md` (`tokens.json` / `tokens.css`).
 - Never hardcode colours, spacing, type sizes, or radii — always reference `--ds-*` vars.
 
-## Context7 (mandatory before any third-party code)
+## Fetch current docs before any third-party code (Context7 recommended, or your own tool)
 
 1. Call `resolve-library-id` with the library name.
 2. Call `get-library-docs` with the resolved id, version in use, and a topic filter.

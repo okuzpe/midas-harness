@@ -12,13 +12,14 @@ audits. See [Agents & Models](agents-and-models.md) for the full cost matrix.
 
 ---
 
-**Q: Do I need a Context7 API key?**
+**Q: Do I need Context7?**
 
-Context7 has a free tier that covers light use. For active build sprints — where skills fetch live
-library docs before every code change — a paid key avoids rate limits. Set it as the environment
-variable `CONTEXT7_API_KEY` (never write it to disk or commit it). If Context7 is down or
-unavailable, skills fall back to the documented web-search fallback; the harness never hard-fails on
-a missing key.
+No — it's **optional**. Midas mandates the *habit* (fetch current, version-accurate docs before
+third-party code; never from memory), not a specific tool. Wire whichever you like: Context7 is the
+recommended free option, or a web-fetch MCP / your editor's docs / a local mirror. If you do use Context7,
+its free tier covers light use; for heavy use add `CONTEXT7_API_KEY` to your env (never commit it). With
+no doc tool wired, you must still fetch the official docs for the pinned version by hand and cite them —
+the rule is the habit, not the vendor (`harness/rules/context7-usage.md`).
 
 ---
 

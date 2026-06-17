@@ -6,7 +6,7 @@ disable-model-invocation: true
 model: inherit
 harness-tier: build
 recommended-model: claude-sonnet-4-6
-mcp-required: [context7]
+mcp-recommended: [context7]
 ---
 
 # midas-doctor — the only sync engine

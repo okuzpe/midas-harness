@@ -16,7 +16,7 @@ adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.m
 stack-specific rules  >  product/conventions.md  >  product/design-system.md  >  these base conventions
 ```
 
-Stack-specific rules are generated during Phase 5 by `/define-conventions` (Context7-verified for the
+Stack-specific rules are generated during Phase 5 by `/define-conventions` (docs-verified for the
 chosen framework). `product/conventions.md` and `product/design-system.md` are project overrides the
 team owns. This base file is the floor every project starts from. There is exactly **one** taxonomy —
 do not introduce a parallel "standards" layer.
@@ -50,7 +50,8 @@ do not introduce a parallel "standards" layer.
 
 ## Dependencies
 - Before adding a dependency, justify it (size, maintenance, license). Pin versions.
-- Before writing code against any third-party library, follow [`context7-usage.md`](./rules/context7-usage.md).
+- Before writing code against any third-party library, **fetch its current docs** (Context7 recommended,
+  or your own doc tool / web fetch) — see [`context7-usage.md`](./rules/context7-usage.md). Never code APIs from memory.
 
 ## Git & commits
 - Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`).
@@ -66,39 +67,44 @@ do not introduce a parallel "standards" layer.
 - All UI uses the design tokens from `product/design-system.md` (`tokens.json` / `tokens.css`).
   Never hardcode colors, spacing, type sizes, or radii — reference tokens.
 
-## Context7 (mandatory before third-party code)
-# Rule: Always use Context7 before writing third-party code (always-on)
+## Fetch current docs before third-party code (Context7 recommended)
+# Rule: Fetch current docs before third-party code (always-on)
 
-**This is the highest-leverage rule in Midas. It applies in every tool, every phase that touches
-code (4 Tech/Architecture and 7 Sprint Execution).**
+**One of the highest-leverage rules in Midas. It applies in every tool, every phase that touches code
+(Phase 4 Tech/Architecture and Phase 7 Sprint Execution).** The rule is the *habit*, not a vendor —
+wire whichever doc tool you like (or none, and do it by hand).
 
-> Before generating, modifying, or reviewing any code that calls a **third-party library or
-> framework**, you MUST first fetch its current, version-accurate docs via the Context7 MCP server:
-> 1. Call `resolve-library-id` with the library name (e.g. `next.js`, `drizzle-orm`).
-> 2. Call `get-library-docs` with the resolved id, the **version in use** (from the lockfile /
->    `package.json` / `requirements.txt`), and a `topic` filter for the API you need.
-> 3. Write code against the returned docs — not against memory, which may be stale or hallucinated.
+> Before generating, modifying, or reviewing any code that calls a **third-party library or framework**,
+> first fetch its **current, version-accurate docs** — never write APIs from memory, which may be stale
+> or hallucinated.
+
+## How — pick a tool (Midas mandates the habit, not the vendor)
+- **Recommended: the Context7 MCP** (free, fast). It is **optional** — wire it in `.mcp.json` only if you
+  want it:
+  1. `resolve-library-id` with the library name (e.g. `next.js`, `drizzle-orm`).
+  2. `get-library-docs` with the resolved id, the **version in use** (from the lockfile/manifest), and a `topic`.
+- **Or any equivalent:** a `fetch`/web-search MCP against the library's official docs for the **pinned**
+  version, your editor's docs integration, or a local docs mirror. Whatever you use, **pin the version**.
+
+Whichever tool: write code against the **returned docs for the version in use**, and leave a visible note
+at the call site / PR — `// docs: <lib>@<version> via <tool>`.
 
 ## Why
-A hallucinated or out-of-date API costs far more in rework than one doc fetch. Context7 eliminates
-the two most common dependency failures: APIs that never existed, and APIs that changed after the
-model's training cutoff.
+A hallucinated or out-of-date API costs far more in rework than one doc fetch. The two most common
+dependency failures — APIs that never existed, and APIs that changed after the model's training cutoff —
+both vanish when current docs are in front of the model.
 
 ## Cost / when to skip
-- Route Context7 fetches to the **scout** tier (Haiku) — they are mechanical retrieval.
-- Skip only for the **standard library** of the language in use, or APIs you have already fetched
-  in this session for the same version.
+- Route doc fetches to the **scout** tier (Haiku) — mechanical retrieval.
+- Skip only for the **standard library** of the language in use, or an API already fetched this session
+  for the same version.
 
-## Required fallback (must be honored, not just documented)
-If Context7 is **unreachable or rate-limited** (anonymous tier returns 429 / "quota exceeded"):
-1. Fall back to `WebSearch`/`fetch` for the official docs of the **pinned** version, and
-2. Add a visible note in the code/PR: `// docs: <lib>@<version> via web fallback (Context7 unavailable)`,
-   and
-3. Recommend the user add a free Context7 API key (`CONTEXT7_API_KEY`) for active build sprints.
-
-Never silently generate third-party code from memory when Context7 is down.
+## If no doc tool is wired
+You MUST still fetch the official docs for the **pinned** version by hand (web search / the docs site)
+and cite them — **never silently generate third-party code from memory**. Context7 (or any doc MCP) just
+*automates* this; it does not change the rule.
 
 ## Portability
-This rule is replicated verbatim into every generated tool adapter (`CLAUDE.md`, the Cursor
-`.mdc`, the Windsurf rule) and stated in `AGENTS.md`, so it fires regardless of the agent in use.
+This rule is replicated into every generated tool adapter (`CLAUDE.md`, the Cursor `.mdc`, the Windsurf
+rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — or doc tool — in use.
 <!-- midas:end -->

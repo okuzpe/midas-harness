@@ -28,21 +28,22 @@ All rules in `harness/conventions.md` apply unconditionally. Key points:
 - **Naming** — kebab-case files, PascalCase types, per-language idiom for functions/vars.
 - **Errors** — validate at boundaries; fail fast with actionable messages; never swallow errors.
 - **Testing** — every behaviour change ships with a test; test behaviour, not implementation.
-- **Dependencies** — justify before adding; pin versions; run Context7 before any third-party code.
+- **Dependencies** — justify before adding; pin versions; fetch current docs (Context7 or your own tool) before any third-party code.
 - **Git** — Conventional Commits (`feat:` `fix:` `docs:` `refactor:` `test:` `chore:`); small reviewable commits.
 - **Security** — secrets only in `${ENV_VAR}`; never commit them; least-privilege MCP scopes.
 - **Design system** — all UI uses `product/design-system.md` tokens; never hardcode colour/spacing/type.
 
 Stack-specific rules (generated in Phase 5) live in `harness/rules/` and take highest precedence.
 
-## Context7 (mandatory)
+## Fetch current docs before third-party code (recommended tool: Context7)
 
-Before writing code against any third-party library:
-1. Call `resolve-library-id` with the library name.
-2. Call `get-library-docs` with the resolved id, version in use, and a topic filter.
-3. Write code against the returned docs — not from memory.
+Before writing code against any third-party library, fetch its **current, version-accurate docs** — via
+the Context7 MCP (recommended, **optional**) or your own doc tool / web fetch:
+1. Resolve the library + the **version in use** (from the lockfile/manifest).
+2. Fetch that version's docs for the API you need.
+3. Write code against the returned docs — **never from memory**.
 
-See `harness/rules/context7-usage.md` for the full rule, fallback procedure, and cost guidance.
+See `harness/rules/context7-usage.md` for the full rule, the no-tool fallback, and cost guidance.
 
 ## Model routing
 

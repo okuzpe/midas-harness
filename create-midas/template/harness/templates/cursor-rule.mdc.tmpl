@@ -34,7 +34,7 @@ alwaysApply: true
 - Secrets only in `${ENV_VAR}` — never committed. MCP configs use `${ENV_VAR}` placeholders.
 - All UI uses design tokens from `product/design-system.md`. Never hardcode colour/spacing/type.
 
-## Context7 (mandatory before any third-party code)
+## Fetch current docs before any third-party code (Context7 recommended, or your own tool)
 
 1. `resolve-library-id` with the library name.
 2. `get-library-docs` with resolved id, in-use version, and topic filter.

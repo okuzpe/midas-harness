@@ -9,7 +9,6 @@
 [![Docs](https://img.shields.io/badge/docs-mkdocs-6E56CF)](https://okuzpe.github.io/midas-harness/)
 [![AGENTS.md](https://img.shields.io/badge/AGENTS.md-compatible-success)](https://agents.md)
 [![Agent Skills](https://img.shields.io/badge/Agent_Skills-compatible-success)](https://agentskills.io)
-[![Context7](https://img.shields.io/badge/Context7-enabled-6E56CF)](https://context7.com)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
 
 **Midas** is a copy-in kit of plain markdown — skills, rules, slash-commands, and agent definitions —
@@ -34,8 +33,8 @@ loop that re-audits the living code against those frozen rules.
   one rule consciously amended and tracked forward to Sprint 3) → Sprint 2 queued. The signature
   execute ⇄ audit loop (phases 7 and 8), demonstrated.
 - **Cost-aware by default.** Opus runs only the ~6 irreversible decisions (idea framing, stack choice,
-  the audits); Sonnet builds, Haiku scouts. Live library docs come from [Context7](#mcp--context7), so
-  third-party code is written against current APIs, not training-cutoff memory.
+  the audits); Sonnet builds, Haiku scouts. Current library docs are fetched before any third-party code
+  ([Context7](#mcp--context7) recommended, or your own tool), so it's written against real APIs, not memory.
 
 ## When to use Midas — and when not to
 **Use it** when you want an agent to respect architecture, conventions, and tests instead of improvising —
@@ -120,11 +119,14 @@ single source by `/midas-doctor` — no hand-editing, no drift.
 > generated adapters, so you get the *process* everywhere; there, **model routing is advisory (prose),
 > not enforced**. "native" means read **without conversion**, not feature parity.
 
-### MCP / Context7
-Midas ships a secret-free [`.mcp.json`](./.mcp.json) wiring **Context7** (essential — live, version-
-accurate library docs before any third-party code) and **sequential-thinking**. A free Context7 key is
-recommended for active build sprints. Optional: git/GitHub, fetch, filesystem, Playwright (UI sprints
-only). See [`SECURITY.md`](./SECURITY.md) for least-privilege guidance.
+### MCP / current docs
+Midas ships a secret-free [`.mcp.json`](./.mcp.json) wiring **sequential-thinking**. The
+**fetch-current-docs** rule (`harness/rules/context7-usage.md`) is **tool-agnostic** — Midas mandates the
+*habit* (fetch version-accurate docs before third-party code), not a vendor. Wire whichever doc tool you
+like: **[Context7](https://context7.com)** is the recommended free option (add `CONTEXT7_API_KEY` to your
+env to raise the rate limit), or use a web-fetch MCP / your editor's docs. Other optional servers:
+git/GitHub, fetch, filesystem, Playwright (UI sprints only). See [`SECURITY.md`](./SECURITY.md) for
+least-privilege guidance.
 
 ### Cost-aware orchestration
 Three self-contained agents ship with Midas — `midas-orchestrator` (Opus, think/audit),
@@ -146,7 +148,7 @@ A runnable Sprint-1 vertical slice — auth, task CRUD, middleware, board stub +
 artifact on disk. See [`examples/taskpilot/`](./examples/taskpilot/).
 
 ## Status
-**v0.4.2 — pre-1.0, actively developed (not yet a stable API).** Most complete on **Claude Code**
+**v0.5.0 — pre-1.0, actively developed (not yet a stable API).** Most complete on **Claude Code**
 (see [Honest scope](#supported-tools)). Details: [`CHANGELOG.md`](./CHANGELOG.md) ·
 [`VERSIONING.md`](./VERSIONING.md) · [docs site](https://okuzpe.github.io/midas-harness/).
 

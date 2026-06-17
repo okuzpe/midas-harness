@@ -40,7 +40,7 @@ This is *pipe-to-shell* — you run code you haven't read. Treat it like any `cu
   `npx github:okuzpe/midas-harness`.
 - **Pin a release for a reproducible, reviewable install.** The shims and `npx` resolve from the
   mutable `main` branch (not a signed tag), so for supply-chain assurance install a tagged version:
-  `npx github:okuzpe/midas-harness#v0.4.2`.
+  `npx github:okuzpe/midas-harness#v0.5.0`.
 - The installer is **non-destructive** (only adds files, never deletes) and writes **no secrets**.
 
 ---
@@ -51,7 +51,7 @@ Midas ships a secret-free [`.mcp.json`](./.mcp.json) that wires two servers by d
 
 | Server | Type | What it does |
 |---|---|---|
-| `context7` | Remote HTTP | Fetches live library documentation |
+| `context7` *(optional)* | Remote HTTP | Fetches current library docs — wire it if you want, or use your own doc tool |
 | `sequential-thinking` | Local npx | Structured reasoning; no file or network access |
 
 The following guidance applies when you extend `.mcp.json` with optional servers.
@@ -99,9 +99,9 @@ secrets manager. Never commit a `.env` file.
 
 ### 4. Remote MCP endpoints send data to third parties — understand the scope
 
-The `context7` HTTP endpoint (`https://mcp.context7.com/mcp`) is a remote service. Library IDs
-and documentation queries are transmitted to Context7's servers. This is intentional and necessary
-for live-doc fetching; however:
+If you wire the **optional** `context7` HTTP endpoint (`https://mcp.context7.com/mcp`), it is a remote
+service: library IDs and documentation queries are transmitted to Context7's servers. That is the
+trade-off for live-doc fetching (the same applies to any remote doc MCP you choose); however:
 
 - Do not pass proprietary source code, internal library names, or sensitive identifiers to Context7
   queries beyond what is needed to resolve a public library ID.
@@ -155,7 +155,7 @@ The following findings were recorded during the 2026 security audit of the v0.1 
 | ID | Finding | Disposition |
 |---|---|---|
 | SEC-001 | `sequential-thinking` server pinned via `-y` without version lock; low risk (no file/exec scope) | Accepted; monitor for supply-chain advisories; pin if scope expands |
-| SEC-002 | `context7` remote endpoint receives library-ID queries; no auth required | Accepted; documented in guidance §4 above |
+| SEC-002 | `context7` remote endpoint receives library-ID queries; no auth required (only when you opt to wire it) | Accepted; optional since v0.5.0; documented in guidance §4 above |
 | SEC-003 | No version pin guidance in the default `.mcp.json` for optional servers | Mitigated: guidance added in this document (§1) |
 | SEC-004 | `${ENV_VAR}` pattern not enforced by tooling; relies on author discipline | Mitigated: documented in `harness/conventions.md`; Phase-8 audit checklist item |
-| SEC-005 | `curl\|bash` / `irm\|iex` installers pipe a remote script from the mutable `main` branch | Documented (§Installing Midas securely); `npx` and pinned-tag (`#v0.4.2`) alternatives provided |
+| SEC-005 | `curl\|bash` / `irm\|iex` installers pipe a remote script from the mutable `main` branch | Documented (§Installing Midas securely); `npx` and pinned-tag (`#v0.5.0`) alternatives provided |

@@ -12,7 +12,7 @@ works across Claude Code, Cursor, GitHub Copilot, Codex, Windsurf, and any AGENT
 Most AI coding setups jump straight to code. Midas front-loads the thinking — clarify the idea,
 validate the market, freeze the architecture, encode the rules — then makes every sprint a control
 loop that re-audits living code against those frozen rules. The strongest model **thinks and audits**;
-cheaper models **execute**. Live library docs come from **Context7**, so code is always written
+cheaper models **execute**. Current library docs are fetched before third-party code (Context7 or your own tool), so code is written
 against current APIs, not stale training memory.
 
 ## The 9 phases

@@ -95,8 +95,8 @@ export function computeAdapters(root = ROOT) {
     '- Source of truth: `harness/`, `.claude/skills/`, `AGENTS.md`. This block is rendered by',
     '  `scripts/render-adapters.mjs`; do not hand-edit between the midas markers.',
     '- Follow `harness/conventions.md` and the always-on rules in `harness/rules/`.',
-    '- Before any third-party code, use Context7 (`resolve-library-id` → `get-library-docs` at the',
-    '  in-use version); see `harness/rules/context7-usage.md`. Never code third-party APIs from memory.',
+    '- Before any third-party code, fetch its current docs for the in-use version (Context7 recommended,',
+    '  or your own doc tool); see `harness/rules/context7-usage.md`. Never code third-party APIs from memory.',
   ].join('\n');
   const claudeAbs = join(root, 'CLAUDE.md');
   let claudeContent = spliceManaged(readExisting(claudeAbs), claudeInner);
@@ -112,7 +112,7 @@ export function computeAdapters(root = ROOT) {
     '',
     conventionsBody,
     '',
-    '## Context7 (mandatory before third-party code)',
+    '## Fetch current docs before third-party code (Context7 recommended)',
     context7Body,
     END,
     '',

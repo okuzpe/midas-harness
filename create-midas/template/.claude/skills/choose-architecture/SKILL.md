@@ -6,7 +6,7 @@ disable-model-invocation: false
 model: inherit
 harness-tier: orchestrate
 recommended-model: claude-opus-4-8
-mcp-required: [context7]
+mcp-recommended: [context7]
 ---
 
 # choose-architecture (Phase 4 — Tech & Architecture)
@@ -39,7 +39,7 @@ For each major layer (frontend, backend, data, infra, key libraries) list **2–
 one-line trade-off (fit to requirement, maturity, cost, team familiarity, lock-in). Prefer boring,
 well-supported technology. Each candidate that survives becomes a decision needing an ADR.
 
-### 3. PIN versions — Context7-verified (mandatory)
+### 3. PIN versions — verified against current docs (mandatory; Context7 recommended)
 For every third-party framework/library you select, follow `harness/rules/context7-usage.md`
 **before** committing to it: `resolve-library-id` → `get-library-docs` at the version you intend to
 pin. Confirm the version is current/supported and the APIs you depend on exist. Route these fetches

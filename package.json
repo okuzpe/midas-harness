@@ -1,6 +1,6 @@
 {
   "name": "midas-harness",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "description": "Portable product-development harness for AI agents — install into any repo with `npx github:okuzpe/midas-harness`. Drives a product from idea to shipped code through 9 audited phases.",
   "bin": {
     "midas": "create-midas/index.mjs"

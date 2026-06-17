@@ -6,7 +6,7 @@
 
 Pin the technology stack with verifiable evidence, produce a system diagram, and
 record every significant decision in an ADR. No code is written here — only decisions
-that constrain Phase 7. Context7 is mandatory for all library choices.
+that constrain Phase 7. Fetching current docs before pinning any library is mandatory (Context7 recommended, or your own doc tool).
 
 ## Inputs
 

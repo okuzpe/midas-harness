@@ -10,7 +10,7 @@ adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.m
 stack-specific rules  >  product/conventions.md  >  product/design-system.md  >  these base conventions
 ```
 
-Stack-specific rules are generated during Phase 5 by `/define-conventions` (Context7-verified for the
+Stack-specific rules are generated during Phase 5 by `/define-conventions` (docs-verified for the
 chosen framework). `product/conventions.md` and `product/design-system.md` are project overrides the
 team owns. This base file is the floor every project starts from. There is exactly **one** taxonomy —
 do not introduce a parallel "standards" layer.
@@ -44,7 +44,8 @@ do not introduce a parallel "standards" layer.
 
 ## Dependencies
 - Before adding a dependency, justify it (size, maintenance, license). Pin versions.
-- Before writing code against any third-party library, follow [`context7-usage.md`](./rules/context7-usage.md).
+- Before writing code against any third-party library, **fetch its current docs** (Context7 recommended,
+  or your own doc tool / web fetch) — see [`context7-usage.md`](./rules/context7-usage.md). Never code APIs from memory.
 
 ## Git & commits
 - Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`).

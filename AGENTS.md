@@ -30,10 +30,10 @@ Follow `harness/conventions.md` (code quality, naming, errors, testing, deps, gi
 system) and the always-on rules in `harness/rules/`. Precedence: stack rules > product/conventions >
 design-system > base conventions.
 
-## Context7 (mandatory)
-Before writing code against any third-party library, fetch current docs via Context7
-(`resolve-library-id` → `get-library-docs` at the in-use version). See `harness/rules/context7-usage.md`.
-If Context7 is down, use the documented web fallback — never generate third-party code from memory.
+## Fetch current docs before third-party code (recommended tool: Context7)
+Before writing code against any third-party library, fetch its **current, version-accurate docs** — via
+the Context7 MCP (recommended, **optional**) or your own doc tool / web fetch. See
+`harness/rules/context7-usage.md`. **Never generate third-party code from memory.**
 
 ## Model routing (cost-aware)
 Use the strongest model to **think/plan/audit** (orchestrate), a mid model to **implement** (build),

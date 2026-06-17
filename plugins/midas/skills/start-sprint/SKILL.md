@@ -6,7 +6,7 @@ disable-model-invocation: true
 model: inherit
 harness-tier: orchestrate
 recommended-model: claude-opus-4-8
-mcp-required: [context7]
+mcp-recommended: [context7]
 ---
 
 # start-sprint (Phase 7 — Sprint Execution kickoff)

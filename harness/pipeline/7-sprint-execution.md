@@ -5,8 +5,8 @@
 ## Purpose
 
 Implement the active sprint's tasks, verify acceptance criteria, and prepare the sprint
-for Phase 8 audit. Code is written here — Context7 is mandatory for every third-party
-library touched. The build tier drives; the orchestrate tier reviews before closing.
+for Phase 8 audit. Code is written here — fetching current docs is mandatory for every third-party
+library touched (Context7 recommended, or your own doc tool). The build tier drives; the orchestrate tier reviews before closing.
 
 ## Inputs
 

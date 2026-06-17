@@ -7,7 +7,7 @@ for, who edits it, and which one wins when they conflict** — so neither you no
 
 | File / dir | Role | Who edits it | Read by |
 |---|---|---|---|
-| `AGENTS.md` | **Project law** — the source of truth for conventions, the Context7 rule, and model-routing intent | you / `/define-conventions` | every tool natively |
+| `AGENTS.md` | **Project law** — the source of truth for conventions, the fetch-current-docs rule, and model-routing intent | you / `/define-conventions` | every tool natively |
 | `CLAUDE.md` · `GEMINI.md` · `.cursor/rules/00-midas.mdc` · `.windsurf/rules/00-midas.md` | **Generated adapters** — render `AGENTS.md` + conventions into each tool's format | **generated — never hand-edit** (`/midas-doctor` re-renders) | Claude Code · Gemini · Cursor · Windsurf |
 | `harness/conventions.md` + `harness/rules/*` | The actual rule bodies (code quality, security, testing, Context7, …) | you / `/define-conventions` | inlined into the adapters |
 | `harness/state.yaml` | **Operational state only** — current phase, gates, cost profile, tools, sprint pointer | the skills (read first, write last) | `/midas-status`, every skill |
@@ -20,7 +20,7 @@ for, who edits it, and which one wins when they conflict** — so neither you no
 stack-specific rules  >  product/conventions.md  >  product/design-system.md  >  harness/conventions.md (base)
 ```
 
-Stack-specific rules are generated in Phase 5 (`/define-conventions`, Context7-verified for your stack).
+Stack-specific rules are generated in Phase 5 (`/define-conventions`), with the stack's current docs fetched (Context7 or your own tool).
 `product/conventions.md` and `product/design-system.md` are project overrides you own. `harness/conventions.md`
 is the floor every project starts from. There is exactly **one** taxonomy — don't add a parallel one.
 

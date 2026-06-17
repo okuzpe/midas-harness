@@ -45,7 +45,7 @@ Each `SKILL.md` frontmatter declares:
 - `recommended-model` — the canonical model ID for that tier.
 - `disable-model-invocation: true` — side-effecting or irreversible skills that must only run on
   explicit user invocation. They open with a guard block that stops inference-triggered execution.
-- `mcp-required` — MCPs the skill depends on (`context7`, `sequential-thinking`, etc.).
+- `mcp-recommended` — MCPs the skill suggests (`context7`, `sequential-thinking`, etc.) — advisory, not required.
 
 ---
 

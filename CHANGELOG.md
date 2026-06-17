@@ -9,10 +9,42 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+_Nothing yet._
+
+---
+
+## [0.5.0] — 2026-06-17
+
+> **Breaking (pre-1.0 minor).** Context7 is no longer a bundled/mandatory dependency. Existing installs
+> keep working (your `.mcp.json` is untouched on upgrade); new installs ship without it. See **Migration**.
+
+### Changed — Context7 is now optional; the doc-fetching rule is tool-agnostic
+Midas mandates the **habit** (fetch current, version-accurate docs before third-party code; never from
+memory), **not the vendor**. Wire whichever doc tool you like.
+- `harness/rules/context7-usage.md` rewritten tool-agnostic: Context7 is the *recommended free* option,
+  with a web-fetch MCP / your own tool / by-hand as equals; the no-tool fallback is explicit.
+- **Context7 removed from the default `.mcp.json`** (demoted to a commented `RECOMMENDED (optional)` entry
+  in `mcp.json.tmpl`). The bundled `CONTEXT7_API_KEY` Authorization header is gone from the default config.
+- Skill frontmatter `mcp-required: [context7]` → `mcp-recommended: [context7]` (8 skills); the
+  "Context7 (mandatory)" framing in `AGENTS.md`, `harness/conventions.md`, the pipeline docs, and the
+  generated adapters reworded to "fetch current docs (Context7 recommended, or your tool)". README badge
+  removed; the MCP / docs-site copy updated.
+- **Kept intact:** the principle and the value-add — agents still must fetch current docs before
+  third-party code. Only the *coupling to a specific vendor* is gone.
+
 ### Fixed
-- **`AGENTS.md` honesty.** It no longer claims Cursor/Copilot/Codex "read `.claude/skills` natively too"
-  — aligned to the README's honest scope (Claude Code native; other tools get methodology + rules via
+- **`AGENTS.md` honesty.** It no longer claims Cursor/Copilot/Codex "read `.claude/skills` natively too" —
+  aligned to the README's honest scope (Claude Code native; other tools get methodology + rules via
   `AGENTS.md`/`GEMINI.md`/adapters where supported; parity varies).
+
+### Migration
+No action required: existing installs keep their current `.mcp.json` (Context7 stays if you had it). To
+match the new default you may remove the `context7` server from `.mcp.json` and rely on the rule's
+tool-agnostic guidance — or keep Context7; it is still the recommended doc tool. Any doc MCP (or none +
+by-hand) satisfies the rule.
+
+### Engine
+- Version single-sourced to `0.5.0` (`harness/VERSION` + all mirrors).
 
 ---
 
@@ -336,7 +368,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.4.2...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/okuzpe/midas-harness/compare/v0.4.2...v0.5.0
 [0.4.2]: https://github.com/okuzpe/midas-harness/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/okuzpe/midas-harness/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/okuzpe/midas-harness/compare/v0.3.4...v0.4.0
