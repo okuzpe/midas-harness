@@ -98,6 +98,16 @@ if (mcp === null) {
   while ((mm = re.exec(mcp))) if (!mm[2].includes('${')) leak = true;
   if (/\b(sk-[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{16,})\b/.test(mcp)) leak = true;
   check('mcp:secret-free', leak ? 'warn' : 'ok', leak ? 'a literal secret may be present — use ${ENV_VAR}' : '');
+  // Windows: an MCP server launched with bare `npx` cannot be spawned (npx is a .cmd) and fails with
+  // "Connection closed". It must be wrapped in `cmd /c`. Fresh installs are fixed by the installer.
+  if (process.platform === 'win32') {
+    try {
+      const j = JSON.parse(mcp);
+      const bare = Object.entries(j.mcpServers || {}).filter(([, s]) => s && s.command === 'npx').map(([k]) => k);
+      check('mcp:win-npx', bare.length ? 'warn' : 'ok',
+        bare.length ? `${bare.join(', ')}: bare npx won't spawn on Windows — wrap in \`cmd /c\` (re-run the installer with --force)` : '');
+    } catch { /* invalid JSON is surfaced elsewhere */ }
+  }
 }
 
 // skills carry valid frontmatter with a name

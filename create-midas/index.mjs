@@ -48,6 +48,7 @@ const skipped = [];
 mkdirSync(TARGET, { recursive: true });
 copyTree(TEMPLATE, TARGET);
 fillAgents(); // turn the template AGENTS.md into a project-named one
+fixMcpForWindows(); // wrap npx-launched MCP servers in `cmd /c` on Windows so they actually connect
 
 // Generate the tool adapters so the project is immediately usable. Non-fatal if it can't run.
 let rendered = false;
@@ -102,6 +103,27 @@ function fillAgents() {
     .replace(/\{\{STACK\}\}/g, 'undecided — set in Phase 4 (`/choose-architecture`)')
     .replace(/\{\{TOOLS\}\}/g, 'claude-code, cursor, windsurf, gemini');
   writeFileSync(f, filled, 'utf8');
+}
+
+// On Windows, `npx` is a `.cmd` shim that Node cannot spawn directly, so an MCP server launched with
+// `command: "npx"` fails to connect ("MCP error -32000: Connection closed"). Wrap every npx-launched
+// server in `cmd /c`. Only touches a .mcp.json that Midas just wrote (a pre-existing user file is
+// left untouched). No-op on macOS/Linux, where bare npx works.
+function fixMcpForWindows() {
+  if (process.platform !== 'win32') return;
+  if (!written.includes('.mcp.json')) return;
+  const f = join(TARGET, '.mcp.json');
+  let json;
+  try { json = JSON.parse(readMaybe(f) || ''); } catch { return; }
+  let changed = false;
+  for (const server of Object.values(json.mcpServers || {})) {
+    if (server && server.command === 'npx') {
+      server.args = ['/c', 'npx', ...(server.args || [])];
+      server.command = 'cmd';
+      changed = true;
+    }
+  }
+  if (changed) writeFileSync(f, JSON.stringify(json, null, 2) + '\n', 'utf8');
 }
 
 // Greenfield unless the target already has source/manifests or a kept AGENTS.md/CLAUDE.md.
@@ -299,7 +321,7 @@ function printHelp() {
 Install:
   npx github:okuzpe/midas-harness          into the current directory (from GitHub)
   npx github:okuzpe/midas-harness my-app   into ./my-app
-  npx github:okuzpe/midas-harness#v0.3.3   pin a release for a reproducible install
+  npx github:okuzpe/midas-harness#v0.3.4   pin a release for a reproducible install
 
 Uninstall (surgical — removes only Midas's files, keeps your work):
   npx github:okuzpe/midas-harness --uninstall             remove the engine, keep product/ + .harness/ + state.yaml

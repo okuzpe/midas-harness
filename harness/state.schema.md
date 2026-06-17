@@ -26,7 +26,7 @@ It is committed to the project's git (reproducible memory). Volatile caches/hash
 ## Schema
 
 ```yaml
-midas_version: 0.3.3          # engine version that wrote this file (for /midas-update)
+midas_version: 0.3.4          # engine version that wrote this file (for /midas-update)
 name: taskpilot              # project slug
 mode: greenfield             # greenfield | brownfield
 language: en                 # artifact language

@@ -13,6 +13,23 @@ _Nothing yet._
 
 ---
 
+## [0.3.4] — 2026-06-17
+
+### Fixed — MCP `sequential-thinking` server (caught by real-project validation)
+- **Corrected the npm package name** in `.mcp.json` and `harness/templates/mcp.json.tmpl`:
+  `@modelcontextprotocol/server-sequentialthinking` → `@modelcontextprotocol/server-sequential-thinking`.
+  The misspelled name 404'd on **every** platform, so the server never started on any install.
+- **Windows: the installer now wraps npx-launched MCP servers in `cmd /c`.** On Windows `npx` is a
+  `.cmd` shim Node can't spawn directly, so `command: "npx"` fails with `MCP error -32000: Connection
+  closed`. `create-midas` rewrites those servers to `cmd /c npx …` at install time (no-op on macOS/Linux).
+- **`/midas-doctor` now warns** when, on Windows, a `.mcp.json` server launches with bare `npx`, so an
+  already-installed project surfaces the issue (fix: re-run the installer with `--force`).
+
+### Engine
+- Version single-sourced to `0.3.4` (`harness/VERSION` + all mirrors).
+
+---
+
 ## [0.3.3] — 2026-06-17
 
 A "make the gate mechanically real" pass, driven by an internal audit + landscape review. Six
