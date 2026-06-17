@@ -16,8 +16,9 @@ shipped code through 9 audited phases. It installs into any project and works ac
 ## How to work on Midas
 - Edit conventions in `harness/conventions.md`, then run `/midas-doctor` (or `node scripts/render-adapters.mjs`)
   to re-render the adapters. Never edit a generated adapter directly.
-- Skills are authored once as `.claude/skills/<name>/SKILL.md` (Agent Skills standard) — Cursor,
-  Copilot and Codex read them natively too. No per-tool copies.
+- Skills are authored once as `.claude/skills/<name>/SKILL.md` (Agent Skills standard). **Claude Code
+  consumes them natively; other tools receive the methodology + rules via `AGENTS.md` / `GEMINI.md` /
+  generated adapters where supported — feature parity varies.** No per-tool copies.
 - Keep everything plain markdown + the two optional Node scripts (`render-adapters`, `doctor`).
 
 ## Build / test / verify

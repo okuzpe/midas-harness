@@ -9,7 +9,10 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
-_Nothing yet._
+### Fixed
+- **`AGENTS.md` honesty.** It no longer claims Cursor/Copilot/Codex "read `.claude/skills` natively too"
+  — aligned to the README's honest scope (Claude Code native; other tools get methodology + rules via
+  `AGENTS.md`/`GEMINI.md`/adapters where supported; parity varies).
 
 ---
 
