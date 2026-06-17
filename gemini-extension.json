@@ -1,6 +1,6 @@
 {
   "name": "midas",
   "description": "Midas product-development harness — drives a product from idea to shipped code through 9 audited phases. Reads project law from GEMINI.md / AGENTS.md.",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "contextFileName": "GEMINI.md"
 }

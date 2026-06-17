@@ -10,6 +10,11 @@
 Build a faithful, evidence-based picture of what the project **is**, so Midas can codify reality (rules,
 architecture) instead of inventing it.
 
+> **Scan robustly.** Read the **repo's files** (manifests, source, tests, CI configs) to detect languages
+> and stack — do **not** depend on toolchains being installed on this machine (a sandbox / CI box may lack
+> `go`/`flutter`/etc.). Prefer Glob/Grep/Read; when shelling out, run probes independently and swallow
+> benign failures (`… || true`) so a missing dir, empty glob, or absent tool reads as data, not an error.
+
 ## Inputs
 The existing repository: code, manifests, CI, any `AGENTS.md` / `CLAUDE.md` / `.cursor` / `.windsurf`, **and
 the project's written intent** — `README*`, `docs/`, briefs/specs/`NOTES`, the manifest `description`.

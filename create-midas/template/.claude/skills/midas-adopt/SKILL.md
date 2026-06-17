@@ -34,6 +34,8 @@ Context7), test setup, CI, and any existing `AGENTS.md` / `CLAUDE.md` / `.cursor
 harvest the project's stated intent** — `README*`, `docs/`, any brief/spec/`NOTES`, and the manifest
 `description` — so the product context comes from what's written, not invented (feeds Step 4). Write
 `product/inventory.md`. Playbook: `harness/pipeline/0b-codebase-inventory.md`.
+**Scan robustly:** read the repo's files (manifests/source/tests), not local toolchains a sandbox may
+lack; run probes independently and swallow benign "not found" (`… || true`) so absence is data, not an error.
 
 ### Step 2 — Infer the de-facto architecture (orchestrate)
 From the inventory, infer the real architecture (components, data flow, boundaries) and write

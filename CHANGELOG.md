@@ -13,6 +13,23 @@ _Nothing yet._
 
 ---
 
+## [0.5.2] — 2026-06-17
+
+### Fixed — the adaptive-intake scan no longer surfaces benign "not found" as errors
+From real-project use (a 303-file Python+Dart repo): `/midas-init`'s Phase-A scan was producing
+fragile shell probes that reported `Error: Exit code N` on benign conditions — an `&&`-chain aborting
+when one sub-probe missed, and `command -v go/flutter/dart` returning non-zero simply because those
+toolchains weren't installed on the machine.
+- `/midas-init`, `/midas-adopt`, and `0b-codebase-inventory` now instruct a **robust scan**: classify
+  from the **repo's files** (manifests/source/tests/CI), not from locally-installed toolchains (a
+  sandbox/CI box may lack them); prefer Glob/Grep/Read; run probes **independently** and **swallow benign
+  failures** (`… || true`) so a missing dir, empty glob, or absent tool reads as data, not an error.
+
+### Engine
+- Version single-sourced to `0.5.2` (`harness/VERSION` + all mirrors).
+
+---
+
 ## [0.5.1] — 2026-06-17
 
 ### Changed — validation is now two-tier (so an AI-only founder isn't hard-walled)
@@ -389,7 +406,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.2...HEAD
+[0.5.2]: https://github.com/okuzpe/midas-harness/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/okuzpe/midas-harness/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/okuzpe/midas-harness/compare/v0.4.2...v0.5.0
 [0.4.2]: https://github.com/okuzpe/midas-harness/compare/v0.4.1...v0.4.2

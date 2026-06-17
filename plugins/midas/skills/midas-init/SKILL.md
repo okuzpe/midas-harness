@@ -49,6 +49,13 @@ Dispatch **scout** subagents to read, without writing anything yet:
 4. **OS.** Platform, so GENERATE prints the right env-var command (`setx` on Windows, `export` on POSIX).
    Dates come from the user/today — never a live clock inside a script.
 
+**Scan robustly.** Classify from what is *in the repo* (manifests, source files, tests, CI configs) — **not**
+from whether toolchains are installed on this machine (a sandbox / CI box may lack `go`/`flutter`/etc., and
+that is irrelevant to maturity). Prefer the Glob/Grep/Read tools over shell one-liners. When you do shell
+out, run each probe **independently and swallow benign failures** (append `|| true`, or `command -v x ||
+echo "x: not installed"`) so a missing dir, empty glob, or absent tool reads as **data ("not present"),
+never an error** — and never chain probes with `&&`, where one benign non-match aborts the whole scan.
+
 ## Phase B — CLASSIFY maturity (place the project, don't assume)
 
 From the scan, classify the project into one level. When the signal is ambiguous, pick the **lower**
