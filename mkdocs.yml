@@ -28,6 +28,7 @@ nav:
   - Home: index.md
   - Getting Started: getting-started.md
   - Methodology: methodology.md
+  - Context & files: context-hierarchy.md
   - Skills Reference: skills.md
   - Agents & Models: agents-and-models.md
   - FAQ: faq.md

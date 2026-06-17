@@ -9,7 +9,10 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
-_Nothing yet._
+### Added
+- `docs/context-hierarchy.md` — a single map of every file Midas writes (role, who edits it, which tools
+  read it) and the rule-precedence order, consolidating guidance that was scattered across `AGENTS.md`,
+  `harness/conventions.md`, the README, and `state.schema.md`. Added to the docs-site nav.
 
 ---
 
