@@ -2,7 +2,8 @@
 
 Midas installs **into any project** (new or existing). Every method runs the same dependency-free Node
 installer, which copies the harness in **non-destructively** (it only adds files — it never deletes
-yours) and generates the tool adapters. Then you configure it once with `/midas-init`.
+yours), generates the tool adapters, and writes a default `harness/state.yaml` so the project is ready
+to use. Run `/midas-init` only to refine the defaults.
 
 **Requirement:** Node.js ≥ 16.7 (ships with `npx`). Check with `node -v`.
 
@@ -86,11 +87,13 @@ harness conventions into them.
 
 ## After installing
 1. Open the project in **Claude Code** (or Cursor).
-2. `/midas-init` — configure the harness (asks ~8 questions, writes `harness/state.yaml` + adapters).
-3. `/midas-status` — see the current phase and the next action.
-4. Drive the lifecycle: `/idea-intake` → `/contextualize` → `/market-research` → `/business-plan` →
+2. `/midas-status` — works immediately (the installer wrote a default state); it shows the current
+   phase and the next command.
+3. Drive the lifecycle: `/idea-intake` → `/contextualize` → `/market-research` → `/business-plan` →
    `/choose-architecture` → `/define-conventions` → `/plan-sprints` → `/start-sprint` → `/close-sprint`.
    Run `/midas-tribunal` any time for a whole-project adversarial debate.
+4. **Optional:** `/midas-init` to refine the defaults (cost profile, tools, Context7 key); `/midas-adopt`
+   to wire an existing codebase (brownfield).
 
 ## Updating
 Re-run the install command (it skips files you've edited; pass `--force` to refresh the engine), or

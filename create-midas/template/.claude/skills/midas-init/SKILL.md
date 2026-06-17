@@ -14,12 +14,17 @@ mcp-required: [context7]
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
 > First read `harness/state.yaml`; if the precondition stage is wrong, report and stop.
 
-**Precondition:** no `harness/state.yaml` yet (fresh install), OR the user explicitly asks to
-re-initialize. If `harness/state.yaml` already exists and the user did not ask to re-init, STOP and
-point them at `/midas-status`. This skill is **idempotent**: it only owns the regions between the
-managed markers `<!-- midas:begin -->` … `<!-- midas:end -->` and never overwrites content outside them.
+**When to run:** the installer (`npx github:okuzpe/midas-harness`) already writes a working default
+`harness/state.yaml` plus the adapters, so this skill is **optional refinement**, not a required step:
+- **State already exists (the common case):** treat this as REFINEMENT — confirm or adjust
+  `cost_profile`, `tools`, `language`, and the Context7 key in the existing `state.yaml`
+  (read-modify-write the whole file). Do **not** re-init or touch `product/*`. If `mode: brownfield`,
+  hand off to `/midas-adopt`.
+- **No `state.yaml` (e.g. a manual file copy):** run the full setup below.
 
-This is a three-phase conversation: **DETECT → ASK → GENERATE**. Never write a secret to disk.
+This skill is **idempotent**: it only owns the regions between the managed markers
+`<!-- midas:begin -->` … `<!-- midas:end -->` and never overwrites content outside them. Never write a
+secret to disk. The flow is **DETECT → ASK → GENERATE** (skip steps the default state already satisfies).
 
 ---
 

@@ -9,6 +9,18 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+_Nothing yet._
+
+---
+
+## [0.3.1] — 2026-06-17
+
+### Changed — install flow
+- **The installer now writes a default `harness/state.yaml`** (auto-detecting greenfield vs brownfield),
+  so a project is **usable immediately in any tool** — `/midas-status` works right after `npx`. `/midas-init`
+  becomes **optional refinement** (cost profile, tools, Context7 key) instead of a required step; brownfield
+  installs are pointed at `/midas-adopt`. This removes the previous mandatory two-step onboarding.
+
 ### Changed (positioning / honesty pass)
 - README restructured: clearer one-line pitch, a **When to use / when not to** section, a **Core vs
   advanced** table, and a slimmer quickstart (advanced commands moved out of the core loop).
@@ -164,7 +176,8 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/okuzpe/midas-harness/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/okuzpe/midas-harness/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/okuzpe/midas-harness/releases/tag/v0.2.0
 [0.1.0]: https://github.com/okuzpe/midas-harness/commit/f7868fd

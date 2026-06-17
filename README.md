@@ -49,20 +49,22 @@ irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | ie
 npx github:okuzpe/midas-harness     # pnpm dlx · bunx github:okuzpe/midas-harness
 ```
 
-> For a **reproducible** install, pin a release: `npx github:okuzpe/midas-harness#v0.3.0`. The
+> For a **reproducible** install, pin a release: `npx github:okuzpe/midas-harness#v0.3.1`. The
 > `curl … | bash` / `irm … | iex` shims run a remote script — if that's a concern, read
 > [`install.sh`](./install.sh) first or just use the `npx` form (same dependency-free installer).
 
-Then open the project in **Claude Code** (or Cursor) and drive the lifecycle:
+The installer configures the project with sensible defaults (it writes `harness/state.yaml` + the
+adapters), so it works immediately. Open it in **Claude Code** (or Cursor) and drive the lifecycle:
 
 ```text
-/midas-init        # configure the harness (asks ~8 questions, writes state + adapters)
-/midas-status      # → "Phase 0. Next: capture your idea"
+/midas-status      # → "Phase 0. Next: capture your idea" (works right after install)
 /idea-intake       # start the lifecycle — /midas-status always tells you the next command
 ```
 
-That's the whole core loop: `/midas-status` walks you through the 9 phases one command at a time. Power
-tools (`/midas-tribunal`, `/midas-verify`, `/midas-monorepo`) live under **[Core vs advanced](#core-vs-advanced)** below.
+`/midas-status` walks you through the 9 phases one command at a time. **Optional:** `/midas-init` to
+refine the defaults (cost profile, tools, Context7 key), or `/midas-adopt` for an existing codebase.
+Power tools (`/midas-tribunal`, `/midas-verify`, `/midas-monorepo`) live under
+**[Core vs advanced](#core-vs-advanced)** below.
 
 **Alternatives:**
 - **Claude Code plugin:** `/plugin marketplace add okuzpe/midas-harness` → `/plugin install midas@midas` → `/midas-init`.
