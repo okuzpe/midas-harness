@@ -13,6 +13,35 @@ _Nothing yet._
 
 ---
 
+## [0.5.10] — 2026-06-18
+
+### Added — `/midas-security-audit`: a deep, standard-grounded security audit
+A dedicated security audit skill (the security analog of `/midas-tribunal`), grounded in what the market
+actually treats as the standard in 2026 — not vibes:
+
+- **OWASP ASVS 5.0** (2025) as the verification checklist, at the **L1/L2/L3** level recommended from the
+  product's data sensitivity (`--level` overrides; recommend-don't-wall).
+- **OWASP Top 10** risk lenses, plus the **OWASP LLM Top 10 (2025) + Agentic AI Top 10** added
+  automatically when the product is AI-bearing (prompt injection, system-prompt leakage, RAG poisoning,
+  excessive agency, …).
+- **STRIDE** threat-models the architecture's trust boundaries.
+- **Runs the tools that exist, recommends the ones that don't** (no hard dependency): Semgrep (SAST),
+  `npm/pnpm/pip audit` (SCA / dependency CVEs), `gitleaks` (secrets). Current usage fetched via Context7.
+- Prefers an installed specialist (`voltagent-qa-sec:security-auditor` / `penetration-tester`, Anthropic
+  `/security-review`); otherwise the first-party tiers.
+- Freezes a ranked, evidence-cited report to `.harness/security/security-NN.md` with a gate-parseable
+  `MIDAS_SECURITY_RESULT` tally; proposes a findings→action bridge. **Non-advancing** — it informs;
+  `/close-sprint` and the human decide. Gated (`disable-model-invocation`), user-typed.
+
+Complements (does not replace) the always-on `harness/rules/security.md` floor and the `/midas-tribunal
+security` debate lens. Wired into the schema (`last_security` pointer), the never-auto-invoke list, the
+README Advanced track, and `docs/skills.md`.
+
+### Engine
+- Version single-sourced to `0.5.10` (`harness/VERSION` + all mirrors).
+
+---
+
 ## [0.5.9] — 2026-06-18
 
 ### Changed — Phase 4 now recommends the industry standard and lets the user choose the stack
@@ -591,7 +620,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.9...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.10...HEAD
+[0.5.10]: https://github.com/okuzpe/midas-harness/compare/v0.5.9...v0.5.10
 [0.5.9]: https://github.com/okuzpe/midas-harness/compare/v0.5.8...v0.5.9
 [0.5.8]: https://github.com/okuzpe/midas-harness/compare/v0.5.7...v0.5.8
 [0.5.7]: https://github.com/okuzpe/midas-harness/compare/v0.5.6...v0.5.7

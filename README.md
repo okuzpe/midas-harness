@@ -95,7 +95,7 @@ releases) and installer-safety notes are in **[INSTALL.md](./INSTALL.md)**.
 |---|---|---|
 | **Core** | drive any project through the lifecycle | `/midas-init` · `/midas-status` · the phase commands (`/idea-intake` → `/close-sprint`) · `/midas-doctor` |
 | **Brownfield** | adopt Midas into an existing repo | `/midas-adopt` |
-| **Advanced** | deeper audits & scale | `/midas-tribunal` (whole-project debate) · `/midas-verify` (Playwright UI checks) · `/midas-monorepo` |
+| **Advanced** | deeper audits & scale | `/midas-tribunal` (whole-project debate) · `/midas-security-audit` (OWASP ASVS 5.0 + LLM/Agentic Top 10) · `/midas-verify` (Playwright UI checks) · `/midas-monorepo` |
 | **Maintenance** | keep an install current | `/midas-update` · `/midas-doctor` |
 
 Most users only need **Core** (+ `/midas-adopt` for an existing repo). Everything else is opt-in.
@@ -148,7 +148,7 @@ A runnable Sprint-1 vertical slice — auth, task CRUD, middleware, board stub +
 artifact on disk. See [`examples/taskpilot/`](./examples/taskpilot/).
 
 ## Status
-**v0.5.9 — pre-1.0, actively developed (not yet a stable API).** Most complete on **Claude Code**
+**v0.5.10 — pre-1.0, actively developed (not yet a stable API).** Most complete on **Claude Code**
 (see [Honest scope](#supported-tools)). Details: [`CHANGELOG.md`](./CHANGELOG.md) ·
 [`VERSIONING.md`](./VERSIONING.md) · [docs site](https://okuzpe.github.io/midas-harness/).
 
