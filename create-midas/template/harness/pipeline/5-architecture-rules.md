@@ -39,10 +39,16 @@ rules before any code is written; the Phase 8 audit references exactly these fil
    honors (reference by `<slug>.md`, don't restate), a Context7 fetch for any third-party API, and a
    done-when check that is the procedure's own signal. **CHECK:** each playbook has ≥1 step no single
    rule states (1:1-to-rules → cut). Playbooks are markdown the build agent follows — **not** slash-commands.
-6. **Render adapters.** Run `node scripts/render-adapters.mjs` (or `/midas-doctor`) to
+6. **Scaffold the enforcement tooling.** Generate the stack-standard linter + formatter
+   (ESLint+Prettier / Biome / Ruff) wired to the rules, git hooks (Husky/lefthook/pre-commit) +
+   lint-staged, commit-msg lint, and a CI lint job — Context7-verified. Show the configs, then
+   **ask the user** whether to install: on yes, run the install; on no, leave the configs and print the
+   exact command (recommend-don't-wall — never a hard dependency). This makes each rule's CHECK real on
+   every commit instead of only graded at Phase 8.
+7. **Render adapters.** Run `node scripts/render-adapters.mjs` (or `/midas-doctor`) to
    propagate the new rules into `CLAUDE.md`, `.cursor/rules/00-midas.mdc`, and
    `.windsurf/rules/00-midas.md`. Do not hand-edit the generated adapters.
-7. **Advance.** Set `stage_status: gate_pending`; run the exit gate.
+8. **Advance.** Set `stage_status: gate_pending`; run the exit gate.
    On pass, write `gate: passed` and set `stage: sprint_planning`.
 
 ## Output artifacts
@@ -56,6 +62,7 @@ rules before any code is written; the Phase 8 audit references exactly these fil
 | `product/design-system.md` | Human-readable design reference |
 | `harness/design-system/tokens.json` | Token map |
 | `harness/design-system/tokens.css` | CSS custom properties |
+| linter/formatter + git-hook + CI config | Enforcement scaffolding wired to the rules (installed on the user's OK) |
 
 ## Exit gate checklist
 
@@ -66,6 +73,7 @@ rules before any code is written; the Phase 8 audit references exactly these fil
 - [ ] `product/design-direction.md` captures the aesthetic intent (brand + ≥2 real references + anti-references) from the human; tokens trace to it (not generic)
 - [ ] `product/design-system.md` defines colors, spacing, type, and components
 - [ ] `product/playbooks/` holds 0–4 recipes for repeated tasks (use-when/steps/rules/Context7/done-when); each has ≥1 step no single rule states (none duplicates a rule)
+- [ ] Enforcement tooling is scaffolded (linter+formatter wired to the rules, a commit hook + lint-staged, commit-msg lint, a CI lint job) — installed on the user's OK or left with the exact command
 - [ ] `harness/design-system/tokens.json` and `tokens.css` are consistent with each other
 - [ ] `node scripts/render-adapters.mjs` ran without errors; generated adapters are up to date
 - [ ] Gate verdict written to `.harness/audits/audit-05.md`

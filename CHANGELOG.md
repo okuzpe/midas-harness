@@ -13,6 +13,31 @@ _Nothing yet._
 
 ---
 
+## [0.5.11] — 2026-06-18
+
+### Added — Phase 5 now scaffolds the enforcement tooling (makes the CHECKs real on every commit)
+The rules referenced linters in their CHECKs (`eslint max-lines-per-function`, `gitleaks`…) — but Midas
+never actually set up a linter, hooks, or CI. So the CHECK assumed a mechanism the project never had; it
+was only graded by hand at Phase 8 (or never). New **Step 5** in `/define-conventions` closes the loop,
+*recommend-don't-wall*:
+
+- Generates the **stack-standard linter + formatter** (ESLint+Prettier / Biome / Ruff) **wired to the
+  rules** — not a generic preset; where a `harness/rules/*` item maps to a lint rule, the config is its
+  machine-readable form.
+- Adds **git hooks** (Husky / lefthook / pre-commit) + **lint-staged** (lint+format on the staged diff),
+  **commit-msg lint** aligned with `git-commits.md`, and a **CI lint job**.
+- **Generates the configs first, shows them, then asks** (`AskUserQuestion`) whether to install — on yes,
+  runs the install; on no, leaves the configs and prints the exact command. Only the install is gated;
+  nothing is ever a hard dependency. Each tool Context7-verified at its current version.
+
+Turns each rule's CHECK from "someone grades it at Phase 8" into "blocked at every commit". The skill exit
+gate and the `harness/pipeline/5-architecture-rules.md` guide were updated together (no skill-vs-guide drift).
+
+### Engine
+- Version single-sourced to `0.5.11` (`harness/VERSION` + all mirrors).
+
+---
+
 ## [0.5.10] — 2026-06-18
 
 ### Added — `/midas-security-audit`: a deep, standard-grounded security audit
@@ -620,7 +645,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.10...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.11...HEAD
+[0.5.11]: https://github.com/okuzpe/midas-harness/compare/v0.5.10...v0.5.11
 [0.5.10]: https://github.com/okuzpe/midas-harness/compare/v0.5.9...v0.5.10
 [0.5.9]: https://github.com/okuzpe/midas-harness/compare/v0.5.8...v0.5.9
 [0.5.8]: https://github.com/okuzpe/midas-harness/compare/v0.5.7...v0.5.8

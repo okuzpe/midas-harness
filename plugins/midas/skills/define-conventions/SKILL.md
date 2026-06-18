@@ -106,15 +106,31 @@ stack-specific rules  >  product/conventions.md  >  product/design-system.md  > 
 
 This is the single taxonomy — do not introduce a parallel "standards" layer.
 
-### 5. Re-render adapters (sync engine)
+### 5. Scaffold the enforcement tooling (make the CHECKs real on every commit)
+A rule whose CHECK names a linter/scanner is only real if the project actually runs it — otherwise the
+CHECK is graded by hand at Phase 8, or never. Wire the enforcement into the dev loop now, **recommend-don't-wall**:
+**generate the configs first, show them, then `AskUserQuestion` whether to install** — on yes, run the install
+on the **build** tier; on no, leave the configs in place and print the exact enable command. Either way the
+configs land; only the install is gated, and nothing is ever a hard dependency. Context7-verify each tool at
+its current version before writing its config.
+- **Linter + formatter** for the stack (e.g. ESLint + Prettier, or Biome, for JS/TS; Ruff for Python),
+  configured to enforce the rules just written — **not a generic preset**. Where a `harness/rules/*` item
+  maps to a lint rule, the linter config is its machine-readable form.
+- **Git hooks** via the stack-standard runner (Husky / lefthook / pre-commit) + **lint-staged**, so
+  lint + format run on the staged diff at every commit.
+- **commit-msg lint** (commitlint or equivalent) aligned with `harness/rules/git-commits.md`.
+- **A CI lint/format job** (`.github/workflows/*`) so the same checks gate every PR.
+Record which tools were configured and whether they were installed or left for the user.
+
+### 6. Re-render adapters (sync engine)
 Generated adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`) must
 reflect the new rules. Run `node scripts/render-adapters.mjs` (or `/midas-doctor`). **Never** hand-edit
 a generated adapter. Confirm the render succeeded and adapters are in sync.
 
-### 6. Record state
+### 7. Record state
 Update `harness/state.yaml`: list the new rule files + `product/design-system.md` + the
-`product/playbooks/*` in `phases.architecture_rules.artifacts`, set `stage_status: gate_pending`, and
-record which `tools` the adapters were rendered for. Do not self-advance the stage.
+`product/playbooks/*` + the scaffolded tooling configs in `phases.architecture_rules.artifacts`, set
+`stage_status: gate_pending`, and record which `tools` the adapters were rendered for. Do not self-advance the stage.
 
 ## Exit gate (orchestrate audits)
 - A **folder-structure rule** exists with explicit boundary/import constraints.
@@ -122,6 +138,9 @@ record which `tools` the adapters were rendered for. Do not self-advance the sta
 - **`product/conventions.md`** exists and overrides/references the base `harness/conventions.md` (the
   project-override layer named in the precedence chain).
 - Stack rules are **Context7-verified** at pinned versions.
+- **Enforcement tooling is scaffolded**: a linter+formatter config wired to the rules, a commit hook
+  (Husky/lefthook/pre-commit) running lint+format on staged files, commit-msg lint, and a CI lint job —
+  each Context7-verified, and **installed on the user's OK or left with the exact command** (recommend-don't-wall).
 - A **design direction** exists (`product/design-direction.md`): brand personality, **≥2 real reference
   products** + anti-references, and the tokens **trace to it** (intentional, not generic). The references are
   **human-captured, or agent-proposed and marked `assumed (confirm)`** when the human defers — but a generic
