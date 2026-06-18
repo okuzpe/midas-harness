@@ -7,7 +7,7 @@ model: inherit
 harness-tier: orchestrate
 recommended-model: claude-opus-4-8
 mcp-required: [sequential-thinking]
-argument-hint: "[whole|architecture|scope|idea|market|unit-economics|security|rules] [--depth quick|standard|tribunal]"
+argument-hint: "[whole|architecture|scope|idea|market|design|unit-economics|security|rules] [--depth quick|standard|tribunal]"
 ---
 
 # midas-tribunal — Whole-Project Adversarial Debate
@@ -45,6 +45,7 @@ synthesize.
 | Economist / Unit-Economics | "Show me the money — does the model close?" | `product/business-plan.md` |
 | Competitor / Red-Team | "Why won't an incumbent crush this in a quarter?" | `product/market.md` |
 | User / Red-Hat | "Would a real user actually switch? Gut check." | idea + `product/design-system.md` |
+| Design Critic | "Is this distinctive and on-direction, or generic default slop?" | `product/design-direction.md` + `product/design-system.md` + UI `src/*` |
 | Architecture Tribunal (ATAM) | "Name the risks, sensitivity & tradeoff points." | `product/architecture.md` + `adr/*` |
 | Maintainer / ADR-review | "Will the next dev curse these decisions?" | `product/adr/*` |
 | Security Adversary (STRIDE) | "Walk each trust boundary — where do I get in?" | `harness/rules/security.md` + `src/*` |

@@ -24,9 +24,13 @@ rules before any code is written; the Phase 8 audit references exactly these fil
    It defines the canonical directory layout for this project's codebase.
 3. **Write `product/conventions.md`.** Project-level overrides of `harness/conventions.md`
    (naming, error handling, test patterns specific to the chosen stack).
-4. **Write the design system.**
-   - `product/design-system.md` — human-readable reference: color palette, spacing scale,
-     typography, component vocabulary, do/don't examples.
+4. **Set the design direction, then write the design system.**
+   - `product/design-direction.md` — the aesthetic **intent**: brand personality, **2–3 real products to
+     emulate** (+ what to borrow), mood keywords, **anti-references**. **Capture it from the human** (their
+     taste is the input) — a concrete reference is what stops generic, default-looking UI. Prefer a design
+     specialist (`voltagent-core-dev:ui-designer` / `design-bridge`) if installed.
+   - `product/design-system.md` — human-readable reference: color palette, spacing scale, typography,
+     component vocabulary, do/don't examples — **built to the direction** (each choice traces to a reference).
    - `harness/design-system/tokens.json` — machine-readable token map.
    - `harness/design-system/tokens.css` — CSS custom properties derived from the token map.
 5. **Write the project playbooks.** Emit **up to 4** markdown recipes (zero is valid) to
@@ -48,6 +52,7 @@ rules before any code is written; the Phase 8 audit references exactly these fil
 | `harness/rules/<slug>.md` | One file per rule; folder-structure required |
 | `product/conventions.md` | Stack-specific overrides |
 | `product/playbooks/<verb-noun>.md` | 0–4 recipes for the project's repeated tasks (zero is valid) |
+| `product/design-direction.md` | Aesthetic intent (brand + real references + anti-references) — anchors the tokens |
 | `product/design-system.md` | Human-readable design reference |
 | `harness/design-system/tokens.json` | Token map |
 | `harness/design-system/tokens.css` | CSS custom properties |
@@ -58,6 +63,7 @@ rules before any code is written; the Phase 8 audit references exactly these fil
 - [ ] Every other architectural decision from Phase 4 has a corresponding rule file
 - [ ] Each rule is CHECKABLE (grep pattern, lint rule, or explicit verification command given)
 - [ ] `product/conventions.md` is present and references the base `harness/conventions.md`
+- [ ] `product/design-direction.md` captures the aesthetic intent (brand + ≥2 real references + anti-references) from the human; tokens trace to it (not generic)
 - [ ] `product/design-system.md` defines colors, spacing, type, and components
 - [ ] `product/playbooks/` holds 0–4 recipes for repeated tasks (use-when/steps/rules/Context7/done-when); each has ≥1 step no single rule states (none duplicates a rule)
 - [ ] `harness/design-system/tokens.json` and `tokens.css` are consistent with each other

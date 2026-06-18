@@ -13,6 +13,29 @@ _Nothing yet._
 
 ---
 
+## [0.5.4] — 2026-06-18
+
+### Added — a design direction step, so the UI isn't generic
+From real-project feedback: AI-generated design defaults to bland, "Tailwind-default" output because it has
+no anchor — a design *system* (tokens) buys consistency, not originality. Phase 5 now sets the **aesthetic
+intent first**, then builds the tokens to it.
+- New `product/design-direction.md` (template + gate item): captured **from the human** (your taste is the
+  input) — brand personality, **2–3 real products to emulate** (+ what to borrow), mood keywords, and
+  **anti-references** (what to avoid). `/define-conventions` asks for it before generating tokens, and every
+  token choice traces to it. Prefers a design specialist (`voltagent-core-dev:ui-designer`/`design-bridge`)
+  if installed; otherwise the build tier, always anchored to the direction.
+- **Design critique wired in:** `/midas-verify` now judges rendered UI against the direction (distinctive &
+  on-direction vs generic, not just token-consistent), and `/midas-tribunal` gains a **Design Critic** lens +
+  a `design` target.
+- Worked example: `examples/taskpilot/product/design-direction.md` (Linear / Things references).
+- **Honest limit:** this kills *generic*; *original* still needs your taste + a strong reference — the
+  direction is an explicit human input, not something the AI invents.
+
+### Engine
+- Version single-sourced to `0.5.4` (`harness/VERSION` + all mirrors).
+
+---
+
 ## [0.5.3] — 2026-06-18
 
 ### Added — `/midas-tribunal` now has recommended checkpoints in the flow
@@ -424,7 +447,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.3...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.4...HEAD
+[0.5.4]: https://github.com/okuzpe/midas-harness/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/okuzpe/midas-harness/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/okuzpe/midas-harness/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/okuzpe/midas-harness/compare/v0.5.0...v0.5.1

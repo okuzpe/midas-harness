@@ -55,12 +55,16 @@ not brittle CSS. Capture for every criterion: the **selector(s)** touched, the *
 a **screenshot** as evidence. Cover the happy path **and** at least one failure/edge path where the
 criterion implies one (empty state, validation error, unauthorized).
 
-### 4. Check rendered UI against the design tokens
+### 4. Check rendered UI against the design tokens AND the design direction
 On the key screens, inspect computed styles and assert the UI **references the design system**
 (`harness/design-system/tokens.css` `--ds-*` vars / `tokens.json` values): colours, spacing on the 8px
 grid, type scale, focus ring. **Flag hardcoded values** that bypass tokens (e.g. a raw hex not traceable
 to a `--ds-*` token) as a fail with the offending selector + computed value. Spot-check **AA contrast**
 and the **focus-visible** ring on interactive elements, and dark mode if `[data-theme="dark"]` is in scope.
+**Also judge it against `product/design-direction.md`:** does the screen match the referenced products /
+mood, or does it look **generic** (default Tailwind/Bootstrap, stock gradients, rounded-everything)? Flag
+generic-feeling screens as a design finding (MED), citing the direction it drifted from — consistency with
+tokens is not the same as being on-direction.
 
 ### 5. Render a per-claim VERDICT with evidence
 For each criterion render `pass | fail | blocked` with: the selector(s), the asserted vs actual value,

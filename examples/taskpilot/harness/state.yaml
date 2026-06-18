@@ -1,4 +1,4 @@
-midas_version: 0.5.3
+midas_version: 0.5.4
 name: taskpilot
 mode: greenfield
 language: en
@@ -44,6 +44,7 @@ phases:
     status: passed
     gate: passed
     artifacts:
+      - product/design-direction.md
       - product/design-system.md
       - product/playbooks/add-api-route.md
       - product/playbooks/add-drizzle-migration.md

@@ -134,7 +134,7 @@ npx github:okuzpe/midas-harness --uninstall
 - **Keeps your product work** (`product/`, `.harness/`, `harness/state.yaml`) unless you pass `--purge`.
 
 For exact removal of a pinned install, uninstall with the same release:
-`npx github:okuzpe/midas-harness#v0.5.3 --uninstall`.
+`npx github:okuzpe/midas-harness#v0.5.4 --uninstall`.
 
 > Prefer to do it by hand? Midas only ever adds files — delete `.claude/`, `harness/`, `AGENTS.md`,
 > `CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `.mcp.json`,

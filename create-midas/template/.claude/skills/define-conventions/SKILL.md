@@ -44,14 +44,26 @@ Extend `harness/rules/` with project rules derived from the architecture's bound
 - Each rule states a **CHECK** line: the concrete, evidence-based condition the Phase-8 audit
   evaluates (e.g. "no file under `ui/` imports from `db/`"). Drop anything you cannot make checkable.
 
-### 2. Build the DESIGN SYSTEM
-Write `product/design-system.md` that **references** `harness/design-system/tokens.json` and
-`tokens.css` (do not duplicate token values into prose). It defines:
+### 2. Set the DESIGN DIRECTION, then build the DESIGN SYSTEM to it
+**First, the direction — this is what kills generic, "Tailwind-default" output.** An LLM with no anchor
+invents bland UI; a concrete reference makes it good. Capture the *aesthetic intent* in
+`product/design-direction.md` (from `harness/templates/design-direction.md`), and **ASK THE HUMAN for it
+via `AskUserQuestion` — their taste is the input; do NOT invent it**:
+- **Brand personality** (3–5 adjectives) and the product's vibe.
+- **2–3 real products to emulate** ("feels like Linear / Stripe / Things"), each with *what* to borrow
+  (density, motion, type, colour restraint).
+- **Mood/keywords** and **anti-references** (what to avoid — e.g. "not generic Bootstrap/Tailwind default").
+- Prefer a design specialist if installed (`voltagent-core-dev:ui-designer` / `design-bridge`,
+  `frontend-design`); otherwise the **build** tier — but always anchored to the direction, never inventing.
+
+**Then build the system *to* that direction.** Write `product/design-system.md` that **references**
+`harness/design-system/tokens.json` and `tokens.css` (do not duplicate values into prose); every token
+choice should **trace to the direction** (note which reference it draws from). It defines:
 - **Color palette**, **typography scale**, **spacing scale**, **radii** — as token references.
-- The chosen **UI framework/component library** (Context7-verified at its pinned version) and how it
-  consumes the tokens.
+- The chosen **UI framework/component library** (docs-verified at its pinned version — Context7 or your
+  tool) and how it consumes the tokens.
 - The rule that all UI references tokens — **never** hardcoded colors/spacing/type/radii.
-If the token files are missing or stale, populate them from the architecture's UI decision first.
+If the token files are missing or stale, populate them from the direction + the architecture's UI decision first.
 
 ### 3. Build the project PLAYBOOKS (the few repeated tasks, done the project's way)
 Rules are *constraints* the audit checks; **playbooks** are *procedures* the build agent follows so every
@@ -94,6 +106,8 @@ record which `tools` the adapters were rendered for. Do not self-advance the sta
 - A **folder-structure rule** exists with explicit boundary/import constraints.
 - Conventions are encoded and **every rule is CHECKABLE** (has a concrete pass/fail CHECK).
 - Stack rules are **Context7-verified** at pinned versions.
+- A **design direction** exists (`product/design-direction.md`): brand personality, **≥2 real reference
+  products** + anti-references, captured from the human — and the tokens **trace to it** (intentional, not generic).
 - The **design system** exists: tokens (color, type, spacing, radii) + UI framework, referenced from
   `product/design-system.md`, with the "tokens not hardcoded values" rule.
 - **Playbooks** for the project's repeated tasks: **0–4** in `product/playbooks/` (zero is valid), each

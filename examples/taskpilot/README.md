@@ -12,7 +12,7 @@ show every Midas phase artifact populated with real, consistent content.
 | 2 Market Research | `product/market.md` |
 | 3 Business Case | `product/business-plan.md` |
 | 4 Tech Architecture | `product/architecture.md`, `product/adr/ADR-001-stack.md` |
-| 5 Architecture Rules & Design System | `product/design-system.md`, `product/playbooks/*` (recipes for repeated tasks) |
+| 5 Architecture Rules & Design System | `product/design-direction.md` (aesthetic intent + references), `product/design-system.md`, `product/playbooks/*` (recipes for repeated tasks) |
 | 6 Sprint Planning | `product/roadmap.md`, `product/sprints/01-auth-and-task-crud.md` |
 | 7 Sprint Execution | `product/src/` (the full Sprint-1 vertical slice: auth, task CRUD, middleware, board stub + tests) |
 | 8 Per-sprint Audit | `.harness/audits/audit-01.md` — a **closed** 7 → 8 loop: verdict **PASS** + gate-parseable tally line |
