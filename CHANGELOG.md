@@ -13,6 +13,29 @@ _Nothing yet._
 
 ---
 
+## [0.5.9] — 2026-06-18
+
+### Changed — Phase 4 now recommends the industry standard and lets the user choose the stack
+`/choose-architecture` already proposed 2–3 candidates per layer and documented alternatives in the ADRs —
+but the agent **decided** and the human only signed off *passively* at the gate. That made the stack the one
+irreversible decision Midas never actively put to the user (market-research, business-plan, and design-direction
+all ask). New **Step 3** closes it, in the *recommend-don't-wall* shape:
+
+- For each consequential layer, name the **current industry-standard default for this kind of product** —
+  what teams actually reach for today, grounded in current docs (Context7 / the library's own site), not
+  memory — with a one-line *why it's the default*.
+- **Ask the user via `AskUserQuestion`** which they want, recommended option marked, each with a short
+  trade-off. **No preference → the recommendation stands** (never a block); an **override** is the user's
+  call and is recorded in that decision's ADR as a human decision. Only the chosen options get version-pinned.
+- Scoped to the **few decisions that matter** — no quizzing on every minor library.
+- The Phase-4 exit gate and the `harness/pipeline/4-tech-architecture.md` guide were updated to match (no
+  skill-vs-guide drift).
+
+### Engine
+- Version single-sourced to `0.5.9` (`harness/VERSION` + all mirrors).
+
+---
+
 ## [0.5.8] — 2026-06-18
 
 ### Fixed — internal-alignment audit (6 real consistency gaps, all pre-existing)
@@ -568,7 +591,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.8...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.9...HEAD
+[0.5.9]: https://github.com/okuzpe/midas-harness/compare/v0.5.8...v0.5.9
 [0.5.8]: https://github.com/okuzpe/midas-harness/compare/v0.5.7...v0.5.8
 [0.5.7]: https://github.com/okuzpe/midas-harness/compare/v0.5.6...v0.5.7
 [0.5.6]: https://github.com/okuzpe/midas-harness/compare/v0.5.5...v0.5.6
