@@ -18,11 +18,15 @@
 <!-- TODO: name real, well-designed products and WHAT to borrow from each (density, motion, type, colour
      restraint, spacing). This is the anchor that makes the output good instead of generic. -->
 
-| Product | What to borrow |
-|---|---|
-| e.g. Linear | dense-but-calm layout, restrained palette, fast micro-interactions |
-| e.g. Stripe | typographic hierarchy, generous spacing, trustworthy tone |
-| … | … |
+> **Source** — mark each row `human` (your taste) or `assumed` (the agent proposed it because no
+> reference was given — **confirm or replace before the rules freeze**). At least 2 rows; never left
+> blank or "modern & clean". A *concrete* anchor is required; *who* supplies it is not.
+
+| Product | What to borrow | Source |
+|---|---|---|
+| e.g. Linear | dense-but-calm layout, restrained palette, fast micro-interactions | human |
+| e.g. Stripe | typographic hierarchy, generous spacing, trustworthy tone | human |
+| … | … | human / assumed |
 
 ## Mood / keywords
 

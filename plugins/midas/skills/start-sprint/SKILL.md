@@ -26,8 +26,10 @@ proceeds on the **build** tier with Context7. (`/close-sprint` runs the same loo
 
 ### 1. Read state + rules
 Load `harness/state.yaml` (sprints, routing, mode), the target `product/sprints/NN-*.md`, all
-`harness/rules/*`, `product/design-system.md`, `product/playbooks/*`, and `product/business-plan.md`.
-The rules are **frozen** — treat them as law for this audit.
+`harness/rules/*`, `product/design-system.md`, **`product/design-direction.md` whenever the sprint
+touches UI** (the named references + mood + anti-references — the anchor that keeps UI off generic
+defaults), `product/playbooks/*`, and `product/business-plan.md`. The rules are **frozen** — treat
+them as law for this audit.
 
 ### 2. Audit current code vs frozen rules + scope
 Diff the existing code against each checkable rule (folder-structure/boundaries, conventions, testing,
@@ -63,8 +65,11 @@ to satisfy. Update `harness/state.yaml`: set the sprint `status: active`, `stage
 Implementation runs on the **build** tier. Before writing any third-party code, follow
 `harness/rules/context7-usage.md` (`resolve-library-id` → `get-library-docs` at the pinned version).
 **If a task matches a `product/playbooks/*` recipe** (one of the project's repeated procedures), the
-build agent follows that playbook — its steps and done-when check. Tasks complete only when acceptance
-criteria are met and tests pass; **conformance to rules is verified in Phase 8** (`/close-sprint`).
+build agent follows that playbook — its steps and done-when check. **For any UI work, build *to*
+`product/design-direction.md` — its named references, mood, and anti-references — not just to the
+tokens; the tokens are the materials, the direction is the look.** Honor the always-on
+`harness/rules/accessibility.md` floor. Tasks complete only when acceptance criteria are met and tests
+pass; **conformance to rules is verified in Phase 8** (`/close-sprint`).
 
 ## Exit (kickoff complete)
 The active sprint has a clear working plan, drift is either queued as fix-tasks or resolved via a

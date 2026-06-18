@@ -55,6 +55,12 @@ via `AskUserQuestion` — their taste is the input; do NOT invent it**:
 - **Mood/keywords** and **anti-references** (what to avoid — e.g. "not generic Bootstrap/Tailwind default").
 - Prefer a design specialist if installed (`voltagent-core-dev:ui-designer` / `design-bridge`,
   `frontend-design`); otherwise the **build** tier — but always anchored to the direction, never inventing.
+- **If the human has no references or defers** (an AI-only founder with no design taste is valid) —
+  do **not** fall back to generic. The agent **proposes ≥2 concrete, named, domain-appropriate references**
+  itself (real products in or adjacent to this space, each with *what* to borrow), records them in
+  `product/design-direction.md` marked **`assumed (confirm)`** (agent-proposed), and surfaces them for a
+  one-tap human confirmation. A *concrete* anchor is mandatory; *who* supplies it is not. This mirrors the
+  required/deferrable-with-assumption pattern Phase-3 validation uses — never a blank or "modern & clean".
 
 **Then build the system *to* that direction.** Write `product/design-system.md` that **references**
 `harness/design-system/tokens.json` and `tokens.css` (do not duplicate values into prose); every token
@@ -63,6 +69,10 @@ choice should **trace to the direction** (note which reference it draws from). I
 - The chosen **UI framework/component library** (docs-verified at its pinned version — Context7 or your
   tool) and how it consumes the tokens.
 - The rule that all UI references tokens — **never** hardcoded colors/spacing/type/radii.
+- The **accessibility floor is always-on**: `harness/rules/accessibility.md` (WCAG 2.1 AA contrast,
+  visible focus, reduced-motion, text alternatives, min target size) is audited every Phase 8 for any UI.
+  The design system must satisfy it — the starter `tokens.css` already ships AA-verified semantic tokens,
+  a `:focus-visible` ring, and a `prefers-reduced-motion` block, so build *to* them, don't undo them.
 If the token files are missing or stale, populate them from the direction + the architecture's UI decision first.
 
 ### 3. Build the project PLAYBOOKS (the few repeated tasks, done the project's way)
@@ -107,9 +117,13 @@ record which `tools` the adapters were rendered for. Do not self-advance the sta
 - Conventions are encoded and **every rule is CHECKABLE** (has a concrete pass/fail CHECK).
 - Stack rules are **Context7-verified** at pinned versions.
 - A **design direction** exists (`product/design-direction.md`): brand personality, **≥2 real reference
-  products** + anti-references, captured from the human — and the tokens **trace to it** (intentional, not generic).
+  products** + anti-references, and the tokens **trace to it** (intentional, not generic). The references are
+  **human-captured, or agent-proposed and marked `assumed (confirm)`** when the human defers — but a generic
+  or empty direction is a **fail** (a concrete anchor is required; who supplies it is not).
 - The **design system** exists: tokens (color, type, spacing, radii) + UI framework, referenced from
   `product/design-system.md`, with the "tokens not hardcoded values" rule.
+- The **accessibility floor** (`harness/rules/accessibility.md`) is satisfiable by the design system — AA
+  contrast, focus, reduced-motion — or explicitly recorded **N/A (headless, no UI)**.
 - **Playbooks** for the project's repeated tasks: **0–4** in `product/playbooks/` (zero is valid), each
   with use-when, steps, the rules/tokens it honors, a Context7 fetch, and a done-when check. **CHECK:**
   every playbook has ≥1 step not stated by any single `harness/rules/*` (1:1-to-rules → cut); none is a

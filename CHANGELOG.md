@@ -13,6 +13,47 @@ _Nothing yet._
 
 ---
 
+## [0.5.7] — 2026-06-18
+
+"Make design real." Design output kept coming out generic. The fix isn't a magic agent — it's a
+**concrete anchor wired into the phases that build and audit the UI**, plus a **floor the audit
+actually grades**. All faithful to Midas's *recommend-don't-wall* discipline.
+
+### Added
+- **`harness/rules/accessibility.md` — a frozen, CHECK-bearing accessibility & design floor** (always-on,
+  replaces soft prose). The Phase-8 audit now grades WCAG 2.1 AA contrast, visible focus, reduced-motion,
+  text alternatives, target size, and **design-system fidelity** (no hardcoded colour/spacing in component
+  code; the UI traces to the named references) — each with a concrete portable `**CHECK:**`, like
+  `testing.md`. Scoped: headless/backend-only projects mark each CHECK `N/A (no UI)`. `/close-sprint`
+  already audits every `harness/rules/*`, so it's picked up automatically.
+
+### Changed
+- **The design-direction is now a real gate with a conscious default.** `/define-conventions` still asks the
+  human for ≥2 real reference products first. But an AI-only founder with no design taste no longer falls back
+  to bland "Tailwind-default": the agent **proposes ≥2 concrete, named, domain-appropriate references itself**,
+  records them in `product/design-direction.md` marked **`assumed (confirm)`**, and surfaces them for a one-tap
+  confirmation. A *concrete* anchor is mandatory; *who* supplies it is not — but a generic/empty direction is a
+  **fail**. (Same required/deferrable-with-assumption shape as Phase-3 validation.)
+- **The anchor is now wired to the producer and the auditor** (without this the gate was half-theater):
+  `/start-sprint` loads `product/design-direction.md` for any UI sprint and instructs the build tier to build
+  *to* the named references/mood/anti-references, not just to the tokens; `/close-sprint` loads it as the
+  evidence the design-fidelity CHECK grades against.
+
+### Notes
+- On `--update`, an existing UI project sees the new a11y/design-fidelity CHECKs graded on its **next**
+  sprint audit (not retroactively — frozen audit records are never rewritten), so this stays an additive
+  patch. A previously-passing UI with inline hex or no focus ring will surface those on its next Phase 8.
+- The `voltagent` design/security specialists remain **optional preference-if-installed**, never a
+  dependency — Midas degrades cleanly to its own three tiers, and everything stays anchored to the
+  human (or `assumed`) direction.
+- Deliberately deferred (cosmetic, and it would rewrite a frozen audit record): realigning the
+  `examples/taskpilot` tokens from `--color-*` to the starter's `--ds-*` namespace.
+
+### Engine
+- Version single-sourced to `0.5.7` (`harness/VERSION` + all mirrors).
+
+---
+
 ## [0.5.6] — 2026-06-18
 
 ### Added — a real one-command update: `--update`
@@ -496,7 +537,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.6...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.7...HEAD
+[0.5.7]: https://github.com/okuzpe/midas-harness/compare/v0.5.6...v0.5.7
 [0.5.6]: https://github.com/okuzpe/midas-harness/compare/v0.5.5...v0.5.6
 [0.5.5]: https://github.com/okuzpe/midas-harness/compare/v0.5.4...v0.5.5
 [0.5.4]: https://github.com/okuzpe/midas-harness/compare/v0.5.3...v0.5.4

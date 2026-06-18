@@ -25,7 +25,8 @@ homework** — this is an independent orchestrate-tier audit.
 
 ### 1. Read state + frozen rules
 Load `harness/state.yaml`, the active `product/sprints/NN-*.md`, all `harness/rules/*`,
-`product/design-system.md`, and `product/business-plan.md`.
+`product/design-system.md`, `product/design-direction.md` (the named UI references — the evidence the
+`accessibility.md` design-fidelity CHECK grades against), and `product/business-plan.md`.
 
 ### 2. Conformance audit (every rule, pass/fail, with evidence)
 For **each** rule in `harness/rules/*` and the design-system token rule, evaluate the rule's CHECK
