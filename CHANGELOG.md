@@ -13,6 +13,30 @@ _Nothing yet._
 
 ---
 
+## [0.5.12] — 2026-06-18
+
+### Added — `/midas-capture` + an always-on "capture recurring patterns" loop
+When you ask for the same thing repeatedly, that preference should become part of the project's standards,
+not live in chat. New behavior + skill, *recommend-don't-wall*:
+
+- **Always-on detection (in `AGENTS.md`):** across any phase, when the user asks for the same thing ~2-3×
+  (or corrects the agent the same way), the agent **pauses and proposes** codifying it — it asks first,
+  never writes silently.
+- **`/midas-capture`** (new skill) does the codification via a **rubric** that answers "rule or skill?":
+  a **constraint/preference** → a **rule** (`harness/rules/*`, with a `**CHECK:**`, re-rendered + linter-
+  enforced); a **procedure** → a **playbook** (`product/playbooks/*`); a **prose preference** →
+  `product/conventions.md`. A per-project pattern is a rule/playbook/convention — **not** a new
+  slash-command. It amends an existing artifact over creating a near-duplicate, and logs the capture.
+- Captures land in the **visible project artifacts you review in git** — consistent with Midas's
+  *no hidden memory / no runtime* rule. Gated (`disable-model-invocation`), user-typed; also invokable manually.
+
+Wired into the never-auto-invoke list (AGENTS.md + template + orchestrator) and `docs/skills.md`.
+
+### Engine
+- Version single-sourced to `0.5.12` (`harness/VERSION` + all mirrors).
+
+---
+
 ## [0.5.11] — 2026-06-18
 
 ### Added — Phase 5 now scaffolds the enforcement tooling (makes the CHECKs real on every commit)
@@ -645,7 +669,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.11...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.12...HEAD
+[0.5.12]: https://github.com/okuzpe/midas-harness/compare/v0.5.11...v0.5.12
 [0.5.11]: https://github.com/okuzpe/midas-harness/compare/v0.5.10...v0.5.11
 [0.5.10]: https://github.com/okuzpe/midas-harness/compare/v0.5.9...v0.5.10
 [0.5.9]: https://github.com/okuzpe/midas-harness/compare/v0.5.8...v0.5.9
