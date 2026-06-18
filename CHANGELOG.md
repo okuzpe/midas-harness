@@ -13,6 +13,26 @@ _Nothing yet._
 
 ---
 
+## [0.5.6] — 2026-06-18
+
+### Added — a real one-command update: `--update`
+A plain `--force` re-install left `harness/state.yaml`'s `midas_version` stale (so `/midas-doctor` then
+warned). The new flag does it properly:
+
+```bash
+npx github:okuzpe/midas-harness#v0.5.6 --update   # or omit #vX.Y.Z for the latest main
+```
+
+- Refreshes the engine to the new version, **keeps your work** (`product/`, `.harness/`, `harness/state.yaml`),
+  **bumps the `midas_version` stamp** so status/doctor read it as current, and re-renders the adapters.
+- Honest heads-up in the output: it overwrites engine files, so if you consciously amended a rule, review
+  `git diff` and re-apply your `## Amendment`. Documented in `INSTALL.md` and `--help`.
+
+### Engine
+- Version single-sourced to `0.5.6` (`harness/VERSION` + all mirrors).
+
+---
+
 ## [0.5.5] — 2026-06-18
 
 ### Fixed — "make the gate real" (top fixes from a 13-lens scored audit; weighted 7.5 → ~8.0)
@@ -476,7 +496,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.5...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.6...HEAD
+[0.5.6]: https://github.com/okuzpe/midas-harness/compare/v0.5.5...v0.5.6
 [0.5.5]: https://github.com/okuzpe/midas-harness/compare/v0.5.4...v0.5.5
 [0.5.4]: https://github.com/okuzpe/midas-harness/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/okuzpe/midas-harness/compare/v0.5.2...v0.5.3

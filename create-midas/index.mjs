@@ -22,7 +22,8 @@ if (args.includes('-h') || args.includes('--help')) {
   printHelp();
   process.exit(0);
 }
-const force = args.includes('--force');
+const update = args.includes('--update'); // refresh an existing install: overwrite engine + bump the version stamp
+const force = args.includes('--force') || update;
 const uninstall = args.includes('--uninstall');
 const dryRun = args.includes('--dry-run');
 const purge = args.includes('--purge');
@@ -63,6 +64,7 @@ try {
 }
 
 const stateMode = writeState();
+const updatedTo = update ? bumpVersionStamp() : null;
 report();
 
 // --- helpers -----------------------------------------------------------------------------------
@@ -176,7 +178,29 @@ function writeState() {
   return mode;
 }
 
+// On --update, the engine files were overwritten (force=true) but the project's harness/state.yaml is
+// preserved; bump its midas_version stamp to the new engine version so /midas-status and /midas-doctor
+// read it as current (a plain --force would leave it stale and doctor would warn).
+function bumpVersionStamp() {
+  const f = join(TARGET, 'harness', 'state.yaml');
+  const cur = readMaybe(f);
+  if (cur == null) return null; // no prior install; the fresh-install path already wrote the right version
+  const version = (readMaybe(join(TARGET, 'harness', 'VERSION')) || '').trim();
+  if (!version) return null;
+  const next = cur.replace(/^midas_version:\s*[^\s#]+/m, `midas_version: ${version}`);
+  if (next !== cur) writeFileSync(f, next, 'utf8');
+  return version;
+}
+
 function report() {
+  if (update) {
+    console.log(`\n  ✨ Midas updated in ${TARGET}${updatedTo ? ` → v${updatedTo}` : ''}`);
+    console.log(`     ${written.length} engine file(s) refreshed; your product/, .harness/, and harness/state.yaml are preserved.`);
+    if (rendered) console.log('     adapters re-rendered.');
+    console.log('\n  Heads-up: --update overwrites engine files. If you consciously amended a rule, review');
+    console.log('  `git diff` and re-apply your `## Amendment` if it was clobbered. Then run  /midas-doctor.\n');
+    return;
+  }
   console.log(`\n  ✨ Midas installed into ${TARGET}`);
   console.log(
     `     ${written.length} files written` +
@@ -322,7 +346,11 @@ function printHelp() {
 Install:
   npx github:okuzpe/midas-harness          into the current directory (from GitHub)
   npx github:okuzpe/midas-harness my-app   into ./my-app
-  npx github:okuzpe/midas-harness#v0.5.5   pin a release for a reproducible install
+  npx github:okuzpe/midas-harness#v0.5.6   pin a release for a reproducible install
+
+Update an existing install (overwrites the engine, KEEPS your work, bumps the version stamp):
+  npx github:okuzpe/midas-harness --update             refresh to the latest (main)
+  npx github:okuzpe/midas-harness#v0.5.6 --update      refresh to a pinned release
 
 Uninstall (surgical — removes only Midas's files, keeps your work):
   npx github:okuzpe/midas-harness --uninstall             remove the engine, keep product/ + .harness/ + state.yaml
@@ -331,6 +359,7 @@ Uninstall (surgical — removes only Midas's files, keeps your work):
 
 Options:
   --force      (install) overwrite files that already exist
+  --update     refresh an existing install (overwrite engine + bump version stamp; keeps your work)
   --uninstall  remove Midas instead of installing it
   --dry-run    (uninstall) print the plan without deleting anything
   --purge      (uninstall) also delete your product artifacts and audit trail
