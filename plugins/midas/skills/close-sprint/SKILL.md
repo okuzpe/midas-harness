@@ -1,6 +1,6 @@
 ---
 name: close-sprint
-description: Phase 8 — per-sprint conformance and scope audit. Diff the code against every frozen rule (pass/fail with evidence), reconcile scope vs the business case, resolve drift, freeze .harness/audits/audit-NN.md, update state, and select the next sprint or declare MVP complete. Use after a sprint's work lands (stage sprint_execution → audit).
+description: Phase 8 — per-sprint conformance and scope audit. Diff the code against every frozen rule (pass/fail with evidence), reconcile scope vs the business case, resolve drift, freeze .harness/audits/audit-NN.md, update state, and select the next sprint or declare MVP complete. Use after a sprint's work lands (stage stays `sprint_execution`; Phase 8 runs in place).
 user-invocable: true
 disable-model-invocation: true
 model: inherit

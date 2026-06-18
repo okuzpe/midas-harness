@@ -1,20 +1,26 @@
 #!/usr/bin/env node
 // doctor.mjs — Midas adapter drift checker + install health check (dependency-free, Node ESM).
 //
-//   node scripts/doctor.mjs        → check generated adapters (exit 1 on drift) + report health warnings
-//   node scripts/doctor.mjs --fix  → re-render the adapters from source, then exit 0
+//   node scripts/doctor.mjs          → check generated adapters (exit 1 on drift) + report health warnings
+//   node scripts/doctor.mjs --fix    → re-render the adapters from source, then exit 0
+//   node scripts/doctor.mjs <dir>    → check THAT project (its adapters, state.yaml, gate records), not the engine
+//   node scripts/doctor.mjs --strict → ALSO exit 1 when a frozen gate record is inconsistent with state.yaml
 //
-// Adapter drift is AUTHORITATIVE (it fails CI). The health checks are advisory warnings that never
-// change the exit code and skip gracefully when a file isn't applicable (e.g. no state.yaml in the
-// engine repo / before /midas-init). Shares its render logic with render-adapters.mjs (no duplication).
+// Adapter drift is AUTHORITATIVE (it fails CI). The other health checks are advisory warnings that never
+// change the exit code (skip gracefully when a file isn't applicable) — EXCEPT under --strict, where a
+// `gate:*` inconsistency also exits 1. Shares its render logic with render-adapters.mjs (no duplication).
 
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { computeAdapters, renderAdapters } from './render-adapters.mjs';
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const FIX = process.argv.includes('--fix');
+const STRICT = process.argv.includes('--strict');
+// Optional positional project root: check THAT project instead of the engine repo. Lets `--strict` run
+// against a real install (or examples/taskpilot) so the gate-records check is provably exercised.
+const rootArg = process.argv.slice(2).find((a) => !a.startsWith('-'));
+const ROOT = rootArg ? resolve(process.cwd(), rootArg) : resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 /** Read a repo-relative file or null if missing. */
 function read(rel) {
@@ -148,7 +154,12 @@ if (!stateRaw) {
     scanned++;
     const unresolved = tallyNum(line[0], 'unresolved');
     const blocked = /verdict=blocked/.test(line[0]);
-    if (isClosed(nn) && (unresolved > 0 || blocked)) {
+    const passClaimed = /verdict=pass/.test(line[0]);
+    if (passClaimed && unresolved > 0) {
+      // self-inconsistent: the record grades itself pass while carrying unresolved fails
+      flagged++;
+      check(`gate:audit-${nn}`, 'warn', `record claims verdict=pass but unresolved=${unresolved} — self-inconsistent`);
+    } else if (isClosed(nn) && (unresolved > 0 || blocked)) {
       flagged++;
       check(`gate:audit-${nn}`, 'warn', `record has unresolved=${unresolved}${blocked ? ' verdict=blocked' : ''} but sprint ${nn} is closed in state.yaml`);
     }
@@ -177,6 +188,11 @@ for (const h of health) console.log(`  ${h.status.padEnd(4)} ${h.name}${h.note ?
 
 if (drift) {
   console.log('\nAdapters OUT OF SYNC. Run `node scripts/doctor.mjs --fix` (or `/midas-doctor`).');
+  process.exit(1);
+}
+const gateWarn = health.some((h) => h.name.startsWith('gate:') && h.status === 'warn');
+if (STRICT && gateWarn) {
+  console.log('\nSTRICT: a frozen gate record is inconsistent with state.yaml (see the gate:* warnings above).');
   process.exit(1);
 }
 console.log('\nAdapters in sync.' + (health.some((h) => h.status === 'warn') ? ' (review health warnings above)' : ''));

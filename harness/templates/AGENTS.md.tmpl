@@ -58,8 +58,10 @@ On tools without per-agent model selection, apply as intent: fastest for researc
 
 ## Safety
 
-- Side-effecting skills (`/midas-init`, `/define-conventions`, `/start-sprint`, `/close-sprint`, `/midas-doctor`)
-  run **only** when the user explicitly invokes them — each guards this in its own body.
+- Side-effecting skills (`/midas-init`, `/define-conventions`, `/start-sprint`, `/close-sprint`, `/midas-doctor`,
+  `/midas-adopt`, `/midas-verify`, `/midas-monorepo`, `/midas-tribunal`) are **user-typed slash commands**
+  (`disable-model-invocation`). **Never call them via the Skill tool** (it errors) or auto-run them — when one
+  is the next step, **surface the command for the user to type** ("👉 Run `/…`"). Each also guards this in its body.
 - Secrets only via `${ENV_VAR}`; never write a key to disk or commit one.
 - Generated adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`) must not be
   hand-edited; they are re-rendered by `/midas-doctor`.

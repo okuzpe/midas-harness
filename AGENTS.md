@@ -43,5 +43,8 @@ strongest for architecture and audits.
 
 ## Safety
 - Side-effecting skills (`/midas-init`, `/define-conventions`, `/start-sprint`, `/close-sprint`,
-  `/midas-doctor`) must only run when the user explicitly invokes them — each guards this in its body.
+  `/midas-doctor`, `/midas-adopt`, `/midas-verify`, `/midas-monorepo`, `/midas-tribunal`) are
+  **user-typed slash commands** (`disable-model-invocation`). **Never call them via the Skill tool** (it
+  errors) and never auto-run them — when one is the next step, **surface the command for the user to type**
+  ("👉 Run `/define-conventions`"). Each also guards this in its own body.
 - Secrets only via `${ENV_VAR}`; never write a key to disk or commit one.

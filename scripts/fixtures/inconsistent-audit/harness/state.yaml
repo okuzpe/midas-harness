@@ -1,0 +1,9 @@
+# TEST FIXTURE (not a real project). A sprint marked `done` whose frozen audit record shows unresolved
+# CRITs. doctor's gate:records MUST warn on this — proving the out-of-model guardrail actually fires.
+# Exercised by scripts/test.mjs (section K). Pair: ../consistent-audit (the must-stay-quiet case).
+name: fixture-inconsistent
+stage: sprint_execution
+sprints:
+  - id: "01"
+    title: "Fixture sprint"
+    status: done

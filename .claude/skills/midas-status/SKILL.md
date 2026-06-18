@@ -25,7 +25,9 @@ completion — it reports the truth already on disk. Safe to run at any time, in
    exist on disk and summarize which gate items are satisfied vs outstanding. Do **not** grade the gate
    as passed here — that is the orchestrator's job at phase transition. Just report observed state:
    `not_started` / `in_progress` / `gate_pending` / `passed`, with the missing items if any.
-4. **Print the single next action.** Map the current stage to exactly one recommended command:
+4. **Print the single next action.** Map the current stage to exactly one recommended command — **for the
+   *user* to type.** The phase rituals are gated (`disable-model-invocation`); **never call the Skill tool on
+   them** (it errors) — present the command (e.g. *"👉 Run `/define-conventions`"*), don't invoke it.
 
    | stage | next action |
    |---|---|

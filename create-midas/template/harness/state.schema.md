@@ -18,7 +18,7 @@ It is committed to the project's git (reproducible memory). Volatile caches/hash
 | `architecture_rules` | 5 | rules + design system, every rule checkable, adapters rendered |
 | `sprint_planning` | 6 | roadmap covers MVP, each sprint has DoD |
 | `sprint_execution` | 7 | active sprint tasks done, tests pass |
-| `audit` | 8 | conformance audit frozen, drift resolved — Phase 8 runs **in place** during `sprint_execution` (the active sprint, work landed); a transient label, not a persisted `stage` |
+| `audit` | 8 | conformance audit frozen, drift resolved — Phase 8 runs **in place** during `sprint_execution`. The top-level `stage` is **never set to `audit`**; the `phases.audit` ledger entry and `last_audit.phase: audit` legitimately *name* the phase (that is fine). |
 | `shipped` | — | no sprints left + success metrics met |
 
 `stage` advances **only** after the orchestrator (Opus) writes a passing gate audit. The *initial* `stage`
@@ -29,7 +29,7 @@ transition after that.
 ## Schema
 
 ```yaml
-midas_version: 0.5.4          # engine version that wrote this file (for /midas-update)
+midas_version: 0.5.5          # engine version that wrote this file (for /midas-update)
 name: taskpilot              # project slug
 mode: greenfield             # greenfield | brownfield  (maturity: E0/E1 → greenfield, E2/E3 → brownfield)
 language: en                 # artifact language

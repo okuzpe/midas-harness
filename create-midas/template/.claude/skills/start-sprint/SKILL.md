@@ -1,6 +1,6 @@
 ---
 name: start-sprint
-description: Phase 7 kickoff — THE SIGNATURE LOOP that "applies the harness". Audit the living code against the frozen rules and scope, decide sprint adjustments (fix code OR consciously amend a rule, logged), select agents cost-aware, emit the working plan, and set the sprint active. Use to begin a planned sprint (stage sprint_planning/audit → sprint_execution).
+description: Phase 7 kickoff — THE SIGNATURE LOOP that "applies the harness". Audit the living code against the frozen rules and scope, decide sprint adjustments (fix code OR consciously amend a rule, logged), select agents cost-aware, emit the working plan, and set the sprint active. Use to begin a planned sprint (stage sprint_planning → sprint_execution).
 user-invocable: true
 disable-model-invocation: true
 model: inherit

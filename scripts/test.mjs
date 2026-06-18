@@ -10,6 +10,7 @@
 
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { dirname, join, resolve, extname, basename } from 'node:path';
+import { execSync } from 'node:child_process';
 import { computeAdapters } from './render-adapters.mjs';
 
 const SCRIPT_DIR = dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
@@ -193,6 +194,33 @@ for (const f of refSources) {
   let m;
   while ((m = pipeRe.exec(text))) {
     check(`pipeline-ref:${m[1]} (in ${rel})`, existsSync(join(ROOT, 'harness', 'pipeline', m[1])));
+  }
+}
+
+// --- K. BEHAVIORAL: the out-of-model gate check actually FIRES (and doesn't cry wolf) -----------
+// Runs the real doctor against two planted fixtures: one where a `done` sprint carries unresolved CRITs
+// (must warn) and one that is clean (must stay quiet). This is the first test that proves a guardrail
+// *works*, not just that files parse.
+function doctorOutput(fixtureRel) {
+  const dr = join(ROOT, 'scripts', 'doctor.mjs');
+  try { return execSync(`node "${dr}" "${join(ROOT, fixtureRel)}"`, { cwd: ROOT, encoding: 'utf8' }); }
+  catch (e) { return String(e.stdout || '') + String(e.stderr || ''); } // doctor exits 1; we read its output
+}
+if (existsSync(join(ROOT, 'scripts', 'fixtures', 'inconsistent-audit'))) {
+  const bad = doctorOutput('scripts/fixtures/inconsistent-audit');
+  check('behavioral:gate-fires', /warn\s+gate:audit-01/.test(bad), 'doctor did not warn gate:audit-01 on a closed sprint with an unresolved/blocked record');
+  const good = doctorOutput('scripts/fixtures/consistent-audit');
+  check('behavioral:gate-no-false-positive', !/warn\s+gate:audit/.test(good), 'doctor warned gate:audit on a CONSISTENT record (false positive)');
+}
+
+// --- L. prose version pins (#vX.Y.Z) match harness/VERSION (CHANGELOG history excluded) ---------
+if (engineVersion) {
+  for (const f of ['INSTALL.md', 'SECURITY.md', 'README.md', 'create-midas/index.mjs']) {
+    const p = join(ROOT, f);
+    if (!existsSync(p)) continue;
+    for (const pin of readFileSync(p, 'utf8').match(/#v(\d+\.\d+\.\d+)/g) || []) {
+      check(`version-pin:${f}:${pin}`, pin.slice(2) === engineVersion, `${pin} != ${engineVersion}`);
+    }
   }
 }
 

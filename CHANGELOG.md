@@ -13,6 +13,35 @@ _Nothing yet._
 
 ---
 
+## [0.5.5] — 2026-06-18
+
+### Fixed — "make the gate real" (top fixes from a 13-lens scored audit; weighted 7.5 → ~8.0)
+A whole-project scored audit (13 expert lenses) put Midas at an honest **7.5/10** and flagged that the
+flagship "check outside the model" was real in code but **not proven to fire**. This release closes that.
+- **`/midas-doctor` can now check any project + enforce, not just warn.** It accepts a project-root arg
+  (`node scripts/doctor.mjs path/to/project`) so the gate-records check runs on a real install (not only
+  the engine repo), and a **`--strict`** flag promotes a `gate:*` inconsistency to a non-zero exit. It also
+  catches a **self-inconsistent** record (`verdict=pass` with `unresolved>0`).
+- **First behavioral tests.** `scripts/fixtures/{inconsistent,consistent}-audit` + `scripts/test.mjs`
+  (section K) run the real doctor and assert the gate **fires** on a planted `done`-sprint-with-unresolved-CRITs
+  record and **stays quiet** when clean — the first test that proves a guardrail *works*, not just that files parse.
+- **`audit`-stage contradiction resolved.** `state.schema.md` + the `close-sprint`/`start-sprint`
+  descriptions now agree: the top-level `stage` is never `audit` (Phase 8 runs in place during
+  `sprint_execution`); the `phases.audit` ledger entry just *names* the phase.
+- **`audit-07-NN.md` → `audit-NN.md`** in `7-sprint-execution.md` (it broke the doctor regex).
+- **Stale `.mcp.json` docs fixed** (Context7 was made optional in v0.5.0): `SECURITY.md` + `INSTALL.md` now
+  say one default server (`sequential-thinking`). Added a `test.mjs` check that prose `#vX.Y.Z` pins match `harness/VERSION`.
+
+### Added
+- The phase-advancing rituals are clearly marked **user-typed slash commands**: agents must **never call them
+  via the Skill tool** (it errors) — surface the command for the user to type. (AGENTS.md, the orchestrator
+  agent, `/midas-status`.)
+
+### Engine
+- Version single-sourced to `0.5.5` (`harness/VERSION` + all mirrors); test suite now **140 checks**.
+
+---
+
 ## [0.5.4] — 2026-06-18
 
 ### Added — a design direction step, so the UI isn't generic
@@ -447,7 +476,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.4...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.5...HEAD
+[0.5.5]: https://github.com/okuzpe/midas-harness/compare/v0.5.4...v0.5.5
 [0.5.4]: https://github.com/okuzpe/midas-harness/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/okuzpe/midas-harness/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/okuzpe/midas-harness/compare/v0.5.1...v0.5.2

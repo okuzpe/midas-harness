@@ -56,7 +56,7 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
 - [ ] No convention violations detectable by the `harness/rules/` check patterns
 - [ ] No secrets in committed files
 - [ ] Sprint `status: done` recorded in `harness/state.yaml`
-- [ ] Gate verdict written to `.harness/audits/audit-07-NN.md` (by Phase 8)
+- [ ] Gate verdict written to `.harness/audits/audit-NN.md` (by Phase 8)
 
 ## Recommended tier + agents
 
