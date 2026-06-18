@@ -74,9 +74,20 @@ Beyond the per-phase gates and the per-sprint `/close-sprint` conformance audit,
 **standing, on-demand adversarial debate**: `/midas-tribunal`. It puts the *whole* project on trial
 (idea, market, business model, architecture, scope, rules, code) with opposing persona-lenses and an
 independent Opus judge who rules per claim against on-disk evidence. Where the gates ask "does the code
-conform to what we decided?", the tribunal asks "were those decisions right?" — run it before big gates
-(pre-architecture-freeze, pre-go/no-go, pre-ship) or any time. It informs the human and the gates but
-never advances `stage` itself.
+conform to what we decided?", the tribunal asks "were those decisions right?" It informs the human and
+the gates but **never advances `stage` itself**.
+
+It has **recommended checkpoints** in the flow — `/midas-status` surfaces them as an optional prompt, never
+a block (it's the human's call, and skipping is fine):
+
+| Checkpoint | When | The question it asks |
+|---|---|---|
+| **Pre-go/no-go** | before the Phase-3 `/business-plan` sign-off | *Is this worth building at all?* |
+| **Pre-rules-freeze** | Phase 4 → 5, before `/define-conventions` freezes the rules | *Are the idea/market/stack decisions sound before we lock them in?* |
+| **Pre-ship** | the final sprint, before declaring MVP complete | *Were the decisions right, now that it's built?* |
+
+Run it at any of these (recommended) or any time. It's a *space* in the flow, not a toll booth — being
+cost-aware (a multi-agent Opus debate), it stays optional and non-advancing by design.
 
 ## Human sign-off points
 

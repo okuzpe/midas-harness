@@ -68,6 +68,8 @@ revealed new work). Then **select next**:
 - **Next sprint remains** → set `stage: sprint_execution`, `stage_status: not_started` on it; the next
   action is `/start-sprint`.
 - **No sprints left AND success metrics met** → set `stage: shipped`. Declare **"MVP complete"**.
+  **Recommended optional checkpoint:** a `/midas-tribunal` (the *pre-ship* audit) before declaring complete —
+  "were the decisions right, now that it's built?" Optional, the human's call; never block on it.
 
 ## Exit gate
 - **Every rule audited** pass/fail **with evidence**.

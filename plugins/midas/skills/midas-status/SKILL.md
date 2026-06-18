@@ -41,6 +41,17 @@ completion — it reports the truth already on disk. Safe to run at any time, in
    | `sprint_execution` | `/close-sprint` once the active sprint's tasks are done and tests run; otherwise `/start-sprint` (or continue the active sprint) |
    | `shipped` | none — MVP complete |
 
+5. **Surface the tribunal checkpoint (recommended, optional — never force).** At a high-leverage decision
+   point, add **one** line recommending a whole-project audit *before* the gate — running it (or not) is
+   the human's call, and `/midas-tribunal` is non-advancing, so this is a prompt, not a block:
+   - `business_case` → *before* the go/no-go sign-off
+   - `architecture_rules` → *before* `/define-conventions` freezes the rules
+   - the **final sprint before ship** (no planned sprints left) → *before* declaring MVP complete
+
+   At those points print: *"💡 Before this gate, consider `/midas-tribunal` (optional, your call) — it
+   asks whether the decisions are *right*, not just whether the code conforms."* Skipping is fine; do not
+   block. (If a recent `.harness/debates/debate-NN.md` already covers this checkpoint, say so instead.)
+
 ## Output format
 
 Keep it to ~6 lines:
@@ -54,4 +65,5 @@ Next: <single command>
 ```
 
 If `stage_status` is `in_progress`, add one line naming what is left before the gate can be re-run.
+At a **tribunal checkpoint** (step 5), add the recommended-`/midas-tribunal` line (optional, your call).
 Mention `/midas-doctor` only if you observed adapter or config drift while reading.

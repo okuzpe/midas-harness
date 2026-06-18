@@ -21,6 +21,9 @@ pass/fail with on-disk evidence). Orchestrate-tier decides the rules; **build** 
 
 > **Precondition.** `stage: tech_architecture` must be `passed` (or `architecture_rules` resuming).
 > If `product/architecture.md` or the ADRs are missing, stop — there is nothing to encode yet.
+> **Recommended optional checkpoint:** this is the *pre-rules-freeze* moment — a `/midas-tribunal` here is
+> the last cheap chance to challenge the idea/market/stack decisions before they're frozen into rules.
+> Optional, the human's call; never block on it.
 
 ## Inputs
 - `harness/state.yaml`, `product/architecture.md`, `product/adr/ADR-*.md`.

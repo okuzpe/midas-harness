@@ -17,7 +17,12 @@ argument-hint: "[whole|architecture|scope|idea|market|unit-economics|security|ru
 > if the project has no artifacts on disk yet, report that there is nothing to put on trial and stop.
 
 A standing **tribunal**, not a phase. You (the orchestrator) **convene and judge but write none of the
-arguments** — the producer never grades its own homework. Debaters run on the build/scout tiers; you
+arguments** — the producer never grades its own homework.
+
+> **Recommended checkpoints** (where it pays off most; surfaced by `/midas-status`, never forced):
+> **pre-go/no-go** (before the Phase-3 sign-off), **pre-rules-freeze** (before `/define-conventions`), and
+> **pre-ship** (before declaring MVP complete). Run it there or any time — it's a recommended space in the
+> flow, not a required gate. Debaters run on the build/scout tiers; you
 render a verdict **per claim**. This is distinct from `/close-sprint` (single-sprint conformance vs
 frozen rules): the tribunal argues *whether the decisions themselves are right*, across the whole
 `product/*` + `harness/rules/*` + `src/*` surface.

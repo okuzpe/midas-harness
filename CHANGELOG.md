@@ -13,6 +13,24 @@ _Nothing yet._
 
 ---
 
+## [0.5.3] — 2026-06-18
+
+### Added — `/midas-tribunal` now has recommended checkpoints in the flow
+The whole-project adversarial debate was a "run it any time" tool with no anchor, so it was easy to skip
+and unclear *when* it pays off. It now has a **space in the flow** — recommended, optional, **non-advancing**
+(a prompt, not a gate; it stays cost-aware, since it's a multi-agent Opus debate):
+- `/midas-status` surfaces a *"💡 consider `/midas-tribunal` first"* line at three high-leverage transitions:
+  **pre-go/no-go** (Phase 3), **pre-rules-freeze** (Phase 4→5, before `/define-conventions`), and **pre-ship**
+  (final sprint, before declaring MVP complete).
+- Those checkpoints are formalized in `methodology.md` and noted in the relevant skills
+  (`business-plan`, `define-conventions`, `close-sprint`, `midas-tribunal`).
+- Running or skipping is always the human's call — never a block.
+
+### Engine
+- Version single-sourced to `0.5.3` (`harness/VERSION` + all mirrors).
+
+---
+
 ## [0.5.2] — 2026-06-17
 
 ### Fixed — the adaptive-intake scan no longer surfaces benign "not found" as errors
@@ -406,7 +424,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.2...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.3...HEAD
+[0.5.3]: https://github.com/okuzpe/midas-harness/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/okuzpe/midas-harness/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/okuzpe/midas-harness/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/okuzpe/midas-harness/compare/v0.4.2...v0.5.0

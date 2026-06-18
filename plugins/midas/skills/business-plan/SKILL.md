@@ -13,6 +13,8 @@ recommended-model: claude-opus-4-8
 > First read `harness/state.yaml`. Precondition: stage `market_research` passed. Read first, write last.
 > This phase has a **hard human checkpoint** — no engineering begins until the human signs off the
 > go/no-go. If you arrived here by inference rather than the user moving to Phase 3, confirm first.
+> **Recommended optional checkpoint:** a `/midas-tribunal` (the *pre-go/no-go* audit) before sign-off —
+> high-leverage but the human's call; never block on it.
 
 Turn the validated opportunity into a decision. The orchestrator owns the go/no-go judgment and the
 gate; the builder drafts the document.
