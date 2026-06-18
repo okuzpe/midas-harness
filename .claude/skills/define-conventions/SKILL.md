@@ -43,6 +43,10 @@ Extend `harness/rules/` with project rules derived from the architecture's bound
   for that stack at its pinned version). Pin versions; do not write framework rules from memory.
 - Each rule states a **CHECK** line: the concrete, evidence-based condition the Phase-8 audit
   evaluates (e.g. "no file under `ui/` imports from `db/`"). Drop anything you cannot make checkable.
+- Write **`product/conventions.md`** — the project's stack-specific prose conventions (naming, error
+  handling, test patterns) that **override** the base `harness/conventions.md`. This is the
+  `product/conventions.md` layer named in the precedence chain (Step 4): the checkable rules above are the
+  *constraints*; this is the narrative they encode. Keep it to real overrides — never restate the base.
 
 ### 2. Set the DESIGN DIRECTION, then build the DESIGN SYSTEM to it
 **First, the direction — this is what kills generic, "Tailwind-default" output.** An LLM with no anchor
@@ -115,6 +119,8 @@ record which `tools` the adapters were rendered for. Do not self-advance the sta
 ## Exit gate (orchestrate audits)
 - A **folder-structure rule** exists with explicit boundary/import constraints.
 - Conventions are encoded and **every rule is CHECKABLE** (has a concrete pass/fail CHECK).
+- **`product/conventions.md`** exists and overrides/references the base `harness/conventions.md` (the
+  project-override layer named in the precedence chain).
 - Stack rules are **Context7-verified** at pinned versions.
 - A **design direction** exists (`product/design-direction.md`): brand personality, **≥2 real reference
   products** + anti-references, and the tokens **trace to it** (intentional, not generic). The references are

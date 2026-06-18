@@ -29,7 +29,7 @@ transition after that.
 ## Schema
 
 ```yaml
-midas_version: 0.5.7          # engine version that wrote this file (for /midas-update)
+midas_version: 0.5.8          # engine version that wrote this file (for /midas-update)
 name: taskpilot              # project slug
 mode: greenfield             # greenfield | brownfield  (maturity: E0/E1 → greenfield, E2/E3 → brownfield)
 language: en                 # artifact language
@@ -64,6 +64,8 @@ sprints:                     # appended during sprint planning; updated each cyc
     last_touched: 2026-06-16
 
 last_audit: { phase: contextualize, verdict: pass, at: 2026-06-15 }
+last_tribunal: { n: "01", criticals: 0, at: 2026-06-15 }      # optional — written by /midas-tribunal (informational only; never advances a gate)
+last_verification: { n: "01", fails: 0, at: 2026-06-15 }      # optional — written by /midas-verify (informational only; never advances a gate)
 ```
 
 ## Rules for consumers

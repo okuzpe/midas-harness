@@ -108,7 +108,7 @@ Most users only need **Core** (+ `/midas-adopt` for an existing repo). Everythin
 | Cursor | native | partial (`.cursor/rules` + skills where supported) | advisory | Good |
 | OpenAI Codex | native | partial (Agent Skills) | advisory | Good |
 | GitHub Copilot | native | partial (Agent Skills) | advisory | Good |
-| Gemini CLI | via `GEMINI.md` | via extensions | advisory | Basic |
+| Gemini CLI | via `GEMINI.md` | context only (no skills) | advisory | Basic |
 | Windsurf | native | partial (rules) | advisory | Basic |
 
 Generated adapters (`CLAUDE.md`, `.cursor/rules`, `.windsurf/rules`, `GEMINI.md`) are re-rendered from a
@@ -148,7 +148,7 @@ A runnable Sprint-1 vertical slice — auth, task CRUD, middleware, board stub +
 artifact on disk. See [`examples/taskpilot/`](./examples/taskpilot/).
 
 ## Status
-**v0.5.7 — pre-1.0, actively developed (not yet a stable API).** Most complete on **Claude Code**
+**v0.5.8 — pre-1.0, actively developed (not yet a stable API).** Most complete on **Claude Code**
 (see [Honest scope](#supported-tools)). Details: [`CHANGELOG.md`](./CHANGELOG.md) ·
 [`VERSIONING.md`](./VERSIONING.md) · [docs site](https://okuzpe.github.io/midas-harness/).
 

@@ -13,6 +13,37 @@ _Nothing yet._
 
 ---
 
+## [0.5.8] — 2026-06-18
+
+### Fixed — internal-alignment audit (6 real consistency gaps, all pre-existing)
+A whole-harness alignment audit (4 parallel auditors over state-machine / rules↔audit / distribution /
+docs↔reality) found six places where the harness contradicted itself. Distribution came back clean; the
+rest are fixed here:
+
+- **`product/conventions.md` was mandated everywhere but written nowhere** (the big one). The Phase-5
+  pipeline guide, the exit gate, and the precedence chain in ~22 files all treat `product/conventions.md`
+  as a real override layer — but the operative `/define-conventions` skill never created it. The skill now
+  writes it (stack-specific prose overrides of `harness/conventions.md`) and gates on it.
+- **`/midas-status` now names the real commands for Phases 2–3.** It was emitting vague phrases
+  ("the market-research phase") instead of `/market-research` and `/business-plan`, contradicting its own
+  "map to exactly one typeable command" contract. `/contextualize`'s hand-off was reworded to match.
+- **`/midas-update` added to the never-auto-invoke list** (AGENTS.md + the template + the orchestrator
+  agent). It is side-effecting and `disable-model-invocation: true` like the other nine, but was missing
+  from the enumeration — exactly the omission that lets an agent try to auto-run a gated ritual.
+- **`last_tribunal` / `last_verification` are now documented in `state.schema.md`.** `/midas-tribunal` and
+  `/midas-verify` told the consumer to set them "per schema", but the schema only defined `last_audit`.
+- **`/close-sprint` now loads the artifacts its rule CHECKs grade against** — `product/architecture.md`,
+  `product/idea.md`, and `product/conventions.md` (the code-quality/testing/security/naming CHECKs cite
+  module boundaries + the glossary, which weren't in the load list).
+- **README Gemini row corrected** from "via extensions" to "context only (no skills)" — the
+  `gemini-extension.json` manifest is repo-only (not in the installer's file set), so an installed project
+  gets the `GEMINI.md` context adapter, not skills.
+
+### Engine
+- Version single-sourced to `0.5.8` (`harness/VERSION` + all mirrors).
+
+---
+
 ## [0.5.7] — 2026-06-18
 
 "Make design real." Design output kept coming out generic. The fix isn't a magic agent — it's a
@@ -537,7 +568,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.7...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.8...HEAD
+[0.5.8]: https://github.com/okuzpe/midas-harness/compare/v0.5.7...v0.5.8
 [0.5.7]: https://github.com/okuzpe/midas-harness/compare/v0.5.6...v0.5.7
 [0.5.6]: https://github.com/okuzpe/midas-harness/compare/v0.5.5...v0.5.6
 [0.5.5]: https://github.com/okuzpe/midas-harness/compare/v0.5.4...v0.5.5

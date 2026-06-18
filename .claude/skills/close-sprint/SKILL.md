@@ -25,6 +25,8 @@ homework** — this is an independent orchestrate-tier audit.
 
 ### 1. Read state + frozen rules
 Load `harness/state.yaml`, the active `product/sprints/NN-*.md`, all `harness/rules/*`,
+`product/architecture.md` and `product/idea.md` (the module boundaries + glossary the
+code-quality/testing/security/naming CHECKs grade against), `product/conventions.md`,
 `product/design-system.md`, `product/design-direction.md` (the named UI references — the evidence the
 `accessibility.md` design-fidelity CHECK grades against), and `product/business-plan.md`.
 

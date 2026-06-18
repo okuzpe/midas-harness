@@ -35,8 +35,8 @@ completion — it reports the truth already on disk. Safe to run at any time, in
    | `setup_complete: false` | `/midas-init` (finish one-time setup) |
    | `idea_intake` | `/idea-intake` |
    | `contextualize` | `/contextualize` |
-   | `market_research` | `/deep-research` then the market-research phase |
-   | `business_case` | the business-case phase (needs human sign-off) |
+   | `market_research` | `/market-research` (reuses `/deep-research`) |
+   | `business_case` | `/business-plan` (needs human sign-off) |
    | `tech_architecture` | `/choose-architecture` |
    | `architecture_rules` | `/define-conventions` |
    | `sprint_planning` | `/plan-sprints` |

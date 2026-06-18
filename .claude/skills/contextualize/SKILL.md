@@ -50,6 +50,6 @@ The orchestrator advances to Phase 2 **iff**, with on-disk evidence:
 
 When satisfied, record both artifacts under `phases.contextualize.artifacts`, set
 `phases.contextualize` to `{ status: passed, gate: passed }`, advance `stage: market_research,
-stage_status: not_started`, refresh `updated`, and tell the user the next action is the **market
-research** phase (it reuses `/deep-research`). If blockers remain, keep `stage_status: in_progress` and
+stage_status: not_started`, refresh `updated`, and tell the user the next action is **`/market-research`**
+(it reuses `/deep-research`). If blockers remain, keep `stage_status: in_progress` and
 list the outstanding blocking questions. The producer never passes its own gate — the orchestrator renders it.
