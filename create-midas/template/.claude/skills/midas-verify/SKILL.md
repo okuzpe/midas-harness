@@ -66,6 +66,13 @@ mood, or does it look **generic** (default Tailwind/Bootstrap, stock gradients, 
 generic-feeling screens as a design finding (MED), citing the direction it drifted from — consistency with
 tokens is not the same as being on-direction.
 
+**And assert NO overflow at a narrow viewport** (the deterministic containment detector): set the viewport to
+~320–375px and assert `document.documentElement.scrollWidth <= document.documentElement.clientWidth` on each
+key screen (no unexpected horizontal scrollbar), and spot-check that buttons/inputs/cards stay inside their
+parent box. A page that scrolls horizontally at narrow width — or a control that escapes its container — is a
+**HIGH** finding with a screenshot. This catches the classic "buttons/inputs overflow their parent" regression
+that token checks alone miss.
+
 ### 5. Render a per-claim VERDICT with evidence
 For each criterion render `pass | fail | blocked` with: the selector(s), the asserted vs actual value,
 and the screenshot path. A claim with no runnable evidence is `blocked` (not a silent pass). Token
@@ -114,6 +121,7 @@ MIDAS_VERIFY_RESULT: fails=X criticals=Y        # gate-parseable line
 - [ ] **Hard gate honoured**: Playwright loaded only for UI-touching scope; non-UI sprints skipped with a logged reason.
 - [ ] **Every acceptance criterion** has a `pass | fail | blocked` verdict backed by on-disk evidence (screenshot + selector); none silently passed.
 - [ ] **Rendered UI checked against the design tokens**; hardcoded-value, contrast, and focus violations recorded as fails.
+- [ ] **Key screens checked for horizontal overflow at a narrow viewport** (~320–375px): no unexpected scrollbar; buttons/inputs/cards stay contained.
 - [ ] `.harness/verifications/verify-NN.md` frozen with the `MIDAS_VERIFY_RESULT` tally line; screenshots committed beside it.
 - [ ] `state.yaml` **stage NOT advanced**, no gate marked passed; failures routed to `/close-sprint`.
 

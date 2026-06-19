@@ -37,6 +37,15 @@
 7. **Z-index from tokens.** Use `--ds-z-dropdown`, `--ds-z-modal`, `--ds-z-toast`,
    `--ds-z-tooltip` — never arbitrary integers.
 
+8. **Containment & sizing — fit the parent.** Controls (Button/Input/Select) take their height from one
+   shared `--ds-size-control-*` token so adjacent controls **align** — never a per-component hardcoded
+   `height`. Shrinkable flex/grid children set `min-width: 0` (or the `.ds-min-0` utility), and grid tracks
+   holding wide content use `minmax(0, 1fr)` (not the implicit `minmax(auto, 1fr)`). Long/unknown-length
+   text **wraps** (`overflow-wrap: break-word`) or **truncates** (`.ds-truncate`). Pages, forms, and
+   long-form text cap their width with a container/measure token (`--ds-width-prose` / `--ds-width-form`),
+   never 100% full-bleed. Media defaults to `max-width: 100%` (base reset). Net result: **no element
+   overflows its parent and there is no horizontal scrollbar at narrow widths.**
+
 ---
 
 ## Components
@@ -57,6 +66,7 @@ danger (destructive).
 | Text (secondary/ghost) | `--ds-text-primary` |
 | Background (danger) | `--ds-danger-bg` → `--ds-danger-text` as text |
 | Padding | `--ds-space-2` (vertical) × `--ds-space-4` (horizontal) |
+| Height | `--ds-size-control-md` (shared control height; never hardcode — aligns with Input) |
 | Border radius | `--ds-radius-md` |
 | Font size | `--ds-text-sm` |
 | Font weight | `--ds-font-weight-semibold` |
@@ -85,6 +95,7 @@ danger (destructive).
 | Text | `--ds-text-primary` |
 | Placeholder | `--ds-text-disabled` |
 | Padding | `--ds-space-2` × `--ds-space-3` |
+| Height | `--ds-size-control-md` (matches Button height for aligned form rows; max-width from a container token) |
 | Border radius | `--ds-radius-md` |
 | Font size | `--ds-text-md` |
 | Shadow (focus) | `--ds-shadow-focus` |
@@ -104,7 +115,8 @@ Error state uses `aria-invalid="true"` and `aria-describedby` linking to the inl
 **Purpose.** Choose one option from a list. Native `<select>` for simplicity; custom popover only
 when richer interaction is required.
 
-**Tokens consumed.** Same surface/border/text/focus tokens as Input. Custom chevron icon uses
+**Tokens consumed.** Same surface/border/text/focus tokens as Input (control height `--ds-size-control-md`,
+like Button/Input). Custom chevron icon uses
 `--ds-text-secondary`. Dropdown panel: `--ds-surface-raised`, `--ds-shadow-md`,
 `--ds-z-dropdown`. Option hover: `--ds-bg-subtle`.
 

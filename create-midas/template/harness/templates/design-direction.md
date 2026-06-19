@@ -35,6 +35,10 @@
 
 - …
 
+<!-- TODO (layout density + responsive intent): gaps, container width, and what stacks / goes full-width on
+     mobile — e.g. "8px gaps desktop / 12px mobile; forms max-width ~400px desktop, full-width under 640px;
+     cards reflow to 1 column under 640px". This anchors composition so nothing overflows. -->
+
 ## Anti-references (what to avoid)
 
 <!-- TODO: name what this must NOT look like — the fastest way to dodge generic slop.

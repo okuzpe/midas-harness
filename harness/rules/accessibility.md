@@ -44,3 +44,24 @@ each one as `N/A (no UI)` in the audit; do not delete the rule.
 - [ ] Form inputs have programmatic labels; validation errors are announced with text, not colour only.
       **CHECK:** `manual:` each input has a `<label>`/`aria-label`; each validation error carries text
       plus an `aria` association — a red border with no message is a fail.
+
+### Layout & containment (no overflow — "cuadrado / organized")
+The starter `tokens.css` makes the safe behaviour the **default** (border-box, media `max-width:100%`,
+prose `overflow-wrap`, the `.ds-min-0` / `.ds-container` / `.ds-truncate` utilities); these CHECKs are the
+thin net that catches regressions. Build *to* them.
+- [ ] The global **border-box** reset is present (once); no `content-box` override sneaks in.
+      **CHECK:** `grep -rniE "box-sizing:[[:space:]]*border-box" <ui-src>` is present in the reset; any `content-box` override is a flag.
+- [ ] **Media is constrained** — images/video/iframes never exceed their parent.
+      **CHECK:** `manual:` media inherits `max-width:100%` (base reset); a fixed `width:NNNpx` on media without `max-width:100%` is a fail.
+- [ ] **Shrinkable flex/grid children set `min-width:0`** — the #1 non-obvious overflow cause is the `min-width:auto` default.
+      **CHECK:** `grep -rniE "display:[[:space:]]*(flex|grid)" <ui-src>` → `manual:` children holding text/media/scroll panes carry `min-width:0` (`.ds-min-0`), or the grid track uses `minmax(0,1fr)`.
+- [ ] **Long text wraps or truncates** — no horizontal overflow from a long word/URL.
+      **CHECK:** prose sets `overflow-wrap:break-word`; every `text-overflow:ellipsis` also has `overflow:hidden`+`white-space:nowrap` (the trio) — `grep -rniE "text-overflow:[[:space:]]*ellipsis" <ui-src>` each verified.
+- [ ] **Reading/form width is capped** with a container/measure token, not full-bleed.
+      **CHECK:** `manual:` long-form text and forms sit in a `--ds-width-prose`/`--ds-width-form` container (~60–75ch), centered.
+- [ ] **Controls share one height scale** — adjacent button/input align.
+      **CHECK:** `grep -rniE "(^|[^-])height:[[:space:]]*[0-9]+px" <ui-src>` on buttons/inputs is a flag (excludes line/min/max-height); controls read `--ds-size-control-*`.
+- [ ] **No horizontal overflow at a narrow viewport** (320–375px).
+      **CHECK:** `manual:` no horizontal scrollbar (`document.documentElement.scrollWidth <= clientWidth`); buttons/inputs stay inside their parent. `/midas-verify` automates this.
+- [ ] **Z-index comes from tokens**, not arbitrary integers.
+      **CHECK:** `grep -rniE "z-index:[[:space:]]*[0-9]+" <ui-src>` → each is a `var(--ds-z-*)` token; a raw integer (e.g. `9999`) is a fail.

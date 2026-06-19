@@ -76,6 +76,24 @@
   --ds-radius-2xl:  24px;
   --ds-radius-full: 9999px;
 
+  /* Layout — control sizes (shared height scale: button/input/select align when they share a size) */
+  --ds-size-control-sm: 32px;
+  --ds-size-control-md: 40px;   /* base — default control height */
+  --ds-size-control-lg: 48px;
+  --ds-size-touch-target: 44px; /* WCAG minimum interactive target */
+
+  /* Layout — container & content (measure) widths; cap reading/form width, never full-bleed */
+  --ds-width-prose:        70ch;    /* reading measure ~60–75ch */
+  --ds-width-form:         400px;
+  --ds-width-container-sm: 640px;
+  --ds-width-container-md: 768px;
+  --ds-width-container-lg: 1024px;
+
+  /* Layout — named breakpoints (mirror in @media / @container thresholds; never raw px) */
+  --ds-bp-sm: 640px;
+  --ds-bp-md: 768px;
+  --ds-bp-lg: 1024px;
+
   /* Typography — font families */
   --ds-font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --ds-font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Courier New', Courier, monospace;
@@ -278,6 +296,37 @@
    ───────────────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
+}
+
+/* Containment defaults — make "fits its parent" the default and kill the common overflow causes.
+   Covered here: border-box (above), media intrinsic width, long-text wrap, reading-width cap.
+   The #1 NON-OBVIOUS cause — flex/grid children defaulting to min-width:auto — is handled by the
+   .ds-min-0 utility (apply to shrinkable children) and `grid-template-columns: minmax(0, 1fr)` for
+   grid tracks that hold wide content. */
+img, svg, video, canvas, audio, iframe, embed, object {
+  max-width: 100%;          /* media never exceeds its parent */
+}
+img, video, canvas, audio, iframe, embed, object {
+  display: block;           /* svg left INLINE on purpose: inline icons keep baseline alignment in controls */
+}
+img, video {
+  height: auto;
+}
+.ds-min-0 {            /* shrinkable flex/grid child — lets it shrink below its content width */
+  min-inline-size: 0;
+  min-block-size: 0;
+}
+.ds-prose, p, li, dd, blockquote, figcaption {
+  overflow-wrap: break-word;   /* wrap only (long URLs/identifiers); the width cap is .ds-container */
+}
+.ds-container {        /* reading/content "measure" — cap width, center; never full-bleed */
+  max-inline-size: var(--ds-width-prose);
+  margin-inline: auto;
+}
+.ds-truncate {         /* single-line ellipsis — all three properties required or it silently fails */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 html {

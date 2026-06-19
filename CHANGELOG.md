@@ -13,6 +13,46 @@ _Nothing yet._
 
 ---
 
+## [0.5.13] — 2026-06-19
+
+### Fixed — two real gaps found running Midas on a real project (investigated + web-researched)
+A user ran the full flow on a real product and reported two regrets. A 4-agent investigation (2 source
+audits + 2 web-research threads, 2026 best practices) confirmed both as real gaps; fixes stay in-discipline
+(extend existing files, recommend-don't-wall, every floor item ships a CHECK, skill+guide kept in sync).
+
+**1. Phase 4 chose the architecture *pattern* silently (the "login-inside-Next, never asked" regret).**
+v0.5.9 made Phase 4 ask *which framework per layer*, but never surfaced the **macro-pattern forks** — the
+shape-of-the-system decisions a founder must own. `/choose-architecture` now enumerates them in Step 1 and
+asks them **first** in Step 3, in plain founder-facing language:
+- **App shape** — one full-stack codebase vs decoupled frontend + backend API (speed-now vs split-later/control).
+- **Auth strategy** — framework-native/SDK (you own it, coupled) vs a dedicated provider/auth-API (portable,
+  SSO/SCIM) vs a BFF holding tokens server-side.
+- **Vendor lock-in** — how coupled to one platform/BaaS/IDaaS, and the migration cost.
+Each fork gets its own ADR; the exit gate verifies it was *surfaced to the human*, not buried in alternatives.
+The 2026 *monolith-first + built-in auth* default is still recommended — but the fork is now asked, not assumed.
+(`choose-architecture` SKILL + `pipeline/4-tech-architecture.md` updated together.)
+
+**2. No layout/containment system — buttons/inputs overflowed their parents.** The design system had tokens
++ a11y but nothing governing how elements fit together. Added, with the highest-leverage move first (make
+safe behaviour the **default**):
+- **`tokens.css` base reset** now ships the containment defaults: media `max-width:100%`, a `.ds-min-0`
+  utility for shrinkable flex/grid children (the #1 non-obvious overflow cause: children default to
+  `min-width:auto`), `overflow-wrap` on prose, a `.ds-container` measure cap, and a `.ds-truncate` trio.
+- **Layout tokens** added to `tokens.css` + `tokens.json` (in sync): shared control heights
+  (`--ds-size-control-sm/md/lg`), container/measure widths (`--ds-width-prose/form/...`), named breakpoints.
+- **`components.md`** gains a "Containment & sizing" cross-cutting rule + a shared `Height` token on
+  Button/Input so adjacent controls align.
+- **`harness/rules/accessibility.md`** (the always-on floor) gains a "Layout & containment (no overflow)"
+  subsection — 8 CHECK lines (border-box, media max-width, `min-width:0`, ellipsis trio, container cap,
+  consistent control heights, **no horizontal scrollbar at 320–375px**, z-index-from-tokens).
+- **`/midas-verify`** now asserts `scrollWidth <= clientWidth` at a narrow viewport — the deterministic
+  detector for the overflow regression — with a matching exit-gate bullet.
+
+### Engine
+- Version single-sourced to `0.5.13` (`harness/VERSION` + all mirrors).
+
+---
+
 ## [0.5.12] — 2026-06-18
 
 ### Added — `/midas-capture` + an always-on "capture recurring patterns" loop
@@ -669,7 +709,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.12...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.13...HEAD
+[0.5.13]: https://github.com/okuzpe/midas-harness/compare/v0.5.12...v0.5.13
 [0.5.12]: https://github.com/okuzpe/midas-harness/compare/v0.5.11...v0.5.12
 [0.5.11]: https://github.com/okuzpe/midas-harness/compare/v0.5.10...v0.5.11
 [0.5.10]: https://github.com/okuzpe/midas-harness/compare/v0.5.9...v0.5.10
