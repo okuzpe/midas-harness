@@ -49,6 +49,43 @@ function tallyNum(line, key) {
   return m ? Number(m[1]) : 0;
 }
 
+/** Read the pinned `model:` of a first-party agent (the real runtime binding), or null. */
+function agentModel(name) {
+  const t = read(join('.claude', 'agents', name + '.md'));
+  const m = t && t.match(/^model:\s*([^\s#]+)/m);
+  return m ? m[1] : null;
+}
+
+/** Parse the `enforcement:` block (inline maps) from state.yaml → [{tool, config, installed}]. */
+function parseEnforcement(yaml) {
+  const out = [];
+  const lines = yaml.split(/\r?\n/);
+  const i = lines.findIndex((l) => /^enforcement:/.test(l));
+  if (i === -1) return out;
+  for (let j = i + 1; j < lines.length; j++) {
+    if (!/^\s+\S/.test(lines[j])) break; // dedent → end of the block
+    const m = lines[j].match(/^\s+([\w-]+):\s*\{([^}]*)\}/);
+    if (!m) continue;
+    const cfg = (m[2].match(/config:\s*([^,}]+)/) || [])[1];
+    out.push({ tool: m[1], config: cfg ? cfg.trim() : null, installed: /installed:\s*true/.test(m[2]) });
+  }
+  return out;
+}
+
+/** Parse `cost_profile` + the `routing:` tier→id map from state.yaml (no YAML dependency). */
+function parseRouting(yaml) {
+  const profile = (yaml.match(/^cost_profile:\s*([^\s#]+)/m) || [])[1] || null;
+  const routing = {};
+  const lines = yaml.split(/\r?\n/);
+  const i = lines.findIndex((l) => /^routing:/.test(l));
+  if (i !== -1) for (let j = i + 1; j < lines.length; j++) {
+    if (!/^\s+\S/.test(lines[j])) break; // dedent → end of the routing block
+    const m = lines[j].match(/^\s+(orchestrate|build|scout):\s*([^\s#]+)/);
+    if (m) routing[m[1]] = m[2];
+  }
+  return { profile, routing };
+}
+
 // --- --fix: rewrite adapters via the shared render path ----------------------------------------
 if (FIX) {
   const { hash, results } = renderAdapters(ROOT);
@@ -85,6 +122,49 @@ if (!stateRaw) {
   else check('version', 'ok', sv || '');
   for (const k of ['stage', 'cost_profile', 'routing']) {
     if (!new RegExp(`(^|\\n)${k}:`).test(stateRaw)) check(`state:${k}`, 'warn', 'missing required key');
+  }
+
+  // routing: turn the cost_profile/routing block from inert data into a checked invariant. The only
+  // real runtime binding is the three agents' pinned `model:`, so validate the resolved ids against
+  // them and — under the executor-backed `balanced` profile — require an exact reconciliation.
+  const pinned = {
+    orchestrate: agentModel('midas-orchestrator'),
+    build: agentModel('midas-builder'),
+    scout: agentModel('midas-scout'),
+  };
+  const allow = new Set(Object.values(pinned).filter(Boolean));
+  if (allow.size === 0) {
+    check('routing', 'skip', 'no .claude/agents to reconcile against');
+  } else {
+    const tiers = ['orchestrate', 'build', 'scout'];
+    const { profile, routing } = parseRouting(stateRaw);
+    const unknown = tiers.filter((t) => routing[t] && !allow.has(routing[t]));
+    if (unknown.length) {
+      check('routing', 'warn', `${unknown.map((t) => `${t}=${routing[t]}`).join(', ')} not a known model id — see docs/agents-and-models.md`);
+    } else if (profile === 'balanced') {
+      const mism = tiers.filter((t) => routing[t] && pinned[t] && routing[t] !== pinned[t]);
+      check('routing', mism.length ? 'warn' : 'ok',
+        mism.length ? mism.map((t) => `${t}: state ${routing[t]} != agent ${pinned[t]}`).join('; ') : 'matches agent pins');
+    } else {
+      check('routing', 'ok', `profile ${profile || '(unset)'} — ids valid (non-balanced profiles are advisory intent)`);
+    }
+  }
+
+  // enforcement: the recommend-don't-wall scaffolding decision must be recorded and honest. A named
+  // config file absent on disk is drift; installed:false is allowed but surfaced so the gap is visible.
+  const enf = parseEnforcement(stateRaw);
+  if (enf.length === 0) {
+    check('enforcement', 'skip', 'no enforcement: block (pre-Phase-5 or none scaffolded)');
+  } else {
+    const missing = enf.filter((e) => e.config && !existsSync(join(ROOT, e.config)));
+    if (missing.length) {
+      check('enforcement', 'warn', `config named but missing on disk: ${missing.map((e) => `${e.tool}→${e.config}`).join(', ')}`);
+    } else {
+      const off = enf.filter((e) => !e.installed).map((e) => e.tool);
+      check('enforcement', 'ok', off.length
+        ? `${enf.length} configured; NOT installed: ${off.join(', ')} (recommend-don't-wall → graded at Phase 8)`
+        : `${enf.length} configured + installed`);
+    }
   }
 }
 

@@ -55,6 +55,17 @@ do not introduce a parallel "standards" layer.
 - Before writing code against any third-party library, **fetch its current docs** (Context7 recommended,
   or your own doc tool / web fetch) — see [`context7-usage.md`](./rules/context7-usage.md). Never code APIs from memory.
 
+## Model routing (cost-aware)
+- Match the model tier to the stakes: **strongest** to think/plan/audit/decide (`orchestrate`), a
+  **mid** model to implement (`build`), the **fastest/cheapest** to search/extract/fetch (`scout`).
+- A tier binds to a real model only when work is **delegated** to its first-party agent
+  (`.claude/agents/midas-{orchestrator,builder,scout}.md`); a skill's `harness-tier` names its
+  dispatch tier only, so delegate produce/fetch legs to `midas-builder` / `midas-scout` explicitly.
+- On tools without per-agent model selection (Cursor/Copilot/Windsurf), apply this as **intent**:
+  fastest model for research, strongest for architecture and audits. Ids + profiles:
+  [`docs/agents-and-models.md`](../docs/agents-and-models.md); full rule:
+  [`rules/model-routing.md`](./rules/model-routing.md).
+
 ## Git & commits
 - Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`).
 - Small, reviewable commits. Branch off the default branch; never commit secrets.
@@ -109,4 +120,155 @@ and cite them — **never silently generate third-party code from memory**. Cont
 ## Portability
 This rule is replicated into every generated tool adapter (`CLAUDE.md`, the Cursor `.mdc`, the Windsurf
 rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — or doc tool — in use.
+
+## Always-on rules — CHECK digest (full bodies in `harness/rules/`)
+- **Rule: Accessibility & design-system floor (always-on)** (`accessibility.md`)
+  - > **Every item carries a `**CHECK:**`** — the concrete condition the Phase-8 audit evaluates: a
+  - **CHECK:** `grep -rniE "#[0-9a-fA-F]{3,8}|rgba?\(" <ui-src>` → every hit is a token *definition*,
+  - **CHECK:** `manual:` a reviewer can name which reference each key screen draws from; "generic
+  - **CHECK:** `manual:` the design tokens are AA-verified (the starter `tokens.css` documents the
+  - **CHECK:** `grep -rniE "outline:[[:space:]]*(none|0)" <ui-src>` → none without a replacement focus ring;
+  - **CHECK:** `grep -rni "<img" <ui-src> | grep -vi "alt="` → empty (every `<img>` carries `alt`;
+  - **CHECK:** `manual:` a `prefers-reduced-motion` query exists (the starter `tokens.css` ships one),
+  - **CHECK:** `manual:` primary buttons/links meet the minimum target size at touch viewport widths.
+  - **CHECK:** `manual:` each input has a `<label>`/`aria-label`; each validation error carries text
+  - **CHECK:** `grep -rniE "box-sizing:[[:space:]]*border-box" <ui-src>` is present in the reset; any `content-box` override is a flag.
+  - **CHECK:** `manual:` media inherits `max-width:100%` (base reset); a fixed `width:NNNpx` on media without `max-width:100%` is a fail.
+  - **CHECK:** `grep -rniE "display:[[:space:]]*(flex|grid)" <ui-src>` → `manual:` children holding text/media/scroll panes carry `min-width:0` (`.ds-min-0`), or the grid track uses `minmax(0,1fr)`.
+  - **CHECK:** prose sets `overflow-wrap:break-word`; every `text-overflow:ellipsis` also has `overflow:hidden`+`white-space:nowrap` (the trio) — `grep -rniE "text-overflow:[[:space:]]*ellipsis" <ui-src>` each verified.
+  - **CHECK:** `manual:` long-form text and forms sit in a `--ds-width-prose`/`--ds-width-form` container (~60–75ch), centered.
+  - **CHECK:** `grep -rniE "(^|[^-])height:[[:space:]]*[0-9]+px" <ui-src>` on buttons/inputs is a flag (excludes line/min/max-height); controls read `--ds-size-control-*`.
+  - **CHECK:** `manual:` no horizontal scrollbar (`document.documentElement.scrollWidth <= clientWidth`); buttons/inputs stay inside their parent. `/midas-verify` automates this.
+  - **CHECK:** `grep -rniE "z-index:[[:space:]]*[0-9]+" <ui-src>` → each is a `var(--ds-z-*)` token; a raw integer (e.g. `9999`) is a fail.
+- **Rule: Code quality (always-on)** (`code-quality.md`)
+  - > **Every item carries a `**CHECK:**`** — the concrete condition the Phase-8 audit evaluates: a
+  - **CHECK:** `manual:` diff each new file against a sibling in the same directory; a naming/indent/idiom break that stands out from local style is a fail.
+  - **CHECK:** `manual:` grep the codebase for the concept (`grep -rin "<concept>" src/`); a parallel implementation of an existing pattern is a fail.
+  - **CHECK:** any rules/standards/guidelines doc outside `harness/conventions.md` + `harness/rules/` is a fail (`find . -iname "*standard*" -o -iname "*guideline*"` outside those paths → empty).
+  - **CHECK:** `manual:` the name is a verb-phrase describing the effect; a body with multiple unrelated responsibilities (independent side effects) is a fail.
+  - **CHECK:** linter (`eslint max-lines-per-function` / equivalent) reports no function over the stack limit; absent a linter, no body exceeds ~40 logical lines.
+  - **CHECK:** `manual:`/AST: no signature in the diff declares > 4 positional parameters.
+  - **CHECK:** grep imports against `harness/rules/folder-structure.md` (the project's Phase-5-generated rule; e.g. `grep -rn "from '@/db'" src/ui/` → empty); any forbidden cross-layer import is a fail.
+  - **CHECK:** `eslint no-unused-vars` / `ts-prune` / `vulture` (per stack) reports zero unused or unreachable symbols in the diff.
+  - **CHECK:** review for commented-out statements (`grep -nE "^\s*(//|#).*[;{}()]" <diff>`); a commented-out code block is a fail.
+  - **CHECK:** `grep -rnE "TODO" src/ | grep -vE "TODO\((\w+|#[0-9]+)\):"` must be empty.
+  - **CHECK:** `grep -rnE "console\.(log|debug)|(^|[^.])\bprint\(|fmt\.Print" src/` → empty, unless the match is the project logger.
+  - **CHECK:** `manual:` the PR/sprint notes record the search for an existing utility; an unexplained duplicate utility is a fail.
+  - **CHECK:** `manual:` a generic abstraction with fewer than 3 distinct call sites is a fail unless explicitly justified.
+  - **CHECK:** `manual:` a wrapper/indirection that adds no behaviour over the call it forwards to is a fail.
+  - **CHECK:** lockfile diff: every added dependency has a PR note covering size/maintenance/license; an unexplained addition is a fail.
+  - **CHECK:** `grep -nE ":\s*[\"']?[\^~*]" package.json` (or the stack manifest) → empty; lockfile committed.
+  - **CHECK:** each new third-party call site carries the Context7 (or documented web-fallback) doc note; a missing note is a fail.
+  - **CHECK:** `manual:` each boundary entry validates shape/range before use; an unvalidated external read is a fail (evidence: `file:line`).
+  - **CHECK:** `manual:` inspect error/response paths; a message returning a raw secret or internal stack trace to a caller is a fail.
+  - **CHECK:** `grep -rnE "catch\s*\([^)]*\)\s*\{\s*\}|except[^\n]*:\s*\n\s*pass"` → empty.
+- **Rule: Documentation (always-on)** (`docs.md`)
+  - > **Every item carries a `**CHECK:**`** — the concrete condition the Phase-8 audit evaluates: a
+  - **CHECK:** `manual:` each `export`ed symbol in the diff is preceded by a doc comment; an undocumented public export is a fail.
+  - **CHECK:** `manual:` a doc comment that merely echoes the signature is a fail.
+  - **CHECK:** `manual:` non-obvious params/returns (ranges, units, nullability) are documented; an undocumented constraint is a fail.
+  - **CHECK:** `grep -rnE "@deprecated" src/` → each match names a reason and an alternative.
+  - **CHECK:** `manual:` each workaround/non-obvious branch has a *why* comment; a comment restating the code is a fail.
+  - **CHECK:** `grep -rnE "TODO" src/ | grep -vE "TODO\((\w+|#[0-9]+)\):"` → empty (shared with `code-quality.md`).
+  - **CHECK:** review for commented-out statements (`grep -nE "^\s*(//|#).*[;{}()]" <diff>`) → none.
+  - **CHECK:** `manual:` a comment citing a spec/issue/paper includes its URL or issue id.
+  - **CHECK:** the active sprint file's acceptance/Tasks table has no `todo`/`in-progress` rows at audit time.
+  - **CHECK:** `manual:` each rule changed this sprint carries a dated `## Amendment` entry; a silent rule edit is a fail.
+  - **CHECK:** each ADR has Context/Decision/Consequences sections; `git log --diff-filter=D -- product/adr/` shows no deleted ADR.
+  - **CHECK:** `grep -iE "getting started|quickstart|setup" README.md` present, and the steps run from a clean checkout.
+  - **CHECK:** `.env.example` (or equivalent) exists and lists every env var the code reads, with placeholder values only.
+  - **CHECK:** `manual:` each non-obvious CI/deploy step has a doc reference; an undocumented deploy step is a fail.
+  - **CHECK:** `manual:` a behaviour change whose docs are untouched in the same commit is a fail.
+  - **CHECK:** a link-checker over changed docs returns no 4xx/5xx; a broken link is a fail.
+  - **CHECK:** `manual:` cross-read changed docs against `harness/conventions.md` + rules; a contradiction is a fail (harness file wins).
+- **Rule: Enforcement state is recorded and honest (always-on)** (`enforcement-state.md`)
+  - **CHECK:** `node scripts/doctor.mjs <project>` reports no `enforcement` **warn** — every named config
+  - **CHECK:** when a stack rule's CHECK names a linter/scanner as its machine-readable form, a matching
+- **Rule: Git commits (always-on)** (`git-commits.md`)
+  - > **Every item carries a `**CHECK:**`** — the concrete condition the Phase-8 audit evaluates: a
+  - **CHECK:** `git log <base>..HEAD --format=%s | grep -vE "^(feat|fix|docs|refactor|test|chore|perf|style|ci)(\(.+\))?!?: .{1,62}$"` → empty.
+  - **CHECK:** same `git log` scan as above; any subject whose type is outside the allowed set is a fail.
+  - **CHECK:** `git log <base>..HEAD --format=%s | grep -iE ": (added|adding|fixed|fixing|updated|updating)\b"` → empty.
+  - **CHECK:** `manual:` any commit altering a public contract carries `!` and a `BREAKING CHANGE:` footer (`git log --format=%B | grep "BREAKING CHANGE"`).
+  - **CHECK:** `manual:` where a body exists, it states rationale; a body that just restates the diff is a fail.
+  - **CHECK:** `manual:` each commit's diff is one coherent change; a commit spanning unrelated areas is a fail.
+  - **CHECK:** `manual:` no commit mixes a fix and a feature (cross-check subject type vs the files touched).
+  - **CHECK:** `git log <base>..HEAD --name-only | grep -E "\.env($|\.)|\.pem$"` → empty; secret-scan the range (see `security.md`).
+  - **CHECK:** `git log <base>..HEAD --format=%s | grep -iE "^(wip|temp|asdf|fix fix)"` → empty.
+  - **CHECK:** `git log <base>..HEAD --name-only` lists no unexpected binary/build artifacts; any such file is justified in the PR.
+  - **CHECK:** `manual:`/`git merge-base` the branch onto the default branch; a branch forked off another feature branch without a documented dependency is a fail.
+  - **CHECK:** current branch name matches the generated pattern (`echo "$BRANCH" | grep -E "^(feat|fix|docs|chore|refactor)/[a-z0-9-]+$"`).
+  - **CHECK:** `manual:` no branch outlives its sprint window without a recorded reason.
+  - **CHECK:** `manual:` reflog/CI shows no force-push to the default branch without a referencing ADR.
+  - **CHECK:** `manual:` each push traces to an explicit human request in the session; an agent-initiated push is a fail.
+  - **CHECK:** `manual:` the PR targets the default branch and links the sprint task; a PR with no sprint reference is a fail.
+  - **CHECK:** `manual:` merged history matches the project's single chosen strategy (no mixed merge/squash).
+- **Rule: Cost-aware model routing (always-on)** (`model-routing.md`)
+  - **CHECK:** A high-stakes gate verdict or audit (Phase 1/3/4/8, code-review, security-review) is
+  - **CHECK:** Doc fetches and file/status extraction are delegated to `midas-scout` (or `Explore`),
+  - **CHECK:** Each multi-tier phase delegates its produce/fetch legs to `midas-builder` / `midas-scout`
+  - **CHECK:** `harness/state.yaml -> routing` ids are all known model ids and, under
+  - **CHECK:** *(manual)* a latency-tolerant fan-out of ≥3 same-shaped calls uses batching, not a serial loop.
+- **Rule: Naming (always-on)** (`naming.md`)
+  - > **Every item carries a `**CHECK:**`** — the concrete condition the Phase-8 audit evaluates: a
+  - **CHECK:** `git diff --name-only <base>..HEAD` shows no path segment matching `[A-Z _]` (outside framework-mandated names like `README`, `Dockerfile`).
+  - **CHECK:** `git diff --name-only | grep -iE "/(utils?|helpers?|misc|common|stuff)\.[a-z]+$"` → empty (or each justified).
+  - **CHECK:** `manual:` each `index.*` barrel sits on a public module boundary and re-exports only the public surface.
+  - **CHECK:** every test file matches the pinned pattern (`git diff --name-only | grep -iE "test|spec"` all conform); a misnamed test is a fail.
+  - **CHECK:** `grep -rnE "(class|interface|type|enum)\s+[a-z]" src/` → empty (declarations start uppercase).
+  - **CHECK:** `grep -rnE "(Class|Object|Impl|Manager|Data)\b" src/` reviewed; an implementation-noise suffix that adds no meaning is a fail.
+  - **CHECK:** `manual:` abstract/base type names carry a domain qualifier; a generic `AbstractThing`/`BaseObject` is a fail.
+  - **CHECK:** grep new function declarations against the stack casing rule; a casing mismatch is a fail.
+  - **CHECK:** `manual:` each new function name starts with a verb/query word; a noun-only function name is a fail.
+  - **CHECK:** `manual:` functions/methods returning boolean use an `is/has/can/should` prefix.
+  - **CHECK:** `manual:` handler functions use a `handle`/`on` prefix; a bare handler name is a fail.
+  - **CHECK:** `grep -rnE "\b\w+(Array|List|Obj|Str|Num|Map)\b\s*=" src/` reviewed; a type-suffixed variable name is a fail.
+  - **CHECK:** `manual:` single-letter names appear only as loop indices or standard math notation.
+  - **CHECK:** `manual:` shared immutable constants use the pinned constant casing; a lowercase shared constant is a fail.
+  - **CHECK:** `manual:` non-standard abbreviations (e.g. `usr`, `cfg`, `tmp` as identifiers) are fails; standard ones are allowed.
+  - **CHECK:** `manual:` grep the synonyms for one entity (`grep -rinE "user|account|member" src/`); two names for the same concept is a fail.
+  - **CHECK:** `manual:` each domain noun in code matches a glossary term from `product/idea.md` / `product/architecture.md`.
+  - **CHECK:** `manual:` a rename touches all occurrences in one commit; a partial rename leaving the old name is a fail.
+- **Rule: Security (always-on)** (`security.md`)
+  - > **Every item carries a `**CHECK:**`** — the concrete condition the Phase-8 audit evaluates: a
+  - **CHECK:** `git grep -nE "(sk-[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{16,}|-----BEGIN [A-Z ]*PRIVATE KEY)"` → empty; a secret-scanner (gitleaks/trufflehog) on the diff finds nothing.
+  - **CHECK:** `manual:` every credential the code consumes resolves from `process.env`/env equivalent or a gitignored local file; a hardcoded credential is a fail.
+  - **CHECK:** `grep -nE "(token|api[_-]?key|secret|password)\"\s*:\s*\"[^$]" .mcp.json` → empty (matches `/midas-doctor`'s `mcp:secret-free` check).
+  - **CHECK:** `grep -E "\.env|\*\.pem|secret|credential" .gitignore` matches each pattern.
+  - **CHECK:** `manual:` review `.mcp.json` filesystem args; a scope broader than the project working dirs is a fail.
+  - **CHECK:** `manual:` git MCP config grants no force-push/branch-delete without a referencing ADR.
+  - **CHECK:** `manual:` each token's documented scope matches its actual use; a write/admin token used only for reads is a fail.
+  - **CHECK:** `manual:` CI workflow permissions block (e.g. `permissions:` in the workflow) grants only the steps' required scopes; default-broad tokens are a fail.
+  - **CHECK:** `manual:` each boundary validates/parses input (schema validator, type guard) before use; an unvalidated path is a fail (evidence: `file:line`).
+  - **CHECK:** `grep -rnE "(exec|spawn)\(.*\$\{|query\(\s*[\"'\`].*\$\{|\+ req\.(body|query|params)" src/` → empty (string-built SQL/shell from user input is a fail).
+  - **CHECK:** `grep -rnE "innerHTML|dangerouslySetInnerHTML|v-html|\|\s*safe" src/` → empty, or each match proven to use sanitized/constant data.
+  - **CHECK:** `npm audit --audit-level=high` (or `pip-audit`) exits clean on the new deps; the PR records the result.
+  - **CHECK:** lockfile present and committed in the diff; manifest has no unbound ranges (see `code-quality.md` pinning CHECK).
+  - **CHECK:** `manual:` lockfile diff in the PR is reviewed; an unexplained transitive bump is a fail.
+  - **CHECK:** `npm audit --audit-level=high` (or `pip-audit` / `osv-scanner`) exits clean on the
+  - **CHECK:** `manual:` error responses return a safe message/code; a raw stack trace or path reaching the client is a fail.
+  - **CHECK:** `grep -rnE "log.*(password|token|secret|ssn|email)" src/` → reviewed; logging a raw secret/PII value is a fail.
+  - **CHECK:** `manual:` response headers/bodies expose no server version or internal IDs not required by spec (e.g. `X-Powered-By` disabled).
+  - **CHECK:** `grep -rnE "http://(?!localhost|127\.0\.0\.1)" src/ config/` → empty.
+  - **CHECK:** `manual:` if the spec requires encryption-at-rest, `product/architecture.md` records the mechanism and the code/infra applies it.
+- **Rule: Testing (always-on)** (`testing.md`)
+  - > **Every item carries a `**CHECK:**`** — the concrete condition the Phase-8 audit evaluates: a
+  - **CHECK:** `manual:` the sprint diff pairs each behavioural change with a new/updated test in the same range; a behaviour change with no test delta is a fail.
+  - **CHECK:** `manual:` tests assert public outputs/effects; a test reaching into private state/mocks-everything is a fail.
+  - **CHECK:** the project test command (`npm test` / `pytest` / …) exits 0 with zero failures.
+  - **CHECK:** `manual:` each new public function/module has a unit test with its dependencies stubbed.
+  - **CHECK:** `manual:` at least one integration test exercises each architecture module boundary touched this sprint.
+  - **CHECK:** `manual:` each acceptance-criterion journey has an E2E/API test (or a `/midas-verify` record); an uncovered journey is a fail.
+  - **CHECK:** every test file sits in the pinned location (adjacent or mirrored); a stray test path is a fail.
+  - **CHECK:** `manual:` each test targets one behaviour; a test asserting several unrelated outcomes is a fail.
+  - **CHECK:** `manual:` test titles name scenario + expected result; a title that is just the function name is a fail.
+  - **CHECK:** `grep -rnE "\.(skip|only)|xit\(|xfail|@pytest.mark.skip|test.todo" <tests>` → each match carries a linked issue + expiry, else fail.
+  - **CHECK:** `grep -rnE "assert\s+True|expect\((true|1)\)\.toBe\(\1\)|assert 1 == 1" <tests>` → empty.
+  - **CHECK:** the suite passes when run in random/sharded order; shared mutable state across tests is a fail.
+  - **CHECK:** `grep -rnE "https?://(?!localhost|127\.0\.0\.1)" <tests>` → empty, or each match is a tagged contract test.
+  - **CHECK:** `manual:` filesystem-touching tests use a tmp dir and clean up in teardown.
+  - **CHECK:** `grep -rnE "Math.random|Date.now\(\)|new Date\(\)" <tests>` reviewed; unseeded randomness or a real clock in a time-dependent test is a fail.
+  - **CHECK:** the CI workflow (`.github/workflows/*`) runs the test command on push/PR; absent, it is a fail.
+  - **CHECK:** `manual:` branch protection / required check makes the test job mandatory for merge.
+  - **CHECK:** `manual:` any known-flaky test has a tracking issue and a fix/quarantine within the sprint.
 <!-- midas:end -->

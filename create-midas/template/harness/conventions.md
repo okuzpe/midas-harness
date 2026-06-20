@@ -47,6 +47,17 @@ do not introduce a parallel "standards" layer.
 - Before writing code against any third-party library, **fetch its current docs** (Context7 recommended,
   or your own doc tool / web fetch) — see [`context7-usage.md`](./rules/context7-usage.md). Never code APIs from memory.
 
+## Model routing (cost-aware)
+- Match the model tier to the stakes: **strongest** to think/plan/audit/decide (`orchestrate`), a
+  **mid** model to implement (`build`), the **fastest/cheapest** to search/extract/fetch (`scout`).
+- A tier binds to a real model only when work is **delegated** to its first-party agent
+  (`.claude/agents/midas-{orchestrator,builder,scout}.md`); a skill's `harness-tier` names its
+  dispatch tier only, so delegate produce/fetch legs to `midas-builder` / `midas-scout` explicitly.
+- On tools without per-agent model selection (Cursor/Copilot/Windsurf), apply this as **intent**:
+  fastest model for research, strongest for architecture and audits. Ids + profiles:
+  [`docs/agents-and-models.md`](../docs/agents-and-models.md); full rule:
+  [`rules/model-routing.md`](./rules/model-routing.md).
+
 ## Git & commits
 - Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`).
 - Small, reviewable commits. Branch off the default branch; never commit secrets.

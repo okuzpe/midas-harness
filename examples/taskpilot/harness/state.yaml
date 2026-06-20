@@ -1,4 +1,4 @@
-midas_version: 0.5.13
+midas_version: 0.5.14
 name: taskpilot
 mode: greenfield
 language: en
@@ -18,6 +18,15 @@ routing:
 
 tools: [claude-code]
 mcp:   [context7, sequential-thinking]
+
+# Enforcement scaffolded in Phase 5 (recommend-don't-wall). doctor.mjs warns if a named config is
+# missing; git_hooks/commit_msg installed:false = the solo dev deferred local hooks (CI still enforces).
+enforcement:
+  linter:     { config: product/biome.json, installed: true }
+  formatter:  { config: product/biome.json, installed: true }
+  git_hooks:  { config: product/lefthook.yml, installed: false }
+  commit_msg: { config: product/commitlint.config.js, installed: false }
+  ci:         { config: product/.github/workflows/ci.yml, installed: true }
 
 phases:
   idea_intake:
@@ -44,11 +53,15 @@ phases:
     status: passed
     gate: passed
     artifacts:
+      - harness/rules/folder-structure.md
+      - harness/rules/tenant-isolation.md
+      - harness/rules/session-cookies.md
+      - product/conventions.md
       - product/design-direction.md
       - product/design-system.md
       - product/playbooks/add-api-route.md
       - product/playbooks/add-drizzle-migration.md
-      # harness/rules/* bodies are intentionally elided in this trimmed example (see examples/taskpilot/README.md)
+      - product/playbooks/bump-dependency.md
   sprint_planning:
     status: passed
     gate: passed

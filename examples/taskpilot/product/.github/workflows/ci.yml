@@ -1,0 +1,20 @@
+# CI — the same checks that gate every PR (lint + typecheck + test). This is the always-on enforcement
+# even when local git hooks are not installed (state.yaml: ci installed:true).
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test

@@ -14,7 +14,7 @@
 // It also writes a content hash to .harness/adapters.hash so /midas-doctor can detect drift.
 // No npm dependencies: only node:fs and node:path. Runs on Windows: `node scripts/render-adapters.mjs`.
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
 // Repo root = parent of this script's directory (scripts/..). Resolved from the script URL so the
@@ -73,6 +73,30 @@ function spliceManaged(existing, innerBody) {
   return `${existing.replace(/\s*$/, '')}\n\n${block}\n`;
 }
 
+/**
+ * Build a compact digest of every always-on rule in harness/rules/ (excluding context7-usage.md,
+ * which already has its own adapter section): each rule's title + its CHECK lines. Inlining this into
+ * the non-Claude adapters means generated stack rules reach Cursor/Windsurf/Gemini too (Claude Code
+ * reads harness/rules/ natively); folding `raw` into the content hash makes a rule edit show as drift.
+ */
+function readRulesDigest(root) {
+  const dir = join(root, 'harness', 'rules');
+  if (!existsSync(dir)) return { raw: '', body: '' };
+  const files = readdirSync(dir).filter((f) => f.endsWith('.md') && f !== 'context7-usage.md').sort();
+  let raw = '';
+  const out = [];
+  for (const f of files) {
+    const text = readFileSync(join(dir, f), 'utf8');
+    raw += text;
+    const title = (text.match(/^#\s+(.+)$/m) || [, f.replace(/\.md$/, '')])[1];
+    out.push(`- **${title}** (\`${f}\`)`);
+    for (const line of text.split(/\r?\n/)) {
+      if (line.includes('**CHECK:**')) out.push(`  - ${line.replace(/^\s*-?\s*/, '').trim()}`);
+    }
+  }
+  return { raw, body: out.join('\n') };
+}
+
 // --- render logic (exported so doctor.mjs can re-derive without duplication) --------------------
 
 /**
@@ -83,8 +107,9 @@ function spliceManaged(existing, innerBody) {
 export function computeAdapters(root = ROOT) {
   const conventions = readMaybe('harness/conventions.md');
   const context7 = readMaybe('harness/rules/context7-usage.md');
+  const rules = readRulesDigest(root);
 
-  const hash = djb2(conventions + ' ' + context7);
+  const hash = djb2(conventions + ' ' + context7 + ' ' + rules.raw);
   const conventionsBody = conventions.trim();
   const context7Body = context7.trim() || 'See `harness/rules/context7-usage.md`.';
 
@@ -114,6 +139,9 @@ export function computeAdapters(root = ROOT) {
     '',
     '## Fetch current docs before third-party code (Context7 recommended)',
     context7Body,
+    '',
+    '## Always-on rules — CHECK digest (full bodies in `harness/rules/`)',
+    rules.body || '_No rule files found._',
     END,
     '',
   ].join('\n');

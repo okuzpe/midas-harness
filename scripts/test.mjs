@@ -130,6 +130,32 @@ if (existsSync(stateFile)) {
   }
 }
 
+// --- F2. routing map (balanced) reconciles with the first-party agent pins ---------------------
+// The agent `model:` frontmatter is the only real runtime binding; under cost_profile: balanced the
+// resolved routing ids MUST equal the pins, or selecting a model is silently a no-op. Enforced here
+// for the engine; doctor.mjs runs the same reconciliation against a live project.
+function agentModelT(name) {
+  const p = join(agentsDir, name + '.md');
+  if (!existsSync(p)) return null;
+  const m = readFileSync(p, 'utf8').match(/^model:\s*([^\s#]+)/m);
+  return m ? m[1] : null;
+}
+const pins = { orchestrate: agentModelT('midas-orchestrator'), build: agentModelT('midas-builder'), scout: agentModelT('midas-scout') };
+if (existsSync(stateFile)) {
+  const s = readFileSync(stateFile, 'utf8');
+  const profile = (s.match(/^cost_profile:\s*([^\s#]+)/m) || [])[1];
+  const lines = s.split(/\r?\n/);
+  const ri = lines.findIndex((l) => /^routing:/.test(l));
+  const routing = {};
+  if (ri !== -1) for (let j = ri + 1; j < lines.length && /^\s+\S/.test(lines[j]); j++) {
+    const m = lines[j].match(/^\s+(orchestrate|build|scout):\s*([^\s#]+)/);
+    if (m) routing[m[1]] = m[2];
+  }
+  if (profile === 'balanced') for (const t of ['orchestrate', 'build', 'scout']) {
+    check(`routing:example-matches-agent:${t}`, !!routing[t] && routing[t] === pins[t], `state ${routing[t]} != agent ${pins[t]}`);
+  }
+}
+
 // --- G. no stale brand token leaked back in (built without the literal so it can't self-match) --
 const STALE = 'ke' + 'el';
 const staleRe = new RegExp(STALE, 'i');

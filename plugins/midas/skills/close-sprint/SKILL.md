@@ -34,8 +34,10 @@ code-quality/testing/security/naming CHECKs grade against), `product/conventions
 For **each** rule in `harness/rules/*` and the design-system token rule, evaluate the rule's CHECK
 against the sprint diff and render **pass/fail with on-disk evidence** (file:line). Confirm
 third-party code was written against Context7-verified docs at the pinned version. Where a task
-followed a `product/playbooks/*` recipe, confirm its **done-when** checks hold too. No rule is skipped;
-"not applicable this sprint" is itself a recorded verdict.
+followed a `product/playbooks/*` recipe, confirm its **done-when** checks hold too — and **trigger-check
+every playbook**: if the sprint diff matches a playbook's `Trigger` predicate, its done-when MUST be
+satisfied even if the author did not consciously "follow" it (a recurring task done the wrong way is a
+fail). No rule is skipped; "not applicable this sprint" is itself a recorded verdict.
 
 ### 3. Scope audit vs the business case
 Confirm the sprint's delivered scope matches its plan and advances a business-case success metric, and
@@ -76,6 +78,8 @@ revealed new work). Then **select next**:
 
 ## Exit gate
 - **Every rule audited** pass/fail **with evidence**.
+- **Playbook triggers honored:** any diff matching a `product/playbooks/*` `Trigger` shows that
+  playbook's done-when satisfied (a matching change that bypassed the playbook is a fail).
 - **Drift fixed or the rule consciously amended** (logged) — nothing silent.
 - **Scope reconciled** against the business case.
 - `.harness/audits/audit-NN.md` frozen; `state.yaml` updated.

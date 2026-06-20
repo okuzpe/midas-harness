@@ -40,7 +40,15 @@ Extend `harness/rules/` with project rules derived from the architecture's bound
   can be checked against it.
 - **Stack-specific convention rules**, generated for the chosen frameworks and **Context7-verified**
   per `harness/rules/context7-usage.md` (idioms, file naming, state/data patterns, testing approach
-  for that stack at its pinned version). Pin versions; do not write framework rules from memory.
+  for that stack at its pinned version). Pin versions; do not write framework rules from memory. Use
+  the **`harness/templates/stack-rule.md`** shape, and **cover the framework's canonical idiom + lint
+  set** — not just naming/format: e.g. for React, exhaustive-deps + server/client-component boundaries;
+  for an ORM, parameterized queries + migration safety + N+1/query-scope. Name the official lint plugin
+  that mechanizes each (`eslint-plugin-react-hooks`, `@typescript-eslint`, `eslint-plugin-security`,
+  `Ruff`), and ensure Step 5's linter config actually includes it. A thin, token-only generation is a fail.
+- **Doc-provenance is mandatory on every generated stack rule.** Each carries a `docs: <lib>@<version>
+  via <tool>` line (the version-accurate source it was derived from). A stack rule without it may be a
+  hallucinated idiom frozen into law — drop it or re-derive it from current docs.
 - Each rule states a **CHECK** line: the concrete, evidence-based condition the Phase-8 audit
   evaluates (e.g. "no file under `ui/` imports from `db/`"). Drop anything you cannot make checkable.
 - Write **`product/conventions.md`** — the project's stack-specific prose conventions (naming, error
@@ -87,7 +95,8 @@ sprint does a recurring task the same way. Emit a **small, bounded set** to `pro
   real surfaces (e.g. "add an API endpoint", "add a DB migration", "scaffold a UI component", the
   "implement → test → done" ritual), not a generic list. **Zero is valid** — an empty `product/playbooks/`
   passes the gate when nothing both recurs *and* has a non-obvious right way.
-- Each playbook is a tight recipe: *use-when*, ordered **steps**, the **rules/tokens it must honor**
+- Each playbook is a tight recipe: *use-when*, a **`Trigger`** (a diff predicate so Phase-8 can catch a
+  matching change that bypassed the playbook), ordered **steps**, the **rules/tokens it must honor**
   (reference `harness/rules/*` + the design tokens by `<slug>.md` — never restate them), the **Context7**
   fetch for any third-party API it touches, and a **done-when** check that is the procedure's *own* signal
   (not a restatement of the rules).
@@ -120,7 +129,10 @@ its current version before writing its config.
   lint + format run on the staged diff at every commit.
 - **commit-msg lint** (commitlint or equivalent) aligned with `harness/rules/git-commits.md`.
 - **A CI lint/format job** (`.github/workflows/*`) so the same checks gate every PR.
-Record which tools were configured and whether they were installed or left for the user.
+**Record the decision in an `enforcement:` block in `harness/state.yaml`** (per
+`harness/rules/enforcement-state.md`) — one entry per scaffolded tool naming its config file and
+whether it was installed — so a declined install is auditable, never silent. `node scripts/doctor.mjs`
+warns if a named config file is missing on disk.
 
 ### 6. Re-render adapters (sync engine)
 Generated adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`) must
@@ -137,10 +149,20 @@ Update `harness/state.yaml`: list the new rule files + `product/design-system.md
 - Conventions are encoded and **every rule is CHECKABLE** (has a concrete pass/fail CHECK).
 - **`product/conventions.md`** exists and overrides/references the base `harness/conventions.md` (the
   project-override layer named in the precedence chain).
-- Stack rules are **Context7-verified** at pinned versions.
+- Stack rules are **Context7-verified** at pinned versions, and **every generated stack rule carries a
+  `docs: <lib>@<version> via <tool>` provenance line** (no provenance → fail; the idiom may be from memory).
+- **Stack rules cover the framework's canonical idiom + lint set** (not just naming/format) and name the
+  official lint plugin that mechanizes each CHECK — a thin, token-only generation is a **fail**.
+- **Floor CHECKs re-targeted for the stack:** for each base rule (`security.md`, `code-quality.md`,
+  `testing.md`, `naming.md`) whose CHECK is a language-specific grep, the stack extension either
+  re-targets the grep to this stack's file extensions/idioms **or** records the base CHECK as
+  confirmed-applicable. An **inert floor grep** for the chosen stack (e.g. a JS `console.log` grep on a
+  Rust project) is a **fail**.
 - **Enforcement tooling is scaffolded**: a linter+formatter config wired to the rules, a commit hook
   (Husky/lefthook/pre-commit) running lint+format on staged files, commit-msg lint, and a CI lint job —
   each Context7-verified, and **installed on the user's OK or left with the exact command** (recommend-don't-wall).
+  The decision is recorded in `harness/state.yaml`'s `enforcement:` block (per
+  `harness/rules/enforcement-state.md`); `node scripts/doctor.mjs` warns on a named-but-missing config.
 - A **design direction** exists (`product/design-direction.md`): brand personality, **≥2 real reference
   products** + anti-references, and the tokens **trace to it** (intentional, not generic). The references are
   **human-captured, or agent-proposed and marked `assumed (confirm)`** when the human defers — but a generic

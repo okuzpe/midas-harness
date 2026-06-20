@@ -3,6 +3,7 @@
 | Field | Value |
 |---|---|
 | **Use when** | Adding or changing a table/column in the schema |
+| **Trigger** | any change to `src/lib/db/schema.ts` or a new file under `drizzle/migrations/**` |
 | **Stack** | drizzle-orm@0.40.x + drizzle-kit · PostgreSQL 17 — Context7-verified |
 | **Owner tier** | build |
 

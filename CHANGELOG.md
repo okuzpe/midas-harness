@@ -13,6 +13,41 @@ _Nothing yet._
 
 ---
 
+## [0.5.14] — 2026-06-20
+
+### Fixed — two self-audits hardened (cost-aware routing + the stack-rule/best-practices layer)
+Two multi-agent audits asked whether Midas (a) applies the best tech-stack practices and (b) routes the
+cheapest-fitting model per task. Both were well-modelled but under-enforced; these fixes turn intent into
+**checked invariants**, in-discipline (extend existing files, recommend-don't-wall, every floor item ships a CHECK).
+
+**Cost-aware model routing — configured → enforced.**
+- New always-on `harness/rules/model-routing.md`: the tier doctrine, a *provenance-by-delegation* CHECK for
+  high-stakes audits, `harness-tier` clarified as the dispatch tier only, and honest profile semantics (only
+  `balanced` is executor-backed; `max_savings`/`max_quality` are intent).
+- `doctor.mjs` now reconciles `state.yaml -> routing` against the three first-party agent pins (warns on an
+  unknown id or a balanced-profile mismatch); `test.mjs` enforces the same on the example. Was inert data.
+- The routing intent is inlined into `conventions.md` so it reaches the Cursor/Windsurf/Gemini adapters, plus
+  a *Token economy* section (prompt-cache the stable corpus, Batch API for fan-outs, thinking budgets).
+
+**Stack-specific best practices — generated, provenanced, enforced.**
+- New `harness/templates/stack-rule.md` (uniform shape, mandatory `docs: <lib>@<version>` provenance, lint-form);
+  `/define-conventions` now requires the framework's canonical idiom + lint set, stamps provenance, and fails a
+  thin generation or an inert language-specific floor grep.
+- New `harness/rules/enforcement-state.md`: Phase 5 records an `enforcement:` block (config + installed?) so a
+  declined recommend-don't-wall install is auditable; `doctor.mjs` warns on a named-but-missing config.
+- `render-adapters.mjs` now inlines every rule's CHECK digest into the non-Claude adapters and folds rule
+  content into the drift hash (stack rules finally reach Cursor/Windsurf/Gemini).
+- Per-sprint SCA CHECK in `security.md` (catch a CVE/EOL against an already-pinned version); playbooks gain a
+  `Trigger` field and `close-sprint` fails a diff that matched a trigger but bypassed the playbook.
+- The `examples/taskpilot` gold path is un-elided: it now ships the generated stack rules
+  (`folder-structure`/`tenant-isolation`/`session-cookies`), `product/conventions.md`, the lint/hook/CI
+  enforcement configs + `enforcement:` block, and a `bump-dependency` playbook.
+
+### Engine
+- Version single-sourced to `0.5.14` (`harness/VERSION` + all mirrors).
+
+---
+
 ## [0.5.13] — 2026-06-19
 
 ### Fixed — two real gaps found running Midas on a real project (investigated + web-researched)
@@ -709,7 +744,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.13...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.14...HEAD
+[0.5.14]: https://github.com/okuzpe/midas-harness/compare/v0.5.13...v0.5.14
 [0.5.13]: https://github.com/okuzpe/midas-harness/compare/v0.5.12...v0.5.13
 [0.5.12]: https://github.com/okuzpe/midas-harness/compare/v0.5.11...v0.5.12
 [0.5.11]: https://github.com/okuzpe/midas-harness/compare/v0.5.10...v0.5.11

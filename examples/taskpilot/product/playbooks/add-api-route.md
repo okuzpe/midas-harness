@@ -3,6 +3,7 @@
 | Field | Value |
 |---|---|
 | **Use when** | Adding a new endpoint under `src/app/api/` (a new resource, or item ops on an existing one) |
+| **Trigger** | any added/changed `src/app/api/**/route.ts` |
 | **Stack** | next.js@15.3.x (App Router route handlers) · drizzle-orm@0.40.x — Context7-verified |
 | **Owner tier** | build |
 

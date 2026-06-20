@@ -12,7 +12,7 @@ show every Midas phase artifact populated with real, consistent content.
 | 2 Market Research | `product/market.md` |
 | 3 Business Case | `product/business-plan.md` |
 | 4 Tech Architecture | `product/architecture.md`, `product/adr/ADR-001-stack.md` |
-| 5 Architecture Rules & Design System | `product/design-direction.md` (aesthetic intent + references), `product/design-system.md`, `product/playbooks/*` (recipes for repeated tasks) |
+| 5 Architecture Rules & Design System | `harness/rules/*` (generated stack rules: `folder-structure`, `tenant-isolation`, `session-cookies`), `product/conventions.md` (override layer), `product/design-direction.md`, `product/design-system.md`, `product/playbooks/*`, and the enforcement scaffolding (`product/biome.json`, `lefthook.yml`, `commitlint.config.js`, `.github/workflows/ci.yml` — recorded in `state.yaml`'s `enforcement:` block) |
 | 6 Sprint Planning | `product/roadmap.md`, `product/sprints/01-auth-and-task-crud.md` |
 | 7 Sprint Execution | `product/src/` (the full Sprint-1 vertical slice: auth, task CRUD, middleware, board stub + tests) |
 | 8 Per-sprint Audit | `.harness/audits/audit-01.md` — a **closed** 7 → 8 loop: verdict **PASS** + gate-parseable tally line |
@@ -34,12 +34,18 @@ show every Midas phase artifact populated with real, consistent content.
 
 ## What this is NOT
 
-- Not a production-ready codebase. Files are illustrative; imports reference packages that would be
-  installed via `npm install` in a real project.
-- Not a fully-materialized rule set. To stay tiny, the example ships the audit trail + code slice, **not**
-  the Phase-5 `harness/rules/*.md` bodies or the `harness/design-system/tokens.{json,css}` files; the two
-  `product/playbooks/` recipes (and `product/design-system.md`) reference those slugs/paths where a real
-  project's rules and tokens would live. The two playbooks are genuine — both `/api/*` routes and schema
-  changes recur across the three sprints — not a count to hit (zero playbooks is a valid outcome).
+- Not a production-ready codebase. Files are illustrative; imports reference packages declared in
+  `product/package.json` that a real project would `npm install`.
+- Not a re-copy of the base rule floor. The example **does** ship the project-specific Phase-5 artifacts —
+  the generated stack rules (`harness/rules/folder-structure.md`, `tenant-isolation.md`,
+  `session-cookies.md`), the `product/conventions.md` override layer, and the enforcement scaffolding
+  (`product/biome.json`, `lefthook.yml`, `commitlint.config.js`, `.github/workflows/ci.yml`, recorded in
+  `state.yaml`'s `enforcement:` block) — so the "chose Next.js + Drizzle + Postgres → here are the
+  enforced stack rules" path is shown end-to-end. The eight **base** always-on rules
+  (`harness/rules/{code-quality,security,naming,testing,git-commits,docs,context7-usage,accessibility}.md`)
+  are inherited from the engine install and are not re-copied here; `harness/design-system/tokens.{json,css}`
+  remain elided. The three playbooks are genuine — `/api/*` routes, schema changes, and dependency bumps
+  each recur across the three sprints, and each carries a `Trigger` so Phase 8 can flag a matching change
+  that bypassed it — not a count to hit (zero playbooks is a valid outcome).
 - Not a tutorial for TaskPilot-the-product. It is a tutorial for **Midas** and how its artifacts
   connect phase-to-phase.

@@ -9,6 +9,7 @@
 | Field | Value |
 |---|---|
 | **Use when** | <!-- the recurring situation, e.g. "adding a new REST endpoint under /api" --> |
+| **Trigger** | <!-- a diff PREDICATE meaning this playbook SHOULD have been followed, e.g. "any change under src/app/api/**" or "a new file in db/migrations/**". Phase-8 close-sprint checks: a sprint diff matching this MUST satisfy the done-when below — a match that bypassed the playbook is a fail. --> |
 | **Stack** | {{STACK}} <!-- framework@version — Context7-verified --> |
 | **Owner tier** | build |
 

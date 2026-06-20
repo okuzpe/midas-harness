@@ -35,8 +35,9 @@ rules before any code is written; the Phase 8 audit references exactly these fil
    - `harness/design-system/tokens.css` — CSS custom properties derived from the token map.
 5. **Write the project playbooks.** Emit **up to 4** markdown recipes (zero is valid) to
    `product/playbooks/<verb-noun>.md` for the tasks that *repeat* in this stack (e.g. add an API
-   endpoint, add a DB migration, scaffold a component). Each: use-when, steps, the rules/tokens it
-   honors (reference by `<slug>.md`, don't restate), a Context7 fetch for any third-party API, and a
+   endpoint, add a DB migration, scaffold a component). Each: use-when, a `Trigger` (diff predicate),
+   steps, the rules/tokens it honors (reference by `<slug>.md`, don't restate), a Context7 fetch for any
+   third-party API, and a
    done-when check that is the procedure's own signal. **CHECK:** each playbook has ≥1 step no single
    rule states (1:1-to-rules → cut). Playbooks are markdown the build agent follows — **not** slash-commands.
 6. **Scaffold the enforcement tooling.** Generate the stack-standard linter + formatter

@@ -1,0 +1,16 @@
+# Git hooks — runs Biome on staged files + typecheck, and lints the commit message.
+# Activated with `lefthook install` (recommend-don't-wall: state.yaml records git_hooks installed:false
+# for v1 — the solo dev deferred local hooks, CI enforces the same checks on every PR).
+pre-commit:
+  parallel: true
+  commands:
+    biome:
+      glob: "src/**/*.{ts,tsx}"
+      run: npx biome check --staged --no-errors-on-unmatched {staged_files}
+    typecheck:
+      run: npm run typecheck
+
+commit-msg:
+  commands:
+    commitlint:
+      run: npx commitlint --edit {1}

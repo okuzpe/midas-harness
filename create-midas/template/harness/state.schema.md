@@ -29,7 +29,7 @@ transition after that.
 ## Schema
 
 ```yaml
-midas_version: 0.5.13          # engine version that wrote this file (for /midas-update)
+midas_version: 0.5.14          # engine version that wrote this file (for /midas-update)
 name: taskpilot              # project slug
 mode: greenfield             # greenfield | brownfield  (maturity: E0/E1 → greenfield, E2/E3 → brownfield)
 language: en                 # artifact language
@@ -49,6 +49,14 @@ routing:                     # resolved model ids for this profile (see docs/age
 
 tools: [claude-code, cursor]        # which tools adapters were generated for
 mcp:   [context7, sequential-thinking]   # which MCP servers are wired
+
+# Enforcement scaffolded in Phase 5 (recommend-don't-wall) — one entry per tool /define-conventions wrote.
+# doctor.mjs warns if a named config file is missing; installed:false = enforcement OFF (CHECKs graded at Phase 8).
+enforcement:
+  linter:     { config: biome.json, installed: true }
+  git_hooks:  { config: lefthook.yml, installed: false }
+  commit_msg: { config: commitlint.config.js, installed: false }
+  ci:         { config: .github/workflows/ci.yml, installed: true }
 
 # Per-phase ledger. artifacts = files that must exist for the gate to pass.
 phases:
