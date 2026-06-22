@@ -46,6 +46,12 @@ The **7 ⇄ 8 loop** is "applying the harness each sprint": before/after each sp
 re-audits the **living code** against the **rules frozen in Phase 5** and the **scope in the business
 case**, then either fixes the code or **consciously amends a rule** (a logged decision, never silent).
 
+Within Phase 7 itself, each task runs a **per-task verify→fix inner loop** (the cheapest-tool-first
+ladder in [`harness/rules/verification.md`](./rules/verification.md): static → tests → runtime smoke →
+browser drive+inspect for UI via `/midas-verify`) before it is checked off — so the code is proven to
+*run*, not just to *read*, before the sprint ever reaches the Phase-8 gate. The producer self-checks
+here; the **independent** verdict is always Phase 8 (the producer never grades its own homework).
+
 ## Entry points — the maturity spectrum
 
 `/midas-init` is an **adaptive intake**: it scans everything the project already has (code, manifests,

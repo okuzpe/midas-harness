@@ -35,6 +35,12 @@ do not introduce a parallel "standards" layer.
 - Every behavior change ships with a test. Test the behavior, not the implementation.
 - A sprint's Definition of Done references the testing rule; the Phase-8 audit checks it.
 
+## Verification
+- Verify every change with the **cheapest tool that proves it**: static (typecheck/lint/build) →
+  tests → runtime smoke (boot it) → browser drive+inspect for UI. Fix and re-run until green before
+  marking a task done. The **producer never grades its own homework** — the independent verdict is the
+  Phase-8 audit. Full ladder: [`rules/verification.md`](./rules/verification.md).
+
 ## Acceptance criteria (EARS)
 - Write each sprint acceptance criterion as a **testable** statement, not a vague goal. Prefer EARS:
   `WHEN <trigger>, the system SHALL <response>` (unconditional: `The system SHALL <response>`; use

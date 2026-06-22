@@ -13,6 +13,42 @@ _Nothing yet._
 
 ---
 
+## [0.5.15] — 2026-06-22
+
+### Added — a closed verify→fix loop + a runtime-inspection ("Chromium") browser tier
+The harness now proves the code it writes actually *runs*, not just that it *reads* — and does it after
+every task, not only at sprint close.
+
+**A codified verification ladder (new always-on rule).**
+- New `harness/rules/verification.md`: a cost-ordered ladder the Phase-8 audit grades — static
+  (typecheck/lint/build) → behavioural tests → runtime smoke → browser drive+inspect (UI) → independent
+  review. Each rung carries a `**CHECK:**`; "cheapest tool that proves the claim" governs. Auto-rendered
+  into the Cursor/Windsurf/Gemini adapters via `readRulesDigest` (no registration needed).
+
+**A per-task verify→fix inner loop (Phase 7).**
+- `pipeline/7-sprint-execution.md` now runs the ladder for each task and re-runs until green *before*
+  the task is checked off (bounded self-fix rounds, then surface to the human — recommend-don't-wall).
+  The producer self-checks the cheap rungs; the **independent** verdict stays the Phase-8 audit.
+
+**Runtime inspection added to `/midas-verify` (drive + inspect).**
+- Playwright still *drives* the flows; **Chrome DevTools MCP** (`chrome-devtools-mcp`) now *inspects*
+  runtime health — uncaught console errors, failed happy-path network requests, Core Web Vitals — as
+  first-class fails. The verify record gains a **Runtime health** table and a `runtime_errors=` field on
+  the `MIDAS_VERIFY_RESULT` tally line. Falls back to Playwright's console/network capture if absent.
+
+### Fixed
+- `harness/templates/mcp.json.tmpl` wired Playwright as `@modelcontextprotocol/server-playwright`, a
+  package that does **not exist** on npm — corrected to `@playwright/mcp`. Added an optional, cost-noted
+  `chrome-devtools-mcp` block.
+
+### Engine
+- Version single-sourced to `0.5.15` (`harness/VERSION` + all mirrors).
+- `conventions.md` gains a one-line Verification principle (renders to all adapters); `testing.md`
+  E2E CHECK now also requires no console/network errors on the happy path; the `examples/taskpilot`
+  gold path ships a worked `verify-01.md` (runtime-health table + `runtime_errors=0` tally line).
+
+---
+
 ## [0.5.14] — 2026-06-20
 
 ### Fixed — two self-audits hardened (cost-aware routing + the stack-rule/best-practices layer)

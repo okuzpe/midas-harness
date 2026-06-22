@@ -32,7 +32,7 @@ where supported. See the [tools matrix](../README.md#supported-tools) for the ho
 | `/midas-doctor` | Maintenance | Re-derive generated adapters from `harness/conventions.md`, diff against disk, re-render. | build |
 | `/midas-tribunal` | Audit | Whole-project adversarial debate — Defense vs Prosecution vs Catfish; Opus judges per claim. | orchestrate |
 | `/midas-monorepo` | Scale | Set Midas up across a monorepo — nested `AGENTS.md` per package, per-package rules. | orchestrate |
-| `/midas-verify` | Audit | Playwright-gated E2E/UI verification (UI sprints only) — per-claim verdict + screenshots. | build |
+| `/midas-verify` | Audit | Browser-gated E2E/UI verification (UI sprints only) — Playwright *drives* the flows, Chrome DevTools *inspects* runtime health (console/network/perf); per-claim verdict + screenshots. | build |
 | `/midas-security-audit` | Audit | Deep security audit — OWASP ASVS 5.0 + Top 10 + LLM/Agentic Top 10, STRIDE threat model, runs Semgrep/SCA/gitleaks (recommends if absent), freezes a ranked findings report. Non-advancing. | orchestrate |
 | `/midas-update` | Maintenance | Migrate an install to the current engine — dry-run + diff-confirm, bump version stamp. | build |
 | `/midas-capture` | Learning | Crystallize a recurring request/correction into the right artifact (rule / playbook / convention) via a rubric. The agent proposes it on ~2-3 repeats (asks first); also invokable manually. | build |

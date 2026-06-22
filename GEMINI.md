@@ -41,6 +41,12 @@ do not introduce a parallel "standards" layer.
 - Every behavior change ships with a test. Test the behavior, not the implementation.
 - A sprint's Definition of Done references the testing rule; the Phase-8 audit checks it.
 
+## Verification
+- Verify every change with the **cheapest tool that proves it**: static (typecheck/lint/build) →
+  tests → runtime smoke (boot it) → browser drive+inspect for UI. Fix and re-run until green before
+  marking a task done. The **producer never grades its own homework** — the independent verdict is the
+  Phase-8 audit. Full ladder: [`rules/verification.md`](./rules/verification.md).
+
 ## Acceptance criteria (EARS)
 - Write each sprint acceptance criterion as a **testable** statement, not a vague goal. Prefer EARS:
   `WHEN <trigger>, the system SHALL <response>` (unconditional: `The system SHALL <response>`; use
@@ -256,7 +262,7 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** the project test command (`npm test` / `pytest` / …) exits 0 with zero failures.
   - **CHECK:** `manual:` each new public function/module has a unit test with its dependencies stubbed.
   - **CHECK:** `manual:` at least one integration test exercises each architecture module boundary touched this sprint.
-  - **CHECK:** `manual:` each acceptance-criterion journey has an E2E/API test (or a `/midas-verify` record); an uncovered journey is a fail.
+  - **CHECK:** `manual:` each acceptance-criterion journey has an E2E/API test (or a `/midas-verify`
   - **CHECK:** every test file sits in the pinned location (adjacent or mirrored); a stray test path is a fail.
   - **CHECK:** `manual:` each test targets one behaviour; a test asserting several unrelated outcomes is a fail.
   - **CHECK:** `manual:` test titles name scenario + expected result; a title that is just the function name is a fail.
@@ -269,4 +275,13 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** the CI workflow (`.github/workflows/*`) runs the test command on push/PR; absent, it is a fail.
   - **CHECK:** `manual:` branch protection / required check makes the test job mandatory for merge.
   - **CHECK:** `manual:` any known-flaky test has a tracking issue and a fix/quarantine within the sprint.
+- **Rule: Verification (always-on)** (`verification.md`)
+  - > **Every item carries a `**CHECK:**`** — the concrete condition the Phase-8 audit evaluates: a
+  - **CHECK:** the project's typecheck, lint, and build commands (`tsc --noEmit` / `mypy`, the
+  - **CHECK:** the project test command (`npm test` / `pytest` / …) exits 0; a behaviour change
+  - **CHECK:** `manual:` the project's run/preview/start command boots and stays up; an uncaught
+  - **CHECK:** a `/midas-verify` record (`.harness/verifications/verify-NN.md`) exists with a
+  - **CHECK:** the verify record's runtime-health table shows zero uncaught console errors and zero
+  - **CHECK:** `manual:` `document.documentElement.scrollWidth <= clientWidth` on each key screen;
+  - **CHECK:** the sprint's `.harness/audits/audit-NN.md` exists and was produced by the auditor tier,
 <!-- midas:end -->

@@ -45,10 +45,16 @@
       "env": {}
     },
 
-    "{{!optional-playwright}}": "OPTIONAL — uncomment for browser automation (E2E tests, screenshot verification).",
+    "{{!optional-playwright}}": "OPTIONAL — browser automation to DRIVE the UI (E2E flows: navigate/click/fill/assert + screenshots; cross-browser). Used by /midas-verify rung 4. Load only for UI verification.",
     "{{!playwright}}": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-playwright"]
+      "args": ["-y", "@playwright/mcp@latest"]
+    },
+
+    "{{!optional-chrome-devtools}}": "OPTIONAL — Chrome DevTools to INSPECT runtime health (console errors, failed network requests, performance/Core Web Vitals, Lighthouse). Complements Playwright in /midas-verify. ~17k tokens on load; needs Chrome + Node >=20.19/22.12. Load only for UI verification.",
+    "{{!chrome-devtools}}": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest"]
     }
 
   }

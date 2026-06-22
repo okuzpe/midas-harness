@@ -1,4 +1,4 @@
-midas_version: 0.5.14
+midas_version: 0.5.15
 name: taskpilot
 mode: greenfield
 language: en
@@ -100,3 +100,5 @@ last_audit:
   sprint: "01"
   verdict: pass
   at: 2026-06-27
+
+last_verification: { n: "01", fails: 0, at: 2026-06-27 }   # /midas-verify record (informational; never advances a gate)

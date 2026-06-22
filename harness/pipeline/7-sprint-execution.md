@@ -26,10 +26,20 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
    b. Write code that matches the conventions in `harness/conventions.md` and
       `product/conventions.md`. Match surrounding style; prefer reuse over new abstractions.
    c. Write tests alongside the feature (not after). Test behavior, not implementation.
-   d. Check each completed task off `## Tasks` in the sprint file.
+   d. **Verify the task before checking it off (the inner verify→fix loop).** Run the
+      [`verification.md`](../rules/verification.md) ladder for what you just changed — rungs 1–3
+      always (static gate → behavioural tests → runtime smoke), plus rung 4 (drive + inspect in a
+      real browser via `/midas-verify`) when the task is UI-touching. **Observe the actual output,
+      fix any failure, and re-run until green** — bounded at ~3 self-fix rounds, after which you stop
+      and surface the blocker to the human (recommend-don't-wall). You self-check the cheap rungs
+      here; the *independent* verdict (rung 5) is rendered at Phase 8, never by you.
+   e. Check the task off `## Tasks` in the sprint file **only after it passes verification**, noting
+      the proof (command output, test name, or screenshot reference).
 3. **Verify acceptance criteria.** After all tasks are checked, run or demonstrate
    every item in `## Acceptance criteria`. Record evidence (output, screenshot reference,
-   or test name) next to each item.
+   or test name) next to each item. For a UI-touching sprint, run `/midas-verify` so each
+   criterion is proven in a real browser (Playwright drives the flow; Chrome DevTools inspects
+   runtime health) and frozen to `.harness/verifications/verify-NN.md`.
 4. **Self-check DoD.** Walk the `## Definition of Done` list:
    - Tests pass
    - No convention violations (check against `harness/rules/` patterns)
@@ -50,7 +60,8 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
 ## Exit gate checklist
 
 - [ ] All tasks in `## Tasks` are checked off
-- [ ] Acceptance criteria are verified with evidence
+- [ ] Each task passed the `verification.md` inner loop (static + tests + runtime smoke; browser drive+inspect for UI) before check-off
+- [ ] Acceptance criteria are verified with evidence (UI sprints: a `/midas-verify` record exists)
 - [ ] Every third-party library call was preceded by a Context7 fetch (or documented web fallback)
 - [ ] Tests are present and passing for all new behavior
 - [ ] No convention violations detectable by the `harness/rules/` check patterns
