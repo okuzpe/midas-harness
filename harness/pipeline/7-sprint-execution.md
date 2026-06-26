@@ -11,6 +11,8 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
 ## Inputs
 
 - Active sprint file `product/sprints/NN-<slug>.md` (from Phase 6)
+- Machine-checkable spec `product/features.json` (seeded at Phase 6 from the MVP scope) — the
+  passing/failing ledger this sprint advances (see `harness/templates/features.json.tmpl`)
 - `harness/rules/*` (Phase 5) — must be respected at every step
 - `harness/design-system/tokens.json` / `tokens.css` — all UI uses tokens
 - `harness/state.yaml` (stage must be `sprint_execution`, sprint `status: active`)
@@ -19,7 +21,12 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
 
 1. **Read the sprint file.** Confirm the sprint is `active` in `state.yaml`.
    Work only on tasks listed in this sprint; ignore future sprints.
-2. **Implement tasks.** For each task:
+2. **Implement tasks — one feature at a time.** Work a single task through to *done* (past
+   verification) before starting the next; never batch-implement and verify only at the end. This
+   incremental discipline is what keeps a long run from exhausting context and drifting — it matters
+   most when a local `build` model with a short usable context is driving (`harness/rules/model-routing.md`).
+   Keep a running `.harness/sprints/NN-progress.md` (what is done, what is next, decisions made) so a
+   fresh session resumes without re-reading everything. For each task:
    a. Before writing code against any third-party library, call `resolve-library-id`
       then `get-library-docs` at the pinned version via Context7 (scout tier).
       Use the web fallback if Context7 is unavailable; never generate from memory.
@@ -34,7 +41,9 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
       and surface the blocker to the human (recommend-don't-wall). You self-check the cheap rungs
       here; the *independent* verdict (rung 5) is rendered at Phase 8, never by you.
    e. Check the task off `## Tasks` in the sprint file **only after it passes verification**, noting
-      the proof (command output, test name, or screenshot reference).
+      the proof (command output, test name, or screenshot reference). If the task completes a feature in
+      `product/features.json`, flip that feature's `status` to `passing` and fill its `evidence` —
+      editing **only** `status`/`evidence`, never the spec fields.
 3. **Verify acceptance criteria.** After all tasks are checked, run or demonstrate
    every item in `## Acceptance criteria`. Record evidence (output, screenshot reference,
    or test name) next to each item. For a UI-touching sprint, run `/midas-verify` so each
@@ -56,12 +65,15 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
 |---|---|
 | Code + tests | In the project source tree per `harness/rules/folder-structure.md` |
 | `product/sprints/NN-<slug>.md` | Updated: tasks checked, acceptance evidence noted |
+| `product/features.json` | Updated: features completed this sprint flipped to `passing` with `evidence` |
+| `.harness/sprints/NN-progress.md` | Running progress log for cross-session continuity |
 
 ## Exit gate checklist
 
 - [ ] All tasks in `## Tasks` are checked off
 - [ ] Each task passed the `verification.md` inner loop (static + tests + runtime smoke; browser drive+inspect for UI) before check-off
 - [ ] Acceptance criteria are verified with evidence (UI sprints: a `/midas-verify` record exists)
+- [ ] Features completed this sprint are `passing` in `product/features.json`, each with `evidence`
 - [ ] Every third-party library call was preceded by a Context7 fetch (or documented web fallback)
 - [ ] Tests are present and passing for all new behavior
 - [ ] No convention violations detectable by the `harness/rules/` check patterns

@@ -29,7 +29,7 @@ transition after that.
 ## Schema
 
 ```yaml
-midas_version: 0.5.15          # engine version that wrote this file (for /midas-update)
+midas_version: 0.5.16          # engine version that wrote this file (for /midas-update)
 name: taskpilot              # project slug
 mode: greenfield             # greenfield | brownfield  (maturity: E0/E1 → greenfield, E2/E3 → brownfield)
 language: en                 # artifact language
@@ -41,11 +41,21 @@ stage: tech_architecture     # current stage enum (see table)
 stage_status: in_progress    # not_started | in_progress | gate_pending | passed
 entry_stage: idea_intake     # where this project entered (honesty for skipped gates)
 
-cost_profile: balanced       # balanced | max_savings | max_quality
+cost_profile: balanced       # balanced | max_savings | max_quality — WHICH Claude model per tier
 routing:                     # resolved model ids for this profile (see docs/agents-and-models.md)
   orchestrate: claude-opus-4-8
   build:       claude-sonnet-4-6
   scout:       claude-haiku-4-5
+
+execution_mode: cloud        # cloud | hybrid | local — WHERE tiers run (orthogonal to cost_profile).
+                             #   cloud  = every tier on Claude (default; unchanged behavior).
+                             #   hybrid = scout/build may run on a local open model; orchestrate ALWAYS Claude cloud.
+                             #   local  = all tiers local; gate verdicts flagged un-attested (a local model never
+                             #            renders a binding audit). See harness/rules/model-routing.md.
+local_model:                 # present only when execution_mode != cloud — provenance for build/scout run locally
+  id: qwen3-coder-30b        # open-weight model id (see docs/agents-and-models.md fit table)
+  runtime: ollama            # ollama | llama.cpp | lm-studio  (single-user local; not vLLM)
+  vram_gb: 24                # host VRAM / unified-memory ceiling
 
 tools: [claude-code, cursor]        # which tools adapters were generated for
 mcp:   [context7, sequential-thinking]   # which MCP servers are wired
@@ -90,3 +100,7 @@ last_security: { n: "01", critical: 0, high: 0, at: 2026-06-15 } # optional — 
    gates, routing, tool/MCP lists, and short pointers like the current sprint id or `last_audit`).
    Long-form detail (sprint bodies, audit findings, package inventories, verification logs) lives in
    `product/*` and `.harness/*`; `state.yaml` references them by path. Do not let it grow into a data dump.
+6. **`execution_mode` is orthogonal to `cost_profile`.** It never changes *which* Claude tier a
+   decision uses, only *where* `build`/`scout` may run. `orchestrate` gate verdicts (Phase 1/3/4/8,
+   code/security review) are Claude-cloud in **every** mode; under `local` they are recorded
+   `un-attested` and never advance a gate. See `harness/rules/model-routing.md`.

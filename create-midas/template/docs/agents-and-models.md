@@ -22,6 +22,37 @@ file and the three agent files in `.claude/agents/` — nowhere else.
 
 The active profile is recorded in `harness/state.yaml -> routing`.
 
+## Local & hybrid execution (where the tiers run)
+
+`cost_profile` picks *which* Claude model a tier uses; **`execution_mode`** (in `state.yaml`) picks
+*where* the tier runs. The two axes are orthogonal. Default `cloud` keeps every tier on Claude.
+
+| `execution_mode` | orchestrate | build | scout | When |
+|---|---|---|---|---|
+| `cloud` (default) | Claude | Claude | Claude | Frontier quality everywhere; the baseline. |
+| `hybrid` | **Claude (always)** | local *or* Claude | local *or* Claude | Run high-volume build/scout on a local open model; keep the ~6 irreversible decisions on Claude. |
+| `local` | Claude (⚠ else un-attested) | local | local | Fully offline build/scout. A gate verdict produced without Claude is recorded `un-attested` — advisory, never gate-advancing. |
+
+**Why `orchestrate` never goes local.** Independent 2026 evidence is consistent: local open-weight
+models are weakest exactly at multi-step planning and audit — the work the `orchestrate` tier exists
+to do — and benchmark rank does not predict real coding ability. So Phase 1/3/4/8 gate verdicts and
+code/security review **always route to Claude cloud**, even under `hybrid`/`local`. This is enforced by
+`harness/rules/model-routing.md`.
+
+### What fits on consumer hardware (approximate, mid-2026 — verify before relying)
+Local-model releases and quantization move monthly; treat exact sizes/throughput as rough anchors, and
+validate any pick on a real repo task, not a leaderboard (models hit a "context cliff" well before
+their advertised window).
+
+| Host VRAM / unified memory | Realistic local tier | Example open model (Q4_K_M) | Notes |
+|---|---|---|---|
+| **8 GB** | `scout` only (assist) | a ≤9B model | Cannot usefully run 12–14B — agentic coding spills to CPU → single-digit tok/s. Route `build` to cloud. |
+| **16 GB** | `scout` + light `build` | a 12–14B-class model | Workable for small features; watch the context cliff. |
+| **24 GB** (GPU or Apple Silicon) | `scout` + `build` | a ~30B **MoE** coder, e.g. Qwen3-Coder 30B (≈17–18 GB) | The practical sweet spot. MoE (few active params) is *why* a 30B fits. Long context eats KV-cache — usable context is moderate, not the advertised window. |
+
+**Runtime:** for single-user local coding use `llama.cpp` / Ollama / LM Studio. `vLLM` only pays off
+serving many concurrent users on data-center GPUs — not this use case.
+
 ## First-party agents (self-contained, zero external dependency)
 
 `.claude/agents/midas-orchestrator.md` (`model: claude-opus-4-8`),

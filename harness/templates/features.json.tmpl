@@ -1,0 +1,20 @@
+{
+  "{{!}}": "TEMPLATE — copied to product/features.json during sprint planning (Phase 6), seeded from the MVP scope in product/business-plan.md. The machine-checkable spec: one entry per MVP feature, each initially `failing`. Phase 7 flips ONLY `status`/`evidence` as features land; Phase 8 audits this file against the verification records. JSON is deliberate — a model is less likely to overwrite it than prose. AGENTS MUST NOT edit `id`/`title`/`description`/`acceptance_criteria`/`sprint` — only the spec author changes those; the build agent touches only `status` and `evidence`.",
+  "version": 1,
+  "features": [
+    {
+      "id": "F-001",
+      "title": "Short imperative feature name",
+      "description": "One or two sentences on the observable behaviour this feature delivers.",
+      "sprint": "01",
+      "acceptance_criteria": [
+        "A user-observable, testable statement — maps to a verification-ladder rung.",
+        "Another criterion; keep each one independently checkable."
+      ],
+      "status": "failing",
+      "{{!status}}": "failing | passing | blocked — flip to `passing` ONLY after the verification ladder is green for this feature's criteria.",
+      "evidence": "",
+      "{{!evidence}}": "Required when status is `passing`: a test name, a /midas-verify record path, command output, or file:line that proves it. Empty evidence on a `passing` feature is a Phase-8 fail."
+    }
+  ]
+}

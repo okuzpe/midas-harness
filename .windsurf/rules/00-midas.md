@@ -211,6 +211,7 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` merged history matches the project's single chosen strategy (no mixed merge/squash).
 - **Rule: Cost-aware model routing (always-on)** (`model-routing.md`)
   - **CHECK:** A high-stakes gate verdict or audit (Phase 1/3/4/8, code-review, security-review) is
+  - **CHECK:** *(manual)* Under any `execution_mode`, a binding gate/audit/verify verdict header (Phase
   - **CHECK:** Doc fetches and file/status extraction are delegated to `midas-scout` (or `Explore`),
   - **CHECK:** Each multi-tier phase delegates its produce/fetch legs to `midas-builder` / `midas-scout`
   - **CHECK:** `harness/state.yaml -> routing` ids are all known model ids and, under
@@ -286,4 +287,5 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** the verify record's runtime-health table shows zero uncaught console errors and zero
   - **CHECK:** `manual:` `document.documentElement.scrollWidth <= clientWidth` on each key screen;
   - **CHECK:** the sprint's `.harness/audits/audit-NN.md` exists and was produced by the auditor tier,
+  - **CHECK:** in `product/features.json`, a `status: "passing"` with empty `evidence`, or a shipped
 <!-- midas:end -->

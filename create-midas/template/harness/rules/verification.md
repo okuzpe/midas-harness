@@ -62,6 +62,15 @@ a browser MCP **only** when the change renders or alters a user-facing surface �
       **CHECK:** the sprint's `.harness/audits/audit-NN.md` exists and was produced by the auditor tier,
       not the producer; its `MIDAS_AUDIT_RESULT` tally shows `unresolved=0 verdict=pass`.
 
+### The spec ledger — `product/features.json` (the passing/failing gate)
+The sprint's machine-checkable spec (`product/features.json`, seeded at Phase-6 planning from the MVP
+scope) is the ledger this ladder feeds: a feature flips to `status: passing` **only** when the rungs its
+acceptance criteria demand are green, with the proof recorded in its `evidence`. The build agent edits
+**only** `status`/`evidence`, never the spec fields (see `harness/templates/features.json.tmpl`).
+- [ ] Every `passing` feature carries `evidence`; every shipped behaviour has a feature entry.
+      **CHECK:** in `product/features.json`, a `status: "passing"` with empty `evidence`, or a shipped
+      behaviour with no feature entry, is a fail; Phase 8 grades the file against the verification records.
+
 ## Cost & escalation
 - The per-task inner loop runs rungs **1–3 always**, and rung **4 when the task is UI-touching** — fix
   and re-run until green before the task is checked off, with a bounded number of self-fix rounds

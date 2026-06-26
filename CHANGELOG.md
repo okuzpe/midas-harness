@@ -13,6 +13,41 @@ _Nothing yet._
 
 ---
 
+## [0.5.16] — 2026-06-26
+
+### Added — local-first hybrid execution + a machine-checkable feature spec
+Midas can now drive the high-volume build/scout work on a **local open-weight model** (consumer GPU /
+Apple Silicon) while keeping the irreversible think/audit decisions on Claude — and tracks app features
+in a machine-checkable ledger so long local runs stay correct. Grounded in a verified deep-research pass
+(harness scaffolding matters more than model choice; 24GB fits a ~30B MoE coder; local models are
+weakest at exactly the planning/audit work the orchestrate tier owns).
+
+**A second routing axis — *where* each tier runs (`execution_mode`).**
+- `harness/state.yaml` gains `execution_mode` (`cloud` | `hybrid` | `local`, default `cloud` — **no
+  behavior change**) plus a `local_model` block, orthogonal to `cost_profile`. New section + CHECK in
+  `harness/rules/model-routing.md`: `orchestrate` (Phase 1/3/4/8 gate verdicts, code/security review)
+  **always** runs on Claude cloud; `scout`/`build` may run local; under `local` an unverified verdict is
+  recorded `un-attested` (advisory, never gate-advancing).
+- `docs/agents-and-models.md` gains a mode→placement table and an honest 8/16/24 GB consumer-hardware
+  fit table (24GB sweet spot ≈ a 30B MoE coder at Q4_K_M; llama.cpp/Ollama, not vLLM), hedged as
+  approximate/mid-2026.
+
+**A machine-checkable feature spec (`product/features.json`).**
+- New `harness/templates/features.json.tmpl`: a JSON ledger (one entry per MVP feature, each
+  `failing`→`passing`); agents flip **only** `status`/`evidence`, never the spec fields. New "spec
+  ledger" rung + CHECK in `harness/rules/verification.md`: a `passing` feature with empty `evidence`
+  (or a shipped behaviour with no entry) is a Phase-8 fail.
+
+**A per-task incremental loop (Phase 7).**
+- `harness/pipeline/7-sprint-execution.md` now mandates one-feature-at-a-time with a
+  `.harness/sprints/NN-progress.md` continuity log, and flips `features.json` on task completion —
+  directly mitigating local models' short usable context (the "context cliff").
+
+### Changed
+- Version single-sourced to `0.5.16` (`harness/VERSION` + all mirrors).
+
+---
+
 ## [0.5.15] — 2026-06-22
 
 ### Added — a closed verify→fix loop + a runtime-inspection ("Chromium") browser tier

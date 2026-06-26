@@ -22,12 +22,32 @@ literal model ids live in **`docs/agents-and-models.md`** (the single bump point
   extraction, `/midas-status`, evidence gathering for an audit. The built-in `Explore` agent (Haiku,
   read-only) is a valid substitute for `midas-scout` on research tasks.
 
+## Local & hybrid execution (where a tier runs)
+
+The tier names above pick *which* model; **`state.yaml -> execution_mode`** (`cloud` | `hybrid` |
+`local`) picks *where* it runs. The two axes are orthogonal — `execution_mode` never changes which
+Claude tier a decision uses, only where build/scout may run. The mode→placement mapping and the
+consumer-hardware fit table (8/16/24 GB) live in `docs/agents-and-models.md`. One invariant binds
+every mode:
+
+- **`orchestrate` always runs on Claude cloud.** The ~6 irreversible decisions (Phase 1/3/4/8 gate
+  verdicts, code-review, security-review) are exactly where local open-weight models are weakest —
+  multi-step planning and audit — so they do **not** go local even under `hybrid`/`local`. `scout` and
+  `build` MAY run on a local model when `execution_mode` is `hybrid` or `local`; that local model id is
+  the provenance for what those legs produced.
+- Under `execution_mode: local`, an orchestrate verdict produced without a Claude cloud model is
+  recorded as **un-attested** — advisory only, never gate-advancing.
+
 ## CHECKs
 
 - **CHECK:** A high-stakes gate verdict or audit (Phase 1/3/4/8, code-review, security-review) is
   produced **via the `midas-orchestrator` sub-agent** — its pinned `model:` is the provenance. The
   model id written into an audit/verify/tribunal record header is **provenance-by-delegation, not
   self-report**; a record produced on the inherited session model must not claim a tier it did not run on.
+- **CHECK:** *(manual)* Under any `execution_mode`, a binding gate/audit/verify verdict header (Phase
+  1/3/4/8, code-review, security-review) names a **Claude `orchestrate`** model as provenance; a local
+  model id in a binding verdict header is a fail — it may appear only on a record explicitly marked
+  `un-attested`.
 - **CHECK:** Doc fetches and file/status extraction are delegated to `midas-scout` (or `Explore`),
   not run on the orchestrate tier. *(manual: a phase whose only work is fetch/extract names a scout
   delegation in its SKILL body.)*
