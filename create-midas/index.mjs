@@ -43,6 +43,27 @@ if (uninstall) {
   process.exit(0);
 }
 
+// --- pre-flight guards: refuse the two install footguns (added v0.5.17) ------------------------
+// Guard 1 — --update only makes sense where an install already exists. Run in a fresh/wrong dir
+// (e.g. a subfolder by mistake), the old behaviour silently scaffolded a brand-new nested install.
+if (update && !hasMidasInstall(TARGET)) {
+  console.error(`create-midas: --update found no existing Midas install in ${TARGET}`);
+  console.error('  (no harness/VERSION or harness/state.yaml here). Run --update from the project root,');
+  console.error('  or drop --update to install fresh. Nothing was written.');
+  process.exit(1);
+}
+// Guard 2 — a fresh install inside a directory that is ALREADY under a Midas project creates a
+// duplicate, nested harness. Refuse unless the user truly means it (--force; or use /midas-monorepo).
+if (!update && !force) {
+  const ancestor = findAncestorMidasRoot(TARGET);
+  if (ancestor) {
+    console.error(`create-midas: ${TARGET} is already inside a Midas project (root: ${ancestor}).`);
+    console.error('  Installing here would create a nested, duplicate harness. Run from the project root to');
+    console.error('  update it, or pass --force if a nested install is truly intended. Nothing was written.');
+    process.exit(1);
+  }
+}
+
 const written = [];
 const skipped = [];
 
@@ -91,6 +112,23 @@ function copyTree(srcDir, dstDir) {
 
 function readMaybe(p) {
   try { return readFileSync(p, 'utf8'); } catch { return null; }
+}
+
+/** True if `dir` already holds a Midas install — the engine stamp or a project's state file. */
+function hasMidasInstall(dir) {
+  return existsSync(join(dir, 'harness', 'VERSION')) || existsSync(join(dir, 'harness', 'state.yaml'));
+}
+
+/** Walk up from TARGET's parent to the filesystem root; return the first ancestor that holds a Midas
+ *  install (harness/VERSION), or null. Used to refuse a nested/duplicate install. */
+function findAncestorMidasRoot(startDir) {
+  let dir = dirname(startDir);
+  for (;;) {
+    if (existsSync(join(dir, 'harness', 'VERSION'))) return dir;
+    const parent = dirname(dir);
+    if (parent === dir) return null; // reached the filesystem root
+    dir = parent;
+  }
 }
 
 // Fill the template AGENTS.md placeholders so the installed file is about THIS project, not Midas.
@@ -346,11 +384,11 @@ function printHelp() {
 Install:
   npx github:okuzpe/midas-harness          into the current directory (from GitHub)
   npx github:okuzpe/midas-harness my-app   into ./my-app
-  npx github:okuzpe/midas-harness#v0.5.16   pin a release for a reproducible install
+  npx github:okuzpe/midas-harness#v0.5.17   pin a release for a reproducible install
 
 Update an existing install (overwrites the engine, KEEPS your work, bumps the version stamp):
   npx github:okuzpe/midas-harness --update             refresh to the latest (main)
-  npx github:okuzpe/midas-harness#v0.5.16 --update      refresh to a pinned release
+  npx github:okuzpe/midas-harness#v0.5.17 --update      refresh to a pinned release
 
 Uninstall (surgical — removes only Midas's files, keeps your work):
   npx github:okuzpe/midas-harness --uninstall             remove the engine, keep product/ + .harness/ + state.yaml

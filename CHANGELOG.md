@@ -13,6 +13,23 @@ _Nothing yet._
 
 ---
 
+## [0.5.17] — 2026-06-26
+
+### Fixed — installer refuses the two install footguns
+A `--update` run in the wrong directory used to silently scaffold a brand-new, **nested duplicate**
+Midas install instead of failing. Two pre-flight guards in `create-midas/index.mjs` close this:
+- **`--update` requires an existing install at the target** — if there is no `harness/VERSION` /
+  `harness/state.yaml` there, it refuses with a clear message and writes nothing (was: scaffolded a
+  fresh install in place).
+- **A fresh install inside an existing Midas project is refused** — if any ancestor directory already
+  holds a Midas install, it stops rather than creating a nested, duplicate harness. Override with
+  `--force` (or use `/midas-monorepo`) when a nested install is genuinely intended.
+
+Both exit before writing anything. Verified: refusal on no-install `--update`, refusal on nested fresh
+install (target left empty), happy-path clean install unaffected, and `--force` override works.
+
+---
+
 ## [0.5.16] — 2026-06-26
 
 ### Added — local-first hybrid execution + a machine-checkable feature spec
