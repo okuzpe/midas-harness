@@ -99,10 +99,10 @@ harness conventions into them.
 
 ## Updating
 Run the same one command with **`--update`** — it refreshes the engine, **keeps your work** (`product/`,
-`.harness/`, `harness/state.yaml`), and bumps the `midas_version` stamp so `/midas-doctor` reads it as current:
+`.harness/`, `harness/state.yaml`, and your `.mcp.json` MCP wiring), and bumps the `midas_version` stamp so `/midas-doctor` reads it as current:
 
 ```bash
-npx github:okuzpe/midas-harness#v0.5.17 --update   # pin a version, or omit #vX.Y.Z for the latest main
+npx github:okuzpe/midas-harness#v0.5.18 --update   # pin a version, or omit #vX.Y.Z for the latest main
 ```
 
 `--update` overwrites engine files, so if you consciously **amended a rule**, review `git diff` and
@@ -141,7 +141,7 @@ npx github:okuzpe/midas-harness --uninstall
 - **Keeps your product work** (`product/`, `.harness/`, `harness/state.yaml`) unless you pass `--purge`.
 
 For exact removal of a pinned install, uninstall with the same release:
-`npx github:okuzpe/midas-harness#v0.5.17 --uninstall`.
+`npx github:okuzpe/midas-harness#v0.5.18 --uninstall`.
 
 > Prefer to do it by hand? Midas only ever adds files — delete `.claude/`, `harness/`, `AGENTS.md`,
 > `CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `.mcp.json`,

@@ -99,7 +99,10 @@ function copyTree(srcDir, dstDir) {
       copyTree(src, dst);
     } else {
       const rel = relative(TARGET, dst).replace(/\\/g, '/');
-      if (existsSync(dst) && !force) {
+      // .mcp.json is user-owned config (which MCP servers they wire — Context7, GitHub, …). Never
+      // clobber an existing one, even on --update/--force, so the user's wiring survives an engine
+      // refresh (same preserve-don't-overwrite policy as harness/state.yaml).
+      if (existsSync(dst) && (!force || rel === '.mcp.json')) {
         skipped.push(rel);
         continue;
       }
@@ -233,7 +236,7 @@ function bumpVersionStamp() {
 function report() {
   if (update) {
     console.log(`\n  ✨ Midas updated in ${TARGET}${updatedTo ? ` → v${updatedTo}` : ''}`);
-    console.log(`     ${written.length} engine file(s) refreshed; your product/, .harness/, and harness/state.yaml are preserved.`);
+    console.log(`     ${written.length} engine file(s) refreshed; your product/, .harness/, harness/state.yaml, and .mcp.json are preserved.`);
     if (rendered) console.log('     adapters re-rendered.');
     console.log('\n  Heads-up: --update overwrites engine files. If you consciously amended a rule, review');
     console.log('  `git diff` and re-apply your `## Amendment` if it was clobbered. Then run  /midas-doctor.\n');
@@ -384,11 +387,11 @@ function printHelp() {
 Install:
   npx github:okuzpe/midas-harness          into the current directory (from GitHub)
   npx github:okuzpe/midas-harness my-app   into ./my-app
-  npx github:okuzpe/midas-harness#v0.5.17   pin a release for a reproducible install
+  npx github:okuzpe/midas-harness#v0.5.18   pin a release for a reproducible install
 
 Update an existing install (overwrites the engine, KEEPS your work, bumps the version stamp):
   npx github:okuzpe/midas-harness --update             refresh to the latest (main)
-  npx github:okuzpe/midas-harness#v0.5.17 --update      refresh to a pinned release
+  npx github:okuzpe/midas-harness#v0.5.18 --update      refresh to a pinned release
 
 Uninstall (surgical — removes only Midas's files, keeps your work):
   npx github:okuzpe/midas-harness --uninstall             remove the engine, keep product/ + .harness/ + state.yaml

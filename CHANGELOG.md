@@ -13,6 +13,20 @@ _Nothing yet._
 
 ---
 
+## [0.5.18] — 2026-06-27
+
+### Fixed — `--update` no longer clobbers your `.mcp.json`
+`.mcp.json` is user-owned config (which MCP servers you wire — Context7, GitHub, …), but the installer
+treated it as an engine file and **overwrote it on every `--update`/`--force`**, silently destroying any
+Context7/GitHub/etc. wiring and reverting to the bare template. It is now **preserved like
+`harness/state.yaml`**: `copyTree` never clobbers an existing `.mcp.json` (a fresh install still creates
+one). The `--update` report and `INSTALL.md` now list `.mcp.json` among the preserved files.
+
+Verified: a customized `.mcp.json` survives both `--update` and `--force`; a fresh install still writes
+one; CI smoke test (`test -f .mcp.json`) unaffected.
+
+---
+
 ## [0.5.17] — 2026-06-26
 
 ### Fixed — installer refuses the two install footguns
