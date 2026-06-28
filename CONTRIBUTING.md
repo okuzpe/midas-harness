@@ -12,6 +12,9 @@ structure changes, and what the bar is for a contribution to land.
 - **Markdown + dependency-free scripts only.** The harness ships as plain `.md` files and two
   optional Node scripts (`render-adapters.mjs`, `doctor.mjs`). Do not add npm packages, lock files,
   or build steps. Scripts must run with `node <script>` and zero installs.
+- **Supply-chain changes are explicit.** GitHub Actions use immutable SHA pins with the major tag
+  kept in a comment; workflow permissions start at `contents: read`; CI-installed packages are
+  exact-pinned. MCP defaults and exceptions are documented in `SECURITY.md`.
 - **Edit the source; never hand-edit generated adapters.** `CLAUDE.md`, `.cursor/rules/00-midas.mdc`,
   and `.windsurf/rules/00-midas.md` are generated from `harness/conventions.md` + `AGENTS.md` by
   `scripts/render-adapters.mjs`. Edit the source file, then run `/midas-doctor` (or
@@ -22,6 +25,9 @@ structure changes, and what the bar is for a contribution to land.
 ---
 
 ## Repository layout (quick reference)
+
+For the full source/generated-file map, install flow, and change-path guide, see
+[`docs/repository-architecture.md`](./docs/repository-architecture.md).
 
 ```
 harness/           ← source of truth for conventions, rules, pipeline playbooks, state schema
@@ -129,6 +135,9 @@ Before opening a PR, confirm:
 - [ ] Breaking change? Migration note added; `CHANGELOG.md` updated.
 - [ ] Commits follow Conventional Commits and carry `Signed-off-by`.
 - [ ] No external dependencies introduced.
+- [ ] Workflow changes keep action SHAs pinned, permissions least-privilege, and CI installs
+      exact-pinned.
+- [ ] MCP changes preserve secret-free config and document any unmanaged-server exception.
 - [ ] English throughout.
 
 ---

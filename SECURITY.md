@@ -45,6 +45,25 @@ This is *pipe-to-shell* — you run code you haven't read. Treat it like any `cu
 
 ---
 
+## Repository supply-chain policy
+
+The engine repository keeps its release and CI surface intentionally small. The blocking policy is:
+
+- **GitHub Actions are pinned to commit SHAs.** Keep the human-readable major tag in a trailing
+  comment (for example, `# v4`), but the executable `uses:` value must be immutable.
+- **Workflow permissions are least-privilege.** Default to `contents: read`; grant `pages: write`
+  and `id-token: write` only on the GitHub Pages deploy job.
+- **CI-installed packages are exact-pinned.** The docs workflow pins `mkdocs-material` to the
+  reviewed version used for the published docs build.
+- **Installer docs show convenience first, but security-sensitive installs should pin a release.**
+  Keep the one-line `main` installers for onboarding, and point reproducible or audited installs at
+  `npx github:okuzpe/midas-harness#v0.5.18`.
+
+`scripts/test.mjs` enforces the CI-facing pieces of this policy. `/midas-doctor` stays advisory for
+project-health warnings that depend on local platform or tool configuration.
+
+---
+
 ## MCP least-privilege guidance
 
 Midas ships a secret-free [`.mcp.json`](./.mcp.json) that wires **one** server by default
@@ -54,6 +73,19 @@ Midas ships a secret-free [`.mcp.json`](./.mcp.json) that wires **one** server b
 |---|---|---|
 | `context7` *(optional)* | Remote HTTP | Fetches current library docs — wire it if you want, or use your own doc tool |
 | `sequential-thinking` | Local npx | Structured reasoning; no file or network access |
+
+### Default MCP exception and governance stance
+
+The committed engine `.mcp.json` deliberately keeps `sequential-thinking` as a local `npx` server:
+it has no filesystem, git, browser, network, or credential scope beyond downloading and launching the
+package. In organizations that require Runlayer-managed MCP servers, treat this as an explicit
+exception to approve or replace before use; do not add new unmanaged MCP servers without the same
+review.
+
+On Windows, raw `command: "npx"` cannot be spawned by Node-based MCP clients. Fresh Midas installs are
+rewritten by `create-midas/index.mjs` to `cmd /c npx ...`; existing user-owned `.mcp.json` files are
+never overwritten, so `/midas-doctor` reports this as an advisory `mcp:win-npx` warning when it sees a
+bare `npx` on Windows.
 
 The following guidance applies when you extend `.mcp.json` with optional servers.
 

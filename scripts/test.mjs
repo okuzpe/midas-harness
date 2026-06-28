@@ -250,6 +250,67 @@ if (engineVersion) {
   }
 }
 
+// --- M. CI workflows carry the hardened supply-chain policy -------------------------------
+const workflowDir = join(ROOT, '.github', 'workflows');
+for (const f of walk(workflowDir).filter((p) => ['.yml', '.yaml'].includes(extname(p)))) {
+  const rel = f.slice(ROOT.length + 1).replace(/\\/g, '/');
+  const text = readFileSync(f, 'utf8');
+  check(`workflow:${rel}:permissions`, /^permissions:/m.test(text), 'missing top-level permissions block');
+  let actionPins = 0;
+  for (const m of text.matchAll(/uses:\s*(actions\/[^@\s]+)@([^\s#]+)/g)) {
+    actionPins++;
+    check(
+      `workflow:${rel}:actions-pinned:${m[1]}`,
+      /^[a-f0-9]{40}$/i.test(m[2]),
+      'official actions must be pinned to commit SHA, with the major tag kept in a comment',
+    );
+  }
+  check(`workflow:${rel}:has-action-pins`, actionPins > 0, 'workflow has no official action pins to verify');
+  for (const line of text.split(/\r?\n/)) {
+    const m = line.match(/\bpip install\s+(.+)/);
+    if (!m) continue;
+    const args = m[1].split(/\s+/).filter(Boolean);
+    for (let i = 0; i < args.length; i++) {
+      const a = args[i].replace(/#.*/, '');
+      if (!a || a.startsWith('-')) {
+        if (a === '-r' || a === '--requirement') i++;
+        continue;
+      }
+      check(`workflow:${rel}:pip-pin:${a}`, /==|@/.test(a), 'pip installs in CI must be exact-pinned');
+    }
+  }
+}
+const docsWorkflow = join(ROOT, '.github', 'workflows', 'docs.yml');
+if (existsSync(docsWorkflow)) {
+  const docs = readFileSync(docsWorkflow, 'utf8');
+  check('workflow:docs:build-read-only', /build:\s*[\s\S]*?permissions:\s*\n\s+contents:\s*read/.test(docs));
+  check('workflow:docs:deploy-pages-only', /deploy:\s*[\s\S]*?permissions:\s*\n\s+pages:\s*write\s*\n\s+id-token:\s*write/.test(docs));
+}
+
+// --- N. MCP defaults stay secret-free, portable, and Windows-safe when installed --------------
+for (const f of ['.mcp.json', 'create-midas/template/.mcp.json', 'plugins/midas/.mcp.json']) {
+  const p = join(ROOT, f);
+  if (!existsSync(p)) continue;
+  const text = readFileSync(p, 'utf8');
+  let json = null;
+  try { json = JSON.parse(text); } catch (e) { check(`mcp:${f}:json`, false, e.message); continue; }
+  const servers = Object.values(json.mcpServers || {});
+  for (const s of servers) {
+    check(`mcp:${f}:no-literal-secret`, !JSON.stringify(s).match(/(sk-[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{16,})/));
+    check(`mcp:${f}:no-active-latest`, !JSON.stringify(s.args || []).includes('@latest'), 'active MCP defaults must be pinned or documented exceptions');
+  }
+}
+if (existsSync(join(ROOT, '.mcp.json')) && existsSync(join(ROOT, 'plugins', 'midas', '.mcp.json'))) {
+  check(
+    'mcp:plugin-matches-root',
+    readFileSync(join(ROOT, '.mcp.json'), 'utf8') === readFileSync(join(ROOT, 'plugins', 'midas', '.mcp.json'), 'utf8'),
+    're-run build-plugin.mjs',
+  );
+}
+const installer = readFileSync(join(ROOT, 'create-midas', 'index.mjs'), 'utf8');
+check('mcp:installer-wraps-npx-on-windows', /function fixMcpForWindows\(\)[\s\S]*server\.command = 'cmd'/.test(installer));
+check('mcp:installer-preserves-user-config', /rel === '\.mcp\.json'/.test(installer), '.mcp.json must remain user-owned on update');
+
 console.log(`midas test: ${passed} passed, ${failures.length} failed`);
 if (failures.length) {
   console.log('\nFailures:');

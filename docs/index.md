@@ -35,6 +35,9 @@ See [Methodology](methodology.md) for the full phase table and the maturity-base
 (E0–E3), or read the canonical [`harness/methodology.md`](https://github.com/okuzpe/midas-harness/blob/main/harness/methodology.md)
 in the repo.
 
+If you want to work on Midas itself, start with [Repository Architecture](repository-architecture.md)
+for the source/generated-file map and the contributor change paths.
+
 ## Key properties
 
 - **Portable** — plain markdown; no runtime, no lock-in, no vendor SDK.

@@ -113,6 +113,8 @@ Most users only need **Core** (+ `/midas-adopt` for an existing repo). Everythin
 
 Generated adapters (`CLAUDE.md`, `.cursor/rules`, `.windsurf/rules`, `GEMINI.md`) are re-rendered from a
 single source by `/midas-doctor` — no hand-editing, no drift.
+For the contributor-facing source/generated-file map, see
+[`docs/repository-architecture.md`](./docs/repository-architecture.md).
 
 > **Honest scope.** Claude Code gets the full experience — skills, subagents, and per-agent model
 > tiering. Every other tool reads the same methodology and rules via `AGENTS.md` / `GEMINI.md` /

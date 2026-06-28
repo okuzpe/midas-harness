@@ -29,6 +29,7 @@ nav:
   - Getting Started: getting-started.md
   - Methodology: methodology.md
   - Context & files: context-hierarchy.md
+  - Repository Architecture: repository-architecture.md
   - Skills Reference: skills.md
   - Agents & Models: agents-and-models.md
   - FAQ: faq.md
