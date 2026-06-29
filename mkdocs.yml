@@ -33,6 +33,8 @@ nav:
   - Skills Reference: skills.md
   - Agents & Models: agents-and-models.md
   - FAQ: faq.md
+  - Decisions (ADR):
+    - "ADR-001 — Install layout": adr/ADR-001-install-layout.md
 
 markdown_extensions:
   - pymdownx.superfences:

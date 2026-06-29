@@ -41,9 +41,10 @@ files). Read `harness/state.yaml` once, then add the **judgment** assertions and
 - **`AGENTS.md` present** and contains its managed markers.
 - **`state.yaml` parses** as valid YAML and matches the schema in `harness/state.schema.md`
   (required keys, a valid `stage` enum, a `routing` block consistent with `cost_profile`).
-- **Context7 reachable.** Probe via the Context7 MCP (a `resolve-library-id` ping). If unreachable or
-  rate-limited, warn and recommend setting `CONTEXT7_API_KEY` per `harness/rules/context7-usage.md`
-  (print the OS-appropriate `setx`/`export` command; never write or echo a key value).
+- **Context7 reachable.** Probe via the Context7 MCP (a `resolve-library-id` ping). Context7 runs on its
+  **free anonymous tier — never recommend an API key.** If unreachable or rate-limited, warn and
+  recommend the web-fetch fallback or the editor's docs per `harness/rules/context7-usage.md`; if it has
+  stopped being free, drop the `context7` server and use a doc fallback.
 - **`.mcp.json` is secret-free** — every credential is a `${ENV_VAR}` placeholder, no literal keys.
 - **Specialist model tiers.** For each recommended specialist agent referenced by the skills/state,
   check its declared `model` against its expected tier in `docs/agents-and-models.md`. **Warn** (do not

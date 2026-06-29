@@ -13,6 +13,19 @@ _Nothing yet._
 
 ---
 
+## [0.5.20] — 2026-06-29
+
+### Changed — Context7 is free-tier only (no API key, ever)
+- Removed every `CONTEXT7_API_KEY` reference. The `.mcp.json` template (`harness/templates/mcp.json.tmpl`)
+  no longer carries an `Authorization` header — Context7 wires on its **free anonymous tier**.
+- `/midas-init` no longer asks for a Context7 "mode" or an API-key env-var name; the secrets step now only
+  covers tokens that genuinely need one (e.g. the optional GitHub MCP's `GITHUB_TOKEN`).
+- `/midas-doctor` no longer recommends setting a key on rate-limit; it points to the web-fetch / editor-docs
+  fallback. If Context7 ever stops being free, the guidance is to **drop it** and use a doc fallback.
+- Docs updated: `README.md`, `docs/faq.md`.
+
+---
+
 ## [0.5.19] — 2026-06-29
 
 ### Added — Cursor install support + tool selection at install time

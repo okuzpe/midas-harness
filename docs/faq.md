@@ -16,10 +16,11 @@ audits. See [Agents & Models](agents-and-models.md) for the full cost matrix.
 
 No — it's **optional**. Midas mandates the *habit* (fetch current, version-accurate docs before
 third-party code; never from memory), not a specific tool. Wire whichever you like: Context7 is the
-recommended free option, or a web-fetch MCP / your editor's docs / a local mirror. If you do use Context7,
-its free tier covers light use; for heavy use add `CONTEXT7_API_KEY` to your env (never commit it). With
-no doc tool wired, you must still fetch the official docs for the pinned version by hand and cite them —
-the rule is the habit, not the vendor (`harness/rules/context7-usage.md`).
+recommended free option, or a web-fetch MCP / your editor's docs / a local mirror. Midas uses Context7's
+**free anonymous tier only — no API key, ever**; if it ever stops being free, drop it and use a web-fetch
+MCP / your editor's docs instead. With no doc tool wired, you must still fetch the official docs for the
+pinned version by hand and cite them — the rule is the habit, not the vendor
+(`harness/rules/context7-usage.md`).
 
 ---
 

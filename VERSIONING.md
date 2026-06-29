@@ -68,7 +68,7 @@ A change is breaking if an existing install would need a migration step to stay 
 Every `harness/state.yaml` carries:
 
 ```yaml
-midas_version: 0.5.19   # engine version that wrote or last migrated this file
+midas_version: 0.5.20   # engine version that wrote or last migrated this file
 ```
 
 `/midas-init` writes `midas_version` on first install.  

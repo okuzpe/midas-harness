@@ -139,3 +139,12 @@ The distinction is intentional:
 - The root `.mcp.json` is user-owned configuration for the engine repo and is copied into generated
   bundles by build scripts. Fresh Windows installs are patched by the installer without overwriting a
   user's existing `.mcp.json`.
+
+## Engine decisions (ADR)
+
+Decisions about the repository itself (not about a product built with Midas) are recorded in
+`docs/adr/`. Product ADRs instead live in a project's `product/adr/`.
+
+| ADR | Status | Topic |
+|---|---|---|
+| [ADR-001](adr/ADR-001-install-layout.md) | proposed | Install layout — consolidate engine internals under `.midas/` (opt-in, classic default) |

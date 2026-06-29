@@ -107,9 +107,8 @@ missing or unconfirmed**:
    metric, non-goals); for **E2/E3** (no upcoming contextualize), capture those product gaps here. Skip any
    question the scan already answered (don't re-ask the project name, mode, or an inferred stack).
 3. **Operational config** (always needed): target tools · cost profile (`balanced`|`max_savings`|
-   `max_quality`) · MCP set (`context7` always on; `sequential-thinking` default on) · Context7 mode
-   (`anonymous` now | `api-key` recommended for build sprints — ask only the **env-var name**, never the key) ·
-   artifact language.
+   `max_quality`) · MCP set (`context7` always on; `sequential-thinking` default on) ·
+   artifact language. **Context7 uses its free anonymous tier — never ask for or wire an API key.**
 
 So this round scales to the project: a blank repo answers the full set (nothing to infer); a mature repo
 just confirms a classification and a couple of operational questions. **If a monorepo was detected,** note
@@ -144,11 +143,12 @@ Write additively (state file last), wrapping every Midas-managed region in `<!--
    **`setup_complete: true`**.
 
 ### Secrets (print, never write)
-If the user chose `api-key`, print the OS-specific command and stop short of running it:
-- Windows: `setx CONTEXT7_API_KEY "<your-key>"` (new shells only; reopen the terminal)
-- POSIX: `export CONTEXT7_API_KEY="<your-key>"` (add to your shell profile to persist)
+Context7 needs no key (free anonymous tier). If the user wired an **optional** server that does need a
+token (e.g. the GitHub MCP's `GITHUB_TOKEN`), print the OS-specific command and stop short of running it:
+- Windows: `setx <ENV_VAR> "<your-token>"` (new shells only; reopen the terminal)
+- POSIX: `export <ENV_VAR>="<your-token>"` (add to your shell profile to persist)
 
-Never echo, store, or commit the key. `.mcp.json` references it only as `${CONTEXT7_API_KEY}`.
+Never echo, store, or commit a token. `.mcp.json` references it only as `${ENV_VAR}`.
 
 ## Exit
 Confirm: files written (or the manual paste path), the secret command if any, the **maturity level chosen**,

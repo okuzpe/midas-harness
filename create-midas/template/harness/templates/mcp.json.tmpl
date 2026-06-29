@@ -3,11 +3,10 @@
 
   "mcpServers": {
 
-    "{{!recommended-context7}}": "RECOMMENDED (optional) — fetch current library docs before third-party code (harness/rules/context7-usage.md). Uncomment to wire Context7, or use your own doc tool / web fetch. Add CONTEXT7_API_KEY in your env to raise the free-tier rate limit.",
+    "{{!recommended-context7}}": "RECOMMENDED (optional) — fetch current library docs before third-party code (harness/rules/context7-usage.md). Uncomment to wire Context7, or use your own doc tool / web fetch. Free anonymous tier — no API key, no auth header. If Context7 ever stops being free, drop it and use the fetch MCP / your editor's docs instead.",
     "{{!context7}}": {
       "type": "http",
-      "url": "https://mcp.context7.com/mcp",
-      "headers": { "Authorization": "Bearer ${CONTEXT7_API_KEY}" }
+      "url": "https://mcp.context7.com/mcp"
     },
 
     "sequential-thinking": {

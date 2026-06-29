@@ -135,8 +135,8 @@ For the contributor-facing source/generated-file map, see
 Midas ships a secret-free [`.mcp.json`](./.mcp.json) wiring **sequential-thinking**. The
 **fetch-current-docs** rule (`harness/rules/context7-usage.md`) is **tool-agnostic** — Midas mandates the
 *habit* (fetch version-accurate docs before third-party code), not a vendor. Wire whichever doc tool you
-like: **[Context7](https://context7.com)** is the recommended free option (add `CONTEXT7_API_KEY` to your
-env to raise the rate limit), or use a web-fetch MCP / your editor's docs. Other optional servers:
+like: **[Context7](https://context7.com)** is the recommended free option (free anonymous tier — no API
+key), or use a web-fetch MCP / your editor's docs. Other optional servers:
 git/GitHub, fetch, filesystem, Playwright (UI sprints only). See [`SECURITY.md`](./SECURITY.md) for
 least-privilege guidance.
 
@@ -160,7 +160,7 @@ A runnable Sprint-1 vertical slice — auth, task CRUD, middleware, board stub +
 artifact on disk. See [`examples/taskpilot/`](./examples/taskpilot/).
 
 ## Status
-**v0.5.19 — pre-1.0, actively developed (not yet a stable API).** Most complete on **Claude Code**
+**v0.5.20 — pre-1.0, actively developed (not yet a stable API).** Most complete on **Claude Code**
 (see [Honest scope](#supported-tools)). Details: [`CHANGELOG.md`](./CHANGELOG.md) ·
 [`VERSIONING.md`](./VERSIONING.md) · [docs site](https://okuzpe.github.io/midas-harness/).
 
