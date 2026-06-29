@@ -27,11 +27,43 @@ const ROOT = resolve(SCRIPT_DIR, '..');
 const BEGIN = '<!-- midas:begin GENERATED — edit harness/conventions.md, run midas-doctor -->';
 const END = '<!-- midas:end -->';
 
+// Tools that ship a generated adapter file. codex/copilot read AGENTS.md only (no adapter path).
+export const DEFAULT_ADAPTER_TOOLS = ['claude-code', 'cursor', 'windsurf', 'gemini'];
+
+export const TOOL_ADAPTER_MAP = {
+  'claude-code': 'CLAUDE.md',
+  cursor: '.cursor/rules/00-midas.mdc',
+  windsurf: '.windsurf/rules/00-midas.md',
+  gemini: 'GEMINI.md',
+};
+
+/** Parse `tools: [a, b]` from a state.yaml string (no YAML dependency). Returns null when absent. */
+export function parseToolsFromStateYaml(yaml) {
+  const m = yaml.match(/^tools:\s*\[([^\]]*)\]/m);
+  if (!m) return null;
+  return m[1]
+    .split(',')
+    .map((t) => t.trim())
+    .filter(Boolean);
+}
+
+/**
+ * Resolve which adapter files to emit for `root`. When harness/state.yaml is missing or has no `tools:`,
+ * returns all four adapter tools (engine repo / CI). Otherwise filters to tools that have adapters.
+ */
+export function resolveAdapterTools(root) {
+  const statePath = join(root, 'harness', 'state.yaml');
+  if (!existsSync(statePath)) return [...DEFAULT_ADAPTER_TOOLS];
+  const tools = parseToolsFromStateYaml(readFileSync(statePath, 'utf8'));
+  if (!tools) return [...DEFAULT_ADAPTER_TOOLS];
+  return tools.filter((t) => t in TOOL_ADAPTER_MAP);
+}
+
 // --- small helpers -----------------------------------------------------------------------------
 
-/** Read a repo-relative file, or return '' if it is missing (robustness for partial repos). */
-function readMaybe(relPath) {
-  const abs = join(ROOT, relPath);
+/** Read a repo-relative file under `root`, or return '' if it is missing (robustness for partial repos). */
+function readMaybe(root, relPath) {
+  const abs = join(root, relPath);
   return existsSync(abs) ? readFileSync(abs, 'utf8') : '';
 }
 
@@ -105,9 +137,11 @@ function readRulesDigest(root) {
  * (CLAUDE.md also reads its own existing outside-marker content, which is preserved).
  */
 export function computeAdapters(root = ROOT) {
-  const conventions = readMaybe('harness/conventions.md');
-  const context7 = readMaybe('harness/rules/context7-usage.md');
+  const conventions = readMaybe(root, 'harness/conventions.md');
+  const context7 = readMaybe(root, 'harness/rules/context7-usage.md');
   const rules = readRulesDigest(root);
+  const selectedTools = resolveAdapterTools(root);
+  const selectedPaths = new Set(selectedTools.map((t) => TOOL_ADAPTER_MAP[t]));
 
   const hash = djb2(conventions + ' ' + context7 + ' ' + rules.raw);
   const conventionsBody = conventions.trim();
@@ -168,15 +202,17 @@ export function computeAdapters(root = ROOT) {
   const geminiContent = '# Project memory — Midas (Gemini CLI)\n\n' + sharedBody;
   const geminiAbs = join(root, 'GEMINI.md');
 
+  const allFiles = [
+    { path: 'CLAUDE.md', abs: claudeAbs, content: claudeContent },
+    { path: '.cursor/rules/00-midas.mdc', abs: cursorAbs, content: cursorContent },
+    { path: '.windsurf/rules/00-midas.md', abs: windsurfAbs, content: windsurfContent },
+    { path: 'GEMINI.md', abs: geminiAbs, content: geminiContent },
+  ];
+
   return {
     root,
     hash,
-    files: [
-      { path: 'CLAUDE.md', abs: claudeAbs, content: claudeContent },
-      { path: '.cursor/rules/00-midas.mdc', abs: cursorAbs, content: cursorContent },
-      { path: '.windsurf/rules/00-midas.md', abs: windsurfAbs, content: windsurfContent },
-      { path: 'GEMINI.md', abs: geminiAbs, content: geminiContent },
-    ],
+    files: allFiles.filter((f) => selectedPaths.has(f.path)),
   };
 }
 

@@ -31,6 +31,13 @@ bunx github:okuzpe/midas-harness
 
 All three forms run the same dependency-free Node installer.
 
+**Cursor-only** (skills in `.claude/skills/` + rules in `.cursor/rules/`):
+```bash
+npx github:okuzpe/midas-harness --tools=cursor
+```
+
+On a TTY you can also pick tools at the prompt; piped installs default to all adapter tools.
+
 ---
 
 ## Alternatives
@@ -51,7 +58,7 @@ npx giget@latest gh:okuzpe/midas-harness ./my-project
 
 ## First steps
 
-After installing, open the project in **Claude Code** (or Cursor) and run:
+After installing, open the project in **Claude Code**, **Cursor**, or your chosen tool and run:
 
 ```text
 /midas-init

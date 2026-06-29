@@ -8,10 +8,11 @@
 //
 // Run: `node scripts/test.mjs`  (exit 0 = all pass, 1 = at least one failure). No npm dependencies.
 
-import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync, statSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve, extname, basename } from 'node:path';
 import { execSync } from 'node:child_process';
-import { computeAdapters } from './render-adapters.mjs';
+import { tmpdir } from 'node:os';
+import { computeAdapters, DEFAULT_ADAPTER_TOOLS, resolveAdapterTools } from './render-adapters.mjs';
 
 const SCRIPT_DIR = dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
 const ROOT = resolve(SCRIPT_DIR, '..');
@@ -310,6 +311,50 @@ if (existsSync(join(ROOT, '.mcp.json')) && existsSync(join(ROOT, 'plugins', 'mid
 const installer = readFileSync(join(ROOT, 'create-midas', 'index.mjs'), 'utf8');
 check('mcp:installer-wraps-npx-on-windows', /function fixMcpForWindows\(\)[\s\S]*server\.command = 'cmd'/.test(installer));
 check('mcp:installer-preserves-user-config', /rel === '\.mcp\.json'/.test(installer), '.mcp.json must remain user-owned on update');
+
+// --- O. tool selection + tool-aware adapter render ----------------------------------------------
+check('render:tool-aware-default', resolveAdapterTools(ROOT).join(',') === DEFAULT_ADAPTER_TOOLS.join(','));
+const defaultAdapterPaths = computeAdapters(ROOT).files.map((f) => f.path).sort();
+check('render:tool-aware-default:four-adapters', defaultAdapterPaths.length === 4, defaultAdapterPaths.join(', '));
+
+const narrowRoot = mkdtempSync(join(tmpdir(), 'midas-test-'));
+mkdirSync(join(narrowRoot, 'harness'), { recursive: true });
+writeFileSync(join(narrowRoot, 'harness', 'state.yaml'), 'tools: [cursor]\n');
+const narrowPaths = computeAdapters(narrowRoot).files.map((f) => f.path);
+check('render:tool-aware-narrow', narrowPaths.length === 1 && narrowPaths[0] === '.cursor/rules/00-midas.mdc');
+check('render:tool-aware-narrow:no-claude', !narrowPaths.includes('CLAUDE.md'));
+rmSync(narrowRoot, { recursive: true, force: true });
+
+check('installer:tools-flag', /--tools/.test(installer) && /KNOWN_TOOLS/.test(installer));
+check('installer:tty-fallback', /stdin\.isTTY/.test(installer));
+check('installer:update-ignores-tools', /update \? null : await resolveSelectedTools/.test(installer));
+const knownMatch = installer.match(/KNOWN_TOOLS\s*=\s*\[([^\]]+)\]/);
+if (knownMatch) {
+  const known = knownMatch[1].split(',').map((t) => t.trim().replace(/['"]/g, ''));
+  check('installer:tools-vocabulary', known.join(',') === 'claude-code,cursor,windsurf,gemini,codex,copilot');
+}
+
+const snippetPath = join(ROOT, 'harness', 'templates', 'gitignore-midas.snippet');
+check('gitignore:snippet-exists', existsSync(snippetPath));
+if (existsSync(snippetPath)) {
+  const snippet = readFileSync(snippetPath, 'utf8');
+  for (const pat of ['\\.env', '\\*\\.pem', 'secret', 'credential']) {
+    check(`gitignore:snippet:${pat}`, new RegExp(pat).test(snippet), 'security.md CHECK patterns');
+  }
+  check('gitignore:snippet:volatile-hash', /\.harness\/\*\.hash/.test(snippet));
+}
+check('installer:ensure-gitignore', /function ensureGitignore\(\)/.test(installer));
+check('installer:gitignore-idempotent', /midas:begin GITIGNORE/.test(installer));
+check('installer:verify-after-update', /function verifyInstall\(\)/.test(installer) && /runDoctor\(TARGET/.test(installer));
+
+const visualRule = join(ROOT, 'harness', 'rules', 'visual-design.md');
+check('rule:visual-design:exists', existsSync(visualRule));
+if (existsSync(visualRule)) {
+  const vr = readFileSync(visualRule, 'utf8');
+  check('rule:visual-design:has-checks', (vr.match(/\*\*CHECK:\*\*/g) || []).length >= 5);
+  check('rule:visual-design:headless-escape', /N\/A \(no UI\)/.test(vr));
+  check('rule:visual-design:delegates-a11y', /accessibility\.md/.test(vr) && /do not duplicate/i.test(vr));
+}
 
 console.log(`midas test: ${passed} passed, ${failures.length} failed`);
 if (failures.length) {

@@ -1,7 +1,11 @@
 # Secrets — never commit
 .env
 .env.*
+!.env.example
+*.pem
 *.key
+*secret*
+*credential*
 .claude/settings.local.json
 
 # Node

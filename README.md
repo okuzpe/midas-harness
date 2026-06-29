@@ -75,13 +75,23 @@ irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | ie
 ```
 
 The installer writes `harness/state.yaml` + the adapters and leaves the project ready. Open it in
-**Claude Code** and run the one-time setup, then let `/midas-status` drive the rest:
+your editor and run the one-time setup, then let `/midas-status` drive the rest:
 
 ```text
 /midas-init        # one-time guided setup — a few questions once (adopts an existing repo for you)
 /midas-status      # from here on: the current phase and the single next command
 /idea-intake       # …then the phases in order — /midas-status always tells you what's next
 ```
+
+**Cursor quickstart** — Cursor natively discovers Midas skills in `.claude/skills/` and reads
+`.cursor/rules/00-midas.mdc`. Install only the Cursor adapter:
+
+```bash
+npx github:okuzpe/midas-harness --tools=cursor
+```
+
+On a TTY the installer can also prompt you to pick tools interactively; pipe/`curl` installs default
+to all adapter tools. `--tools` is ignored on `--update` (existing `harness/state.yaml` is preserved).
 
 Other install methods (`npx github:okuzpe/midas-harness`, the Claude Code plugin, copy-only, pinned
 releases) and installer-safety notes are in **[INSTALL.md](./INSTALL.md)**.
@@ -150,7 +160,7 @@ A runnable Sprint-1 vertical slice — auth, task CRUD, middleware, board stub +
 artifact on disk. See [`examples/taskpilot/`](./examples/taskpilot/).
 
 ## Status
-**v0.5.18 — pre-1.0, actively developed (not yet a stable API).** Most complete on **Claude Code**
+**v0.5.19 — pre-1.0, actively developed (not yet a stable API).** Most complete on **Claude Code**
 (see [Honest scope](#supported-tools)). Details: [`CHANGELOG.md`](./CHANGELOG.md) ·
 [`VERSIONING.md`](./VERSIONING.md) · [docs site](https://okuzpe.github.io/midas-harness/).
 

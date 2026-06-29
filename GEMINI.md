@@ -83,6 +83,10 @@ do not introduce a parallel "standards" layer.
 ## Design system
 - All UI uses the design tokens from `product/design-system.md` (`tokens.json` / `tokens.css`).
   Never hardcode colors, spacing, type sizes, or radii — reference tokens.
+- Visual hierarchy, typography discipline, emphasis, and lightweight UX floors:
+  [`rules/visual-design.md`](./rules/visual-design.md). Accessibility, contrast, focus, and containment:
+  [`rules/accessibility.md`](./rules/accessibility.md). Component patterns:
+  [`design-system/components.md`](./design-system/components.md).
 
 ## Fetch current docs before third-party code (Context7 recommended)
 # Rule: Fetch current docs before third-party code (always-on)
@@ -286,4 +290,18 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` `document.documentElement.scrollWidth <= clientWidth` on each key screen;
   - **CHECK:** the sprint's `.harness/audits/audit-NN.md` exists and was produced by the auditor tier,
   - **CHECK:** in `product/features.json`, a `status: "passing"` with empty `evidence`, or a shipped
+- **Rule: Visual design fundamentals (always-on)** (`visual-design.md`)
+  - > **Every item carries a `**CHECK:**`** — the concrete condition the Phase-8 audit evaluates: a
+  - **CHECK:** `manual:` on each key screen, exactly one primary CTA is visually dominant; a second
+  - **CHECK:** `grep -rniE "<h[1-6]" <ui-src>` → `manual:` each page's heading order has no skipped
+  - **CHECK:** `manual:` the primary heading uses `--ds-text-2xl`/`--ds-text-3xl` or larger; body copy
+  - **CHECK:** `grep -rniE "font-family" <ui-src>` → every declaration is `var(--ds-font-sans)` or
+  - **CHECK:** `grep -rniE "font-size:[[:space:]]*[0-9.]+(px|rem|em)" <ui-src>` → each hit is
+  - **CHECK:** `grep -rniE "line-height:[[:space:]]*[0-9.]+" <ui-src>` → each hit in component code is
+  - **CHECK:** `manual:` related controls share `--ds-space-2`/`--ds-space-4` gaps; unrelated sections
+  - **CHECK:** `manual:` the primary CTA uses `--ds-action-*`; status badges/toasts use intent tokens;
+  - **CHECK:** `manual:` primary vs secondary/ghost variants are distinguishable without relying on
+  - **CHECK:** `manual:` a first-time reviewer can name the primary action within 5 seconds on each
+  - **CHECK:** `manual:` on landing/marketing pages, headline + primary CTA appear in the first viewport;
+  - **CHECK:** `manual:` each data-dependent view has identifiable empty/loading/error UI (component
 <!-- midas:end -->

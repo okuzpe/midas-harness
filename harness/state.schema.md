@@ -29,7 +29,7 @@ transition after that.
 ## Schema
 
 ```yaml
-midas_version: 0.5.18          # engine version that wrote this file (for /midas-update)
+midas_version: 0.5.19          # engine version that wrote this file (for /midas-update)
 name: taskpilot              # project slug
 mode: greenfield             # greenfield | brownfield  (maturity: E0/E1 → greenfield, E2/E3 → brownfield)
 language: en                 # artifact language

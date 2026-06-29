@@ -13,6 +13,37 @@ _Nothing yet._
 
 ---
 
+## [0.5.19] — 2026-06-29
+
+### Added — Cursor install support + tool selection at install time
+- **`--tools` flag** on `create-midas` — comma-separated list (`cursor`, `claude-code,cursor`, …) or an
+  interactive prompt when stdin is a TTY. Non-interactive installs (`curl | bash`) default to all adapter
+  tools. Ignored on `--update` (existing `harness/state.yaml` is preserved).
+- **Tool-aware adapter render** — `scripts/render-adapters.mjs` reads `harness/state.yaml -> tools:` and
+  emits only the selected adapters (default: all four when `tools:` is absent, so the engine repo and CI
+  are unchanged). Cursor installs rely on native `.claude/skills/` discovery plus `.cursor/rules/`.
+- Docs updated in `README.md`, `INSTALL.md`, and `docs/getting-started.md`.
+
+### Added — `.gitignore` merge on install
+- Installer appends a marked Midas block from `harness/templates/gitignore-midas.snippet` (idempotent;
+  never clobbers an existing `.gitignore`). Covers `.env`, `*.pem`, `*secret*`, `*credential*`,
+  `.harness/cache/`, `.harness/*.hash` per `harness/state.schema.md` and `harness/rules/security.md`.
+- Engine `.gitignore` aligned to pass the security rule grep CHECK.
+
+### Added — Visual design fundamentals rule
+- New always-on [`harness/rules/visual-design.md`](harness/rules/visual-design.md) — hierarchy (one
+  primary CTA per view, heading order), typography discipline (max 2 families, token scale), spacing
+  intent, emphasis/colour restraint, and lightweight UX (F/Z layout intent, empty/loading/error states).
+  Delegates contrast/focus/containment to `accessibility.md` (no duplicate CHECKs).
+- `harness/conventions.md` — Design system section points at `visual-design.md`, `accessibility.md`,
+  and `components.md`.
+
+### Changed — `--update` runs verify automatically
+- After refresh + adapter render, the installer runs `node scripts/doctor.mjs` on the project (auto `--fix`
+  once on adapter drift, then re-check). Reports `verify: ok` or exits non-zero — no separate doctor step.
+
+---
+
 ## [0.5.18] — 2026-06-27
 
 ### Fixed — `--update` no longer clobbers your `.mcp.json`

@@ -77,3 +77,7 @@ do not introduce a parallel "standards" layer.
 ## Design system
 - All UI uses the design tokens from `product/design-system.md` (`tokens.json` / `tokens.css`).
   Never hardcode colors, spacing, type sizes, or radii — reference tokens.
+- Visual hierarchy, typography discipline, emphasis, and lightweight UX floors:
+  [`rules/visual-design.md`](./rules/visual-design.md). Accessibility, contrast, focus, and containment:
+  [`rules/accessibility.md`](./rules/accessibility.md). Component patterns:
+  [`design-system/components.md`](./design-system/components.md).

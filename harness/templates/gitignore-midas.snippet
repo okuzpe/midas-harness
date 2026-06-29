@@ -1,0 +1,13 @@
+# Secrets — never commit (.env.example is OK to commit)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*secret*
+*credential*
+.claude/settings.local.json
+
+# Midas volatile state (harness/state.yaml IS committed; caches/hashes are not)
+.harness/cache/
+.harness/*.hash

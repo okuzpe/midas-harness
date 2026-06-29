@@ -2,7 +2,8 @@
 
 Midas installs **into any project** (new or existing). Every method runs the same dependency-free Node
 installer, which copies the harness in **non-destructively** (it only adds files — it never deletes
-yours), generates the tool adapters, and writes a default `harness/state.yaml` so the project is ready
+yours), generates the tool adapters, writes a default `harness/state.yaml`, and merges a Midas block
+into `.gitignore` (secrets + volatile hashes — the harness itself stays committed) so the project is ready
 to use. Then run `/midas-init` once — the **one-time guided setup** (it adopts an existing repo for
 you); it retires itself afterward and `/midas-status` drives the rest.
 
@@ -34,9 +35,20 @@ bunx github:okuzpe/midas-harness
 All three forms do the same thing; the `curl`/`irm` shims just check Node and then call the `npx` form.
 
 ### Flags
+- `--tools` — comma-separated AI tools for this project (e.g. `cursor` or `claude-code,cursor`).
+  On a TTY the installer prompts interactively; non-interactive installs (e.g. `curl | bash`) default
+  to all adapter tools. **Ignored on `--update`** — your existing `harness/state.yaml` `tools:` list is
+  preserved and adapters re-render from that.
 - `--force` — overwrite files that already exist (default: skip them).
 - `-h`, `--help` — usage.
 - a positional `target-dir` — install into that directory instead of the current one.
+
+**Cursor-only install:**
+```bash
+npx github:okuzpe/midas-harness --tools=cursor
+```
+Cursor reads `.claude/skills/` natively (Agent Skills) plus `.cursor/rules/00-midas.mdc` — no duplicate
+`.cursor/skills/` tree is generated.
 
 With the shell one-liner, pass flags after `--`:
 ```bash
@@ -86,10 +98,12 @@ GEMINI.md           Gemini CLI adapter
 ```
 
 Your existing `AGENTS.md` / `CLAUDE.md` / `.mcp.json` are kept (skipped) — run `/midas-init` to merge
-harness conventions into them.
+harness conventions into them. If `.gitignore` already exists, Midas **appends** a marked block (never
+overwrites your rules); fresh projects get one created.
 
 ## After installing
-1. Open the project in **Claude Code**.
+1. Open the project in **your chosen tool** (Claude Code, **Cursor**, Windsurf, Gemini CLI, or any editor
+   that reads `AGENTS.md` for Codex/Copilot).
 2. `/midas-init` — the **one-time guided setup** (a few questions once; for an existing repo it runs the
    brownfield adoption for you). It then retires — you won't run it again.
 3. `/midas-status` — from here on, shows the current phase and the single next command.
@@ -99,14 +113,18 @@ harness conventions into them.
 
 ## Updating
 Run the same one command with **`--update`** — it refreshes the engine, **keeps your work** (`product/`,
-`.harness/`, `harness/state.yaml`, and your `.mcp.json` MCP wiring), and bumps the `midas_version` stamp so `/midas-doctor` reads it as current:
+`.harness/`, `harness/state.yaml`, and your `.mcp.json` MCP wiring), re-renders adapters, **runs
+midas-doctor verify** (auto-fixes adapter drift once if needed), and bumps the `midas_version` stamp.
+Adapters re-render for the tools already listed in `harness/state.yaml` (`--tools` is **not** applied on
+update):
 
 ```bash
-npx github:okuzpe/midas-harness#v0.5.18 --update   # pin a version, or omit #vX.Y.Z for the latest main
+npx github:okuzpe/midas-harness#v0.5.19 --update   # pin a version, or omit #vX.Y.Z for the latest main
 ```
 
 `--update` overwrites engine files, so if you consciously **amended a rule**, review `git diff` and
-re-apply your `## Amendment` if it was clobbered. Then run `/midas-doctor` to confirm adapters are in sync.
+re-apply your `## Amendment` if it was clobbered. No separate `/midas-doctor` step is required when verify
+reports `ok`.
 
 ## Uninstalling
 
@@ -141,7 +159,7 @@ npx github:okuzpe/midas-harness --uninstall
 - **Keeps your product work** (`product/`, `.harness/`, `harness/state.yaml`) unless you pass `--purge`.
 
 For exact removal of a pinned install, uninstall with the same release:
-`npx github:okuzpe/midas-harness#v0.5.18 --uninstall`.
+`npx github:okuzpe/midas-harness#v0.5.19 --uninstall`.
 
 > Prefer to do it by hand? Midas only ever adds files — delete `.claude/`, `harness/`, `AGENTS.md`,
 > `CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `.mcp.json`,
