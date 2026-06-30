@@ -43,4 +43,4 @@
 ---
 
 *Gate check: when BLOCKING section is empty and the four definitions are filled, Phase 1 is complete.*
-*Next: run `/midas-market-research` (Phase 2).*
+*Next: run `/market-research` (Phase 2).*

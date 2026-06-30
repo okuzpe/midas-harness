@@ -53,3 +53,8 @@ When satisfied, record both artifacts under `phases.contextualize.artifacts`, se
 stage_status: not_started`, refresh `updated`, and tell the user the next action is **`/market-research`**
 (it reuses `/deep-research`). If blockers remain, keep `stage_status: in_progress` and
 list the outstanding blocking questions. The producer never passes its own gate — the orchestrator renders it.
+
+## Tier & delegation
+- **Dispatch + gate verdict:** `orchestrate` → delegate to `midas-orchestrator`.
+- **Write `product/idea.md`, `product/open-questions.md`, and `state.yaml` updates:** `build` → delegate to `midas-builder`.
+- **Evidence extraction / file reads:** `scout` → delegate to `midas-scout` or `Explore`.

@@ -43,9 +43,13 @@ completion — it reports the truth already on disk. Safe to run at any time, in
    | `sprint_execution` | `/close-sprint` once the active sprint's tasks are done and tests run; otherwise `/start-sprint` (or continue the active sprint) |
    | `shipped` | none — MVP complete |
 
-5. **Surface the tribunal checkpoint (recommended, optional — never force).** At a high-leverage decision
-   point, add **one** line recommending a whole-project audit *before* the gate — running it (or not) is
-   the human's call, and `/midas-tribunal` is non-advancing, so this is a prompt, not a block:
+5. **Surface optional prompts (never force).** At a high-leverage decision point, add **one** line if relevant:
+   - **Tribunal** — see tribunal table below
+   - **Sweep** — at `sprint_planning`: *"💡 Before seeding `features.json`, consider `/midas-sweep docs` (optional) — reconcile the ledger with what exists."*; at `sprint_execution` when the active sprint's tasks look done: *"💡 Before `/close-sprint`, consider `/midas-sweep` (optional) on large diffs."*; after brownfield (`mode: brownfield` in state): *"💡 Post-adopt `/midas-sweep all` (optional) helps drop dead flows before the next gate."*
+   - **Recall** — when `stage_status: in_progress`, or an active sprint's `last_touched` is **> 7 days** ago, or `.harness/sprints/NN-progress.md` is missing for an active sprint: *"💡 Resuming? Run `/midas-recall` (optional) for a context pack — distinct from this status line."*
+   Skipping is fine; do not block.
+
+   **Tribunal checkpoints** (original step 5):
    - `business_case` → *before* the go/no-go sign-off
    - `architecture_rules` → *before* `/define-conventions` freezes the rules
    - the **final sprint before ship** (no planned sprints left) → *before* declaring MVP complete
@@ -68,4 +72,8 @@ Next: <single command>
 
 If `stage_status` is `in_progress`, add one line naming what is left before the gate can be re-run.
 At a **tribunal checkpoint** (step 5), add the recommended-`/midas-tribunal` line (optional, your call).
+At a **sweep checkpoint** (`sprint_planning`, end of `sprint_execution`, or `mode: brownfield`), add the
+recommended-`/midas-sweep` line from step 5 when relevant.
+At a **recall checkpoint** (`stage_status: in_progress`, stale `last_touched` > 7 days, or missing progress
+file for active sprint), add the recommended-`/midas-recall` line from step 5 when relevant.
 Mention `/midas-doctor` only if you observed adapter or config drift while reading.

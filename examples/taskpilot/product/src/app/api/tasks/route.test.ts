@@ -5,7 +5,7 @@
  * mocked: unauthenticated requests are rejected, an empty title is refused, and a valid create is
  * scoped to the caller's workspace. This is the integration counterpart to the schema unit tests.
  *
- * Run with:  npm run test   ·   Framework: Vitest 3.x
+ * Run with:  npm run test   ·   Framework: Vitest 2.1.x (see package.json)
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";

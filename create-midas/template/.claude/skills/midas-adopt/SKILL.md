@@ -56,7 +56,12 @@ them. Follow **infer → SHOW → confirm**: surface what you derived for the us
 silently bake it in. If the harvested intent **conflicts** with what the code/manifests show (a stale or
 aspirational README), tag that field **DISPUTED** and confirm it — never silently prefer one source.
 Genuinely-unknown fields stay blank for the gap loop. Skipped or backfilled gates carry a **recorded
-assumption** in `state.yaml` (mirrored to `STATE.md`) and an honest `entry_stage`.
+assumption** in `harness/state.yaml` and an honest `entry_stage`.
+
+### Step 4b — Dead-flow sweep (recommended)
+Run `/midas-sweep all` (report only, or `--fix` with explicit confirm) on the inventory findings.
+Reconcile obvious ledger/doc drift before baseline audit and wiring — especially orphan routes,
+duplicate utilities, and `open-questions.md` rows already answered in harvested docs.
 
 ### Step 5 — Baseline audit
 Run `/midas-tribunal --depth standard` (or a `/close-sprint`-style conformance pass) to establish a

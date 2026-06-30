@@ -1,0 +1,25 @@
+midas_version: 0.5.20
+name: harness
+mode: brownfield
+language: en
+created: 2026-06-29
+updated: 2026-06-29
+setup_complete: false        # /midas-init sets this true; until then it is the next step
+
+stage: tech_architecture
+stage_status: not_started
+entry_stage: tech_architecture
+
+cost_profile: balanced
+routing:
+  orchestrate: claude-opus-4-8
+  build:       claude-sonnet-4-6
+  scout:       claude-haiku-4-5
+
+execution_mode: cloud
+
+tools: [claude-code, cursor, windsurf, gemini]
+mcp:   [sequential-thinking]
+
+phases: {}
+sprints: []

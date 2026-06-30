@@ -44,12 +44,13 @@ gate; the builder drafts the document.
 7. **Go / no-go** — render an explicit recommendation with rationale, then obtain **human sign-off**
    via `AskUserQuestion`. A valid verdict is **GO with field validation deferred (assumption logged)**
    when desk demand is at least *mixed* and the human accepts the unproven-demand risk. Record the
-   decision + who signed off + the date in the document and in `STATE.md`. On "no-go", stop and log why.
+   decision + who signed off + the date in the document and in `harness/state.yaml`. On "no-go", stop and log why.
 8. **Write `product/business-plan.md`** from `harness/templates/business-plan.md`; update
    `harness/state.yaml` (gate verdict by the orchestrator).
 
 ## Cost / tiers
-Orchestrate (Opus) decides go/no-go and audits the gate. Build (Sonnet) drafts the document.
+Orchestrate (Opus) decides go/no-go and audits the gate — delegate to `midas-orchestrator`.
+Build (Sonnet) drafts the document — delegate to `midas-builder`.
 
 ## Exit gate (Phase 3)
 - [ ] MVP scope defined with **explicit** non-goals.
@@ -57,6 +58,6 @@ Orchestrate (Opus) decides go/no-go and audits the gate. Build (Sonnet) drafts t
 - [ ] Business/monetization model stated.
 - [ ] **Validation status** recorded: the desk demand verdict + field-validation status (done, or
       **deferred with a logged assumption**). The founder is not hard-walled — go/no-go is their informed call.
-- [ ] Explicit go/no-go recorded **with human sign-off** (name + date) in the doc and `STATE.md`.
+- [ ] Explicit go/no-go recorded **with human sign-off** (name + date) in the doc and `harness/state.yaml`.
 - [ ] `product/business-plan.md` written; gate verdict rendered by the orchestrator before advancing
       to `tech_architecture`.

@@ -14,7 +14,7 @@ mcp-recommended: [context7]
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
 > First read `harness/state.yaml`; if the precondition stage is wrong, report and stop.
 
-Generated adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`) are
+Generated adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `GEMINI.md`) are
 **rendered** from `harness/conventions.md` + `harness/rules/*` — never hand-edited. `midas-doctor` is the
 **single** path that keeps them in sync, plus a fast health check on the rest of the install. It diffs
 first and writes only with the user's go-ahead.
@@ -34,22 +34,30 @@ first and writes only with the user's go-ahead.
 
 ## Phase 2 — Health assertions (warn, don't fix silently)
 
-`node scripts/doctor.mjs` now prints the **mechanical** subset of these checks (version stamp vs
-`harness/VERSION`, required `state.yaml` keys, secret-free `.mcp.json`, skills frontmatter, critical
-files). Read `harness/state.yaml` once, then add the **judgment** assertions and report pass/warn for each:
+`node scripts/doctor.mjs` prints the **mechanical** subset of these checks. Read `harness/state.yaml`
+once, then add any **judgment** assertions and report pass/warn for each row in the health table:
+
+| Check | What it means |
+|---|---|
+| `version` | `harness/state.yaml → midas_version` matches `harness/VERSION` |
+| `routing` | Tier ids reconcile with `.claude/agents/midas-*.md` pins (`balanced` profile = exact match) |
+| `enforcement` | Phase-5 scaffold configs exist on disk; `installed:false` surfaced |
+| `file:*` | `AGENTS.md`, `harness/conventions.md`, `harness/methodology.md` present |
+| `mcp:secret-free` | `.mcp.json` uses `${ENV_VAR}` placeholders only |
+| `mcp:win-npx` | Windows: MCP servers must wrap `npx` in `cmd /c` |
+| `mcp:declared-vs-wired` | Every `state.yaml → mcp:` id wired in `.mcp.json` (`context7` optional) |
+| `mcp:skill-required` | Every skill `mcp-required` id wired in `.mcp.json` |
+| `skills:frontmatter` | Each `.claude/skills/*/SKILL.md` has valid frontmatter |
+| `gate:records` | Frozen sprint `audit-*` / `verify-*` tallies match `state.yaml` sprint status |
+
+Additional judgment checks (not all printed by the script):
 
 - **`AGENTS.md` present** and contains its managed markers.
-- **`state.yaml` parses** as valid YAML and matches the schema in `harness/state.schema.md`
-  (required keys, a valid `stage` enum, a `routing` block consistent with `cost_profile`).
-- **Context7 reachable.** Probe via the Context7 MCP (a `resolve-library-id` ping). Context7 runs on its
-  **free anonymous tier — never recommend an API key.** If unreachable or rate-limited, warn and
-  recommend the web-fetch fallback or the editor's docs per `harness/rules/context7-usage.md`; if it has
-  stopped being free, drop the `context7` server and use a doc fallback.
-- **`.mcp.json` is secret-free** — every credential is a `${ENV_VAR}` placeholder, no literal keys.
-- **Specialist model tiers.** For each recommended specialist agent referenced by the skills/state,
-  check its declared `model` against its expected tier in `docs/agents-and-models.md`. **Warn** (do not
-  edit vendor files) if a pinned model disagrees with the desired tier — suggest wrapping it in a thin
-  first-party agent.
+- **`state.yaml` parses** as valid YAML and matches the schema in `harness/state.schema.md`.
+- **Context7 reachable** (optional) — probe via Context7 MCP if wired; otherwise note the web-fetch
+  fallback per `harness/rules/context7-usage.md`.
+- **Specialist model tiers** — warn if a vendor agent's pinned `model` disagrees with
+  `docs/agents-and-models.md` (do not edit vendor files).
 
 ## Output
 

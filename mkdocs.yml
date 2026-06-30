@@ -30,11 +30,14 @@ nav:
   - Methodology: methodology.md
   - Context & files: context-hierarchy.md
   - Repository Architecture: repository-architecture.md
+  - "gstack comparison": gstack-comparison.md
   - Skills Reference: skills.md
   - Agents & Models: agents-and-models.md
   - FAQ: faq.md
   - Decisions (ADR):
     - "ADR-001 — Install layout": adr/ADR-001-install-layout.md
+    - "ADR-002 — Code-intelligence MCP": adr/ADR-002-code-intelligence-mcp.md
+    - "ADR-003 — Project memory model": adr/ADR-003-project-memory-model.md
 
 markdown_extensions:
   - pymdownx.superfences:

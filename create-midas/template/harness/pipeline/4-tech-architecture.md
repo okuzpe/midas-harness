@@ -66,7 +66,7 @@ that constrain Phase 7. Fetching current docs before pinning any library is mand
 - [ ] At least one ADR exists in `product/adr/`
 - [ ] Every non-negotiable requirement from step 1 is covered by a stack entry
 - [ ] No third-party API was coded from memory (Context7 or web fallback evidence present)
-- [ ] Gate verdict written to `.harness/audits/audit-04.md`
+- [ ] Gate verdict written to `.harness/audits/gate-04.md`
 
 ## Recommended tier + agents
 

@@ -134,7 +134,11 @@ Write additively (state file last), wrapping every Midas-managed region in `<!--
    `.windsurf/…`. **Generated, not hand-authored**: delegate the render to `/midas-doctor` (or
    `node scripts/render-adapters.mjs`) — one render path.
 5. **`.mcp.json`** — secret-free, `${ENV_VAR}` only; `context7` + chosen optional servers. Merge into the
-   managed region if one exists.
+   managed region if one exists. **If the MVP has or will have a user-facing UI** (web app, dashboard,
+   marketing site), offer (recommend-don't-wall) to uncomment the **Playwright** and **Chrome DevTools**
+   blocks from `harness/templates/mcp.json.tmpl`, add `playwright` and `chrome-devtools` to
+   `state.yaml → mcp:`, and note that `/midas-verify` (Phase 7) uses them — browser MCPs are expensive;
+   skip if the project is API/CLI-only. Record the user's choice either way.
 6. **`harness/state.yaml`** (per `harness/state.schema.md`, read-modify-write the whole file). Set
    `midas_version`, `name`, **`mode`** (per the E-level mapping: E0/E1 `greenfield`, E2/E3 `brownfield`),
    `language`, `created`/`updated` (today, supplied), the **`stage` from the maturity table**,
@@ -153,7 +157,8 @@ Never echo, store, or commit a token. `.mcp.json` references it only as `${ENV_V
 ## Exit
 Confirm: files written (or the manual paste path), the secret command if any, the **maturity level chosen**,
 and the **single next action** from the maturity table (`/idea-intake`, `/contextualize`,
-`/define-conventions`, or `/plan-sprints`). Then it's `/midas-status` from here on.
+`/define-conventions`, or `/plan-sprints`). Add: *"👉 Optional: `/midas-recall phase` to orient on the
+artifacts for your stage (read-only)."* Then it's `/midas-status` from here on.
 
 ## Tier & cost
 Scanning + evidence extraction → **scout** (Haiku). Maturity classification, the infer→show→confirm calls,

@@ -40,9 +40,9 @@ This is the cheapest phase; speed matters more than depth.
 - [ ] `## One-line pitch` is present and fits one sentence
 - [ ] `mode` is set (`greenfield` or `brownfield`) in `harness/state.yaml`
 - [ ] `harness/state.yaml` is valid against `harness/state.schema.md`
-- [ ] Gate verdict written to `.harness/audits/audit-00.md`
+- [ ] Gate verdict written to `.harness/audits/gate-00.md`
 
 ## Recommended tier + agents
 
 - **Dispatch/audit:** `orchestrate` (`midas-orchestrator`, `claude-opus-4-8`)
-- **Write artifacts:** `scout` (`midas-scout`, `claude-haiku-4-5`) — this phase is mechanical
+- **Write artifacts:** `build` (`midas-builder`, `claude-sonnet-4-6`) — scout is read-only

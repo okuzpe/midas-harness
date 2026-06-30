@@ -51,9 +51,14 @@ Zero-padded, sequential. Each sprint file contains:
   testing rule, design-system token rule, Context7 rule) plus "acceptance criteria met, tests pass".
   The DoD is what Phase 8 audits, so it must point at checkable rules, not restate them.
 
-### 5. Record state
+### 5. Seed `product/features.json`
+From MVP scope in `product/business-plan.md`, create one entry per MVP feature using
+`harness/templates/features.json.tmpl`. Each feature starts with `status: failing`. Phase 7 updates
+only `status` and `evidence` as work lands.
+
+### 6. Record state
 Update `harness/state.yaml`: append the planned sprints to `sprints[]` (each `{ id, title, status:
-planned, audit_notes: "", last_touched }`), list roadmap + sprint files in
+planned, audit_notes: "", last_touched }`), list roadmap + sprint files + `product/features.json` in
 `phases.sprint_planning.artifacts`, set `stage_status: gate_pending`. Do not self-advance the stage.
 
 ## Exit gate (orchestrate audits)
@@ -62,12 +67,13 @@ planned, audit_notes: "", last_touched }`), list roadmap + sprint files in
 - Each sprint has **goal + scope + tasks + acceptance criteria + DoD**, and the **DoD references the
   frozen rules**.
 - Sprints are **dependency-ordered** and **sprint 1 is shippable**.
-- `sprints[]` is set in `state.yaml`.
+- `product/features.json` seeded from MVP scope (every feature `status: failing`).
+- `sprints[]` is set in `state.yaml` (each `status: planned`).
 
-On pass: freeze the verdict in `.harness/audits/`, set the gate passed; next action is `/start-sprint`
+On pass: freeze the verdict in `.harness/audits/gate-06.md`, set the gate passed; next action is `/start-sprint`
 (Phase 7) on sprint 1. On fail: report the under-specified sprint or broken ordering.
 
 ## Tier & cost
-Decomposition, ordering, and acceptance/DoD design → **orchestrate** (Opus). Drafting the sprint
-markdown can route to **build** (Sonnet) once the orchestrator has fixed the plan. No Context7 needed
+Decomposition, ordering, and acceptance/DoD design → **orchestrate** (`midas-orchestrator`). Drafting the sprint
+markdown → **build** (`midas-builder`) once the orchestrator has fixed the plan. No Context7 needed
 here (no third-party code written yet).

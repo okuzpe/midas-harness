@@ -2,16 +2,18 @@
 // render-adapters.mjs — Midas adapter renderer (dependency-free, Node ESM).
 //
 // Single source of truth: harness/conventions.md (+ harness/rules/context7-usage.md).
-// This script (re)writes the three generated tool adapters from that source:
+// This script (re)writes the four generated tool adapters from that source:
 //   - CLAUDE.md                 -> keeps content outside markers; managed block holds the Midas note.
 //                                  Guarantees an `@AGENTS.md` import sits above the managed block.
 //   - .cursor/rules/00-midas.mdc -> Cursor frontmatter FIRST (file head), then a managed body.
 //   - .windsurf/rules/00-midas.md-> Windsurf frontmatter FIRST (file head), then a managed body.
+//   - GEMINI.md                  -> Gemini CLI project memory (inlined body, no frontmatter).
 //
 // Frontmatter must be at the very top of .mdc / windsurf rule files or the tool won't parse it,
 // so for those two the managed markers wrap only the BODY, never the frontmatter.
 //
-// It also writes a content hash to .harness/adapters.hash so /midas-doctor can detect drift.
+// Also writes `.harness/adapters.hash` as a content fingerprint. doctor.mjs detects drift by
+// recomputing adapters via computeAdapters() and comparing full file content (not the hash file).
 // No npm dependencies: only node:fs and node:path. Runs on Windows: `node scripts/render-adapters.mjs`.
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
@@ -106,6 +108,42 @@ function spliceManaged(existing, innerBody) {
 }
 
 /**
+ * Extract **CHECK:** items from a rule file body. Skips blockquote boilerplate; merges indented
+ * continuation lines into one digest entry per CHECK.
+ */
+function extractCheckLines(text) {
+  const lines = text.split(/\r?\n/);
+  const checks = [];
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (/^\s*>/.test(line)) {
+      i++;
+      continue;
+    }
+    const m = line.match(/^\s*(?:-\s+(?:\[[ x]\]\s+)?)?\*\*CHECK:\*\*\s*(.*)$/);
+    if (!m) {
+      i++;
+      continue;
+    }
+    let body = m[1].trim();
+    i++;
+    while (i < lines.length) {
+      const cont = lines[i];
+      if (/^\s*#/.test(cont)) break;
+      if (/^\s*(?:-\s+(?:\[[ x]\]\s+)?)?\*\*CHECK:\*\*/.test(cont)) break;
+      if (/^\s*-\s+\[/.test(cont)) break;
+      if (/^\s{4,}\S/.test(cont) && !/^\s*>/.test(cont)) {
+        body += ' ' + cont.trim();
+        i++;
+      } else break;
+    }
+    checks.push(`**CHECK:** ${body}`);
+  }
+  return checks;
+}
+
+/**
  * Build a compact digest of every always-on rule in harness/rules/ (excluding context7-usage.md,
  * which already has its own adapter section): each rule's title + its CHECK lines. Inlining this into
  * the non-Claude adapters means generated stack rules reach Cursor/Windsurf/Gemini too (Claude Code
@@ -122,8 +160,8 @@ function readRulesDigest(root) {
     raw += text;
     const title = (text.match(/^#\s+(.+)$/m) || [, f.replace(/\.md$/, '')])[1];
     out.push(`- **${title}** (\`${f}\`)`);
-    for (const line of text.split(/\r?\n/)) {
-      if (line.includes('**CHECK:**')) out.push(`  - ${line.replace(/^\s*-?\s*/, '').trim()}`);
+    for (const check of extractCheckLines(text)) {
+      out.push(`  - ${check}`);
     }
   }
   return { raw, body: out.join('\n') };
@@ -185,6 +223,7 @@ export function computeAdapters(root = ROOT) {
     '---\n' +
     'description: Midas base conventions (always-on project law). Generated from harness/conventions.md.\n' +
     'globs:\n' +
+    '  - "**/*"\n' +
     'alwaysApply: true\n' +
     '---\n\n' +
     sharedBody;

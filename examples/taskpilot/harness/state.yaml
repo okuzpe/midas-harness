@@ -16,6 +16,8 @@ routing:
   build:       claude-sonnet-4-6
   scout:       claude-haiku-4-5
 
+execution_mode: cloud
+
 tools: [claude-code]
 mcp:   [context7, sequential-thinking]
 
@@ -26,7 +28,6 @@ enforcement:
   formatter:  { config: product/biome.json, installed: true }
   git_hooks:  { config: product/lefthook.yml, installed: false }
   commit_msg: { config: product/commitlint.config.js, installed: false }
-  ci:         { config: product/.github/workflows/ci.yml, installed: true }
 
 phases:
   idea_intake:

@@ -8,9 +8,10 @@
  * - inferred TypeScript types have the expected fields (type-level assertions)
  *
  * Run with:  npm run test
- * Framework: Vitest 3.x
+ * Framework: Vitest 2.1.x (see package.json)
  */
 
+import { getTableColumns } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import {
   sessions,
@@ -63,7 +64,7 @@ describe("users table", () => {
   });
 
   it("exposes the correct column count (5)", () => {
-    expect(Object.keys(users).length).toBe(5);
+    expect(Object.keys(getTableColumns(users)).length).toBe(5);
   });
 });
 
@@ -103,7 +104,7 @@ describe("tasks table", () => {
   });
 
   it("has exactly 9 columns", () => {
-    expect(Object.keys(tasks).length).toBe(9);
+    expect(Object.keys(getTableColumns(tasks)).length).toBe(9);
   });
 });
 

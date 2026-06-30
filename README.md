@@ -27,7 +27,8 @@ loop that re-audits the living code against those frozen rules.
 - **Gates are real, not prose.** Every floor rule in `harness/rules/*` ships a concrete `CHECK:`
   (a grep/command or a `manual:` observable), and `/midas-doctor` parses each frozen sprint audit
   against `harness/state.yaml` — flagging any sprint marked `done` while its audit still shows
-  unresolved critical findings. *The first gate check that lives outside the model.*
+  unresolved critical findings. CI enforces this on the worked example via
+  `doctor.mjs --strict --gates-only`. *The first gate check that lives outside the model.*
 - **It closes the loop on disk.** [`examples/taskpilot`](./examples/taskpilot/) drives Sprint 1 to
   `done` — build → [`audit-01.md`](./examples/taskpilot/.harness/audits/audit-01.md) (verdict **PASS**,
   one rule consciously amended and tracked forward to Sprint 3) → Sprint 2 queued. The signature

@@ -42,10 +42,22 @@ pattern is a rule/playbook/convention — Midas keeps new slash-commands at the 
 From the conversation (the repeated requests/corrections) or the `--as`/argument, state the pattern in
 **one sentence** and cite the **≥2 instances** that justify it. A one-off is not a pattern — require genuine recurrence.
 
-### 2. Classify + find an existing home first (amend over duplicate)
+### 2. Classify + find an existing home first (amend over duplicate + contradiction check)
 Pick rule / playbook / convention via the rubric. **Search existing `harness/rules/*`, `product/playbooks/*`,
-and `product/conventions.md` first** — if the pattern extends one, **amend that file** (a recorded change);
-never spawn a near-duplicate.
+and `product/conventions.md` first** — grep for the concept and close synonyms.
+
+- **Overlap** (same concept, ~85%+ overlap — amend, do not duplicate): extend that file with a dated
+  `## Amendment` or playbook edit; record importance `explicit` (user invoked capture) or `recurring`
+  (≥2 chat instances).
+- **Contradiction** (proposed pattern conflicts with an existing `**CHECK:**` or normative statement):
+  stop and surface a table — do not write until the user picks a resolution:
+
+  | Existing | Proposed | Resolution |
+  |---|---|---|
+  | `path` + quote | one-line pattern | `amend` \| `supersede` \| `coexist` |
+
+  On `amend`/`supersede`, log rationale in `## Amendment`. On `coexist`, document scope boundaries.
+- **No match** — proceed to step 3 as a new artifact.
 
 ### 3. Write the artifact (match the house style)
 - **Rule** — a new or extended `harness/rules/<slug>.md` item carrying a concrete `**CHECK:**` (grep or
@@ -58,7 +70,8 @@ never spawn a near-duplicate.
 - If you wrote/changed a **rule**, re-render adapters (`node scripts/render-adapters.mjs` / `/midas-doctor`)
   so every tool sees it; note it will be graded at the next `/close-sprint` (and enforced by the linter if
   it maps to one — see Phase 5 tooling).
-- Record the capture in `harness/state.yaml` (the artifact path + a one-line "captured from a repeated request").
+- Record the capture in `harness/state.yaml` (the artifact path + a one-line "captured from a repeated request"
+  + contradiction result: `no conflicts` or `resolved: <summary>`).
 
 ### 5. Confirm
 Tell the user in **one line** exactly what was written/changed and where, so they can review the git diff.
@@ -71,7 +84,7 @@ Tell the user in **one line** exactly what was written/changed and where, so the
 
 ## Exit gate (capture complete)
 - [ ] The pattern is one sentence with the ≥2 instances that justify it (real recurrence).
-- [ ] Classified via the rubric; an existing artifact was amended if one fit (no near-duplicate).
+- [ ] Classified via the rubric; overlap → amend; contradiction → table resolved before write.
 - [ ] The artifact is written correctly (a rule carries a `**CHECK:**`; a playbook has use-when/steps/done-when).
 - [ ] If a rule changed, adapters were re-rendered; the capture is logged in `state.yaml`.
 - [ ] The user was shown exactly what changed (reviewable in git) — nothing written without confirmation.

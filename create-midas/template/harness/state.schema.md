@@ -58,7 +58,10 @@ local_model:                 # present only when execution_mode != cloud — pro
   vram_gb: 24                # host VRAM / unified-memory ceiling
 
 tools: [claude-code, cursor]        # which tools adapters were generated for
-mcp:   [context7, sequential-thinking]   # which MCP servers are wired
+mcp:   [context7, sequential-thinking]   # MCP servers the project intends to use (declared intent)
+                             # Must match what is actually wired in `.mcp.json` — doctor warns on drift.
+                             # Browser MCPs (playwright, chrome-devtools) are optional; wire them when the
+                             # MVP has UI (see /midas-verify and harness/templates/mcp.json.tmpl).
 
 # Enforcement scaffolded in Phase 5 (recommend-don't-wall) — one entry per tool /define-conventions wrote.
 # doctor.mjs warns if a named config file is missing; installed:false = enforcement OFF (CHECKs graded at Phase 8).
@@ -90,17 +93,15 @@ last_security: { n: "01", critical: 0, high: 0, at: 2026-06-15 } # optional — 
 ## Rules for consumers
 
 1. **Read-modify-write the whole file**; never keep a partial in-memory copy across a phase.
-2. `STATE.md` (human mirror) is regenerated from this file — never hand-edit it as primary.
-3. A half-finished phase keeps `stage_status: in_progress`; the gate is always re-run from
+2. A half-finished phase keeps `stage_status: in_progress`; the gate is always re-run from
    scratch (idempotent), so resuming = re-run the gate and report what's missing.
-4. Skipped gates (e.g. an E2/E3 brownfield repo entering past `idea_intake`) carry an explicit
-   `entry_stage` + a recorded assumption in `state.yaml` (mirrored to `STATE.md`, never primary),
-   exactly like deferred Phase-1 questions.
-5. **Keep it minimal.** `state.yaml` holds only *operational* state — the program counter (stage,
+3. Skipped gates (e.g. an E2/E3 brownfield repo entering past `idea_intake`) carry an explicit
+   `entry_stage` + a recorded assumption in `state.yaml`, exactly like deferred Phase-1 questions.
+4. **Keep it minimal.** `state.yaml` holds only *operational* state — the program counter (stage,
    gates, routing, tool/MCP lists, and short pointers like the current sprint id or `last_audit`).
    Long-form detail (sprint bodies, audit findings, package inventories, verification logs) lives in
    `product/*` and `.harness/*`; `state.yaml` references them by path. Do not let it grow into a data dump.
-6. **`execution_mode` is orthogonal to `cost_profile`.** It never changes *which* Claude tier a
+5. **`execution_mode` is orthogonal to `cost_profile`.** It never changes *which* Claude tier a
    decision uses, only *where* `build`/`scout` may run. `orchestrate` gate verdicts (Phase 1/3/4/8,
    code/security review) are Claude-cloud in **every** mode; under `local` they are recorded
    `un-attested` and never advance a gate. See `harness/rules/model-routing.md`.

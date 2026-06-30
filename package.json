@@ -29,5 +29,9 @@
     "harness",
     "scaffold",
     "context7"
-  ]
+  ],
+  "scripts": {
+    "test": "node scripts/test.mjs",
+    "build": "node scripts/build-plugin.mjs && node scripts/build-create.mjs"
+  }
 }

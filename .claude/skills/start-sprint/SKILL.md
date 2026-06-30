@@ -62,7 +62,9 @@ to satisfy. Update `harness/state.yaml`: set the sprint `status: active`, `stage
 `audit_notes`.
 
 ### 6. Hand off to implementation
-Implementation runs on the **build** tier. Before writing any third-party code, follow
+Implementation runs on the **build** tier. Print: *"👉 Optional: `/midas-recall sprint` for a context pack
+before coding (scout tier; read-only)."* — do **not** re-load the full rule set here; recall delegates to scout.
+Before writing any third-party code, follow
 `harness/rules/context7-usage.md` (`resolve-library-id` → `get-library-docs` at the pinned version).
 **If a task matches a `product/playbooks/*` recipe** (one of the project's repeated procedures), the
 build agent follows that playbook — its steps and done-when check. **For any UI work, build *to*

@@ -77,7 +77,7 @@ rules before any code is written; the Phase 8 audit references exactly these fil
 - [ ] Enforcement tooling is scaffolded (linter+formatter wired to the rules, a commit hook + lint-staged, commit-msg lint, a CI lint job) — installed on the user's OK or left with the exact command
 - [ ] `harness/design-system/tokens.json` and `tokens.css` are consistent with each other
 - [ ] `node scripts/render-adapters.mjs` ran without errors; generated adapters are up to date
-- [ ] Gate verdict written to `.harness/audits/audit-05.md`
+- [ ] Gate verdict written to `.harness/audits/gate-05.md`
 
 ## Recommended tier + agents
 

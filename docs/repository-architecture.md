@@ -109,7 +109,8 @@ invariants that should fail CI when broken.
 
 `scripts/doctor.mjs` is the install health checker. It verifies adapter sync and reports advisory
 project-health warnings such as stale versions, mismatched routing, missing enforcement configs,
-secret-looking MCP values, Windows `npx` MCP launch issues, and inconsistent frozen gate records.
+secret-looking MCP values, Windows `npx` MCP launch issues, MCP drift (`scripts/mcp-drift.mjs` —
+`state.yaml → mcp:` and skill `mcp-required` vs `.mcp.json`), and inconsistent frozen gate records.
 
 The distinction is intentional:
 
@@ -137,8 +138,10 @@ The distinction is intentional:
 - Generated adapters are marked with `<!-- midas:begin -->` / `<!-- midas:end -->` blocks.
 - `create-midas/template/` and `plugins/midas/` are generated bundles; edit their sources instead.
 - The root `.mcp.json` is user-owned configuration for the engine repo and is copied into generated
-  bundles by build scripts. Fresh Windows installs are patched by the installer without overwriting a
-  user's existing `.mcp.json`.
+  bundles as a **minimal default** (typically `sequential-thinking` only). The full optional catalog
+  lives in `harness/templates/mcp.json.tmpl`; `/midas-init` merges chosen servers into the project
+  `.mcp.json` — the template file is reference, not what `build-create.mjs` ships byte-for-byte.
+  Fresh Windows installs are patched by the installer without overwriting a user's existing `.mcp.json`.
 
 ## Engine decisions (ADR)
 
@@ -148,3 +151,4 @@ Decisions about the repository itself (not about a product built with Midas) are
 | ADR | Status | Topic |
 |---|---|---|
 | [ADR-001](adr/ADR-001-install-layout.md) | proposed | Install layout — consolidate engine internals under `.midas/` (opt-in, classic default) |
+| [ADR-002](adr/ADR-002-code-intelligence-mcp.md) | rejected | Optional code-intelligence MCP (code-graph) — rejected: too much install complexity for a dependency-free harness |

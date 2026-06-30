@@ -15,7 +15,7 @@
 | Auth | custom sessions | — | bcrypt password hashing + HTTP-only cookie sessions; no external auth provider in v1 |
 | UI components | shadcn/ui | latest pinned | Headless Radix primitives + Tailwind; zero runtime; design-token-compatible |
 | Styling | Tailwind CSS | 4.x | Utility-first; consumed via design token CSS variables defined in `product/design-system.md` |
-| Testing | Vitest | 3.x | Fast unit/integration tests; compatible with the Next.js project structure |
+| Testing | Vitest | 2.1.x | Fast unit/integration tests; compatible with the Next.js project structure |
 | Hosting | Vercel | — | Zero-config Next.js deployment; preview deployments for PRs |
 | CI | GitHub Actions | — | Lint + type-check + test on every push |
 

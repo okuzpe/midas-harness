@@ -9,7 +9,24 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
-_Nothing yet._
+### Added — Verification / MCP flow improvements
+- **Tool traceability:** `harness/templates/sprint-progress.md` § Done records Task · Proof · **Tool**;
+  Phase 7 playbook step 2e mirrors the same when checking off tasks.
+- **`harness/rules/verification.md`:** rung-4 CHECK requires each verify row to name its tool; documents
+  web-browser scope (native mobile is follow-up).
+- **`harness/rules/session-continuity.md`:** Phase-8 CHECK that progress § Done names the Tool per
+  completed task.
+- **Onboarding:** `/midas-init` offers Playwright + Chrome DevTools when the MVP has UI;
+  `docs/getting-started.md` § UI verification; clearer comments in `harness/templates/mcp.json.tmpl`.
+- **`scripts/doctor.mjs`:** advisory `mcp:declared-vs-wired` reconciles every `state.yaml → mcp:` id
+  with `.mcp.json` (`context7` optional unwired; browser MCPs get template hint); covers missing
+  `.mcp.json`.
+- **`docs/skills.md`:** documents `mcp-required` frontmatter.
+- **`scripts/mcp-drift.mjs`:** shared `evaluateMcpDeclaredVsWired` + `evaluateSkillMcpRequired` (doctor + tests).
+- **Architect sanitization:** `mcp:skill-required` doctor check; taskpilot `.mcp.json`; midas-doctor skill
+  health table synced; gstack doc taxonomy + skill count; `repository-architecture.md` MCP bundle note.
+- **Tool glossary:** `harness/templates/sprint-progress.md` § Tool column; cross-ref in `verification.md`.
+- **`harness/state.schema.md`:** clarifies `mcp:` is declared intent, not proof of wiring.
 
 ---
 

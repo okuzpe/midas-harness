@@ -46,3 +46,8 @@ When satisfied, set `phases.idea_intake` to `{ status: passed, gate: passed }`, 
 contextualize, stage_status: not_started`, and tell the user the next action is **`/contextualize`**.
 If any item is missing, keep `stage_status: in_progress` and report exactly what is outstanding.
 Producer never grades its own homework — the gate verdict is the orchestrator's to render.
+
+## Tier & delegation
+- **Dispatch + gate verdict:** `orchestrate` → delegate to `midas-orchestrator`.
+- **Write `product/idea.md` and update `state.yaml`:** `build` → delegate to `midas-builder`.
+- Scout is read-only; do not assign file writes to `midas-scout`.

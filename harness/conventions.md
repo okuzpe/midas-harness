@@ -1,7 +1,7 @@
 # Midas base conventions (always-on)
 
 This file is the **single body** of project law. Its contents are inlined into the generated tool
-adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`) and summarized in
+adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `GEMINI.md`) and summarized in
 `AGENTS.md`. Edit it here; run `/midas-doctor` (or `node scripts/render-adapters.mjs`) to propagate.
 
 ## Precedence (when rules conflict, higher wins)
@@ -37,9 +37,11 @@ do not introduce a parallel "standards" layer.
 
 ## Verification
 - Verify every change with the **cheapest tool that proves it**: static (typecheck/lint/build) →
-  tests → runtime smoke (boot it) → browser drive+inspect for UI. Fix and re-run until green before
-  marking a task done. The **producer never grades its own homework** — the independent verdict is the
-  Phase-8 audit. Full ladder: [`rules/verification.md`](./rules/verification.md).
+ tests → runtime smoke (boot it) → browser drive+inspect for UI. Fix and re-run until green before
+ marking a task done. The **producer never grades its own homework** — the independent verdict is the
+ Phase-8 audit. Full ladder: [`rules/verification.md`](./rules/verification.md). Session continuity:
+ [`rules/session-continuity.md`](./rules/session-continuity.md) + `/midas-recall`. Dead-flow hygiene:
+ [`rules/hygiene.md`](./rules/hygiene.md) + `/midas-sweep`.
 
 ## Acceptance criteria (EARS)
 - Write each sprint acceptance criterion as a **testable** statement, not a vague goal. Prefer EARS:

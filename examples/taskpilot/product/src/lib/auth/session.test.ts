@@ -5,7 +5,7 @@
  * hardened flags (httpOnly, sameSite=lax — the conscious Sprint-1 choice logged as audit-01 A-01).
  * next/headers and the DB are mocked so no browser or Postgres is required.
  *
- * Run with:  npm run test   ·   Framework: Vitest 3.x
+ * Run with:  npm run test   ·   Framework: Vitest 2.1.x (see package.json)
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";

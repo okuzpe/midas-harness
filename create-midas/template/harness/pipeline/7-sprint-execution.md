@@ -21,12 +21,15 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
 
 1. **Read the sprint file.** Confirm the sprint is `active` in `state.yaml`.
    Work only on tasks listed in this sprint; ignore future sprints.
+   **New session or stale progress:** run `/midas-recall sprint` (optional) or read
+   `.harness/sprints/NN-progress.md` before implementing. On first activation, seed progress from
+   [`harness/templates/sprint-progress.md`](../templates/sprint-progress.md) → `.harness/sprints/NN-progress.md`.
 2. **Implement tasks — one feature at a time.** Work a single task through to *done* (past
    verification) before starting the next; never batch-implement and verify only at the end. This
    incremental discipline is what keeps a long run from exhausting context and drifting — it matters
    most when a local `build` model with a short usable context is driving (`harness/rules/model-routing.md`).
-   Keep a running `.harness/sprints/NN-progress.md` (what is done, what is next, decisions made) so a
-   fresh session resumes without re-reading everything. For each task:
+   Keep a running `.harness/sprints/NN-progress.md` (use the **What / Why / Where / Learned** rows in
+   `harness/templates/sprint-progress.md`) so a fresh session resumes without re-reading everything. For each task:
    a. Before writing code against any third-party library, call `resolve-library-id`
       then `get-library-docs` at the pinned version via Context7 (scout tier).
       Use the web fallback if Context7 is unavailable; never generate from memory.
@@ -41,7 +44,9 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
       and surface the blocker to the human (recommend-don't-wall). You self-check the cheap rungs
       here; the *independent* verdict (rung 5) is rendered at Phase 8, never by you.
    e. Check the task off `## Tasks` in the sprint file **only after it passes verification**, noting
-      the proof (command output, test name, or screenshot reference). If the task completes a feature in
+      the proof (command output, test name, or screenshot reference) **and the tool/MCP that proved it**
+      (e.g. `test-runner`, `context7`, `playwright-mcp`, `@playwright/cli`). Mirror the same in
+      `.harness/sprints/NN-progress.md` § Done (Task · Proof · Tool). If the task completes a feature in
       `product/features.json`, flip that feature's `status` to `passing` and fill its `evidence` —
       editing **only** `status`/`evidence`, never the spec fields.
 3. **Verify acceptance criteria.** After all tasks are checked, run or demonstrate
@@ -49,14 +54,16 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
    or test name) next to each item. For a UI-touching sprint, run `/midas-verify` so each
    criterion is proven in a real browser (Playwright drives the flow; Chrome DevTools inspects
    runtime health) and frozen to `.harness/verifications/verify-NN.md`.
+   **Optional (recommended for large or messy sprints):** run `/midas-sweep` before handing off to
+   Phase 8 — surface dead flows and ledger drift so the audit grades real behaviour, not cruft.
 4. **Self-check DoD.** Walk the `## Definition of Done` list:
    - Tests pass
    - No convention violations (check against `harness/rules/` patterns)
    - No new lint or type errors
    - No secrets committed
-5. **Update `state.yaml`.** Set the sprint's `status: done` and `last_touched` to today.
-   Set `stage_status: gate_pending`.
-6. **Hand off to Phase 8.** The sprint is now ready for the orchestrate-tier audit.
+5. **Update `state.yaml`.** Refresh the sprint's `last_touched` to today. Keep `status: active`
+   until `/close-sprint` (Phase 8) marks the sprint `done` after a passing audit.
+6. **Hand off to Phase 8.** The sprint is now ready for the orchestrate-tier audit via `/close-sprint`.
    Do not advance `stage` — Phase 8 does that after the audit passes.
 
 ## Output artifacts
@@ -78,8 +85,8 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
 - [ ] Tests are present and passing for all new behavior
 - [ ] No convention violations detectable by the `harness/rules/` check patterns
 - [ ] No secrets in committed files
-- [ ] Sprint `status: done` recorded in `harness/state.yaml`
-- [ ] Gate verdict written to `.harness/audits/audit-NN.md` (by Phase 8)
+- [ ] Sprint remains `status: active` in `harness/state.yaml` until `/close-sprint` passes
+- [ ] Gate verdict written to `.harness/audits/audit-NN.md` (by Phase 8 `/close-sprint`)
 
 ## Recommended tier + agents
 

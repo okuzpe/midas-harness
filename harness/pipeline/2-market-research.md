@@ -52,7 +52,7 @@ decision. Every claim must be cited; opinions must be flagged as such.
 - [ ] Exactly 3 top risks are listed with mitigation notes
 - [ ] Every factual claim has an inline citation `[N]`
 - [ ] `## Sources` list contains at least 3 URLs with access dates
-- [ ] Gate verdict written to `.harness/audits/audit-02.md`
+- [ ] Gate verdict written to `.harness/audits/gate-02.md`
 
 ## Recommended tier + agents
 

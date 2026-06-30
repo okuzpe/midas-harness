@@ -13,6 +13,7 @@ import { dirname, join, resolve, extname, basename } from 'node:path';
 import { execSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { computeAdapters, DEFAULT_ADAPTER_TOOLS, resolveAdapterTools } from './render-adapters.mjs';
+import { evaluateMcpDeclaredVsWired, evaluateSkillMcpRequired } from './mcp-drift.mjs';
 
 const SCRIPT_DIR = dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
 const ROOT = resolve(SCRIPT_DIR, '..');
@@ -113,16 +114,47 @@ if (existsSync(tplRoot)) {
     JSON.stringify(dirNames(join(tplRoot, '.claude', 'skills'))) === JSON.stringify(dirNames(skillsDir)),
     're-run build-create.mjs',
   );
-  for (const f of ['AGENTS.md', '.mcp.json', 'harness/methodology.md', 'harness/conventions.md', 'scripts/render-adapters.mjs', 'docs/agents-and-models.md']) {
+  for (const f of ['AGENTS.md', '.mcp.json', 'harness/methodology.md', 'harness/conventions.md', 'scripts/render-adapters.mjs', 'scripts/mcp-drift.mjs', 'scripts/doctor.mjs', 'docs/agents-and-models.md']) {
     check(`create-template:has:${f}`, existsSync(join(tplRoot, f)));
   }
   // The template must NOT carry repo-internal trees into a user project.
   for (const d of ['examples', 'plugins', '.github', 'create-midas']) {
     check(`create-template:excludes:${d}`, !existsSync(join(tplRoot, d)));
   }
+  // Engine dev state must never ship in the distributable bundle (create-midas/index.mjs writes fresh state).
+  check('create-template:excludes:harness/state.yaml', !existsSync(join(tplRoot, 'harness', 'state.yaml')));
 }
 
-// --- F. example state.yaml has the required shape ----------------------------------------------
+// --- E2b. build-create strips engine-only harness files (dynamic, not static tree check) -------
+const buildCreate = join(ROOT, 'scripts', 'build-create.mjs');
+if (existsSync(buildCreate)) {
+  execSync(`node "${buildCreate}"`, { cwd: ROOT, stdio: 'pipe' });
+  check(
+    'build-create:excludes-harness-state-yaml',
+    !existsSync(join(ROOT, 'create-midas', 'template', 'harness', 'state.yaml')),
+    'harness/state.yaml leaked into create-midas/template — add to HARNESS_EXCLUDE',
+  );
+  const srcConv = join(ROOT, 'harness', 'conventions.md');
+  const tplConv = join(ROOT, 'create-midas', 'template', 'harness', 'conventions.md');
+  if (existsSync(srcConv) && existsSync(tplConv)) {
+    check(
+      'build-create:conventions-match',
+      readFileSync(srcConv, 'utf8') === readFileSync(tplConv, 'utf8'),
+      'template harness/conventions.md drifted from source',
+    );
+  }
+}
+
+// --- F3. TaskPilot verify/audit cited test paths exist on disk -------------------------------
+const taskpilotProduct = join(ROOT, 'examples', 'taskpilot', 'product');
+const citedTestPaths = [
+  'src/app/api/tasks/route.test.ts',
+  'src/app/api/tasks/[id]/route.test.ts',
+];
+for (const rel of citedTestPaths) {
+  check(`taskpilot:cited-test:${rel}`, existsSync(join(taskpilotProduct, rel)));
+}
+
 const stateFile = join(ROOT, 'examples', 'taskpilot', 'harness', 'state.yaml');
 if (existsSync(stateFile)) {
   const s = readFileSync(stateFile, 'utf8');
@@ -240,6 +272,35 @@ if (existsSync(join(ROOT, 'scripts', 'fixtures', 'inconsistent-audit'))) {
   check('behavioral:gate-no-false-positive', !/warn\s+gate:audit/.test(good), 'doctor warned gate:audit on a CONSISTENT record (false positive)');
 }
 
+function doctorExit(fixtureRel, flags = '') {
+  const dr = join(ROOT, 'scripts', 'doctor.mjs');
+  try {
+    execSync(`node "${dr}" ${flags} "${join(ROOT, fixtureRel)}"`, { cwd: ROOT, stdio: 'pipe' });
+    return 0;
+  } catch (e) {
+    return typeof e.status === 'number' ? e.status : 1;
+  }
+}
+if (existsSync(join(ROOT, 'scripts', 'fixtures', 'inconsistent-audit'))) {
+  check(
+    'behavioral:strict-exits-1-on-inconsistent',
+    doctorExit('scripts/fixtures/inconsistent-audit', '--strict --gates-only') === 1,
+    '--strict --gates-only must exit 1 when gate record disagrees with state',
+  );
+  check(
+    'behavioral:strict-exits-0-on-consistent',
+    doctorExit('scripts/fixtures/consistent-audit', '--strict --gates-only') === 0,
+    '--strict --gates-only must exit 0 when gate records match state',
+  );
+}
+if (existsSync(join(ROOT, 'examples', 'taskpilot'))) {
+  check(
+    'behavioral:taskpilot-strict-gates',
+    doctorExit('examples/taskpilot', '--strict --gates-only') === 0,
+    'taskpilot gate records must be consistent with state.yaml',
+  );
+}
+
 // --- L. prose version pins (#vX.Y.Z) match harness/VERSION (CHANGELOG history excluded) ---------
 if (engineVersion) {
   for (const f of ['INSTALL.md', 'SECURITY.md', 'README.md', 'create-midas/index.mjs']) {
@@ -312,6 +373,35 @@ const installer = readFileSync(join(ROOT, 'create-midas', 'index.mjs'), 'utf8');
 check('mcp:installer-wraps-npx-on-windows', /function fixMcpForWindows\(\)[\s\S]*server\.command = 'cmd'/.test(installer));
 check('mcp:installer-preserves-user-config', /rel === '\.mcp\.json'/.test(installer), '.mcp.json must remain user-owned on update');
 
+// --- N. mcp:declared-vs-wired logic (unit + behavioral via doctor) ------------------------------
+{
+  const stateOptional = 'mcp: [context7, sequential-thinking]\n';
+  const mcpSeq = JSON.stringify({ mcpServers: { 'sequential-thinking': { command: 'npx' } } });
+  const r1 = evaluateMcpDeclaredVsWired(stateOptional, mcpSeq);
+  check('mcp-drift:optional-context7-ok', r1.status === 'ok' && /context7/.test(r1.note));
+
+  const stateSeqOnly = 'mcp: [sequential-thinking]\n';
+  const r2 = evaluateMcpDeclaredVsWired(stateSeqOnly, null);
+  check('mcp-drift:missing-json-warns', r2.status === 'warn' && /no \.mcp\.json/.test(r2.note));
+
+  const stateBrowser = 'mcp: [playwright]\n';
+  const r3 = evaluateMcpDeclaredVsWired(stateBrowser, mcpSeq);
+  check('mcp-drift:browser-missing-warns', r3.status === 'warn' && /playwright/.test(r3.note) && /browser blocks/.test(r3.note));
+
+  const r4 = evaluateMcpDeclaredVsWired('', null);
+  check('mcp-drift:empty-state-skips', r4.status === 'skip');
+
+  const r5 = evaluateSkillMcpRequired(['playwright'], mcpSeq);
+  check('mcp-drift:skill-required-warns', r5.status === 'warn' && /playwright/.test(r5.note));
+
+  const r6 = evaluateSkillMcpRequired(['sequential-thinking'], mcpSeq);
+  check('mcp-drift:skill-required-ok', r6.status === 'ok');
+}
+if (existsSync(join(ROOT, 'examples', 'taskpilot'))) {
+  const tpOut = doctorOutput('examples/taskpilot');
+  check('behavioral:mcp-drift-taskpilot', /ok\s+mcp:declared-vs-wired/.test(tpOut), 'taskpilot .mcp.json should satisfy declared MCPs');
+}
+
 // --- O. tool selection + tool-aware adapter render ----------------------------------------------
 check('render:tool-aware-default', resolveAdapterTools(ROOT).join(',') === DEFAULT_ADAPTER_TOOLS.join(','));
 const defaultAdapterPaths = computeAdapters(ROOT).files.map((f) => f.path).sort();
@@ -355,6 +445,28 @@ if (existsSync(visualRule)) {
   check('rule:visual-design:headless-escape', /N\/A \(no UI\)/.test(vr));
   check('rule:visual-design:delegates-a11y', /accessibility\.md/.test(vr) && /do not duplicate/i.test(vr));
 }
+
+// --- L. native memory model (ADR-003 / midas-recall / session continuity) -----------------------
+check('skill:midas-recall:exists', existsSync(join(skillsDir, 'midas-recall', 'SKILL.md')));
+const progressTpl = join(ROOT, 'harness', 'templates', 'sprint-progress.md');
+check('template:sprint-progress:exists', existsSync(progressTpl));
+if (existsSync(progressTpl)) {
+  const pt = readFileSync(progressTpl, 'utf8');
+  for (const sec of ['What', 'Why', 'Where', 'Learned']) {
+    check(`template:sprint-progress:${sec}`, pt.includes(sec));
+  }
+}
+const memoryModel = join(ROOT, 'harness', 'research', 'memory-model.md');
+check('research:memory-model:exists', existsSync(memoryModel));
+if (existsSync(memoryModel)) {
+  check(
+    'research:memory-model:refs-adr-003',
+    /ADR-003/.test(readFileSync(memoryModel, 'utf8')),
+  );
+}
+check('adr:003:exists', existsSync(join(ROOT, 'docs', 'adr', 'ADR-003-project-memory-model.md')));
+check('rule:session-continuity:exists', existsSync(join(ROOT, 'harness', 'rules', 'session-continuity.md')));
+check('mkdocs:adr-003', /ADR-003/.test(readFileSync(join(ROOT, 'mkdocs.yml'), 'utf8')));
 
 console.log(`midas test: ${passed} passed, ${failures.length} failed`);
 if (failures.length) {

@@ -98,3 +98,23 @@ Run `/midas-tribunal` at any time for a whole-project adversarial debate.
 
 For an existing codebase, `/midas-init` classifies it as **E2/E3** and runs `/midas-adopt` for you
 (no need to call it manually). See the [Skills Reference](skills.md) for every command.
+
+---
+
+## UI verification (web)
+
+If your MVP ships a **user-facing web UI**, Phase 7 uses `/midas-verify` to prove acceptance criteria in a
+real browser (verification ladder rung 4 in `harness/rules/verification.md`).
+
+1. During `/midas-init`, when asked about MCP servers, **uncomment** the optional blocks in `.mcp.json`:
+   - **Playwright** (`@playwright/mcp`) — drives flows (navigate, click, fill, assert, screenshot)
+   - **Chrome DevTools** (`chrome-devtools-mcp`) — console errors, network, Core Web Vitals (recommended)
+2. Ensure `harness/state.yaml → mcp:` lists `playwright` / `chrome-devtools` to match what you wired.
+3. After a UI-touching sprint lands, run `/midas-verify` before `/close-sprint`. Evidence freezes to
+   `.harness/verifications/verify-NN.md` (each row names the **Tool** that proved the criterion).
+
+`node scripts/doctor.mjs` warns if `state.yaml` declares browser MCPs that are not present in `.mcp.json`.
+API-only projects can skip browser MCPs — use the project's test runner instead.
+
+**Native mobile** (iOS/Android) automation is not wired in Midas today; use your stack's device/simulator
+tests until a mobile verify path is adopted in Phase 4–5.

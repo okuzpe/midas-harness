@@ -34,6 +34,13 @@ them.
 
 ## Options
 - `--force` — overwrite files that already exist.
+- `--update` — refresh engine files from the bundled template; preserves your `harness/state.yaml`.
+- `--uninstall` — remove Midas-installed files (with confirmation).
+- `--tools=<list>` — comma-separated adapter tools (`claude-code`, `cursor`, `windsurf`, `gemini`, `codex`, `copilot`).
+- `--dry-run` — show what would be copied without writing.
+- `--purge` — with `--uninstall`, also remove generated adapters and `.harness/` caches.
 - `-h`, `--help` — show usage.
+
+Pin a release: `npx github:okuzpe/midas-harness#v0.5.20`
 
 Apache-2.0. Issues and docs: <https://github.com/okuzpe/midas-harness>.

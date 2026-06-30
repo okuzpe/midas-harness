@@ -60,7 +60,7 @@ This is an irreversible decision point; use the orchestrate tier.
 - [ ] `## Validation status` present: desk demand verdict + field-validation status (done / deferred-with-assumption); founder not hard-walled
 - [ ] Go/no-go recommendation is present with explicit reasoning
 - [ ] Human sign-off is recorded (`human_approved: true` in `state.yaml`)
-- [ ] Gate verdict written to `.harness/audits/audit-03.md`
+- [ ] Gate verdict written to `.harness/audits/gate-03.md`
 
 ## Recommended tier + agents
 

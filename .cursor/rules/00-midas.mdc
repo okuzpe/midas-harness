@@ -1,6 +1,7 @@
 ---
 description: Midas base conventions (always-on project law). Generated from harness/conventions.md.
 globs:
+  - "**/*"
 alwaysApply: true
 ---
 
@@ -11,7 +12,7 @@ alwaysApply: true
 # Midas base conventions (always-on)
 
 This file is the **single body** of project law. Its contents are inlined into the generated tool
-adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`) and summarized in
+adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `GEMINI.md`) and summarized in
 `AGENTS.md`. Edit it here; run `/midas-doctor` (or `node scripts/render-adapters.mjs`) to propagate.
 
 ## Precedence (when rules conflict, higher wins)
@@ -47,9 +48,11 @@ do not introduce a parallel "standards" layer.
 
 ## Verification
 - Verify every change with the **cheapest tool that proves it**: static (typecheck/lint/build) →
-  tests → runtime smoke (boot it) → browser drive+inspect for UI. Fix and re-run until green before
-  marking a task done. The **producer never grades its own homework** — the independent verdict is the
-  Phase-8 audit. Full ladder: [`rules/verification.md`](./rules/verification.md).
+ tests → runtime smoke (boot it) → browser drive+inspect for UI. Fix and re-run until green before
+ marking a task done. The **producer never grades its own homework** — the independent verdict is the
+ Phase-8 audit. Full ladder: [`rules/verification.md`](./rules/verification.md). Session continuity:
+ [`rules/session-continuity.md`](./rules/session-continuity.md) + `/midas-recall`. Dead-flow hygiene:
+ [`rules/hygiene.md`](./rules/hygiene.md) + `/midas-sweep`.
 
 ## Acceptance criteria (EARS)
 - Write each sprint acceptance criterion as a **testable** statement, not a vague goal. Prefer EARS:
@@ -135,15 +138,14 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
 
 ## Always-on rules — CHECK digest (full bodies in `harness/rules/`)
 - **Rule: Accessibility & design-system floor (always-on)** (`accessibility.md`)
-  - > **Every item carries a `**CHECK:**`** — the concrete condition the Phase-8 audit evaluates: a
-  - **CHECK:** `grep -rniE "#[0-9a-fA-F]{3,8}|rgba?\(" <ui-src>` → every hit is a token *definition*,
-  - **CHECK:** `manual:` a reviewer can name which reference each key screen draws from; "generic
-  - **CHECK:** `manual:` the design tokens are AA-verified (the starter `tokens.css` documents the
-  - **CHECK:** `grep -rniE "outline:[[:space:]]*(none|0)" <ui-src>` → none without a replacement focus ring;
-  - **CHECK:** `grep -rni "<img" <ui-src> | grep -vi "alt="` → empty (every `<img>` carries `alt`;
-  - **CHECK:** `manual:` a `prefers-reduced-motion` query exists (the starter `tokens.css` ships one),
+  - **CHECK:** `grep -rniE "#[0-9a-fA-F]{3,8}|rgba?\(" <ui-src>` → every hit is a token *definition*, not an inline value in a component; an inline hex/rgb in component code is a fail.
+  - **CHECK:** `manual:` a reviewer can name which reference each key screen draws from; "generic Bootstrap/Tailwind default" with no traceable anchor is a fail.
+  - **CHECK:** `manual:` the design tokens are AA-verified (the starter `tokens.css` documents the ratios per semantic pair); any new colour pairing is checked against AA before use.
+  - **CHECK:** `grep -rniE "outline:[[:space:]]*(none|0)" <ui-src>` → none without a replacement focus ring; plus `manual:` tab through each primary flow — a control that can't be reached or shows no focus is a fail.
+  - **CHECK:** `grep -rni "<img" <ui-src> | grep -vi "alt="` → empty (every `<img>` carries `alt`; decorative uses `alt=""`/`aria-hidden`). HTML-`<img>`-only — for component frameworks (`<Image>`, `<Avatar>`, …) lean on the paired `manual:` review of each image-rendering component.
+  - **CHECK:** `manual:` a `prefers-reduced-motion` query exists (the starter `tokens.css` ships one), and every status/state has a non-colour cue (icon, label, or shape).
   - **CHECK:** `manual:` primary buttons/links meet the minimum target size at touch viewport widths.
-  - **CHECK:** `manual:` each input has a `<label>`/`aria-label`; each validation error carries text
+  - **CHECK:** `manual:` each input has a `<label>`/`aria-label`; each validation error carries text plus an `aria` association — a red border with no message is a fail.
   - **CHECK:** `grep -rniE "box-sizing:[[:space:]]*border-box" <ui-src>` is present in the reset; any `content-box` override is a flag.
   - **CHECK:** `manual:` media inherits `max-width:100%` (base reset); a fixed `width:NNNpx` on media without `max-width:100%` is a fail.
   - **CHECK:** `grep -rniE "display:[[:space:]]*(flex|grid)" <ui-src>` → `manual:` children holding text/media/scroll panes carry `min-width:0` (`.ds-min-0`), or the grid track uses `minmax(0,1fr)`.
@@ -153,7 +155,6 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` no horizontal scrollbar (`document.documentElement.scrollWidth <= clientWidth`); buttons/inputs stay inside their parent. `/midas-verify` automates this.
   - **CHECK:** `grep -rniE "z-index:[[:space:]]*[0-9]+" <ui-src>` → each is a `var(--ds-z-*)` token; a raw integer (e.g. `9999`) is a fail.
 - **Rule: Code quality (always-on)** (`code-quality.md`)
-  - > **Every item carries a `**CHECK:**`** — the concrete condition the Phase-8 audit evaluates: a
   - **CHECK:** `manual:` diff each new file against a sibling in the same directory; a naming/indent/idiom break that stands out from local style is a fail.
   - **CHECK:** `manual:` grep the codebase for the concept (`grep -rin "<concept>" src/`); a parallel implementation of an existing pattern is a fail.
   - **CHECK:** any rules/standards/guidelines doc outside `harness/conventions.md` + `harness/rules/` is a fail (`find . -iname "*standard*" -o -iname "*guideline*"` outside those paths → empty).
@@ -175,7 +176,6 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` inspect error/response paths; a message returning a raw secret or internal stack trace to a caller is a fail.
   - **CHECK:** `grep -rnE "catch\s*\([^)]*\)\s*\{\s*\}|except[^\n]*:\s*\n\s*pass"` → empty.
 - **Rule: Documentation (always-on)** (`docs.md`)
-  - > **Every item carries a `**CHECK:**`** — the concrete condition the Phase-8 audit evaluates: a
   - **CHECK:** `manual:` each `export`ed symbol in the diff is preceded by a doc comment; an undocumented public export is a fail.
   - **CHECK:** `manual:` a doc comment that merely echoes the signature is a fail.
   - **CHECK:** `manual:` non-obvious params/returns (ranges, units, nullability) are documented; an undocumented constraint is a fail.
@@ -197,7 +197,6 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `node scripts/doctor.mjs <project>` reports no `enforcement` **warn** — every named config
   - **CHECK:** when a stack rule's CHECK names a linter/scanner as its machine-readable form, a matching
 - **Rule: Git commits (always-on)** (`git-commits.md`)
-  - > **Every item carries a `**CHECK:**`** — the concrete condition the Phase-8 audit evaluates: a
   - **CHECK:** `git log <base>..HEAD --format=%s | grep -vE "^(feat|fix|docs|refactor|test|chore|perf|style|ci)(\(.+\))?!?: .{1,62}$"` → empty.
   - **CHECK:** same `git log` scan as above; any subject whose type is outside the allowed set is a fail.
   - **CHECK:** `git log <base>..HEAD --format=%s | grep -iE ": (added|adding|fixed|fixing|updated|updating)\b"` → empty.
@@ -215,6 +214,12 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` each push traces to an explicit human request in the session; an agent-initiated push is a fail.
   - **CHECK:** `manual:` the PR targets the default branch and links the sprint task; a PR with no sprint reference is a fail.
   - **CHECK:** `manual:` merged history matches the project's single chosen strategy (no mixed merge/squash).
+- **Rule: Hygiene & dead-flow sweep (always-on)** (`hygiene.md`)
+  - **CHECK:** `manual:` if `state.yaml` has `mode: brownfield`, either (a) a `.harness/sweeps/sweep-NN.md` exists whose date falls within the active sprint window, or (b) `.harness/audits/audit-NN.md` § hygiene records `sweep: skipped — <one-line reason>`. Neither is a fail on greenfield (`mode` absent or `greenfield`).
+  - **CHECK:** `manual:` read the latest `.harness/sweeps/sweep-NN.md` for this sprint cycle (if any); if `MIDAS_SWEEP_RESULT` shows `dead_flows>0` or `ledger_drift>0`, the sprint audit must list each as **fixed**, **deferred** (with issue/owner), or **accepted** (with rationale). An unmentioned high-severity row is a fail.
+  - **CHECK:** `manual:` for each feature id touched in the sprint diff, `status: passing` rows carry non-empty `evidence` (test path, route, or verify record); `failing` rows are not contradicted by shipped code in the same diff without a recorded deferral.
+  - **CHECK:** `manual:` for each `product/playbooks/*.md` cited in the sprint or architecture, grep `src/` for the trigger predicate; a playbook with zero matches and no `## Retired` note in the sweep or audit is a warn (fail if the sprint added or edited that playbook without fixing the trigger).
+  - **CHECK:** `manual:` rows in `product/open-questions.md` marked OPEN that are answered in `product/idea.md` are a fail; internal markdown links in changed `product/*` files that 404 on disk are a fail (grep `](` targets against the tree).
 - **Rule: Cost-aware model routing (always-on)** (`model-routing.md`)
   - **CHECK:** A high-stakes gate verdict or audit (Phase 1/3/4/8, code-review, security-review) is
   - **CHECK:** *(manual)* Under any `execution_mode`, a binding gate/audit/verify verdict header (Phase
@@ -223,7 +228,6 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `harness/state.yaml -> routing` ids are all known model ids and, under
   - **CHECK:** *(manual)* a latency-tolerant fan-out of ≥3 same-shaped calls uses batching, not a serial loop.
 - **Rule: Naming (always-on)** (`naming.md`)
-  - > **Every item carries a `**CHECK:**`** — the concrete condition the Phase-8 audit evaluates: a
   - **CHECK:** `git diff --name-only <base>..HEAD` shows no path segment matching `[A-Z _]` (outside framework-mandated names like `README`, `Dockerfile`).
   - **CHECK:** `git diff --name-only | grep -iE "/(utils?|helpers?|misc|common|stuff)\.[a-z]+$"` → empty (or each justified).
   - **CHECK:** `manual:` each `index.*` barrel sits on a public module boundary and re-exports only the public surface.
@@ -243,7 +247,6 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` each domain noun in code matches a glossary term from `product/idea.md` / `product/architecture.md`.
   - **CHECK:** `manual:` a rename touches all occurrences in one commit; a partial rename leaving the old name is a fail.
 - **Rule: Security (always-on)** (`security.md`)
-  - > **Every item carries a `**CHECK:**`** — the concrete condition the Phase-8 audit evaluates: a
   - **CHECK:** `git grep -nE "(sk-[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{16,}|-----BEGIN [A-Z ]*PRIVATE KEY)"` → empty; a secret-scanner (gitleaks/trufflehog) on the diff finds nothing.
   - **CHECK:** `manual:` every credential the code consumes resolves from `process.env`/env equivalent or a gitignored local file; a hardcoded credential is a fail.
   - **CHECK:** `grep -nE "(token|api[_-]?key|secret|password)\"\s*:\s*\"[^$]" .mcp.json` → empty (matches `/midas-doctor`'s `mcp:secret-free` check).
@@ -258,20 +261,24 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `npm audit --audit-level=high` (or `pip-audit`) exits clean on the new deps; the PR records the result.
   - **CHECK:** lockfile present and committed in the diff; manifest has no unbound ranges (see `code-quality.md` pinning CHECK).
   - **CHECK:** `manual:` lockfile diff in the PR is reviewed; an unexplained transitive bump is a fail.
-  - **CHECK:** `npm audit --audit-level=high` (or `pip-audit` / `osv-scanner`) exits clean on the
+  - **CHECK:** `npm audit --audit-level=high` (or `pip-audit` / `osv-scanner`) exits clean on the committed lockfile this sprint; any high/critical is fixed or logged with a dated remediation ADR.
   - **CHECK:** `manual:` error responses return a safe message/code; a raw stack trace or path reaching the client is a fail.
   - **CHECK:** `grep -rnE "log.*(password|token|secret|ssn|email)" src/` → reviewed; logging a raw secret/PII value is a fail.
   - **CHECK:** `manual:` response headers/bodies expose no server version or internal IDs not required by spec (e.g. `X-Powered-By` disabled).
   - **CHECK:** `grep -rnE "http://(?!localhost|127\.0\.0\.1)" src/ config/` → empty.
   - **CHECK:** `manual:` if the spec requires encryption-at-rest, `product/architecture.md` records the mechanism and the code/infra applies it.
+- **Rule: Session continuity (always-on)** (`session-continuity.md`)
+  - **CHECK:** `manual:` when `stage: sprint_execution` and a sprint is `active`, either (a) `.harness/sprints/NN-progress.md` exists with at least one **Learned** row updated this sprint cycle, or (b) `sprints[].last_touched` for that sprint is ≤ **7 days** before audit date. Greenfield with no active sprint → `n/a`.
+  - **CHECK:** `manual:` when the sprint diff checks off tasks in `product/sprints/NN-*.md`, read `.harness/sprints/NN-progress.md` § Done — each completed row carries a non-empty **Tool** value (e.g. `test-runner`, `context7`, `playwright-mcp`); a checked-off task with proof but no Tool is a fail. Sprints with zero tasks completed this cycle → `n/a`.
+  - **CHECK:** `manual:` the capture log in `state.yaml` or the amended artifact's `## Amendment` notes `no conflicts` or documents the contradiction table outcome; a silent capture against an existing CHECK is a fail.
+  - **CHECK:** `manual:` the sprint diff introduces no new `*.db`, `.engram/`, or vector-store config; continuity evidence is `NN-progress.md`, `product/*`, or `harness/rules/*` only.
 - **Rule: Testing (always-on)** (`testing.md`)
-  - > **Every item carries a `**CHECK:**`** — the concrete condition the Phase-8 audit evaluates: a
   - **CHECK:** `manual:` the sprint diff pairs each behavioural change with a new/updated test in the same range; a behaviour change with no test delta is a fail.
   - **CHECK:** `manual:` tests assert public outputs/effects; a test reaching into private state/mocks-everything is a fail.
   - **CHECK:** the project test command (`npm test` / `pytest` / …) exits 0 with zero failures.
   - **CHECK:** `manual:` each new public function/module has a unit test with its dependencies stubbed.
   - **CHECK:** `manual:` at least one integration test exercises each architecture module boundary touched this sprint.
-  - **CHECK:** `manual:` each acceptance-criterion journey has an E2E/API test (or a `/midas-verify`
+  - **CHECK:** `manual:` each acceptance-criterion journey has an E2E/API test (or a `/midas-verify` record); for UI journeys the `/midas-verify` record also shows **no uncaught console errors / no failed happy-path network requests** (runtime health, see `verification.md`); an uncovered journey — or a console/network error on the happy path — is a fail.
   - **CHECK:** every test file sits in the pinned location (adjacent or mirrored); a stray test path is a fail.
   - **CHECK:** `manual:` each test targets one behaviour; a test asserting several unrelated outcomes is a fail.
   - **CHECK:** `manual:` test titles name scenario + expected result; a title that is just the function name is a fail.
@@ -285,27 +292,26 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` branch protection / required check makes the test job mandatory for merge.
   - **CHECK:** `manual:` any known-flaky test has a tracking issue and a fix/quarantine within the sprint.
 - **Rule: Verification (always-on)** (`verification.md`)
-  - > **Every item carries a `**CHECK:**`** — the concrete condition the Phase-8 audit evaluates: a
-  - **CHECK:** the project's typecheck, lint, and build commands (`tsc --noEmit` / `mypy`, the
-  - **CHECK:** the project test command (`npm test` / `pytest` / …) exits 0; a behaviour change
-  - **CHECK:** `manual:` the project's run/preview/start command boots and stays up; an uncaught
-  - **CHECK:** a `/midas-verify` record (`.harness/verifications/verify-NN.md`) exists with a
-  - **CHECK:** the verify record's runtime-health table shows zero uncaught console errors and zero
-  - **CHECK:** `manual:` `document.documentElement.scrollWidth <= clientWidth` on each key screen;
-  - **CHECK:** the sprint's `.harness/audits/audit-NN.md` exists and was produced by the auditor tier,
-  - **CHECK:** in `product/features.json`, a `status: "passing"` with empty `evidence`, or a shipped
+  - **CHECK:** the project's typecheck, lint, and build commands (`tsc --noEmit` / `mypy`, the linter, the build) each exit 0 with zero new errors on the sprint diff.
+  - **CHECK:** the project test command (`npm test` / `pytest` / …) exits 0; a behaviour change with no new/updated test in the same diff range is a fail.
+  - **CHECK:** `manual:` the project's run/preview/start command boots and stays up; an uncaught exception, failed import, or crash-on-launch is a fail (record the command + the observed output).
+  - **CHECK:** a `/midas-verify` record (`.harness/verifications/verify-NN.md`) exists with a per-criterion `pass | fail | blocked` verdict backed by a selector + screenshot; an uncovered acceptance-criterion journey is a fail.
+  - **CHECK:** the verify record's runtime-health table shows zero uncaught console errors and zero failed happy-path requests on the screens under test; any error/4xx-5xx on the happy path is a fail. (If Chrome DevTools MCP is absent, fall back to Playwright's console/network capture and record which tool proved it.)
+  - **CHECK:** `manual:` `document.documentElement.scrollWidth <= clientWidth` on each key screen; a hardcoded value not traceable to a `--ds-*` token is a fail.
+  - **CHECK:** `manual:` read `.harness/verifications/verify-NN.md` — every acceptance-criterion row carries a non-empty Tool value; a UI sprint with no browser MCP in `.mcp.json` and no documented fallback in the record is a fail.
+  - **CHECK:** the sprint's `.harness/audits/audit-NN.md` exists and was produced by the auditor tier, not the producer; its `MIDAS_AUDIT_RESULT` tally shows `unresolved=0 verdict=pass`.
+  - **CHECK:** in `product/features.json`, a `status: "passing"` with empty `evidence`, or a shipped behaviour with no feature entry, is a fail; Phase 8 grades the file against the verification records.
 - **Rule: Visual design fundamentals (always-on)** (`visual-design.md`)
-  - > **Every item carries a `**CHECK:**`** — the concrete condition the Phase-8 audit evaluates: a
-  - **CHECK:** `manual:` on each key screen, exactly one primary CTA is visually dominant; a second
-  - **CHECK:** `grep -rniE "<h[1-6]" <ui-src>` → `manual:` each page's heading order has no skipped
-  - **CHECK:** `manual:` the primary heading uses `--ds-text-2xl`/`--ds-text-3xl` or larger; body copy
-  - **CHECK:** `grep -rniE "font-family" <ui-src>` → every declaration is `var(--ds-font-sans)` or
-  - **CHECK:** `grep -rniE "font-size:[[:space:]]*[0-9.]+(px|rem|em)" <ui-src>` → each hit is
-  - **CHECK:** `grep -rniE "line-height:[[:space:]]*[0-9.]+" <ui-src>` → each hit in component code is
-  - **CHECK:** `manual:` related controls share `--ds-space-2`/`--ds-space-4` gaps; unrelated sections
-  - **CHECK:** `manual:` the primary CTA uses `--ds-action-*`; status badges/toasts use intent tokens;
-  - **CHECK:** `manual:` primary vs secondary/ghost variants are distinguishable without relying on
-  - **CHECK:** `manual:` a first-time reviewer can name the primary action within 5 seconds on each
-  - **CHECK:** `manual:` on landing/marketing pages, headline + primary CTA appear in the first viewport;
-  - **CHECK:** `manual:` each data-dependent view has identifiable empty/loading/error UI (component
+  - **CHECK:** `manual:` on each key screen, exactly one primary CTA is visually dominant; a second filled primary on the same view is a fail.
+  - **CHECK:** `grep -rniE "<h[1-6]" <ui-src>` → `manual:` each page's heading order has no skipped levels; a decorative size bump without semantic level is a fail.
+  - **CHECK:** `manual:` the primary heading uses `--ds-text-2xl`/`--ds-text-3xl` or larger; body copy uses `--ds-text-md`; metadata/labels use `--ds-text-sm` or `--ds-text-secondary` — a screen where all text reads the same size/weight is a fail.
+  - **CHECK:** `grep -rniE "font-family" <ui-src>` → every declaration is `var(--ds-font-sans)` or `var(--ds-font-mono)` (or inherits from the base reset); a third family or a raw stack name is a fail.
+  - **CHECK:** `grep -rniE "font-size:[[:space:]]*[0-9.]+(px|rem|em)" <ui-src>` → each hit is `var(--ds-text-*)` or lives in the token definition file; a raw size in component code is a fail.
+  - **CHECK:** `grep -rniE "line-height:[[:space:]]*[0-9.]+" <ui-src>` → each hit in component code is `var(--ds-leading-*)`; a raw unitless/px line-height in a component is a fail.
+  - **CHECK:** `manual:` related controls share `--ds-space-2`/`--ds-space-4` gaps; unrelated sections are separated by ≥ `--ds-space-6`; arbitrary px gaps in component CSS are a fail (see `components.md` cross-cutting rule 6).
+  - **CHECK:** `manual:` the primary CTA uses `--ds-action-*`; status badges/toasts use intent tokens; a decorative rainbow of accent colours on one screen is a fail. Hardcoded colour values are graded under `accessibility.md` (do not re-audit here).
+  - **CHECK:** `manual:` primary vs secondary/ghost variants are distinguishable without relying on colour alone (weight, fill vs outline, or position).
+  - **CHECK:** `manual:` a first-time reviewer can name the primary action within 5 seconds on each key screen; buried or ambiguous primary action is a fail.
+  - **CHECK:** `manual:` on landing/marketing pages, headline + primary CTA appear in the first viewport; on app views, the page title and primary action precede dense secondary content.
+  - **CHECK:** `manual:` each data-dependent view has identifiable empty/loading/error UI (component name or route cited in the audit); a spinner-only forever or empty white box is a fail.
 <!-- midas:end -->

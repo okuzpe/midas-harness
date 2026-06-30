@@ -12,7 +12,7 @@ for, who edits it, and which one wins when they conflict** — so neither you no
 | `harness/conventions.md` + `harness/rules/*` | The actual rule bodies (code quality, security, testing, Context7, …) | you / `/define-conventions` | inlined into the adapters |
 | `harness/state.yaml` | **Operational state only** — current phase, gates, cost profile, tools, sprint pointer | the skills (read first, write last) | `/midas-status`, every skill |
 | `product/*` | **Lifecycle artifacts** — `idea.md`, `market.md`, `business-plan.md`, `architecture.md`, `adr/*`, `design-system.md`, `roadmap.md`, `sprints/*` | the phase skills | the agent, during the relevant phase |
-| `.harness/*` | **Frozen records** — `audits/`, `debates/`, `verifications/` (append-only) | `/close-sprint`, `/midas-tribunal`, `/midas-verify` | reference / evidence |
+| `.harness/*` | **Frozen records** — `audits/`, `debates/`, `sweeps/`, `verifications/` (append-only); **`sprints/NN-progress.md`** (STM — mutable per active sprint) | `/close-sprint`, `/midas-tribunal`, `/midas-sweep`, `/midas-verify`; progress during Phase 7 | reference / evidence / resume |
 
 ## Precedence (when rules conflict, higher wins)
 

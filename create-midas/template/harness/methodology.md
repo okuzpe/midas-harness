@@ -7,8 +7,23 @@ The per-phase playbooks live in [`harness/pipeline/`](./pipeline/); this file is
 ## The harness contract
 - **Stateful** — one source of truth, [`harness/state.yaml`](./state.schema.md). Read first, write last.
 - **Auditable** — every phase yields artifacts + a gate verdict frozen in `.harness/audits/`.
-- **Resumable** — `/midas-status` reads the state and prints the single next action; any agent on any
-  tool can resume because the methodology is markdown, not a tool's memory.
+- **Resumable** — `/midas-status` reads the state and prints the single next action; `/midas-recall`
+  assembles a curated context pack when resuming mid-phase or mid-sprint. Any agent on any tool can
+  resume because the methodology is markdown on disk, not a vendor's chat memory.
+
+## Resuming work (native memory)
+
+Midas stores **long-term** project truth in `product/*`, `harness/rules/*`, and frozen `.harness/*`
+records — not in a hidden vector DB. **Short-term** continuity uses `.harness/sprints/NN-progress.md`
+(STM). See [`research/memory-model.md`](./research/memory-model.md).
+
+| Need | Command |
+|---|---|
+| Where am I + next ritual? | `/midas-status` (~6 lines) |
+| What files matter right now? | `/midas-recall` (~15 paths + brief) |
+| Codify a repeated preference | `/midas-capture` (user-approved) |
+
+**Context window ≠ memory.** Do not replay full chat history; read the pack, then work.
 
 **Transition rule:** advance from phase N to N+1 **iff** the orchestrator (Opus) ran the phase-N exit
 gate, every gate item is satisfied with on-disk evidence, the verdict is written to `.harness/audits/`,
@@ -95,6 +110,25 @@ a block (it's the human's call, and skipping is fine):
 Run it at any of these (recommended) or any time. It's a *space* in the flow, not a toll booth — being
 cost-aware (a multi-agent Opus debate), it stays optional and non-advancing by design.
 
+## Standing hygiene — the sweep
+Beyond sync (`/midas-doctor`) and adversarial debate (`/midas-tribunal`), Midas offers an on-demand
+**hygiene pass**: `/midas-sweep`. It hunts **dead flows** (routes nothing reaches, playbooks whose
+triggers never fire), **orphans** (unimported modules, stale doc links), and **ledger drift**
+(`product/features.json`, roadmap sprints, open questions vs `product/idea.md`). It reports first;
+`--fix` applies only safe cleanups the human explicitly approves. Findings freeze to
+`.harness/sweeps/sweep-NN.md`.
+
+Recommended checkpoints — `/midas-status` may surface them; skipping is fine:
+
+| Checkpoint | When | The question it asks |
+|---|---|---|
+| **Post-adopt** | after `/midas-adopt` inventory, before wiring | *What brownfield cruft should we drop or reconcile before Midas codifies reality?* |
+| **Pre-plan-sprints** | Phase 6, before `/plan-sprints` seeds `features.json` | *Does the ledger match what the code actually does?* |
+| **Pre-close-sprint** | end of a large or messy sprint, before `/close-sprint` | *Are we about to audit code that still has obvious dead weight?* |
+
+Like the tribunal, sweep is **non-advancing** — it informs cleanup; it never passes a gate or changes
+`stage` on its own.
+
 ## Human sign-off points
 
 Midas automates the *work*, never the *irreversible judgment*. The gates below are not model-graded —
@@ -108,6 +142,7 @@ a human must approve before the harness advances. Each is recorded on disk so a 
 | Phase 5 / Phase 8 | Every **rule amendment** — changing a frozen rule is a conscious choice, never silent | the rule file's `## Amendment` entry (date + who) |
 | Phase 8 — Scope drift | Accepting or deferring a feature outside MVP scope | `.harness/audits/audit-NN.md` § scope reconciliation |
 | Any time | **Applying** `/midas-tribunal` findings (it only reports; the human decides what to act on) | the follow-up that consumes `.harness/debates/debate-NN.md` |
+| Any time | **Applying** `/midas-sweep` fixes (especially deletes and ledger edits) | the human's explicit OK + `.harness/sweeps/sweep-NN.md` |
 | Ship | Declaring the MVP done when success metrics are met | the final `.harness/audits/audit-NN.md` + `stage: shipped` |
 | Always | **Committing / pushing** code — only when the human explicitly asks (see `rules/git-commits.md`) | git history |
 

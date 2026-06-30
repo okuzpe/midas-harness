@@ -24,6 +24,9 @@ jobs:
       - name: Generated adapters in sync with source
         run: node scripts/doctor.mjs
 
+      - name: Gate records consistent with state (taskpilot example)
+        run: node scripts/doctor.mjs --strict --gates-only examples/taskpilot
+
       - name: Plugin tree in sync with .claude/
         run: |
           node scripts/build-plugin.mjs
@@ -45,3 +48,17 @@ jobs:
           test -f /tmp/midas-smoke/GEMINI.md
           test -d /tmp/midas-smoke/.claude/skills
           node /tmp/midas-smoke/scripts/doctor.mjs
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - uses: actions/setup-python@a26af69be951a213d047a4c1fe1fd84a776e2e4c # v5
+        with:
+          python-version: "3.12"
+
+      - name: Build docs site
+        run: |
+          pip install mkdocs-material==9.7.6
+          mkdocs build --strict

@@ -23,6 +23,13 @@ homework** — this is an independent orchestrate-tier audit.
 
 ## Procedure
 
+### 0. Hygiene pass (`harness/rules/hygiene.md`)
+Read `harness/state.yaml` → `mode`. **Brownfield:** a `/midas-sweep` record for this sprint cycle is
+**required** unless the audit documents `sweep: skipped — <reason>`. **Greenfield:** sweep is
+recommended on large diffs; not blocking if none was run and no prior sweep left unresolved
+high-severity findings. When a sweep exists, resolve or consciously defer every `dead-flow` and
+`ledger-drift` row before grading other rules — otherwise Phase 8 audits noise.
+
 ### 1. Read state + frozen rules
 Load `harness/state.yaml`, the active `product/sprints/NN-*.md`, all `harness/rules/*`,
 `product/architecture.md` and `product/idea.md` (the module boundaries + glossary the
@@ -54,7 +61,8 @@ Drift is never left silent: the sprint closes only when every fail is fixed or e
 
 ### 5. Freeze the audit
 Write `.harness/audits/audit-NN.md` (NN = sprint id): a **gate-parseable tally line**, the per-rule
-pass/fail table with evidence, the scope reconciliation, the drift resolutions/amendments, and the
+pass/fail table with evidence, the scope reconciliation, a **§ Hygiene** subsection (sweep record
+path, or `sweep: skipped — reason`; deferred dead-flow rows), the drift resolutions/amendments, and the
 overall verdict. This file is the immutable record of the sprint gate. The tally line mirrors
 verify/tribunal so `/midas-doctor` can read the verdict without a model:
 

@@ -2,7 +2,7 @@
 
 Every skill is a markdown file under `.claude/skills/<name>/SKILL.md`. **Claude Code** reads them
 natively (as skills + subagents); Cursor, Copilot and Codex read them via the Agent Skills standard
-where supported. See the [tools matrix](../README.md#supported-tools) for the honest per-tool picture.
+where supported. See the [tools matrix](https://github.com/okuzpe/midas-harness#supported-tools) for the honest per-tool picture.
 
 ---
 
@@ -28,12 +28,14 @@ where supported. See the [tools matrix](../README.md#supported-tools) for the ho
 |---|---|---|---|
 | `/midas-init` | Setup | Adaptive intake — scans the project (code + README/docs), classifies maturity (E0–E3), pre-fills what it can infer, asks only the gaps, places you at the right phase. Run once per project. | orchestrate |
 | `/midas-status` | Navigation | Read-only — print current phase, gate status, and single next action. | scout |
+| `/midas-recall` | Navigation | Read-only context pack — ~15 priority paths + brief for resuming mid-phase/sprint. | scout |
 | `/midas-adopt` | Brownfield | Adopt Midas into an existing project — inventory, reverse-engineer rules, baseline audit. | orchestrate |
 | `/midas-doctor` | Maintenance | Re-derive generated adapters from `harness/conventions.md`, diff against disk, re-render. | build |
 | `/midas-tribunal` | Audit | Whole-project adversarial debate — Defense vs Prosecution vs Catfish; Opus judges per claim. | orchestrate |
 | `/midas-monorepo` | Scale | Set Midas up across a monorepo — nested `AGENTS.md` per package, per-package rules. | orchestrate |
 | `/midas-verify` | Audit | Browser-gated E2E/UI verification (UI sprints only) — Playwright *drives* the flows, Chrome DevTools *inspects* runtime health (console/network/perf); per-claim verdict + screenshots. | build |
 | `/midas-security-audit` | Audit | Deep security audit — OWASP ASVS 5.0 + Top 10 + LLM/Agentic Top 10, STRIDE threat model, runs Semgrep/SCA/gitleaks (recommends if absent), freezes a ranked findings report. Non-advancing. | orchestrate |
+| `/midas-sweep` | Maintenance | Hygiene & dead-flow detection — orphan code, unreachable routes, stale docs, playbook/zombie triggers, `features.json` drift; optional `--fix` with explicit confirm. Freezes to `.harness/sweeps/`. | build |
 | `/midas-update` | Maintenance | Migrate an install to the current engine — dry-run + diff-confirm, bump version stamp. | build |
 | `/midas-capture` | Learning | Crystallize a recurring request/correction into the right artifact (rule / playbook / convention) via a rubric. The agent proposes it on ~2-3 repeats (asks first); also invokable manually. | build |
 
@@ -48,6 +50,10 @@ Each `SKILL.md` frontmatter declares:
 - `disable-model-invocation: true` — side-effecting or irreversible skills that must only run on
   explicit user invocation. They open with a guard block that stops inference-triggered execution.
 - `mcp-recommended` — MCPs the skill suggests (`context7`, `sequential-thinking`, etc.) — advisory, not required.
+- `mcp-required` — MCPs the skill needs to run (`playwright` for `/midas-verify`, etc.). If the server is
+  not wired in `.mcp.json`, the skill must document a fallback or stop with a clear message — never
+  silently skip. `node scripts/doctor.mjs` warns via `mcp:skill-required` (and `mcp:declared-vs-wired`
+  for `state.yaml → mcp:` intent).
 
 ---
 

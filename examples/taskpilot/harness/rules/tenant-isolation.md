@@ -18,7 +18,7 @@ the caller's `session.workspaceId`; a cross-workspace target returns `404` and n
 - **CHECK:** `grep -rnE "db\.(select|update|delete|insert)" product/src/app/api` — every workspace-scoped
   query carries a `workspaceId` predicate (reviewer confirms each hit).
 - **CHECK:** the integration test asserts a cross-workspace item op returns `404`
-  (`product/src/app/api/tasks/route.test.ts`).
+  (`product/src/app/api/tasks/[id]/route.test.ts`).
 
 ## Linter form (the machine-readable CHECK)
 

@@ -336,6 +336,8 @@ function writeState(tools) {
     '  build:       claude-sonnet-4-6',
     '  scout:       claude-haiku-4-5',
     '',
+    'execution_mode: cloud',
+    '',
     `tools: [${toolList}]`,
     'mcp:   [context7, sequential-thinking]',
     '',

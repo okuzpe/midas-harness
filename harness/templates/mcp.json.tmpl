@@ -44,13 +44,13 @@
       "env": {}
     },
 
-    "{{!optional-playwright}}": "OPTIONAL — browser automation to DRIVE the UI (E2E flows: navigate/click/fill/assert + screenshots; cross-browser). Used by /midas-verify rung 4. Load only for UI verification.",
+    "{{!optional-playwright}}": "OPTIONAL — browser automation to DRIVE the UI (E2E: navigate/click/fill/assert + screenshots). Required by /midas-verify for UI sprints (Phase 7 rung 4). Uncomment when /midas-init confirms the MVP has a web UI; skip for API/CLI-only projects.",
     "{{!playwright}}": {
       "command": "npx",
       "args": ["-y", "@playwright/mcp@latest"]
     },
 
-    "{{!optional-chrome-devtools}}": "OPTIONAL — Chrome DevTools to INSPECT runtime health (console errors, failed network requests, performance/Core Web Vitals, Lighthouse). Complements Playwright in /midas-verify. ~17k tokens on load; needs Chrome + Node >=20.19/22.12. Load only for UI verification.",
+    "{{!optional-chrome-devtools}}": "OPTIONAL — Chrome DevTools to INSPECT runtime health (console errors, failed network, Core Web Vitals, Lighthouse). Complements Playwright in /midas-verify. ~17k tokens on load; needs Chrome + Node >=20.19/22.12. Uncomment with Playwright for UI projects.",
     "{{!chrome-devtools}}": {
       "command": "npx",
       "args": ["-y", "chrome-devtools-mcp@latest"]

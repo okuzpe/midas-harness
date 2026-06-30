@@ -17,3 +17,19 @@ npm-debug.log*
 .harness/*.hash
 **/.DS_Store
 Thumbs.db
+
+# midas:begin GITIGNORE — installed by create-midas; extend with your own patterns below
+# Secrets — never commit (.env.example is OK to commit)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*secret*
+*credential*
+.claude/settings.local.json
+
+# Midas volatile state (harness/state.yaml IS committed; caches/hashes are not)
+.harness/cache/
+.harness/*.hash
+# midas:end

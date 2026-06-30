@@ -51,7 +51,7 @@ question loop with the human before advancing. Zero unresolved blockers is the g
 - [ ] Primary success metric is measurable and time-bound
 - [ ] At least one explicit non-goal is stated
 - [ ] `product/open-questions.md` exists; zero items are marked `BLOCKING`
-- [ ] Gate verdict written to `.harness/audits/audit-01.md`
+- [ ] Gate verdict written to `.harness/audits/gate-01.md`
 
 ## Recommended tier + agents
 

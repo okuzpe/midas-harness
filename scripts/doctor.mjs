@@ -5,6 +5,7 @@
 //   node scripts/doctor.mjs --fix    → re-render the adapters from source, then exit 0
 //   node scripts/doctor.mjs <dir>    → check THAT project (its adapters, state.yaml, gate records), not the engine
 //   node scripts/doctor.mjs --strict → ALSO exit 1 when a frozen gate record is inconsistent with state.yaml
+//   node scripts/doctor.mjs --gates-only → skip adapter drift (for partial examples like taskpilot)
 //
 // Adapter drift is AUTHORITATIVE (it fails CI). The other health checks are advisory warnings that never
 // change the exit code (skip gracefully when a file isn't applicable) — EXCEPT under --strict, where a
@@ -14,9 +15,11 @@ import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { computeAdapters, renderAdapters } from './render-adapters.mjs';
+import { evaluateMcpDeclaredVsWired, evaluateSkillMcpRequired, collectSkillMcpRequired } from './mcp-drift.mjs';
 
 const FIX = process.argv.includes('--fix');
 const STRICT = process.argv.includes('--strict');
+const GATES_ONLY = process.argv.includes('--gates-only');
 // Optional positional project root: check THAT project instead of the engine repo. Lets `--strict` run
 // against a real install (or examples/taskpilot) so the gate-records check is provably exercised.
 const rootArg = process.argv.slice(2).find((a) => !a.startsWith('-'));
@@ -97,12 +100,16 @@ if (FIX) {
 
 // --- 1. adapter drift (authoritative; affects the exit code) -----------------------------------
 let drift = false;
-console.log('midas doctor — adapters');
-for (const f of computeAdapters(ROOT).files) {
-  const onDisk = read(f.path);
-  if (onDisk === null) { drift = true; console.log(`  MISSING  ${f.path}`); }
-  else if (onDisk !== f.content) { drift = true; console.log(`  DRIFT    ${f.path}`); }
-  else console.log(`  ok       ${f.path}`);
+if (!GATES_ONLY) {
+  console.log('midas doctor — adapters');
+  for (const f of computeAdapters(ROOT).files) {
+    const onDisk = read(f.path);
+    if (onDisk === null) { drift = true; console.log(`  MISSING  ${f.path}`); }
+    else if (onDisk !== f.content) { drift = true; console.log(`  DRIFT    ${f.path}`); }
+    else console.log(`  ok       ${f.path}`);
+  }
+} else {
+  console.log('midas doctor — adapters (skipped: --gates-only)');
 }
 
 // --- 2. health checks (advisory; warn/skip, never change the exit code) ------------------------
@@ -196,6 +203,16 @@ if (mcp === null) {
   }
 }
 
+{
+  const mcpDrift = evaluateMcpDeclaredVsWired(stateRaw, mcp);
+  check('mcp:declared-vs-wired', mcpDrift.status, mcpDrift.note);
+}
+{
+  const required = collectSkillMcpRequired(join(ROOT, '.claude', 'skills'));
+  const skillMcp = evaluateSkillMcpRequired(required, mcp);
+  check('mcp:skill-required', skillMcp.status, skillMcp.note);
+}
+
 // skills carry valid frontmatter with a name
 const skillsDir = join(ROOT, '.claude', 'skills');
 if (!existsSync(skillsDir)) {
@@ -275,5 +292,6 @@ if (STRICT && gateWarn) {
   console.log('\nSTRICT: a frozen gate record is inconsistent with state.yaml (see the gate:* warnings above).');
   process.exit(1);
 }
-console.log('\nAdapters in sync.' + (health.some((h) => h.status === 'warn') ? ' (review health warnings above)' : ''));
+const tail = GATES_ONLY ? 'Gate checks complete.' : 'Adapters in sync.';
+console.log(`\n${tail}` + (health.some((h) => h.status === 'warn') ? ' (review health warnings above)' : ''));
 process.exit(0);

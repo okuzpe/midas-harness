@@ -34,6 +34,12 @@ error the compiler would have caught for free). Each rung is a gate for the next
       exception, failed import, or crash-on-launch is a fail (record the command + the observed output).
 
 ### 4. Browser verification — UI-touching changes only (drive + inspect)
+
+**Scope:** the automated stack Midas ships today is **web browser** verification via Playwright MCP
+and Chrome DevTools MCP (`/midas-verify`). **Native mobile** (iOS/Android) automation is not wired —
+when `product/architecture.md` declares a mobile client, prove it with the stack's own test runner and
+manual/device QA until a future `/midas-verify-mobile` (or equivalent) is adopted in Phase 4–5.
+
 A UI change is proven in a **real browser**, with two complementary tools (see `/midas-verify`). Load
 a browser MCP **only** when the change renders or alters a user-facing surface — they are expensive
 (Playwright ~per-flow; Chrome DevTools ~17k tokens/load).
@@ -53,6 +59,13 @@ a browser MCP **only** when the change renders or alters a user-facing surface �
       hardcoded colour/spacing/type/radii) per `product/design-system.md`.
       **CHECK:** `manual:` `document.documentElement.scrollWidth <= clientWidth` on each key screen;
       a hardcoded value not traceable to a `--ds-*` token is a fail.
+- [ ] Each criterion in the verify record names the **tool** that proved it (header `Tools:` line plus a
+      per-row **Tool** column — canonical values in `harness/templates/sprint-progress.md` § Tool column;
+      e.g. `playwright-mcp`, `chrome-devtools-mcp`, `test-runner`, `@playwright/cli`); for UI sprints,
+      `.mcp.json` wires a browser MCP **or** the record documents the cheaper fallback used and why.
+      **CHECK:** `manual:` read `.harness/verifications/verify-NN.md` — every acceptance-criterion row
+      carries a non-empty Tool value; a UI sprint with no browser MCP in `.mcp.json` and no documented
+      fallback in the record is a fail.
 
 ### 5. Independent review before the gate (producer never grades its own homework)
 - [ ] The sprint's conformance verdict is rendered by an **independent** reviewer — the orchestrate-tier

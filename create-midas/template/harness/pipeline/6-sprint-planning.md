@@ -16,6 +16,11 @@ Sprints cover MVP only — no scope creep. Dependencies must be ordered.
 
 ## Key steps
 
+0. **Optional hygiene (recommended when brownfield or the codebase grew during prior phases).**
+   Run `/midas-sweep docs` or `/midas-sweep all` to reconcile `product/features.json` candidates,
+   stale open questions, and roadmap rows with what exists on disk — so Sprint 01 is planned against
+   reality, not ghosts. Non-blocking.
+
 1. **List all MVP tasks.** Extract every feature in MVP scope as a discrete task.
    Anything outside MVP scope is explicitly excluded with a note.
 2. **Group into sprints.** Cluster tasks by dependency order and logical cohesion.
@@ -31,10 +36,14 @@ Sprints cover MVP only — no scope creep. Dependencies must be ordered.
    - `## Acceptance criteria` — observable behaviors that prove the sprint is done
    - `## Definition of Done` — references at least one rule from `harness/rules/`;
      must include: tests pass, conventions followed, no new lint/rule violations
-5. **Register sprints in `state.yaml`.** Append each sprint to the `sprints:` list
+5. **Seed `product/features.json`.** From MVP scope in `business-plan.md`, create one entry per MVP
+   feature using `harness/templates/features.json.tmpl`. Each feature starts `status: failing`.
+   Phase 7 flips only `status` and `evidence` as work lands.
+6. **Register sprints in `state.yaml`.** Append each sprint to the `sprints:` list
    with `status: planned`.
-6. **Advance.** Set `stage_status: gate_pending`; run the exit gate.
-   On pass, write `gate: passed` and set `stage: sprint_execution` (first sprint active).
+7. **Advance.** Set `stage_status: gate_pending`; run the exit gate.
+   On pass, write `gate: passed` and set `stage: sprint_execution`, `stage_status: not_started`.
+   Sprint activation happens in `/start-sprint` (Phase 7).
 
 ## Output artifacts
 
@@ -42,6 +51,7 @@ Sprints cover MVP only — no scope creep. Dependencies must be ordered.
 |---|---|
 | `product/roadmap.md` | Full MVP sprint table |
 | `product/sprints/NN-<slug>.md` | One file per sprint |
+| `product/features.json` | MVP feature ledger (seeded from business-plan scope) |
 
 ## Exit gate checklist
 
@@ -51,8 +61,9 @@ Sprints cover MVP only — no scope creep. Dependencies must be ordered.
 - [ ] Each DoD references at least one `harness/rules/` file by name
 - [ ] Sprint dependencies are ordered (Sprint N does not depend on Sprint N+1)
 - [ ] Sprint 01 is independently runnable (no external sprint dependencies)
-- [ ] All sprints registered in `harness/state.yaml` under `sprints:`
-- [ ] Gate verdict written to `.harness/audits/audit-06.md`
+- [ ] All sprints registered in `harness/state.yaml` under `sprints:` (each `status: planned`)
+- [ ] `product/features.json` seeded from MVP scope; every MVP feature has an entry with `status: failing`
+- [ ] Gate verdict written to `.harness/audits/gate-06.md`
 
 ## Recommended tier + agents
 

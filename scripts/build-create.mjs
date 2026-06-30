@@ -20,10 +20,14 @@ const TEMPLATE = join(ROOT, 'create-midas', 'template');
 // describes the Midas ENGINE. The installed project gets a PROJECT-oriented AGENTS.md rendered from
 // harness/templates/AGENTS.md.tmpl below (the installer fills {{PROJECT_NAME}}/{{STACK}}/{{TOOLS}}).
 const DIRS = ['.claude', 'harness'];
+// Engine-repo-only paths under harness/ — never ship these in the distributable template.
+// Fresh projects get harness/state.yaml from create-midas/index.mjs writeState(), not from the bundle.
+const HARNESS_EXCLUDE = ['state.yaml'];
 const FILES = [
   '.mcp.json',
   'docs/agents-and-models.md',
   'scripts/render-adapters.mjs', // needed by /midas-doctor in the installed project
+  'scripts/mcp-drift.mjs',
   'scripts/doctor.mjs',
 ];
 
@@ -31,6 +35,10 @@ if (existsSync(TEMPLATE)) rmSync(TEMPLATE, { recursive: true, force: true });
 mkdirSync(TEMPLATE, { recursive: true });
 
 for (const d of DIRS) cpSync(join(ROOT, d), join(TEMPLATE, d), { recursive: true });
+for (const rel of HARNESS_EXCLUDE) {
+  const excluded = join(TEMPLATE, 'harness', rel);
+  if (existsSync(excluded)) rmSync(excluded, { force: true });
+}
 for (const f of FILES) {
   const dst = join(TEMPLATE, f);
   mkdirSync(dirname(dst), { recursive: true });

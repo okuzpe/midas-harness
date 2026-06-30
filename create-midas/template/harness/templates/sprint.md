@@ -1,4 +1,5 @@
-<!-- Phase 6 / 7 — Sprint artifact. Created by /start-sprint (Phase 6 planning → Phase 7 execution).
+<!-- Phase 6 — Sprint artifact. Created by /plan-sprints (Phase 6 planning).
+     Activated by /start-sprint (Phase 7 execution).
      Filed as product/sprints/NN-<slug>.md (zero-padded sprint number, kebab slug).
      Exit gate (Phase 7): tasks done, acceptance criteria met, tests pass, DoD satisfied.
      Phase 8 audit checks DoD conformance against harness/rules/* (do not self-grade). -->

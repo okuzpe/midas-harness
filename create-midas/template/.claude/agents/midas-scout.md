@@ -17,6 +17,11 @@ read things, fetch docs, and report exactly what is there. You do **not** decide
   official docs and flag that the web fallback was used.
 - **Evidence gathering** — for an audit, collect the raw evidence the orchestrator needs: file paths,
   line numbers, matched/missing patterns, competitor lists with source URLs, cited quotes.
+- **Sweep indexing** — for `/midas-sweep`, build the import/route/playbook cross-ref packs: grep
+  importers, nav links, playbook `Trigger` predicates vs `src/*`, ledger rows vs files on disk.
+  Return path lists and hits only — classification and fixes are build/orchestrate work.
+- **Recall indexing** — for `/midas-recall`, list the stage-appropriate paths from `state.yaml` and
+  note which exist on disk; optional `--focus` grep hits. Return the path list only — the brief is scout work.
 
 ## How you report
 - Lead with the answer. Give **file path + line number** (or source **URL**) for every claim — citations,

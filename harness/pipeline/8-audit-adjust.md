@@ -17,6 +17,13 @@ or declare the MVP complete. The producer never grades its own work.
 
 ## Key steps
 
+### Optional hygiene (recommended)
+Before the conformance audit, consider `/midas-sweep` (especially after a large sprint or brownfield
+work). It surfaces dead routes, orphan modules, and `features.json` drift so Phase 8 does not waste
+cycles on cruft. **Brownfield** (`mode: brownfield`): a sweep record or documented skip is **required**
+— graded by [`hygiene.md`](../rules/hygiene.md) at close. Greenfield: recommended, not blocking unless
+a prior sweep left unresolved high-severity findings.
+
 ### Re-audit / apply-harness loop
 
 1. **Run every rule check.** For each file in `harness/rules/`, execute the stated
