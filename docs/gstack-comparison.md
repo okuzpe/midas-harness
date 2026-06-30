@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | **Fecha de revisión** | 2026-06-30 |
-| **Midas analizado** | `harness/VERSION` → **0.5.20** |
+| **Midas analizado** | `harness/VERSION` → **0.5.21** |
 | **gstack analizado** | README público de [garrytan/gstack](https://github.com/garrytan/gstack) (landing/marketing; no se auditó el código fuente de gstack) |
 | **Tipo de documento** | Análisis comparativo — **no modifica el motor del harness** |
 

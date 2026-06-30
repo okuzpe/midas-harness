@@ -9,7 +9,11 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
-### Added — Verification / MCP flow improvements
+---
+
+## [0.5.21] — 2026-06-30
+
+### Added — Verification / MCP governance
 - **Tool traceability:** `harness/templates/sprint-progress.md` § Done records Task · Proof · **Tool**;
   Phase 7 playbook step 2e mirrors the same when checking off tasks.
 - **`harness/rules/verification.md`:** rung-4 CHECK requires each verify row to name its tool; documents
@@ -18,15 +22,27 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
   completed task.
 - **Onboarding:** `/midas-init` offers Playwright + Chrome DevTools when the MVP has UI;
   `docs/getting-started.md` § UI verification; clearer comments in `harness/templates/mcp.json.tmpl`.
-- **`scripts/doctor.mjs`:** advisory `mcp:declared-vs-wired` reconciles every `state.yaml → mcp:` id
-  with `.mcp.json` (`context7` optional unwired; browser MCPs get template hint); covers missing
-  `.mcp.json`.
+- **`scripts/mcp-drift.mjs`:** shared `evaluateMcpDeclaredVsWired` + `evaluateSkillMcpRequired` (doctor +
+  `test.mjs` fixtures).
+- **`scripts/doctor.mjs`:** advisory `mcp:declared-vs-wired` and `mcp:skill-required` reconcile
+  `state.yaml → mcp:` and skill frontmatter with `.mcp.json`.
 - **`docs/skills.md`:** documents `mcp-required` frontmatter.
-- **`scripts/mcp-drift.mjs`:** shared `evaluateMcpDeclaredVsWired` + `evaluateSkillMcpRequired` (doctor + tests).
-- **Architect sanitization:** `mcp:skill-required` doctor check; taskpilot `.mcp.json`; midas-doctor skill
-  health table synced; gstack doc taxonomy + skill count; `repository-architecture.md` MCP bundle note.
 - **Tool glossary:** `harness/templates/sprint-progress.md` § Tool column; cross-ref in `verification.md`.
 - **`harness/state.schema.md`:** clarifies `mcp:` is declared intent, not proof of wiring.
+
+### Added — Memory, hygiene, and navigation
+- **`/midas-recall`** — read-only context pack for resuming mid-phase/sprint work.
+- **`/midas-sweep`** — hygiene and dead-flow detection (orphan code, stale docs, `features.json` drift).
+- **`harness/rules/hygiene.md`** and **`harness/rules/session-continuity.md`** — always-on CHECKs for
+  Phase 8.
+- **`harness/research/memory-model.md`** — STM/LTM on disk (ADR-003).
+- **ADRs:** [ADR-002](docs/adr/ADR-002-code-intelligence-mcp.md), [ADR-003](docs/adr/ADR-003-project-memory-model.md).
+
+### Added — Docs and examples
+- **`docs/gstack-comparison.md`** — gstack vs Midas analysis (Spanish) with MCP improvement notes.
+- **`examples/taskpilot/.mcp.json`** — minimal wired MCP config for the example project.
+- **`docs/repository-architecture.md`:** MCP bundle vs `mcp.json.tmpl` note; `mcp-drift.mjs` in checks table.
+- **`/midas-doctor` skill:** health table synced with `doctor.mjs` output.
 
 ---
 
@@ -907,7 +923,9 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.14...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.21...HEAD
+[0.5.21]: https://github.com/okuzpe/midas-harness/compare/v0.5.20...v0.5.21
+[0.5.20]: https://github.com/okuzpe/midas-harness/compare/v0.5.19...v0.5.20
 [0.5.14]: https://github.com/okuzpe/midas-harness/compare/v0.5.13...v0.5.14
 [0.5.13]: https://github.com/okuzpe/midas-harness/compare/v0.5.12...v0.5.13
 [0.5.12]: https://github.com/okuzpe/midas-harness/compare/v0.5.11...v0.5.12
