@@ -114,7 +114,7 @@ if (existsSync(tplRoot)) {
     JSON.stringify(dirNames(join(tplRoot, '.claude', 'skills'))) === JSON.stringify(dirNames(skillsDir)),
     're-run build-create.mjs',
   );
-  for (const f of ['AGENTS.md', '.mcp.json', 'harness/methodology.md', 'harness/conventions.md', 'scripts/render-adapters.mjs', 'scripts/mcp-drift.mjs', 'scripts/doctor.mjs', 'docs/agents-and-models.md']) {
+  for (const f of ['AGENTS.md', '.mcp.json', 'harness/methodology.md', 'harness/conventions.md', 'scripts/render-adapters.mjs', 'scripts/yaml-lite.mjs', 'scripts/mcp-drift.mjs', 'scripts/doctor.mjs', 'scripts/status-page.mjs', 'docs/agents-and-models.md']) {
     check(`create-template:has:${f}`, existsSync(join(tplRoot, f)));
   }
   // The template must NOT carry repo-internal trees into a user project.

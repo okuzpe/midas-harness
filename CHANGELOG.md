@@ -11,6 +11,14 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [0.5.23] — 2026-07-03
+
+### Fixed
+- **Installer template** — ship `scripts/yaml-lite.mjs` and `scripts/status-page.mjs` in `create-midas/template/` (doctor/render failed on fresh install).
+- **CI** — correct `actions/setup-python` SHA in docs job; Windows/Linux installer smoke passes.
+
+---
+
 ## [0.5.22] — 2026-07-03
 
 ### Added
@@ -954,7 +962,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.22...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.23...HEAD
+[0.5.23]: https://github.com/okuzpe/midas-harness/compare/v0.5.22...v0.5.23
 [0.5.22]: https://github.com/okuzpe/midas-harness/compare/v0.5.21...v0.5.22
 [0.5.21]: https://github.com/okuzpe/midas-harness/compare/v0.5.20...v0.5.21
 [0.5.20]: https://github.com/okuzpe/midas-harness/compare/v0.5.19...v0.5.20

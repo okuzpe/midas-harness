@@ -27,8 +27,10 @@ const FILES = [
   '.mcp.json',
   'docs/agents-and-models.md',
   'scripts/render-adapters.mjs', // needed by /midas-doctor in the installed project
+  'scripts/yaml-lite.mjs',
   'scripts/mcp-drift.mjs',
   'scripts/doctor.mjs',
+  'scripts/status-page.mjs',
 ];
 
 if (existsSync(TEMPLATE)) rmSync(TEMPLATE, { recursive: true, force: true });
