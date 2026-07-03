@@ -29,13 +29,16 @@ transition after that.
 ## Schema
 
 ```yaml
-midas_version: 0.5.21          # engine version that wrote this file (for /midas-update)
+midas_version: 0.5.22          # engine version that wrote this file (for /midas-update)
 name: taskpilot              # project slug
 mode: greenfield             # greenfield | brownfield  (maturity: E0/E1 → greenfield, E2/E3 → brownfield)
 language: en                 # artifact language
 created: 2026-06-16          # ISO date (set by /midas-init; never use a live clock in scripts)
 updated: 2026-06-16
 setup_complete: false        # the installer writes false; /midas-init flips it true when setup is done
+
+track: full                  # full | lite — lite collapses phases 0–6 (see harness/pipeline/lite.md)
+routing_profile: claude      # claude | openai | local-hybrid — preset for build/scout (orchestrate always Claude)
 
 stage: tech_architecture     # current stage enum (see table)
 stage_status: in_progress    # not_started | in_progress | gate_pending | passed
@@ -88,6 +91,21 @@ last_audit: { phase: contextualize, verdict: pass, at: 2026-06-15 }
 last_tribunal: { n: "01", criticals: 0, at: 2026-06-15 }      # optional — written by /midas-tribunal (informational only; never advances a gate)
 last_verification: { n: "01", fails: 0, at: 2026-06-15 }      # optional — written by /midas-verify (informational only; never advances a gate)
 last_security: { n: "01", critical: 0, high: 0, at: 2026-06-15 } # optional — written by /midas-security-audit (informational only; never advances a gate)
+
+# Monorepo mode (optional — written by /midas-monorepo)
+packages:
+  - path: apps/web
+    name: web
+  - path: packages/api
+    name: api
+
+# Pattern captures (optional — written by /midas-capture)
+captures:
+  - at: 2026-06-15
+    kind: rule
+    target: harness/rules/naming.md
+    reason: "Team prefers is/has prefix for all booleans"
+last_capture: { at: 2026-06-15, kind: rule, target: harness/rules/naming.md }
 ```
 
 ## Rules for consumers

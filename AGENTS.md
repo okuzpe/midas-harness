@@ -2,14 +2,17 @@
 
 > This file is project law for **any** AI agent working in this repository
 > (Claude Code, Cursor, Copilot, Codex, Windsurf, …).
-> It is **generated** from the Midas harness. Edit `harness/conventions.md`
-> and re-run `/midas-doctor` to propagate changes — never edit this file directly.
+> It is **maintained** for the Midas engine repository. Product installs get their own `AGENTS.md`
+> from the installer template. Edit `harness/conventions.md` and re-run `/midas-doctor` to propagate
+> adapter changes — this summary file is updated manually when engine metadata changes.
 
 ## What this project is
 
-<!-- TODO: one-paragraph product description filled in by /midas-init from product/idea.md -->
+**Midas-harness** is the engine repository for the Midas methodology — a copy-in kit of skills,
+rules, slash-commands, and agent definitions that drives software products from idea to shipped code
+through 9 audited phases. This repo dogfoods the harness on itself (`harness/state.yaml`).
 
-- Stack: **undecided — set in Phase 4 (`/choose-architecture`)**
+- Stack: **Node ESM scripts + MkDocs** (engine tooling); product stacks are chosen per install in Phase 4
 - AI tools wired: **claude-code, cursor, windsurf, gemini**
 - Methodology: `harness/methodology.md` (9 audited phases, idea → shipped)
 - State: `harness/state.yaml` (single source of truth — read it for current phase)

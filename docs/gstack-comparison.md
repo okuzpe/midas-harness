@@ -1,9 +1,12 @@
-# Análisis comparativo: gstack vs Midas Harness
+# Comparative analysis: gstack vs Midas Harness
+
+> **Language note:** This page is a community comparative analysis originally written in Spanish.
+> Harness artifacts (skills, rules, CI) remain English-only per CONTRIBUTING.md.
 
 | Campo | Valor |
 |---|---|
 | **Fecha de revisión** | 2026-06-30 |
-| **Midas analizado** | `harness/VERSION` → **0.5.21** |
+| **Midas analizado** | `harness/VERSION` → **0.5.22** |
 | **gstack analizado** | README público de [garrytan/gstack](https://github.com/garrytan/gstack) (landing/marketing; no se auditó el código fuente de gstack) |
 | **Tipo de documento** | Análisis comparativo — **no modifica el motor del harness** |
 
@@ -151,7 +154,7 @@ contrato `**CHECK:**` en reglas, separación explícita productor/auditor, routi
 
 Midas congela evidencia de **sprints** en `.harness/audits/audit-NN.md` y `.harness/verifications/verify-NN.md`
 con líneas parseables (`MIDAS_AUDIT_RESULT: …`, `MIDAS_VERIFY_RESULT: …`). Los **gates de fase** (0–6)
-congelan en `.harness/gates/gate-0N.md` cuando el skill de fase cierra. El avance de
+congelan en `.harness/audits/gate-0N.md` cuando el skill de fase cierra. El avance de
 `harness/state.yaml → stage` requiere veredicto orchestrate-tier. gstack encadena skills pero **no
 documenta gates formales** en el README.
 

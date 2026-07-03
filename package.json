@@ -1,7 +1,8 @@
 {
   "name": "midas-harness",
-  "version": "0.5.21",
-  "description": "Portable product-development harness for AI agents — install into any repo with `npx github:okuzpe/midas-harness`. Drives a product from idea to shipped code through 9 audited phases.",
+  "version": "0.5.22",
+  "private": true,
+  "description": "Portable product-development harness for AI coding agents (not Intel MiDaS depth estimation). Install with `npx github:okuzpe/midas-harness`. Drives a product from idea to shipped code through 9 audited phases.",
   "bin": {
     "midas": "create-midas/index.mjs"
   },
@@ -21,10 +22,11 @@
     "url": "https://github.com/okuzpe/midas-harness/issues"
   },
   "keywords": [
+    "midas-harness",
+    "product-development",
     "claude",
     "claude-code",
-    "ai",
-    "agents",
+    "ai-agents",
     "agents.md",
     "harness",
     "scaffold",
@@ -32,6 +34,7 @@
   ],
   "scripts": {
     "test": "node scripts/test.mjs",
-    "build": "node scripts/build-plugin.mjs && node scripts/build-create.mjs"
+    "build": "node scripts/build-plugin.mjs && node scripts/build-create.mjs",
+    "status": "node scripts/status-page.mjs"
   }
 }

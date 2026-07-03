@@ -20,7 +20,21 @@ file and the three agent files in `.claude/agents/` — nowhere else.
 | `max_savings` | `claude-sonnet-4-6` (only escalates to Opus on Phase 4/8 audits) | `claude-sonnet-4-6` | `claude-haiku-4-5` |
 | `max_quality` | `claude-opus-4-8` | `claude-opus-4-8` (Sonnet for bulk) | `claude-haiku-4-5` |
 
-The active profile is recorded in `harness/state.yaml -> routing`.
+## Routing profiles (additive presets)
+
+`routing_profile` in `state.yaml` selects a **preset** for `build`/`scout` tiers. The `orchestrate`
+tier **always** uses Claude cloud for attested gate verdicts — this invariant holds in every profile.
+
+| `routing_profile` | orchestrate | build | scout | Notes |
+|---|---|---|---|---|
+| `claude` (default) | Claude Opus | Claude Sonnet | Claude Haiku | Balanced default; use `cost_profile` for savings/quality |
+| `openai` | Claude Opus | `gpt-5.3-codex` | `gpt-5-mini` | Advisory on non-Claude tools; gate verdicts still Claude |
+| `local-hybrid` | Claude Opus | `local_model.id` | `local_model.id` | Requires `execution_mode: hybrid` + `local_model` block |
+
+Set `routing_profile: openai` only when OpenAI models are available in your host tool. On Cursor/Copilot,
+profiles collapse to prose intent in `AGENTS.md` — the schema records intent; enforcement is advisory.
+
+The active profile is recorded in `harness/state.yaml -> routing` (resolved model ids).
 
 ## Local & hybrid execution (where the tiers run)
 

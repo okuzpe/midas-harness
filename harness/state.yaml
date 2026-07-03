@@ -1,14 +1,15 @@
-midas_version: 0.5.21
+midas_version: 0.5.22
 name: harness
 mode: brownfield
 language: en
 created: 2026-06-29
-updated: 2026-06-29
-setup_complete: false        # /midas-init sets this true; until then it is the next step
+updated: 2026-07-03
+setup_complete: true        # engine repo — installer complete; dogfoods the harness on itself
 
-stage: tech_architecture
-stage_status: not_started
-entry_stage: tech_architecture
+# Engine-as-dogfood profile: phases 0–4 satisfied by README + docs/ + harness/ itself.
+stage: architecture_rules
+stage_status: in_progress
+entry_stage: architecture_rules
 
 cost_profile: balanced
 routing:
@@ -21,5 +22,12 @@ execution_mode: cloud
 tools: [claude-code, cursor, windsurf, gemini]
 mcp:   [sequential-thinking]
 
-phases: {}
+phases:
+  idea_intake:        { status: passed, gate: passed, assumption: "Engine README + docs/index.md" }
+  contextualize:      { status: passed, gate: passed, assumption: "Scope in docs/repository-architecture.md" }
+  market_research:    { status: passed, gate: passed, assumption: "N/A — harness engine, not a commercial product" }
+  business_case:      { status: passed, gate: passed, assumption: "N/A — harness engine" }
+  tech_architecture:  { status: passed, gate: passed, assumption: "Stack in docs/repository-architecture.md" }
+  architecture_rules: { status: in_progress, gate: pending }
+
 sprints: []

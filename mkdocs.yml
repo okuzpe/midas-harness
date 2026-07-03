@@ -1,5 +1,5 @@
 site_name: Midas
-site_description: A portable AI product-development harness — idea to shipped code in 9 audited phases.
+site_description: Portable AI product-development harness for coding agents (not Intel MiDaS depth estimation) — idea to shipped code in 9 audited phases.
 site_url: https://okuzpe.github.io/midas-harness
 repo_url: https://github.com/okuzpe/midas-harness
 repo_name: okuzpe/midas-harness

@@ -97,7 +97,23 @@ Drive phases in order — each command runs when its predecessor's exit gate pas
 Run `/midas-tribunal` at any time for a whole-project adversarial debate.
 
 For an existing codebase, `/midas-init` classifies it as **E2/E3** and runs `/midas-adopt` for you
-(no need to call it manually). See the [Skills Reference](skills.md) for every command.
+(no need to call it manually). Run `/midas-adopt --preflight` first for a read-only fit report.
+See the [Skills Reference](skills.md) for every command.
+
+### Brownfield step-by-step
+
+1. Install Midas into the repo root (not a subfolder).
+2. Run `/midas-adopt --preflight` — review what will change.
+3. Run `/midas-adopt` — inventory, as-built architecture, rules from real code, baseline audit file.
+4. Run `/define-conventions` — **freeze** rules + design system (adopt = draft; define = freeze + CHECKs).
+5. `/plan-sprints` → `/start-sprint` → `/close-sprint` loop.
+
+**Incremental adoption:** adopt one rule pack at a time (start with `folder-structure.md`) if a full
+adopt feels heavy; record deferred packs as assumptions in `state.yaml`.
+
+### Lite track
+
+For hackathons/prototypes, choose `track: lite` during `/midas-init` — see `harness/pipeline/lite.md`.
 
 ---
 

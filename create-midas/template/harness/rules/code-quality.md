@@ -16,7 +16,7 @@ extension under `harness/rules/` that overrides or supplements the items here.
 - [ ] New code matches the surrounding style: naming, indentation, comment density, idioms.
       **CHECK:** `manual:` diff each new file against a sibling in the same directory; a naming/indent/idiom break that stands out from local style is a fail.
 - [ ] No second way of doing something that already has a project pattern — reuse the pattern.
-      **CHECK:** `manual:` grep the codebase for the concept (`grep -rin "<concept>" src/`); a parallel implementation of an existing pattern is a fail.
+      **CHECK:** `manual:` grep the codebase for the concept (`grep -rin "<concept>" <src-root>/`); a parallel implementation of an existing pattern is a fail.
 - [ ] No parallel "standards" layer introduced outside `harness/conventions.md` and its extensions.
       **CHECK:** any rules/standards/guidelines doc outside `harness/conventions.md` + `harness/rules/` is a fail (`find . -iname "*standard*" -o -iname "*guideline*"` outside those paths → empty).
 
@@ -30,7 +30,7 @@ extension under `harness/rules/` that overrides or supplements the items here.
       **CHECK:** `manual:`/AST: no signature in the diff declares > 4 positional parameters.
 - [ ] Module/layer boundaries defined in `product/architecture.md` are respected — no
       cross-layer imports.
-      **CHECK:** grep imports against `harness/rules/folder-structure.md` (the project's Phase-5-generated rule; e.g. `grep -rn "from '@/db'" src/ui/` → empty); any forbidden cross-layer import is a fail.
+      **CHECK:** grep imports against `harness/rules/folder-structure.md` (the project's Phase-5-generated rule; e.g. `grep -rn "from '@/db'" <src-root>/ui/` → empty); any forbidden cross-layer import is a fail.
 
 ### Cleanliness
 - [ ] No dead code (unreachable branches, unused variables, unreferenced exports).
@@ -39,10 +39,10 @@ extension under `harness/rules/` that overrides or supplements the items here.
       **CHECK:** review for commented-out statements (`grep -nE "^\s*(//|#).*[;{}()]" <diff>`); a commented-out code block is a fail.
 - [ ] Every TODO in code has a format: `TODO(<owner>|<issue>): <condition>`. Open-ended TODOs
       are a gate failure.
-      **CHECK:** `grep -rnE "TODO" src/ | grep -vE "TODO\((\w+|#[0-9]+)\):"` must be empty.
+      **CHECK:** `grep -rnE "TODO" <src-root>/ | grep -vE "TODO\((\w+|#[0-9]+)\):"` must be empty.
 - [ ] No `console.log` / `print` / debug statements left in committed code unless they are
       structured log calls wired to the project logger.
-      **CHECK:** `grep -rnE "console\.(log|debug)|(^|[^.])\bprint\(|fmt\.Print" src/` → empty, unless the match is the project logger.
+      **CHECK:** `grep -rnE "console\.(log|debug)|(^|[^.])\bprint\(|fmt\.Print" <src-root>/` → empty, unless the match is the project logger.
 
 ### Abstractions
 - [ ] Before writing a new utility, grep the codebase for an existing one (document the search

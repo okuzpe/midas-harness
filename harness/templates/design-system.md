@@ -8,10 +8,9 @@
 ## Purpose
 
 This document records the project's design decisions on top of the Midas base design-system
-(`harness/design-system/tokens.json` / `tokens.css`). The rendered token files live here:
-
-- `product/design-system/tokens.json` — W3C-style project tokens (overrides + additions)
-- `product/design-system/tokens.css` — CSS custom properties, `:root` + `[data-theme="dark"]`
+(`harness/design-system/tokens.json` / `tokens.css`). Phase 5 writes the canonical token files to
+`harness/design-system/`; optional project-specific overrides may also be mirrored under
+`product/design-system/tokens.{json,css}` when the product deviates from the base set.
 
 **Rule:** all UI code must reference `--ds-*` custom properties. Never hardcode colour, spacing,
 type size, or radius values.

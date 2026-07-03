@@ -27,6 +27,17 @@ Bring Midas to a project that already has code, **without trampling what's there
 
 ## Procedure
 
+### Step 0 — Preflight (read-only, optional flag: `--preflight`)
+
+Before writing anything, produce a **preflight report** for the user:
+
+- What will be created vs merged (new `harness/`, `product/inventory.md`, rules draft).
+- What conflicts with existing `AGENTS.md` / `CLAUDE.md` (managed-marker regions only).
+- Estimated effort: **light** (E2 partial) / **medium** (E2 + debt) / **heavy** (E3 + baseline audit).
+- Recommended path: full adopt vs **incremental** (Step 3 only: folder-structure rule first, then stack rules).
+
+If `--preflight` or the user asks for a dry run, **stop after the report** — no writes.
+
 ### Step 1 — Inventory: code AND intent (scout)
 Dispatch **scout** subagents to extract, read-only: the file/dir tree, manifests (`package.json`,
 `pyproject.toml`, `go.mod`, `Cargo.toml`, …), languages/frameworks + **pinned versions** (verify with
@@ -58,15 +69,16 @@ aspirational README), tag that field **DISPUTED** and confirm it — never silen
 Genuinely-unknown fields stay blank for the gap loop. Skipped or backfilled gates carry a **recorded
 assumption** in `harness/state.yaml` and an honest `entry_stage`.
 
-### Step 4b — Dead-flow sweep (recommended)
-Run `/midas-sweep all` (report only, or `--fix` with explicit confirm) on the inventory findings.
-Reconcile obvious ledger/doc drift before baseline audit and wiring — especially orphan routes,
-duplicate utilities, and `open-questions.md` rows already answered in harvested docs.
+### Step 4b — Dead-flow sweep (inline)
+Run the same **indexing checks** as hygiene (`harness/rules/hygiene.md`) inline — orphan routes,
+duplicate utilities, `open-questions.md` drift — **do not** invoke `/midas-sweep` by name. Record
+findings in the adoption notes; reconcile obvious drift before the baseline audit.
 
 ### Step 5 — Baseline audit
-Run `/midas-tribunal --depth standard` (or a `/close-sprint`-style conformance pass) to establish a
-**drift baseline** vs the just-derived rules. Freeze it to `.harness/audits/` so future sprints measure
-against a known starting point.
+Run a **lightweight baseline conformance pass** inline: apply each derived rule's CHECK against the
+current codebase, record pass/fail/n/a with evidence, and freeze to `.harness/audits/audit-baseline-NN.md`
+with a `MIDAS_AUDIT_RESULT` tally line. Do **not** invoke `/midas-tribunal` or `/close-sprint` by name —
+those are separate standing rituals the user may run later.
 
 ### Step 6 — Wire the harness (dry-run + diff-confirm)
 For each file:

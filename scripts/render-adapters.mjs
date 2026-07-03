@@ -18,6 +18,9 @@
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
+import { parseToolsFromStateYaml } from './yaml-lite.mjs';
+
+export { parseToolsFromStateYaml };
 
 // Repo root = parent of this script's directory (scripts/..). Resolved from the script URL so the
 // script works regardless of the current working directory. The regex strips the leading slash
@@ -38,16 +41,6 @@ export const TOOL_ADAPTER_MAP = {
   windsurf: '.windsurf/rules/00-midas.md',
   gemini: 'GEMINI.md',
 };
-
-/** Parse `tools: [a, b]` from a state.yaml string (no YAML dependency). Returns null when absent. */
-export function parseToolsFromStateYaml(yaml) {
-  const m = yaml.match(/^tools:\s*\[([^\]]*)\]/m);
-  if (!m) return null;
-  return m[1]
-    .split(',')
-    .map((t) => t.trim())
-    .filter(Boolean);
-}
 
 /**
  * Resolve which adapter files to emit for `root`. When harness/state.yaml is missing or has no `tools:`,

@@ -24,6 +24,10 @@ literal model ids live in **`docs/agents-and-models.md`** (the single bump point
 
 ## Local & hybrid execution (where a tier runs)
 
+`routing_profile` in `state.yaml` (`claude` | `openai` | `local-hybrid`) selects preset model ids for
+`build`/`scout`. The `orchestrate` tier **always** uses Claude cloud for attested gate verdicts — see
+`docs/agents-and-models.md` for the preset table.
+
 The tier names above pick *which* model; **`state.yaml -> execution_mode`** (`cloud` | `hybrid` |
 `local`) picks *where* it runs. The two axes are orthogonal — `execution_mode` never changes which
 Claude tier a decision uses, only where build/scout may run. The mode→placement mapping and the

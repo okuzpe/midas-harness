@@ -11,6 +11,37 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [0.5.22] — 2026-07-03
+
+### Added
+- **Midas Lite track** (`track: lite` in `state.yaml`) — Idea+Plan → Execute → Audit for prototypes;
+  playbook `harness/pipeline/lite.md`; choice during `/midas-init`.
+- **Local status dashboard** — `npm run status` generates `status.html` from `state.yaml` + `.harness/*`.
+- **Routing presets** — `routing_profile: claude | openai | local-hybrid` (orchestrate stays Claude for gates).
+- **Gate artifact templates** — `gate-record`, `audit-record`, `verify-record`, `sweep-record`, `debate-record`.
+- **`scripts/yaml-lite.mjs`** — shared YAML helpers for doctor/render/installer.
+- **`harness/migrations/`** — migration stub + 1.0 roadmap in `VERSIONING.md`.
+- **Brownfield preflight** — `/midas-adopt --preflight` read-only fit report; step-by-step in `docs/getting-started.md`.
+
+### Changed
+- **Engine dogfood** — `harness/state.yaml` coherent engine-as-dogfood profile.
+- **Phase skills** — `disable-model-invocation: true` + ritual guards on phases 0–6.
+- **Schema** — `packages[]`, `captures`/`last_capture`, `track`, `routing_profile` documented.
+- **`doctor.mjs`** — `--help`, `--fix` re-checks drift; verify self-inconsistency gate; OpenAI model ids.
+- **Installer** — Windows MCP `npx` wrap on `--update`; ancestor install guard aligned; render errors surfaced.
+- **CI** — Windows smoke, `--update` smoke, `npm pack` dry-run.
+- **Desambiguación** — README/docs clarify this is not Intel MiDaS depth estimation.
+- **Design tokens** — canonical path `harness/design-system/` aligned across pipeline, conventions, templates.
+
+### Fixed
+- Dead references (`/deep-research`, doctor dry-run mode, `.harness/gates/` path).
+- Phase 7 exit gate no longer requires Phase-8-only artifacts.
+- `midas-adopt` no longer invokes nested `disable-model-invocation` skills by name.
+- Rules CHECKs use `<src-root>/` instead of hardcoded `src/`.
+- `package.json` marked `"private": true` to prevent accidental npm publish.
+
+---
+
 ## [0.5.21] — 2026-06-30
 
 ### Added — Verification / MCP governance
@@ -923,7 +954,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.21...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.22...HEAD
+[0.5.22]: https://github.com/okuzpe/midas-harness/compare/v0.5.21...v0.5.22
 [0.5.21]: https://github.com/okuzpe/midas-harness/compare/v0.5.20...v0.5.21
 [0.5.20]: https://github.com/okuzpe/midas-harness/compare/v0.5.19...v0.5.20
 [0.5.14]: https://github.com/okuzpe/midas-harness/compare/v0.5.13...v0.5.14

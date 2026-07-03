@@ -2,13 +2,16 @@
 name: business-plan
 description: Phase 3 of Midas — turn the validated opportunity into a go/no-go business case. Define the value proposition, MVP scope vs explicit non-goals, the business/monetization model, and MEASURABLE success metrics (which later phase-8 audits grade against), then capture an explicit go/no-go with HUMAN sign-off into product/business-plan.md. Use after /market-research.
 user-invocable: true
-disable-model-invocation: false
+disable-model-invocation: true
 model: inherit
 harness-tier: orchestrate
 recommended-model: claude-opus-4-8
 ---
 
 # business-plan — Phase 3
+
+> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
+> First read `harness/state.yaml`; if the precondition stage is wrong, report and stop.
 
 > First read `harness/state.yaml`. Precondition: stage `market_research` passed. Read first, write last.
 > This phase has a **hard human checkpoint** — no engineering begins until the human signs off the

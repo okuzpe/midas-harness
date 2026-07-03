@@ -49,6 +49,28 @@ jobs:
           test -d /tmp/midas-smoke/.claude/skills
           node /tmp/midas-smoke/scripts/doctor.mjs
 
+      - name: Update smoke test
+        run: |
+          node create-midas/index.mjs /tmp/midas-update-smoke
+          node create-midas/index.mjs --update /tmp/midas-update-smoke
+          node /tmp/midas-update-smoke/scripts/doctor.mjs
+
+      - name: npm pack dry-run
+        run: npm pack --dry-run 2>&1 | grep -q create-midas
+
+  windows-smoke:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "20"
+      - name: Installer smoke (Windows)
+        run: |
+          node create-midas/index.mjs $env:RUNNER_TEMP\midas-win-smoke
+          node $env:RUNNER_TEMP\midas-win-smoke\scripts\doctor.mjs
+        shell: pwsh
+
   docs:
     runs-on: ubuntu-latest
     steps:

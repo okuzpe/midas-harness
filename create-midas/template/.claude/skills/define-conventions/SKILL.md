@@ -145,39 +145,16 @@ Update `harness/state.yaml`: list the new rule files + `product/design-system.md
 `stage_status: gate_pending`, and record which `tools` the adapters were rendered for. Do not self-advance the stage.
 
 ## Exit gate (orchestrate audits)
-- A **folder-structure rule** exists with explicit boundary/import constraints.
-- Conventions are encoded and **every rule is CHECKABLE** (has a concrete pass/fail CHECK).
-- **`product/conventions.md`** exists and overrides/references the base `harness/conventions.md` (the
-  project-override layer named in the precedence chain).
-- Stack rules are **Context7-verified** at pinned versions, and **every generated stack rule carries a
-  `docs: <lib>@<version> via <tool>` provenance line** (no provenance → fail; the idiom may be from memory).
-- **Stack rules cover the framework's canonical idiom + lint set** (not just naming/format) and name the
-  official lint plugin that mechanizes each CHECK — a thin, token-only generation is a **fail**.
-- **Floor CHECKs re-targeted for the stack:** for each base rule (`security.md`, `code-quality.md`,
-  `testing.md`, `naming.md`) whose CHECK is a language-specific grep, the stack extension either
-  re-targets the grep to this stack's file extensions/idioms **or** records the base CHECK as
-  confirmed-applicable. An **inert floor grep** for the chosen stack (e.g. a JS `console.log` grep on a
-  Rust project) is a **fail**.
-- **Enforcement tooling is scaffolded**: a linter+formatter config wired to the rules, a commit hook
-  (Husky/lefthook/pre-commit) running lint+format on staged files, commit-msg lint, and a CI lint job —
-  each Context7-verified, and **installed on the user's OK or left with the exact command** (recommend-don't-wall).
-  The decision is recorded in `harness/state.yaml`'s `enforcement:` block (per
-  `harness/rules/enforcement-state.md`); `node scripts/doctor.mjs` warns on a named-but-missing config.
-- A **design direction** exists (`product/design-direction.md`): brand personality, **≥2 real reference
-  products** + anti-references, and the tokens **trace to it** (intentional, not generic). The references are
-  **human-captured, or agent-proposed and marked `assumed (confirm)`** when the human defers — but a generic
-  or empty direction is a **fail** (a concrete anchor is required; who supplies it is not).
-- The **design system** exists: tokens (color, type, spacing, radii) + UI framework, referenced from
-  `product/design-system.md`, with the "tokens not hardcoded values" rule.
-- The **accessibility floor** (`harness/rules/accessibility.md`) is satisfiable by the design system — AA
-  contrast, focus, reduced-motion — or explicitly recorded **N/A (headless, no UI)**.
-- **Playbooks** for the project's repeated tasks: **0–4** in `product/playbooks/` (zero is valid), each
-  with use-when, steps, the rules/tokens it honors, a Context7 fetch, and a done-when check. **CHECK:**
-  every playbook has ≥1 step not stated by any single `harness/rules/*` (1:1-to-rules → cut); none is a
-  new slash-command.
-- **Adapters are rendered** and in sync (no drift reported by `/midas-doctor`).
 
-On pass: freeze the verdict in `.harness/audits/`, set the gate passed; next action is `/plan-sprints`
+See the full checklist in `harness/pipeline/5-architecture-rules.md` § Exit gate checklist. Key gates:
+
+- Folder-structure rule + every architectural decision has a CHECKABLE rule file.
+- Stack rules Context7-verified with `docs: <lib>@<version> via <tool>` provenance on every generated rule.
+- Enforcement tooling scaffolded; decision recorded in `harness/state.yaml → enforcement:`.
+- Design direction + design system + 0–4 playbooks present.
+- Adapters rendered and in sync (`/midas-doctor` reports no drift).
+
+On pass: freeze the verdict in `.harness/audits/gate-05.md`, set the gate passed; next action is `/plan-sprints`
 (Phase 6). On fail: report the uncheckable rule or unrendered adapter.
 
 ## Tier & cost

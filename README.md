@@ -1,5 +1,8 @@
 # Midas ✨ — a stateful, auditable, resumable product lifecycle for AI coding agents
 
+> **Not related to [Intel's MiDaS](https://github.com/isl-org/MiDaS) depth-estimation model.** This
+> project is a portable **product-development harness** for AI coding agents.
+
 > **Copy Midas into your repo and your AI agent builds with context instead of improvising.**
 > Nine audited phases take a raw idea to shipped code — the rules are **frozen**, the gates are
 > **machine-checkable** (not just model-graded), and the whole run is **resumable** from one state file.
@@ -41,10 +44,11 @@ loop that re-audits the living code against those frozen rules.
 **Use it** when you want an agent to respect architecture, conventions, and tests instead of improvising —
 on a new product (full lifecycle) or an existing repo (`/midas-adopt`).
 
-**Skip it** for a quick one-off script, a throwaway prototype, or when you already have an agent setup
-you're happy with. Midas adds process; that's overhead you don't want for a 20-line tool.
+**Skip it** for a quick one-off script or when you already have an agent setup you're happy with.
+For a **fast MVP or hackathon**, choose **`track: lite`** during `/midas-init` (3 phases instead of 9).
+Midas adds process; that's overhead you don't want for a 20-line tool.
 
-## The 9 phases
+## The 9 phases (or Lite: 3)
 
 ```mermaid
 flowchart LR
@@ -84,8 +88,9 @@ your editor and run the one-time setup, then let `/midas-status` drive the rest:
 /idea-intake       # …then the phases in order — /midas-status always tells you what's next
 ```
 
-**Cursor quickstart** — Cursor natively discovers Midas skills in `.claude/skills/` and reads
-`.cursor/rules/00-midas.mdc`. Install only the Cursor adapter:
+Optional: `npm run status` in the repo root generates a local `status.html` dashboard (phase, gates, artifacts).
+
+**Cursor quickstart**
 
 ```bash
 npx github:okuzpe/midas-harness --tools=cursor
@@ -161,7 +166,7 @@ A runnable Sprint-1 vertical slice — auth, task CRUD, middleware, board stub +
 artifact on disk. See [`examples/taskpilot/`](./examples/taskpilot/).
 
 ## Status
-**v0.5.21 — pre-1.0, actively developed (not yet a stable API).** Most complete on **Claude Code**
+**v0.5.22 — pre-1.0, actively developed (not yet a stable API).** Most complete on **Claude Code**
 (see [Honest scope](#supported-tools)). Details: [`CHANGELOG.md`](./CHANGELOG.md) ·
 [`VERSIONING.md`](./VERSIONING.md) · [docs site](https://okuzpe.github.io/midas-harness/).
 

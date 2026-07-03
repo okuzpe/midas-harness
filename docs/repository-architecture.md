@@ -152,3 +152,4 @@ Decisions about the repository itself (not about a product built with Midas) are
 |---|---|---|
 | [ADR-001](adr/ADR-001-install-layout.md) | proposed | Install layout — consolidate engine internals under `.midas/` (opt-in, classic default) |
 | [ADR-002](adr/ADR-002-code-intelligence-mcp.md) | rejected | Optional code-intelligence MCP (code-graph) — rejected: too much install complexity for a dependency-free harness |
+| [ADR-003](adr/ADR-003-project-memory-model.md) | accepted | Project memory model — `state.yaml` spine + `.harness/*` records |

@@ -68,7 +68,7 @@ A change is breaking if an existing install would need a migration step to stay 
 Every `harness/state.yaml` carries:
 
 ```yaml
-midas_version: 0.5.21   # engine version that wrote or last migrated this file
+midas_version: 0.5.22   # engine version that wrote or last migrated this file
 ```
 
 `/midas-init` writes `midas_version` on first install.  
@@ -88,6 +88,28 @@ When upgrading across a breaking version boundary:
 Migration notes for each breaking version live in `harness/migrations/vX.Y.md` (created when the
 version is cut). For pre-1.0 minor bumps, migration notes live in the relevant `CHANGELOG.md` entry
 under a `### Migration` subsection.
+
+---
+
+## Roadmap to 1.0.0
+
+Surfaces frozen at 1.0:
+
+| Surface | Freeze criterion |
+|---------|------------------|
+| `harness/state.yaml` schema | Required keys + stage enum stable; additive optional fields only in MINOR |
+| Skill / command names | No renames without migration + major bump post-1.0 |
+| `product/` layout | Documented artifact paths in `harness/methodology.md` |
+| Adapter managed regions | `<!-- midas:begin/end -->` contract unchanged |
+| `MIDAS_*_RESULT` tally lines | Parseable gate format stable for doctor.mjs |
+
+Exit criteria for declaring **1.0.0**:
+
+1. `examples/taskpilot` completes at least one full sprint loop with CI-green gates.
+2. Installer paths tested on Linux + Windows (`install.sh`, `install.ps1`, `--update`).
+3. `harness/migrations/` process exercised on at least one breaking cut.
+4. Docs site published and linked from README.
+5. No open HIGH-severity items in engine self-audit.
 
 ---
 

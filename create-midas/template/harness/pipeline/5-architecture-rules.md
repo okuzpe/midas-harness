@@ -6,7 +6,8 @@
 
 Translate architectural decisions into checkable, machine-readable rules that every
 subsequent phase enforces. Produce a design system so UI never diverges. Freeze the
-rules before any code is written; the Phase 8 audit references exactly these files.
+rules before **new** MVP work begins (brownfield: codify as-built before sprint execution);
+the Phase 8 audit references exactly these files.
 
 ## Inputs
 
@@ -70,11 +71,18 @@ rules before any code is written; the Phase 8 audit references exactly these fil
 - [ ] `harness/rules/folder-structure.md` exists and describes the real project layout
 - [ ] Every other architectural decision from Phase 4 has a corresponding rule file
 - [ ] Each rule is CHECKABLE (grep pattern, lint rule, or explicit verification command given)
-- [ ] `product/conventions.md` is present and references the base `harness/conventions.md`
-- [ ] `product/design-direction.md` captures the aesthetic intent (brand + ≥2 real references + anti-references) from the human; tokens trace to it (not generic)
-- [ ] `product/design-system.md` defines colors, spacing, type, and components
-- [ ] `product/playbooks/` holds 0–4 recipes for repeated tasks (use-when/steps/rules/Context7/done-when); each has ≥1 step no single rule states (none duplicates a rule)
-- [ ] Enforcement tooling is scaffolded (linter+formatter wired to the rules, a commit hook + lint-staged, commit-msg lint, a CI lint job) — installed on the user's OK or left with the exact command
+- [ ] **`product/conventions.md`** present and references the base `harness/conventions.md`
+- [ ] Stack rules **Context7-verified** at pinned versions; every generated stack rule carries
+      `docs: <lib>@<version> via <tool>` provenance (no provenance → fail)
+- [ ] Stack rules cover the framework's canonical idiom + lint set (not just naming/format)
+- [ ] Floor CHECKs re-targeted for the stack (`security`, `code-quality`, `testing`, `naming`) or
+      recorded as confirmed-applicable; inert floor greps for the chosen stack → fail
+- [ ] `product/design-direction.md` captures aesthetic intent (brand + ≥2 real references + anti-references)
+- [ ] `product/design-system.md` defines colors, spacing, type, and components; accessibility floor
+      satisfiable or recorded **N/A (headless, no UI)**
+- [ ] `product/playbooks/` holds 0–4 recipes; each has ≥1 step no single rule states
+- [ ] Enforcement tooling scaffolded (linter+formatter, commit hook, commit-msg lint, CI lint job) —
+      installed on user's OK or left with exact command; decision in `state.yaml → enforcement:`
 - [ ] `harness/design-system/tokens.json` and `tokens.css` are consistent with each other
 - [ ] `node scripts/render-adapters.mjs` ran without errors; generated adapters are up to date
 - [ ] Gate verdict written to `.harness/audits/gate-05.md`

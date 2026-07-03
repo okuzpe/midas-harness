@@ -2,13 +2,16 @@
 name: contextualize
 description: Phase 1 of Midas — the gap loop. Generate and rank blocking questions, ask them in batches, fold answers into product/idea.md, track product/open-questions.md, and loop until zero blockers remain. Use after idea-intake to pin down user, problem, metric, and non-goals.
 user-invocable: true
-disable-model-invocation: false
+disable-model-invocation: true
 model: inherit
 harness-tier: orchestrate
 recommended-model: claude-opus-4-8
 ---
 
 # contextualize — Phase 1: the gap loop
+
+> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
+> First read `harness/state.yaml`; if the precondition stage is wrong, report and stop.
 
 This is Midas's signature phase. A raw idea is full of unstated assumptions; building on them is the
 most expensive mistake. Phase 1 systematically surfaces every **blocking** unknown and resolves it

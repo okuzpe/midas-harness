@@ -2,7 +2,7 @@
 name: market-research
 description: Phase 2 of Midas — validate the (now-clear) idea against the real market. Derive research questions, fan out web searches (reuse /deep-research if present), adversarially verify every claim with citations, and synthesize a competitor matrix + differentiation thesis + top risks into product/market.md. Use after /contextualize, before the business case.
 user-invocable: true
-disable-model-invocation: false
+disable-model-invocation: true
 model: inherit
 harness-tier: orchestrate
 recommended-model: claude-opus-4-8
@@ -10,6 +10,9 @@ mcp-recommended: [context7]
 ---
 
 # market-research — Phase 2
+
+> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
+> First read `harness/state.yaml`; if the precondition stage is wrong, report and stop.
 
 > First read `harness/state.yaml`. Precondition: stage `contextualize` passed (the idea is clear, with
 > user/problem/metric/non-goals defined). If the idea still has BLOCKING open questions, stop and point
@@ -25,9 +28,9 @@ frames the questions and audits the gate — it does not rubber-stamp its own re
    and **demand signals** — evidence that the problem is real and people pay to solve it (competitor
    traction/reviews/funding, complaints in forums/Reddit/app-store reviews, search/community interest,
    what people already pay for substitutes). This is the part you CAN validate from the desk.
-2. **Fan out the research.** Prefer the **`/deep-research`** skill if available (it already fans out
-   searches, fetches sources, and adversarially verifies). Otherwise dispatch **scout** subagents
-   (Haiku) to `WebSearch` + `fetch` each question; for any technology/landscape facts, use Context7.
+2. **Fan out the research.** Dispatch **scout** subagents (Haiku) to `WebSearch` + `fetch` each question;
+   for any technology/landscape facts, use Context7. If an external deep-research skill is installed
+   in the host tool, you may delegate the fan-out to it — it is not part of the Midas engine.
 3. **Adversarially verify.** Every material claim must cite a source URL. Strike or flag uncited
    claims. Distinguish primary sources from blog hearsay.
 4. **Synthesize** (build tier) into a competitor matrix (who, what, price, gap), a one-paragraph
@@ -40,7 +43,7 @@ frames the questions and audits the gate — it does not rubber-stamp its own re
 
 ## Cost / tiers
 Orchestrate (Opus) frames the questions and audits the gate. Scout (Haiku) does the bulk
-search/extraction. Build (Sonnet) writes the synthesis. Reuse `/deep-research` when present.
+search/extraction. Build (Sonnet) writes the synthesis.
 
 ## Exit gate (Phase 2)
 - [ ] ≥ 3 competitors/alternatives analyzed (or a justified "no direct competitor" finding).

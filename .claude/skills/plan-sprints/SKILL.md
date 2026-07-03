@@ -2,13 +2,16 @@
 name: plan-sprints
 description: Phase 6 — decompose the MVP scope into a dependency-ordered roadmap and per-sprint plans, each with goal, scope, tasks, acceptance criteria, and a DoD that references the frozen rules. Use after conventions and the design system are frozen (stage architecture_rules → sprint_planning), before any sprint executes.
 user-invocable: true
-disable-model-invocation: false
+disable-model-invocation: true
 model: inherit
 harness-tier: orchestrate
 recommended-model: claude-opus-4-8
 ---
 
 # plan-sprints (Phase 6 — Sprint Planning)
+
+> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
+> First read `harness/state.yaml`; if the precondition stage is wrong, report and stop.
 
 Sequence the **MVP only** into shippable sprints. This is an **orchestrate-tier** decision: the value
 is in correct decomposition and dependency ordering, not in prose volume. Each sprint must be a thin,

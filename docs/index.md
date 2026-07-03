@@ -1,8 +1,9 @@
 # Midas
 
-**Midas** is a portable, AI-tool-agnostic product-development harness: a copy-in kit of plain
-markdown — skills, rules, slash-commands, and agent definitions — that drives a software product
-from a raw idea to shipped code through **9 audited phases**.
+> **Not related to [Intel's MiDaS](https://github.com/isl-org/MiDaS) depth-estimation model.** This
+> project is a portable **product-development harness** for AI coding agents.
+
+**Midas** is a portable, AI-tool-agnostic product-development harness:
 
 It is a *methodology engine*: stateful, auditable, and resumable. Install it into any repo; it
 works across Claude Code, Cursor, GitHub Copilot, Codex, Windsurf, and any AGENTS.md-aware agent.

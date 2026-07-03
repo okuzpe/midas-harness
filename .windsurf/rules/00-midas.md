@@ -85,8 +85,9 @@ do not introduce a parallel "standards" layer.
 - Treat all external input as untrusted.
 
 ## Design system
-- All UI uses the design tokens from `product/design-system.md` (`tokens.json` / `tokens.css`).
-  Never hardcode colors, spacing, type sizes, or radii — reference tokens.
+- Base tokens ship in `harness/design-system/tokens.{json,css}`; project overrides live in
+  `product/design-system.md` with rendered files at `product/design-system/tokens.{json,css}`.
+  Never hardcode colors, spacing, type sizes, or radii — reference `--ds-*` tokens.
 - Visual hierarchy, typography discipline, emphasis, and lightweight UX floors:
   [`rules/visual-design.md`](./rules/visual-design.md). Accessibility, contrast, focus, and containment:
   [`rules/accessibility.md`](./rules/accessibility.md). Component patterns:
@@ -153,16 +154,16 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `grep -rniE "z-index:[[:space:]]*[0-9]+" <ui-src>` → each is a `var(--ds-z-*)` token; a raw integer (e.g. `9999`) is a fail.
 - **Rule: Code quality (always-on)** (`code-quality.md`)
   - **CHECK:** `manual:` diff each new file against a sibling in the same directory; a naming/indent/idiom break that stands out from local style is a fail.
-  - **CHECK:** `manual:` grep the codebase for the concept (`grep -rin "<concept>" src/`); a parallel implementation of an existing pattern is a fail.
+  - **CHECK:** `manual:` grep the codebase for the concept (`grep -rin "<concept>" <src-root>/`); a parallel implementation of an existing pattern is a fail.
   - **CHECK:** any rules/standards/guidelines doc outside `harness/conventions.md` + `harness/rules/` is a fail (`find . -iname "*standard*" -o -iname "*guideline*"` outside those paths → empty).
   - **CHECK:** `manual:` the name is a verb-phrase describing the effect; a body with multiple unrelated responsibilities (independent side effects) is a fail.
   - **CHECK:** linter (`eslint max-lines-per-function` / equivalent) reports no function over the stack limit; absent a linter, no body exceeds ~40 logical lines.
   - **CHECK:** `manual:`/AST: no signature in the diff declares > 4 positional parameters.
-  - **CHECK:** grep imports against `harness/rules/folder-structure.md` (the project's Phase-5-generated rule; e.g. `grep -rn "from '@/db'" src/ui/` → empty); any forbidden cross-layer import is a fail.
+  - **CHECK:** grep imports against `harness/rules/folder-structure.md` (the project's Phase-5-generated rule; e.g. `grep -rn "from '@/db'" <src-root>/ui/` → empty); any forbidden cross-layer import is a fail.
   - **CHECK:** `eslint no-unused-vars` / `ts-prune` / `vulture` (per stack) reports zero unused or unreachable symbols in the diff.
   - **CHECK:** review for commented-out statements (`grep -nE "^\s*(//|#).*[;{}()]" <diff>`); a commented-out code block is a fail.
-  - **CHECK:** `grep -rnE "TODO" src/ | grep -vE "TODO\((\w+|#[0-9]+)\):"` must be empty.
-  - **CHECK:** `grep -rnE "console\.(log|debug)|(^|[^.])\bprint\(|fmt\.Print" src/` → empty, unless the match is the project logger.
+  - **CHECK:** `grep -rnE "TODO" <src-root>/ | grep -vE "TODO\((\w+|#[0-9]+)\):"` must be empty.
+  - **CHECK:** `grep -rnE "console\.(log|debug)|(^|[^.])\bprint\(|fmt\.Print" <src-root>/` → empty, unless the match is the project logger.
   - **CHECK:** `manual:` the PR/sprint notes record the search for an existing utility; an unexplained duplicate utility is a fail.
   - **CHECK:** `manual:` a generic abstraction with fewer than 3 distinct call sites is a fail unless explicitly justified.
   - **CHECK:** `manual:` a wrapper/indirection that adds no behaviour over the call it forwards to is a fail.
@@ -176,9 +177,9 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` each `export`ed symbol in the diff is preceded by a doc comment; an undocumented public export is a fail.
   - **CHECK:** `manual:` a doc comment that merely echoes the signature is a fail.
   - **CHECK:** `manual:` non-obvious params/returns (ranges, units, nullability) are documented; an undocumented constraint is a fail.
-  - **CHECK:** `grep -rnE "@deprecated" src/` → each match names a reason and an alternative.
+  - **CHECK:** `grep -rnE "@deprecated" <src-root>/` → each match names a reason and an alternative.
   - **CHECK:** `manual:` each workaround/non-obvious branch has a *why* comment; a comment restating the code is a fail.
-  - **CHECK:** `grep -rnE "TODO" src/ | grep -vE "TODO\((\w+|#[0-9]+)\):"` → empty (shared with `code-quality.md`).
+  - **CHECK:** `grep -rnE "TODO" <src-root>/ | grep -vE "TODO\((\w+|#[0-9]+)\):"` → empty (shared with `code-quality.md`).
   - **CHECK:** review for commented-out statements (`grep -nE "^\s*(//|#).*[;{}()]" <diff>`) → none.
   - **CHECK:** `manual:` a comment citing a spec/issue/paper includes its URL or issue id.
   - **CHECK:** the active sprint file's acceptance/Tasks table has no `todo`/`in-progress` rows at audit time.
@@ -215,7 +216,7 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` if `state.yaml` has `mode: brownfield`, either (a) a `.harness/sweeps/sweep-NN.md` exists whose date falls within the active sprint window, or (b) `.harness/audits/audit-NN.md` § hygiene records `sweep: skipped — <one-line reason>`. Neither is a fail on greenfield (`mode` absent or `greenfield`).
   - **CHECK:** `manual:` read the latest `.harness/sweeps/sweep-NN.md` for this sprint cycle (if any); if `MIDAS_SWEEP_RESULT` shows `dead_flows>0` or `ledger_drift>0`, the sprint audit must list each as **fixed**, **deferred** (with issue/owner), or **accepted** (with rationale). An unmentioned high-severity row is a fail.
   - **CHECK:** `manual:` for each feature id touched in the sprint diff, `status: passing` rows carry non-empty `evidence` (test path, route, or verify record); `failing` rows are not contradicted by shipped code in the same diff without a recorded deferral.
-  - **CHECK:** `manual:` for each `product/playbooks/*.md` cited in the sprint or architecture, grep `src/` for the trigger predicate; a playbook with zero matches and no `## Retired` note in the sweep or audit is a warn (fail if the sprint added or edited that playbook without fixing the trigger).
+  - **CHECK:** `manual:` for each `product/playbooks/*.md` cited in the sprint or architecture, grep `<src-root>/` for the trigger predicate; a playbook with zero matches and no `## Retired` note in the sweep or audit is a warn (fail if the sprint added or edited that playbook without fixing the trigger).
   - **CHECK:** `manual:` rows in `product/open-questions.md` marked OPEN that are answered in `product/idea.md` are a fail; internal markdown links in changed `product/*` files that 404 on disk are a fail (grep `](` targets against the tree).
 - **Rule: Cost-aware model routing (always-on)** (`model-routing.md`)
   - **CHECK:** A high-stakes gate verdict or audit (Phase 1/3/4/8, code-review, security-review) is
@@ -229,18 +230,18 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `git diff --name-only | grep -iE "/(utils?|helpers?|misc|common|stuff)\.[a-z]+$"` → empty (or each justified).
   - **CHECK:** `manual:` each `index.*` barrel sits on a public module boundary and re-exports only the public surface.
   - **CHECK:** every test file matches the pinned pattern (`git diff --name-only | grep -iE "test|spec"` all conform); a misnamed test is a fail.
-  - **CHECK:** `grep -rnE "(class|interface|type|enum)\s+[a-z]" src/` → empty (declarations start uppercase).
-  - **CHECK:** `grep -rnE "(Class|Object|Impl|Manager|Data)\b" src/` reviewed; an implementation-noise suffix that adds no meaning is a fail.
+  - **CHECK:** `grep -rnE "(class|interface|type|enum)\s+[a-z]" <src-root>/` → empty (declarations start uppercase).
+  - **CHECK:** `grep -rnE "(Class|Object|Impl|Manager|Data)\b" <src-root>/` reviewed; an implementation-noise suffix that adds no meaning is a fail.
   - **CHECK:** `manual:` abstract/base type names carry a domain qualifier; a generic `AbstractThing`/`BaseObject` is a fail.
   - **CHECK:** grep new function declarations against the stack casing rule; a casing mismatch is a fail.
   - **CHECK:** `manual:` each new function name starts with a verb/query word; a noun-only function name is a fail.
   - **CHECK:** `manual:` functions/methods returning boolean use an `is/has/can/should` prefix.
   - **CHECK:** `manual:` handler functions use a `handle`/`on` prefix; a bare handler name is a fail.
-  - **CHECK:** `grep -rnE "\b\w+(Array|List|Obj|Str|Num|Map)\b\s*=" src/` reviewed; a type-suffixed variable name is a fail.
+  - **CHECK:** `grep -rnE "\b\w+(Array|List|Obj|Str|Num|Map)\b\s*=" <src-root>/` reviewed; a type-suffixed variable name is a fail.
   - **CHECK:** `manual:` single-letter names appear only as loop indices or standard math notation.
   - **CHECK:** `manual:` shared immutable constants use the pinned constant casing; a lowercase shared constant is a fail.
   - **CHECK:** `manual:` non-standard abbreviations (e.g. `usr`, `cfg`, `tmp` as identifiers) are fails; standard ones are allowed.
-  - **CHECK:** `manual:` grep the synonyms for one entity (`grep -rinE "user|account|member" src/`); two names for the same concept is a fail.
+  - **CHECK:** `manual:` grep the synonyms for one entity (`grep -rinE "user|account|member" <src-root>/`); two names for the same concept is a fail.
   - **CHECK:** `manual:` each domain noun in code matches a glossary term from `product/idea.md` / `product/architecture.md`.
   - **CHECK:** `manual:` a rename touches all occurrences in one commit; a partial rename leaving the old name is a fail.
 - **Rule: Security (always-on)** (`security.md`)
@@ -253,16 +254,16 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` each token's documented scope matches its actual use; a write/admin token used only for reads is a fail.
   - **CHECK:** `manual:` CI workflow permissions block (e.g. `permissions:` in the workflow) grants only the steps' required scopes; default-broad tokens are a fail.
   - **CHECK:** `manual:` each boundary validates/parses input (schema validator, type guard) before use; an unvalidated path is a fail (evidence: `file:line`).
-  - **CHECK:** `grep -rnE "(exec|spawn)\(.*\$\{|query\(\s*[\"'\`].*\$\{|\+ req\.(body|query|params)" src/` → empty (string-built SQL/shell from user input is a fail).
-  - **CHECK:** `grep -rnE "innerHTML|dangerouslySetInnerHTML|v-html|\|\s*safe" src/` → empty, or each match proven to use sanitized/constant data.
+  - **CHECK:** `grep -rnE "(exec|spawn)\(.*\$\{|query\(\s*[\"'\`].*\$\{|\+ req\.(body|query|params)" <src-root>/` → empty (string-built SQL/shell from user input is a fail).
+  - **CHECK:** `grep -rnE "innerHTML|dangerouslySetInnerHTML|v-html|\|\s*safe" <src-root>/` → empty, or each match proven to use sanitized/constant data.
   - **CHECK:** `npm audit --audit-level=high` (or `pip-audit`) exits clean on the new deps; the PR records the result.
   - **CHECK:** lockfile present and committed in the diff; manifest has no unbound ranges (see `code-quality.md` pinning CHECK).
   - **CHECK:** `manual:` lockfile diff in the PR is reviewed; an unexplained transitive bump is a fail.
   - **CHECK:** `npm audit --audit-level=high` (or `pip-audit` / `osv-scanner`) exits clean on the committed lockfile this sprint; any high/critical is fixed or logged with a dated remediation ADR.
   - **CHECK:** `manual:` error responses return a safe message/code; a raw stack trace or path reaching the client is a fail.
-  - **CHECK:** `grep -rnE "log.*(password|token|secret|ssn|email)" src/` → reviewed; logging a raw secret/PII value is a fail.
+  - **CHECK:** `grep -rnE "log.*(password|token|secret|ssn|email)" <src-root>/` → reviewed; logging a raw secret/PII value is a fail.
   - **CHECK:** `manual:` response headers/bodies expose no server version or internal IDs not required by spec (e.g. `X-Powered-By` disabled).
-  - **CHECK:** `grep -rnE "http://(?!localhost|127\.0\.0\.1)" src/ config/` → empty.
+  - **CHECK:** `grep -rnE "http://(?!localhost|127\.0\.0\.1)" <src-root>/ config/` → empty.
   - **CHECK:** `manual:` if the spec requires encryption-at-rest, `product/architecture.md` records the mechanism and the code/infra applies it.
 - **Rule: Session continuity (always-on)** (`session-continuity.md`)
   - **CHECK:** `manual:` when `stage: sprint_execution` and a sprint is `active`, either (a) `.harness/sprints/NN-progress.md` exists with at least one **Learned** row updated this sprint cycle, or (b) `sprints[].last_touched` for that sprint is ≤ **7 days** before audit date. Greenfield with no active sprint → `n/a`.

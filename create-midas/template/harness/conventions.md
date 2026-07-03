@@ -77,8 +77,9 @@ do not introduce a parallel "standards" layer.
 - Treat all external input as untrusted.
 
 ## Design system
-- All UI uses the design tokens from `product/design-system.md` (`tokens.json` / `tokens.css`).
-  Never hardcode colors, spacing, type sizes, or radii — reference tokens.
+- Base tokens ship in `harness/design-system/tokens.{json,css}`; project overrides live in
+  `product/design-system.md` with rendered files at `product/design-system/tokens.{json,css}`.
+  Never hardcode colors, spacing, type sizes, or radii — reference `--ds-*` tokens.
 - Visual hierarchy, typography discipline, emphasis, and lightweight UX floors:
   [`rules/visual-design.md`](./rules/visual-design.md). Accessibility, contrast, focus, and containment:
   [`rules/accessibility.md`](./rules/accessibility.md). Component patterns:

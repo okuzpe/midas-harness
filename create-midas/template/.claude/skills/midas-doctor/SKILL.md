@@ -12,7 +12,7 @@ mcp-recommended: [context7]
 # midas-doctor — the only sync engine
 
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read `harness/state.yaml`; if the precondition stage is wrong, report and stop.
+> First read `harness/state.yaml`. No stage precondition — doctor may run at any lifecycle stage.
 
 Generated adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `GEMINI.md`) are
 **rendered** from `harness/conventions.md` + `harness/rules/*` — never hand-edited. `midas-doctor` is the
@@ -21,8 +21,8 @@ first and writes only with the user's go-ahead.
 
 ## Phase 1 — Adapter drift (the core job)
 
-1. **Re-derive** the expected adapters by running `node scripts/render-adapters.mjs` in dry-run/diff
-   mode (no external dependencies; it reads conventions + rules and emits the canonical adapter text).
+1. **Re-derive** the expected adapters via `node scripts/doctor.mjs` (which calls `computeAdapters()`
+   from `render-adapters.mjs` internally) or run `node scripts/render-adapters.mjs` to apply fixes.
 2. **Diff** each rendered adapter against the on-disk file, comparing **only** the Midas-managed regions
    between `<!-- midas:begin -->` and `<!-- midas:end -->`. Content outside the markers is the user's and
    is left untouched.
@@ -34,8 +34,11 @@ first and writes only with the user's go-ahead.
 
 ## Phase 2 — Health assertions (warn, don't fix silently)
 
-`node scripts/doctor.mjs` prints the **mechanical** subset of these checks. Read `harness/state.yaml`
-once, then add any **judgment** assertions and report pass/warn for each row in the health table:
+Findings are **mechanical** (adapter drift, version mismatch, MCP wiring, missing config files) or
+**verdict** (frozen audit/verify tallies, gate pass claims). `--fix` may repair **mechanical** issues only.
+**Verdict** findings require human review or a fix mini-sprint — never auto-approve a gate.
+
+`node scripts/doctor.mjs` prints the **mechanical** subset of these checks.
 
 | Check | What it means |
 |---|---|

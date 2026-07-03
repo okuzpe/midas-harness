@@ -468,6 +468,24 @@ check('adr:003:exists', existsSync(join(ROOT, 'docs', 'adr', 'ADR-003-project-me
 check('rule:session-continuity:exists', existsSync(join(ROOT, 'harness', 'rules', 'session-continuity.md')));
 check('mkdocs:adr-003', /ADR-003/.test(readFileSync(join(ROOT, 'mkdocs.yml'), 'utf8')));
 
+// --- status-page + yaml-lite smoke ----------------------------------------
+check('script:status-page:exists', existsSync(join(ROOT, 'scripts', 'status-page.mjs')));
+check('script:yaml-lite:exists', existsSync(join(ROOT, 'scripts', 'yaml-lite.mjs')));
+if (existsSync(join(ROOT, 'scripts', 'status-page.mjs'))) {
+  try {
+    execSync(`node "${join(ROOT, 'scripts', 'status-page.mjs')}"`, { cwd: ROOT, stdio: 'pipe' });
+    check('behavioral:status-page-runs', existsSync(join(ROOT, 'status.html')));
+    try { rmSync(join(ROOT, 'status.html')); } catch { /* ignore */ }
+  } catch (e) {
+    check('behavioral:status-page-runs', false, String(e.stderr || e.message));
+  }
+}
+check('template:gate-record', existsSync(join(ROOT, 'harness', 'templates', 'gate-record.md')));
+check('template:audit-record', existsSync(join(ROOT, 'harness', 'templates', 'audit-record.md')));
+check('template:verify-record', existsSync(join(ROOT, 'harness', 'templates', 'verify-record.md')));
+check('pipeline:lite', existsSync(join(ROOT, 'harness', 'pipeline', 'lite.md')));
+check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'README.md')));
+
 console.log(`midas test: ${passed} passed, ${failures.length} failed`);
 if (failures.length) {
   console.log('\nFailures:');

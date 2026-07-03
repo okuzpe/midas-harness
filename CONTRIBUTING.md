@@ -9,9 +9,10 @@ structure changes, and what the bar is for a contribution to land.
 
 - **English only.** All harness artifacts — skills, rules, docs, commit messages, PR descriptions —
   are English. This keeps the single-source adapters consistent across tools.
-- **Markdown + dependency-free scripts only.** The harness ships as plain `.md` files and two
-  optional Node scripts (`render-adapters.mjs`, `doctor.mjs`). Do not add npm packages, lock files,
-  or build steps. Scripts must run with `node <script>` and zero installs.
+- **Markdown + dependency-free scripts only.** The harness ships as plain `.md` files and Node ESM
+  scripts under `scripts/` (`test.mjs`, `doctor.mjs`, `render-adapters.mjs`, `mcp-drift.mjs`,
+  `build-plugin.mjs`, `build-create.mjs`, `status-page.mjs`, `yaml-lite.mjs`). Do not add npm packages,
+  lock files, or build steps. Scripts must run with `node <script>` and zero installs.
 - **Supply-chain changes are explicit.** GitHub Actions use immutable SHA pins with the major tag
   kept in a comment; workflow permissions start at `contents: read`; CI-installed packages are
   exact-pinned. MCP defaults and exceptions are documented in `SECURITY.md`.

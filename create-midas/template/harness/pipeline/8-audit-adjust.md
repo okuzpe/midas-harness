@@ -1,6 +1,6 @@
 # Phase 8 — Per-Sprint Audit & Adjust
 
-**Stage enum:** `audit` | **Tier:** orchestrate (audit)
+**Phase ledger:** `audit` (runs during `sprint_execution`; top-level `stage` stays `sprint_execution`) | **Tier:** orchestrate (audit)
 
 ## Purpose
 

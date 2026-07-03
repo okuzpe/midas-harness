@@ -21,14 +21,14 @@ adequate docs and that no stale or contradictory docs were introduced. Stack-spe
 - [ ] Parameters and return values with non-obvious types or constraints are documented.
       **CHECK:** `manual:` non-obvious params/returns (ranges, units, nullability) are documented; an undocumented constraint is a fail.
 - [ ] Deprecated APIs carry a doc comment: `@deprecated <reason> — use <alternative> instead`.
-      **CHECK:** `grep -rnE "@deprecated" src/` → each match names a reason and an alternative.
+      **CHECK:** `grep -rnE "@deprecated" <src-root>/` → each match names a reason and an alternative.
 
 ### In-code comments
 - [ ] Non-obvious logic or intentional workarounds are explained with a comment stating *why*,
       not restating *what* the code does.
       **CHECK:** `manual:` each workaround/non-obvious branch has a *why* comment; a comment restating the code is a fail.
 - [ ] Every `TODO` follows the format in `code-quality.md`: `TODO(<owner>|<issue>): <condition>`.
-      **CHECK:** `grep -rnE "TODO" src/ | grep -vE "TODO\((\w+|#[0-9]+)\):"` → empty (shared with `code-quality.md`).
+      **CHECK:** `grep -rnE "TODO" <src-root>/ | grep -vE "TODO\((\w+|#[0-9]+)\):"` → empty (shared with `code-quality.md`).
 - [ ] No commented-out code blocks (use git history or a branch for that).
       **CHECK:** review for commented-out statements (`grep -nE "^\s*(//|#).*[;{}()]" <diff>`) → none.
 - [ ] Inline comments that reference an external resource (spec, issue, paper) include the URL.

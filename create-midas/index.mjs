@@ -92,8 +92,8 @@ try {
     mod.renderAdapters(TARGET);
     rendered = true;
   }
-} catch {
-  /* adapters will be generated on the first /midas-doctor */
+} catch (err) {
+  console.error('create-midas: adapter render failed:', err.message || err);
 }
 
 fillAgents(selectedTools);
@@ -142,13 +142,13 @@ function hasMidasInstall(dir) {
 }
 
 /** Walk up from TARGET's parent to the filesystem root; return the first ancestor that holds a Midas
- *  install (harness/VERSION), or null. Used to refuse a nested/duplicate install. */
+ *  install, or null. Used to refuse a nested/duplicate install. */
 function findAncestorMidasRoot(startDir) {
   let dir = dirname(startDir);
   for (;;) {
-    if (existsSync(join(dir, 'harness', 'VERSION'))) return dir;
+    if (hasMidasInstall(dir)) return dir;
     const parent = dirname(dir);
-    if (parent === dir) return null; // reached the filesystem root
+    if (parent === dir) return null;
     dir = parent;
   }
 }
@@ -240,14 +240,13 @@ async function promptToolsInteractive() {
   }
 }
 
-// On Windows, `npx` is a `.cmd` shim that Node cannot spawn directly, so an MCP server launched with
-// `command: "npx"` fails to connect ("MCP error -32000: Connection closed"). Wrap every npx-launched
-// server in `cmd /c`. Only touches a .mcp.json that Midas just wrote (a pre-existing user file is
-// left untouched). No-op on macOS/Linux, where bare npx works.
+// On Windows, wrap bare `npx` MCP servers in `cmd /c`. Runs on fresh writes AND on --update when
+// an existing .mcp.json still has bare npx (the common Windows footgun).
 function fixMcpForWindows() {
   if (process.platform !== 'win32') return;
-  if (!written.includes('.mcp.json')) return;
   const f = join(TARGET, '.mcp.json');
+  if (!existsSync(f)) return;
+  if (!written.includes('.mcp.json') && !update) return;
   let json;
   try { json = JSON.parse(readMaybe(f) || ''); } catch { return; }
   let changed = false;
@@ -359,7 +358,11 @@ function bumpVersionStamp() {
   if (cur == null) return null; // no prior install; the fresh-install path already wrote the right version
   const version = (readMaybe(join(TARGET, 'harness', 'VERSION')) || '').trim();
   if (!version) return null;
-  const next = cur.replace(/^midas_version:\s*[^\s#]+/m, `midas_version: ${version}`);
+  const today = new Date().toISOString().slice(0, 10);
+  let next = cur.replace(/^midas_version:\s*[^\s#]+/m, `midas_version: ${version}`);
+  if (/^updated:/m.test(next)) {
+    next = next.replace(/^updated:\s*[^\s#]+/m, `updated: ${today}`);
+  }
   if (next !== cur) writeFileSync(f, next, 'utf8');
   return version;
 }
@@ -543,11 +546,11 @@ function printHelp() {
 Install:
   npx github:okuzpe/midas-harness          into the current directory (from GitHub)
   npx github:okuzpe/midas-harness my-app   into ./my-app
-  npx github:okuzpe/midas-harness#v0.5.21   pin a release for a reproducible install
+  npx github:okuzpe/midas-harness#v0.5.22   pin a release for a reproducible install
 
 Update an existing install (overwrites the engine, KEEPS your work, bumps the version stamp):
   npx github:okuzpe/midas-harness --update             refresh to the latest (main)
-  npx github:okuzpe/midas-harness#v0.5.21 --update      refresh to a pinned release
+  npx github:okuzpe/midas-harness#v0.5.22 --update      refresh to a pinned release
 
 Uninstall (surgical — removes only Midas's files, keeps your work):
   npx github:okuzpe/midas-harness --uninstall             remove the engine, keep product/ + .harness/ + state.yaml

@@ -43,7 +43,7 @@ hygiene: unreachable flows, ledger drift, and stale harness/docs artifacts. The 
 ### Playbook triggers
 - [ ] No zombie playbooks — recipes whose `Trigger` never matches the codebase are flagged or retired.
       **CHECK:** `manual:` for each `product/playbooks/*.md` cited in the sprint or architecture,
-      grep `src/` for the trigger predicate; a playbook with zero matches and no `## Retired` note in
+      grep `<src-root>/` for the trigger predicate; a playbook with zero matches and no `## Retired` note in
       the sweep or audit is a warn (fail if the sprint added or edited that playbook without fixing
       the trigger).
 

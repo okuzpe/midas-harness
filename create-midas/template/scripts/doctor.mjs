@@ -16,34 +16,35 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { computeAdapters, renderAdapters } from './render-adapters.mjs';
 import { evaluateMcpDeclaredVsWired, evaluateSkillMcpRequired, collectSkillMcpRequired } from './mcp-drift.mjs';
+import { parseSprints, parseEnforcement, parseRouting } from './yaml-lite.mjs';
+
+const HELP = `midas doctor — adapter drift checker + install health check
+
+Usage:
+  node scripts/doctor.mjs [dir]     check adapters + health (exit 1 on drift)
+  node scripts/doctor.mjs --fix     re-render adapters from source
+  node scripts/doctor.mjs --strict  exit 1 on gate record inconsistencies
+  node scripts/doctor.mjs --gates-only  skip adapter drift check
+  node scripts/doctor.mjs --help    show this help`;
 
 const FIX = process.argv.includes('--fix');
 const STRICT = process.argv.includes('--strict');
 const GATES_ONLY = process.argv.includes('--gates-only');
+const SHOW_HELP = process.argv.includes('--help') || process.argv.includes('-h');
 // Optional positional project root: check THAT project instead of the engine repo. Lets `--strict` run
 // against a real install (or examples/taskpilot) so the gate-records check is provably exercised.
 const rootArg = process.argv.slice(2).find((a) => !a.startsWith('-'));
 const ROOT = rootArg ? resolve(process.cwd(), rootArg) : resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
+if (SHOW_HELP) {
+  console.log(HELP);
+  process.exit(0);
+}
+
 /** Read a repo-relative file or null if missing. */
 function read(rel) {
   const p = join(ROOT, rel);
   return existsSync(p) ? readFileSync(p, 'utf8') : null;
-}
-
-/** Parse the sprints block of state.yaml into a Map(id → status) without a YAML dependency. */
-function parseSprints(yaml) {
-  const out = new Map();
-  let inSprints = false, id = null;
-  for (const line of yaml.split(/\r?\n/)) {
-    if (/^[A-Za-z_][\w-]*:/.test(line)) { inSprints = /^sprints:/.test(line); id = null; continue; }
-    if (!inSprints) continue;
-    const idM = line.match(/^\s*-\s*id:\s*"?([\w.-]+)"?/);
-    if (idM) { id = idM[1]; out.set(id, ''); continue; }
-    const stM = line.match(/^\s*status:\s*"?(\w+)"?/);
-    if (stM && id !== null) out.set(id, stM[1]);
-  }
-  return out;
 }
 
 /** Pull `key=<int>` out of a frozen tally line (default 0). */
@@ -59,43 +60,23 @@ function agentModel(name) {
   return m ? m[1] : null;
 }
 
-/** Parse the `enforcement:` block (inline maps) from state.yaml → [{tool, config, installed}]. */
-function parseEnforcement(yaml) {
-  const out = [];
-  const lines = yaml.split(/\r?\n/);
-  const i = lines.findIndex((l) => /^enforcement:/.test(l));
-  if (i === -1) return out;
-  for (let j = i + 1; j < lines.length; j++) {
-    if (!/^\s+\S/.test(lines[j])) break; // dedent → end of the block
-    const m = lines[j].match(/^\s+([\w-]+):\s*\{([^}]*)\}/);
-    if (!m) continue;
-    const cfg = (m[2].match(/config:\s*([^,}]+)/) || [])[1];
-    out.push({ tool: m[1], config: cfg ? cfg.trim() : null, installed: /installed:\s*true/.test(m[2]) });
-  }
-  return out;
-}
-
-/** Parse `cost_profile` + the `routing:` tier→id map from state.yaml (no YAML dependency). */
-function parseRouting(yaml) {
-  const profile = (yaml.match(/^cost_profile:\s*([^\s#]+)/m) || [])[1] || null;
-  const routing = {};
-  const lines = yaml.split(/\r?\n/);
-  const i = lines.findIndex((l) => /^routing:/.test(l));
-  if (i !== -1) for (let j = i + 1; j < lines.length; j++) {
-    if (!/^\s+\S/.test(lines[j])) break; // dedent → end of the routing block
-    const m = lines[j].match(/^\s+(orchestrate|build|scout):\s*([^\s#]+)/);
-    if (m) routing[m[1]] = m[2];
-  }
-  return { profile, routing };
-}
-
 // --- --fix: rewrite adapters via the shared render path ----------------------------------------
 if (FIX) {
+  if (!existsSync(join(ROOT, 'harness', 'conventions.md'))) {
+    console.error('midas doctor --fix: harness/conventions.md missing — cannot render adapters.');
+    process.exit(1);
+  }
   const { hash, results } = renderAdapters(ROOT);
   console.log('midas doctor --fix: re-rendered adapters from harness/conventions.md');
   for (const r of results) console.log(`  ${r.status === 'unchanged' ? 'unchanged' : 'wrote    '} ${r.path}`);
   console.log(`  source hash: ${hash}`);
-  process.exit(0);
+  // Re-check drift after fix
+  let stillDrift = false;
+  for (const f of computeAdapters(ROOT).files) {
+    const onDisk = read(f.path);
+    if (onDisk === null || onDisk !== f.content) stillDrift = true;
+  }
+  process.exit(stillDrift ? 1 : 0);
 }
 
 // --- 1. adapter drift (authoritative; affects the exit code) -----------------------------------
@@ -139,7 +120,10 @@ if (!stateRaw) {
     build: agentModel('midas-builder'),
     scout: agentModel('midas-scout'),
   };
-  const allow = new Set(Object.values(pinned).filter(Boolean));
+  const allow = new Set([
+    ...Object.values(pinned).filter(Boolean),
+    'gpt-5.3-codex', 'gpt-5-mini', // openai routing_profile presets (advisory)
+  ]);
   if (allow.size === 0) {
     check('routing', 'skip', 'no .claude/agents to reconcile against');
   } else {
@@ -270,7 +254,12 @@ if (!stateRaw) {
     if (!line) continue;
     scanned++;
     const criticals = tallyNum(line[0], 'criticals');
-    if (isClosed(nn) && criticals > 0) {
+    const fails = tallyNum(line[0], 'fails');
+    const passClaimed = /verdict=pass/.test(line[0]);
+    if (passClaimed && (criticals > 0 || fails > 0)) {
+      flagged++;
+      check(`gate:verify-${nn}`, 'warn', `record claims verdict=pass but fails=${fails} criticals=${criticals} — self-inconsistent`);
+    } else if (isClosed(nn) && criticals > 0) {
       flagged++;
       check(`gate:verify-${nn}`, 'warn', `verify criticals=${criticals} but sprint ${nn} is closed in state.yaml`);
     }

@@ -2,8 +2,9 @@
 
 **Stage enum:** `market_research` | **Tier:** orchestrate (frame) + build (write) + scout (search)
 
-> Run this phase with the **`/market-research`** skill (it fans out research, reuses `/deep-research`
-> when present, and verifies every claim with a citation). This playbook is its reference.
+> Run this phase with the **`/market-research`** skill (it fans out research via scout-tier
+> WebSearch/WebFetch; an external deep-research skill in the host tool may be used if installed).
+> This playbook is its reference.
 
 ## Purpose
 
@@ -22,8 +23,9 @@ decision. Every claim must be cited; opinions must be flagged as such.
    might substitute, (c) recent funding/M&A signals, (d) **demand signals** — complaints/reviews about
    the problem, search/community interest, and what people already pay for substitutes (the desk-doable
    proof that demand is real).
-2. **Run research.** Use `/deep-research` or invoke `midas-scout` with `WebSearch` + `WebFetch`
-   to gather raw evidence. Collect at minimum 3 distinct competitors with public evidence.
+2. **Run research.** Invoke `midas-scout` with `WebSearch` + `WebFetch` to gather raw evidence.
+   If an external deep-research skill is installed in the host tool, you may delegate the fan-out.
+   Collect at minimum 3 distinct competitors with public evidence.
 3. **Write `product/market.md`.** Build uses the template below:
    - `## Market snapshot` — size estimate with source and date
    - `## Competitors` — table: name | segment | key differentiator | weakness (one row per competitor)

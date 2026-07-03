@@ -23,7 +23,7 @@ already is* instead of forcing every repo to start from a blank `/idea-intake`.
 - **Otherwise** → run the intake below, then set `setup_complete: true` and tell the user verbatim:
   *"Setup complete — from here, just use `/midas-status`; you won't need `/midas-init` again."*
 
-The flow is **SCAN → CLASSIFY → PRE-FILL → SHOW + ASK (gaps only) → GENERATE → `setup_complete: true`**.
+The flow is **SCAN → CLASSIFY → TRACK → PRE-FILL → SHOW + ASK (gaps only) → GENERATE → `setup_complete: true`**.
 The governing rule everywhere below is **infer → SHOW → confirm**: anything you deduce from the project is
 shown to the user to accept or correct — **never silently baked** into an artifact. Ask in a **single
 batched round** (`AskUserQuestion`), pre-filled, so the user confirms rather than answers blank prompts.
@@ -78,6 +78,17 @@ stage is set by `/midas-adopt` (`architecture_rules` when conventions still need
 
 A skipped gate (anything the maturity level jumps over) carries a **recorded assumption** and an honest
 `entry_stage` in `state.yaml` — exactly like a deferred Phase-1 question.
+
+## Phase B2 — TRACK (full vs lite)
+
+Ask the user (one question in the batched round):
+
+- **`track: full`** (default) — all 9 phases; market, business, tribunal available.
+- **`track: lite`** — Idea+Plan (phases 0–6 guided in one pass) → Execute → Audit. Skips market/business
+  by default; records assumptions. See `harness/pipeline/lite.md`.
+
+Write `track:` to `state.yaml`. For Lite on E0/E1, after Idea+Plan completes set `entry_stage: sprint_planning`
+and skip directly to `/plan-sprints` or `/start-sprint` when a single sprint plan exists.
 
 ## Phase C — PRE-FILL (draft from the scan; do not commit yet)
 

@@ -2,7 +2,7 @@
 name: choose-architecture
 description: Phase 4 — pin the tech stack and architecture from the business case, Context7-verify every version, and write product/architecture.md plus one ADR per decision. Use after the business case is signed off (stage business_case → tech_architecture) and before any rules or code exist.
 user-invocable: true
-disable-model-invocation: false
+disable-model-invocation: true
 model: inherit
 harness-tier: orchestrate
 recommended-model: claude-opus-4-8
@@ -10,6 +10,9 @@ mcp-recommended: [context7]
 ---
 
 # choose-architecture (Phase 4 — Tech & Architecture)
+
+> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
+> First read `harness/state.yaml`; if the precondition stage is wrong, report and stop.
 
 Turn the signed-off business case into a **pinned, verifiable architecture**: a chosen stack with
 exact versions, a system diagram, and an ADR per irreversible decision. This is an **orchestrate-tier**
