@@ -11,6 +11,21 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [0.5.28] — 2026-07-04
+
+### Added
+- **Compact install layout (ADR-001)** — `--layout=compact` consolidates engine internals under `.midas/`; `scripts/paths.mjs`
+  resolves classic vs compact paths; `scripts/migrate-layout.mjs` migrates classic installs with dry-run + `--apply`.
+- **Gitignore merge** — `scripts/gitignore-merge.mjs` idempotently merges secrets, `node_modules/`, and volatile paths;
+  `doctor --fix` upgrades missing patterns.
+
+### Changed
+- Pipeline, rules, and writer skills use `{runs}/` token (substitute from `paths.runs` in state).
+- `AGENTS.md` documents layout-aware path resolution; INSTALL documents three-layer model and compact layout.
+- CI smoke test for `--layout=compact`.
+
+---
+
 ## [0.5.24] — 2026-07-04
 
 ### Added
@@ -977,7 +992,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.24...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.28...HEAD
+[0.5.28]: https://github.com/okuzpe/midas-harness/compare/v0.5.24...v0.5.28
 [0.5.24]: https://github.com/okuzpe/midas-harness/compare/v0.5.23...v0.5.24
 [0.5.23]: https://github.com/okuzpe/midas-harness/compare/v0.5.22...v0.5.23
 [0.5.22]: https://github.com/okuzpe/midas-harness/compare/v0.5.21...v0.5.22

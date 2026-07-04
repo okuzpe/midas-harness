@@ -25,7 +25,7 @@ graded by hand at Phase 8. So the decision must be **recorded and checkable**.
 
 ## CHECK
 
-- **CHECK:** `node scripts/doctor.mjs <project>` reports no `enforcement` **warn** — every named config
+- **CHECK:** `node <paths.scripts>/doctor.mjs <project>` reports no `enforcement` **warn** — every named config
   file exists on disk. Any `installed: false` is reported as an advisory `ok` note, not a fail.
 - **CHECK:** when a stack rule's CHECK names a linter/scanner as its machine-readable form, a matching
   `enforcement:` entry exists and its config file is present. *(manual.)*

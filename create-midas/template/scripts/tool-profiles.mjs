@@ -1,5 +1,7 @@
 // tool-profiles.mjs — supported AI tools: compatibility matrix + install onboarding (dependency-free).
 
+import { resolvePaths } from './paths.mjs';
+
 /** @typedef {'Full'|'Good'|'Basic'} ToolLevel */
 
 /** Order matches create-midas KNOWN_TOOLS. */
@@ -108,6 +110,13 @@ export const TOOL_PROFILES = {
   },
 };
 
+/** Layout-aware doctor command for install onboarding (classic vs compact). */
+export function doctorCommandFor(projectRoot = '.') {
+  const paths = resolvePaths(projectRoot);
+  const scripts = paths.scripts.replace(/\\/g, '/');
+  return `node ${scripts}/doctor.mjs`;
+}
+
 /** Markdown table for README / docs (pipe table). */
 export function formatSupportedToolsMarkdown() {
   const header =
@@ -141,11 +150,15 @@ export function printCompatibilityMatrix(selectedIds = TOOL_IDS) {
 }
 
 /** Per-tool onboarding after install. */
-export function printToolOnboarding(activeTools) {
+export function printToolOnboarding(activeTools, projectRoot = '.') {
   const tools = activeTools.filter((t) => TOOL_PROFILES[t]);
   if (!tools.length) return;
 
+  const doctorCmd = doctorCommandFor(projectRoot);
+  const layout = resolvePaths(projectRoot).layout;
+
   console.log('\n  ── Tool compatibility ───────────────────────────────────────');
+  console.log(`  Layout: ${layout}   ·   verify: ${doctorCmd}`);
   console.log('  Tool           Level   Wired by this install');
   for (const id of tools) {
     const p = TOOL_PROFILES[id];

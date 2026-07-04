@@ -33,6 +33,9 @@ const FILES = [
   'scripts/status-page.mjs',
   'scripts/mcp-cursor-sync.mjs',
   'scripts/tool-profiles.mjs',
+  'scripts/gitignore-merge.mjs',
+  'scripts/paths.mjs',
+  'scripts/migrate-layout.mjs',
   'gemini-extension.json',
 ];
 

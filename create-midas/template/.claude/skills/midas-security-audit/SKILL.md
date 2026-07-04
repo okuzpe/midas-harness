@@ -1,6 +1,6 @@
 ---
 name: midas-security-audit
-description: Deep, standalone security audit grounded in OWASP ASVS 5.0 + the OWASP Top 10 — and the OWASP LLM Top 10 + Agentic AI Top 10 when the product uses AI. STRIDE-threat-models the architecture, runs the installed SAST/SCA/secret scanners (Semgrep, npm/pip audit, gitleaks) as real evidence and recommends them with exact commands when absent, prefers an installed security specialist, and freezes a per-finding severity+evidence+fix report to .harness/security/security-NN.md. Informational and non-advancing — it informs; /close-sprint and the human decide. Run on any product with a UI/API/data surface, especially before ship.
+description: Deep, standalone security audit grounded in OWASP ASVS 5.0 + the OWASP Top 10 — and the OWASP LLM Top 10 + Agentic AI Top 10 when the product uses AI. STRIDE-threat-models the architecture, runs the installed SAST/SCA/secret scanners (Semgrep, npm/pip audit, gitleaks) as real evidence and recommends them with exact commands when absent, prefers an installed security specialist, and freezes a per-finding severity+evidence+fix report to {runs}/security/security-NN.md. Informational and non-advancing — it informs; /close-sprint and the human decide. Run on any product with a UI/API/data surface, especially before ship.
 user-invocable: true
 disable-model-invocation: true
 model: inherit
@@ -13,12 +13,14 @@ argument-hint: "[--level L1|L2|L3] [--scope code|deps|secrets|design|all]"
 # midas-security-audit — Deep Security Audit (OWASP ASVS + Top 10 + LLM/Agentic)
 
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read `harness/state.yaml`; this is an advanced, non-advancing audit — never auto-run it.
+> First read the state file at **`paths.state`**; this is an advanced, non-advancing audit — never auto-run it.
+
+> **Paths:** Substitute `{runs}/` with `paths.runs` from state (classic: `.harness/`, compact: `.midas/`).
 
 A standalone, standard-grounded security audit — the security analog of `/midas-tribunal`. It does **not**
 reinvent a scanner: it **orchestrates** a recognized standard as the checklist, runs the project's real
 tools for evidence, and freezes a ranked findings report. It **complements** (does not replace):
-- `harness/rules/security.md` — the always-on floor `/close-sprint` grades every Phase 8;
+- `<paths.engine>/rules/security.md` — the always-on floor `/close-sprint` grades every Phase 8;
 - `/midas-tribunal security` — the debate-style security lens.
 Use this when you want a **deep, before-ship** audit against the current industry standard.
 
@@ -33,8 +35,8 @@ Use this when you want a **deep, before-ship** audit against the current industr
 Fetch the current control text via Context7 / the OWASP site — never audit a standard from memory.
 
 ## Inputs (read first, write last)
-- `harness/state.yaml`, `product/architecture.md` (attack surface + trust boundaries),
-  `product/business-plan.md` (data sensitivity → the ASVS level), `harness/rules/security.md`.
+- **`paths.state`**, `product/architecture.md` (attack surface + trust boundaries),
+  `product/business-plan.md` (data sensitivity → the ASVS level), `<paths.engine>/rules/security.md`.
 - The codebase: UI / API / data / auth surfaces, dependency manifests, CI config, `.mcp.json` / agent config.
 
 ## Procedure
@@ -74,7 +76,7 @@ evidence, and **one action**: `fix · mitigate · accept-with-rationale · defer
 (`critical=0 high=0`) is a valid, honest verdict — do not invent severity.**
 
 ### 6. Freeze the report + bridge (non-advancing)
-Write `.harness/security/security-NN.md` (NN monotonic) — frozen: the gate-parseable tally line, the ranked
+Write `{runs}/security/security-NN.md` (NN monotonic) — frozen: the gate-parseable tally line, the ranked
 table, the STRIDE notes, the tools ran/recommended list, and the action bridge. Then **propose** (and on the
 user's go-ahead, apply) findings → action:
 - `fix` / `mitigate` → a task surfaced at the next `/start-sprint`;
@@ -83,7 +85,7 @@ user's go-ahead, apply) findings → action:
 You MAY set `last_security: { n: NN, critical: X, high: Y, at: <date> }` in `state.yaml` (read-modify-write
 the whole file per schema). **Never set `gate: passed` or advance `stage`** — this audit informs; the gates decide.
 
-## Output format (`.harness/security/security-NN.md`)
+## Output format (`{runs}/security/security-NN.md`)
 ```markdown
 # Security audit security-NN — level: <L1|L2|L3> — scope: <scope> — AI-lenses: <yes|no>
 Run: <YYYY-MM-DD> · Auditor: midas-orchestrator (claude-opus-4-8) · cost_profile: <profile>
@@ -122,7 +124,7 @@ MIDAS_SECURITY_RESULT: level=L2 critical=a high=b medium=c low=d verdict=pass|fi
 - [ ] STRIDE threat model recorded against the architecture's trust boundaries.
 - [ ] Each in-scope tool ran (with counts) or is logged as recommended-with-command — none silently skipped.
 - [ ] Findings ranked with `file:line` evidence + one action each; LOW nits capped; a clean tally is allowed.
-- [ ] `.harness/security/security-NN.md` frozen with the `MIDAS_SECURITY_RESULT` tally line.
+- [ ] `{runs}/security/security-NN.md` frozen with the `MIDAS_SECURITY_RESULT` tally line.
 - [ ] `stage` NOT advanced and no gate marked passed (the audit only informs).
 
 ## Tier & cost

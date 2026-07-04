@@ -1,6 +1,6 @@
 ---
 name: midas-status
-description: Read-only lifecycle status — reads harness/state.yaml and prints the current phase, its gate status, and the single next action/command. Cheap; run anytime to orient or resume.
+description: Read-only lifecycle status — reads the state file (paths.state) and prints the current phase, its gate status, and the single next action/command. Cheap; run anytime to orient or resume.
 user-invocable: true
 disable-model-invocation: false
 model: inherit
@@ -10,17 +10,19 @@ recommended-model: claude-haiku-4-5
 
 # midas-status — where am I, what's next
 
+> **Paths (layout-aware):** Read `layout` + `paths` from the state file at **`paths.state`** (classic: `harness/state.yaml`, compact: `.midas/state.yaml`). Substitute `{runs}/` with `paths.runs`. See `AGENTS.md` § Path resolution.
+
 A cheap, **read-only** status check. It never writes, never advances state, and never runs a gate to
 completion — it reports the truth already on disk. Safe to run at any time, including mid-phase.
 
 ## Steps
 
-1. **Read `harness/state.yaml`.** If it is missing, report that Midas is not installed → `/midas-init`.
+1. **Read the state file** at `paths.state`. If it is missing, report that Midas is not installed → `/midas-init`.
    **If it exists but `setup_complete` is not `true`,** the single next action is **`/midas-init`** (finish
    the one-time setup) regardless of `stage` — say so and stop. If it exists but does not parse, say so
    plainly and point at `/midas-doctor`.
 2. **Resolve the current stage** from `stage` + `stage_status` against the 9-phase table in
-   `harness/state.schema.md` and `harness/methodology.md`.
+   `<paths.engine>/state.schema.md` and `<paths.engine>/methodology.md`.
 3. **Re-derive gate status (read-only).** For the current phase, check whether its required `artifacts`
    exist on disk and summarize which gate items are satisfied vs outstanding. Do **not** grade the gate
    as passed here — that is the orchestrator's job at phase transition. Just report observed state:
@@ -46,7 +48,7 @@ completion — it reports the truth already on disk. Safe to run at any time, in
 5. **Surface optional prompts (never force).** At a high-leverage decision point, add **one** line if relevant:
    - **Tribunal** — see tribunal table below
    - **Sweep** — at `sprint_planning`: *"💡 Before seeding `features.json`, consider `/midas-sweep docs` (optional) — reconcile the ledger with what exists."*; at `sprint_execution` when the active sprint's tasks look done: *"💡 Before `/close-sprint`, consider `/midas-sweep` (optional) on large diffs."*; after brownfield (`mode: brownfield` in state): *"💡 Post-adopt `/midas-sweep all` (optional) helps drop dead flows before the next gate."*
-   - **Recall** — when `stage_status: in_progress`, or an active sprint's `last_touched` is **> 7 days** ago, or `.harness/sprints/NN-progress.md` is missing for an active sprint: *"💡 Resuming? Run `/midas-recall` (optional) for a context pack — distinct from this status line."*
+   - **Recall** — when `stage_status: in_progress`, or an active sprint's `last_touched` is **> 7 days** ago, or `{runs}/sprints/NN-progress.md` is missing for an active sprint: *"💡 Resuming? Run `/midas-recall` (optional) for a context pack — distinct from this status line."*
    Skipping is fine; do not block.
 
    **Tribunal checkpoints** (original step 5):
@@ -56,7 +58,7 @@ completion — it reports the truth already on disk. Safe to run at any time, in
 
    At those points print: *"💡 Before this gate, consider `/midas-tribunal` (optional, your call) — it
    asks whether the decisions are *right*, not just whether the code conforms."* Skipping is fine; do not
-   block. (If a recent `.harness/debates/debate-NN.md` already covers this checkpoint, say so instead.)
+   block. (If a recent `{runs}/debates/debate-NN.md` already covers this checkpoint, say so instead.)
 
 ## Output format
 

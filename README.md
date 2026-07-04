@@ -29,7 +29,7 @@ loop that re-audits the living code against those frozen rules.
 ## What makes Midas different
 - **Gates are real, not prose.** Every floor rule in `harness/rules/*` ships a concrete `CHECK:`
   (a grep/command or a `manual:` observable), and `/midas-doctor` parses each frozen sprint audit
-  against `harness/state.yaml` — flagging any sprint marked `done` while its audit still shows
+  against the state file — flagging any sprint marked `done` while its audit still shows
   unresolved critical findings. CI enforces this on the worked example via
   `doctor.mjs --strict --gates-only`. *The first gate check that lives outside the model.*
 - **It closes the loop on disk.** [`examples/taskpilot`](./examples/taskpilot/) drives Sprint 1 to
@@ -62,8 +62,9 @@ flowchart LR
 
 Each phase writes named artifacts under `product/` and is guarded by an **exit gate** the orchestrator
 audits before advancing — and a human signs off on the irreversible calls (go/no-go, each ADR, every
-rule amendment, ship). State lives in one file, `harness/state.yaml`, so any agent on any tool can
-resume. Full spec: [`harness/methodology.md`](./harness/methodology.md).
+rule amendment, ship). State lives in one file (`paths.state` — classic: `harness/state.yaml`,
+compact: `.midas/state.yaml`), so any agent on any tool can resume. Full spec:
+[`harness/methodology.md`](./harness/methodology.md).
 
 ## Quickstart
 
@@ -79,7 +80,7 @@ curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.s
 irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | iex
 ```
 
-The installer writes `harness/state.yaml` + the adapters and leaves the project ready. Open it in
+The installer writes the state file + adapters and leaves the project ready. Open it in
 your editor and run the one-time setup, then let `/midas-status` drive the rest:
 
 ```text
@@ -94,12 +95,14 @@ Optional: `npm run status` in the repo root generates a local `status.html` dash
 
 ```bash
 npx github:okuzpe/midas-harness --tools=cursor
+# compact layout (engine under .midas/):
+npx github:okuzpe/midas-harness --layout=compact --tools=cursor
 # or Cursor + Gemini + Codex:
 npx github:okuzpe/midas-harness --tools=cursor,gemini,codex
 ```
 
 On a TTY the installer can also prompt you to pick tools interactively; pipe/`curl` installs default
-to all adapter tools. `--tools` is ignored on `--update` (existing `harness/state.yaml` is preserved).
+to all adapter tools. `--tools` is ignored on `--update` (existing state file is preserved).
 
 Other install methods (`npx github:okuzpe/midas-harness`, the Claude Code plugin, copy-only, pinned
 releases) and installer-safety notes are in **[INSTALL.md](./INSTALL.md)**.
@@ -168,9 +171,16 @@ A runnable Sprint-1 vertical slice — auth, task CRUD, middleware, board stub +
 artifact on disk. See [`examples/taskpilot/`](./examples/taskpilot/).
 
 ## Status
-**v0.5.24 — pre-1.0, actively developed (not yet a stable API).** Most complete on **Claude Code**
+**v0.5.28 — pre-1.0, actively developed (not yet a stable API).** Most complete on **Claude Code**
 (see [Honest scope](#supported-tools)). Details: [`CHANGELOG.md`](./CHANGELOG.md) ·
 [`VERSIONING.md`](./VERSIONING.md) · [docs site](https://okuzpe.github.io/midas-harness/).
 
 ## License
 [Apache-2.0](./LICENSE). Contributions welcome — see [`CONTRIBUTING.md`](./CONTRIBUTING.md).
+
+## For contributors — where things live
+
+This repo has **three layers**: sources (`.claude/`, `harness/`, `scripts/`), generated adapters
+(`CLAUDE.md`, `.cursor/`, …), and distribution bundles (`plugins/midas/`, `create-midas/template/`).
+Edit sources only; run `npm run verify` before opening a PR. Full map:
+[`docs/repository-architecture.md`](./docs/repository-architecture.md).

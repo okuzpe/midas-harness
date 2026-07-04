@@ -23,13 +23,13 @@ hygiene: unreachable flows, ledger drift, and stale harness/docs artifacts. The 
 ### Sweep record (brownfield)
 - [ ] Before closing a sprint on a brownfield project, a hygiene pass was run or consciously skipped.
       **CHECK:** `manual:` if `state.yaml` has `mode: brownfield`, either (a) a
-      `.harness/sweeps/sweep-NN.md` exists whose date falls within the active sprint window, or (b)
-      `.harness/audits/audit-NN.md` § hygiene records `sweep: skipped — <one-line reason>`. Neither
+      `{runs}/sweeps/sweep-NN.md` exists whose date falls within the active sprint window, or (b)
+      `{runs}/audits/audit-NN.md` § hygiene records `sweep: skipped — <one-line reason>`. Neither
       is a fail on greenfield (`mode` absent or `greenfield`).
 
 ### Unresolved dead flows
 - [ ] High-severity dead-flow and ledger-drift findings are not left silent at sprint close.
-      **CHECK:** `manual:` read the latest `.harness/sweeps/sweep-NN.md` for this sprint cycle (if
+      **CHECK:** `manual:` read the latest `{runs}/sweeps/sweep-NN.md` for this sprint cycle (if
       any); if `MIDAS_SWEEP_RESULT` shows `dead_flows>0` or `ledger_drift>0`, the sprint audit must
       list each as **fixed**, **deferred** (with issue/owner), or **accepted** (with rationale). An
       unmentioned high-severity row is a fail.
@@ -57,7 +57,7 @@ hygiene: unreachable flows, ledger drift, and stale harness/docs artifacts. The 
 
 | Tool | Role |
 |---|---|
-| `/midas-sweep` | Produces `.harness/sweeps/sweep-NN.md` and optional fixes |
+| `/midas-sweep` | Produces `{runs}/sweeps/sweep-NN.md` and optional fixes |
 | `/midas-doctor` | Adapter/state sync — not a substitute for sweep |
 | `/close-sprint` | Grades this rule's CHECKs at Phase 8 |
 | `/midas-tribunal` | Strategic *decisions* audit — orthogonal to hygiene |

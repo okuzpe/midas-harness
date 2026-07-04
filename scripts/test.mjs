@@ -14,6 +14,8 @@ import { execSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { computeAdapters, DEFAULT_ADAPTER_TOOLS, resolveAdapterTools } from './render-adapters.mjs';
 import { evaluateMcpDeclaredVsWired, evaluateSkillMcpRequired } from './mcp-drift.mjs';
+import { ensureMidasGitignore, GITIGNORE_BEGIN, GITIGNORE_END } from './gitignore-merge.mjs';
+import { detectLayout, resolvePaths, MIGRATION_MAP, RUNS_SUBDIRS } from './paths.mjs';
 
 const SCRIPT_DIR = dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
 const ROOT = resolve(SCRIPT_DIR, '..');
@@ -114,7 +116,7 @@ if (existsSync(tplRoot)) {
     JSON.stringify(dirNames(join(tplRoot, '.claude', 'skills'))) === JSON.stringify(dirNames(skillsDir)),
     're-run build-create.mjs',
   );
-  for (const f of ['AGENTS.md', '.mcp.json', 'harness/methodology.md', 'harness/conventions.md', 'scripts/render-adapters.mjs', 'scripts/yaml-lite.mjs', 'scripts/mcp-drift.mjs', 'scripts/mcp-cursor-sync.mjs', 'scripts/tool-profiles.mjs', 'scripts/doctor.mjs', 'scripts/status-page.mjs', 'gemini-extension.json', 'docs/agents-and-models.md']) {
+  for (const f of ['AGENTS.md', '.mcp.json', 'harness/methodology.md', 'harness/conventions.md', 'scripts/render-adapters.mjs', 'scripts/yaml-lite.mjs', 'scripts/mcp-drift.mjs', 'scripts/mcp-cursor-sync.mjs', 'scripts/tool-profiles.mjs', 'scripts/gitignore-merge.mjs', 'scripts/paths.mjs', 'scripts/migrate-layout.mjs', 'scripts/doctor.mjs', 'scripts/status-page.mjs', 'gemini-extension.json', 'docs/agents-and-models.md']) {
     check(`create-template:has:${f}`, existsSync(join(tplRoot, f)));
   }
   // The template must NOT carry repo-internal trees into a user project.
@@ -435,10 +437,66 @@ if (existsSync(snippetPath)) {
     check(`gitignore:snippet:${pat}`, new RegExp(pat).test(snippet), 'security.md CHECK patterns');
   }
   check('gitignore:snippet:volatile-hash', /\.harness\/\*\.hash/.test(snippet));
+  check('gitignore:snippet:node-modules', /\bnode_modules\//.test(snippet));
 }
-check('installer:ensure-gitignore', /function ensureGitignore\(\)/.test(installer));
-check('installer:gitignore-idempotent', /midas:begin GITIGNORE/.test(installer));
-check('installer:verify-after-update', /function verifyInstall\(\)/.test(installer) && /runDoctor\(TARGET/.test(installer));
+check('gitignore:merge-module', existsSync(join(ROOT, 'scripts', 'gitignore-merge.mjs')));
+{
+  const giRoot = mkdtempSync(join(tmpdir(), 'midas-gi-'));
+  const tplDir = join(giRoot, 'harness', 'templates');
+  mkdirSync(tplDir, { recursive: true });
+  writeFileSync(
+    join(tplDir, 'gitignore-midas.snippet'),
+    '# test\nnode_modules/\n.harness/cache/\n',
+    'utf8',
+  );
+  const r1 = ensureMidasGitignore(giRoot);
+  check('gitignore:merge-writes-block', r1.wrote && !r1.upgraded);
+  const r2 = ensureMidasGitignore(giRoot);
+  check('gitignore:merge-idempotent', !r2.wrote);
+  writeFileSync(
+    join(giRoot, '.gitignore'),
+    `${GITIGNORE_BEGIN}\n.env\n${GITIGNORE_END}\n`,
+    'utf8',
+  );
+  const r3 = ensureMidasGitignore(giRoot);
+  check('gitignore:merge-upgrades-missing', r3.wrote && r3.upgraded && readFileSync(join(giRoot, '.gitignore'), 'utf8').includes('node_modules/'));
+  rmSync(giRoot, { recursive: true, force: true });
+}
+check('installer:ensure-gitignore', /async function ensureGitignore\(paths\)/.test(installer));
+check('installer:gitignore-merge', /gitignore-merge\.mjs/.test(installer));
+check('installer:verify-after-update', /function verifyInstall\(paths\)/.test(installer) && /runDoctor\(TARGET, paths/.test(installer));
+check('installer:layout-flag', /--layout=compact/.test(installer) && /applyCompactLayout/.test(installer));
+check('installer:hasMidasInstall-compact', /hasMidasInstall[\s\S]*\.midas/.test(installer));
+
+// --- M. layout resolver (ADR-001) --------------------------------------------------------------
+check('paths:module-exists', existsSync(join(ROOT, 'scripts', 'paths.mjs')));
+{
+  const classic = resolvePaths(ROOT);
+  check('paths:classic-engine', classic.engine === 'harness');
+  check('paths:classic-state', classic.state === 'harness/state.yaml');
+  check('paths:classic-runs', classic.runs === '.harness');
+  check('paths:runs-subdirs', RUNS_SUBDIRS.includes('sprints') && RUNS_SUBDIRS.includes('sweeps'));
+  check('paths:migration-map-sprints', MIGRATION_MAP.some((m) => m.from === '.harness/sprints'));
+}
+{
+  const compactRoot = mkdtempSync(join(tmpdir(), 'midas-compact-'));
+  try {
+    mkdirSync(join(compactRoot, '.midas', 'engine'), { recursive: true });
+    writeFileSync(join(compactRoot, '.midas', 'state.yaml'), 'midas_version: 0.0.0\nlayout: compact\n', 'utf8');
+    check('paths:detect-compact', detectLayout(compactRoot) === 'compact');
+    const cp = resolvePaths(compactRoot);
+    check('paths:compact-engine', cp.engine === '.midas/engine');
+    check('paths:compact-runs', cp.runs === '.midas');
+    check('paths:compact-runs-audits', cp.runsPath('audits') === '.midas/audits');
+  } finally {
+    rmSync(compactRoot, { recursive: true, force: true });
+  }
+}
+check('migrate-layout:module-exists', existsSync(join(ROOT, 'scripts', 'migrate-layout.mjs')));
+check('schema:layout-field', /layout:\s*classic/.test(readFileSync(join(ROOT, 'harness', 'state.schema.md'), 'utf8')));
+check('pipeline:runs-token', readFileSync(join(ROOT, 'harness', 'pipeline', '7-sprint-execution.md'), 'utf8').includes('{runs}/sprints'));
+check('agents:path-resolution', /Path resolution/.test(readFileSync(join(ROOT, 'AGENTS.md'), 'utf8')));
+check('gitignore:snippet:midas-cache', /\.midas\/cache\//.test(readFileSync(snippetPath, 'utf8')));
 
 const visualRule = join(ROOT, 'harness', 'rules', 'visual-design.md');
 check('rule:visual-design:exists', existsSync(visualRule));

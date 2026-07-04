@@ -1,6 +1,6 @@
 ---
 name: midas-verify
-description: End-to-end / UI verification of a sprint. DRIVE a real browser (Playwright MCP) to exercise the active sprint's acceptance criteria (navigate, fill, click, assert, screenshot) AND INSPECT the running app's runtime health (Chrome DevTools MCP) — console errors, failed network requests, Core Web Vitals — then check the rendered UI against the design tokens and freeze a per-claim pass/fail verdict with evidence to .harness/verifications/verify-NN.md. Use after a UI-touching sprint lands, before /close-sprint. Hard-skips non-UI sprints (browser MCPs are expensive).
+description: End-to-end / UI verification of a sprint. DRIVE a real browser (Playwright MCP) to exercise the active sprint's acceptance criteria (navigate, fill, click, assert, screenshot) AND INSPECT the running app's runtime health (Chrome DevTools MCP) — console errors, failed network requests, Core Web Vitals — then check the rendered UI against the design tokens and freeze a per-claim pass/fail verdict with evidence to {runs}/verifications/verify-NN.md. Use after a UI-touching sprint lands, before /close-sprint. Hard-skips non-UI sprints (browser MCPs are expensive).
 user-invocable: true
 disable-model-invocation: true
 model: inherit
@@ -14,14 +14,16 @@ argument-hint: "[sprint-NN] [--scope ui|api|all]"
 # midas-verify — End-to-End / UI Verification (Playwright + Chrome DevTools)
 
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read `harness/state.yaml`; there must be a sprint whose work has **landed** (tasks done, tests
+> First read the state file at **`paths.state`**; there must be a sprint whose work has **landed** (tasks done, tests
+
+> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
 > run) and that **touches UI**. If no such sprint exists, report and stop.
 
 Behavioral proof that a sprint's **acceptance criteria actually hold in a running app** — not that the
 code reads correctly. `/close-sprint` audits the diff against frozen *rules*; this skill audits the
 *living UI* against the sprint's *acceptance criteria* by driving a real browser. The two are
 complementary: verify produces the behavioral evidence; `/close-sprint` consumes failures as drift.
-This skill is rung 4 of the verification ladder in `harness/rules/verification.md`.
+This skill is rung 4 of the verification ladder in `<paths.engine>/rules/verification.md`.
 
 **Two complementary browser tools — drive and inspect.** Use the cheapest that proves each claim:
 - **Playwright MCP — *drive* the flow.** Navigate, fill, click, assert the DOM / accessibility tree,
@@ -53,8 +55,8 @@ that cost blindly.**
 ## Procedure
 
 ### 1. Read state + acceptance criteria (read first)
-Load `harness/state.yaml`, the active `product/sprints/NN-*.md` (its **acceptance criteria** are the
-claims under test), `product/design-system.md`, and `harness/design-system/tokens.json` +
+Load **`paths.state`**, the active `product/sprints/NN-*.md` (its **acceptance criteria** are the
+claims under test), `product/design-system.md`, and `<paths.engine>/design-system/tokens.json` +
 `tokens.css`. Resolve the target sprint (`sprint-NN` arg or the active one) and `--scope`. Determine the
 app's run/preview command from `product/architecture.md` (dev server URL, build, or storybook).
 
@@ -83,7 +85,7 @@ tool in the record. Uncaught console errors and failed happy-path requests are *
 
 ### 4. Check rendered UI against the design tokens AND the design direction
 On the key screens, inspect computed styles and assert the UI **references the design system**
-(`harness/design-system/tokens.css` `--ds-*` vars / `tokens.json` values): colours, spacing on the 8px
+(`<paths.engine>/design-system/tokens.css` `--ds-*` vars / `tokens.json` values): colours, spacing on the 8px
 grid, type scale, focus ring. **Flag hardcoded values** that bypass tokens (e.g. a raw hex not traceable
 to a `--ds-*` token) as a fail with the offending selector + computed value. Spot-check **AA contrast**
 and the **focus-visible** ring on interactive elements, and dark mode if `[data-theme="dark"]` is in scope.
@@ -108,10 +110,10 @@ pass" is a valid, honest verdict — do not invent failures**; equally, never ma
 on-disk evidence.
 
 ### 6. Freeze the verification record (write last)
-Write `.harness/verifications/verify-NN.md` (NN = sprint id), **frozen and immutable**, mirroring the
+Write `{runs}/verifications/verify-NN.md` (NN = sprint id), **frozen and immutable**, mirroring the
 `audit-NN.md` / `debate-NN.md` idiom: the gate-parseable tally line, the per-criterion table with
 evidence, the runtime-health table, the design-token findings, and the screenshots (committed under
-`.harness/verifications/verify-NN/`). Save screenshots beside the record; reference them by relative path.
+`{runs}/verifications/verify-NN/`). Save screenshots beside the record; reference them by relative path.
 You **MAY** set `last_verification: { n: NN, fails: X, at: <date> }` in `state.yaml` (read-modify-write the
 whole file per schema). **Never set `gate: passed` or advance `stage`** — verify informs; `/close-sprint` decides.
 
@@ -120,9 +122,9 @@ Surface each `fail` as a fix-task and route it to `/close-sprint` as behavioral 
 treats failed checks as fix-now-or-amend). Critical fails block the sprint from closing; LOW nits are
 capped and listed for later. The next ritual after verify is **`/close-sprint`**.
 
-## Output format (`.harness/verifications/verify-NN.md`)
+## Output format (`{runs}/verifications/verify-NN.md`)
 
-Use `harness/templates/verify-record.md` as the output skeleton. Fill every section; keep the
+Use `<paths.engine>/templates/verify-record.md` as the output skeleton. Fill every section; keep the
 `MIDAS_VERIFY_RESULT` tally line exactly as shown in the template.
 
 ## Exit gate (verification complete)
@@ -131,7 +133,7 @@ Use `harness/templates/verify-record.md` as the output skeleton. Fill every sect
 - [ ] **Runtime health inspected** (Chrome DevTools or fallback): zero uncaught console errors and zero failed happy-path requests on the screens under test; a CWV/Lighthouse spot-check recorded.
 - [ ] **Rendered UI checked against the design tokens**; hardcoded-value, contrast, and focus violations recorded as fails.
 - [ ] **Key screens checked for horizontal overflow at a narrow viewport** (~320–375px): no unexpected scrollbar; buttons/inputs/cards stay contained.
-- [ ] `.harness/verifications/verify-NN.md` frozen with the `MIDAS_VERIFY_RESULT` tally line; screenshots committed beside it.
+- [ ] `{runs}/verifications/verify-NN.md` frozen with the `MIDAS_VERIFY_RESULT` tally line; screenshots committed beside it.
 - [ ] `state.yaml` **stage NOT advanced**, no gate marked passed; failures routed to `/close-sprint`.
 
 ## Tier & cost

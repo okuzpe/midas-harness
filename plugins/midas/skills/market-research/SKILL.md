@@ -12,9 +12,11 @@ mcp-recommended: [context7]
 # market-research — Phase 2
 
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read `harness/state.yaml`; if the precondition stage is wrong, report and stop.
+> First read the state file at **`paths.state`** (`layout` + `paths` block, or infer from disk). If the precondition stage is wrong, report and stop.
 
-> First read `harness/state.yaml`. Precondition: stage `contextualize` passed (the idea is clear, with
+> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
+
+> First read **`paths.state`**. Precondition: stage `contextualize` passed (the idea is clear, with
 > user/problem/metric/non-goals defined). If the idea still has BLOCKING open questions, stop and point
 > at `/contextualize`. Read first, write last.
 
@@ -38,7 +40,7 @@ frames the questions and audits the gate — it does not rubber-stamp its own re
    **demand verdict** — *strong / mixed / weak* desk-signal — citing the evidence behind it (traction,
    pain complaints, search interest, willingness-to-pay). State plainly what the desk can and **cannot**
    prove: it shows a market exists, not that *these* customers will pay — that is field validation (Phase 3).
-5. **Write `product/market.md`** from `harness/templates/market.md`. Update `harness/state.yaml`
+5. **Write `product/market.md`** from `<paths.engine>/templates/market.md`. Update **`paths.state`** (read-modify-write)
    (`market_research: in_progress` → leave the gate verdict to the orchestrator).
 
 ## Cost / tiers

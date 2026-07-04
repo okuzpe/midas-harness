@@ -12,7 +12,9 @@ mcp-recommended: [context7, sequential-thinking]
 # midas-adopt — brownfield adoption (existing projects)
 
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read `harness/state.yaml`; this skill is for **brownfield** projects (existing code). If the repo
+> First read the state file at **`paths.state`**; this skill is for **brownfield** projects (existing code). If the repo
+
+> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
 > is empty/greenfield, stop and point at `/idea-intake`.
 
 This is the **E2/E3 (partial / mature) branch of the adaptive intake**: `/midas-init` runs it
@@ -31,7 +33,7 @@ Bring Midas to a project that already has code, **without trampling what's there
 
 Before writing anything, produce a **preflight report** for the user:
 
-- What will be created vs merged (new `harness/`, `product/inventory.md`, rules draft).
+- What will be created vs merged (new engine tree at `<paths.engine>/`, `product/inventory.md`, rules draft).
 - What conflicts with existing `AGENTS.md` / `CLAUDE.md` (managed-marker regions only).
 - Estimated effort: **light** (E2 partial) / **medium** (E2 + debt) / **heavy** (E3 + baseline audit).
 - Recommended path: full adopt vs **incremental** (Step 3 only: folder-structure rule first, then stack rules).
@@ -44,7 +46,7 @@ Dispatch **scout** subagents to extract, read-only: the file/dir tree, manifests
 Context7), test setup, CI, and any existing `AGENTS.md` / `CLAUDE.md` / `.cursor` / `.windsurf`. **Also
 harvest the project's stated intent** — `README*`, `docs/`, any brief/spec/`NOTES`, and the manifest
 `description` — so the product context comes from what's written, not invented (feeds Step 4). Write
-`product/inventory.md`. Playbook: `harness/pipeline/0b-codebase-inventory.md`.
+`product/inventory.md`. Playbook: `<paths.engine>/pipeline/0b-codebase-inventory.md`.
 **Scan robustly:** read the repo's files (manifests/source/tests), not local toolchains a sandbox may
 lack; run probes independently and swallow benign "not found" (`… || true`) so absence is data, not an error.
 
@@ -54,7 +56,7 @@ From the inventory, infer the real architecture (components, data flow, boundari
 decisions as ADRs under `product/adr/`, marked "as-built".
 
 ### Step 3 — Reverse-engineer rules from the real code (the brownfield keystone)
-Derive `harness/rules/*` and `product/conventions.md` from the **actual conventions in the code**
+Derive `<paths.engine>/rules/*` and `product/conventions.md` from the **actual conventions in the code**
 (folder structure, naming, error handling, test policy) — **codify reality**. Where the code violates a
 sensible rule, do **not** rewrite it: record the gap as future-sprint **debt** in `product/debt.md`.
 This is the inverse of greenfield Phase 5 (which invents rules); here you extract them.
@@ -67,26 +69,26 @@ them. Follow **infer → SHOW → confirm**: surface what you derived for the us
 silently bake it in. If the harvested intent **conflicts** with what the code/manifests show (a stale or
 aspirational README), tag that field **DISPUTED** and confirm it — never silently prefer one source.
 Genuinely-unknown fields stay blank for the gap loop. Skipped or backfilled gates carry a **recorded
-assumption** in `harness/state.yaml` and an honest `entry_stage`.
+assumption** in **`paths.state`** and an honest `entry_stage`.
 
 ### Step 4b — Dead-flow sweep (inline)
-Run the same **indexing checks** as hygiene (`harness/rules/hygiene.md`) inline — orphan routes,
+Run the same **indexing checks** as hygiene (`<paths.engine>/rules/hygiene.md`) inline — orphan routes,
 duplicate utilities, `open-questions.md` drift — **do not** invoke `/midas-sweep` by name. Record
 findings in the adoption notes; reconcile obvious drift before the baseline audit.
 
 ### Step 5 — Baseline audit
 Run a **lightweight baseline conformance pass** inline: apply each derived rule's CHECK against the
-current codebase, record pass/fail/n/a with evidence, and freeze to `.harness/audits/audit-baseline-NN.md`
+current codebase, record pass/fail/n/a with evidence, and freeze to `{runs}/audits/audit-baseline-NN.md`
 with a `MIDAS_AUDIT_RESULT` tally line. Do **not** invoke `/midas-tribunal` or `/close-sprint` by name —
 those are separate standing rituals the user may run later.
 
 ### Step 6 — Wire the harness (dry-run + diff-confirm)
 For each file:
-- **New file** (`harness/state.yaml`, `product/*`, a missing `CLAUDE.md`/adapters) → write directly.
+- **New file** (**`paths.state`**, `product/*`, a missing `CLAUDE.md`/adapters) → write directly.
 - **Pre-existing `AGENTS.md` / `CLAUDE.md` / `.mcp.json`** → compute the managed-marker block, **show the
   diff**, and `AskUserQuestion` to confirm before writing. On decline, print the block for manual paste.
 - Generate the tool adapters via `/midas-doctor` (the single render path).
-Set `harness/state.yaml`: `mode: brownfield` and the `entry_stage` by maturity — **`architecture_rules`
+Set **`paths.state`**: `mode: brownfield` and the `entry_stage` by maturity — **`architecture_rules`
 for an E2 (partial) repo** (record `tech_architecture` as a deliberately-skipped gate; the as-built
 `product/architecture.md` + ADRs are still written, so `/define-conventions` runs under its
 "`architecture_rules` resuming" precondition rather than bouncing), **`sprint_planning` for an E3 (mature)
@@ -96,7 +98,7 @@ repo** once rules + a baseline audit are in place. Record an assumption in `stat
 - [ ] `product/inventory.md` + `product/architecture.md` (as-built) written; stack versions Context7-verified.
 - [ ] Rules derived from the real code; violations logged as debt (`product/debt.md`), not silently rewritten.
 - [ ] No pre-existing `AGENTS.md`/`CLAUDE.md`/source modified without a confirmed diff.
-- [ ] Baseline audit frozen to `.harness/audits/`.
+- [ ] Baseline audit frozen to `{runs}/audits/`.
 - [ ] `state.yaml` records `mode: brownfield`, `entry_stage`, and assumptions for skipped gates.
 - [ ] Next action printed: `/define-conventions` for an E2 (partial) repo, `/plan-sprints` for an E3 (mature) repo.
 

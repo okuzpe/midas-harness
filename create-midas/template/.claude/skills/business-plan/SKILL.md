@@ -11,9 +11,11 @@ recommended-model: claude-opus-4-8
 # business-plan — Phase 3
 
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read `harness/state.yaml`; if the precondition stage is wrong, report and stop.
+> First read the state file at **`paths.state`** (`layout` + `paths` block, or infer from disk). If the precondition stage is wrong, report and stop.
 
-> First read `harness/state.yaml`. Precondition: stage `market_research` passed. Read first, write last.
+> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
+
+> Precondition: stage `market_research` passed (read **`paths.state`** first). Read first, write last.
 > This phase has a **hard human checkpoint** — no engineering begins until the human signs off the
 > go/no-go. If you arrived here by inference rather than the user moving to Phase 3, confirm first.
 > **Recommended optional checkpoint:** a `/midas-tribunal` (the *pre-go/no-go* audit) before sign-off —
@@ -47,9 +49,9 @@ gate; the builder drafts the document.
 7. **Go / no-go** — render an explicit recommendation with rationale, then obtain **human sign-off**
    via `AskUserQuestion`. A valid verdict is **GO with field validation deferred (assumption logged)**
    when desk demand is at least *mixed* and the human accepts the unproven-demand risk. Record the
-   decision + who signed off + the date in the document and in `harness/state.yaml`. On "no-go", stop and log why.
-8. **Write `product/business-plan.md`** from `harness/templates/business-plan.md`; update
-   `harness/state.yaml` (gate verdict by the orchestrator).
+   decision + who signed off + the date in the document and in **`paths.state`**. On "no-go", stop and log why.
+8. **Write `product/business-plan.md`** from `<paths.engine>/templates/business-plan.md`; update
+   **`paths.state`** (gate verdict by the orchestrator).
 
 ## Cost / tiers
 Orchestrate (Opus) decides go/no-go and audits the gate — delegate to `midas-orchestrator`.
@@ -61,6 +63,6 @@ Build (Sonnet) drafts the document — delegate to `midas-builder`.
 - [ ] Business/monetization model stated.
 - [ ] **Validation status** recorded: the desk demand verdict + field-validation status (done, or
       **deferred with a logged assumption**). The founder is not hard-walled — go/no-go is their informed call.
-- [ ] Explicit go/no-go recorded **with human sign-off** (name + date) in the doc and `harness/state.yaml`.
+- [ ] Explicit go/no-go recorded **with human sign-off** (name + date) in the doc and **`paths.state`**.
 - [ ] `product/business-plan.md` written; gate verdict rendered by the orchestrator before advancing
       to `tech_architecture`.

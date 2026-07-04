@@ -1,6 +1,6 @@
 # Sprint progress — NN-<slug>
 
-> **STM (session memory).** Copy this template to `.harness/sprints/NN-progress.md` when the sprint
+> **STM (session memory).** Copy this template to `{runs}/sprints/NN-progress.md` when the sprint
 > goes `active` (Phase 7). Update after each task or significant decision so a fresh session can resume
 > without re-reading the whole repo. See `harness/research/memory-model.md`.
 

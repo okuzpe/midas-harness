@@ -13,8 +13,10 @@ argument-hint: "[--dry-run] [path/to/package ...]"
 # midas-monorepo — multi-package / polyglot setup
 
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read `harness/state.yaml`; this skill assumes the **root** harness is already initialized
-> (`/midas-init` or `/midas-adopt`). If there is no root `state.yaml`, stop and point at `/midas-init`.
+> First read the state file at **`paths.state`**; this skill assumes the **root** harness is already initialized
+
+> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
+> (`/midas-init` or `/midas-adopt`). If there is no root state file, stop and point at `/midas-init`.
 
 Bring Midas to a repository that holds **many packages** (a workspace monorepo, or a polyglot repo with
 language sub-trees), so each package gets agent guidance tuned to **its own stack** while inheriting the
@@ -49,7 +51,7 @@ Step 3. Skip `node_modules`, vendored deps, and build output. Report the discove
 stack • version hints) and let the user deselect any before writing.
 
 ### Step 2 — Index packages in state.yaml (root spine, read-modify-write)
-There is exactly **one** state file (`harness/state.yaml`). Add a root `packages:` list — the index of
+There is exactly **one** state file (`paths.state`). Add a root `packages:` list — the index of
 every member. Read-modify-write the whole file; never create a second state model.
 
 ```yaml
@@ -87,9 +89,9 @@ fetches to **scout**. Template:
 > everything from the root. Do not duplicate base law here.
 
 ## Inherits
-- Root harness & project law: [`../../AGENTS.md`](../../AGENTS.md) and `harness/conventions.md`
+- Root harness & project law: [`../../AGENTS.md`](../../AGENTS.md) and `<paths.engine>/conventions.md`
   (adjust the relative depth to this package).
-- Always-on rules in `harness/rules/` (Context7-before-third-party-code applies here too).
+- Always-on rules in `<paths.engine>/rules/` (Context7-before-third-party-code applies here too).
 
 ## This package
 - **Stack:** <language/framework @ pinned versions — Context7-verified>.
@@ -120,7 +122,7 @@ package genuinely ships a different surface; record the rationale if you do.
 
 ### Step 5 — Adapters (single render path)
 Per-tool adapters (`CLAUDE.md` shim, Cursor/Windsurf rules) are still rendered by **one** engine. Run
-`/midas-doctor` (or `node scripts/render-adapters.mjs`) so any nested `CLAUDE.md` import shims and the
+`/midas-doctor` (or `node <paths.scripts>/render-adapters.mjs`) so any nested `CLAUDE.md` import shims and the
 root adapters stay in sync; never hand-author an adapter.
 
 ---

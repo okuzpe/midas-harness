@@ -45,7 +45,7 @@ a browser MCP **only** when the change renders or alters a user-facing surface �
 (Playwright ~per-flow; Chrome DevTools ~17k tokens/load).
 - [ ] **Drive** each acceptance-criterion flow (navigate → fill → click → assert) and capture a
       screenshot, using stable role/label/test-id selectors (Playwright MCP).
-      **CHECK:** a `/midas-verify` record (`.harness/verifications/verify-NN.md`) exists with a
+      **CHECK:** a `/midas-verify` record (`{runs}/verifications/verify-NN.md`) exists with a
       per-criterion `pass | fail | blocked` verdict backed by a selector + screenshot; an uncovered
       acceptance-criterion journey is a fail.
 - [ ] **Inspect** the running app's runtime health (Chrome DevTools MCP): no **uncaught console
@@ -63,7 +63,7 @@ a browser MCP **only** when the change renders or alters a user-facing surface �
       per-row **Tool** column — canonical values in `harness/templates/sprint-progress.md` § Tool column;
       e.g. `playwright-mcp`, `chrome-devtools-mcp`, `test-runner`, `@playwright/cli`); for UI sprints,
       `.mcp.json` wires a browser MCP **or** the record documents the cheaper fallback used and why.
-      **CHECK:** `manual:` read `.harness/verifications/verify-NN.md` — every acceptance-criterion row
+      **CHECK:** `manual:` read `{runs}/verifications/verify-NN.md` — every acceptance-criterion row
       carries a non-empty Tool value; a UI sprint with no browser MCP in `.mcp.json` and no documented
       fallback in the record is a fail.
 
@@ -72,7 +72,7 @@ a browser MCP **only** when the change renders or alters a user-facing surface �
       audit (`/close-sprint`), an installed code-review specialist, or a separate reviewer agent — not
       by the agent that wrote the code. For high-stakes or whole-project doubt, escalate to the
       adversarial debate (`/midas-tribunal`).
-      **CHECK:** the sprint's `.harness/audits/audit-NN.md` exists and was produced by the auditor tier,
+      **CHECK:** the sprint's `{runs}/audits/audit-NN.md` exists and was produced by the auditor tier,
       not the producer; its `MIDAS_AUDIT_RESULT` tally shows `unresolved=0 verdict=pass`.
 
 ### The spec ledger — `product/features.json` (the passing/failing gate)

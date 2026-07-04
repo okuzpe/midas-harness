@@ -2,8 +2,10 @@
 
 Midas installs **into any project** (new or existing). Every method runs the same dependency-free Node
 installer, which copies the harness in **non-destructively** (it only adds files — it never deletes
-yours), generates the tool adapters, writes a default `harness/state.yaml`, and merges a Midas block
-into `.gitignore` (secrets + volatile hashes — the harness itself stays committed) so the project is ready
+yours), generates the tool adapters, writes a default state file (`harness/state.yaml` classic or
+`.midas/state.yaml` compact), and merges a Midas block
+into `.gitignore` (secrets, `node_modules/` and common build dirs, volatile hashes — the harness itself stays
+committed) so the project is ready
 to use. Then run `/midas-init` once — the **one-time guided setup** (it adopts an existing repo for
 you); it retires itself afterward and `/midas-status` drives the rest.
 
@@ -35,13 +37,28 @@ bunx github:okuzpe/midas-harness
 All three forms do the same thing; the `curl`/`irm` shims just check Node and then call the `npx` form.
 
 ### Flags
+- `--layout` — `classic` (default) or `compact`. Compact consolidates engine internals under `.midas/` (see [ADR-001](docs/adr/ADR-001-install-layout.md)); tool-mandated paths (`AGENTS.md`, `.claude/`, `.cursor/`, `.mcp.json`) stay at the project root.
 - `--tools` — comma-separated AI tools (e.g. `cursor`, `cursor,gemini,codex`, or `claude-code,cursor`).
   On a TTY the installer shows a **compatibility matrix** and accepts presets: **`c`** = cursor only,
   **`s`** = cursor + gemini + codex, **`a`** = all adapter tools. Non-interactive installs default to all
-  adapter tools. **Ignored on `--update`** — your existing `harness/state.yaml` `tools:` list is preserved.
+  adapter tools. **Ignored on `--update`** — your existing state file `tools:` list is preserved.
 - `--force` — overwrite files that already exist (default: skip them).
 - `-h`, `--help` — usage.
 - a positional `target-dir` — install into that directory instead of the current one.
+
+**Compact layout (less root clutter):**
+```bash
+npx github:okuzpe/midas-harness --layout=compact --tools=cursor
+```
+Post-install doctor: `node .midas/scripts/doctor.mjs` (classic: `node scripts/doctor.mjs`).
+
+### Three layers at the project root
+
+| Layer | Examples | Moves in compact? |
+|---|---|---|
+| Tool-mandated | `AGENTS.md`, `.claude/`, `.cursor/`, `.mcp.json` | No |
+| Your product | `product/` | No |
+| Engine internals | `harness/`, `scripts/`, `.harness/` (classic) | Yes → `.midas/` |
 
 **Cursor-only:**
 ```bash
@@ -113,7 +130,8 @@ gemini-extension.json   Gemini CLI extension manifest (when gemini in tools:)
 
 Your existing `AGENTS.md` / `CLAUDE.md` / `.mcp.json` are kept (skipped) — run `/midas-init` to merge
 harness conventions into them. If `.gitignore` already exists, Midas **appends** a marked block (never
-overwrites your rules); fresh projects get one created.
+overwrites your rules); on `--update`, missing patterns (e.g. `node_modules/`) are added inside the block.
+Fresh projects get one created.
 
 ## After installing
 1. Open the project in **your chosen tool** (Claude Code, **Cursor**, Windsurf, Gemini CLI, or any editor
@@ -127,13 +145,13 @@ overwrites your rules); fresh projects get one created.
 
 ## Updating
 Run the same one command with **`--update`** — it refreshes the engine, **keeps your work** (`product/`,
-`.harness/`, `harness/state.yaml`, and your `.mcp.json` MCP wiring), re-renders adapters, **runs
-midas-doctor verify** (auto-fixes adapter drift once if needed), and bumps the `midas_version` stamp.
-Adapters re-render for the tools already listed in `harness/state.yaml` (`--tools` is **not** applied on
-update):
+run artifacts under `{runs}/` — `.harness/` classic or `.midas/` compact — the state file, and your
+`.mcp.json` MCP wiring), re-renders adapters, **runs midas-doctor verify** (auto-fixes adapter drift once
+if needed), and bumps the `midas_version` stamp. Adapters re-render for the tools already listed in the
+state file (`--tools` is **not** applied on update):
 
 ```bash
-npx github:okuzpe/midas-harness#v0.5.24 --update   # pin a version, or omit #vX.Y.Z for the latest main
+npx github:okuzpe/midas-harness#v0.5.28 --update   # pin a version, or omit #vX.Y.Z for the latest main
 ```
 
 `--update` overwrites engine files, so if you consciously **amended a rule**, review `git diff` and
@@ -143,8 +161,8 @@ reports `ok`.
 ## Uninstalling
 
 Same one command, with `--uninstall`. It is **surgical**: it removes only Midas's own files and
-**keeps your work** — `product/`, the `.harness/` audit trail, and `harness/state.yaml` — unless you
-ask otherwise. Run it **inside the project**.
+**keeps your work** — `product/`, run artifacts (`{runs}/`), and the state file — unless you ask
+otherwise. Run it **inside the project**.
 
 ```bash
 # macOS / Linux
@@ -161,20 +179,21 @@ npx github:okuzpe/midas-harness --uninstall
 
 ### Uninstall flags
 - `--dry-run` — print exactly what **would** be removed (and what is kept); delete nothing.
-- `--purge` — also delete your `product/`, `.harness/`, and `harness/state.yaml`.
+- `--purge` — also delete your `product/`, run artifacts (`{runs}/`), and the state file.
 - a positional `target-dir` — uninstall from that directory instead of the current one.
 
 ### What it removes — and what it keeps
-- **Removes** the pristine engine: `.claude/`, the engine files under `harness/`, the generated
-  adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `GEMINI.md`),
-  `.mcp.json`, `scripts/`, and the now-empty engine directories.
+- **Removes** the pristine engine: `.claude/`, engine source (`harness/` or `.midas/engine/`),
+  generated adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `GEMINI.md`),
+  `.mcp.json`, scripts (`scripts/` or `.midas/scripts/`), and empty engine directories.
 - **Keeps** anything you edited (e.g. a Phase-8-amended rule) and any file Midas didn't author (a
   pre-existing `AGENTS.md`, your own scripts) — each is reported so you can remove it by hand.
-- **Keeps your product work** (`product/`, `.harness/`, `harness/state.yaml`) unless you pass `--purge`.
+- **Keeps your product work** (`product/`, `{runs}/`, state file) unless you pass `--purge`.
 
 For exact removal of a pinned install, uninstall with the same release:
-`npx github:okuzpe/midas-harness#v0.5.24 --uninstall`.
+`npx github:okuzpe/midas-harness#v0.5.28 --uninstall`.
 
-> Prefer to do it by hand? Midas only ever adds files — delete `.claude/`, `harness/`, `AGENTS.md`,
-> `CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `.mcp.json`,
-> and (if you want your artifacts gone too) `product/` and `.harness/`.
+> Prefer to do it by hand? Midas only ever adds files — delete `.claude/`, engine dirs (`harness/` or
+> `.midas/`), `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`,
+> `.windsurf/rules/00-midas.md`, `.mcp.json`, and (if you want your artifacts gone too) `product/` and
+> `{runs}/`.

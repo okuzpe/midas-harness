@@ -7,7 +7,7 @@
 Midas itself is free (Apache-2.0). You pay your AI provider for model calls. The default balanced
 profile routes most work to Sonnet (mid-tier), reserves Opus for the ~6 irreversible decisions
 (architecture, phase gates, sprint audits), and uses Haiku for searches and status checks. The
-`max_savings` profile in `harness/state.yaml` drops orchestrate to Sonnet except on explicit
+`max_savings` profile in the state file (`paths.state`) drops orchestrate to Sonnet except on explicit
 audits. See [Agents & Models](agents-and-models.md) for the full cost matrix.
 
 ---
@@ -28,9 +28,16 @@ pinned version by hand and cite them — the rule is the habit, not the vendor
 
 Yes — with honest nuance. `AGENTS.md` carries the project law to Cursor, Copilot and Codex natively
 (Codex/Copilot also read the Agent Skills standard); Windsurf reads `.windsurf/rules/` and Gemini reads
-`GEMINI.md` (both generated adapters). Skill/command *execution* is fullest on Claude Code; elsewhere
-you still get the methodology, rules, and MCP wiring. The one thing lost everywhere off Claude Code is
-automatic per-subagent model routing — the tiers collapse to prose intent in `AGENTS.md`.
+`GEMINI.md` and `gemini-extension.json` (generated adapters). Cursor also gets `.cursor/mcp.json` synced
+from `.mcp.json`. Skill/command *execution* is fullest on Claude Code; elsewhere you still get the
+methodology, rules, and MCP wiring. The one thing lost everywhere off Claude Code is automatic
+per-subagent model routing — the tiers collapse to prose intent in `AGENTS.md`.
+
+---
+
+**Q: Why `.midas/` instead of putting everything in `harness/`?**
+
+Classic layout splits **engine source** (`harness/`) from **run output** (`.harness/`) — similar names, easy to confuse. **`--layout=compact`** moves both under one `.midas/` tree (`engine/`, `scripts/`, `state.yaml`, `audits/`, `sprints/`, …) while `AGENTS.md`, `.claude/`, `.cursor/`, and `product/` stay at the project root. Migrate an existing classic install with `node scripts/migrate-layout.mjs --dry-run` then `--apply` (compact: `node .midas/scripts/migrate-layout.mjs`). See [ADR-001](adr/ADR-001-install-layout.md).
 
 ---
 
@@ -40,7 +47,7 @@ Use `npx github:okuzpe/midas-harness` (or the `curl|bash` / `irm|iex` shims) for
 install: it copies all harness files into the repo so any tool can read them, and runs the adapter
 generator. Use the Claude Code plugin (`/plugin marketplace add okuzpe/midas-harness`) if you want
 to drive Midas purely from Claude Code without committing harness files to the repo. Note: the plugin
-does not write `AGENTS.md`, `CLAUDE.md`, or `harness/state.yaml` — you still need `/midas-init`
+does not write `AGENTS.md`, `CLAUDE.md`, or the state file — you still need `/midas-init`
 afterward, but the resulting files are local-only.
 
 ---
@@ -70,9 +77,9 @@ updating, run `/midas-doctor` to re-sync the generated tool adapters with the ne
 
 Run the same one command with `--uninstall`: `npx github:okuzpe/midas-harness --uninstall` (or
 `curl -fsSL …/install.sh | bash -s -- --uninstall`). It is **surgical** — it removes only Midas's own
-engine files and **keeps your work** (`product/`, `.harness/`, `harness/state.yaml`) unless you pass
-`--purge`; use `--dry-run` to preview. Prefer to remove it by hand? Delete `.claude/`, `harness/` (keep
-`state.yaml` if you want), `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`,
+engine files and **keeps your work** (`product/`, `{runs}/`, state file) unless you pass
+`--purge`; use `--dry-run` to preview. Prefer to remove it by hand? Delete `.claude/`, engine dirs
+(`harness/` or `.midas/`), `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`,
 `.windsurf/rules/00-midas.md`, and `.mcp.json`. Your source code is untouched. See
 [INSTALL.md](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md#uninstalling).
 
@@ -91,7 +98,7 @@ rules and decisions right in the first place?
 
 **Q: Can I run only some phases and skip others?**
 
-Yes, with an explicit recorded assumption. The `entry_stage` field in `harness/state.yaml` marks
+Yes, with an explicit recorded assumption. The `entry_stage` field in the state file marks
 where you entered, and any skipped gate carries a `recorded_assumption` entry so the harness stays
 honest. This is the standard path for brownfield projects (an E2 repo enters at Phase 5 via
 `/midas-adopt`; E3 at Phase 6) and for teams that already have a market analysis or business case on file.

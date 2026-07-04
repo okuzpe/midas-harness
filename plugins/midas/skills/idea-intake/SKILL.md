@@ -1,6 +1,6 @@
 ---
 name: idea-intake
-description: Phase 0 of Midas — capture the raw product idea verbatim, normalize it into product/idea.md with a one-line pitch and mode, and initialize/advance harness/state.yaml. Use to start a new product or record its founding idea.
+description: Phase 0 of Midas — capture the raw product idea verbatim, normalize it into product/idea.md with a one-line pitch and mode, and initialize/advance **`paths.state`**. Use to start a new product or record its founding idea.
 user-invocable: true
 disable-model-invocation: true
 model: inherit
@@ -11,13 +11,15 @@ recommended-model: claude-opus-4-8
 # idea-intake — Phase 0: capture the idea
 
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read `harness/state.yaml`; if the precondition stage is wrong, report and stop.
+> First read the state file at **`paths.state`** (`layout` + `paths` block, or infer from disk). If the precondition stage is wrong, report and stop.
+
+> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
 
 Phase 0 turns a raw, possibly messy idea into a normalized, preserved artifact so the rest of the
 pipeline has a stable starting point. **Preservation is sacred:** never rewrite the user's words away —
-capture them verbatim, then add a normalized layer beside them. Playbook: `harness/pipeline/0-idea-intake.md`.
+capture them verbatim, then add a normalized layer beside them. Playbook: `<paths.engine>/pipeline/0-idea-intake.md`.
 
-**Precondition:** `harness/state.yaml` exists at `stage: idea_intake` (set by `/midas-init`). Read it
+**Precondition:** **`paths.state`** exists at `stage: idea_intake` (set by `/midas-init`). Read it
 first; if Midas is not initialized, direct the user to `/midas-init`. Read first, write last.
 
 ## Steps
@@ -25,7 +27,7 @@ first; if Midas is not initialized, direct the user to `/midas-init`. Read first
 1. **Capture verbatim.** Ask the user for their idea in their own words (or take what they already
    gave). Store the raw text **unedited** in `product/idea.md` under a clearly labeled "Raw idea (as
    given)" section. This block is append-only history — later phases never overwrite it.
-2. **Normalize** beside the raw capture, using the `product/idea.md` template from `harness/templates/`:
+2. **Normalize** beside the raw capture, using the `product/idea.md` template from `<paths.engine>/templates/`:
    - a **one-line pitch** (≤ ~20 words) that a stranger could understand;
    - the apparent **user/audience**, **problem**, and **hoped-for outcome** as currently understood
      (rough is fine — Phase 1 sharpens these via the gap loop);
@@ -33,7 +35,7 @@ first; if Midas is not initialized, direct the user to `/midas-init`. Read first
    Mark anything you inferred as an assumption, not a fact — do not invent specifics the user didn't give.
 3. **Confirm the mode.** Default from `state.yaml -> mode` (`greenfield` | `brownfield`). Confirm with
    the user; if it changed, record the correction.
-4. **Advance state (write last).** Read-modify-write the whole `harness/state.yaml`:
+4. **Advance state (write last).** Read-modify-write the whole **`paths.state`**:
    - record `product/idea.md` under `phases.idea_intake.artifacts`;
    - set `mode` if it was confirmed/changed; refresh `updated`.
 

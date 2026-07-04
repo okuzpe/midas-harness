@@ -11,14 +11,16 @@ recommended-model: claude-opus-4-8
 # contextualize — Phase 1: the gap loop
 
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read `harness/state.yaml`; if the precondition stage is wrong, report and stop.
+> First read the state file at **`paths.state`** (`layout` + `paths` block, or infer from disk). If the precondition stage is wrong, report and stop.
+
+> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
 
 This is Midas's signature phase. A raw idea is full of unstated assumptions; building on them is the
 most expensive mistake. Phase 1 systematically surfaces every **blocking** unknown and resolves it
 with the user **before** any market, business, or architecture work. Playbook:
-`harness/pipeline/1-contextualize.md`.
+`<paths.engine>/pipeline/1-contextualize.md`.
 
-**Precondition:** `harness/state.yaml` at `stage: contextualize`, with `product/idea.md` from Phase 0.
+**Precondition:** **`paths.state`** at `stage: contextualize`, with `product/idea.md` from Phase 0.
 Read state first; write last.
 
 ## The loop

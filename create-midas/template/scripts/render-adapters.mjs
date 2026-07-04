@@ -19,6 +19,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { parseToolsFromStateYaml } from './yaml-lite.mjs';
+import { resolvePaths } from './paths.mjs';
 
 export { parseToolsFromStateYaml };
 
@@ -47,7 +48,8 @@ export const TOOL_ADAPTER_MAP = {
  * returns all four adapter tools (engine repo / CI). Otherwise filters to tools that have adapters.
  */
 export function resolveAdapterTools(root) {
-  const statePath = join(root, 'harness', 'state.yaml');
+  const p = resolvePaths(root);
+  const statePath = join(root, p.state);
   if (!existsSync(statePath)) return [...DEFAULT_ADAPTER_TOOLS];
   const tools = parseToolsFromStateYaml(readFileSync(statePath, 'utf8'));
   if (!tools) return [...DEFAULT_ADAPTER_TOOLS];
@@ -142,8 +144,8 @@ function extractCheckLines(text) {
  * the non-Claude adapters means generated stack rules reach Cursor/Windsurf/Gemini too (Claude Code
  * reads harness/rules/ natively); folding `raw` into the content hash makes a rule edit show as drift.
  */
-function readRulesDigest(root) {
-  const dir = join(root, 'harness', 'rules');
+function readRulesDigest(root, engineRel = 'harness') {
+  const dir = join(root, engineRel, 'rules');
   if (!existsSync(dir)) return { raw: '', body: '' };
   const files = readdirSync(dir).filter((f) => f.endsWith('.md') && f !== 'context7-usage.md').sort();
   let raw = '';
@@ -168,9 +170,10 @@ function readRulesDigest(root) {
  * (CLAUDE.md also reads its own existing outside-marker content, which is preserved).
  */
 export function computeAdapters(root = ROOT) {
-  const conventions = readMaybe(root, 'harness/conventions.md');
-  const context7 = readMaybe(root, 'harness/rules/context7-usage.md');
-  const rules = readRulesDigest(root);
+  const p = resolvePaths(root);
+  const conventions = readMaybe(root, join(p.engine, 'conventions.md'));
+  const context7 = readMaybe(root, join(p.engine, 'rules/context7-usage.md'));
+  const rules = readRulesDigest(root, p.engine);
   const selectedTools = resolveAdapterTools(root);
   const selectedPaths = new Set(selectedTools.map((t) => TOOL_ADAPTER_MAP[t]));
 
@@ -254,6 +257,7 @@ export function computeAdapters(root = ROOT) {
  * doctor.mjs --fix can reuse it.
  */
 export function renderAdapters(root = ROOT) {
+  const p = resolvePaths(root);
   const { hash, files } = computeAdapters(root);
   const results = [];
 
@@ -268,10 +272,11 @@ export function renderAdapters(root = ROOT) {
     results.push({ path: f.path, status: 'written' });
   }
 
-  const hashAbs = join(root, '.harness', 'adapters.hash');
+  const hashAbs = p.adaptersHash();
   ensureDir(hashAbs);
   writeFileSync(hashAbs, hash + '\n', 'utf8');
-  results.push({ path: '.harness/adapters.hash', status: 'written' });
+  const hashRel = hashAbs.slice(p.projectRoot.length + 1).replace(/\\/g, '/');
+  results.push({ path: hashRel, status: 'written' });
 
   return { hash, results };
 }

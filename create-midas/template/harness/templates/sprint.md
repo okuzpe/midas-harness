@@ -66,7 +66,7 @@
 
 <!-- Filled by the orchestrator after /close-sprint; not by the builder during execution. -->
 
-- **Audit file:** `.harness/audits/audit-{{SPRINT_NUMBER}}.md`
+- **Audit file:** `{runs}/audits/audit-{{SPRINT_NUMBER}}.md`
 - **Verdict:** <!-- pending \| pass \| fail -->
 - **Drift items:** <!-- none \| list -->
 - **Next action:** <!-- start-sprint NN \| fix drift \| MVP complete -->

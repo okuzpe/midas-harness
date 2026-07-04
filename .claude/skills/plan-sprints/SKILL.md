@@ -11,20 +11,22 @@ recommended-model: claude-opus-4-8
 # plan-sprints (Phase 6 — Sprint Planning)
 
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read `harness/state.yaml`; if the precondition stage is wrong, report and stop.
+> First read the state file at **`paths.state`** (`layout` + `paths` block, or infer from disk). If the precondition stage is wrong, report and stop.
+
+> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
 
 Sequence the **MVP only** into shippable sprints. This is an **orchestrate-tier** decision: the value
 is in correct decomposition and dependency ordering, not in prose volume. Each sprint must be a thin,
 demonstrable slice whose Definition of Done points back at the Phase-5 rules — that is what makes the
 Phase-8 audit possible.
 
-> **Precondition.** Read `harness/state.yaml`. Run when `stage: architecture_rules` is `passed` (or
+> **Precondition.** Read **`paths.state`**. Run when `stage: architecture_rules` is `passed` (or
 > `sprint_planning` resuming). If the rules/design system are not frozen, stop and report — sprints
 > whose DoD references rules cannot exist before the rules do.
 
 ## Inputs
-- `harness/state.yaml`, `product/business-plan.md` (MVP scope + non-goals + success metrics),
-  `product/architecture.md`, `harness/rules/*`, `product/design-system.md`.
+- **`paths.state`**, `product/business-plan.md` (MVP scope + non-goals + success metrics),
+  `product/architecture.md`, `<paths.engine>/rules/*`, `product/design-system.md`.
 
 ## Procedure
 
@@ -48,7 +50,7 @@ Zero-padded, sequential. Each sprint file contains:
 - **Scope / non-scope** — what is in, what is explicitly deferred.
 - **Tasks** — ordered, concrete units of work.
 - **Acceptance criteria** — observable, testable conditions that prove the goal is met. Write them in
-  **EARS** form (`WHEN <trigger>, the system SHALL <response>`; see `harness/conventions.md` §
+  **EARS** form (`WHEN <trigger>, the system SHALL <response>`; see `<paths.engine>/conventions.md` §
   Acceptance criteria), one behavior per line, so Phase 8 can map each to a passing test.
 - **Definition of Done** — references the **frozen rules** by name (folder-structure, conventions,
   testing rule, design-system token rule, Context7 rule) plus "acceptance criteria met, tests pass".
@@ -56,11 +58,11 @@ Zero-padded, sequential. Each sprint file contains:
 
 ### 5. Seed `product/features.json`
 From MVP scope in `product/business-plan.md`, create one entry per MVP feature using
-`harness/templates/features.json.tmpl`. Each feature starts with `status: failing`. Phase 7 updates
+`<paths.engine>/templates/features.json.tmpl`. Each feature starts with `status: failing`. Phase 7 updates
 only `status` and `evidence` as work lands.
 
 ### 6. Record state
-Update `harness/state.yaml`: append the planned sprints to `sprints[]` (each `{ id, title, status:
+Update **`paths.state`** (read-modify-write): append the planned sprints to `sprints[]` (each `{ id, title, status:
 planned, audit_notes: "", last_touched }`), list roadmap + sprint files + `product/features.json` in
 `phases.sprint_planning.artifacts`, set `stage_status: gate_pending`. Do not self-advance the stage.
 
@@ -73,7 +75,7 @@ planned, audit_notes: "", last_touched }`), list roadmap + sprint files + `produ
 - `product/features.json` seeded from MVP scope (every feature `status: failing`).
 - `sprints[]` is set in `state.yaml` (each `status: planned`).
 
-On pass: freeze the verdict in `.harness/audits/gate-06.md`, set the gate passed; next action is `/start-sprint`
+On pass: freeze the verdict in `{runs}/audits/gate-06.md`, set the gate passed; next action is `/start-sprint`
 (Phase 7) on sprint 1. On fail: report the under-specified sprint or broken ordering.
 
 ## Tier & cost

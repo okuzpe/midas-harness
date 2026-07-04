@@ -1,6 +1,6 @@
 ---
 name: midas-sweep
-description: Hygiene and dead-flow sweep — find orphan code, unreachable routes, stale docs, zombie playbooks, features.json drift, and harness artifacts that no longer match reality. Reports first; optional --fix applies safe cleanups only with explicit user confirm. Freezes findings to .harness/sweeps/sweep-NN.md. Use on demand, after brownfield adopt, or before closing a large sprint.
+description: Hygiene and dead-flow sweep — find orphan code, unreachable routes, stale docs, zombie playbooks, features.json drift, and harness artifacts that no longer match reality. Reports first; optional --fix applies safe cleanups only with explicit user confirm. Freezes findings to {runs}/sweeps/sweep-NN.md. Use on demand, after brownfield adopt, or before closing a large sprint.
 user-invocable: true
 disable-model-invocation: true
 model: inherit
@@ -12,7 +12,9 @@ argument-hint: "[code|docs|harness|all] [--depth quick|standard] [--fix]"
 # midas-sweep — Hygiene, cleanup & dead-flow detection
 
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read `harness/state.yaml`; this skill has no precondition stage — it runs at any stage — but
+> First read the state file at **`paths.state`**; this skill has no precondition stage — it runs at any stage — but
+
+> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
 > if the project has no `product/` tree and no application source yet, report that there is little to
 > sweep and limit the pass to harness/docs consistency.
 
@@ -60,7 +62,7 @@ Classify every hit into one category; cite `path` or `path:line`.
 | `orphan` | file/module never imported; export only referenced from tests of itself | medium |
 | `ledger-drift` | `product/features.json` `passing` with empty `evidence`; feature in code absent from ledger; sprint in `roadmap.md` with no `product/sprints/NN-*.md` | high |
 | `stale-doc` | `product/open-questions.md` still OPEN but answered in `product/idea.md`; doc cites deleted path; acceptance criterion references removed test | medium |
-| `harness-drift` | `state.yaml` sprint id without file; gate record disagrees with `stage` (run `node scripts/doctor.mjs --gates-only` if present); skill named in docs but missing under `.claude/skills/` | medium |
+| `harness-drift` | `state.yaml` sprint id without file; gate record disagrees with `stage` (run `node <paths.scripts>/doctor.mjs --gates-only` if present); skill named in docs but missing under `.claude/skills/` | medium |
 | `hygiene` | commented-out code blocks; `TODO` without `TODO(owner):`; duplicate utility next to an existing one | low |
 | `dependency` | manifest dep with zero imports (flag only — do not remove without user OK) | low |
 
@@ -71,8 +73,8 @@ decisions were *right* → `/midas-tribunal`; adapter drift → `/midas-doctor`;
 ## Procedure
 
 ### 1. Read state + pick NN (scout)
-Read `harness/state.yaml`. Resolve scope + depth. Allocate the next `sweep-NN` id under
-`.harness/sweeps/` (create the directory if missing). Dispatch **scout** subagents to build an
+Read **`paths.state`**. Resolve scope + depth. Allocate the next `sweep-NN` id under
+`{runs}/sweeps/` (create the directory if missing). Dispatch **scout** subagents to build an
 **index pack** — do not dump whole trees; return path lists and grep hits:
 
 - **Imports graph (code scope):** entrypoints (`main`, `app/`, `pages/`, `src/index`), route files,
@@ -83,8 +85,8 @@ Read `harness/state.yaml`. Resolve scope + depth. Allocate the next `sweep-NN` i
   for the predicate — flag playbooks whose trigger has **zero** matches.
 - **Ledger (docs/harness):** diff `product/features.json` against routes/tests; diff `product/roadmap.md`
   sprint list against `product/sprints/`; scan `product/open-questions.md` against `product/idea.md`.
-- **Harness (harness scope):** compare `state.yaml` `sprints[]` to files; list `.harness/audits/`
-  whose sprint is not `done` in state; optional `node scripts/doctor.mjs --gates-only` when
+- **Harness (harness scope):** compare `state.yaml` `sprints[]` to files; list `{runs}/audits/`
+  whose sprint is not `done` in state; optional `node <paths.scripts>/doctor.mjs --gates-only` when
   `scripts/doctor.mjs` exists.
 - **Hygiene greps (all):** `grep` for commented-out code (`^\s*(//|#).*[;{}()]`), bare `TODO` (no owner),
   duplicate filenames for utilities (`utils`, `helpers`).
@@ -104,7 +106,7 @@ Then a one-line summary and the recommended next command (`/close-sprint`, `/mid
 delete list, etc.). If zero findings: say so plainly.
 
 ### 4. Freeze the record
-Write `.harness/sweeps/sweep-NN.md` (append-only). Include:
+Write `{runs}/sweeps/sweep-NN.md` (append-only). Include:
 
 - Scope, depth, date, `state.yaml` `stage` snapshot
 - The **gate-parseable tally line** (mirrors audit/verify/tribunal):
@@ -131,12 +133,12 @@ After the report, if `--fix`:
 ## Output
 
 - **Console:** summary table + next action
-- **Disk:** `.harness/sweeps/sweep-NN.md`
+- **Disk:** `{runs}/sweeps/sweep-NN.md`
 - **Never:** advance `stage`, silently delete, or rewrite business/architecture decisions
 
 ## Rule contract
 
-Graded at Phase 8 via [`harness/rules/hygiene.md`](../../harness/rules/hygiene.md):
+Graded at Phase 8 via [`<paths.engine>/rules/hygiene.md`](../../<paths.engine>/rules/hygiene.md):
 
 - **Brownfield** (`mode: brownfield`): a sweep record this sprint cycle, or `sweep: skipped — reason` in
   the audit, is **required** before close.

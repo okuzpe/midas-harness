@@ -32,6 +32,10 @@ All rules in `harness/conventions.md` apply unconditionally. Key points:
 
 Stack-specific rules (generated in Phase 5) live in `harness/rules/` and take highest precedence.
 
+## Path resolution (layout-aware installs)
+
+Read `layout` and `paths` from **`paths.state`** first. Pipeline prose uses `{runs}/` as a token for the runs base (`.harness/` classic, `.midas/` compact). Substitute `{runs}` with `paths.runs` from state before writing audits, verifications, sprints, or sweeps. Engine source lives at `paths.engine` (default `harness/` or `.midas/engine/`).
+
 ## Continuous capture of recurring patterns (always-on)
 
 When the user asks for the **same thing ~2-3 times**, or **corrects you the same way** repeatedly, it is no

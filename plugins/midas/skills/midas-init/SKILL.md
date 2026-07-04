@@ -12,9 +12,11 @@ mcp-recommended: [context7]
 # midas-init — the adaptive intake (one-time setup)
 
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read `harness/state.yaml`; if the precondition stage is wrong, report and stop.
+> First read the state file at **`paths.state`** (`layout` + `paths` block, or infer from disk). If the precondition stage is wrong, report and stop.
 
-**Run this once.** The installer wrote a default `harness/state.yaml` so nothing is broken, but it made
+> **Paths:** Motor = `paths.engine`; scripts = `paths.scripts`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
+
+**Run this once.** The installer wrote a default state file so nothing is broken, but it made
 no real decisions. `/midas-init` is the **one-time guided setup** — and it adapts to *where the project
 already is* instead of forcing every repo to start from a blank `/idea-intake`.
 
@@ -85,7 +87,7 @@ Ask the user (one question in the batched round):
 
 - **`track: full`** (default) — all 9 phases; market, business, tribunal available.
 - **`track: lite`** — Idea+Plan (phases 0–6 guided in one pass) → Execute → Audit. Skips market/business
-  by default; records assumptions. See `harness/pipeline/lite.md`.
+  by default; records assumptions. See `<paths.engine>/pipeline/lite.md`.
 
 Write `track:` to `state.yaml`. For Lite on E0/E1, after Idea+Plan completes set `entry_stage: sprint_planning`
 and skip directly to `/plan-sprints` or `/start-sprint` when a single sprint plan exists.
@@ -138,24 +140,28 @@ Write additively (state file last), wrapping every Midas-managed region in `<!--
    docs** → baseline audit → wire with **dry-run + diff-confirm**). One flow, not two commands. **Resumable:**
    if adoption is declined or interrupted, leave `setup_complete: false`; on re-run, detect already-written
    `product/inventory.md` / `architecture.md` and resume rather than restart.
-3. **`AGENTS.md`** — render from `harness/templates/`, placeholders filled (name, mode, tools, MCP).
-   Summarize conventions + the Context7 rule; don't restate them (they live in `harness/conventions.md`
-   and `harness/rules/context7-usage.md`).
+3. **`AGENTS.md`** — render from `<paths.engine>/templates/AGENTS.md.tmpl`, placeholders filled (name, mode, tools, MCP).
+   Summarize conventions + the Context7 rule; don't restate them (they live in `<paths.engine>/conventions.md`
+   and `<paths.engine>/rules/context7-usage.md`).
 4. **Tool adapters** (selected tools only) — `CLAUDE.md` as a thin `@AGENTS.md` shim, `.cursor/…`,
    `.windsurf/…`. **Generated, not hand-authored**: delegate the render to `/midas-doctor` (or
-   `node scripts/render-adapters.mjs`) — one render path.
+   `node <paths.scripts>/render-adapters.mjs`) — one render path.
 5. **`.mcp.json`** — secret-free, `${ENV_VAR}` only; `context7` + chosen optional servers. Merge into the
    managed region if one exists. **If the MVP has or will have a user-facing UI** (web app, dashboard,
    marketing site), offer (recommend-don't-wall) to uncomment the **Playwright** and **Chrome DevTools**
-   blocks from `harness/templates/mcp.json.tmpl`, add `playwright` and `chrome-devtools` to
+   blocks from `<paths.engine>/templates/mcp.json.tmpl`, add `playwright` and `chrome-devtools` to
    `state.yaml → mcp:`, and note that `/midas-verify` (Phase 7) uses them — browser MCPs are expensive;
    skip if the project is API/CLI-only. Record the user's choice either way.
-6. **`harness/state.yaml`** (per `harness/state.schema.md`, read-modify-write the whole file). Set
+6. **State file** at **`paths.state`** (per `<paths.engine>/state.schema.md`, read-modify-write the whole file). Set
    `midas_version`, `name`, **`mode`** (per the E-level mapping: E0/E1 `greenfield`, E2/E3 `brownfield`),
    `language`, `created`/`updated` (today, supplied), the **`stage` from the maturity table**,
    `stage_status: not_started`, `entry_stage` (= that stage) + a recorded assumption for every gate the
    level skipped, `cost_profile`, the resolved `routing`, `tools`, `mcp`, the `phases` ledger, and finally
-   **`setup_complete: true`**.
+   **`setup_complete: true`**. On **compact** installs preserve or set `layout: compact` and the `paths:` block.
+7. **`.gitignore`** — run `node <paths.scripts>/gitignore-merge.mjs` from the project root (merges
+   `<paths.engine>/templates/gitignore-midas.snippet`: secrets, `node_modules/`, common build dirs,
+   `{runs}/cache/`). Never remove user patterns. The installer normally does this — repeat if copy-only
+   or the Midas block predates dependency patterns.
 
 ### Secrets (print, never write)
 Context7 needs no key (free anonymous tier). If the user wired an **optional** server that does need a

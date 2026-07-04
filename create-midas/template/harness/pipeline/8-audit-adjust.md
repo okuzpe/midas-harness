@@ -40,7 +40,7 @@ a prior sweep left unresolved high-severity findings.
    corrects the code and re-runs the relevant rule check before continuing.
 5. **Re-run amended rules.** After any rule amendment, re-audit the entire sprint against
    the updated rule to confirm nothing else is affected.
-6. **Write `.harness/audits/audit-NN.md`.** One file per sprint audit. Include:
+6. **Write `{runs}/audits/audit-NN.md`.** One file per sprint audit. Include:
    - Sprint ID + title
    - The **gate-parseable tally line** (mirrors `MIDAS_VERIFY_RESULT` / `MIDAS_TRIBUNAL_RESULT`)
      so a script — not just a model — can read the verdict:
@@ -65,7 +65,7 @@ a prior sweep left unresolved high-severity findings.
 
 | File | Notes |
 |---|---|
-| `.harness/audits/audit-NN.md` | Rule verdicts, fixes, amendments, final verdict |
+| `{runs}/audits/audit-NN.md` | Rule verdicts, fixes, amendments, final verdict |
 | `harness/rules/<slug>.md` | Updated with `## Amendment` section if a rule changed |
 
 ## Exit gate checklist
@@ -73,7 +73,7 @@ a prior sweep left unresolved high-severity findings.
 - [ ] Every rule in `harness/rules/` has a verdict (pass / fail / n/a) with evidence
 - [ ] All `fail` verdicts are resolved: either code fixed or rule consciously amended (logged)
 - [ ] No scope drift remains (or explicit deferral decision is recorded)
-- [ ] `.harness/audits/audit-NN.md` exists with a final verdict of `pass`
+- [ ] `{runs}/audits/audit-NN.md` exists with a final verdict of `pass`
 - [ ] `harness/state.yaml` updated: sprint closed, next stage set (`sprint_execution` or `shipped`)
 - [ ] Any rule amendment includes a dated rationale in the rule file itself
 

@@ -19,8 +19,29 @@ npm-debug.log*
 Thumbs.db
 
 # midas:begin GITIGNORE — installed by create-midas; extend with your own patterns below
+
+# midas: amend — patterns added on install/update
+vendor/
+dist/
+build/
+out/
+.next/
+.turbo/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+target/
+*.log
+
+# midas: amend — patterns added on install/update
+.midas/cache/
+.midas/*.hash
 # midas:end
 
-# MkDocs build output
+# MkDocs build output (CI uses _site/; default `mkdocs build` writes site/ — both ignored)
 site/
 _site/
+
+# npm pack / local publish artifacts
+*.tgz

@@ -29,7 +29,13 @@ transition after that.
 ## Schema
 
 ```yaml
-midas_version: 0.5.24          # engine version that wrote this file (for /midas-update)
+midas_version: 0.5.28          # engine version that wrote this file (for /midas-update)
+layout: classic                # classic | compact — omit = inferred from disk (see ADR-001)
+paths:                         # optional; installer/doctor --fix writes this for compact
+  engine: harness
+  scripts: scripts
+  state: harness/state.yaml
+  runs: .harness               # subdirs: audits/, verifications/, debates/, sprints/, sweeps/, cache/
 name: taskpilot              # project slug
 mode: greenfield             # greenfield | brownfield  (maturity: E0/E1 → greenfield, E2/E3 → brownfield)
 language: en                 # artifact language

@@ -14,8 +14,8 @@ as the canonical memory overview.
 | Layer | Analogy | Where | Who writes |
 |---|---|---|---|
 | **PC** | program counter | `harness/state.yaml` | phase skills (read first, write last) |
-| **STM** | working memory this stretch | `.harness/sprints/NN-progress.md`, active sprint file | build tier during Phase 7 |
-| **LTM** | durable truth | `product/*`, `harness/rules/*`, `.harness/*` frozen records | phase skills + `/midas-capture` |
+| **STM** | working memory this stretch | `{runs}/sprints/NN-progress.md`, active sprint file | build tier during Phase 7 |
+| **LTM** | durable truth | `product/*`, `harness/rules/*`, `{runs}/*` frozen records | phase skills + `/midas-capture` |
 
 **Context window ≠ memory.** A larger context window is not LTM; it is expensive STM that resets when the
 session ends. Midas points agents at the right LTM files instead of replaying chat.
@@ -35,7 +35,7 @@ session ends. Midas points agents at the right LTM files instead of replaying ch
 ## STM protocol (sprint progress)
 
 Copy [`harness/templates/sprint-progress.md`](../templates/sprint-progress.md) to
-`.harness/sprints/NN-progress.md` when a sprint goes `active`. Each significant decision uses:
+`{runs}/sprints/NN-progress.md` when a sprint goes `active`. Each significant decision uses:
 
 - **What** — what changed or was decided
 - **Why** — rationale

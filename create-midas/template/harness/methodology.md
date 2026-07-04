@@ -6,15 +6,15 @@ The per-phase playbooks live in [`harness/pipeline/`](./pipeline/); this file is
 
 ## The harness contract
 - **Stateful** — one source of truth, [`harness/state.yaml`](./state.schema.md). Read first, write last.
-- **Auditable** — every phase yields artifacts + a gate verdict frozen in `.harness/audits/`.
+- **Auditable** — every phase yields artifacts + a gate verdict frozen in `{runs}/audits/`.
 - **Resumable** — `/midas-status` reads the state and prints the single next action; `/midas-recall`
   assembles a curated context pack when resuming mid-phase or mid-sprint. Any agent on any tool can
   resume because the methodology is markdown on disk, not a vendor's chat memory.
 
 ## Resuming work (native memory)
 
-Midas stores **long-term** project truth in `product/*`, `harness/rules/*`, and frozen `.harness/*`
-records — not in a hidden vector DB. **Short-term** continuity uses `.harness/sprints/NN-progress.md`
+Midas stores **long-term** project truth in `product/*`, `harness/rules/*`, and frozen `{runs}/*`
+records — not in a hidden vector DB. **Short-term** continuity uses `{runs}/sprints/NN-progress.md`
 (STM). See [`research/memory-model.md`](./research/memory-model.md).
 
 | Need | Command |
@@ -26,7 +26,7 @@ records — not in a hidden vector DB. **Short-term** continuity uses `.harness/
 **Context window ≠ memory.** Do not replay full chat history; read the pack, then work.
 
 **Transition rule:** advance from phase N to N+1 **iff** the orchestrator (Opus) ran the phase-N exit
-gate, every gate item is satisfied with on-disk evidence, the verdict is written to `.harness/audits/`,
+gate, every gate item is satisfied with on-disk evidence, the verdict is written to `{runs}/audits/`,
 and `state.yaml` records `gate: passed`. The **producer** never grades its own homework — the
 **auditor** (orchestrate tier) renders the verdict.
 
@@ -42,7 +42,7 @@ and `state.yaml` records `gate: passed`. The **producer** never grades its own h
 | 5 | Architecture-as-Rules + Design System | `pipeline/5-architecture-rules.md` | `harness/rules/*`, `product/design-direction.md`, `product/design-system.md`, `product/playbooks/*` |
 | 6 | Sprint Planning | `pipeline/6-sprint-planning.md` | `product/roadmap.md`, `product/sprints/NN-*.md` |
 | 7 | Sprint Execution Loop | `pipeline/7-sprint-execution.md` | code + tests + updated sprint |
-| 8 | Per-sprint Audit & Adjust | `pipeline/8-audit-adjust.md` | `.harness/audits/audit-NN.md` |
+| 8 | Per-sprint Audit & Adjust | `pipeline/8-audit-adjust.md` | `{runs}/audits/audit-NN.md` |
 
 ## State machine
 
@@ -116,7 +116,7 @@ Beyond sync (`/midas-doctor`) and adversarial debate (`/midas-tribunal`), Midas 
 triggers never fire), **orphans** (unimported modules, stale doc links), and **ledger drift**
 (`product/features.json`, roadmap sprints, open questions vs `product/idea.md`). It reports first;
 `--fix` applies only safe cleanups the human explicitly approves. Findings freeze to
-`.harness/sweeps/sweep-NN.md`.
+`{runs}/sweeps/sweep-NN.md`.
 
 Recommended checkpoints — `/midas-status` may surface them; skipping is fine:
 
@@ -140,10 +140,10 @@ a human must approve before the harness advances. Each is recorded on disk so a 
 | Phase 3 — Business Case | **Go / no-go** to build the MVP at all | `product/business-plan.md` § go/no-go (sign-off line) |
 | Phase 4 — Architecture | Each irreversible stack/architecture decision | `product/adr/ADR-*.md` (one ADR per decision) |
 | Phase 5 / Phase 8 | Every **rule amendment** — changing a frozen rule is a conscious choice, never silent | the rule file's `## Amendment` entry (date + who) |
-| Phase 8 — Scope drift | Accepting or deferring a feature outside MVP scope | `.harness/audits/audit-NN.md` § scope reconciliation |
-| Any time | **Applying** `/midas-tribunal` findings (it only reports; the human decides what to act on) | the follow-up that consumes `.harness/debates/debate-NN.md` |
-| Any time | **Applying** `/midas-sweep` fixes (especially deletes and ledger edits) | the human's explicit OK + `.harness/sweeps/sweep-NN.md` |
-| Ship | Declaring the MVP done when success metrics are met | the final `.harness/audits/audit-NN.md` + `stage: shipped` |
+| Phase 8 — Scope drift | Accepting or deferring a feature outside MVP scope | `{runs}/audits/audit-NN.md` § scope reconciliation |
+| Any time | **Applying** `/midas-tribunal` findings (it only reports; the human decides what to act on) | the follow-up that consumes `{runs}/debates/debate-NN.md` |
+| Any time | **Applying** `/midas-sweep` fixes (especially deletes and ledger edits) | the human's explicit OK + `{runs}/sweeps/sweep-NN.md` |
+| Ship | Declaring the MVP done when success metrics are met | the final `{runs}/audits/audit-NN.md` + `stage: shipped` |
 | Always | **Committing / pushing** code — only when the human explicitly asks (see `rules/git-commits.md`) | git history |
 
 The producer never grades its own homework, and the harness never signs off for the human on any row above.

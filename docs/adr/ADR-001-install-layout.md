@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| **Status** | proposed |
+| **Status** | accepted |
 | **Date** | 2026-06-29 |
 | **Deciders** | maintainer + orchestrate tier |
 | **Context7 verified** | n/a (no third-party library decision) |
@@ -132,7 +132,8 @@ output as named subdirectories).
 | `scripts/doctor.mjs`, `scripts/render-adapters.mjs` | `.midas/scripts/` |
 | `docs/agents-and-models.md` | `.midas/docs/agents-and-models.md` |
 | `.harness/audits/`, `.harness/verifications/`, `.harness/debates/` | `.midas/audits/`, `.midas/verifications/`, `.midas/debates/` |
-| `.harness/cache/`, `.harness/*.hash` | `.midas/cache/` (gitignored) |
+| `.harness/sprints/`, `.harness/sweeps/` | `.midas/sprints/`, `.midas/sweeps/` |
+| `.harness/cache/`, `.harness/*.hash`, `.harness/adapters.hash` | `.midas/cache/` (gitignored) |
 | `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.cursor/…`, `.windsurf/…`, `.claude/…`, `.mcp.json` | **unchanged** (tool-mandated) |
 
 ## Rollout plan
@@ -145,6 +146,18 @@ output as named subdirectories).
    command with dry-run + diff-confirm. Add the both-layouts test matrix.
 3. **Long term (next major).** Flip the default to `compact`; keep `--layout=classic` for one major
    version; provide an automatic, confirmed migration on `--update`.
+
+## Implementation status (v0.5.28)
+
+Rollout step **2 (medium term)** is **shipped**:
+
+- `scripts/paths.mjs` — layout resolver (`classic` | `compact`)
+- `--layout=compact|classic` on install (default `classic`)
+- `node <paths.scripts>/migrate-layout.mjs` — dry-run + `--apply`
+- Skills and scripts read `layout` + `paths` from state; `{runs}/` token in pipeline prose
+- CI matrix exercises both layouts
+
+Rollout step **3 (long term)** — default flip to compact — remains future work.
 
 ---
 

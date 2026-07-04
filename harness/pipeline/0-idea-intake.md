@@ -40,7 +40,7 @@ This is the cheapest phase; speed matters more than depth.
 - [ ] `## One-line pitch` is present and fits one sentence
 - [ ] `mode` is set (`greenfield` or `brownfield`) in `harness/state.yaml`
 - [ ] `harness/state.yaml` is valid against `harness/state.schema.md`
-- [ ] Gate verdict written to `.harness/audits/gate-00.md`
+- [ ] Gate verdict written to `{runs}/audits/gate-00.md`
 
 ## Recommended tier + agents
 

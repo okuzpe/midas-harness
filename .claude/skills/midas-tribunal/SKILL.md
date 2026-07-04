@@ -1,6 +1,6 @@
 ---
 name: midas-tribunal
-description: Standing whole-project adversarial debate. Convene a tribunal — steelman Defense vs red-team Prosecution plus a dissent-forcing Catfish — across idea, market, business model, architecture, scope, rules, and code. Every claim cites on-disk evidence or is struck; midas-orchestrator (Opus) judges per claim, records dissent, and freezes a ranked findings report to .harness/debates/debate-NN.md. Use on demand or before big gates (pre-architecture-freeze, pre-go/no-go, pre-ship). Not tied to a sprint — distinct from /close-sprint.
+description: Standing whole-project adversarial debate. Convene a tribunal — steelman Defense vs red-team Prosecution plus a dissent-forcing Catfish — across idea, market, business model, architecture, scope, rules, and code. Every claim cites on-disk evidence or is struck; midas-orchestrator (Opus) judges per claim, records dissent, and freezes a ranked findings report to {runs}/debates/debate-NN.md. Use on demand or before big gates (pre-architecture-freeze, pre-go/no-go, pre-ship). Not tied to a sprint — distinct from /close-sprint.
 user-invocable: true
 disable-model-invocation: true
 model: inherit
@@ -13,7 +13,9 @@ argument-hint: "[whole|architecture|scope|idea|market|design|unit-economics|secu
 # midas-tribunal — Whole-Project Adversarial Debate
 
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read `harness/state.yaml`; this skill has no precondition stage — it runs at any stage — but
+> First read the state file at **`paths.state`**; this skill has no precondition stage — it runs at any stage — but
+
+> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
 > if the project has no artifacts on disk yet, report that there is nothing to put on trial and stop.
 
 A standing **tribunal**, not a phase. You (the orchestrator) **convene and judge but write none of the
@@ -25,9 +27,9 @@ arguments** — the producer never grades its own homework.
 > flow, not a required gate. Debaters run on the build/scout tiers; you
 render a verdict **per claim**. This is distinct from `/close-sprint` (single-sprint conformance vs
 frozen rules): the tribunal argues *whether the decisions themselves are right*, across the whole
-`product/*` + `harness/rules/*` + `src/*` surface.
+`product/*` + `<paths.engine>/rules/*` + `src/*` surface.
 
-Why this shape (grounded in research; sources in `harness/research/debate-method.md`): multi-agent debate only beats single-pass critique when every
+Why this shape (grounded in research; sources in `<paths.engine>/research/debate-method.md`): multi-agent debate only beats single-pass critique when every
 claim cites **checkable evidence**, the **producer is separated from the grader**, and **genuine
 dissent is forced** — otherwise it degenerates to premature consensus, sycophancy, and judge bias.
 Every rule below exists to defend one of those failure modes.
@@ -48,8 +50,8 @@ synthesize.
 | Design Critic | "Is this distinctive and on-direction, or generic default slop?" | `product/design-direction.md` + `product/design-system.md` + UI `src/*` |
 | Architecture Tribunal (ATAM) | "Name the risks, sensitivity & tradeoff points." | `product/architecture.md` + `adr/*` |
 | Maintainer / ADR-review | "Will the next dev curse these decisions?" | `product/adr/*` |
-| Security Adversary (STRIDE) | "Walk each trust boundary — where do I get in?" | `harness/rules/security.md` + `src/*` |
-| Reliability / FMEA | "What fails silently and is invisible till prod?" | architecture + `harness/rules/testing.md` |
+| Security Adversary (STRIDE) | "Walk each trust boundary — where do I get in?" | `<paths.engine>/rules/security.md` + `src/*` |
+| Reliability / FMEA | "What fails silently and is invisible till prod?" | architecture + `<paths.engine>/rules/testing.md` |
 | Simplifier / YAGNI | "Cut it. What survives the cut and why?" | roadmap + rules + scope |
 
 ## Scope & depth
@@ -71,8 +73,8 @@ Each scope activates the matching subset of lenses (e.g. `architecture` → ATAM
 ## Procedure
 
 ### Round 0 — Convene & index (scout / Haiku)
-Read `harness/state.yaml`. Resolve scope + depth. Dispatch **scout** subagents to build a per-lens
-**evidence pack**: exact paths in `product/*`, the relevant `harness/rules/*` bodies, `src/*`
+Read **`paths.state`**. Resolve scope + depth. Dispatch **scout** subagents to build a per-lens
+**evidence pack**: exact paths in `product/*`, the relevant `<paths.engine>/rules/*` bodies, `src/*`
 `file:line` ranges, `product/adr/*`. Inject only the slice each lens needs — never dump all rules.
 
 ### Round 1 — Opening positions (build / Sonnet, parallel, one seat per lens)
@@ -97,7 +99,7 @@ finding an action: `fix · amend-rule · accept-with-rationale · defer`.
 **"Nothing material found" (`criticals=0 highs=0`) is a valid, honest verdict — do not invent severity.**
 
 ### Freeze & bridge
-Write `.harness/debates/debate-NN.md` (NN monotonic, mirroring `audit-NN.md`) — frozen and immutable:
+Write `{runs}/debates/debate-NN.md` (NN monotonic, mirroring `audit-NN.md`) — frozen and immutable:
 the gate-parseable tally line, the ranked findings table, the dissent section, the recommended-action
 routing, and the full transcript as a collapsible appendix. Then **propose** (and on the user's
 go-ahead, apply) the findings→action bridge:
@@ -109,7 +111,7 @@ You MAY set `last_tribunal: { n: NN, criticals: X, at: <date> }` in `state.yaml`
 whole file per schema). **Never set `gate: passed` or advance `stage`** — the tribunal informs; the
 gates decide.
 
-## Output format (`.harness/debates/debate-NN.md`)
+## Output format (`{runs}/debates/debate-NN.md`)
 
 ```markdown
 # Tribunal debate-NN — scope: <scope> — depth: <depth>
@@ -160,6 +162,6 @@ does; otherwise the first-party `midas-builder` / `midas-scout`. Respect `state.
 ## Exit gate (tribunal complete)
 - [ ] Every surviving claim cites on-disk evidence; uncited claims struck (logged).
 - [ ] A per-claim verdict rendered; minority/dissent recorded; LOW nits capped.
-- [ ] `.harness/debates/debate-NN.md` frozen with the `MIDAS_TRIBUNAL_RESULT` tally line.
+- [ ] `{runs}/debates/debate-NN.md` frozen with the `MIDAS_TRIBUNAL_RESULT` tally line.
 - [ ] Each upheld finding carries one action; the action bridge is proposed to the user.
 - [ ] `stage` NOT advanced and no gate marked passed (the tribunal only informs).

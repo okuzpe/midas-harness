@@ -11,13 +11,13 @@ These rules apply from Phase 7 (Sprint Execution) onward and support **native pr
 ### STM progress log
 - [ ] An active sprint maintains a cross-session progress file with structured observations.
       **CHECK:** `manual:` when `stage: sprint_execution` and a sprint is `active`, either (a)
-      `.harness/sprints/NN-progress.md` exists with at least one **Learned** row updated this sprint
+      `{runs}/sprints/NN-progress.md` exists with at least one **Learned** row updated this sprint
       cycle, or (b) `sprints[].last_touched` for that sprint is ≤ **7 days** before audit date.
       Greenfield with no active sprint → `n/a`.
 - [ ] Completed tasks in the progress log name the **tool/MCP** that proved each item (git-visible
       traceability aligned with Phase 7 and `verification.md`).
       **CHECK:** `manual:` when the sprint diff checks off tasks in `product/sprints/NN-*.md`, read
-      `.harness/sprints/NN-progress.md` § Done — each completed row carries a non-empty **Tool** value
+      `{runs}/sprints/NN-progress.md` § Done — each completed row carries a non-empty **Tool** value
       (e.g. `test-runner`, `context7`, `playwright-mcp`); a checked-off task with proof but no Tool is a
       fail. Sprints with zero tasks completed this cycle → `n/a`.
 

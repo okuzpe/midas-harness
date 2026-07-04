@@ -22,13 +22,13 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
 1. **Read the sprint file.** Confirm the sprint is `active` in `state.yaml`.
    Work only on tasks listed in this sprint; ignore future sprints.
    **New session or stale progress:** run `/midas-recall sprint` (optional) or read
-   `.harness/sprints/NN-progress.md` before implementing. On first activation, seed progress from
-   [`harness/templates/sprint-progress.md`](../templates/sprint-progress.md) → `.harness/sprints/NN-progress.md`.
+   `{runs}/sprints/NN-progress.md` before implementing. On first activation, seed progress from
+   [`harness/templates/sprint-progress.md`](../templates/sprint-progress.md) → `{runs}/sprints/NN-progress.md`.
 2. **Implement tasks — one feature at a time.** Work a single task through to *done* (past
    verification) before starting the next; never batch-implement and verify only at the end. This
    incremental discipline is what keeps a long run from exhausting context and drifting — it matters
    most when a local `build` model with a short usable context is driving (`harness/rules/model-routing.md`).
-   Keep a running `.harness/sprints/NN-progress.md` (use the **What / Why / Where / Learned** rows in
+   Keep a running `{runs}/sprints/NN-progress.md` (use the **What / Why / Where / Learned** rows in
    `harness/templates/sprint-progress.md`) so a fresh session resumes without re-reading everything. For each task:
    a. Before writing code against any third-party library, call `resolve-library-id`
       then `get-library-docs` at the pinned version via Context7 (scout tier).
@@ -46,14 +46,14 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
    e. Check the task off `## Tasks` in the sprint file **only after it passes verification**, noting
       the proof (command output, test name, or screenshot reference) **and the tool/MCP that proved it**
       (e.g. `test-runner`, `context7`, `playwright-mcp`, `@playwright/cli`). Mirror the same in
-      `.harness/sprints/NN-progress.md` § Done (Task · Proof · Tool). If the task completes a feature in
+      `{runs}/sprints/NN-progress.md` § Done (Task · Proof · Tool). If the task completes a feature in
       `product/features.json`, flip that feature's `status` to `passing` and fill its `evidence` —
       editing **only** `status`/`evidence`, never the spec fields.
 3. **Verify acceptance criteria.** After all tasks are checked, run or demonstrate
    every item in `## Acceptance criteria`. Record evidence (output, screenshot reference,
    or test name) next to each item. For a UI-touching sprint, run `/midas-verify` so each
    criterion is proven in a real browser (Playwright drives the flow; Chrome DevTools inspects
-   runtime health) and frozen to `.harness/verifications/verify-NN.md`.
+   runtime health) and frozen to `{runs}/verifications/verify-NN.md`.
    **Optional (recommended for large or messy sprints):** run `/midas-sweep` before handing off to
    Phase 8 — surface dead flows and ledger drift so the audit grades real behaviour, not cruft.
 4. **Self-check DoD.** Walk the `## Definition of Done` list:
@@ -73,7 +73,7 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
 | Code + tests | In the project source tree per `harness/rules/folder-structure.md` |
 | `product/sprints/NN-<slug>.md` | Updated: tasks checked, acceptance evidence noted |
 | `product/features.json` | Updated: features completed this sprint flipped to `passing` with `evidence` |
-| `.harness/sprints/NN-progress.md` | Running progress log for cross-session continuity |
+| `{runs}/sprints/NN-progress.md` | Running progress log for cross-session continuity |
 
 ## Exit gate checklist
 

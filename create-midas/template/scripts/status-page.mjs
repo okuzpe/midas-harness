@@ -1,10 +1,13 @@
 #!/usr/bin/env node
-// status-page.mjs — generate a static status.html from harness/state.yaml + .harness/* (no deps).
+// status-page.mjs — generate a static status.html from state + runs artifacts (no deps).
 import { readFileSync, existsSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { resolvePaths } from './paths.mjs';
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const rootArg = process.argv[2];
+const ROOT = rootArg ? resolve(process.cwd(), rootArg) : resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const paths = resolvePaths(ROOT);
 const OUT = join(ROOT, 'status.html');
 
 function read(rel) {
@@ -22,17 +25,18 @@ function listDir(rel, pattern) {
   return readdirSync(dir).filter((f) => !pattern || pattern.test(f)).sort();
 }
 
-const state = read('harness/state.yaml') || '';
+const state = read(paths.state) || '';
 const stage = (state.match(/^stage:\s*(\S+)/m) || [])[1] || '—';
 const stageStatus = (state.match(/^stage_status:\s*(\S+)/m) || [])[1] || '—';
 const track = (state.match(/^track:\s*(\S+)/m) || [])[1] || 'full';
 const setup = (state.match(/^setup_complete:\s*(\S+)/m) || [])[1] || '—';
 const version = (state.match(/^midas_version:\s*(\S+)/m) || [])[1] || '—';
+const layout = (state.match(/^layout:\s*(\S+)/m) || [])[1] || paths.layout;
 
-const audits = listDir('.harness/audits', /\.md$/);
-const verifs = listDir('.harness/verifications', /\.md$/);
-const debates = listDir('.harness/debates', /\.md$/);
-const sprints = listDir('.harness/sprints', /\.md$/);
+const audits = listDir(paths.runsPath('audits'), /\.md$/);
+const verifs = listDir(paths.runsPath('verifications'), /\.md$/);
+const debates = listDir(paths.runsPath('debates'), /\.md$/);
+const sprints = listDir(paths.runsPath('sprints'), /\.md$/);
 
 const html = `<!DOCTYPE html>
 <html lang="en">
@@ -54,6 +58,7 @@ const html = `<!DOCTYPE html>
   <p class="meta">Generated locally · not committed · open this file in a browser</p>
   <table>
     <tr><th>Engine version</th><td>${esc(version)}</td></tr>
+    <tr><th>Layout</th><td><code>${esc(layout)}</code></td></tr>
     <tr><th>Stage</th><td><code>${esc(stage)}</code> (${esc(stageStatus)})</td></tr>
     <tr><th>Track</th><td>${esc(track)}</td></tr>
     <tr><th>Setup complete</th><td>${esc(setup)}</td></tr>
@@ -65,7 +70,7 @@ const html = `<!DOCTYPE html>
     <tr><th>Debates</th><td>${debates.length ? debates.map(esc).join(', ') : '—'}</td></tr>
     <tr><th>Sprint progress</th><td>${sprints.length ? sprints.map(esc).join(', ') : '—'}</td></tr>
   </table>
-  <p>Source: <code>harness/state.yaml</code> + <code>.harness/*</code></p>
+  <p>Source: <code>${esc(paths.state)}</code> + <code>${esc(paths.runs)}/*</code></p>
 </body>
 </html>
 `;

@@ -10,7 +10,7 @@
 // writes a default harness/state.yaml so the project is immediately usable. The one-time guided setup
 // is `/midas-init` (run it in your editor). Dependency-free (Node 16.7+). It only adds files.
 
-import { readdirSync, readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync, rmSync, rmdirSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync, rmSync, rmdirSync, renameSync } from 'node:fs';
 import { dirname, basename, join, resolve, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createInterface } from 'node:readline/promises';
@@ -23,8 +23,6 @@ const TEMPLATE = join(HERE, 'template');
 /** Tools the installer accepts on `--tools`. codex/copilot have no generated adapter (AGENTS.md only). */
 export const KNOWN_TOOLS = ['claude-code', 'cursor', 'windsurf', 'gemini', 'codex', 'copilot'];
 const DEFAULT_TOOLS = ['claude-code', 'cursor', 'windsurf', 'gemini'];
-const GITIGNORE_BEGIN = '# midas:begin GITIGNORE — installed by create-midas; extend with your own patterns below';
-const GITIGNORE_END = '# midas:end';
 
 const args = process.argv.slice(2);
 if (args.includes('-h') || args.includes('--help')) {
@@ -36,6 +34,12 @@ const force = args.includes('--force') || update;
 const uninstall = args.includes('--uninstall');
 const dryRun = args.includes('--dry-run');
 const purge = args.includes('--purge');
+const layoutArg = args.find((a) => a.startsWith('--layout='));
+const installLayoutFlag = layoutArg ? layoutArg.slice('--layout='.length) : null;
+if (installLayoutFlag && !['classic', 'compact'].includes(installLayoutFlag)) {
+  console.error('create-midas: --layout must be classic or compact');
+  process.exit(1);
+}
 const targetArg = args.find((a) => !a.startsWith('-')) || '.';
 const TARGET = resolve(process.cwd(), targetArg);
 const NAME = basename(TARGET).toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/(^-|-$)/g, '') || 'project';
@@ -57,7 +61,7 @@ if (uninstall) {
 // (e.g. a subfolder by mistake), the old behaviour silently scaffolded a brand-new nested install.
 if (update && !hasMidasInstall(TARGET)) {
   console.error(`create-midas: --update found no existing Midas install in ${TARGET}`);
-  console.error('  (no harness/VERSION or harness/state.yaml here). Run --update from the project root,');
+  console.error('  (no harness/ or .midas/ engine stamp here). Run --update from the project root,');
   console.error('  or drop --update to install fresh. Nothing was written.');
   process.exit(1);
 }
@@ -76,18 +80,27 @@ if (!update && !force) {
 const written = [];
 const skipped = [];
 
+const installLayout = resolveInstallLayout();
+
 mkdirSync(TARGET, { recursive: true });
 copyTree(TEMPLATE, TARGET);
+
+if (installLayout === 'compact') {
+  applyCompactLayout();
+}
+
+const paths = await loadPaths(TARGET);
 
 // Fresh installs honour --tools (or an interactive prompt). --update keeps the existing state.yaml tools.
 const selectedTools = update ? null : await resolveSelectedTools();
 
-const stateMode = writeState(selectedTools);
+const stateMode = writeState(selectedTools, paths);
 
 // Generate tool adapters after state.yaml exists so render-adapters can read tools:.
 let rendered = false;
 try {
-  const mod = await import(pathToFileURL(join(TARGET, 'scripts', 'render-adapters.mjs')).href);
+  const renderPath = join(TARGET, paths.scripts, 'render-adapters.mjs');
+  const mod = await import(pathToFileURL(renderPath).href);
   if (typeof mod.renderAdapters === 'function') {
     mod.renderAdapters(TARGET);
     rendered = true;
@@ -97,9 +110,9 @@ try {
 }
 
 fillAgents(selectedTools);
-ensureGeminiExtension(selectedTools || readToolsFromState() || DEFAULT_TOOLS);
+ensureGeminiExtension(selectedTools || readToolsFromState(paths) || DEFAULT_TOOLS, paths);
 {
-  const mcpSyncPath = join(TARGET, 'scripts', 'mcp-cursor-sync.mjs');
+  const mcpSyncPath = join(TARGET, paths.scripts, 'mcp-cursor-sync.mjs');
   if (existsSync(mcpSyncPath)) {
     const { fixMcpFileForWindows, syncCursorMcp } = await import(pathToFileURL(mcpSyncPath).href);
     const rootMcp = join(TARGET, '.mcp.json');
@@ -111,12 +124,12 @@ ensureGeminiExtension(selectedTools || readToolsFromState() || DEFAULT_TOOLS);
     if (r.synced && !written.includes('.cursor/mcp.json')) written.push('.cursor/mcp.json');
   }
 }
-ensureGitignore();
+await ensureGitignore(paths);
 
-const verifyResult = rendered ? verifyInstall() : null;
+const verifyResult = rendered ? verifyInstall(paths) : null;
 
-const updatedTo = update ? bumpVersionStamp() : null;
-await report(selectedTools);
+const updatedTo = update ? bumpVersionStamp(paths) : null;
+await report(selectedTools, paths);
 
 if (verifyResult && !verifyResult.ok) process.exit(1);
 
@@ -149,9 +162,76 @@ function readMaybe(p) {
   try { return readFileSync(p, 'utf8'); } catch { return null; }
 }
 
-/** True if `dir` already holds a Midas install — the engine stamp or a project's state file. */
+/** True if `dir` already holds a Midas install — classic or compact markers. */
 function hasMidasInstall(dir) {
-  return existsSync(join(dir, 'harness', 'VERSION')) || existsSync(join(dir, 'harness', 'state.yaml'));
+  return (
+    existsSync(join(dir, 'harness', 'VERSION')) ||
+    existsSync(join(dir, 'harness', 'state.yaml')) ||
+    existsSync(join(dir, '.midas', 'engine', 'VERSION')) ||
+    existsSync(join(dir, '.midas', 'state.yaml'))
+  );
+}
+
+function detectInstallLayout(dir) {
+  if (existsSync(join(dir, '.midas', 'state.yaml')) || existsSync(join(dir, '.midas', 'engine', 'VERSION'))) {
+    return 'compact';
+  }
+  if (existsSync(join(dir, 'harness', 'state.yaml')) || existsSync(join(dir, 'harness', 'VERSION'))) {
+    return 'classic';
+  }
+  return installLayoutFlag || 'classic';
+}
+
+function resolveInstallLayout() {
+  if (update) return detectInstallLayout(TARGET);
+  return installLayoutFlag || 'classic';
+}
+
+/** Dynamic import of paths.mjs from the installed project. */
+async function loadPaths(target) {
+  const classic = join(target, 'scripts', 'paths.mjs');
+  const compact = join(target, '.midas', 'scripts', 'paths.mjs');
+  const modPath = existsSync(compact) ? compact : classic;
+  if (!existsSync(modPath)) {
+    return {
+      layout: 'classic',
+      engine: 'harness',
+      scripts: 'scripts',
+      state: 'harness/state.yaml',
+      version: 'harness/VERSION',
+      runs: '.harness',
+      projectRoot: target,
+    };
+  }
+  const mod = await import(pathToFileURL(modPath).href);
+  return mod.resolvePaths(target);
+}
+
+/** Relocate classic template tree to .midas/ after copyTree. */
+function applyCompactLayout() {
+  const moves = [
+    { from: 'harness', to: '.midas/engine', type: 'dir' },
+    { from: 'scripts', to: '.midas/scripts', type: 'dir' },
+    { from: 'docs/agents-and-models.md', to: '.midas/docs/agents-and-models.md', type: 'file' },
+  ];
+  for (const m of moves) {
+    const src = join(TARGET, m.from);
+    const dst = join(TARGET, m.to);
+    if (!existsSync(src)) continue;
+    if (existsSync(dst)) rmSync(dst, { recursive: true, force: true });
+    mkdirSync(dirname(dst), { recursive: true });
+    renameSync(src, dst);
+  }
+  const classicState = join(TARGET, 'harness', 'state.yaml');
+  const engineState = join(TARGET, '.midas', 'engine', 'state.yaml');
+  const compactState = join(TARGET, '.midas', 'state.yaml');
+  if (existsSync(classicState) && !existsSync(compactState)) {
+    mkdirSync(dirname(compactState), { recursive: true });
+    renameSync(classicState, compactState);
+  } else if (existsSync(engineState) && !existsSync(compactState)) {
+    mkdirSync(dirname(compactState), { recursive: true });
+    renameSync(engineState, compactState);
+  }
 }
 
 /** Walk up from TARGET's parent to the filesystem root; return the first ancestor that holds a Midas
@@ -181,10 +261,10 @@ function fillAgents(tools) {
   writeFileSync(f, filled, 'utf8');
 }
 
-/** Write gemini-extension.json when Gemini CLI is in tools (version from harness/VERSION). */
-function ensureGeminiExtension(tools) {
+/** Write gemini-extension.json when Gemini CLI is in tools (version from engine VERSION). */
+function ensureGeminiExtension(tools, paths) {
   if (!tools.includes('gemini')) return;
-  const version = (readMaybe(join(TARGET, 'harness', 'VERSION')) || '0.0.0').trim();
+  const version = (readMaybe(join(TARGET, paths.version)) || '0.0.0').trim();
   const rel = 'gemini-extension.json';
   const ext = {
     name: 'midas',
@@ -197,9 +277,9 @@ function ensureGeminiExtension(tools) {
   if (!written.includes(rel)) written.push(rel);
 }
 
-/** Read `tools:` from an existing harness/state.yaml, or null. */
-function readToolsFromState() {
-  const stateFile = join(TARGET, 'harness', 'state.yaml');
+/** Read `tools:` from existing state.yaml, or null. */
+function readToolsFromState(paths) {
+  const stateFile = join(TARGET, paths.state);
   const raw = readMaybe(stateFile);
   if (!raw) return null;
   const m = raw.match(/^tools:\s*\[([^\]]*)\]/m);
@@ -244,7 +324,7 @@ async function resolveSelectedTools() {
 async function promptToolsInteractive() {
   const rl = createInterface({ input, output });
   try {
-    const profilesPath = join(TARGET, 'scripts', 'tool-profiles.mjs');
+    const profilesPath = join(TARGET, paths?.scripts || 'scripts', 'tool-profiles.mjs');
     let mod = null;
     if (existsSync(profilesPath)) {
       mod = await import(pathToFileURL(profilesPath).href);
@@ -286,26 +366,18 @@ async function promptToolsInteractive() {
 }
 
 
-// Merge Midas gitignore rules without clobbering an existing file. Idempotent — skips when markers
-// are already present. Volatile Midas paths + secret patterns (see harness/state.schema.md).
-function ensureGitignore() {
-  const snippetPath = join(TARGET, 'harness', 'templates', 'gitignore-midas.snippet');
-  const snippet = readMaybe(snippetPath);
-  if (!snippet) return;
-
-  const gitignorePath = join(TARGET, '.gitignore');
-  const existing = readMaybe(gitignorePath) || '';
-  if (existing.includes(GITIGNORE_BEGIN)) return;
-
-  const block = `${GITIGNORE_BEGIN}\n${snippet.trim()}\n${GITIGNORE_END}\n`;
-  const next = existing.trim() === '' ? `${block}` : `${existing.replace(/\s*$/, '')}\n\n${block}`;
-  writeFileSync(gitignorePath, next, 'utf8');
-  written.push('.gitignore');
+// Merge Midas .gitignore block (secrets, deps, volatile paths). Idempotent; upgrades missing patterns on --update.
+async function ensureGitignore(paths) {
+  const mergePath = join(TARGET, paths.scripts, 'gitignore-merge.mjs');
+  if (!existsSync(mergePath)) return;
+  const { ensureMidasGitignore } = await import(pathToFileURL(mergePath).href);
+  const { wrote } = ensureMidasGitignore(TARGET);
+  if (wrote && !written.includes('.gitignore')) written.push('.gitignore');
 }
 
 /** Run midas-doctor on the target project; auto --fix once on adapter drift, then re-check. */
-function runDoctor(target, fix = false) {
-  const doctorScript = join(target, 'scripts', 'doctor.mjs');
+function runDoctor(target, paths, fix = false) {
+  const doctorScript = join(target, paths.scripts, 'doctor.mjs');
   if (!existsSync(doctorScript)) return { ok: false, missing: true, out: '' };
   const args = fix ? [doctorScript, '--fix'] : [doctorScript];
   const r = spawnSync(process.execPath, args, { cwd: target, encoding: 'utf8' });
@@ -313,11 +385,11 @@ function runDoctor(target, fix = false) {
   return { ok: r.status === 0, missing: false, out };
 }
 
-function verifyInstall() {
-  let result = runDoctor(TARGET);
+function verifyInstall(paths) {
+  let result = runDoctor(TARGET, paths);
   if (!result.ok && !result.missing && /OUT OF SYNC|MISSING|DRIFT/.test(result.out)) {
-    runDoctor(TARGET, true);
-    result = runDoctor(TARGET);
+    runDoctor(TARGET, paths, true);
+    result = runDoctor(TARGET, paths);
   }
   return result;
 }
@@ -334,16 +406,29 @@ function detectMode() {
 }
 
 // Write a default harness/state.yaml (never clobber an existing one). Returns the mode, or null.
-function writeState(tools) {
-  const stateFile = join(TARGET, 'harness', 'state.yaml');
+function writeState(tools, paths) {
+  const stateFile = join(TARGET, paths.state);
   if (existsSync(stateFile)) return null;
-  const version = (readMaybe(join(TARGET, 'harness', 'VERSION')) || '0.0.0').trim();
+  const version = (readMaybe(join(TARGET, paths.version)) || '0.0.0').trim();
   const mode = detectMode();
-  const today = new Date().toISOString().slice(0, 10); // one-time install stamp (not a render script)
+  const today = new Date().toISOString().slice(0, 10);
   const stage = mode === 'brownfield' ? 'tech_architecture' : 'idea_intake';
   const toolList = (tools || DEFAULT_TOOLS).join(', ');
+  const layoutLines =
+    paths.layout === 'compact'
+      ? [
+          'layout: compact',
+          'paths:',
+          '  engine: .midas/engine',
+          '  scripts: .midas/scripts',
+          '  state: .midas/state.yaml',
+          '  runs: .midas',
+          '',
+        ]
+      : [];
   const yaml = [
     `midas_version: ${version}`,
+    ...layoutLines,
     `name: ${NAME}`,
     `mode: ${mode}`,
     'language: en',
@@ -378,11 +463,11 @@ function writeState(tools) {
 // On --update, the engine files were overwritten (force=true) but the project's harness/state.yaml is
 // preserved; bump its midas_version stamp to the new engine version so /midas-status and /midas-doctor
 // read it as current (a plain --force would leave it stale and doctor would warn).
-function bumpVersionStamp() {
-  const f = join(TARGET, 'harness', 'state.yaml');
+function bumpVersionStamp(paths) {
+  const f = join(TARGET, paths.state);
   const cur = readMaybe(f);
-  if (cur == null) return null; // no prior install; the fresh-install path already wrote the right version
-  const version = (readMaybe(join(TARGET, 'harness', 'VERSION')) || '').trim();
+  if (cur == null) return null;
+  const version = (readMaybe(join(TARGET, paths.version)) || '').trim();
   if (!version) return null;
   const today = new Date().toISOString().slice(0, 10);
   let next = cur.replace(/^midas_version:\s*[^\s#]+/m, `midas_version: ${version}`);
@@ -393,17 +478,18 @@ function bumpVersionStamp() {
   return version;
 }
 
-async function report(tools) {
+async function report(tools, paths) {
+  const doctorHint = `node ${paths.scripts}/doctor.mjs`;
   if (update) {
     console.log(`\n  ✨ Midas updated in ${TARGET}${updatedTo ? ` → v${updatedTo}` : ''}`);
-    console.log(`     ${written.length} engine file(s) refreshed; your product/, .harness/, harness/state.yaml, and .mcp.json are preserved.`);
-    if (rendered) console.log('     adapters re-rendered (per tools: in harness/state.yaml).');
-    if (written.includes('.gitignore')) console.log('     .gitignore updated with Midas secret + volatile paths.');
+    console.log(`     ${written.length} engine file(s) refreshed; your product/, ${paths.runs}/, ${paths.state}, and .mcp.json are preserved.`);
+    if (rendered) console.log(`     adapters re-rendered (per tools: in ${paths.state}).`);
+    if (written.includes('.gitignore')) console.log('     .gitignore updated (secrets, node_modules/deps, Midas volatile paths).');
     if (verifyResult?.ok) {
       console.log('     verify: ok — adapters in sync (midas-doctor passed).');
     } else if (verifyResult && !verifyResult.missing) {
       console.log('     verify: FAILED — adapters still out of sync after auto-fix.');
-      console.log('     Run `node scripts/doctor.mjs --fix` in the project and check the output above.');
+      console.log(`     Run \`${doctorHint} --fix\` in the project and check the output above.`);
     }
     console.log('\n  Heads-up: --update overwrites engine files. If you consciously amended a rule, review');
     console.log('  `git diff` and re-apply your `## Amendment` if it was clobbered.\n');
@@ -423,14 +509,14 @@ async function report(tools) {
       console.log('     no tool-specific adapters (Codex/Copilot use AGENTS.md)');
     }
   }
-  if (stateMode) console.log(`     harness/state.yaml created (mode: ${stateMode}, tools: ${activeTools.join(', ')})`);
-  if (written.includes('.gitignore')) console.log('     .gitignore updated with Midas secret + volatile paths (harness files stay committed)');
+  if (stateMode) console.log(`     ${paths.state} created (mode: ${stateMode}, layout: ${paths.layout}, tools: ${activeTools.join(', ')})`);
+  if (written.includes('.gitignore')) console.log('     .gitignore updated (secrets, node_modules/deps, Midas volatile paths).');
   if (verifyResult?.ok) console.log('     verify: ok — adapters in sync (midas-doctor passed).');
 
-  const profilesPath = join(TARGET, 'scripts', 'tool-profiles.mjs');
+  const profilesPath = join(TARGET, paths.scripts, 'tool-profiles.mjs');
   if (existsSync(profilesPath)) {
     const mod = await import(pathToFileURL(profilesPath).href);
-    mod.printToolOnboarding(activeTools);
+    mod.printToolOnboarding(activeTools, TARGET);
   }
 
   const cd = targetArg === '.' ? '' : `cd ${targetArg} && `;
@@ -484,36 +570,36 @@ function pruneEmptyTree(dir) {
   try { if (readdirSync(dir).length === 0) rmdirSync(dir); } catch { /* ignore */ }
 }
 
-function pruneEmptyDirs() {
-  if (dryRun) return;
-  for (const root of ['.claude', '.cursor', '.windsurf', '.harness', 'harness', 'docs', 'scripts']) {
-    pruneEmptyTree(join(TARGET, root));
-  }
+function templateToInstalledRel(rel, layout) {
+  if (layout !== 'compact') return rel;
+  if (rel.startsWith('harness/')) return rel.replace(/^harness\//, '.midas/engine/');
+  if (rel.startsWith('scripts/')) return rel.replace(/^scripts\//, '.midas/scripts/');
+  if (rel === 'docs/agents-and-models.md') return '.midas/docs/agents-and-models.md';
+  return rel;
 }
 
 function runUninstall() {
   const removed = [], keptModified = [], keptUser = [], purged = [];
   const ADAPTERS = ['CLAUDE.md', '.cursor/rules/00-midas.mdc', '.windsurf/rules/00-midas.md', 'GEMINI.md'];
+  const layout = detectInstallLayout(TARGET);
 
-  // 1. Engine files shipped in the template: remove only the PRISTINE ones (byte-identical to what
-  //    was installed). Anything you edited (e.g. a Phase-8-amended rule) is kept. AGENTS.md below.
   for (const rel of listTemplateFiles(TEMPLATE)) {
     if (rel === 'AGENTS.md') continue;
-    const abs = join(TARGET, rel);
+    const installedRel = templateToInstalledRel(rel, layout);
+    const abs = join(TARGET, installedRel);
     if (!existsSync(abs)) continue;
-    if (readFileSync(join(TEMPLATE, rel)).equals(readFileSync(abs))) { rmFile(rel); removed.push(rel); }
-    else keptModified.push(rel);
+    if (readFileSync(join(TEMPLATE, rel)).equals(readFileSync(abs))) {
+      rmFile(installedRel);
+      removed.push(installedRel);
+    } else keptModified.push(installedRel);
   }
 
-  // 2. AGENTS.md: remove only if it carries the Midas signature — a pre-existing user file won't.
   if (existsSync(join(TARGET, 'AGENTS.md'))) {
     if (readFileSync(join(TARGET, 'AGENTS.md'), 'utf8').includes('generated** from the Midas harness')) {
       rmFile('AGENTS.md'); removed.push('AGENTS.md');
     } else keptUser.push('AGENTS.md (not Midas-generated — left untouched)');
   }
 
-  // 3. Generated adapters, identified by the midas managed-marker. Cursor/Windsurf/Gemini are 100%
-  //    generated -> remove the whole file. CLAUDE.md may hold your notes -> strip just the block.
   for (const rel of ADAPTERS) {
     const abs = join(TARGET, rel);
     if (!existsSync(abs)) continue;
@@ -526,21 +612,34 @@ function runUninstall() {
     } else { rmFile(rel); removed.push(rel); }
   }
 
-  // 4. Engine artifact under .harness/ (the rest of .harness/ is your audit trail — see step 5).
-  if (existsSync(join(TARGET, '.harness', 'adapters.hash'))) { rmFile('.harness/adapters.hash'); removed.push('.harness/adapters.hash'); }
+  const hashPaths = layout === 'compact'
+    ? ['.midas/cache/adapters.hash']
+    : ['.harness/adapters.hash'];
+  for (const hp of hashPaths) {
+    if (existsSync(join(TARGET, hp))) { rmFile(hp); removed.push(hp); }
+  }
 
-  // 5. YOUR WORK — kept by default, removed only with --purge.
-  for (const rel of ['product', '.harness', 'harness/state.yaml']) {
+  const workPaths = layout === 'compact'
+    ? ['product', '.midas', '.midas/state.yaml']
+    : ['product', '.harness', 'harness/state.yaml'];
+  for (const rel of workPaths) {
     if (!existsSync(join(TARGET, rel))) continue;
     if (purge) { if (!dryRun) rmSync(join(TARGET, rel), { recursive: true, force: true }); purged.push(rel); }
     else keptUser.push(`${rel} (your work — kept; re-run with --purge to remove)`);
   }
 
-  pruneEmptyDirs();
-  reportUninstall({ removed, keptModified, keptUser, purged });
+  pruneEmptyDirs(layout);
+  reportUninstall({ removed, keptModified, keptUser, purged, layout });
 }
 
-function reportUninstall({ removed, keptModified, keptUser, purged }) {
+function pruneEmptyDirs(layout) {
+  if (dryRun) return;
+  const roots = ['.claude', '.cursor', '.windsurf', '.harness', 'harness', 'docs', 'scripts', '.midas'];
+  for (const root of roots) pruneEmptyTree(join(TARGET, root));
+}
+
+function reportUninstall({ removed, keptModified, keptUser, purged, layout }) {
+  const runsLabel = layout === 'compact' ? '.midas/' : '.harness/';
   console.log(`\n  🧹 Midas uninstall from ${TARGET}${dryRun ? '   (dry run — nothing deleted)' : ''}`);
   console.log(`     ${removed.length} engine file(s) ${dryRun ? 'would be removed' : 'removed'}` +
     (purged.length ? `, ${purged.length} work path(s) ${dryRun ? 'would be purged' : 'purged'}` : ''));
@@ -558,7 +657,7 @@ function reportUninstall({ removed, keptModified, keptUser, purged }) {
   }
   console.log(dryRun
     ? '\n  Re-run without --dry-run to apply.\n'
-    : `\n  Done — Midas removed.${purge ? '' : ' Your product/, .harness/ and state.yaml were kept (use --purge to remove those too).'}\n`);
+    : `\n  Done — Midas removed.${purge ? '' : ` Your product/, ${runsLabel} and state.yaml were kept (use --purge to remove those too).`}\n`);
 }
 
 function printHelp() {
@@ -567,22 +666,24 @@ function printHelp() {
 Install:
   npx github:okuzpe/midas-harness          into the current directory (from GitHub)
   npx github:okuzpe/midas-harness my-app   into ./my-app
-  npx github:okuzpe/midas-harness#v0.5.24   pin a release for a reproducible install
+  npx github:okuzpe/midas-harness#v0.5.28   pin a release for a reproducible install
+  npx github:okuzpe/midas-harness --layout=compact   engine internals under .midas/ (see ADR-001)
 
 Update an existing install (overwrites the engine, KEEPS your work, bumps the version stamp):
   npx github:okuzpe/midas-harness --update             refresh to the latest (main)
-  npx github:okuzpe/midas-harness#v0.5.24 --update      refresh to a pinned release
+  npx github:okuzpe/midas-harness#v0.5.28 --update      refresh to a pinned release
 
 Uninstall (surgical — removes only Midas's files, keeps your work):
-  npx github:okuzpe/midas-harness --uninstall             remove the engine, keep product/ + .harness/ + state.yaml
+  npx github:okuzpe/midas-harness --uninstall             remove the engine, keep product/ + runs + state.yaml
   npx github:okuzpe/midas-harness --uninstall --dry-run   preview what would be removed
-  npx github:okuzpe/midas-harness --uninstall --purge     also remove your product/, .harness/ and state.yaml
+  npx github:okuzpe/midas-harness --uninstall --purge     also remove your product/, runs/ and state.yaml
 
 Options:
+  --layout     (install) classic (default) or compact (.midas/ tree — ADR-001)
   --tools      (install) comma-separated AI tools (e.g. cursor or cursor,gemini,codex).
                Presets at interactive prompt: c=cursor · s=cursor,gemini,codex · a=all adapters.
                Interactive prompt when stdin is a TTY; defaults to all adapter tools otherwise.
-               Ignored with --update (existing harness/state.yaml tools: is preserved).
+               Ignored with --update (existing state.yaml tools: is preserved).
   --force      (install) overwrite files that already exist
   --update     refresh an existing install (overwrite engine + bump version stamp + run midas-doctor verify; keeps your work)
   --uninstall  remove Midas instead of installing it
@@ -592,6 +693,6 @@ Options:
 
 After install, open the project in your chosen tool and run /midas-init (one-time setup), then /midas-status.
 Cursor:           npx github:okuzpe/midas-harness --tools=cursor
-Cursor+Gemini+Codex: npx github:okuzpe/midas-harness --tools=cursor,gemini,codex
+Compact layout:   npx github:okuzpe/midas-harness --layout=compact --tools=cursor
 Docs: https://github.com/okuzpe/midas-harness`);
 }

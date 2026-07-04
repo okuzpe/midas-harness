@@ -18,6 +18,8 @@ import { computeAdapters, renderAdapters } from './render-adapters.mjs';
 import { evaluateMcpDeclaredVsWired, evaluateSkillMcpRequired, collectSkillMcpRequired } from './mcp-drift.mjs';
 import { parseSprints, parseEnforcement, parseRouting, parseToolsFromStateYaml } from './yaml-lite.mjs';
 import { syncCursorMcp, wrapMcpServersForWindows } from './mcp-cursor-sync.mjs';
+import { ensureMidasGitignore } from './gitignore-merge.mjs';
+import { resolvePaths, detectLayout } from './paths.mjs';
 
 const HELP = `midas doctor — adapter drift checker + install health check
 
@@ -36,6 +38,8 @@ const SHOW_HELP = process.argv.includes('--help') || process.argv.includes('-h')
 // against a real install (or examples/taskpilot) so the gate-records check is provably exercised.
 const rootArg = process.argv.slice(2).find((a) => !a.startsWith('-'));
 const ROOT = rootArg ? resolve(process.cwd(), rootArg) : resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const paths = resolvePaths(ROOT);
+const doctorCmd = `node ${paths.scripts}/doctor.mjs`;
 
 if (SHOW_HELP) {
   console.log(HELP);
@@ -63,17 +67,21 @@ function agentModel(name) {
 
 // --- --fix: rewrite adapters via the shared render path ----------------------------------------
 if (FIX) {
-  if (!existsSync(join(ROOT, 'harness', 'conventions.md'))) {
-    console.error('midas doctor --fix: harness/conventions.md missing — cannot render adapters.');
+  if (!existsSync(join(ROOT, paths.engine, 'conventions.md'))) {
+    console.error(`midas doctor --fix: ${paths.engine}/conventions.md missing — cannot render adapters.`);
     process.exit(1);
   }
   const { hash, results } = renderAdapters(ROOT);
-  console.log('midas doctor --fix: re-rendered adapters from harness/conventions.md');
+  console.log(`midas doctor --fix: re-rendered adapters from ${paths.engine}/conventions.md`);
   for (const r of results) console.log(`  ${r.status === 'unchanged' ? 'unchanged' : 'wrote    '} ${r.path}`);
   console.log(`  source hash: ${hash}`);
-  const stateForMcp = read('harness/state.yaml') || '';
+  const stateForMcp = read(paths.state) || '';
   const sync = syncCursorMcp(ROOT, stateForMcp);
   if (sync.synced) console.log('  wrote    .cursor/mcp.json (synced from .mcp.json for Cursor)');
+  const gi = ensureMidasGitignore(ROOT);
+  if (gi.wrote) {
+    console.log(gi.upgraded ? '  upgraded .gitignore (missing Midas patterns)' : '  wrote    .gitignore (Midas block)');
+  }
   // Re-check drift after fix
   let stillDrift = false;
   for (const f of computeAdapters(ROOT).files) {
@@ -101,11 +109,11 @@ if (!GATES_ONLY) {
 const health = [];
 const check = (name, status, note) => health.push({ name, status, note: note || '' });
 
-// version: harness/state.yaml midas_version vs the engine harness/VERSION
-const VERSION = (read('harness/VERSION') || '').trim();
-const stateRaw = read('harness/state.yaml');
+// version: state midas_version vs engine VERSION
+const VERSION = (read(paths.version) || '').trim();
+const stateRaw = read(paths.state);
 if (!stateRaw) {
-  check('version', 'skip', 'no harness/state.yaml (engine repo or pre-init)');
+  check('version', 'skip', `no ${paths.state} (engine repo or pre-init)`);
 } else {
   const m = stateRaw.match(/^midas_version:\s*([0-9][^\s#]*)/m);
   const sv = m ? m[1] : null;
@@ -163,8 +171,21 @@ if (!stateRaw) {
   }
 }
 
+// layout: state.layout vs disk markers
+const declaredLayout = (stateRaw?.match(/^layout:\s*(\S+)/m) || [])[1];
+const detected = detectLayout(ROOT);
+if (paths.layoutConflict) {
+  check('layout:consistent', 'warn', 'both classic and compact markers on disk — run migrate or remove duplicate tree');
+} else if (!stateRaw) {
+  check('layout:consistent', 'skip', 'no state file');
+} else if (declaredLayout && detected && declaredLayout !== detected) {
+  check('layout:consistent', 'warn', `state layout=${declaredLayout} but disk=${detected}`);
+} else {
+  check('layout:consistent', 'ok', declaredLayout || detected || paths.layout);
+}
+
 // critical files
-for (const f of ['AGENTS.md', 'harness/conventions.md', 'harness/methodology.md']) {
+for (const f of ['AGENTS.md', join(paths.engine, 'conventions.md'), join(paths.engine, 'methodology.md')]) {
   check(`file:${f}`, existsSync(join(ROOT, f)) ? 'ok' : 'warn', existsSync(join(ROOT, f)) ? '' : 'missing');
 }
 
@@ -196,7 +217,7 @@ if (mcp === null) {
   if (tools?.includes('cursor')) {
     const cursorMcp = read('.cursor/mcp.json');
     if (cursorMcp === null) {
-      check('mcp:cursor-sync', 'warn', '`.cursor/mcp.json` missing — Cursor does not read root `.mcp.json`; run `node scripts/doctor.mjs --fix` or re-run the installer');
+      check('mcp:cursor-sync', 'warn', `\`.cursor/mcp.json\` missing — Cursor does not read root \`.mcp.json\`; run \`${doctorCmd} --fix\` or re-run the installer`);
     } else if (mcp !== null) {
       let drifted = false;
       try {
@@ -209,7 +230,7 @@ if (mcp === null) {
         drifted = cursorMcp.replace(/\r\n/g, '\n').trim() !== mcp.replace(/\r\n/g, '\n').trim();
       }
       check('mcp:cursor-sync', drifted ? 'warn' : 'ok',
-        drifted ? '`.cursor/mcp.json` drifted from `.mcp.json` — run `node scripts/doctor.mjs --fix` to sync' : '');
+        drifted ? '`.cursor/mcp.json` drifted from `.mcp.json` — run `' + doctorCmd + ' --fix` to sync' : '');
     } else {
       check('mcp:cursor-sync', 'ok', '');
     }
@@ -244,11 +265,11 @@ if (!existsSync(skillsDir)) {
 // A producing model can write "PASS" into an audit/verify record and advance the sprint; this
 // catches the mismatch — a record whose tally shows unresolved CRITs while state marks the sprint
 // done. Per-sprint records only (audit/verify); the tribunal is advisory by design and not gated.
-const harnessDir = join(ROOT, '.harness');
+const harnessDir = join(ROOT, paths.runs);
 if (!stateRaw) {
   check('gate:records', 'skip', 'no state.yaml');
 } else if (!existsSync(harnessDir)) {
-  check('gate:records', 'skip', 'no .harness records yet');
+  check('gate:records', 'skip', `no ${paths.runs} records yet`);
 } else {
   const sprintStatus = parseSprints(stateRaw);
   const shipped = /^stage:\s*shipped\b/m.test(stateRaw);
@@ -259,7 +280,7 @@ if (!stateRaw) {
   if (existsSync(audits)) for (const f of readdirSync(audits)) {
     const nn = (f.match(/^audit-([\w.-]+)\.md$/) || [])[1];
     if (!nn) continue;
-    const line = (read(join('.harness', 'audits', f)) || '').match(/MIDAS_AUDIT_RESULT:[^\n\r]*/);
+    const line = (read(join(paths.runsPath('audits'), f)) || '').match(/MIDAS_AUDIT_RESULT:[^\n\r]*/);
     if (!line) continue;
     scanned++;
     const unresolved = tallyNum(line[0], 'unresolved');
@@ -279,7 +300,7 @@ if (!stateRaw) {
   if (existsSync(verifs)) for (const f of readdirSync(verifs)) {
     const nn = (f.match(/^verify-([\w.-]+)\.md$/) || [])[1];
     if (!nn) continue;
-    const line = (read(join('.harness', 'verifications', f)) || '').match(/MIDAS_VERIFY_RESULT:[^\n\r]*/);
+    const line = (read(join(paths.runsPath('verifications'), f)) || '').match(/MIDAS_VERIFY_RESULT:[^\n\r]*/);
     if (!line) continue;
     scanned++;
     const criticals = tallyNum(line[0], 'criticals');
@@ -302,7 +323,7 @@ console.log('\nmidas doctor — health');
 for (const h of health) console.log(`  ${h.status.padEnd(4)} ${h.name}${h.note ? ' — ' + h.note : ''}`);
 
 if (drift) {
-  console.log('\nAdapters OUT OF SYNC. Run `node scripts/doctor.mjs --fix` (or `/midas-doctor`).');
+  console.log('\nAdapters OUT OF SYNC. Run `' + doctorCmd + ' --fix` (or `/midas-doctor`).');
   process.exit(1);
 }
 const gateWarn = health.some((h) => h.name.startsWith('gate:') && h.status === 'warn');

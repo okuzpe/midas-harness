@@ -55,6 +55,14 @@ jobs:
           node create-midas/index.mjs --update /tmp/midas-update-smoke
           node /tmp/midas-update-smoke/scripts/doctor.mjs
 
+      - name: Compact layout smoke test
+        run: |
+          node create-midas/index.mjs --layout=compact /tmp/midas-compact-smoke
+          test -f /tmp/midas-compact-smoke/.midas/state.yaml
+          test -d /tmp/midas-compact-smoke/.midas/engine
+          test -f /tmp/midas-compact-smoke/.midas/scripts/doctor.mjs
+          node /tmp/midas-compact-smoke/.midas/scripts/doctor.mjs
+
       - name: npm pack dry-run
         run: npm pack --dry-run 2>&1 | grep -q create-midas
 

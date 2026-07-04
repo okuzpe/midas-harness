@@ -12,22 +12,24 @@ mcp-recommended: [context7]
 # choose-architecture (Phase 4 — Tech & Architecture)
 
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read `harness/state.yaml`; if the precondition stage is wrong, report and stop.
+> First read the state file at **`paths.state`** (`layout` + `paths` block, or infer from disk). If the precondition stage is wrong, report and stop.
+
+> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
 
 Turn the signed-off business case into a **pinned, verifiable architecture**: a chosen stack with
 exact versions, a system diagram, and an ADR per irreversible decision. This is an **orchestrate-tier**
 decision phase — Opus reasons about trade-offs; scout (Haiku) does the Context7 retrieval.
 
-> **Precondition.** Read `harness/state.yaml` first. This skill runs when `stage: business_case` is
+> **Precondition.** Read **`paths.state`** first. This skill runs when `stage: business_case` is
 > `passed` (or `stage: tech_architecture` is in progress / being resumed). If the business case gate
 > has not passed, stop and report which Phase-3 item is missing — do not invent architecture for an
 > unscoped product.
 
 ## Inputs (read first, write last)
-- `harness/state.yaml` — current stage, `routing`, `mcp`.
+- **`paths.state`** — current stage, `routing`, `mcp`.
 - `product/business-plan.md` — MVP scope, non-goals, success metrics, model.
 - `product/idea.md`, `product/market.md` — product/user/problem context.
-- `harness/rules/context7-usage.md` — the version-verification rule you MUST honor here.
+- `<paths.engine>/rules/context7-usage.md` — the version-verification rule you MUST honor here.
 
 ## Procedure
 
@@ -87,7 +89,7 @@ The user's selections (or an explicit "use the recommendation") are the **Decisi
 only the chosen options get version-pinned in the next step.
 
 ### 4. PIN versions — verified against current docs (mandatory; Context7 recommended)
-For every third-party framework/library you select, follow `harness/rules/context7-usage.md`
+For every third-party framework/library you select, follow `<paths.engine>/rules/context7-usage.md`
 **before** committing to it: `resolve-library-id` → `get-library-docs` at the version you intend to
 pin. Confirm the version is current/supported and the APIs you depend on exist. Route these fetches
 to the **scout** tier. Record the exact pinned version (e.g. `next@15.x`, `drizzle-orm@0.36.x`) and
@@ -114,7 +116,7 @@ the human's choice (or explicit default), and the coupling-vs-control trade-off 
 single stack ADR's "Alternatives considered".
 
 ### 7. Record state
-Update `harness/state.yaml`: set `phases.tech_architecture.artifacts` to the architecture + ADR
+Update **`paths.state`** (read-modify-write): set `phases.tech_architecture.artifacts` to the architecture + ADR
 files, `stage_status: gate_pending`. Do **not** self-advance the stage — the orchestrator runs the
 gate and writes the verdict (the producer never grades its own homework).
 
@@ -131,7 +133,7 @@ gate and writes the verdict (the producer never grades its own homework).
 - **Every Step-1 requirement is covered** by a named component.
 - Architecture scope matches the business-case MVP (no gold-plating, no missing must-haves).
 
-On pass: write the verdict to `.harness/audits/`, set `phases.tech_architecture.gate: passed`, and
+On pass: write the verdict to `{runs}/audits/`, set `phases.tech_architecture.gate: passed`, and
 the next action is `/define-conventions` (Phase 5). On fail: report the specific unmet gate item.
 
 ## Tier & cost

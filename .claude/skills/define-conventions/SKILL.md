@@ -12,7 +12,9 @@ mcp-recommended: [context7]
 # define-conventions (Phase 5 — Architecture-as-Rules + Design System)
 
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read `harness/state.yaml`; if the precondition stage is wrong, report and stop.
+> First read the state file at **`paths.state`** (`layout` + `paths` block, or infer from disk). If the precondition stage is wrong, report and stop.
+
+> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
 
 This is the **keystone** of Midas: it converts the pinned architecture into **machine-checkable rules**
 and a **design system** that every Phase-7 sprint is built to and every Phase-8 audit grades against.
@@ -26,22 +28,22 @@ pass/fail with on-disk evidence). Orchestrate-tier decides the rules; **build** 
 > Optional, the human's call; never block on it.
 
 ## Inputs
-- `harness/state.yaml`, `product/architecture.md`, `product/adr/ADR-*.md`.
-- `harness/conventions.md` (the base floor — extend, never overwrite) and `harness/rules/` (existing
-  always-on rules) and `harness/rules/context7-usage.md`.
-- `harness/design-system/tokens.json` + `tokens.css` (the token store the design system references).
+- **`paths.state`**, `product/architecture.md`, `product/adr/ADR-*.md`.
+- `<paths.engine>/conventions.md` (the base floor — extend, never overwrite) and `<paths.engine>/rules/` (existing
+  always-on rules) and `<paths.engine>/rules/context7-usage.md`.
+- `<paths.engine>/design-system/tokens.json` + `tokens.css` (the token store the design system references).
 
 ## Procedure
 
 ### 1. Encode folder-structure + conventions as CHECKABLE rules
-Extend `harness/rules/` with project rules derived from the architecture's boundaries:
-- A **folder-structure rule** (`harness/rules/folder-structure.md`): the canonical tree, where each
+Extend `<paths.engine>/rules/` with project rules derived from the architecture's boundaries:
+- A **folder-structure rule** (`<paths.engine>/rules/folder-structure.md`): the canonical tree, where each
   layer lives, and the **import/boundary rules** (which layer may import which) — stated so a diff
   can be checked against it.
 - **Stack-specific convention rules**, generated for the chosen frameworks and **Context7-verified**
-  per `harness/rules/context7-usage.md` (idioms, file naming, state/data patterns, testing approach
+  per `<paths.engine>/rules/context7-usage.md` (idioms, file naming, state/data patterns, testing approach
   for that stack at its pinned version). Pin versions; do not write framework rules from memory. Use
-  the **`harness/templates/stack-rule.md`** shape, and **cover the framework's canonical idiom + lint
+  the **`<paths.engine>/templates/stack-rule.md`** shape, and **cover the framework's canonical idiom + lint
   set** — not just naming/format: e.g. for React, exhaustive-deps + server/client-component boundaries;
   for an ORM, parameterized queries + migration safety + N+1/query-scope. Name the official lint plugin
   that mechanizes each (`eslint-plugin-react-hooks`, `@typescript-eslint`, `eslint-plugin-security`,
@@ -52,14 +54,14 @@ Extend `harness/rules/` with project rules derived from the architecture's bound
 - Each rule states a **CHECK** line: the concrete, evidence-based condition the Phase-8 audit
   evaluates (e.g. "no file under `ui/` imports from `db/`"). Drop anything you cannot make checkable.
 - Write **`product/conventions.md`** — the project's stack-specific prose conventions (naming, error
-  handling, test patterns) that **override** the base `harness/conventions.md`. This is the
+  handling, test patterns) that **override** the base `<paths.engine>/conventions.md`. This is the
   `product/conventions.md` layer named in the precedence chain (Step 4): the checkable rules above are the
   *constraints*; this is the narrative they encode. Keep it to real overrides — never restate the base.
 
 ### 2. Set the DESIGN DIRECTION, then build the DESIGN SYSTEM to it
 **First, the direction — this is what kills generic, "Tailwind-default" output.** An LLM with no anchor
 invents bland UI; a concrete reference makes it good. Capture the *aesthetic intent* in
-`product/design-direction.md` (from `harness/templates/design-direction.md`), and **ASK THE HUMAN for it
+`product/design-direction.md` (from `<paths.engine>/templates/design-direction.md`), and **ASK THE HUMAN for it
 via `AskUserQuestion` — their taste is the input; do NOT invent it**:
 - **Brand personality** (3–5 adjectives) and the product's vibe.
 - **2–3 real products to emulate** ("feels like Linear / Stripe / Things"), each with *what* to borrow
@@ -75,13 +77,13 @@ via `AskUserQuestion` — their taste is the input; do NOT invent it**:
   required/deferrable-with-assumption pattern Phase-3 validation uses — never a blank or "modern & clean".
 
 **Then build the system *to* that direction.** Write `product/design-system.md` that **references**
-`harness/design-system/tokens.json` and `tokens.css` (do not duplicate values into prose); every token
+`<paths.engine>/design-system/tokens.json` and `tokens.css` (do not duplicate values into prose); every token
 choice should **trace to the direction** (note which reference it draws from). It defines:
 - **Color palette**, **typography scale**, **spacing scale**, **radii** — as token references.
 - The chosen **UI framework/component library** (docs-verified at its pinned version — Context7 or your
   tool) and how it consumes the tokens.
 - The rule that all UI references tokens — **never** hardcoded colors/spacing/type/radii.
-- The **accessibility floor is always-on**: `harness/rules/accessibility.md` (WCAG 2.1 AA contrast,
+- The **accessibility floor is always-on**: `<paths.engine>/rules/accessibility.md` (WCAG 2.1 AA contrast,
   visible focus, reduced-motion, text alternatives, min target size) is audited every Phase 8 for any UI.
   The design system must satisfy it — the starter `tokens.css` already ships AA-verified semantic tokens,
   a `:focus-visible` ring, and a `prefers-reduced-motion` block, so build *to* them, don't undo them.
@@ -90,24 +92,24 @@ If the token files are missing or stale, populate them from the direction + the 
 ### 3. Build the project PLAYBOOKS (the few repeated tasks, done the project's way)
 Rules are *constraints* the audit checks; **playbooks** are *procedures* the build agent follows so every
 sprint does a recurring task the same way. Emit a **small, bounded set** to `product/playbooks/<verb-noun>.md`
-(from `harness/templates/playbook.md`):
+(from `<paths.engine>/templates/playbook.md`):
 - **Pick the 0–4 tasks that actually recur** for this stack/architecture — derived from the architecture's
   real surfaces (e.g. "add an API endpoint", "add a DB migration", "scaffold a UI component", the
   "implement → test → done" ritual), not a generic list. **Zero is valid** — an empty `product/playbooks/`
   passes the gate when nothing both recurs *and* has a non-obvious right way.
 - Each playbook is a tight recipe: *use-when*, a **`Trigger`** (a diff predicate so Phase-8 can catch a
   matching change that bypassed the playbook), ordered **steps**, the **rules/tokens it must honor**
-  (reference `harness/rules/*` + the design tokens by `<slug>.md` — never restate them), the **Context7**
+  (reference `<paths.engine>/rules/*` + the design tokens by `<slug>.md` — never restate them), the **Context7**
   fetch for any third-party API it touches, and a **done-when** check that is the procedure's *own* signal
   (not a restatement of the rules).
 - **Anti-bloat guard:** cap at 4; include a task only if it *repeats across sprints* AND has a
   project-specific "right way" not obvious from a rule + Context7 alone. **CHECK:** each playbook has ≥1
   step stating a decision (an ordering, a status-code contract, a scoping choice) that no single
-  `harness/rules/*` states — a playbook whose every step maps 1:1 to a rule is a duplicate → **cut it**.
+  `<paths.engine>/rules/*` states — a playbook whose every step maps 1:1 to a rule is a duplicate → **cut it**.
   Playbooks are markdown the agent reads — **not** new slash-commands or generated skills.
 
 ### 4. State the precedence explicitly
-The encoded layer must agree with `harness/conventions.md`:
+The encoded layer must agree with `<paths.engine>/conventions.md`:
 
 ```
 stack-specific rules  >  product/conventions.md  >  product/design-system.md  >  base conventions
@@ -123,38 +125,38 @@ on the **build** tier; on no, leave the configs in place and print the exact ena
 configs land; only the install is gated, and nothing is ever a hard dependency. Context7-verify each tool at
 its current version before writing its config.
 - **Linter + formatter** for the stack (e.g. ESLint + Prettier, or Biome, for JS/TS; Ruff for Python),
-  configured to enforce the rules just written — **not a generic preset**. Where a `harness/rules/*` item
+  configured to enforce the rules just written — **not a generic preset**. Where a `<paths.engine>/rules/*` item
   maps to a lint rule, the linter config is its machine-readable form.
 - **Git hooks** via the stack-standard runner (Husky / lefthook / pre-commit) + **lint-staged**, so
   lint + format run on the staged diff at every commit.
-- **commit-msg lint** (commitlint or equivalent) aligned with `harness/rules/git-commits.md`.
+- **commit-msg lint** (commitlint or equivalent) aligned with `<paths.engine>/rules/git-commits.md`.
 - **A CI lint/format job** (`.github/workflows/*`) so the same checks gate every PR.
-**Record the decision in an `enforcement:` block in `harness/state.yaml`** (per
-`harness/rules/enforcement-state.md`) — one entry per scaffolded tool naming its config file and
-whether it was installed — so a declined install is auditable, never silent. `node scripts/doctor.mjs`
+**Record the decision in an `enforcement:` block in **`paths.state`** (per
+`<paths.engine>/rules/enforcement-state.md`) — one entry per scaffolded tool naming its config file and
+whether it was installed — so a declined install is auditable, never silent. `node <paths.scripts>/doctor.mjs`
 warns if a named config file is missing on disk.
 
 ### 6. Re-render adapters (sync engine)
 Generated adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`) must
-reflect the new rules. Run `node scripts/render-adapters.mjs` (or `/midas-doctor`). **Never** hand-edit
+reflect the new rules. Run `node <paths.scripts>/render-adapters.mjs` (or `/midas-doctor`). **Never** hand-edit
 a generated adapter. Confirm the render succeeded and adapters are in sync.
 
 ### 7. Record state
-Update `harness/state.yaml`: list the new rule files + `product/design-system.md` + the
+Update **`paths.state`** (read-modify-write): list the new rule files + `product/design-system.md` + the
 `product/playbooks/*` + the scaffolded tooling configs in `phases.architecture_rules.artifacts`, set
 `stage_status: gate_pending`, and record which `tools` the adapters were rendered for. Do not self-advance the stage.
 
 ## Exit gate (orchestrate audits)
 
-See the full checklist in `harness/pipeline/5-architecture-rules.md` § Exit gate checklist. Key gates:
+See the full checklist in `<paths.engine>/pipeline/5-architecture-rules.md` § Exit gate checklist. Key gates:
 
 - Folder-structure rule + every architectural decision has a CHECKABLE rule file.
 - Stack rules Context7-verified with `docs: <lib>@<version> via <tool>` provenance on every generated rule.
-- Enforcement tooling scaffolded; decision recorded in `harness/state.yaml → enforcement:`.
+- Enforcement tooling scaffolded; decision recorded in `**`paths.state`** → enforcement:`.
 - Design direction + design system + 0–4 playbooks present.
 - Adapters rendered and in sync (`/midas-doctor` reports no drift).
 
-On pass: freeze the verdict in `.harness/audits/gate-05.md`, set the gate passed; next action is `/plan-sprints`
+On pass: freeze the verdict in `{runs}/audits/gate-05.md`, set the gate passed; next action is `/plan-sprints`
 (Phase 6). On fail: report the uncheckable rule or unrendered adapter.
 
 ## Tier & cost

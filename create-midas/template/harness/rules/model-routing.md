@@ -60,7 +60,7 @@ every mode:
   *(manual.)*
 - **CHECK:** `harness/state.yaml -> routing` ids are all known model ids and, under
   `cost_profile: balanced`, **equal the pinned `model:` of the three first-party agents**. Run
-  `node scripts/doctor.mjs <project>`; a `routing:*` warning is a fail. *(The engine enforces the same
+  `node <paths.scripts>/doctor.mjs <project>`; a `routing:*` warning is a fail. *(The engine enforces the same
   reconciliation against the example state in `scripts/test.mjs`.)*
 
 ## Cost profiles — what is real vs. intent
@@ -71,7 +71,7 @@ platform actually dispatches to. `max_savings` / `max_quality` are **routing *in
 orchestrating model self-applies; there is no engine that rewrites an agent's pinned model from the
 profile, so do **not** rely on selecting a non-balanced profile to change dispatch automatically. If a
 project needs a different default tier-to-model mapping, change it at the source (`docs/agents-and-models.md`
-+ the three agent files), then re-run `node scripts/doctor.mjs` to confirm `routing:` reconciles.
++ the three agent files), then re-run `node <paths.scripts>/doctor.mjs` to confirm `routing:` reconciles.
 
 ## Token economy
 

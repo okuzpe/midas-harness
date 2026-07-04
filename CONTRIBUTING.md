@@ -16,11 +16,11 @@ structure changes, and what the bar is for a contribution to land.
 - **Supply-chain changes are explicit.** GitHub Actions use immutable SHA pins with the major tag
   kept in a comment; workflow permissions start at `contents: read`; CI-installed packages are
   exact-pinned. MCP defaults and exceptions are documented in `SECURITY.md`.
-- **Edit the source; never hand-edit generated adapters.** `CLAUDE.md`, `.cursor/rules/00-midas.mdc`,
-  and `.windsurf/rules/00-midas.md` are generated from `harness/conventions.md` + `AGENTS.md` by
-  `scripts/render-adapters.mjs`. Edit the source file, then run `/midas-doctor` (or
-  `node scripts/render-adapters.mjs`) to re-render. PRs that touch generated adapters directly
-  will be asked to revert those edits.
+- **Edit the source; never hand-edit generated files.** `CLAUDE.md`, `.cursor/rules/00-midas.mdc`,
+  `.windsurf/rules/00-midas.md`, `GEMINI.md`, `plugins/midas/**`, and `create-midas/template/**` are
+  rendered from sources by `npm run render` and `npm run build`. Edit `.claude/`, `harness/`, or
+  `harness/conventions.md`, then run `npm run verify`. PRs that touch generated trees directly will
+  be asked to revert those edits.
 - **One concern per PR.** Small, reviewable diffs merge faster.
 
 ---
@@ -30,17 +30,45 @@ structure changes, and what the bar is for a contribution to land.
 For the full source/generated-file map, install flow, and change-path guide, see
 [`docs/repository-architecture.md`](./docs/repository-architecture.md).
 
+### Three layers — edit layer 1 only
+
+| Layer | Paths | Edit? |
+|---|---|---|
+| **1. Sources** | `.claude/skills/`, `.claude/agents/`, `harness/`, `scripts/`, `docs/`, root `AGENTS.md` | **Yes** |
+| **2. Generated adapters** | `CLAUDE.md`, `.cursor/rules/`, `.windsurf/rules/`, `GEMINI.md` | No — run `npm run render` |
+| **3. Distribution bundles** | `plugins/midas/`, `create-midas/template/`, `.claude-plugin/` | No — run `npm run build` |
+
+The engine repo **commits** layers 2 and 3 so `npx` installs and the Claude plugin work offline. CI
+rebuilds them and fails on drift — never hand-edit a generated copy.
+
 ```
-harness/           ← source of truth for conventions, rules, pipeline playbooks, state schema
-.claude/skills/    ← skill definitions (Agent Skills standard); one dir per skill
-.claude/agents/    ← agent definitions
-scripts/           ← render-adapters.mjs, doctor.mjs (no external deps)
-docs/              ← reference docs (agents-and-models.md is the single model-ID bump point)
-examples/          ← worked examples (taskpilot is the reference greenfield)
-AGENTS.md          ← project law for all AI agents; source for generated adapters
-CLAUDE.md          ← generated; do not hand-edit
-.mcp.json          ← MCP wiring (secret-free; see SECURITY.md)
+harness/              ← conventions, rules, pipeline, templates, VERSION, state.schema
+.claude/skills/       ← one dir per skill (Agent Skills standard)
+.claude/agents/       ← midas-orchestrator, midas-builder, midas-scout
+scripts/              ← render, doctor, test, build-* (dependency-free Node ESM)
+docs/                 ← MkDocs source (build to _site/, never commit)
+examples/taskpilot/   ← reference greenfield + CI gate fixture
+create-midas/         ← installer (index.mjs hand-authored; template/ generated)
+plugins/midas/        ← Claude Code plugin bundle (generated)
+AGENTS.md             ← engine project law (distinct from install template AGENTS.md.tmpl)
+.mcp.json             ← engine MCP default; `.cursor/mcp.json` is Cursor-local (Windows npx wrap)
 ```
+
+### Contributor workflow (after any source change)
+
+```bash
+npm run verify    # test + build bundles + doctor — run before every PR
+# or step by step:
+npm test          # structural invariants
+npm run render    # if harness/conventions.md or rules digest changed
+npm run build     # sync plugins/midas + create-midas/template
+npm run doctor    # adapter drift + health warnings
+```
+
+**Docs preview:** `mkdocs build --site-dir _site` (matches CI). Do not commit `site/` or `_site/`.
+
+**Dual MCP configs:** root `.mcp.json` uses bare `npx`; `.cursor/mcp.json` wraps with `cmd /c` on
+Windows. Edit `.mcp.json` as source; Cursor sync is handled by `scripts/mcp-cursor-sync.mjs`.
 
 ---
 
@@ -55,13 +83,13 @@ CLAUDE.md          ← generated; do not hand-edit
 
    ```
    > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-   > First read `harness/state.yaml`; if the precondition stage is wrong, report and stop.
+   > First read the state file at **`paths.state`**; if the precondition stage is wrong, report and stop.
    ```
 
 4. Assign the correct `harness-tier`: `orchestrate` for think/audit/decide, `build` for
    implement/write, `scout` for search/extract/status.
 5. Update `AGENTS.md` if the skill is user-facing (add it to the skills list or the phase table).
-6. Run `node scripts/doctor.mjs` to verify no adapter drift is introduced.
+6. Run `npm run build` then `npm run doctor` (or `npm run verify`).
 
 ---
 
@@ -129,8 +157,8 @@ the right to submit the contribution under the Apache-2.0 license.
 
 Before opening a PR, confirm:
 
-- [ ] Edited source files only (not generated adapters).
-- [ ] `node scripts/doctor.mjs` exits clean (no adapter drift).
+- [ ] Edited source files only (not `plugins/midas/`, `create-midas/template/`, or generated adapters).
+- [ ] `npm run verify` exits clean (tests + bundle sync + doctor).
 - [ ] Any new skill includes the ritual guard if side-effecting.
 - [ ] Any new rule is checkable; evidence format is documented.
 - [ ] Breaking change? Migration note added; `CHANGELOG.md` updated.

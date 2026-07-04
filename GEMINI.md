@@ -190,7 +190,7 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** a link-checker over changed docs returns no 4xx/5xx; a broken link is a fail.
   - **CHECK:** `manual:` cross-read changed docs against `harness/conventions.md` + rules; a contradiction is a fail (harness file wins).
 - **Rule: Enforcement state is recorded and honest (always-on)** (`enforcement-state.md`)
-  - **CHECK:** `node scripts/doctor.mjs <project>` reports no `enforcement` **warn** — every named config
+  - **CHECK:** `node <paths.scripts>/doctor.mjs <project>` reports no `enforcement` **warn** — every named config
   - **CHECK:** when a stack rule's CHECK names a linter/scanner as its machine-readable form, a matching
 - **Rule: Git commits (always-on)** (`git-commits.md`)
   - **CHECK:** `git log <base>..HEAD --format=%s | grep -vE "^(feat|fix|docs|refactor|test|chore|perf|style|ci)(\(.+\))?!?: .{1,62}$"` → empty.
@@ -211,8 +211,8 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` the PR targets the default branch and links the sprint task; a PR with no sprint reference is a fail.
   - **CHECK:** `manual:` merged history matches the project's single chosen strategy (no mixed merge/squash).
 - **Rule: Hygiene & dead-flow sweep (always-on)** (`hygiene.md`)
-  - **CHECK:** `manual:` if `state.yaml` has `mode: brownfield`, either (a) a `.harness/sweeps/sweep-NN.md` exists whose date falls within the active sprint window, or (b) `.harness/audits/audit-NN.md` § hygiene records `sweep: skipped — <one-line reason>`. Neither is a fail on greenfield (`mode` absent or `greenfield`).
-  - **CHECK:** `manual:` read the latest `.harness/sweeps/sweep-NN.md` for this sprint cycle (if any); if `MIDAS_SWEEP_RESULT` shows `dead_flows>0` or `ledger_drift>0`, the sprint audit must list each as **fixed**, **deferred** (with issue/owner), or **accepted** (with rationale). An unmentioned high-severity row is a fail.
+  - **CHECK:** `manual:` if `state.yaml` has `mode: brownfield`, either (a) a `{runs}/sweeps/sweep-NN.md` exists whose date falls within the active sprint window, or (b) `{runs}/audits/audit-NN.md` § hygiene records `sweep: skipped — <one-line reason>`. Neither is a fail on greenfield (`mode` absent or `greenfield`).
+  - **CHECK:** `manual:` read the latest `{runs}/sweeps/sweep-NN.md` for this sprint cycle (if any); if `MIDAS_SWEEP_RESULT` shows `dead_flows>0` or `ledger_drift>0`, the sprint audit must list each as **fixed**, **deferred** (with issue/owner), or **accepted** (with rationale). An unmentioned high-severity row is a fail.
   - **CHECK:** `manual:` for each feature id touched in the sprint diff, `status: passing` rows carry non-empty `evidence` (test path, route, or verify record); `failing` rows are not contradicted by shipped code in the same diff without a recorded deferral.
   - **CHECK:** `manual:` for each `product/playbooks/*.md` cited in the sprint or architecture, grep `<src-root>/` for the trigger predicate; a playbook with zero matches and no `## Retired` note in the sweep or audit is a warn (fail if the sprint added or edited that playbook without fixing the trigger).
   - **CHECK:** `manual:` rows in `product/open-questions.md` marked OPEN that are answered in `product/idea.md` are a fail; internal markdown links in changed `product/*` files that 404 on disk are a fail (grep `](` targets against the tree).
@@ -264,8 +264,8 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `grep -rnE "http://(?!localhost|127\.0\.0\.1)" <src-root>/ config/` → empty.
   - **CHECK:** `manual:` if the spec requires encryption-at-rest, `product/architecture.md` records the mechanism and the code/infra applies it.
 - **Rule: Session continuity (always-on)** (`session-continuity.md`)
-  - **CHECK:** `manual:` when `stage: sprint_execution` and a sprint is `active`, either (a) `.harness/sprints/NN-progress.md` exists with at least one **Learned** row updated this sprint cycle, or (b) `sprints[].last_touched` for that sprint is ≤ **7 days** before audit date. Greenfield with no active sprint → `n/a`.
-  - **CHECK:** `manual:` when the sprint diff checks off tasks in `product/sprints/NN-*.md`, read `.harness/sprints/NN-progress.md` § Done — each completed row carries a non-empty **Tool** value (e.g. `test-runner`, `context7`, `playwright-mcp`); a checked-off task with proof but no Tool is a fail. Sprints with zero tasks completed this cycle → `n/a`.
+  - **CHECK:** `manual:` when `stage: sprint_execution` and a sprint is `active`, either (a) `{runs}/sprints/NN-progress.md` exists with at least one **Learned** row updated this sprint cycle, or (b) `sprints[].last_touched` for that sprint is ≤ **7 days** before audit date. Greenfield with no active sprint → `n/a`.
+  - **CHECK:** `manual:` when the sprint diff checks off tasks in `product/sprints/NN-*.md`, read `{runs}/sprints/NN-progress.md` § Done — each completed row carries a non-empty **Tool** value (e.g. `test-runner`, `context7`, `playwright-mcp`); a checked-off task with proof but no Tool is a fail. Sprints with zero tasks completed this cycle → `n/a`.
   - **CHECK:** `manual:` the capture log in `state.yaml` or the amended artifact's `## Amendment` notes `no conflicts` or documents the contradiction table outcome; a silent capture against an existing CHECK is a fail.
   - **CHECK:** `manual:` the sprint diff introduces no new `*.db`, `.engram/`, or vector-store config; continuity evidence is `NN-progress.md`, `product/*`, or `harness/rules/*` only.
 - **Rule: Testing (always-on)** (`testing.md`)
@@ -291,11 +291,11 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** the project's typecheck, lint, and build commands (`tsc --noEmit` / `mypy`, the linter, the build) each exit 0 with zero new errors on the sprint diff.
   - **CHECK:** the project test command (`npm test` / `pytest` / …) exits 0; a behaviour change with no new/updated test in the same diff range is a fail.
   - **CHECK:** `manual:` the project's run/preview/start command boots and stays up; an uncaught exception, failed import, or crash-on-launch is a fail (record the command + the observed output).
-  - **CHECK:** a `/midas-verify` record (`.harness/verifications/verify-NN.md`) exists with a per-criterion `pass | fail | blocked` verdict backed by a selector + screenshot; an uncovered acceptance-criterion journey is a fail.
+  - **CHECK:** a `/midas-verify` record (`{runs}/verifications/verify-NN.md`) exists with a per-criterion `pass | fail | blocked` verdict backed by a selector + screenshot; an uncovered acceptance-criterion journey is a fail.
   - **CHECK:** the verify record's runtime-health table shows zero uncaught console errors and zero failed happy-path requests on the screens under test; any error/4xx-5xx on the happy path is a fail. (If Chrome DevTools MCP is absent, fall back to Playwright's console/network capture and record which tool proved it.)
   - **CHECK:** `manual:` `document.documentElement.scrollWidth <= clientWidth` on each key screen; a hardcoded value not traceable to a `--ds-*` token is a fail.
-  - **CHECK:** `manual:` read `.harness/verifications/verify-NN.md` — every acceptance-criterion row carries a non-empty Tool value; a UI sprint with no browser MCP in `.mcp.json` and no documented fallback in the record is a fail.
-  - **CHECK:** the sprint's `.harness/audits/audit-NN.md` exists and was produced by the auditor tier, not the producer; its `MIDAS_AUDIT_RESULT` tally shows `unresolved=0 verdict=pass`.
+  - **CHECK:** `manual:` read `{runs}/verifications/verify-NN.md` — every acceptance-criterion row carries a non-empty Tool value; a UI sprint with no browser MCP in `.mcp.json` and no documented fallback in the record is a fail.
+  - **CHECK:** the sprint's `{runs}/audits/audit-NN.md` exists and was produced by the auditor tier, not the producer; its `MIDAS_AUDIT_RESULT` tally shows `unresolved=0 verdict=pass`.
   - **CHECK:** in `product/features.json`, a `status: "passing"` with empty `evidence`, or a shipped behaviour with no feature entry, is a fail; Phase 8 grades the file against the verification records.
 - **Rule: Visual design fundamentals (always-on)** (`visual-design.md`)
   - **CHECK:** `manual:` on each key screen, exactly one primary CTA is visually dominant; a second filled primary on the same view is a fail.

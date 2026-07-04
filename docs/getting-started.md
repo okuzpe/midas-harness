@@ -25,6 +25,8 @@ irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | ie
 **Any platform, no shell script**
 ```bash
 npx  github:okuzpe/midas-harness
+# compact layout (less root clutter):
+npx  github:okuzpe/midas-harness --layout=compact
 pnpm dlx github:okuzpe/midas-harness
 bunx github:okuzpe/midas-harness
 ```
@@ -71,14 +73,14 @@ After installing, open the project in **Claude Code**, **Cursor**, or your chose
 
 This adaptive intake **scans what the project already has** (code, manifests, README, docs),
 classifies its maturity (E0 empty → E3 mature), pre-fills what it can infer, asks only the genuine
-gaps in one batched round, and writes `harness/state.yaml` plus the tool adapters (CLAUDE.md,
+gaps in one batched round, and writes the state file (`paths.state`) plus the tool adapters (CLAUDE.md,
 .cursor/rules/, GEMINI.md, etc.) — placing you at the right phase.
 
 ```text
 /midas-status
 ```
 
-Reads `harness/state.yaml` and prints the current phase and the single next action. Run this
+Reads `paths.state` and prints the current phase and the single next action. Run this
 anytime to orient or resume after a break.
 
 ---
@@ -130,11 +132,12 @@ real browser (verification ladder rung 4 in `harness/rules/verification.md`).
 1. During `/midas-init`, when asked about MCP servers, **uncomment** the optional blocks in `.mcp.json`:
    - **Playwright** (`@playwright/mcp`) — drives flows (navigate, click, fill, assert, screenshot)
    - **Chrome DevTools** (`chrome-devtools-mcp`) — console errors, network, Core Web Vitals (recommended)
-2. Ensure `harness/state.yaml → mcp:` lists `playwright` / `chrome-devtools` to match what you wired.
+2. Ensure the state file `mcp:` lists `playwright` / `chrome-devtools` to match what you wired.
 3. After a UI-touching sprint lands, run `/midas-verify` before `/close-sprint`. Evidence freezes to
-   `.harness/verifications/verify-NN.md` (each row names the **Tool** that proved the criterion).
+   `{runs}/verifications/verify-NN.md` (each row names the **Tool** that proved the criterion).
 
-`node scripts/doctor.mjs` warns if `state.yaml` declares browser MCPs that are not present in `.mcp.json`.
+`node <paths.scripts>/doctor.mjs` warns if the state file declares browser MCPs that are not present in `.mcp.json`.
+Classic: `node scripts/doctor.mjs` · compact: `node .midas/scripts/doctor.mjs`.
 API-only projects can skip browser MCPs — use the project's test runner instead.
 
 **Native mobile** (iOS/Android) automation is not wired in Midas today; use your stack's device/simulator
