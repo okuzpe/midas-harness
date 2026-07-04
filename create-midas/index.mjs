@@ -97,13 +97,26 @@ try {
 }
 
 fillAgents(selectedTools);
-fixMcpForWindows();
+ensureGeminiExtension(selectedTools || readToolsFromState() || DEFAULT_TOOLS);
+{
+  const mcpSyncPath = join(TARGET, 'scripts', 'mcp-cursor-sync.mjs');
+  if (existsSync(mcpSyncPath)) {
+    const { fixMcpFileForWindows, syncCursorMcp } = await import(pathToFileURL(mcpSyncPath).href);
+    const rootMcp = join(TARGET, '.mcp.json');
+    if (existsSync(rootMcp) && (written.includes('.mcp.json') || update)) {
+      if (fixMcpFileForWindows(rootMcp)) written.push('.mcp.json');
+    }
+    const toolList = selectedTools || readToolsFromState() || DEFAULT_TOOLS;
+    const r = syncCursorMcp(TARGET, toolList, { wrapRoot: written.includes('.mcp.json') || update });
+    if (r.synced && !written.includes('.cursor/mcp.json')) written.push('.cursor/mcp.json');
+  }
+}
 ensureGitignore();
 
 const verifyResult = rendered ? verifyInstall() : null;
 
 const updatedTo = update ? bumpVersionStamp() : null;
-report(selectedTools);
+await report(selectedTools);
 
 if (verifyResult && !verifyResult.ok) process.exit(1);
 
@@ -168,6 +181,22 @@ function fillAgents(tools) {
   writeFileSync(f, filled, 'utf8');
 }
 
+/** Write gemini-extension.json when Gemini CLI is in tools (version from harness/VERSION). */
+function ensureGeminiExtension(tools) {
+  if (!tools.includes('gemini')) return;
+  const version = (readMaybe(join(TARGET, 'harness', 'VERSION')) || '0.0.0').trim();
+  const rel = 'gemini-extension.json';
+  const ext = {
+    name: 'midas',
+    description:
+      'Midas product-development harness — drives a product from idea to shipped code through 9 audited phases. Reads project law from GEMINI.md / AGENTS.md.',
+    version,
+    contextFileName: 'GEMINI.md',
+  };
+  writeFileSync(join(TARGET, rel), `${JSON.stringify(ext, null, 2)}\n`, 'utf8');
+  if (!written.includes(rel)) written.push(rel);
+}
+
 /** Read `tools:` from an existing harness/state.yaml, or null. */
 function readToolsFromState() {
   const stateFile = join(TARGET, 'harness', 'state.yaml');
@@ -215,11 +244,25 @@ async function resolveSelectedTools() {
 async function promptToolsInteractive() {
   const rl = createInterface({ input, output });
   try {
-    console.log('\n  Which AI tools will you use with this project?');
-    for (let i = 0; i < KNOWN_TOOLS.length; i++) console.log(`    ${i + 1}. ${KNOWN_TOOLS[i]}`);
-    console.log('    a. all adapter tools (default)');
-    const answer = await rl.question('\n  Numbers or names (comma-separated), or Enter for all: ');
+    const profilesPath = join(TARGET, 'scripts', 'tool-profiles.mjs');
+    let mod = null;
+    if (existsSync(profilesPath)) {
+      mod = await import(pathToFileURL(profilesPath).href);
+      mod.printCompatibilityMatrix([...DEFAULT_TOOLS]);
+    } else {
+      console.log('\n  Which AI tools will you use with this project?');
+      for (let i = 0; i < KNOWN_TOOLS.length; i++) console.log(`    ${i + 1}. ${KNOWN_TOOLS[i]}`);
+      console.log('    a. all adapter tools (default)');
+    }
+
+    const answer = await rl.question(
+      '\n  Numbers/names (comma-separated), preset (c|s|a), or Enter for all: ',
+    );
     const trimmed = answer.trim();
+    if (mod?.parseToolsPreset) {
+      const preset = mod.parseToolsPreset(trimmed);
+      if (preset) return preset;
+    }
     if (!trimmed || /^a(ll)?$/i.test(trimmed)) return [...DEFAULT_TOOLS];
 
     const selected = [];
@@ -234,31 +277,14 @@ async function promptToolsInteractive() {
         process.exit(1);
       }
     }
-    return selected.length ? selected : [...DEFAULT_TOOLS];
+    const result = selected.length ? selected : [...DEFAULT_TOOLS];
+    if (mod) mod.printCompatibilityMatrix(result);
+    return result;
   } finally {
     rl.close();
   }
 }
 
-// On Windows, wrap bare `npx` MCP servers in `cmd /c`. Runs on fresh writes AND on --update when
-// an existing .mcp.json still has bare npx (the common Windows footgun).
-function fixMcpForWindows() {
-  if (process.platform !== 'win32') return;
-  const f = join(TARGET, '.mcp.json');
-  if (!existsSync(f)) return;
-  if (!written.includes('.mcp.json') && !update) return;
-  let json;
-  try { json = JSON.parse(readMaybe(f) || ''); } catch { return; }
-  let changed = false;
-  for (const server of Object.values(json.mcpServers || {})) {
-    if (server && server.command === 'npx') {
-      server.args = ['/c', 'npx', ...(server.args || [])];
-      server.command = 'cmd';
-      changed = true;
-    }
-  }
-  if (changed) writeFileSync(f, JSON.stringify(json, null, 2) + '\n', 'utf8');
-}
 
 // Merge Midas gitignore rules without clobbering an existing file. Idempotent — skips when markers
 // are already present. Volatile Midas paths + secret patterns (see harness/state.schema.md).
@@ -367,7 +393,7 @@ function bumpVersionStamp() {
   return version;
 }
 
-function report(tools) {
+async function report(tools) {
   if (update) {
     console.log(`\n  ✨ Midas updated in ${TARGET}${updatedTo ? ` → v${updatedTo}` : ''}`);
     console.log(`     ${written.length} engine file(s) refreshed; your product/, .harness/, harness/state.yaml, and .mcp.json are preserved.`);
@@ -401,22 +427,17 @@ function report(tools) {
   if (written.includes('.gitignore')) console.log('     .gitignore updated with Midas secret + volatile paths (harness files stay committed)');
   if (verifyResult?.ok) console.log('     verify: ok — adapters in sync (midas-doctor passed).');
 
-  const cd = targetArg === '.' ? '' : `cd ${targetArg} && `;
-  const editors = [];
-  if (activeTools.includes('claude-code')) editors.push('Claude Code');
-  if (activeTools.includes('cursor')) editors.push('Cursor');
-  if (activeTools.includes('windsurf')) editors.push('Windsurf');
-  if (activeTools.includes('gemini')) editors.push('Gemini CLI');
-  if (activeTools.some((t) => t === 'codex' || t === 'copilot')) editors.push('your editor (Codex/Copilot via AGENTS.md)');
-
-  console.log('\n  Next steps:');
-  let step = 1;
-  if (editors.length) {
-    console.log(`     ${step++}. ${cd}open the project in ${editors.join(' or ')}`);
+  const profilesPath = join(TARGET, 'scripts', 'tool-profiles.mjs');
+  if (existsSync(profilesPath)) {
+    const mod = await import(pathToFileURL(profilesPath).href);
+    mod.printToolOnboarding(activeTools);
   }
-  console.log(`     ${step++}. run  /midas-init   — one-time setup: scans what you have and places you at the right phase. You won't need it again.`);
-  console.log(`     ${step++}. then  /midas-status  drives the rest.`);
-  console.log('\n  Docs: https://github.com/okuzpe/midas-harness\n');
+
+  const cd = targetArg === '.' ? '' : `cd ${targetArg} && `;
+  console.log('\n  Universal next steps:');
+  console.log(`     1. ${cd}run  /midas-init   — one-time setup (places you at the right phase)`);
+  console.log('     2. then  /midas-status  — current phase + single next command');
+  console.log('\n  Docs: https://github.com/okuzpe/midas-harness#supported-tools\n');
 }
 
 // --- uninstall (caveman pattern: `--uninstall` on the same installer; surgical, keeps your work) --
@@ -546,11 +567,11 @@ function printHelp() {
 Install:
   npx github:okuzpe/midas-harness          into the current directory (from GitHub)
   npx github:okuzpe/midas-harness my-app   into ./my-app
-  npx github:okuzpe/midas-harness#v0.5.23   pin a release for a reproducible install
+  npx github:okuzpe/midas-harness#v0.5.24   pin a release for a reproducible install
 
 Update an existing install (overwrites the engine, KEEPS your work, bumps the version stamp):
   npx github:okuzpe/midas-harness --update             refresh to the latest (main)
-  npx github:okuzpe/midas-harness#v0.5.23 --update      refresh to a pinned release
+  npx github:okuzpe/midas-harness#v0.5.24 --update      refresh to a pinned release
 
 Uninstall (surgical — removes only Midas's files, keeps your work):
   npx github:okuzpe/midas-harness --uninstall             remove the engine, keep product/ + .harness/ + state.yaml
@@ -558,7 +579,8 @@ Uninstall (surgical — removes only Midas's files, keeps your work):
   npx github:okuzpe/midas-harness --uninstall --purge     also remove your product/, .harness/ and state.yaml
 
 Options:
-  --tools      (install) comma-separated AI tools (e.g. cursor or claude-code,cursor).
+  --tools      (install) comma-separated AI tools (e.g. cursor or cursor,gemini,codex).
+               Presets at interactive prompt: c=cursor · s=cursor,gemini,codex · a=all adapters.
                Interactive prompt when stdin is a TTY; defaults to all adapter tools otherwise.
                Ignored with --update (existing harness/state.yaml tools: is preserved).
   --force      (install) overwrite files that already exist
@@ -569,6 +591,7 @@ Options:
   -h, --help   show this help
 
 After install, open the project in your chosen tool and run /midas-init (one-time setup), then /midas-status.
-Cursor quickstart: npx github:okuzpe/midas-harness --tools=cursor
+Cursor:           npx github:okuzpe/midas-harness --tools=cursor
+Cursor+Gemini+Codex: npx github:okuzpe/midas-harness --tools=cursor,gemini,codex
 Docs: https://github.com/okuzpe/midas-harness`);
 }

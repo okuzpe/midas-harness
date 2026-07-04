@@ -16,7 +16,8 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { computeAdapters, renderAdapters } from './render-adapters.mjs';
 import { evaluateMcpDeclaredVsWired, evaluateSkillMcpRequired, collectSkillMcpRequired } from './mcp-drift.mjs';
-import { parseSprints, parseEnforcement, parseRouting } from './yaml-lite.mjs';
+import { parseSprints, parseEnforcement, parseRouting, parseToolsFromStateYaml } from './yaml-lite.mjs';
+import { syncCursorMcp, wrapMcpServersForWindows } from './mcp-cursor-sync.mjs';
 
 const HELP = `midas doctor — adapter drift checker + install health check
 
@@ -70,6 +71,9 @@ if (FIX) {
   console.log('midas doctor --fix: re-rendered adapters from harness/conventions.md');
   for (const r of results) console.log(`  ${r.status === 'unchanged' ? 'unchanged' : 'wrote    '} ${r.path}`);
   console.log(`  source hash: ${hash}`);
+  const stateForMcp = read('harness/state.yaml') || '';
+  const sync = syncCursorMcp(ROOT, stateForMcp);
+  if (sync.synced) console.log('  wrote    .cursor/mcp.json (synced from .mcp.json for Cursor)');
   // Re-check drift after fix
   let stillDrift = false;
   for (const f of computeAdapters(ROOT).files) {
@@ -184,6 +188,31 @@ if (mcp === null) {
       check('mcp:win-npx', bare.length ? 'warn' : 'ok',
         bare.length ? `${bare.join(', ')}: bare npx won't spawn on Windows — wrap in \`cmd /c\` (re-run the installer with --force)` : '');
     } catch { /* invalid JSON is surfaced elsewhere */ }
+  }
+}
+
+{
+  const tools = stateRaw ? parseToolsFromStateYaml(stateRaw) : null;
+  if (tools?.includes('cursor')) {
+    const cursorMcp = read('.cursor/mcp.json');
+    if (cursorMcp === null) {
+      check('mcp:cursor-sync', 'warn', '`.cursor/mcp.json` missing — Cursor does not read root `.mcp.json`; run `node scripts/doctor.mjs --fix` or re-run the installer');
+    } else if (mcp !== null) {
+      let drifted = false;
+      try {
+        const rootJson = JSON.parse(mcp);
+        const cursorJson = JSON.parse(cursorMcp);
+        const expected = JSON.parse(JSON.stringify(rootJson));
+        wrapMcpServersForWindows(expected);
+        drifted = JSON.stringify(cursorJson) !== JSON.stringify(expected);
+      } catch {
+        drifted = cursorMcp.replace(/\r\n/g, '\n').trim() !== mcp.replace(/\r\n/g, '\n').trim();
+      }
+      check('mcp:cursor-sync', drifted ? 'warn' : 'ok',
+        drifted ? '`.cursor/mcp.json` drifted from `.mcp.json` — run `node scripts/doctor.mjs --fix` to sync' : '');
+    } else {
+      check('mcp:cursor-sync', 'ok', '');
+    }
   }
 }
 

@@ -31,6 +31,9 @@ const FILES = [
   'scripts/mcp-drift.mjs',
   'scripts/doctor.mjs',
   'scripts/status-page.mjs',
+  'scripts/mcp-cursor-sync.mjs',
+  'scripts/tool-profiles.mjs',
+  'gemini-extension.json',
 ];
 
 if (existsSync(TEMPLATE)) rmSync(TEMPLATE, { recursive: true, force: true });

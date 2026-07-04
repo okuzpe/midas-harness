@@ -114,7 +114,7 @@ if (existsSync(tplRoot)) {
     JSON.stringify(dirNames(join(tplRoot, '.claude', 'skills'))) === JSON.stringify(dirNames(skillsDir)),
     're-run build-create.mjs',
   );
-  for (const f of ['AGENTS.md', '.mcp.json', 'harness/methodology.md', 'harness/conventions.md', 'scripts/render-adapters.mjs', 'scripts/yaml-lite.mjs', 'scripts/mcp-drift.mjs', 'scripts/doctor.mjs', 'scripts/status-page.mjs', 'docs/agents-and-models.md']) {
+  for (const f of ['AGENTS.md', '.mcp.json', 'harness/methodology.md', 'harness/conventions.md', 'scripts/render-adapters.mjs', 'scripts/yaml-lite.mjs', 'scripts/mcp-drift.mjs', 'scripts/mcp-cursor-sync.mjs', 'scripts/tool-profiles.mjs', 'scripts/doctor.mjs', 'scripts/status-page.mjs', 'gemini-extension.json', 'docs/agents-and-models.md']) {
     check(`create-template:has:${f}`, existsSync(join(tplRoot, f)));
   }
   // The template must NOT carry repo-internal trees into a user project.
@@ -370,7 +370,7 @@ if (existsSync(join(ROOT, '.mcp.json')) && existsSync(join(ROOT, 'plugins', 'mid
   );
 }
 const installer = readFileSync(join(ROOT, 'create-midas', 'index.mjs'), 'utf8');
-check('mcp:installer-wraps-npx-on-windows', /function fixMcpForWindows\(\)[\s\S]*server\.command = 'cmd'/.test(installer));
+check('mcp:installer-wraps-npx-on-windows', /mcp-cursor-sync\.mjs/.test(installer) && /syncCursorMcp/.test(installer));
 check('mcp:installer-preserves-user-config', /rel === '\.mcp\.json'/.test(installer), '.mcp.json must remain user-owned on update');
 
 // --- N. mcp:declared-vs-wired logic (unit + behavioral via doctor) ------------------------------
@@ -416,6 +416,9 @@ check('render:tool-aware-narrow:no-claude', !narrowPaths.includes('CLAUDE.md'));
 rmSync(narrowRoot, { recursive: true, force: true });
 
 check('installer:tools-flag', /--tools/.test(installer) && /KNOWN_TOOLS/.test(installer));
+check('installer:tool-onboarding', /printToolOnboarding/.test(installer) && /tool-profiles\.mjs/.test(installer));
+check('installer:gemini-extension', /function ensureGeminiExtension/.test(installer));
+check('installer:tools-presets', /parseToolsPreset/.test(readFileSync(join(ROOT, 'scripts', 'tool-profiles.mjs'), 'utf8')));
 check('installer:tty-fallback', /stdin\.isTTY/.test(installer));
 check('installer:update-ignores-tools', /update \? null : await resolveSelectedTools/.test(installer));
 const knownMatch = installer.match(/KNOWN_TOOLS\s*=\s*\[([^\]]+)\]/);

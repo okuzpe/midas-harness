@@ -94,6 +94,8 @@ Optional: `npm run status` in the repo root generates a local `status.html` dash
 
 ```bash
 npx github:okuzpe/midas-harness --tools=cursor
+# or Cursor + Gemini + Codex:
+npx github:okuzpe/midas-harness --tools=cursor,gemini,codex
 ```
 
 On a TTY the installer can also prompt you to pick tools interactively; pipe/`curl` installs default
@@ -118,24 +120,24 @@ Most users only need **Core** (+ `/midas-adopt` for an existing repo). Everythin
 
 ### Supported tools
 
-| Tool | Reads `AGENTS.md` | Skills / commands | Model routing | Recommended level |
+| Tool | Reads `AGENTS.md` | Skills / commands | Model routing | Level |
 |---|---|---|---|---|
 | **Claude Code** | via `@AGENTS.md` in `CLAUDE.md` | native (`.claude/skills/`) + subagents | ✅ per-agent | **Full** |
-| Cursor | native | partial (`.cursor/rules` + skills where supported) | advisory | Good |
-| OpenAI Codex | native | partial (Agent Skills) | advisory | Good |
-| GitHub Copilot | native | partial (Agent Skills) | advisory | Good |
-| Gemini CLI | via `GEMINI.md` | context only (no skills) | advisory | Basic |
-| Windsurf | native | partial (rules) | advisory | Basic |
+| Cursor | native | `.claude/skills/` + `.cursor/rules/` + `.cursor/mcp.json` | advisory | **Good** |
+| OpenAI Codex | native | `.claude/skills/` (Agent Skills) + `AGENTS.md` | advisory | **Good** |
+| GitHub Copilot | native | `.claude/skills/` (Agent Skills) + `AGENTS.md` | advisory | **Good** |
+| Gemini CLI | `GEMINI.md` + `AGENTS.md` | `gemini-extension.json` + full rule context | advisory | **Good** |
+| Windsurf | native | `.windsurf/rules/` + `AGENTS.md` | advisory | Basic |
 
 Generated adapters (`CLAUDE.md`, `.cursor/rules`, `.windsurf/rules`, `GEMINI.md`) are re-rendered from a
 single source by `/midas-doctor` — no hand-editing, no drift.
 For the contributor-facing source/generated-file map, see
 [`docs/repository-architecture.md`](./docs/repository-architecture.md).
 
-> **Honest scope.** Claude Code gets the full experience — skills, subagents, and per-agent model
-> tiering. Every other tool reads the same methodology and rules via `AGENTS.md` / `GEMINI.md` /
-> generated adapters, so you get the *process* everywhere; there, **model routing is advisory (prose),
-> not enforced**. "native" means read **without conversion**, not feature parity.
+> **Honest scope.** Claude Code is the only host with **enforced** per-agent model routing. Cursor, Codex,
+> Copilot, and Gemini get the **same methodology and rules** on install — skills, adapters, and MCP paths
+> are wired automatically; model routing collapses to prose intent in `AGENTS.md`. "native" means read
+> **without conversion**, not identical feature parity.
 
 ### MCP / current docs
 Midas ships a secret-free [`.mcp.json`](./.mcp.json) wiring **sequential-thinking**. The
@@ -166,7 +168,7 @@ A runnable Sprint-1 vertical slice — auth, task CRUD, middleware, board stub +
 artifact on disk. See [`examples/taskpilot/`](./examples/taskpilot/).
 
 ## Status
-**v0.5.23 — pre-1.0, actively developed (not yet a stable API).** Most complete on **Claude Code**
+**v0.5.24 — pre-1.0, actively developed (not yet a stable API).** Most complete on **Claude Code**
 (see [Honest scope](#supported-tools)). Details: [`CHANGELOG.md`](./CHANGELOG.md) ·
 [`VERSIONING.md`](./VERSIONING.md) · [docs site](https://okuzpe.github.io/midas-harness/).
 

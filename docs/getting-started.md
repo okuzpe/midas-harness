@@ -31,12 +31,17 @@ bunx github:okuzpe/midas-harness
 
 All three forms run the same dependency-free Node installer.
 
-**Cursor-only** (skills in `.claude/skills/` + rules in `.cursor/rules/`):
+**Cursor-only** (skills + rules + MCP):
 ```bash
 npx github:okuzpe/midas-harness --tools=cursor
 ```
 
-On a TTY you can also pick tools at the prompt; piped installs default to all adapter tools.
+**Cursor + Gemini + Codex** (multi-tool stack — installer prints per-tool onboarding):
+```bash
+npx github:okuzpe/midas-harness --tools=cursor,gemini,codex
+```
+
+On a TTY the installer shows a **compatibility matrix** and accepts presets (`c` = cursor, `s` = cursor,gemini,codex, `a` = all adapters). Piped installs default to all adapter tools.
 
 ---
 

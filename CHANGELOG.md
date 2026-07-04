@@ -11,7 +11,22 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
-## [0.5.23] — 2026-07-03
+## [0.5.24] — 2026-07-04
+
+### Added
+- **Cursor MCP sync** — `scripts/mcp-cursor-sync.mjs` mirrors root `.mcp.json` → `.cursor/mcp.json` on install and
+  `doctor --fix` (Cursor does not read root `.mcp.json`). Windows `cmd /c npx` wrap applied to the Cursor path.
+- **Tool profiles + install onboarding** — `scripts/tool-profiles.mjs` drives the interactive compatibility matrix,
+  presets (`c` = cursor, `s` = cursor,gemini,codex), and per-tool post-install steps.
+- **Gemini extension in installs** — `gemini-extension.json` ships in the template and is written when `gemini` is in
+  `tools:` (version stamped from `harness/VERSION`).
+
+### Changed
+- **Supported tools table** — Cursor, Gemini CLI, Codex, and Copilot documented at **Good** level with what the
+  installer actually wires; README / INSTALL / getting-started aligned.
+- **`doctor`** — `mcp:cursor-sync` health check when `cursor` is in `tools:`.
+
+---
 
 ### Fixed
 - **Installer template** — ship `scripts/yaml-lite.mjs` and `scripts/status-page.mjs` in `create-midas/template/` (doctor/render failed on fresh install).
@@ -962,7 +977,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.23...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.24...HEAD
+[0.5.24]: https://github.com/okuzpe/midas-harness/compare/v0.5.23...v0.5.24
 [0.5.23]: https://github.com/okuzpe/midas-harness/compare/v0.5.22...v0.5.23
 [0.5.22]: https://github.com/okuzpe/midas-harness/compare/v0.5.21...v0.5.22
 [0.5.21]: https://github.com/okuzpe/midas-harness/compare/v0.5.20...v0.5.21
