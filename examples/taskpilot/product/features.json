@@ -10,8 +10,8 @@
         "WHEN a user submits valid registration details, the system SHALL create an account and start a session.",
         "WHEN a user signs in with valid credentials, the system SHALL return an authenticated session."
       ],
-      "status": "failing",
-      "evidence": ""
+      "status": "passing",
+      "evidence": "product/src/routes/auth.test.ts — register + login; audit-01.md § auth criteria"
     },
     {
       "id": "F-002",
@@ -22,8 +22,8 @@
         "WHEN an authenticated user creates a task, the system SHALL persist it with workspace_id scope.",
         "WHEN an authenticated user lists tasks, the system SHALL return only tasks for their workspace."
       ],
-      "status": "failing",
-      "evidence": ""
+      "status": "passing",
+      "evidence": "product/src/routes/tasks.test.ts — CRUD + tenant isolation; audit-01.md § task criteria"
     }
   ]
 }

@@ -13,8 +13,8 @@ show every Midas phase artifact populated with real, consistent content.
 | 3 Business Case | `product/business-plan.md` |
 | 4 Tech Architecture | `product/architecture.md`, `product/adr/ADR-001-stack.md` |
 | 5 Architecture Rules & Design System | `harness/rules/*` (generated stack rules: `folder-structure`, `tenant-isolation`, `session-cookies`), `product/conventions.md` (override layer), `product/design-direction.md`, `product/design-system.md`, `product/playbooks/*`, and the enforcement scaffolding (`product/biome.json`, `lefthook.yml`, `commitlint.config.js` — CI scaffold in `state.yaml` enforcement block) |
-| 6 Sprint Planning | `product/roadmap.md`, `product/sprints/01-auth-and-task-crud.md` |
-| 7 Sprint Execution | `product/src/` (the full Sprint-1 vertical slice: auth, task CRUD, middleware, board stub + tests) |
+| 6 Sprint Planning | `product/roadmap.md`, `product/sprints/01-auth-and-task-crud.md`, `product/features.json` |
+| 7 Sprint Execution | `product/src/` (the full Sprint-1 vertical slice: auth, task CRUD, middleware, board stub + tests), `.harness/sprints/01-progress.md` (STM demo, ADR-003) |
 | 8 Per-sprint Audit | `.harness/audits/audit-01.md` — a **closed** 7 → 8 loop: verdict **PASS** + gate-parseable tally line |
 | State | `harness/state.yaml` (sprint `01` `done`; loop pointing at Sprint 2) |
 
