@@ -49,8 +49,9 @@ do not introduce a parallel "standards" layer.
 ## Verification
 - Verify every change with the **cheapest tool that proves it**: static (typecheck/lint/build) →
  tests → runtime smoke (boot it) → browser drive+inspect for UI. Fix and re-run until green before
- marking a task done. The **producer never grades its own homework** — the independent verdict is the
- Phase-8 audit. Full ladder: [`rules/verification.md`](./rules/verification.md). Session continuity:
+  marking a task done. The **producer never grades its own homework** — the independent verdict is the
+  Phase-8 audit. After substantive harness edits, run `/midas-align` or `npm run align` per
+  `<paths.engine>/rules/change-propagation.md`. Full ladder: [`rules/verification.md`](./rules/verification.md). Session continuity:
  [`rules/session-continuity.md`](./rules/session-continuity.md) + `/midas-recall`. Dead-flow hygiene:
  [`rules/hygiene.md`](./rules/hygiene.md) + `/midas-sweep`.
 
@@ -155,6 +156,14 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `grep -rniE "(^|[^-])height:[[:space:]]*[0-9]+px" <ui-src>` on buttons/inputs is a flag (excludes line/min/max-height); controls read `--ds-size-control-*`.
   - **CHECK:** `manual:` no horizontal scrollbar (`document.documentElement.scrollWidth <= clientWidth`); buttons/inputs stay inside their parent. `/midas-verify` automates this.
   - **CHECK:** `grep -rniE "z-index:[[:space:]]*[0-9]+" <ui-src>` → each is a `var(--ds-z-*)` token; a raw integer (e.g. `9999`) is a fail.
+- **Rule: Change propagation — keep sources, bundles, docs, and versions aligned (always-on)** (`change-propagation.md`)
+  - **CHECK:** `manual:` the PR/sprint notes or `/midas-align` report names each downstream surface touched; an unmentioned generated tree in the diff that was hand-edited is a fail.
+  - **CHECK:** `npm run align` (engine) or `/midas-align` exits with `verdict=aligned` or lists only resolved gaps; exit 1 with open gaps is a fail before merge.
+  - **CHECK:** `git diff --name-only` shows no lone edits under `plugins/midas/`, `create-midas/template/`, or managed adapter regions without a corresponding `.claude/`, `harness/`, or `scripts/` source change.
+  - **CHECK:** `node scripts/test.mjs` version:* checks pass when `harness/VERSION` is in the diff.
+  - **CHECK:** `manual:` a diff touching installer flags, layout, or skill commands also touches at least one user-facing doc; undocumented install/flow change is a fail.
+  - **CHECK:** `node <paths.scripts>/doctor.mjs` reports no adapter `drift` after a `<paths.engine>/rules/` diff.
+  - **CHECK:** `grep -rnE 'harness/state\.yaml' .claude/skills/` → only examples naming classic layout, not as the sole read path in ritual guards.
 - **Rule: Code quality (always-on)** (`code-quality.md`)
   - **CHECK:** `manual:` diff each new file against a sibling in the same directory; a naming/indent/idiom break that stands out from local style is a fail.
   - **CHECK:** `manual:` grep the codebase for the concept (`grep -rin "<concept>" <src-root>/`); a parallel implementation of an existing pattern is a fail.
@@ -226,7 +235,7 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** *(manual)* Under any `execution_mode`, a binding gate/audit/verify verdict header (Phase
   - **CHECK:** Doc fetches and file/status extraction are delegated to `midas-scout` (or `Explore`),
   - **CHECK:** Each multi-tier phase delegates its produce/fetch legs to `midas-builder` / `midas-scout`
-  - **CHECK:** `harness/state.yaml -> routing` ids are all known model ids and, under
+  - **CHECK:** `paths.state -> routing` ids are all known model ids and, under
   - **CHECK:** *(manual)* a latency-tolerant fan-out of ≥3 same-shaped calls uses batching, not a serial loop.
 - **Rule: Naming (always-on)** (`naming.md`)
   - **CHECK:** `git diff --name-only <base>..HEAD` shows no path segment matching `[A-Z _]` (outside framework-mandated names like `README`, `Dockerfile`).

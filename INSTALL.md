@@ -139,7 +139,9 @@ Fresh projects get one created.
 2. `/midas-init` — the **one-time guided setup** (a few questions once; for an existing repo it runs the
    brownfield adoption for you). It then retires — you won't run it again.
 3. `/midas-status` — from here on, shows the current phase and the single next command.
-4. Drive the lifecycle: `/idea-intake` → `/contextualize` → `/market-research` → `/business-plan` →
+4. After substantive edits (rules, skills, installer, docs): **`/midas-align`** — propagation pass per
+   `<paths.engine>/rules/change-propagation.md` (engine repo: `npm run align`).
+5. Drive the lifecycle: `/idea-intake` → `/contextualize` → `/market-research` → `/business-plan` →
    `/choose-architecture` → `/define-conventions` → `/plan-sprints` → `/start-sprint` → `/close-sprint`.
    Run `/midas-tribunal` any time for a whole-project adversarial debate.
 
@@ -151,7 +153,7 @@ if needed), and bumps the `midas_version` stamp. Adapters re-render for the tool
 state file (`--tools` is **not** applied on update):
 
 ```bash
-npx github:okuzpe/midas-harness#v0.5.28 --update   # pin a version, or omit #vX.Y.Z for the latest main
+npx github:okuzpe/midas-harness#v0.5.29 --update   # pin a version, or omit #vX.Y.Z for the latest main
 ```
 
 `--update` overwrites engine files, so if you consciously **amended a rule**, review `git diff` and
@@ -191,7 +193,7 @@ npx github:okuzpe/midas-harness --uninstall
 - **Keeps your product work** (`product/`, `{runs}/`, state file) unless you pass `--purge`.
 
 For exact removal of a pinned install, uninstall with the same release:
-`npx github:okuzpe/midas-harness#v0.5.28 --uninstall`.
+`npx github:okuzpe/midas-harness#v0.5.29 --uninstall`.
 
 > Prefer to do it by hand? Midas only ever adds files — delete `.claude/`, engine dirs (`harness/` or
 > `.midas/`), `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`,

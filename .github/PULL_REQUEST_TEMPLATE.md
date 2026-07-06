@@ -3,7 +3,7 @@
 
 ## Checklist
 - [ ] Edited **sources only** (`.claude/`, `harness/`, `scripts/`, `docs/`, `create-midas/index.mjs`) — not generated trees (`plugins/midas/`, `create-midas/template/`, `CLAUDE.md`, `.cursor/`, `.windsurf/`, `GEMINI.md`).
-- [ ] Ran `npm run verify` (or `npm test` + `npm run build` + `npm run doctor`) — all green.
+- [ ] Ran `npm run align` (or `npm run verify`) — all green.
 - [ ] Artifacts are in **English**; commit follows **Conventional Commits**.
 - [ ] DCO sign-off (`git commit -s`).
 

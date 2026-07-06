@@ -666,12 +666,12 @@ function printHelp() {
 Install:
   npx github:okuzpe/midas-harness          into the current directory (from GitHub)
   npx github:okuzpe/midas-harness my-app   into ./my-app
-  npx github:okuzpe/midas-harness#v0.5.28   pin a release for a reproducible install
+  npx github:okuzpe/midas-harness#v0.5.29   pin a release for a reproducible install
   npx github:okuzpe/midas-harness --layout=compact   engine internals under .midas/ (see ADR-001)
 
 Update an existing install (overwrites the engine, KEEPS your work, bumps the version stamp):
   npx github:okuzpe/midas-harness --update             refresh to the latest (main)
-  npx github:okuzpe/midas-harness#v0.5.28 --update      refresh to a pinned release
+  npx github:okuzpe/midas-harness#v0.5.29 --update      refresh to a pinned release
 
 Uninstall (surgical — removes only Midas's files, keeps your work):
   npx github:okuzpe/midas-harness --uninstall             remove the engine, keep product/ + runs + state.yaml

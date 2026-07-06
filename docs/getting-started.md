@@ -83,6 +83,21 @@ gaps in one batched round, and writes the state file (`paths.state`) plus the to
 Reads `paths.state` and prints the current phase and the single next action. Run this
 anytime to orient or resume after a break.
 
+**After editing rules, skills, or conventions**, re-sync tool adapters:
+
+```text
+/midas-doctor
+```
+
+**After substantive harness or installer edits** (VERSION bump, new skills, bundle sources), run the
+full propagation pass so generated trees, version pins, and docs stay aligned:
+
+```text
+/midas-align
+```
+
+Engine repo contributors can use `npm run align` instead. See `harness/rules/change-propagation.md`.
+
 ---
 
 ## The lifecycle
@@ -116,7 +131,7 @@ See the [Skills Reference](skills.md) for every command.
 5. `/plan-sprints` → `/start-sprint` → `/close-sprint` loop.
 
 **Incremental adoption:** adopt one rule pack at a time (start with `folder-structure.md`) if a full
-adopt feels heavy; record deferred packs as assumptions in `state.yaml`.
+adopt feels heavy; record deferred packs as assumptions in `paths.state`.
 
 ### Lite track
 

@@ -29,7 +29,7 @@ transition after that.
 ## Schema
 
 ```yaml
-midas_version: 0.5.28          # engine version that wrote this file (for /midas-update)
+midas_version: 0.5.29          # engine version that wrote this file (for /midas-update)
 layout: classic                # classic | compact — omit = inferred from disk (see ADR-001)
 paths:                         # optional; installer/doctor --fix writes this for compact
   engine: harness

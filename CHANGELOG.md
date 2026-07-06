@@ -11,6 +11,21 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [0.5.29] — 2026-07-06
+
+### Added
+- **`/midas-align`** — propagation alignment skill: maps what changed → downstream surfaces, runs the verify
+  ladder, emits a `MIDAS_ALIGN_RESULT` gap report.
+- **`harness/rules/change-propagation.md`** — always-on rule with propagation matrix and CHECKs (sources →
+  bundles → versions → docs).
+- **`npm run align`** — engine contributor command (`render-adapters` + `verify`).
+
+### Changed
+- `CONTRIBUTING`, `docs/skills.md`, `repository-architecture.md`, and PR template reference the align workflow.
+- Always-on rules `enforcement-state`, `hygiene`, and `model-routing` use layout-neutral state/doctor paths.
+
+---
+
 ## [0.5.28] — 2026-07-04
 
 ### Added
@@ -992,7 +1007,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.28...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.29...HEAD
+[0.5.29]: https://github.com/okuzpe/midas-harness/compare/v0.5.28...v0.5.29
 [0.5.28]: https://github.com/okuzpe/midas-harness/compare/v0.5.24...v0.5.28
 [0.5.24]: https://github.com/okuzpe/midas-harness/compare/v0.5.23...v0.5.24
 [0.5.23]: https://github.com/okuzpe/midas-harness/compare/v0.5.22...v0.5.23

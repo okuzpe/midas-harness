@@ -58,7 +58,7 @@ every mode:
 - **CHECK:** Each multi-tier phase delegates its produce/fetch legs to `midas-builder` / `midas-scout`
   in the SKILL body — `harness-tier` is the dispatch tier only, never the whole cost story.
   *(manual.)*
-- **CHECK:** `harness/state.yaml -> routing` ids are all known model ids and, under
+- **CHECK:** `paths.state -> routing` ids are all known model ids and, under
   `cost_profile: balanced`, **equal the pinned `model:` of the three first-party agents**. Run
   `node <paths.scripts>/doctor.mjs <project>`; a `routing:*` warning is a fail. *(The engine enforces the same
   reconciliation against the example state in `scripts/test.mjs`.)*
@@ -77,7 +77,7 @@ project needs a different default tier-to-model mapping, change it at the source
 
 Beyond tier selection, the biggest savings in a multi-agent harness come from not re-paying for the
 same tokens:
-- **Cache the stable corpus.** `state.yaml` + `harness/rules/*` + `product/*` are re-read on every
+- **Cache the stable corpus.** `paths.state` + `<paths.engine>/rules/*` + `product/*` are re-read on every
   dispatch — put them behind a prompt-cache breakpoint so repeated reads are not re-billed.
 - **Batch the fan-outs.** Latency-tolerant parallel work (tribunal debaters, market-research / scout
   sweeps, per-rule audits) belongs on the Batch API, not N synchronous calls.

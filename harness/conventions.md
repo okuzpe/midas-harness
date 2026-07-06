@@ -38,8 +38,9 @@ do not introduce a parallel "standards" layer.
 ## Verification
 - Verify every change with the **cheapest tool that proves it**: static (typecheck/lint/build) →
  tests → runtime smoke (boot it) → browser drive+inspect for UI. Fix and re-run until green before
- marking a task done. The **producer never grades its own homework** — the independent verdict is the
- Phase-8 audit. Full ladder: [`rules/verification.md`](./rules/verification.md). Session continuity:
+  marking a task done. The **producer never grades its own homework** — the independent verdict is the
+  Phase-8 audit. After substantive harness edits, run `/midas-align` or `npm run align` per
+  `<paths.engine>/rules/change-propagation.md`. Full ladder: [`rules/verification.md`](./rules/verification.md). Session continuity:
  [`rules/session-continuity.md`](./rules/session-continuity.md) + `/midas-recall`. Dead-flow hygiene:
  [`rules/hygiene.md`](./rules/hygiene.md) + `/midas-sweep`.
 

@@ -45,6 +45,8 @@ for the source/generated-file map and the contributor change paths.
 
 - **Portable** — plain markdown; no runtime, no lock-in, no vendor SDK.
 - **Resumable** — `/midas-status` prints the single next action from any tool or agent.
+- **Aligned** — `/midas-align` (and `harness/rules/change-propagation.md`) keeps sources, bundles, versions,
+  and docs in sync after substantive edits.
 - **Cost-aware** — three built-in agents at three price tiers (Opus / Sonnet / Haiku).
 - **Auditable** — every gate verdict is frozen to `.harness/audits/`; drift is never silent.
 - **Brownfield-safe** — `/midas-adopt` inventories existing code and never rewrites without a

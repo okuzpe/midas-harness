@@ -57,7 +57,7 @@ AGENTS.md             ← engine project law (distinct from install template AGE
 ### Contributor workflow (after any source change)
 
 ```bash
-npm run verify    # test + build bundles + doctor — run before every PR
+npm run align     # render adapters + test + build bundles + doctor — run before every PR
 # or step by step:
 npm test          # structural invariants
 npm run render    # if harness/conventions.md or rules digest changed
@@ -158,7 +158,7 @@ the right to submit the contribution under the Apache-2.0 license.
 Before opening a PR, confirm:
 
 - [ ] Edited source files only (not `plugins/midas/`, `create-midas/template/`, or generated adapters).
-- [ ] `npm run verify` exits clean (tests + bundle sync + doctor).
+- [ ] Ran `npm run align` (or `npm run verify`) — all green.
 - [ ] Any new skill includes the ritual guard if side-effecting.
 - [ ] Any new rule is checkable; evidence format is documented.
 - [ ] Breaking change? Migration note added; `CHANGELOG.md` updated.

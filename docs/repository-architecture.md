@@ -84,7 +84,8 @@ marketplace paths. They are not hand-edited; CI rebuilds them and fails if they 
 | `plugins/midas/`, `create-midas/template/` | Yes (generated but committed) | Run `npm run build` after source edits |
 | Root `lefthook.yml` | N/A | Not used in the engine repo; product installs scaffold hooks in Phase 5 |
 
-**One command before a PR:** `npm run verify` (test → build-plugin → build-create → doctor).
+**One command before a PR:** `npm run align` (render adapters → test → build bundles → doctor).
+Rule: `<paths.engine>/rules/change-propagation.md`. Skill: `/midas-align`.
 
 ## Runtime and distribution flow
 
@@ -143,7 +144,7 @@ The distinction is intentional:
 | Template content | Source under `.claude/`, `harness/`, selected root files | `npm run build`, `npm test` |
 | Plugin content | Source under `.claude/` or `.mcp.json` | `npm run build`, `npm test` |
 | Docs site | `docs/*.md`, `mkdocs.yml` | `mkdocs build --site-dir _site` locally, or rely on docs CI |
-| Any mixed change | sources above | `npm run verify` |
+| Any mixed change | sources above | `npm run align` (or `/midas-align`) |
 
 ## Naming and generated-file rules
 

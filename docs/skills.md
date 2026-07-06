@@ -31,6 +31,7 @@ where supported. See the [tools matrix](https://github.com/okuzpe/midas-harness#
 | `/midas-recall` | Navigation | Read-only context pack — ~15 priority paths + brief for resuming mid-phase/sprint. | scout |
 | `/midas-adopt` | Brownfield | Adopt Midas into an existing project — inventory, reverse-engineer rules, baseline audit. | orchestrate |
 | `/midas-doctor` | Maintenance | Re-derive generated adapters from `harness/conventions.md`, diff against disk, re-render. | build |
+| `/midas-align` | Maintenance | Full propagation pass — matrix + `npm run align` / doctor ladder + gap report (sources → bundles → versions → docs). | build |
 | `/midas-tribunal` | Audit | Whole-project adversarial debate — Defense vs Prosecution vs Catfish; Opus judges per claim. | orchestrate |
 | `/midas-monorepo` | Scale | Set Midas up across a monorepo — nested `AGENTS.md` per package, per-package rules. | orchestrate |
 | `/midas-verify` | Audit | Browser-gated E2E/UI verification (UI sprints only) — Playwright *drives* the flows, Chrome DevTools *inspects* runtime health (console/network/perf); per-claim verdict + screenshots. | build |
@@ -65,3 +66,5 @@ Each `SKILL.md` frontmatter declares:
   `AGENTS.md` / `CLAUDE.md` / source is modified without a dry-run diff and explicit confirm.
 - Run `/midas-doctor` after editing `harness/conventions.md` or any rule file to re-sync the
   generated tool adapters.
+- After substantive engine edits (skills, installer, VERSION, bundles), run `/midas-align` or
+  `npm run align` — see `harness/rules/change-propagation.md`.

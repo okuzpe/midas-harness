@@ -11,7 +11,7 @@ hygiene: unreachable flows, ledger drift, and stale harness/docs artifacts. The 
 
 ## When to sweep
 
-- **Brownfield** (`harness/state.yaml` → `mode: brownfield`): run `/midas-sweep all` before the
+- **Brownfield** (`paths.state` → `mode: brownfield`): run `/midas-sweep all` before the
   **first** `/close-sprint` after adoption, and again before any sprint close that touched routes,
   navigation, or `product/features.json`.
 - **Greenfield**: sweep is **recommended** before `/close-sprint` when the sprint diff is large or

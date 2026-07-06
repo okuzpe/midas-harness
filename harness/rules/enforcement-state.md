@@ -7,7 +7,7 @@ graded by hand at Phase 8. So the decision must be **recorded and checkable**.
 
 ## Requires
 
-- `/define-conventions` Step 5 writes an `enforcement:` block to `harness/state.yaml` — one entry per
+- `/define-conventions` Step 5 writes an `enforcement:` block to **`paths.state`** — one entry per
   scaffolded tool, naming the **config file** it wrote and whether it was **installed**:
 
   ```yaml
