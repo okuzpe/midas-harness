@@ -21,6 +21,9 @@ Windsurf and Gemini (see [Supported tools](#supported-tools) for what carries to
 
 Full docs: **[okuzpe.github.io/midas-harness](https://okuzpe.github.io/midas-harness/)**.
 
+**Install (canonical):** flags, layouts, and update flows live in **[INSTALL.md](./INSTALL.md)** — README and
+[getting-started](https://okuzpe.github.io/midas-harness/getting-started/) link here; do not duplicate install prose.
+
 ## Why
 Most AI coding setups jump straight to code. Midas front-loads the thinking — clarify the idea, research
 the market, decide architecture, **freeze the rules**, plan sprints — then makes every sprint a control
@@ -116,7 +119,7 @@ releases) and installer-safety notes are in **[INSTALL.md](./INSTALL.md)**.
 |---|---|---|
 | **Core** | drive any project through the lifecycle | `/midas-init` · `/midas-status` · the phase commands (`/idea-intake` → `/close-sprint`) · `/midas-doctor` |
 | **Brownfield** | adopt Midas into an existing repo | `/midas-adopt` |
-| **Advanced** | deeper audits & scale | `/midas-tribunal` (whole-project debate) · `/midas-security-audit` (OWASP ASVS 5.0 + LLM/Agentic Top 10) · `/midas-verify` (Playwright UI checks) · `/midas-monorepo` |
+| **Advanced** | deeper audits & scale | `/midas-tribunal` · `/midas-security-audit` · `/midas-verify` · `/midas-monorepo` · `/midas-bundle` · `/midas-recall` · `/midas-sweep` · `/midas-capture` |
 | **Maintenance** | keep an install current | `/midas-update` · `/midas-doctor` · `/midas-align` |
 
 Most users only need **Core** (+ `/midas-adopt` for an existing repo). Everything else is opt-in.
@@ -171,7 +174,7 @@ A runnable Sprint-1 vertical slice — auth, task CRUD, middleware, board stub +
 artifact on disk. See [`examples/taskpilot/`](./examples/taskpilot/).
 
 ## Status
-**v0.5.29 — pre-1.0, actively developed (not yet a stable API).** Most complete on **Claude Code**
+**v0.5.30 — pre-1.0, actively developed (not yet a stable API).** Most complete on **Claude Code**
 (see [Honest scope](#supported-tools)). Details: [`CHANGELOG.md`](./CHANGELOG.md) ·
 [`VERSIONING.md`](./VERSIONING.md) · [docs site](https://okuzpe.github.io/midas-harness/).
 

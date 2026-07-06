@@ -28,7 +28,7 @@ adequate docs and that no stale or contradictory docs were introduced. Stack-spe
       not restating *what* the code does.
       **CHECK:** `manual:` each workaround/non-obvious branch has a *why* comment; a comment restating the code is a fail.
 - [ ] Every `TODO` follows the format in `code-quality.md`: `TODO(<owner>|<issue>): <condition>`.
-      **CHECK:** `grep -rnE "TODO" <src-root>/ | grep -vE "TODO\((\w+|#[0-9]+)\):"` → empty (shared with `code-quality.md`).
+      **CHECK:** see `code-quality.md` § TODO format (not duplicated here).
 - [ ] No commented-out code blocks (use git history or a branch for that).
       **CHECK:** review for commented-out statements (`grep -nE "^\s*(//|#).*[;{}()]" <diff>`) → none.
 - [ ] Inline comments that reference an external resource (spec, issue, paper) include the URL.

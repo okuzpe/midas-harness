@@ -36,6 +36,8 @@ const FILES = [
   'scripts/gitignore-merge.mjs',
   'scripts/paths.mjs',
   'scripts/migrate-layout.mjs',
+  'scripts/stage-command-table.mjs',
+  'scripts/bundle.mjs',
   'gemini-extension.json',
 ];
 

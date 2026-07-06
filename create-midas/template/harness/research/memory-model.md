@@ -27,6 +27,7 @@ session ends. Midas points agents at the right LTM files instead of replaying ch
 | `/midas-status` | scout | Cheap PC — phase, gate, **single next command** (~6 lines) |
 | `/midas-recall` | scout | **Context Pack** — ~15 paths + brief; use when resuming mid-phase/sprint |
 | `/midas-capture` | build | Crystallize recurring patterns → rule / playbook / convention (user-approved) |
+| `/midas-bundle` | build | Export/import portable JSON — product knowledge, rules, evidence, config (no secrets) |
 | `/midas-sweep` | build | Hygiene — dead flows, ledger drift (orthogonal to recall) |
 
 `/midas-status` **suggests** `/midas-recall` when `stage_status: in_progress` or an active sprint's

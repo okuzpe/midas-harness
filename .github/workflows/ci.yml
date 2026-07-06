@@ -21,6 +21,9 @@ jobs:
       - name: Structural test suite
         run: node scripts/test.mjs
 
+      - name: Full align ladder (engine propagation)
+        run: npm run align
+
       - name: Generated adapters in sync with source
         run: node scripts/doctor.mjs
 

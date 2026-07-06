@@ -9,6 +9,33 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+### Added
+- **Repo audit (phases A–F)** — `harness/stage-command-table.yaml`, `scripts/stage-command-table.mjs`,
+  `harness/rules/acceptance-criteria.md`, `/midas-progress` STM skill, `.harness/audits/repo-audit-01.md`.
+- **ADRs** — ADR-004 (audit skill surface), ADR-005 (AGENTS.md generation strategy).
+- **TaskPilot demo** — `product/features.json`, `.harness/sprints/01-progress.md` (ADR-003).
+
+### Changed
+- Skills: fixed `/deep-research` references; Phase 7 ladder in `methodology.md`; start/close-sprint clarity.
+- Rules: `context7-usage.md` CHECKs; CHECK dedupe cross-refs; adapter digest Option A documented.
+- Tests: rules-match hash, migrate-layout/bundle CLI smoke, TaskPilot artifact checks (360+ tests).
+- Docs: INSTALL canonical; repository-architecture glossary; gstack PROPOSED labels; CI `npm run align` job.
+
+---
+
+## [0.5.30] — 2026-07-06
+
+### Added
+- **`/midas-bundle`** — export/import portable JSON for Midas knowledge (product docs, stack rules,
+  playbooks, frozen evidence, MCP/enforcement config; optional tests). Profiles: `knowledge`, `memory`,
+  `full`, `config`, `tests`, `recall`.
+- **`scripts/bundle.mjs`** — deterministic CLI (`export` / `import`); ships in installed projects via
+  `create-midas` template.
+- **`npm run bundle`** — engine contributor shorthand.
+
+### Changed
+- `harness/research/memory-model.md`, `docs/skills.md`, `AGENTS.md` document the bundle workflow.
+
 ---
 
 ## [0.5.29] — 2026-07-06
@@ -1007,7 +1034,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.29...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.30...HEAD
+[0.5.30]: https://github.com/okuzpe/midas-harness/compare/v0.5.29...v0.5.30
 [0.5.29]: https://github.com/okuzpe/midas-harness/compare/v0.5.28...v0.5.29
 [0.5.28]: https://github.com/okuzpe/midas-harness/compare/v0.5.24...v0.5.28
 [0.5.24]: https://github.com/okuzpe/midas-harness/compare/v0.5.23...v0.5.24

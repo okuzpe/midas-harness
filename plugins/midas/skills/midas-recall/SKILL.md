@@ -41,13 +41,17 @@ Load the file at **`paths.state`**. If missing → report `/midas-init`. Parse `
 
 ### 2. Build Context Pack (max ~15 paths, ordered)
 
+**Canonical recall paths:** `<paths.engine>/stage-command-table.yaml` per `stage` (parsed by
+`scripts/stage-command-table.mjs` for `/midas-bundle` recall profile).
+
 Always include when present:
 
 1. `paths.state` (the state file itself)
 2. Active `product/sprints/NN-*.md` (if any)
 3. `{runs}/sprints/NN-progress.md` (if any)
+4. Latest `{runs}/verifications/verify-NN.md` when `stage: sprint_execution` and UI journeys exist
 
-Then add by `stage` / `mode` (stop at ~15 total):
+Then add by `stage` / `mode` from the YAML table (stop at ~15 total):
 
 | `stage` | Additional paths (priority order) |
 |---|---|
@@ -58,7 +62,7 @@ Then add by `stage` / `mode` (stop at ~15 total):
 | `tech_architecture` | `product/business-plan.md`, `product/architecture.md`, `product/adr/*` |
 | `architecture_rules` | `product/architecture.md`, `<paths.engine>/rules/*` (list names only if many) |
 | `sprint_planning` | `product/roadmap.md`, `product/business-plan.md` MVP section |
-| `sprint_execution` | `product/features.json` (features for this sprint only), `<paths.engine>/rules/*` cited in sprint DoD, `product/playbooks/*` referenced in sprint tasks |
+| `sprint_execution` | `product/features.json`, `{runs}/verifications/*`, `<paths.engine>/rules/*` cited in sprint DoD, `product/playbooks/*` referenced in sprint tasks |
 
 **Brownfield** (`mode: brownfield`): also `product/inventory.md`, `product/debt.md`, latest
 `{runs}/sweeps/sweep-NN.md` if any.
@@ -86,7 +90,7 @@ Do not re-read: …
 
 ### 4. Suggest next command (one line)
 
-Map to the single ritual for the stage (same table as `/midas-status`), or *continue active sprint task X*.
+Map to the single ritual for the stage (see `<paths.engine>/stage-command-table.yaml`, same as `/midas-status`), or *continue active sprint task X*.
 
 ## Hard boundaries
 

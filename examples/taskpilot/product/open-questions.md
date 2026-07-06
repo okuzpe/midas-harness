@@ -18,6 +18,8 @@
 | OQ-07 | Who owns the workspace? Can members be removed? | YES | Workspace has one owner (creator). Owner can invite and remove members. | Phase 1 |
 | OQ-08 | Do comments support markdown or rich text? | NO (deferred) | Plain text only in v1. Rich text deferred to v2. | Phase 1 |
 
+| OQ-09 | Validated path from free pilot to ~50 paying workspaces (willingness-to-pay signal)? | NO (deferred) | Logged by tribunal debate-01 (T-02); revisit before Phase-3 v2 GO. | Tribunal debate-01 |
+
 ---
 
 ## Accepted assumptions (deferred, non-blocking)

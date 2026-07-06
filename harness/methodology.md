@@ -67,6 +67,22 @@ browser drive+inspect for UI via `/midas-verify`) before it is checked off — s
 *run*, not just to *read*, before the sprint ever reaches the Phase-8 gate. The producer self-checks
 here; the **independent** verdict is always Phase 8 (the producer never grades its own homework).
 
+### Phase 7 execution ladder (canonical order)
+
+| Step | Command / ritual | Who | When |
+|---|---|---|---|
+| 1 Kickoff | `/start-sprint` | orchestrate | Sprint `planned` → `active`; pre-sprint drift audit + working plan |
+| 2 Build | implement tasks | build | Per-task inner loop; Context7 before third-party APIs |
+| 3 UI proof | `/midas-verify` | scout/build | UI sprints — acceptance journeys before close |
+| 4 Hygiene (optional) | `/midas-sweep` | scout | Large/messy diffs — `/midas-status` may suggest |
+| 5 Security (optional) | `/midas-security-audit` | orchestrate | Informational; does not advance gates |
+| 6 Gate | `/close-sprint` | orchestrate | Formal Phase-8 audit; freezes `{runs}/audits/audit-NN.md` |
+| 7 Continue | `/start-sprint` or `shipped` | orchestrate | Next sprint or MVP complete |
+
+Optional **standing** audits (`/midas-tribunal`, `/midas-security-audit`) inform humans but never
+substitute for `/close-sprint`. Session continuity: `/midas-recall` + `{runs}/sprints/NN-progress.md`
+(STM); `/midas-progress` updates STM during long sprints.
+
 ## Entry points — the maturity spectrum
 
 `/midas-init` is an **adaptive intake**: it scans everything the project already has (code, manifests,

@@ -6,7 +6,7 @@
 | Campo | Valor |
 |---|---|
 | **Fecha de revisión** | 2026-06-30 |
-| **Midas analizado** | `harness/VERSION` → **0.5.29** |
+| **Midas analizado** | `harness/VERSION` → **0.5.30** |
 | **gstack analizado** | README público de [garrytan/gstack](https://github.com/garrytan/gstack) (landing/marketing; no se auditó el código fuente de gstack) |
 | **Tipo de documento** | Análisis comparativo — **no modifica el motor del harness** |
 
@@ -324,9 +324,9 @@ medio / alto. Fuente gstack = README salvo indicación.
 | `/land-and-deploy` | — | Medio | Medio | Alto | Aplazar (Fase 9) |
 | `/canary` | — | Medio | Medio | Alto | Aplazar |
 | `/benchmark` | spot en verify | Alto | Medio | Medio | **Evaluar** `/midas-benchmark` |
-| `/document-release` | `docs.md` | Alto | Alto | Medio | **Adoptar** `/midas-doc` |
-| `/document-generate` | templates | Alto | Alto | Medio | Parte de `/midas-doc` |
-| `/retro` | — | Alto | Alto | Medio | **Adoptar** `/midas-retro` |
+| `/document-release` | `docs.md` | Alto | Alto | Medio | **Adoptar** `/midas-doc` *(PROPOSED)* |
+| `/document-generate` | templates | Alto | Alto | Medio | Parte de `/midas-doc` *(PROPOSED)* |
+| `/retro` | — | Alto | Alto | Medio | **Adoptar** `/midas-retro` *(PROPOSED)* |
 | `/autoplan` | tribunal (parcial) | Alto | Alto | Alto | **Evaluar** `/midas-autoplan` |
 | `/spec` | sprint templates | Medio | Medio | Medio | Evaluar |
 | `/learn` + GBrain | capture + recall | **Bajo** | Alto (gstack) | Alto | **Rechazar** store oculto — ver ADR-003 |
@@ -351,10 +351,10 @@ medio / alto. Fuente gstack = README salvo indicación.
 
 | Propuesta | Taxonomía Midas futura | Rationale |
 |---|---|---|
-| **`/midas-retro`** | `.claude/skills/midas-retro/SKILL.md`; salida `.harness/retros/retro-NN.md`; non-advancing | gstack tiene `/retro`; Midas solo audita conformidad en close-sprint |
+| **`/midas-retro`** *(PROPOSED — not shipped)* | `.claude/skills/midas-retro/SKILL.md`; salida `.harness/retros/retro-NN.md`; non-advancing | gstack tiene `/retro`; Midas solo audita conformidad en close-sprint |
 | **`/midas-investigate`** | Skill build-tier; playbook `product/playbooks/debug-root-cause.md`; refuerzo `verification.md` | Ley de Hierro + 3 strikes reduce “fixes al azar” |
 | **Salvaguardas careful/freeze/guard** | `harness/rules/safety-guardrails.md` + hook lefthook/pre-tool; skills opcionales `/midas-freeze` | Alineado con `security.md`; bajo esfuerzo |
-| **`/midas-doc`** | Skill build-tier; Diataxis map en PR body o `.harness/docs/doc-NN.md` | Cierra gap document-release/generate |
+| **`/midas-doc`** *(PROPOSED — not shipped)* | Skill build-tier; Diataxis map en PR body o `.harness/docs/doc-NN.md` | Cierra gap document-release/generate |
 | **Regresión por bug en inner loop** | CHECK nuevo en `testing.md` + paso en `7-sprint-execution.md` | Cierra el gap más importante vs `/qa` sin romper separación auditor |
 
 ### 6.2 Evaluar (valor alto, decisión de alcance)

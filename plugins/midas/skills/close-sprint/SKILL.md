@@ -20,6 +20,10 @@ The closing half of the **7 ⇄ 8 loop**. After a sprint's code lands, the orche
 resolves drift, freezes the verdict, and decides what's next. The **producer never grades its own
 homework** — this is an independent orchestrate-tier audit.
 
+> **vs `/start-sprint`:** `start-sprint` ran the **pre-sprint** drift audit and set the sprint `active`.
+> `close-sprint` is the **formal Phase-8 gate** — only after tasks, tests, and UI `/midas-verify` journeys
+> (when applicable) are green. Never open a sprint with close-sprint; never ship a gate without it.
+
 > **Precondition.** A sprint must be `active` in `state.yaml.sprints[]` with its work landed (tasks
 > done, tests run). If no active sprint, stop and report.
 

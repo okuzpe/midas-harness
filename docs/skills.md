@@ -29,6 +29,7 @@ where supported. See the [tools matrix](https://github.com/okuzpe/midas-harness#
 | `/midas-init` | Setup | Adaptive intake — scans the project (code + README/docs), classifies maturity (E0–E3), pre-fills what it can infer, asks only the gaps, places you at the right phase. Run once per project. | orchestrate |
 | `/midas-status` | Navigation | Read-only — print current phase, gate status, and single next action. | scout |
 | `/midas-recall` | Navigation | Read-only context pack — ~15 priority paths + brief for resuming mid-phase/sprint. | scout |
+| `/midas-progress` | Phase 7 | Write STM — update `{runs}/sprints/NN-progress.md` after tasks (Done/Learned/Next). | build |
 | `/midas-adopt` | Brownfield | Adopt Midas into an existing project — inventory, reverse-engineer rules, baseline audit. | orchestrate |
 | `/midas-doctor` | Maintenance | Re-derive generated adapters from `harness/conventions.md`, diff against disk, re-render. | build |
 | `/midas-align` | Maintenance | Full propagation pass — matrix + `npm run align` / doctor ladder + gap report (sources → bundles → versions → docs). | build |
@@ -39,6 +40,7 @@ where supported. See the [tools matrix](https://github.com/okuzpe/midas-harness#
 | `/midas-sweep` | Maintenance | Hygiene & dead-flow detection — orphan code, unreachable routes, stale docs, playbook/zombie triggers, `features.json` drift; optional `--fix` with explicit confirm. Freezes to `.harness/sweeps/`. | build |
 | `/midas-update` | Maintenance | Migrate an install to the current engine — dry-run + diff-confirm, bump version stamp. | build |
 | `/midas-capture` | Learning | Crystallize a recurring request/correction into the right artifact (rule / playbook / convention) via a rubric. The agent proposes it on ~2-3 repeats (asks first); also invokable manually. | build |
+| `/midas-bundle` | Maintenance | Export/import portable JSON — product knowledge, stack rules, playbooks, frozen evidence, MCP/enforcement config (no secrets); seed projects or share subsets. | build |
 
 ---
 

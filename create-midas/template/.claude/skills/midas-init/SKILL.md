@@ -89,6 +89,13 @@ Ask the user (one question in the batched round):
 - **`track: lite`** — Idea+Plan (phases 0–6 guided in one pass) → Execute → Audit. Skips market/business
   by default; records assumptions. See `<paths.engine>/pipeline/lite.md`.
 
+  **Lite ritual checklist** (copy into the session when `track: lite`):
+  1. Pre-fill `product/idea.md` from scan; record skipped gates + assumptions in `state.yaml`.
+  2. Run a compressed plan: MVP scope + one sprint outline (roadmap optional stub).
+  3. Set `entry_stage: sprint_planning`; advance to `/plan-sprints` or `/start-sprint` when a single sprint exists.
+  4. Execute with the Phase 7 ladder (`methodology.md` § Phase 7 execution ladder).
+  5. Close with `/close-sprint` — no lite bypass for Phase 8.
+
 Write `track:` to `state.yaml`. For Lite on E0/E1, after Idea+Plan completes set `entry_stage: sprint_planning`
 and skip directly to `/plan-sprints` or `/start-sprint` when a single sprint plan exists.
 

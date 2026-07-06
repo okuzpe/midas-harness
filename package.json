@@ -1,6 +1,6 @@
 {
   "name": "midas-harness",
-  "version": "0.5.29",
+  "version": "0.5.30",
   "private": true,
   "description": "Portable product-development harness for AI coding agents (not Intel MiDaS depth estimation). Install with `npx github:okuzpe/midas-harness`. Drives a product from idea to shipped code through 9 audited phases.",
   "bin": {
@@ -39,6 +39,7 @@
     "doctor": "node scripts/doctor.mjs",
     "verify": "node scripts/test.mjs && node scripts/build-plugin.mjs && node scripts/build-create.mjs && node scripts/doctor.mjs",
     "align": "node scripts/render-adapters.mjs && npm run verify",
+    "bundle": "node scripts/bundle.mjs",
     "docs:build": "mkdocs build --site-dir _site",
     "status": "node scripts/status-page.mjs"
   }

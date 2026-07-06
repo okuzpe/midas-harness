@@ -19,7 +19,11 @@ mcp-recommended: [context7]
 This is **"applying the harness"** — the signature loop. Before any code is written for a sprint, the
 orchestrator re-audits the **living code** against the **rules frozen in Phase 5** and the **scope in
 the business case**, reconciles drift, picks the agents, and emits a working plan. Then implementation
-proceeds on the **build** tier with Context7. (`/close-sprint` runs the same loop after.)
+proceeds on the **build** tier with Context7.
+
+> **vs `/close-sprint`:** `start-sprint` = **pre-sprint** drift audit + working plan + set sprint `active`.
+> `close-sprint` = **formal Phase-8 gate** after tasks are done, tests green, and UI journeys verified.
+> Do not substitute one for the other — run start at kickoff, close at the gate.
 
 > **Precondition.** A sprint must be `planned` (or `active` being resumed) in `state.yaml.sprints[]`,
 > and Phase 6's gate must be passed. If no sprint is selectable, stop and report.

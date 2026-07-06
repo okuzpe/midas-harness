@@ -25,7 +25,7 @@ MIDAS_TRIBUNAL_RESULT: criticals=1 highs=0
 ## Recommended actions (findings → action bridge)
 - **T-01 fix** → add a Phase-5 *checkable* rule (DB row-level security, or a query-builder guard that
   injects `workspace_id`) + a cross-tenant isolation test; surface as a task at the next `/start-sprint`.
-- **T-02 defer** → append `OQ-07` to `product/open-questions.md`: "validated path from free pilot to
+- **T-02 defer** → append `OQ-09` to `product/open-questions.md`: "validated path from free pilot to
   ~50 paying workspaces (willingness-to-pay signal)"; non-blocking, revisit before the Phase-3 v2 GO.
 
 ## Full transcript (appendix)

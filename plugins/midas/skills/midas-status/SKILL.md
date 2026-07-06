@@ -31,18 +31,21 @@ completion — it reports the truth already on disk. Safe to run at any time, in
    *user* to type.** The phase rituals are gated (`disable-model-invocation`); **never call the Skill tool on
    them** (it errors) — present the command (e.g. *"👉 Run `/define-conventions`"*), don't invoke it.
 
+   **Canonical table:** `<paths.engine>/stage-command-table.yaml` (also parsed by `scripts/stage-command-table.mjs`).
+   Summary:
+
    | stage | next action |
    |---|---|
    | (no state file) | `/midas-init` |
    | `setup_complete: false` | `/midas-init` (finish one-time setup) |
    | `idea_intake` | `/idea-intake` |
    | `contextualize` | `/contextualize` |
-   | `market_research` | `/market-research` (reuses `/deep-research`) |
+   | `market_research` | `/market-research` (optional host deep-research or web/Context7 — not shipped in engine) |
    | `business_case` | `/business-plan` (needs human sign-off) |
    | `tech_architecture` | `/choose-architecture` |
    | `architecture_rules` | `/define-conventions` |
    | `sprint_planning` | `/plan-sprints` |
-   | `sprint_execution` | `/close-sprint` once the active sprint's tasks are done and tests run; otherwise `/start-sprint` (or continue the active sprint) |
+   | `sprint_execution` | `/start-sprint` while tasks remain; `/midas-verify` for UI acceptance journeys before close; `/close-sprint` when done + tests green |
    | `shipped` | none — MVP complete |
 
 5. **Surface optional prompts (never force).** At a high-leverage decision point, add **one** line if relevant:

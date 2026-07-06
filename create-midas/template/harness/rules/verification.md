@@ -57,7 +57,8 @@ a browser MCP **only** when the change renders or alters a user-facing surface �
       record which tool proved it.)
 - [ ] No horizontal overflow at a narrow viewport (~320–375px); UI references design tokens (no
       hardcoded colour/spacing/type/radii) per `product/design-system.md`.
-      **CHECK:** `manual:` `document.documentElement.scrollWidth <= clientWidth` on each key screen;
+      **CHECK:** `manual:` no horizontal overflow on key screens (see `accessibility.md` § layout overflow);
+      `/midas-verify` automates where wired.
       a hardcoded value not traceable to a `--ds-*` token is a fail.
 - [ ] Each criterion in the verify record names the **tool** that proved it (header `Tools:` line plus a
       per-row **Tool** column — canonical values in `harness/templates/sprint-progress.md` § Tool column;

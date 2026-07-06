@@ -16,6 +16,9 @@ import { computeAdapters, DEFAULT_ADAPTER_TOOLS, resolveAdapterTools } from './r
 import { evaluateMcpDeclaredVsWired, evaluateSkillMcpRequired } from './mcp-drift.mjs';
 import { ensureMidasGitignore, GITIGNORE_BEGIN, GITIGNORE_END } from './gitignore-merge.mjs';
 import { detectLayout, resolvePaths, MIGRATION_MAP, RUNS_SUBDIRS } from './paths.mjs';
+import { exportBundle, applyImport, checkMcpSecrets, ENGINE_BASE_RULES, toCanonical, fromCanonical, planImport } from './bundle.mjs';
+import { loadStageCommandTable, stageRecallPaths, loadEngineBaseRules } from './stage-command-table.mjs';
+import { createHash } from 'node:crypto';
 
 const SCRIPT_DIR = dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
 const ROOT = resolve(SCRIPT_DIR, '..');
@@ -116,7 +119,7 @@ if (existsSync(tplRoot)) {
     JSON.stringify(dirNames(join(tplRoot, '.claude', 'skills'))) === JSON.stringify(dirNames(skillsDir)),
     're-run build-create.mjs',
   );
-  for (const f of ['AGENTS.md', '.mcp.json', 'harness/methodology.md', 'harness/conventions.md', 'scripts/render-adapters.mjs', 'scripts/yaml-lite.mjs', 'scripts/mcp-drift.mjs', 'scripts/mcp-cursor-sync.mjs', 'scripts/tool-profiles.mjs', 'scripts/gitignore-merge.mjs', 'scripts/paths.mjs', 'scripts/migrate-layout.mjs', 'scripts/doctor.mjs', 'scripts/status-page.mjs', 'gemini-extension.json', 'docs/agents-and-models.md']) {
+  for (const f of ['AGENTS.md', '.mcp.json', 'harness/methodology.md', 'harness/conventions.md', 'harness/stage-command-table.yaml', 'scripts/render-adapters.mjs', 'scripts/yaml-lite.mjs', 'scripts/mcp-drift.mjs', 'scripts/mcp-cursor-sync.mjs', 'scripts/tool-profiles.mjs', 'scripts/gitignore-merge.mjs', 'scripts/paths.mjs', 'scripts/migrate-layout.mjs', 'scripts/stage-command-table.mjs', 'scripts/doctor.mjs', 'scripts/status-page.mjs', 'scripts/bundle.mjs', 'gemini-extension.json', 'docs/agents-and-models.md']) {
     check(`create-template:has:${f}`, existsSync(join(tplRoot, f)));
   }
   // The template must NOT carry repo-internal trees into a user project.
@@ -527,6 +530,139 @@ if (existsSync(memoryModel)) {
 }
 check('adr:003:exists', existsSync(join(ROOT, 'docs', 'adr', 'ADR-003-project-memory-model.md')));
 check('rule:session-continuity:exists', existsSync(join(ROOT, 'harness', 'rules', 'session-continuity.md')));
+check('skill:midas-bundle:exists', existsSync(join(skillsDir, 'midas-bundle', 'SKILL.md')));
+check('script:bundle:exists', existsSync(join(ROOT, 'scripts', 'bundle.mjs')));
+
+// --- M. midas-bundle export/import (examples/taskpilot) ---------------------------------------
+{
+  const taskpilot = join(ROOT, 'examples', 'taskpilot');
+  if (existsSync(taskpilot)) {
+    const mem = exportBundle(taskpilot, { profile: 'memory' });
+    const memPaths = mem.files.map((f) => f.path);
+    check('bundle:memory:idea', memPaths.includes('product/idea.md'));
+    check('bundle:memory:state_yaml', Boolean(mem.state_yaml));
+    check('bundle:memory:stack-rules', ['folder-structure.md', 'tenant-isolation.md', 'session-cookies.md'].every((r) =>
+      memPaths.includes(`harness/rules/${r}`)));
+    check('bundle:memory:no-base-rule', !memPaths.includes('harness/rules/code-quality.md'));
+    const full = exportBundle(taskpilot, { profile: 'full' });
+    check('bundle:full:biome', full.files.some((f) => f.path === 'product/biome.json'));
+    const playOnly = exportBundle(taskpilot, { only: ['product/playbooks'] });
+    check('bundle:only:no-src', !playOnly.files.some((f) => f.path.startsWith('product/src/')));
+    const withTests = exportBundle(taskpilot, { includeTests: true, profile: 'memory' });
+    check('bundle:tests:route-test', withTests.files.some((f) => f.path.endsWith('route.test.ts')));
+    check('bundle:mcp-secret-detect', checkMcpSecrets('{"token":"sk-live-abc"}'));
+    check('bundle:mcp-env-ok', !checkMcpSecrets('{"token":"${MY_TOKEN}"}'));
+    const tmp = mkdtempSync(join(tmpdir(), 'midas-bundle-'));
+    try {
+      applyImport(tmp, mem, { merge: true });
+      check('bundle:import:idea', existsSync(join(tmp, 'product', 'idea.md')));
+      check('bundle:import:state-skipped', !existsSync(join(tmp, 'harness', 'state.yaml')));
+      applyImport(tmp, mem, { merge: true, replaceState: true });
+      check('bundle:import:replace-state', existsSync(join(tmp, 'harness', 'state.yaml')));
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+    check('bundle:engine-base-rules-count', ENGINE_BASE_RULES.size >= 15);
+    check('bundle:unknown-profile', (() => {
+      try { exportBundle(taskpilot, { profile: 'bogus' }); return false; } catch { return true; }
+    })());
+    check('bundle:canonical-compact', fromCanonical('harness/state.yaml', 'compact') === '.midas/state.yaml');
+    check('bundle:canonical-roundtrip', toCanonical(fromCanonical('harness/rules/x.md', 'compact'), 'compact') === 'harness/rules/x.md');
+    let checksumFail = false;
+    try {
+      const tampered = { ...mem, files: [{ ...mem.files[0], sha256: 'deadbeef', content: mem.files[0].content }] };
+      const badDir = mkdtempSync(join(tmpdir(), 'midas-bundle-bad-'));
+      applyImport(badDir, tampered, { replace: true });
+      rmSync(badDir, { recursive: true, force: true });
+    } catch (e) {
+      checksumFail = /checksum mismatch/.test(e.message);
+    }
+    check('bundle:import:checksum', checksumFail);
+    const tmp2 = mkdtempSync(join(tmpdir(), 'midas-bundle-state-'));
+    try {
+      mkdirSync(join(tmp2, 'harness'), { recursive: true });
+      writeFileSync(join(tmp2, 'harness', 'state.yaml'), 'marker: old');
+      const plan = planImport(tmp2, mem, { replaceState: true });
+      const st = plan.actions.find((a) => a.kind === 'state');
+      check('bundle:replace-state-action', st?.action === 'replace');
+      applyImport(tmp2, mem, { replaceState: true });
+      check('bundle:replace-state-writes', readFileSync(join(tmp2, 'harness', 'state.yaml'), 'utf8').includes('taskpilot'));
+    } finally {
+      rmSync(tmp2, { recursive: true, force: true });
+    }
+    const playDir = exportBundle(taskpilot, { only: ['product/playbooks'] });
+    check('bundle:only-playbooks-count', playDir.files.length === 3);
+  }
+}
+
+// --- N. stage-command-table + rules-match + migrate-layout smoke ----------------------------
+{
+  const { stages } = loadStageCommandTable();
+  check('stage-table:sprint-execution-verify', stages.sprint_execution?.verifyUi === '/midas-verify');
+  check('stage-table:recall-paths', stageRecallPaths('contextualize').includes('product/open-questions.md'));
+  const derived = loadEngineBaseRules();
+  check('engine-base-rules:has-acceptance', derived.has('acceptance-criteria.md'));
+  check('engine-base-rules:matches-template', (() => {
+    const tplRules = join(ROOT, 'create-midas', 'template', 'harness', 'rules');
+    const srcRules = join(ROOT, 'harness', 'rules');
+    if (!existsSync(tplRules)) return false;
+    const hashDir = (dir) => {
+      const files = readdirSync(dir).filter((f) => f.endsWith('.md') && !f.startsWith('_')).sort();
+      return createHash('sha256').update(files.map((f) => readFileSync(join(dir, f), 'utf8')).join('\n')).digest('hex');
+    };
+    return hashDir(srcRules) === hashDir(tplRules);
+  })(), 're-run build-create.mjs');
+}
+
+if (existsSync(join(ROOT, 'scripts', 'migrate-layout.mjs'))) {
+  try {
+    const out = execSync(`node "${join(ROOT, 'scripts', 'migrate-layout.mjs')}" "${ROOT}"`, { cwd: ROOT, stdio: 'pipe', encoding: 'utf8' });
+    check('behavioral:migrate-layout-dry-run', /dry run|nothing to move/i.test(out));
+  } catch (e) {
+    check('behavioral:migrate-layout-dry-run', false, String(e.stderr || e.message));
+  }
+}
+
+if (existsSync(join(ROOT, 'scripts', 'bundle.mjs'))) {
+  try {
+    const help = execSync(`node "${join(ROOT, 'scripts', 'bundle.mjs')}"`, { cwd: ROOT, stdio: 'pipe', encoding: 'utf8' });
+    check('behavioral:bundle-cli-usage', /export|import|profile/i.test(help));
+  } catch (e) {
+    const msg = String(e.stdout || e.stderr || e.message);
+    check('behavioral:bundle-cli-usage', /export|import|profile/i.test(msg));
+  }
+}
+
+const taskpilotRoot = join(ROOT, 'examples', 'taskpilot');
+if (existsSync(join(taskpilotRoot, 'harness', 'state.yaml'))) {
+  const st = readFileSync(join(taskpilotRoot, 'harness', 'state.yaml'), 'utf8');
+  const artifactPaths = [];
+  let inArtifacts = false;
+  for (const line of st.split('\n')) {
+    const inline = line.match(/artifacts:\s*\[([^\]]+)\]/);
+    if (inline) {
+      for (const raw of inline[1].split(',')) artifactPaths.push(raw.trim().replace(/^['"]|['"]$/g, ''));
+      continue;
+    }
+    if (/^\s+artifacts:\s*$/.test(line)) { inArtifacts = true; continue; }
+    const item = line.match(/^\s+-\s+(.+)$/);
+    if (inArtifacts && item) {
+      artifactPaths.push(item[1].trim().replace(/^['"]|['"]$/g, ''));
+      continue;
+    }
+    if (inArtifacts && line.trim() && !/^\s+-/.test(line)) inArtifacts = false;
+  }
+  for (const p of artifactPaths) {
+    if (!p || p.includes('*')) continue;
+    check(`taskpilot:artifact:${p}`, existsSync(join(taskpilotRoot, p)));
+  }
+  check('taskpilot:features-json', existsSync(join(taskpilotRoot, 'product', 'features.json')));
+  check('taskpilot:sprint-progress', existsSync(join(taskpilotRoot, '.harness', 'sprints', '01-progress.md')));
+}
+
+check('skill:midas-progress', existsSync(join(ROOT, '.claude', 'skills', 'midas-progress', 'SKILL.md')));
+check('harness:stage-command-table', existsSync(join(ROOT, 'harness', 'stage-command-table.yaml')));
+
 check('mkdocs:adr-003', /ADR-003/.test(readFileSync(join(ROOT, 'mkdocs.yml'), 'utf8')));
 
 // --- status-page + yaml-lite smoke ----------------------------------------

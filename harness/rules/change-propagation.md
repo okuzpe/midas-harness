@@ -23,6 +23,13 @@ file and leaving generated trees, version stamps, or docs stale is a **gap** —
 **Never hand-edit generated trees** (`plugins/midas/`, `create-midas/template/`, `CLAUDE.md`,
 `.cursor/rules/`, `.windsurf/rules/`, `GEMINI.md`) — edit the source, then run the render/build path.
 
+## Adapter digest strategy (engine repo)
+
+**Option A (active):** `render-adapters.mjs` inlines full `**CHECK:**` digests from `harness/rules/`
+into generated adapters. Dedupe overlapping CHECKs in **source rules** via cross-references (`see
+code-quality.md` § …) — do not add a parallel `_fragments/` layer (see `conventions.md` precedence).
+**Option B** (title-only digest + links) is deferred per [ADR-005](../../docs/adr/ADR-005-agents-md-generation.md).
+
 ## Checklist
 
 ### After any substantive edit (before marking work done)

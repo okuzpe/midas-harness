@@ -45,11 +45,7 @@ do not introduce a parallel "standards" layer.
  [`rules/hygiene.md`](./rules/hygiene.md) + `/midas-sweep`.
 
 ## Acceptance criteria (EARS)
-- Write each sprint acceptance criterion as a **testable** statement, not a vague goal. Prefer EARS:
-  `WHEN <trigger>, the system SHALL <response>` (unconditional: `The system SHALL <response>`; use
-  `WHILE <state>` / `IF <condition> THEN` for state and edge cases). One observable behavior per line.
-- Mirror each criterion with a test named `given / when / then`, so the Phase-8 audit maps every
-  criterion to a passing test. A criterion no test could prove is a goal, not a criterion — rewrite it.
+- Write each sprint acceptance criterion as a **testable** statement — see [`rules/acceptance-criteria.md`](./rules/acceptance-criteria.md) for EARS patterns and Phase-8 mapping.
 
 ## Dependencies
 - Before adding a dependency, justify it (size, maintenance, license). Pin versions.

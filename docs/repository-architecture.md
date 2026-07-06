@@ -145,6 +145,7 @@ The distinction is intentional:
 | Plugin content | Source under `.claude/` or `.mcp.json` | `npm run build`, `npm test` |
 | Docs site | `docs/*.md`, `mkdocs.yml` | `mkdocs build --site-dir _site` locally, or rely on docs CI |
 | Any mixed change | sources above | `npm run align` (or `/midas-align`) |
+| Portable knowledge transfer | `scripts/bundle.mjs`, `.claude/skills/midas-bundle/` | `/midas-bundle` or `node scripts/bundle.mjs export|import` |
 
 ## Naming and generated-file rules
 
@@ -167,6 +168,17 @@ Decisions about the repository itself (not about a product built with Midas) are
 | [ADR-001](adr/ADR-001-install-layout.md) | accepted | Install layout — consolidate engine internals under `.midas/` (opt-in `--layout=compact`, classic default) |
 | [ADR-002](adr/ADR-002-code-intelligence-mcp.md) | rejected | Optional code-intelligence MCP (code-graph) — rejected: too much install complexity for a dependency-free harness |
 | [ADR-003](adr/ADR-003-project-memory-model.md) | accepted | Project memory model — `state.yaml` spine + `{runs}/*` records (`.harness/` or `.midas/`) |
+| [ADR-004](adr/ADR-004-audit-skill-surface.md) | accepted (deferred) | Audit skill surface — keep tribunal/security/close-sprint separate |
+| [ADR-005](adr/ADR-005-agents-md-generation.md) | accepted | AGENTS.md summary manual; adapter digest Option A |
+
+## Glossary — two kinds of "bundle"
+
+| Term | What it is | Where |
+|---|---|---|
+| **Distribution bundle** | Generated install trees copied from source | `create-midas/template/`, `plugins/midas/` via `build-create.mjs` / `build-plugin.mjs` |
+| **Portable JSON bundle** | Export/import of project memory (state, product docs, rules subset) | `scripts/bundle.mjs`, `/midas-bundle` skill |
+
+Do not confuse `npm run build` (distribution) with `node scripts/bundle.mjs export` (portable knowledge).
 
 ## Install layouts (classic vs compact)
 
