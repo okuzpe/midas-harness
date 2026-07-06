@@ -3,10 +3,10 @@
 import { readFileSync, existsSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { resolvePaths } from './paths.mjs';
+import { resolvePaths, resolveProjectRootFromScript } from './paths.mjs';
 
 const rootArg = process.argv[2];
-const ROOT = rootArg ? resolve(process.cwd(), rootArg) : resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const ROOT = rootArg ? resolve(process.cwd(), rootArg) : resolveProjectRootFromScript(import.meta.url);
 const paths = resolvePaths(ROOT);
 const OUT = join(ROOT, 'status.html');
 

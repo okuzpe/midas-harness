@@ -1,7 +1,8 @@
 // paths.mjs — layout-aware path resolver (classic | compact | hub). Dependency-free.
 
 import { existsSync, readFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 /** Fixed subdirs under the runs base (classic: .harness/, compact/hub: .midas/). */
 export const RUNS_SUBDIRS = ['audits', 'verifications', 'debates', 'sprints', 'sweeps', 'cache'];
@@ -165,4 +166,16 @@ export function hubPathsYaml() {
     runs: HUB.runs,
     product: HUB.product,
   };
+}
+
+/**
+ * Project root when a Midas script is invoked with no directory argument.
+ * Classic: `scripts/foo.mjs` → parent; hub/compact: `.midas/scripts/foo.mjs` → grandparent.
+ * @param {string} metaUrl import.meta.url
+ */
+export function resolveProjectRootFromScript(metaUrl) {
+  const scriptDir = dirname(fileURLToPath(metaUrl));
+  const norm = scriptDir.replace(/\\/g, '/');
+  if (norm.endsWith('/.midas/scripts')) return resolve(scriptDir, '..', '..');
+  return resolve(scriptDir, '..');
 }

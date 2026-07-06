@@ -19,7 +19,7 @@ import { evaluateMcpDeclaredVsWired, evaluateSkillMcpRequired, collectSkillMcpRe
 import { parseSprints, parseEnforcement, parseRouting, parseToolsFromStateYaml } from './yaml-lite.mjs';
 import { syncCursorMcp, wrapMcpServersForWindows } from './mcp-cursor-sync.mjs';
 import { ensureMidasGitignore } from './gitignore-merge.mjs';
-import { resolvePaths, detectLayout } from './paths.mjs';
+import { resolvePaths, detectLayout, resolveProjectRootFromScript } from './paths.mjs';
 
 const HELP = `midas doctor — adapter drift checker + install health check
 
@@ -37,7 +37,7 @@ const SHOW_HELP = process.argv.includes('--help') || process.argv.includes('-h')
 // Optional positional project root: check THAT project instead of the engine repo. Lets `--strict` run
 // against a real install (or examples/taskpilot) so the gate-records check is provably exercised.
 const rootArg = process.argv.slice(2).find((a) => !a.startsWith('-'));
-const ROOT = rootArg ? resolve(process.cwd(), rootArg) : resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const ROOT = rootArg ? resolve(process.cwd(), rootArg) : resolveProjectRootFromScript(import.meta.url);
 const paths = resolvePaths(ROOT);
 const doctorCmd = `node ${paths.scripts}/doctor.mjs`;
 

@@ -37,7 +37,7 @@ per-subagent model routing — the tiers collapse to prose intent in `AGENTS.md`
 
 **Q: Why `.midas/` instead of putting everything in `harness/`?**
 
-Classic layout splits **engine source** (`harness/`) from **run output** (`.harness/`) — similar names, easy to confuse. **`--layout=compact`** moves both under one `.midas/` tree (`engine/`, `scripts/`, `state.yaml`, `audits/`, `sprints/`, …) while `AGENTS.md`, `.claude/`, `.cursor/`, and `product/` stay at the project root. Migrate an existing classic install with `node scripts/migrate-layout.mjs --dry-run` then `--apply` (compact: `node .midas/scripts/migrate-layout.mjs`). See [ADR-001](adr/ADR-001-install-layout.md).
+Classic layout splits **engine source** (`harness/`) from **run output** (`.harness/`). **`layout: hub`** (default since 1.0.0) moves engine, runs, state, and `product/` under `.midas/`. Migrate a **classic** install with `node scripts/migrate-layout.mjs --target=hub` (dry-run first, then `--apply`). After migration, use `node .midas/scripts/doctor.mjs`. See [ADR-006](adr/ADR-006-hub-layout.md).
 
 ---
 

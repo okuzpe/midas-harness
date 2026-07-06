@@ -168,6 +168,26 @@ npx github:okuzpe/midas-harness#v1.0.0 --update   # pin a version, or omit #vX.Y
 re-apply your `## Amendment` if it was clobbered. No separate `/midas-doctor` step is required when verify
 reports `ok`.
 
+## Migrating an existing install to hub
+
+**While still on classic** (before migration), scripts live at the project root:
+
+```powershell
+# dry-run first — review the move table
+node scripts/migrate-layout.mjs --target=hub
+
+# apply (moves harness/, product/, .harness/* → .midas/)
+node scripts/migrate-layout.mjs --apply --target=hub
+
+# verify (after apply, scripts are under .midas/scripts/)
+node .midas/scripts/doctor.mjs
+```
+
+**Already on compact** (engine under `.midas/`, `product/` at root): same commands but use
+`node .midas/scripts/migrate-layout.mjs --target=hub`.
+
+`--update` refreshes the engine only — it does **not** change layout. Migration is always explicit.
+
 ## Uninstalling
 
 Same one command, with `--uninstall`. It is **surgical**: it removes only Midas's own files and

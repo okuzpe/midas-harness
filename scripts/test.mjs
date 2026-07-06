@@ -15,7 +15,8 @@ import { tmpdir } from 'node:os';
 import { computeAdapters, DEFAULT_ADAPTER_TOOLS, resolveAdapterTools } from './render-adapters.mjs';
 import { evaluateMcpDeclaredVsWired, evaluateSkillMcpRequired } from './mcp-drift.mjs';
 import { ensureMidasGitignore, GITIGNORE_BEGIN, GITIGNORE_END } from './gitignore-merge.mjs';
-import { detectLayout, resolvePaths, MIGRATION_MAP, MIGRATION_MAP_HUB, RUNS_SUBDIRS, hubPathsYaml } from './paths.mjs';
+import { detectLayout, resolvePaths, MIGRATION_MAP, MIGRATION_MAP_HUB, RUNS_SUBDIRS, hubPathsYaml, resolveProjectRootFromScript } from './paths.mjs';
+import { pathToFileURL } from 'node:url';
 import { exportBundle, applyImport, checkMcpSecrets, ENGINE_BASE_RULES, toCanonical, fromCanonical, planImport } from './bundle.mjs';
 import { loadStageCommandTable, stageRecallPaths, loadEngineBaseRules } from './stage-command-table.mjs';
 import { createHash } from 'node:crypto';
@@ -517,6 +518,13 @@ check('paths:module-exists', existsSync(join(ROOT, 'scripts', 'paths.mjs')));
     check('paths:hub-engine', hp.engine === '.midas/engine');
     check('paths:hub-product', hp.product === '.midas/product');
     check('paths:hub-runs', hp.runs === '.midas');
+    const hubDoctor = join(hubRoot, '.midas', 'scripts', 'doctor.mjs');
+    mkdirSync(dirname(hubDoctor), { recursive: true });
+    writeFileSync(hubDoctor, '// stub\n', 'utf8');
+    check(
+      'paths:script-root-hub',
+      resolveProjectRootFromScript(pathToFileURL(hubDoctor).href) === hubRoot,
+    );
   } finally {
     rmSync(hubRoot, { recursive: true, force: true });
   }
