@@ -306,6 +306,13 @@ if (existsSync(join(ROOT, 'examples', 'taskpilot'))) {
   );
 }
 
+// --- L0. installer --update must pass paths into readToolsFromState ---------------------------
+{
+  const installer = readFileSync(join(ROOT, 'create-midas', 'index.mjs'), 'utf8');
+  check('installer:fillAgents-paths-arg', /function fillAgents\(tools, paths\)/.test(installer));
+  check('installer:no-bare-readToolsFromState', !/readToolsFromState\(\)/.test(installer));
+}
+
 // --- L. prose version pins (#vX.Y.Z) match harness/VERSION (CHANGELOG history excluded) ---------
 if (engineVersion) {
   for (const f of ['INSTALL.md', 'SECURITY.md', 'README.md', 'create-midas/index.mjs']) {

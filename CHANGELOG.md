@@ -15,8 +15,8 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 - **ADRs** — ADR-004 (audit skill surface), ADR-005 (AGENTS.md generation strategy).
 - **TaskPilot demo** — `product/features.json`, `.harness/sprints/01-progress.md` (ADR-003).
 
-### Changed
-- Skills: fixed `/deep-research` references; Phase 7 ladder in `methodology.md`; start/close-sprint clarity.
+### Fixed
+- **`create-midas --update`** — `readToolsFromState()` was called without `paths` in `fillAgents` and MCP sync, crashing updates on existing installs.
 - Rules: `context7-usage.md` CHECKs; CHECK dedupe cross-refs; adapter digest Option A documented.
 - Tests: rules-match hash, migrate-layout/bundle CLI smoke, TaskPilot artifact checks (360+ tests).
 - Docs: INSTALL canonical; repository-architecture glossary; gstack PROPOSED labels; CI `npm run align` job.

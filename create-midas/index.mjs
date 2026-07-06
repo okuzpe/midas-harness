@@ -109,7 +109,7 @@ try {
   console.error('create-midas: adapter render failed:', err.message || err);
 }
 
-fillAgents(selectedTools);
+fillAgents(selectedTools, paths);
 ensureGeminiExtension(selectedTools || readToolsFromState(paths) || DEFAULT_TOOLS, paths);
 {
   const mcpSyncPath = join(TARGET, paths.scripts, 'mcp-cursor-sync.mjs');
@@ -119,7 +119,7 @@ ensureGeminiExtension(selectedTools || readToolsFromState(paths) || DEFAULT_TOOL
     if (existsSync(rootMcp) && (written.includes('.mcp.json') || update)) {
       if (fixMcpFileForWindows(rootMcp)) written.push('.mcp.json');
     }
-    const toolList = selectedTools || readToolsFromState() || DEFAULT_TOOLS;
+    const toolList = selectedTools || readToolsFromState(paths) || DEFAULT_TOOLS;
     const r = syncCursorMcp(TARGET, toolList, { wrapRoot: written.includes('.mcp.json') || update });
     if (r.synced && !written.includes('.cursor/mcp.json')) written.push('.cursor/mcp.json');
   }
@@ -249,11 +249,11 @@ function findAncestorMidasRoot(startDir) {
 // Fill the template AGENTS.md placeholders so the installed file is about THIS project, not Midas.
 // Only touches our freshly-written template AGENTS.md (it still contains `{{...}}`); a pre-existing
 // user AGENTS.md has no placeholders and is left untouched.
-function fillAgents(tools) {
+function fillAgents(tools, paths) {
   const f = join(TARGET, 'AGENTS.md');
   const t = readMaybe(f);
   if (t == null || !t.includes('{{')) return;
-  const list = (tools || readToolsFromState() || DEFAULT_TOOLS).join(', ');
+  const list = (tools || readToolsFromState(paths) || DEFAULT_TOOLS).join(', ');
   const filled = t
     .replace(/\{\{PROJECT_NAME\}\}/g, NAME)
     .replace(/\{\{STACK\}\}/g, 'undecided — set in Phase 4 (`/choose-architecture`)')
