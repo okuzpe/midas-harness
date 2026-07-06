@@ -1,6 +1,6 @@
 ---
 name: midas-capture
-description: Crystallize a recurring request or correction into the right project artifact — a rule (<paths.engine>/rules/*), a playbook (product/playbooks/*), or a convention (product/conventions.md) — via a decision rubric, so every later sprint and audit honors it automatically. The agent proposes this whenever it notices you asking for the same thing ~2-3 times (recommend-don't-wall — it asks first, never writes silently); you can also invoke it to capture a pattern on demand. Writes to the visible project artifacts you review in git, never a hidden store.
+description: Crystallize a recurring request or correction into the right project artifact — a rule (<paths.engine>/rules/*), a playbook ({product}/playbooks/*), or a convention ({product}/conventions.md) — via a decision rubric, so every later sprint and audit honors it automatically. The agent proposes this whenever it notices you asking for the same thing ~2-3 times (recommend-don't-wall — it asks first, never writes silently); you can also invoke it to capture a pattern on demand. Writes to the visible project artifacts you review in git, never a hidden store.
 user-invocable: true
 disable-model-invocation: true
 model: inherit
@@ -30,8 +30,8 @@ On the user's **OK**, run the procedure below. On **no**, drop it (don't nag).
 | The recurring thing is… | Capture as | Where |
 |---|---|---|
 | a **constraint / preference** ("always use X", "never Y") a reviewer can pass/fail | **rule** (with a `**CHECK:**`) | `<paths.engine>/rules/<slug>.md` |
-| a **procedure** done the project's way ("when I add an endpoint, do A→B→C") | **playbook** | `product/playbooks/<verb-noun>.md` |
-| a **prose preference** that isn't a mechanical check | **convention** | `product/conventions.md` |
+| a **procedure** done the project's way ("when I add an endpoint, do A→B→C") | **playbook** | `{product}/playbooks/<verb-noun>.md` |
+| a **prose preference** that isn't a mechanical check | **convention** | `{product}/conventions.md` |
 | (rarely) a genuinely new **invokable engine command** | a skill — **almost never per-project** | — |
 
 Default to a **rule** when it's checkable, a **playbook** when it's a multi-step recipe. A per-project
@@ -43,8 +43,8 @@ From the conversation (the repeated requests/corrections) or the `--as`/argument
 **one sentence** and cite the **≥2 instances** that justify it. A one-off is not a pattern — require genuine recurrence.
 
 ### 2. Classify + find an existing home first (amend over duplicate + contradiction check)
-Pick rule / playbook / convention via the rubric. **Search existing `<paths.engine>/rules/*`, `product/playbooks/*`,
-and `product/conventions.md` first** — grep for the concept and close synonyms.
+Pick rule / playbook / convention via the rubric. **Search existing `<paths.engine>/rules/*`, `{product}/playbooks/*`,
+and `{product}/conventions.md` first** — grep for the concept and close synonyms.
 
 - **Overlap** (same concept, ~85%+ overlap — amend, do not duplicate): extend that file with a dated
   `## Amendment` or playbook edit; record importance `explicit` (user invoked capture) or `recurring`
@@ -62,9 +62,9 @@ and `product/conventions.md` first** — grep for the concept and close synonyms
 ### 3. Write the artifact (match the house style)
 - **Rule** — a new or extended `<paths.engine>/rules/<slug>.md` item carrying a concrete `**CHECK:**` (grep or
   `manual:`), in the same style as the existing rules. Respect the precedence chain.
-- **Playbook** — `product/playbooks/<verb-noun>.md` from `<paths.engine>/templates/playbook.md`: use-when, steps,
+- **Playbook** — `{product}/playbooks/<verb-noun>.md` from `<paths.engine>/templates/playbook.md`: use-when, steps,
   the rules/tokens it honours, a Context7 fetch if it touches a third-party API, a done-when check.
-- **Convention** — an entry in `product/conventions.md` (prose override of the base `<paths.engine>/conventions.md`).
+- **Convention** — an entry in `{product}/conventions.md` (prose override of the base `<paths.engine>/conventions.md`).
 
 ### 4. Propagate + log
 - If you wrote/changed a **rule**, re-render adapters (`node <paths.scripts>/render-adapters.mjs` / `/midas-doctor`)

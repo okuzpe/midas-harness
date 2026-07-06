@@ -36,8 +36,8 @@ const dryRun = args.includes('--dry-run');
 const purge = args.includes('--purge');
 const layoutArg = args.find((a) => a.startsWith('--layout='));
 const installLayoutFlag = layoutArg ? layoutArg.slice('--layout='.length) : null;
-if (installLayoutFlag && !['classic', 'compact'].includes(installLayoutFlag)) {
-  console.error('create-midas: --layout must be classic or compact');
+if (installLayoutFlag && !['classic', 'compact', 'hub'].includes(installLayoutFlag)) {
+  console.error('create-midas: --layout must be classic, compact, or hub');
   process.exit(1);
 }
 const targetArg = args.find((a) => !a.startsWith('-')) || '.';
@@ -85,7 +85,9 @@ const installLayout = resolveInstallLayout();
 mkdirSync(TARGET, { recursive: true });
 copyTree(TEMPLATE, TARGET);
 
-if (installLayout === 'compact') {
+if (installLayout === 'hub') {
+  applyHubLayout();
+} else if (installLayout === 'compact') {
   applyCompactLayout();
 }
 
@@ -173,18 +175,26 @@ function hasMidasInstall(dir) {
 }
 
 function detectInstallLayout(dir) {
-  if (existsSync(join(dir, '.midas', 'state.yaml')) || existsSync(join(dir, '.midas', 'engine', 'VERSION'))) {
+  const midasState = join(dir, '.midas', 'state.yaml');
+  if (existsSync(midasState)) {
+    const raw = readMaybe(midasState);
+    const m = raw?.match(/^layout:\s*(\S+)/m);
+    if (m?.[1] === 'hub') return 'hub';
+    if (existsSync(join(dir, '.midas', 'product'))) return 'hub';
     return 'compact';
+  }
+  if (existsSync(join(dir, '.midas', 'engine', 'VERSION'))) {
+    return existsSync(join(dir, '.midas', 'product')) ? 'hub' : 'compact';
   }
   if (existsSync(join(dir, 'harness', 'state.yaml')) || existsSync(join(dir, 'harness', 'VERSION'))) {
     return 'classic';
   }
-  return installLayoutFlag || 'classic';
+  return installLayoutFlag || 'hub';
 }
 
 function resolveInstallLayout() {
   if (update) return detectInstallLayout(TARGET);
-  return installLayoutFlag || 'classic';
+  return installLayoutFlag || 'hub';
 }
 
 /** Dynamic import of paths.mjs from the installed project. */
@@ -231,6 +241,20 @@ function applyCompactLayout() {
   } else if (existsSync(engineState) && !existsSync(compactState)) {
     mkdirSync(dirname(compactState), { recursive: true });
     renameSync(engineState, compactState);
+  }
+}
+
+/** Hub = compact engine + product under .midas/product/. */
+function applyHubLayout() {
+  applyCompactLayout();
+  const productSrc = join(TARGET, 'product');
+  const productDst = join(TARGET, '.midas', 'product');
+  mkdirSync(join(TARGET, '.midas'), { recursive: true });
+  if (existsSync(productSrc)) {
+    if (existsSync(productDst)) rmSync(productDst, { recursive: true, force: true });
+    renameSync(productSrc, productDst);
+  } else if (!existsSync(productDst)) {
+    mkdirSync(productDst, { recursive: true });
   }
 }
 
@@ -415,17 +439,28 @@ function writeState(tools, paths) {
   const stage = mode === 'brownfield' ? 'tech_architecture' : 'idea_intake';
   const toolList = (tools || DEFAULT_TOOLS).join(', ');
   const layoutLines =
-    paths.layout === 'compact'
+    paths.layout === 'hub'
       ? [
-          'layout: compact',
+          'layout: hub',
           'paths:',
           '  engine: .midas/engine',
           '  scripts: .midas/scripts',
           '  state: .midas/state.yaml',
           '  runs: .midas',
+          '  product: .midas/product',
           '',
         ]
-      : [];
+      : paths.layout === 'compact'
+        ? [
+            'layout: compact',
+            'paths:',
+            '  engine: .midas/engine',
+            '  scripts: .midas/scripts',
+            '  state: .midas/state.yaml',
+            '  runs: .midas',
+            '',
+          ]
+        : [];
   const yaml = [
     `midas_version: ${version}`,
     ...layoutLines,
@@ -571,7 +606,7 @@ function pruneEmptyTree(dir) {
 }
 
 function templateToInstalledRel(rel, layout) {
-  if (layout !== 'compact') return rel;
+  if (layout !== 'compact' && layout !== 'hub') return rel;
   if (rel.startsWith('harness/')) return rel.replace(/^harness\//, '.midas/engine/');
   if (rel.startsWith('scripts/')) return rel.replace(/^scripts\//, '.midas/scripts/');
   if (rel === 'docs/agents-and-models.md') return '.midas/docs/agents-and-models.md';
@@ -612,16 +647,18 @@ function runUninstall() {
     } else { rmFile(rel); removed.push(rel); }
   }
 
-  const hashPaths = layout === 'compact'
-    ? ['.midas/cache/adapters.hash']
-    : ['.harness/adapters.hash'];
+  const hashPaths = layout === 'classic'
+    ? ['.harness/adapters.hash']
+    : ['.midas/cache/adapters.hash'];
   for (const hp of hashPaths) {
     if (existsSync(join(TARGET, hp))) { rmFile(hp); removed.push(hp); }
   }
 
-  const workPaths = layout === 'compact'
-    ? ['product', '.midas', '.midas/state.yaml']
-    : ['product', '.harness', 'harness/state.yaml'];
+  const workPaths = layout === 'hub'
+    ? ['.midas']
+    : layout === 'compact'
+      ? ['product', '.midas', '.midas/state.yaml']
+      : ['product', '.harness', 'harness/state.yaml'];
   for (const rel of workPaths) {
     if (!existsSync(join(TARGET, rel))) continue;
     if (purge) { if (!dryRun) rmSync(join(TARGET, rel), { recursive: true, force: true }); purged.push(rel); }
@@ -639,7 +676,7 @@ function pruneEmptyDirs(layout) {
 }
 
 function reportUninstall({ removed, keptModified, keptUser, purged, layout }) {
-  const runsLabel = layout === 'compact' ? '.midas/' : '.harness/';
+  const runsLabel = layout === 'classic' ? '.harness/' : '.midas/';
   console.log(`\n  🧹 Midas uninstall from ${TARGET}${dryRun ? '   (dry run — nothing deleted)' : ''}`);
   console.log(`     ${removed.length} engine file(s) ${dryRun ? 'would be removed' : 'removed'}` +
     (purged.length ? `, ${purged.length} work path(s) ${dryRun ? 'would be purged' : 'purged'}` : ''));
@@ -666,12 +703,14 @@ function printHelp() {
 Install:
   npx github:okuzpe/midas-harness          into the current directory (from GitHub)
   npx github:okuzpe/midas-harness my-app   into ./my-app
-  npx github:okuzpe/midas-harness#v0.5.30   pin a release for a reproducible install
-  npx github:okuzpe/midas-harness --layout=compact   engine internals under .midas/ (see ADR-001)
+  npx github:okuzpe/midas-harness#v1.0.0   pin a release for a reproducible install
+  npx github:okuzpe/midas-harness --layout=hub   explicit hub (default when flag omitted)
+  npx github:okuzpe/midas-harness --layout=classic   legacy layout (harness/ at repo root)
+  npx github:okuzpe/midas-harness --layout=compact   engine under .midas/, product at root (ADR-001)
 
 Update an existing install (overwrites the engine, KEEPS your work, bumps the version stamp):
   npx github:okuzpe/midas-harness --update             refresh to the latest (main)
-  npx github:okuzpe/midas-harness#v0.5.30 --update      refresh to a pinned release
+  npx github:okuzpe/midas-harness#v1.0.0 --update      refresh to a pinned release
 
 Uninstall (surgical — removes only Midas's files, keeps your work):
   npx github:okuzpe/midas-harness --uninstall             remove the engine, keep product/ + runs + state.yaml
@@ -679,7 +718,7 @@ Uninstall (surgical — removes only Midas's files, keeps your work):
   npx github:okuzpe/midas-harness --uninstall --purge     also remove your product/, runs/ and state.yaml
 
 Options:
-  --layout     (install) classic (default) or compact (.midas/ tree — ADR-001)
+  --layout     (install) hub (default), classic, or compact — see ADR-006
   --tools      (install) comma-separated AI tools (e.g. cursor or cursor,gemini,codex).
                Presets at interactive prompt: c=cursor · s=cursor,gemini,codex · a=all adapters.
                Interactive prompt when stdin is a TTY; defaults to all adapter tools otherwise.
@@ -694,5 +733,6 @@ Options:
 After install, open the project in your chosen tool and run /midas-init (one-time setup), then /midas-status.
 Cursor:           npx github:okuzpe/midas-harness --tools=cursor
 Compact layout:   npx github:okuzpe/midas-harness --layout=compact --tools=cursor
+Classic layout:   npx github:okuzpe/midas-harness --layout=classic --tools=cursor
 Docs: https://github.com/okuzpe/midas-harness`);
 }

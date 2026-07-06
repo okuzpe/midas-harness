@@ -13,8 +13,8 @@ This is an irreversible decision point; use the orchestrate tier.
 
 ## Inputs
 
-- `product/idea.md` v2 (Phase 1)
-- `product/market.md` (Phase 2)
+- `{product}/idea.md` v2 (Phase 1)
+- `{product}/market.md` (Phase 2)
 - `harness/state.yaml` (stage must be `business_case`)
 
 ## Key steps
@@ -26,11 +26,11 @@ This is an irreversible decision point; use the orchestrate tier.
 3. **Sketch the revenue/sustainability model.** One paragraph: how does this sustain itself
    (freemium, subscription, open-core, grant, internal tool, etc.)? No financial projections
    are required unless the human asks — just name the model.
-4. **Identify top 3 risks** (pull from `product/market.md` `## Top risks`; update if needed). If
+4. **Identify top 3 risks** (pull from `{product}/market.md` `## Top risks`; update if needed). If
    **field validation** (interviews / a real preorder / a paid-ad demand test) has not been done, list
    *"real-customer demand unproven — field validation deferred"* as an explicit risk + assumption. Recommend
    field validation, but do **NOT** hard-block a resource-constrained founder; the go/no-go is their call.
-5. **Draft `product/business-plan.md`** with sections:
+5. **Draft `{product}/business-plan.md`** with sections:
    - `## MVP scope` — feature list + explicit non-goals
    - `## Success metrics` — primary + secondary + health
    - `## Revenue / sustainability model`
@@ -49,11 +49,11 @@ This is an irreversible decision point; use the orchestrate tier.
 
 | File | Notes |
 |---|---|
-| `product/business-plan.md` | MVP scope, metrics, model, go/no-go |
+| `{product}/business-plan.md` | MVP scope, metrics, model, go/no-go |
 
 ## Exit gate checklist
 
-- [ ] `product/business-plan.md` exists with all five sections
+- [ ] `{product}/business-plan.md` exists with all five sections
 - [ ] MVP scope names features AND explicit non-goals
 - [ ] At least one measurable, time-bound success metric is defined
 - [ ] Revenue/sustainability model is named (one paragraph minimum)

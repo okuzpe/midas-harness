@@ -14,7 +14,7 @@ argument-hint: "[phase|sprint|task] [--focus \"<query>\"]"
 > **Paths (layout-aware):** Read `layout` + `paths` from **`paths.state`**. Motor = `paths.engine`; `{runs}/` = `paths.runs` + subdir. See `AGENTS.md` § Path resolution.
 
 Cheap **read-only** recovery. Assembles the smallest set of on-disk artifacts an agent needs to resume
-mid-phase or mid-sprint — without dumping all of `product/` into context. **Never writes** and never
+mid-phase or mid-sprint — without dumping all of `{product}/` into context. **Never writes** and never
 advances `stage`.
 
 > **vs `/midas-status`:** status = program counter + single next command (~6 lines). Recall = curated
@@ -31,7 +31,7 @@ Full model: `<paths.engine>/research/memory-model.md`.
 | `phase` | default when `stage` has no active sprint | Pack for the current lifecycle phase |
 | `sprint` | use when `sprint_execution` + active sprint | Pack for the active sprint + STM |
 | `task` | narrow | Pack for the next unchecked task in the active sprint |
-| `--focus "<query>"` | optional | Extra grep in `product/` + `<paths.engine>/rules/`; add top hits to the pack |
+| `--focus "<query>"` | optional | Extra grep in `{product}/` + `<paths.engine>/rules/`; add top hits to the pack |
 
 ## Procedure
 
@@ -47,7 +47,7 @@ Load the file at **`paths.state`**. If missing → report `/midas-init`. Parse `
 Always include when present:
 
 1. `paths.state` (the state file itself)
-2. Active `product/sprints/NN-*.md` (if any)
+2. Active `{product}/sprints/NN-*.md` (if any)
 3. `{runs}/sprints/NN-progress.md` (if any)
 4. Latest `{runs}/verifications/verify-NN.md` when `stage: sprint_execution` and UI journeys exist
 
@@ -55,19 +55,19 @@ Then add by `stage` / `mode` from the YAML table (stop at ~15 total):
 
 | `stage` | Additional paths (priority order) |
 |---|---|
-| `idea_intake` | `product/idea.md` |
-| `contextualize` | `product/idea.md`, `product/open-questions.md` |
-| `market_research` | `product/idea.md`, `product/market.md` (if exists) |
-| `business_case` | `product/market.md`, `product/business-plan.md` |
-| `tech_architecture` | `product/business-plan.md`, `product/architecture.md`, `product/adr/*` |
-| `architecture_rules` | `product/architecture.md`, `<paths.engine>/rules/*` (list names only if many) |
-| `sprint_planning` | `product/roadmap.md`, `product/business-plan.md` MVP section |
-| `sprint_execution` | `product/features.json`, `{runs}/verifications/*`, `<paths.engine>/rules/*` cited in sprint DoD, `product/playbooks/*` referenced in sprint tasks |
+| `idea_intake` | `{product}/idea.md` |
+| `contextualize` | `{product}/idea.md`, `{product}/open-questions.md` |
+| `market_research` | `{product}/idea.md`, `{product}/market.md` (if exists) |
+| `business_case` | `{product}/market.md`, `{product}/business-plan.md` |
+| `tech_architecture` | `{product}/business-plan.md`, `{product}/architecture.md`, `{product}/adr/*` |
+| `architecture_rules` | `{product}/architecture.md`, `<paths.engine>/rules/*` (list names only if many) |
+| `sprint_planning` | `{product}/roadmap.md`, `{product}/business-plan.md` MVP section |
+| `sprint_execution` | `{product}/features.json`, `{runs}/verifications/*`, `<paths.engine>/rules/*` cited in sprint DoD, `{product}/playbooks/*` referenced in sprint tasks |
 
-**Brownfield** (`mode: brownfield`): also `product/inventory.md`, `product/debt.md`, latest
+**Brownfield** (`mode: brownfield`): also `{product}/inventory.md`, `{product}/debt.md`, latest
 `{runs}/sweeps/sweep-NN.md` if any.
 
-**`--focus`:** grep the query in `product/` and `<paths.engine>/rules/`; append matching files until the cap.
+**`--focus`:** grep the query in `{product}/` and `<paths.engine>/rules/`; append matching files until the cap.
 
 ### 3. Emit brief (~30 lines max)
 

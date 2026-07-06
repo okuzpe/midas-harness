@@ -16,7 +16,7 @@ These rules apply from Phase 7 (Sprint Execution) onward and support **native pr
       Greenfield with no active sprint → `n/a`.
 - [ ] Completed tasks in the progress log name the **tool/MCP** that proved each item (git-visible
       traceability aligned with Phase 7 and `verification.md`).
-      **CHECK:** `manual:` when the sprint diff checks off tasks in `product/sprints/NN-*.md`, read
+      **CHECK:** `manual:` when the sprint diff checks off tasks in `{product}/sprints/NN-*.md`, read
       `{runs}/sprints/NN-progress.md` § Done — each completed row carries a non-empty **Tool** value
       (e.g. `test-runner`, `context7`, `playwright-mcp`); a checked-off task with proof but no Tool is a
       fail. Sprints with zero tasks completed this cycle → `n/a`.
@@ -30,7 +30,7 @@ These rules apply from Phase 7 (Sprint Execution) onward and support **native pr
 ### Recall vs hidden store
 - [ ] Session continuity uses git-visible files only — no parallel memory DB introduced this sprint.
       **CHECK:** `manual:` the sprint diff introduces no new `*.db`, `.engram/`, or vector-store config;
-      continuity evidence is `NN-progress.md`, `product/*`, or `harness/rules/*` only.
+      continuity evidence is `NN-progress.md`, `{product}/*`, or `harness/rules/*` only.
 
 ## Relationship to other tools
 

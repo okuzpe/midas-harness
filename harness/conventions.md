@@ -7,13 +7,22 @@ adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.m
 ## Precedence (when rules conflict, higher wins)
 
 ```
-stack-specific rules  >  product/conventions.md  >  product/design-system.md  >  these base conventions
+stack-specific rules  >  {product}/conventions.md  >  {product}/design-system.md  >  these base conventions
 ```
 
 Stack-specific rules are generated during Phase 5 by `/define-conventions` (docs-verified for the
-chosen framework). `product/conventions.md` and `product/design-system.md` are project overrides the
+chosen framework). `{product}/conventions.md` and `{product}/design-system.md` are project overrides the
 team owns. This base file is the floor every project starts from. There is exactly **one** taxonomy —
 do not introduce a parallel "standards" layer.
+
+## Path resolution (layout-aware)
+
+Read `layout` and `paths` from **`paths.state`**. Pipeline and skills use tokens — substitute before I/O:
+
+- **`{runs}/`** → `paths.runs` (classic: `.harness/`, compact/hub: `.midas/`)
+- **`{product}/`** → `paths.product` (classic/compact: `product/`, hub: `.midas/product/`)
+
+Engine source: `paths.engine` (`harness/` classic, `.midas/engine/` compact/hub).
 
 ## Code quality
 - Match the surrounding code: naming, structure, comment density, idioms. New code should be
@@ -75,7 +84,7 @@ do not introduce a parallel "standards" layer.
 
 ## Design system
 - Base tokens ship in `harness/design-system/tokens.{json,css}`; project overrides live in
-  `product/design-system.md` with rendered files at `product/design-system/tokens.{json,css}`.
+  `{product}/design-system.md` with rendered files at `{product}/design-system/tokens.{json,css}`.
   Never hardcode colors, spacing, type sizes, or radii — reference `--ds-*` tokens.
 - Visual hierarchy, typography discipline, emphasis, and lightweight UX floors:
   [`rules/visual-design.md`](./rules/visual-design.md). Accessibility, contrast, focus, and containment:

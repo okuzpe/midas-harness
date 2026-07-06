@@ -23,7 +23,7 @@ Mirror each criterion with a test titled `given / when / then` so the Phase-8 au
 to a passing test (see `testing.md` for suite requirements).
 
 - [ ] Each acceptance criterion in the active sprint file is a single EARS-shaped, observable statement.
-      **CHECK:** `manual:` read `product/sprints/NN-*.md` § Acceptance — any line that is a goal, not an
+      **CHECK:** `manual:` read `{product}/sprints/NN-*.md` § Acceptance — any line that is a goal, not an
       observable behaviour, is a fail.
 - [ ] Every acceptance criterion has a corresponding test or `/midas-verify` row at audit time.
       **CHECK:** `manual:` cross-read sprint acceptance table vs test files and `{runs}/verifications/` —

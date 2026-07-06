@@ -37,17 +37,17 @@ high-severity findings. When a sweep exists, resolve or consciously defer every 
 `ledger-drift` row before grading other rules — otherwise Phase 8 audits noise.
 
 ### 1. Read state + frozen rules
-Load **`paths.state`**, the active `product/sprints/NN-*.md`, all `<paths.engine>/rules/*`,
-`product/architecture.md` and `product/idea.md` (the module boundaries + glossary the
-code-quality/testing/security/naming CHECKs grade against), `product/conventions.md`,
-`product/design-system.md`, `product/design-direction.md` (the named UI references — the evidence the
-`accessibility.md` design-fidelity CHECK grades against), and `product/business-plan.md`.
+Load **`paths.state`**, the active `{product}/sprints/NN-*.md`, all `<paths.engine>/rules/*`,
+`{product}/architecture.md` and `{product}/idea.md` (the module boundaries + glossary the
+code-quality/testing/security/naming CHECKs grade against), `{product}/conventions.md`,
+`{product}/design-system.md`, `{product}/design-direction.md` (the named UI references — the evidence the
+`accessibility.md` design-fidelity CHECK grades against), and `{product}/business-plan.md`.
 
 ### 2. Conformance audit (every rule, pass/fail, with evidence)
 For **each** rule in `<paths.engine>/rules/*` and the design-system token rule, evaluate the rule's CHECK
 against the sprint diff and render **pass/fail with on-disk evidence** (file:line). Confirm
 third-party code was written against Context7-verified docs at the pinned version. Where a task
-followed a `product/playbooks/*` recipe, confirm its **done-when** checks hold too — and **trigger-check
+followed a `{product}/playbooks/*` recipe, confirm its **done-when** checks hold too — and **trigger-check
 every playbook**: if the sprint diff matches a playbook's `Trigger` predicate, its done-when MUST be
 satisfied even if the author did not consciously "follow" it (a recurring task done the wrong way is a
 fail). No rule is skipped; "not applicable this sprint" is itself a recorded verdict.
@@ -92,7 +92,7 @@ revealed new work). Then **select next**:
 
 ## Exit gate
 - **Every rule audited** pass/fail **with evidence**.
-- **Playbook triggers honored:** any diff matching a `product/playbooks/*` `Trigger` shows that
+- **Playbook triggers honored:** any diff matching a `{product}/playbooks/*` `Trigger` shows that
   playbook's done-when satisfied (a matching change that bypassed the playbook is a fail).
 - **Drift fixed or the rule consciously amended** (logged) — nothing silent.
 - **Scope reconciled** against the business case.

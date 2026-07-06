@@ -36,7 +36,7 @@ Phase-8 audits see git-visible evidence of what was proved and how.
    - Update **Next** to the single following task or blocker.
    - Refresh **Last updated** (ISO date).
 2. **Tool column** — use canonical values from the template (`test-runner`, `context7`, `playwright-mcp`, …).
-3. **Do not** advance `stage`, close the sprint, or edit `product/features.json` status here — that is
+3. **Do not** advance `stage`, close the sprint, or edit `{product}/features.json` status here — that is
    implementation + `/close-sprint` territory.
 4. Print one line: `STM updated → {runs}/sprints/NN-progress.md`.
 

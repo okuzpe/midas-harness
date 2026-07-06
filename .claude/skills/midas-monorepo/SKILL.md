@@ -111,7 +111,7 @@ precedence chain just gains a per-package layer at the top:
 
 ```
 package stack rules  >  package conventions/design-system  >  root stack rules
-  >  product/conventions.md  >  product/design-system.md  >  base conventions
+  >  {product}/conventions.md  >  {product}/design-system.md  >  base conventions
 ```
 
 So a `<path>/conventions.md` or `<path>/design-system.md` wins **inside that package only**, above the

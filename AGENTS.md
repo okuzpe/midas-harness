@@ -28,13 +28,18 @@ All rules in `harness/conventions.md` apply unconditionally. Key points:
 - **Dependencies** — justify before adding; pin versions; fetch current docs (Context7 or your own tool) before any third-party code.
 - **Git** — Conventional Commits (`feat:` `fix:` `docs:` `refactor:` `test:` `chore:`); small reviewable commits.
 - **Security** — secrets only in `${ENV_VAR}`; never commit them; least-privilege MCP scopes.
-- **Design system** — all UI uses `product/design-system.md` tokens; never hardcode colour/spacing/type.
+- **Design system** — all UI uses `{product}/design-system.md` tokens; never hardcode colour/spacing/type.
 
 Stack-specific rules (generated in Phase 5) live in `harness/rules/` and take highest precedence.
 
 ## Path resolution (layout-aware installs)
 
-Read `layout` and `paths` from **`paths.state`** first. Pipeline prose uses `{runs}/` as a token for the runs base (`.harness/` classic, `.midas/` compact). Substitute `{runs}` with `paths.runs` from state before writing audits, verifications, sprints, or sweeps. Engine source lives at `paths.engine` (default `harness/` or `.midas/engine/`).
+Read `layout` and `paths` from **`paths.state`** first. Pipeline prose uses layout tokens:
+
+- **`{runs}/`** — substitute with `paths.runs` (classic: `.harness/`, compact/hub: `.midas/`)
+- **`{product}/`** — substitute with `paths.product` (classic/compact: `{product}/`, hub: `.midas/product/`)
+
+Engine source lives at `paths.engine` (classic: `harness/`, compact/hub: `.midas/engine/`).
 
 ## Continuous capture of recurring patterns (always-on)
 
@@ -46,8 +51,8 @@ automatically (*recommend-don't-wall* — propose, never write silently):
 
 On the user's **OK**, write the **right** artifact and show the diff:
 - a **constraint / preference** → a **rule** in `harness/rules/<slug>.md` (with a `**CHECK:**`; re-render adapters);
-- a **procedure** → a **playbook** in `product/playbooks/<verb-noun>.md`;
-- a **prose preference** → an entry in `product/conventions.md`.
+- a **procedure** → a **playbook** in `{product}/playbooks/<verb-noun>.md`;
+- a **prose preference** → an entry in `{product}/conventions.md`.
 
 A per-project pattern is a rule/playbook/convention — **not** a new slash-command. `/midas-capture` is the
 manual trigger and the canonical procedure. Captures go to these **visible** artifacts (reviewable in git),

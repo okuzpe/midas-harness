@@ -10,7 +10,7 @@ recommended-model: claude-haiku-4-5
 
 # midas-status — where am I, what's next
 
-> **Paths (layout-aware):** Read `layout` + `paths` from the state file at **`paths.state`** (classic: `harness/state.yaml`, compact: `.midas/state.yaml`). Substitute `{runs}/` with `paths.runs`. See `AGENTS.md` § Path resolution.
+> **Paths (layout-aware):** Read `layout` + `paths` from **`paths.state`**. Substitute `{runs}/` → `paths.runs`, `{product}/` → `paths.product`. Engine at `paths.engine`. See `AGENTS.md` § Path resolution.
 
 A cheap, **read-only** status check. It never writes, never advances state, and never runs a gate to
 completion — it reports the truth already on disk. Safe to run at any time, including mid-phase.

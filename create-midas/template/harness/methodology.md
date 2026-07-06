@@ -13,7 +13,7 @@ The per-phase playbooks live in [`harness/pipeline/`](./pipeline/); this file is
 
 ## Resuming work (native memory)
 
-Midas stores **long-term** project truth in `product/*`, `harness/rules/*`, and frozen `{runs}/*`
+Midas stores **long-term** project truth in `{product}/*`, `harness/rules/*`, and frozen `{runs}/*`
 records — not in a hidden vector DB. **Short-term** continuity uses `{runs}/sprints/NN-progress.md`
 (STM). See [`research/memory-model.md`](./research/memory-model.md).
 
@@ -34,13 +34,13 @@ and `state.yaml` records `gate: passed`. The **producer** never grades its own h
 
 | # | Phase | Playbook | Output |
 |---|---|---|---|
-| 0 | Idea Intake | `pipeline/0-idea-intake.md` | `product/idea.md`, `harness/state.yaml` |
-| 1 | Contextualize & Gap Audit | `pipeline/1-contextualize.md` | `product/idea.md` v2, `product/open-questions.md` |
-| 2 | Market Research | `pipeline/2-market-research.md` | `product/market.md` |
-| 3 | Business Case | `pipeline/3-business-case.md` | `product/business-plan.md` |
-| 4 | Tech & Architecture | `pipeline/4-tech-architecture.md` | `product/architecture.md`, `product/adr/ADR-*.md` |
-| 5 | Architecture-as-Rules + Design System | `pipeline/5-architecture-rules.md` | `harness/rules/*`, `product/design-direction.md`, `product/design-system.md`, `product/playbooks/*` |
-| 6 | Sprint Planning | `pipeline/6-sprint-planning.md` | `product/roadmap.md`, `product/sprints/NN-*.md` |
+| 0 | Idea Intake | `pipeline/0-idea-intake.md` | `{product}/idea.md`, `harness/state.yaml` |
+| 1 | Contextualize & Gap Audit | `pipeline/1-contextualize.md` | `{product}/idea.md` v2, `{product}/open-questions.md` |
+| 2 | Market Research | `pipeline/2-market-research.md` | `{product}/market.md` |
+| 3 | Business Case | `pipeline/3-business-case.md` | `{product}/business-plan.md` |
+| 4 | Tech & Architecture | `pipeline/4-tech-architecture.md` | `{product}/architecture.md`, `{product}/adr/ADR-*.md` |
+| 5 | Architecture-as-Rules + Design System | `pipeline/5-architecture-rules.md` | `harness/rules/*`, `{product}/design-direction.md`, `{product}/design-system.md`, `{product}/playbooks/*` |
+| 6 | Sprint Planning | `pipeline/6-sprint-planning.md` | `{product}/roadmap.md`, `{product}/sprints/NN-*.md` |
 | 7 | Sprint Execution Loop | `pipeline/7-sprint-execution.md` | code + tests + updated sprint |
 | 8 | Per-sprint Audit & Adjust | `pipeline/8-audit-adjust.md` | `{runs}/audits/audit-NN.md` |
 
@@ -94,7 +94,7 @@ right phase** — so a finished product is never marched back through `/idea-int
 | Level | What's there | Enters at | How |
 |---|---|---|---|
 | **E0 — Empty** | nothing | Phase 0 (`/idea-intake`) | Full pipeline from a raw idea. |
-| **E1 — Idea-only** | a README/brief/notes, little/no code | Phase 1 (`/contextualize`) | Pre-fills `product/idea.md` from the docs; the gap loop fills the rest. |
+| **E1 — Idea-only** | a README/brief/notes, little/no code | Phase 1 (`/contextualize`) | Pre-fills `{product}/idea.md` from the docs; the gap loop fills the rest. |
 | **E2 — Partial** | real but incomplete code | Phase 5 (`/define-conventions`) via **`/midas-adopt`** | Reverse-engineers an as-built architecture + a stack from the real code (Phase 4 recorded as a skipped gate). |
 | **E3 — Mature** | structured codebase + tests/CI | Phase 6 (`/plan-sprints`) via **`/midas-adopt`** | Full as-built inventory, rules derived from reality (violations → debt), a baseline audit, then improve from there. |
 
@@ -130,7 +130,7 @@ cost-aware (a multi-agent Opus debate), it stays optional and non-advancing by d
 Beyond sync (`/midas-doctor`) and adversarial debate (`/midas-tribunal`), Midas offers an on-demand
 **hygiene pass**: `/midas-sweep`. It hunts **dead flows** (routes nothing reaches, playbooks whose
 triggers never fire), **orphans** (unimported modules, stale doc links), and **ledger drift**
-(`product/features.json`, roadmap sprints, open questions vs `product/idea.md`). It reports first;
+(`{product}/features.json`, roadmap sprints, open questions vs `{product}/idea.md`). It reports first;
 `--fix` applies only safe cleanups the human explicitly approves. Findings freeze to
 `{runs}/sweeps/sweep-NN.md`.
 
@@ -152,9 +152,9 @@ a human must approve before the harness advances. Each is recorded on disk so a 
 
 | Where | Decision that needs a human | Recorded in |
 |---|---|---|
-| Phase 1 — Contextualize | The blocking open questions are answered (the gap loop will not advance with any open) | `product/open-questions.md` |
-| Phase 3 — Business Case | **Go / no-go** to build the MVP at all | `product/business-plan.md` § go/no-go (sign-off line) |
-| Phase 4 — Architecture | Each irreversible stack/architecture decision | `product/adr/ADR-*.md` (one ADR per decision) |
+| Phase 1 — Contextualize | The blocking open questions are answered (the gap loop will not advance with any open) | `{product}/open-questions.md` |
+| Phase 3 — Business Case | **Go / no-go** to build the MVP at all | `{product}/business-plan.md` § go/no-go (sign-off line) |
+| Phase 4 — Architecture | Each irreversible stack/architecture decision | `{product}/adr/ADR-*.md` (one ADR per decision) |
 | Phase 5 / Phase 8 | Every **rule amendment** — changing a frozen rule is a conscious choice, never silent | the rule file's `## Amendment` entry (date + who) |
 | Phase 8 — Scope drift | Accepting or deferring a feature outside MVP scope | `{runs}/audits/audit-NN.md` § scope reconciliation |
 | Any time | **Applying** `/midas-tribunal` findings (it only reports; the human decides what to act on) | the follow-up that consumes `{runs}/debates/debate-NN.md` |

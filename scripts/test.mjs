@@ -15,7 +15,7 @@ import { tmpdir } from 'node:os';
 import { computeAdapters, DEFAULT_ADAPTER_TOOLS, resolveAdapterTools } from './render-adapters.mjs';
 import { evaluateMcpDeclaredVsWired, evaluateSkillMcpRequired } from './mcp-drift.mjs';
 import { ensureMidasGitignore, GITIGNORE_BEGIN, GITIGNORE_END } from './gitignore-merge.mjs';
-import { detectLayout, resolvePaths, MIGRATION_MAP, RUNS_SUBDIRS } from './paths.mjs';
+import { detectLayout, resolvePaths, MIGRATION_MAP, MIGRATION_MAP_HUB, RUNS_SUBDIRS, hubPathsYaml } from './paths.mjs';
 import { exportBundle, applyImport, checkMcpSecrets, ENGINE_BASE_RULES, toCanonical, fromCanonical, planImport } from './bundle.mjs';
 import { loadStageCommandTable, stageRecallPaths, loadEngineBaseRules } from './stage-command-table.mjs';
 import { createHash } from 'node:crypto';
@@ -151,7 +151,7 @@ if (existsSync(buildCreate)) {
 }
 
 // --- F3. TaskPilot verify/audit cited test paths exist on disk -------------------------------
-const taskpilotProduct = join(ROOT, 'examples', 'taskpilot', 'product');
+const taskpilotProduct = join(ROOT, 'examples', 'taskpilot', '.midas', 'product');
 const citedTestPaths = [
   'src/app/api/tasks/route.test.ts',
   'src/app/api/tasks/[id]/route.test.ts',
@@ -160,7 +160,7 @@ for (const rel of citedTestPaths) {
   check(`taskpilot:cited-test:${rel}`, existsSync(join(taskpilotProduct, rel)));
 }
 
-const stateFile = join(ROOT, 'examples', 'taskpilot', 'harness', 'state.yaml');
+const stateFile = join(ROOT, 'examples', 'taskpilot', '.midas', 'state.yaml');
 if (existsSync(stateFile)) {
   const s = readFileSync(stateFile, 'utf8');
   for (const key of ['midas_version', 'stage', 'cost_profile', 'routing', 'phases', 'sprints']) {
@@ -475,7 +475,7 @@ check('gitignore:merge-module', existsSync(join(ROOT, 'scripts', 'gitignore-merg
 check('installer:ensure-gitignore', /async function ensureGitignore\(paths\)/.test(installer));
 check('installer:gitignore-merge', /gitignore-merge\.mjs/.test(installer));
 check('installer:verify-after-update', /function verifyInstall\(paths\)/.test(installer) && /runDoctor\(TARGET, paths/.test(installer));
-check('installer:layout-flag', /--layout=compact/.test(installer) && /applyCompactLayout/.test(installer));
+check('installer:layout-flag', /--layout=hub/.test(installer) && /applyHubLayout/.test(installer) && /applyCompactLayout/.test(installer));
 check('installer:hasMidasInstall-compact', /hasMidasInstall[\s\S]*\.midas/.test(installer));
 
 // --- M. layout resolver (ADR-001) --------------------------------------------------------------
@@ -487,23 +487,68 @@ check('paths:module-exists', existsSync(join(ROOT, 'scripts', 'paths.mjs')));
   check('paths:classic-runs', classic.runs === '.harness');
   check('paths:runs-subdirs', RUNS_SUBDIRS.includes('sprints') && RUNS_SUBDIRS.includes('sweeps'));
   check('paths:migration-map-sprints', MIGRATION_MAP.some((m) => m.from === '.harness/sprints'));
+  check('paths:hub-product-move', MIGRATION_MAP_HUB.some((m) => m.from === 'product'));
+  check('paths:hub-yaml-product', hubPathsYaml().product === '.midas/product');
 }
 {
   const compactRoot = mkdtempSync(join(tmpdir(), 'midas-compact-'));
   try {
     mkdirSync(join(compactRoot, '.midas', 'engine'), { recursive: true });
+    mkdirSync(join(compactRoot, 'product'), { recursive: true });
     writeFileSync(join(compactRoot, '.midas', 'state.yaml'), 'midas_version: 0.0.0\nlayout: compact\n', 'utf8');
     check('paths:detect-compact', detectLayout(compactRoot) === 'compact');
     const cp = resolvePaths(compactRoot);
     check('paths:compact-engine', cp.engine === '.midas/engine');
     check('paths:compact-runs', cp.runs === '.midas');
+    check('paths:compact-product', cp.product === 'product');
     check('paths:compact-runs-audits', cp.runsPath('audits') === '.midas/audits');
   } finally {
     rmSync(compactRoot, { recursive: true, force: true });
   }
 }
+{
+  const hubRoot = mkdtempSync(join(tmpdir(), 'midas-hub-'));
+  try {
+    mkdirSync(join(hubRoot, '.midas', 'engine'), { recursive: true });
+    mkdirSync(join(hubRoot, '.midas', 'product'), { recursive: true });
+    writeFileSync(join(hubRoot, '.midas', 'state.yaml'), 'midas_version: 1.0.0\nlayout: hub\n', 'utf8');
+    check('paths:detect-hub', detectLayout(hubRoot) === 'hub');
+    const hp = resolvePaths(hubRoot);
+    check('paths:hub-engine', hp.engine === '.midas/engine');
+    check('paths:hub-product', hp.product === '.midas/product');
+    check('paths:hub-runs', hp.runs === '.midas');
+  } finally {
+    rmSync(hubRoot, { recursive: true, force: true });
+  }
+}
 check('migrate-layout:module-exists', existsSync(join(ROOT, 'scripts', 'migrate-layout.mjs')));
-check('schema:layout-field', /layout:\s*classic/.test(readFileSync(join(ROOT, 'harness', 'state.schema.md'), 'utf8')));
+{
+  const migRoot = mkdtempSync(join(tmpdir(), 'midas-migrate-hub-'));
+  try {
+    mkdirSync(join(migRoot, 'harness'), { recursive: true });
+    mkdirSync(join(migRoot, 'product'), { recursive: true });
+    writeFileSync(join(migRoot, 'harness', 'VERSION'), '1.0.0\n', 'utf8');
+    writeFileSync(join(migRoot, 'harness', 'state.yaml'), 'midas_version: 1.0.0\nname: mig-fixture\n', 'utf8');
+    writeFileSync(join(migRoot, 'product', 'idea.md'), '# idea\n', 'utf8');
+    const dry = execSync(
+      `node "${join(ROOT, 'scripts', 'migrate-layout.mjs')}" --target=hub "${migRoot}"`,
+      { encoding: 'utf8' },
+    );
+    check('migrate:hub-dry-run-label', /classic → hub/i.test(dry));
+    check('migrate:hub-dry-run-product-row', /product\s+→\s+\.midas\/product/.test(dry));
+    check('migrate:hub-dry-run-no-move', existsSync(join(migRoot, 'product', 'idea.md')));
+    execSync(`node "${join(ROOT, 'scripts', 'migrate-layout.mjs')}" --target=hub --apply "${migRoot}"`, {
+      encoding: 'utf8',
+    });
+    check('migrate:hub-apply-product', existsSync(join(migRoot, '.midas', 'product', 'idea.md')));
+    check('migrate:hub-apply-layout', /layout:\s*hub/.test(readFileSync(join(migRoot, '.midas', 'state.yaml'), 'utf8')));
+    check('migrate:hub-apply-no-root-product', !existsSync(join(migRoot, 'product')));
+  } finally {
+    rmSync(migRoot, { recursive: true, force: true });
+  }
+}
+check('schema:layout-field', /layout:\s*hub/.test(readFileSync(join(ROOT, 'harness', 'state.schema.md'), 'utf8')));
+check('schema:paths-product', /product:\s*\.midas\/product/.test(readFileSync(join(ROOT, 'harness', 'state.schema.md'), 'utf8')));
 check('pipeline:runs-token', readFileSync(join(ROOT, 'harness', 'pipeline', '7-sprint-execution.md'), 'utf8').includes('{runs}/sprints'));
 check('agents:path-resolution', /Path resolution/.test(readFileSync(join(ROOT, 'AGENTS.md'), 'utf8')));
 check('gitignore:snippet:midas-cache', /\.midas\/cache\//.test(readFileSync(snippetPath, 'utf8')));
@@ -574,6 +619,8 @@ check('script:bundle:exists', existsSync(join(ROOT, 'scripts', 'bundle.mjs')));
       try { exportBundle(taskpilot, { profile: 'bogus' }); return false; } catch { return true; }
     })());
     check('bundle:canonical-compact', fromCanonical('harness/state.yaml', 'compact') === '.midas/state.yaml');
+    check('bundle:canonical-hub-product', fromCanonical('product/idea.md', 'hub') === '.midas/product/idea.md');
+    check('bundle:canonical-hub-engine', fromCanonical('harness/state.yaml', 'hub') === '.midas/state.yaml');
     check('bundle:canonical-roundtrip', toCanonical(fromCanonical('harness/rules/x.md', 'compact'), 'compact') === 'harness/rules/x.md');
     let checksumFail = false;
     try {

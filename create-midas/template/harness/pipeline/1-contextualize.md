@@ -10,14 +10,14 @@ question loop with the human before advancing. Zero unresolved blockers is the g
 
 ## Inputs
 
-- `product/idea.md` (from Phase 0)
+- `{product}/idea.md` (from Phase 0)
 - `harness/state.yaml` (stage must be `contextualize`)
 
 ## Key steps
 
 ### Gap / question loop (repeat until 0 blockers)
 
-1. **Analyze `product/idea.md`.** Extract or flag:
+1. **Analyze `{product}/idea.md`.** Extract or flag:
    - Target user / persona
    - Core problem being solved
    - Primary success metric (measurable, time-bound)
@@ -29,10 +29,10 @@ question loop with the human before advancing. Zero unresolved blockers is the g
    Wait for answers. Do not advance until every BLOCKING item is resolved.
 4. **Re-analyze.** After each answer batch, re-run the gap check.
    Repeat until the blocking list is empty.
-5. **Update `product/idea.md` v2.** Rewrite the document with all four fields
+5. **Update `{product}/idea.md` v2.** Rewrite the document with all four fields
    (user, problem, metric, non-goals) clearly defined. Preserve the `## Raw idea`
    section verbatim; add a `## Contextualized` section below it.
-6. **Write `product/open-questions.md`.** List DEFERRED questions with owner and
+6. **Write `{product}/open-questions.md`.** List DEFERRED questions with owner and
    target-phase. BLOCKING questions resolved in this loop are marked `resolved`.
 7. **Advance.** Set `stage_status: gate_pending`; run the exit gate.
    On pass, write `gate: passed` and set `stage: market_research`.
@@ -41,16 +41,16 @@ question loop with the human before advancing. Zero unresolved blockers is the g
 
 | File | Notes |
 |---|---|
-| `product/idea.md` | v2 — adds `## Contextualized` section |
-| `product/open-questions.md` | All open questions, blocking/deferred/resolved |
+| `{product}/idea.md` | v2 — adds `## Contextualized` section |
+| `{product}/open-questions.md` | All open questions, blocking/deferred/resolved |
 
 ## Exit gate checklist
 
-- [ ] `product/idea.md` contains `## Contextualized` with all four fields defined
+- [ ] `{product}/idea.md` contains `## Contextualized` with all four fields defined
 - [ ] Target user is named and specific (not "everyone")
 - [ ] Primary success metric is measurable and time-bound
 - [ ] At least one explicit non-goal is stated
-- [ ] `product/open-questions.md` exists; zero items are marked `BLOCKING`
+- [ ] `{product}/open-questions.md` exists; zero items are marked `BLOCKING`
 - [ ] Gate verdict written to `{runs}/audits/gate-01.md`
 
 ## Recommended tier + agents

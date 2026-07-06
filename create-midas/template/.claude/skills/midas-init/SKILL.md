@@ -44,7 +44,7 @@ Dispatch **scout** subagents to read, without writing anything yet:
    `turbo.json`, `nx.json`, Cargo `[workspace]`) that signal a **monorepo**.
 2. **Intent & product docs (the part the old flow ignored).** Read `README*`, `docs/`, any product brief,
    spec, `NOTES`/`TODO`, design files, the `description` field of a manifest, and any pre-existing
-   `product/` artifacts. This is what lets a project "with very little" (just a written idea) skip the
+   `{product}/` artifacts. This is what lets a project "with very little" (just a written idea) skip the
    blank idea-intake.
 3. **Existing tool surfaces.** Which of `.claude/`, `.cursor/`, `.windsurf/`, `.github/copilot-instructions.md`,
    `AGENTS.md`, `CLAUDE.md`, `.mcp.json` exist (so GENERATE uses managed markers, never clobbers).
@@ -66,13 +66,13 @@ level and let the user bump it up in Phase D — under-placing only adds a gate,
 | Level | What the scan found | Pre-fill | Entry `stage` (`mode`) | Next command |
 |---|---|---|---|---|
 | **E0 — Empty** | no code, no product docs | nothing | `idea_intake` (`greenfield`) | `/idea-intake` |
-| **E1 — Idea-only** | a README/brief/notes describing the product; **a manifest or bare scaffold but no real source counts as E1** | `product/idea.md` from those docs | `contextualize` (`greenfield`) | `/contextualize` |
+| **E1 — Idea-only** | a README/brief/notes describing the product; **a manifest or bare scaffold but no real source counts as E1** | `{product}/idea.md` from those docs | `contextualize` (`greenfield`) | `/contextualize` |
 | **E2 — Partial** | **non-trivial source under `src/`/`lib`/`app` that implements product behavior**, but incomplete (thin/no tests, no clear architecture) | stack hint now; inventory + as-built architecture during adopt (Phase E) | `architecture_rules` (`brownfield`) | `/define-conventions` |
 | **E3 — Mature** | substantial, structured codebase with tests + CI | full adoption (arch + rules + baseline audit) | `sprint_planning` (`brownfield`) | `/plan-sprints` |
 
 **`mode` mapping (the persisted enum stays binary):** E0 + E1 → `mode: greenfield`; E2 + E3 → `mode: brownfield`.
 
-**Why E2 lands at `architecture_rules`:** `/midas-adopt` emits an *as-built* `product/architecture.md` +
+**Why E2 lands at `architecture_rules`:** `/midas-adopt` emits an *as-built* `{product}/architecture.md` +
 ADRs, so Phase 4 is recorded as a **deliberately-skipped gate** (with an assumption) and `/define-conventions`
 runs under its "`architecture_rules` resuming" precondition rather than bouncing. The exact E2/E3 landing
 stage is set by `/midas-adopt` (`architecture_rules` when conventions still need finalizing →
@@ -90,7 +90,7 @@ Ask the user (one question in the batched round):
   by default; records assumptions. See `<paths.engine>/pipeline/lite.md`.
 
   **Lite ritual checklist** (copy into the session when `track: lite`):
-  1. Pre-fill `product/idea.md` from scan; record skipped gates + assumptions in `state.yaml`.
+  1. Pre-fill `{product}/idea.md` from scan; record skipped gates + assumptions in `state.yaml`.
   2. Run a compressed plan: MVP scope + one sprint outline (roadmap optional stub).
   3. Set `entry_stage: sprint_planning`; advance to `/plan-sprints` or `/start-sprint` when a single sprint exists.
   4. Execute with the Phase 7 ladder (`methodology.md` § Phase 7 execution ladder).
@@ -103,7 +103,7 @@ and skip directly to `/plan-sprints` or `/start-sprint` when a single sprint pla
 
 Build a draft of everything the scan can support, each value tagged with its **source** so the user can
 audit it:
-- **E1+**: a draft `product/idea.md` — pitch, problem, audience, goals — lifted from the README/brief
+- **E1+**: a draft `{product}/idea.md` — pitch, problem, audience, goals — lifted from the README/brief
   (cite where: *"problem ← README §Overview"*). Leave genuinely-unknown fields blank for Phase D.
 - **E2/E3**: stack hint from manifests; the architecture/rules drafts come from the **`/midas-adopt`**
   recon in Phase E (it reverse-engineers them from the real code + the harvested docs).
@@ -140,13 +140,13 @@ Write additively (state file last), wrapping every Midas-managed region in `<!--
 `<!-- midas:end -->`. **Never** rewrite hand-authored content; for a pre-existing `AGENTS.md`/`CLAUDE.md`/
 `.mcp.json`, show the diff and confirm (`AskUserQuestion`) before writing, else print the block to paste.
 
-1. **Confirmed artifacts.** Write the pre-filled artifacts the user accepted — at minimum `product/idea.md`
-   for **E1+** (filled, not a blank template). Scaffold `product/adr/`, `product/sprints/`.
+1. **Confirmed artifacts.** Write the pre-filled artifacts the user accepted — at minimum `{product}/idea.md`
+   for **E1+** (filled, not a blank template). Scaffold `{product}/adr/`, `{product}/sprints/`.
 2. **E2 / E3 → run `/midas-adopt` in the same run.** Perform the `.claude/skills/midas-adopt/SKILL.md`
    procedure (inventory → reverse-engineer architecture + rules from the real code **and the harvested
    docs** → baseline audit → wire with **dry-run + diff-confirm**). One flow, not two commands. **Resumable:**
    if adoption is declined or interrupted, leave `setup_complete: false`; on re-run, detect already-written
-   `product/inventory.md` / `architecture.md` and resume rather than restart.
+   `{product}/inventory.md` / `architecture.md` and resume rather than restart.
 3. **`AGENTS.md`** — render from `<paths.engine>/templates/AGENTS.md.tmpl`, placeholders filled (name, mode, tools, MCP).
    Summarize conventions + the Context7 rule; don't restate them (they live in `<paths.engine>/conventions.md`
    and `<paths.engine>/rules/context7-usage.md`).

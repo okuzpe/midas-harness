@@ -9,32 +9,38 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+---
+
+## [1.0.0] — 2026-07-06
+
 ### Added
-- **Repo audit (phases A–F)** — `harness/stage-command-table.yaml`, `scripts/stage-command-table.mjs`,
-  `harness/rules/acceptance-criteria.md`, `/midas-progress` STM skill, `.harness/audits/repo-audit-01.md`.
-- **ADRs** — ADR-004 (audit skill surface), ADR-005 (AGENTS.md generation strategy).
-- **TaskPilot demo** — `product/features.json`, `.harness/sprints/01-progress.md` (ADR-003).
+- **Hub layout (ADR-006)** — default install concentrates engine, state, runs, and `product/` under `.midas/`.
+- **`paths.product`** in `state.yaml`; **`{product}/`** pipeline token (like `{runs}/`).
+- **`migrate-layout.mjs --target=hub`** — moves `product/` and rewrites state artifacts, enforcement paths, and markdown links.
+- Hub matrix tests, CI hub smoke, TaskPilot example migrated to hub.
+
+### Changed
+- **Breaking:** new installs default to `hub` (was `classic`). Use `--layout=classic` for legacy layout.
+- `scripts/paths.mjs` — three-way `detectLayout` (state field authoritative; infers compact vs hub).
+- `scripts/bundle.mjs` — canonical remap for hub (`product/` ↔ `.midas/product/`).
+- `create-midas` — `applyHubLayout()`, uninstall/purge paths for hub.
+- ADR-003 amended for layout-relative LTM paths; ~48 skills/pipeline files use `{product}/`.
 
 ### Fixed
-- **`create-midas --update`** — `readToolsFromState()` was called without `paths` in `fillAgents` and MCP sync, crashing updates on existing installs.
-- Rules: `context7-usage.md` CHECKs; CHECK dedupe cross-refs; adapter digest Option A documented.
-- Tests: rules-match hash, migrate-layout/bundle CLI smoke, TaskPilot artifact checks (360+ tests).
-- Docs: INSTALL canonical; repository-architecture glossary; gstack PROPOSED labels; CI `npm run align` job.
+- **`create-midas --update`** — `readToolsFromState()` paths arg (0.5.30).
 
 ---
 
 ## [0.5.30] — 2026-07-06
 
 ### Added
-- **`/midas-bundle`** — export/import portable JSON for Midas knowledge (product docs, stack rules,
-  playbooks, frozen evidence, MCP/enforcement config; optional tests). Profiles: `knowledge`, `memory`,
-  `full`, `config`, `tests`, `recall`.
-- **`scripts/bundle.mjs`** — deterministic CLI (`export` / `import`); ships in installed projects via
-  `create-midas` template.
-- **`npm run bundle`** — engine contributor shorthand.
+- **`/midas-bundle`** — export/import portable JSON for Midas knowledge.
+- **Repo audit (phases A–F)** — stage-command-table, acceptance-criteria rule, `/midas-progress`, repo-audit-01.
+- **ADRs** — ADR-004, ADR-005.
 
-### Changed
-- `harness/research/memory-model.md`, `docs/skills.md`, `AGENTS.md` document the bundle workflow.
+### Fixed
+- **`create-midas --update`** — `readToolsFromState()` paths arg.
+- Rules CHECK dedupe; adapter digest Option A; CI `npm run align` job.
 
 ---
 
@@ -1034,7 +1040,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v0.5.30...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/okuzpe/midas-harness/compare/v0.5.30...v1.0.0
 [0.5.30]: https://github.com/okuzpe/midas-harness/compare/v0.5.29...v0.5.30
 [0.5.29]: https://github.com/okuzpe/midas-harness/compare/v0.5.28...v0.5.29
 [0.5.28]: https://github.com/okuzpe/midas-harness/compare/v0.5.24...v0.5.28

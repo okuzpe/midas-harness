@@ -91,7 +91,11 @@ under a `### Migration` subsection.
 
 ---
 
-## Roadmap to 1.0.0
+## 1.0.0 — shipped 2026-07-06
+
+**Hub layout** is the default install: engine, state, runs, and product methodology artifacts under
+`.midas/` (`layout: hub`, `paths.product`). Classic and compact remain via `--layout=`. Portable
+bundles keep classic canonical coordinates; import remaps per target layout (ADR-006).
 
 Surfaces frozen at 1.0:
 
@@ -99,15 +103,20 @@ Surfaces frozen at 1.0:
 |---------|------------------|
 | `harness/state.yaml` schema | Required keys + stage enum stable; additive optional fields only in MINOR |
 | Skill / command names | No renames without migration + major bump post-1.0 |
-| `product/` layout | Documented artifact paths in `harness/methodology.md` |
+| Product artifact paths | Resolved via `paths.product` / `{product}/` token (hub: `.midas/product/`) |
+| Install layouts | `hub` (default), `compact`, `classic` — no removal before 2.0 |
 | Adapter managed regions | `<!-- midas:begin/end -->` contract unchanged |
 | `MIDAS_*_RESULT` tally lines | Parseable gate format stable for doctor.mjs |
 
-Exit criteria for declaring **1.0.0**:
+---
+
+## Pre-1.0 roadmap (historical)
+
+Exit criteria that gated **1.0.0** (all met):
 
 1. `examples/taskpilot` completes at least one full sprint loop with CI-green gates.
 2. Installer paths tested on Linux + Windows (`install.sh`, `install.ps1`, `--update`).
-3. `harness/migrations/` process exercised on at least one breaking cut.
+3. Layout migration (`migrate-layout.mjs --target=hub`) exercised on TaskPilot.
 4. Docs site published and linked from README.
 5. No open HIGH-severity items in engine self-audit.
 

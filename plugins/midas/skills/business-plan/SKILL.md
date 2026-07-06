@@ -1,6 +1,6 @@
 ---
 name: business-plan
-description: Phase 3 of Midas — turn the validated opportunity into a go/no-go business case. Define the value proposition, MVP scope vs explicit non-goals, the business/monetization model, and MEASURABLE success metrics (which later phase-8 audits grade against), then capture an explicit go/no-go with HUMAN sign-off into product/business-plan.md. Use after /market-research.
+description: Phase 3 of Midas — turn the validated opportunity into a go/no-go business case. Define the value proposition, MVP scope vs explicit non-goals, the business/monetization model, and MEASURABLE success metrics (which later phase-8 audits grade against), then capture an explicit go/no-go with HUMAN sign-off into {product}/business-plan.md. Use after /market-research.
 user-invocable: true
 disable-model-invocation: true
 model: inherit
@@ -25,7 +25,7 @@ Turn the validated opportunity into a decision. The orchestrator owns the go/no-
 gate; the builder drafts the document.
 
 ## Steps
-1. **Value proposition** — for the target segment from `product/idea.md` + `product/market.md`.
+1. **Value proposition** — for the target segment from `{product}/idea.md` + `{product}/market.md`.
 2. **MVP scope vs non-goals** — the minimum surface that validates the core hypothesis, and an
    **explicit** list of what is out of scope for the MVP. (The Phase-8 audit checks the build against
    this scope; vague scope here weakens every later audit.)
@@ -50,7 +50,7 @@ gate; the builder drafts the document.
    via `AskUserQuestion`. A valid verdict is **GO with field validation deferred (assumption logged)**
    when desk demand is at least *mixed* and the human accepts the unproven-demand risk. Record the
    decision + who signed off + the date in the document and in **`paths.state`**. On "no-go", stop and log why.
-8. **Write `product/business-plan.md`** from `<paths.engine>/templates/business-plan.md`; update
+8. **Write `{product}/business-plan.md`** from `<paths.engine>/templates/business-plan.md`; update
    **`paths.state`** (gate verdict by the orchestrator).
 
 ## Cost / tiers
@@ -64,5 +64,5 @@ Build (Sonnet) drafts the document — delegate to `midas-builder`.
 - [ ] **Validation status** recorded: the desk demand verdict + field-validation status (done, or
       **deferred with a logged assumption**). The founder is not hard-walled — go/no-go is their informed call.
 - [ ] Explicit go/no-go recorded **with human sign-off** (name + date) in the doc and **`paths.state`**.
-- [ ] `product/business-plan.md` written; gate verdict rendered by the orchestrator before advancing
+- [ ] `{product}/business-plan.md` written; gate verdict rendered by the orchestrator before advancing
       to `tech_architecture`.

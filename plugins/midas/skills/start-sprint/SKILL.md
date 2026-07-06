@@ -31,10 +31,10 @@ proceeds on the **build** tier with Context7.
 ## Procedure
 
 ### 1. Read state + rules
-Load **`paths.state`** (sprints, routing, mode), the target `product/sprints/NN-*.md`, all
-`<paths.engine>/rules/*`, `product/design-system.md`, **`product/design-direction.md` whenever the sprint
+Load **`paths.state`** (sprints, routing, mode), the target `{product}/sprints/NN-*.md`, all
+`<paths.engine>/rules/*`, `{product}/design-system.md`, **`{product}/design-direction.md` whenever the sprint
 touches UI** (the named references + mood + anti-references — the anchor that keeps UI off generic
-defaults), `product/playbooks/*`, and `product/business-plan.md`. The rules are **frozen** — treat
+defaults), `{product}/playbooks/*`, and `{product}/business-plan.md`. The rules are **frozen** — treat
 them as law for this audit.
 
 ### 2. Audit current code vs frozen rules + scope
@@ -72,9 +72,9 @@ Implementation runs on the **build** tier. Print: *"👉 Optional: `/midas-recal
 before coding (scout tier; read-only)."* — do **not** re-load the full rule set here; recall delegates to scout.
 Before writing any third-party code, follow
 `<paths.engine>/rules/context7-usage.md` (`resolve-library-id` → `get-library-docs` at the pinned version).
-**If a task matches a `product/playbooks/*` recipe** (one of the project's repeated procedures), the
+**If a task matches a `{product}/playbooks/*` recipe** (one of the project's repeated procedures), the
 build agent follows that playbook — its steps and done-when check. **For any UI work, build *to*
-`product/design-direction.md` — its named references, mood, and anti-references — not just to the
+`{product}/design-direction.md` — its named references, mood, and anti-references — not just to the
 tokens; the tokens are the materials, the direction is the look.** Honor the always-on
 `<paths.engine>/rules/accessibility.md` floor. Tasks complete only when acceptance criteria are met and tests
 pass; **conformance to rules is verified in Phase 8** (`/close-sprint`).

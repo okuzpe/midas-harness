@@ -10,8 +10,8 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
 
 ## Inputs
 
-- Active sprint file `product/sprints/NN-<slug>.md` (from Phase 6)
-- Machine-checkable spec `product/features.json` (seeded at Phase 6 from the MVP scope) — the
+- Active sprint file `{product}/sprints/NN-<slug>.md` (from Phase 6)
+- Machine-checkable spec `{product}/features.json` (seeded at Phase 6 from the MVP scope) — the
   passing/failing ledger this sprint advances (see `harness/templates/features.json.tmpl`)
 - `harness/rules/*` (Phase 5) — must be respected at every step
 - `harness/design-system/tokens.json` / `tokens.css` — all UI uses tokens
@@ -34,7 +34,7 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
       then `get-library-docs` at the pinned version via Context7 (scout tier).
       Use the web fallback if Context7 is unavailable; never generate from memory.
    b. Write code that matches the conventions in `harness/conventions.md` and
-      `product/conventions.md`. Match surrounding style; prefer reuse over new abstractions.
+      `{product}/conventions.md`. Match surrounding style; prefer reuse over new abstractions.
    c. Write tests alongside the feature (not after). Test behavior, not implementation.
    d. **Verify the task before checking it off (the inner verify→fix loop).** Run the
       [`verification.md`](../rules/verification.md) ladder for what you just changed — rungs 1–3
@@ -47,7 +47,7 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
       the proof (command output, test name, or screenshot reference) **and the tool/MCP that proved it**
       (e.g. `test-runner`, `context7`, `playwright-mcp`, `@playwright/cli`). Mirror the same in
       `{runs}/sprints/NN-progress.md` § Done (Task · Proof · Tool). If the task completes a feature in
-      `product/features.json`, flip that feature's `status` to `passing` and fill its `evidence` —
+      `{product}/features.json`, flip that feature's `status` to `passing` and fill its `evidence` —
       editing **only** `status`/`evidence`, never the spec fields.
 3. **Verify acceptance criteria.** After all tasks are checked, run or demonstrate
    every item in `## Acceptance criteria`. Record evidence (output, screenshot reference,
@@ -71,8 +71,8 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
 | File | Notes |
 |---|---|
 | Code + tests | In the project source tree per `harness/rules/folder-structure.md` |
-| `product/sprints/NN-<slug>.md` | Updated: tasks checked, acceptance evidence noted |
-| `product/features.json` | Updated: features completed this sprint flipped to `passing` with `evidence` |
+| `{product}/sprints/NN-<slug>.md` | Updated: tasks checked, acceptance evidence noted |
+| `{product}/features.json` | Updated: features completed this sprint flipped to `passing` with `evidence` |
 | `{runs}/sprints/NN-progress.md` | Running progress log for cross-session continuity |
 
 ## Exit gate checklist
@@ -80,7 +80,7 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
 - [ ] All tasks in `## Tasks` are checked off
 - [ ] Each task passed the `verification.md` inner loop (static + tests + runtime smoke; browser drive+inspect for UI) before check-off
 - [ ] Acceptance criteria are verified with evidence (UI sprints: a `/midas-verify` record exists)
-- [ ] Features completed this sprint are `passing` in `product/features.json`, each with `evidence`
+- [ ] Features completed this sprint are `passing` in `{product}/features.json`, each with `evidence`
 - [ ] Every third-party library call was preceded by a Context7 fetch (or documented web fallback)
 - [ ] Tests are present and passing for all new behavior
 - [ ] No convention violations detectable by the `harness/rules/` check patterns

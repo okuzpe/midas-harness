@@ -7,45 +7,45 @@ stages:
   idea_intake:
     command: /idea-intake
     recall:
-      - product/idea.md
+      - {product}/idea.md
   contextualize:
     command: /contextualize
     recall:
-      - product/idea.md
-      - product/open-questions.md
+      - {product}/idea.md
+      - {product}/open-questions.md
   market_research:
     command: /market-research
     note: Optional host deep-research skill or web/Context7 when absent — not shipped in Midas engine.
     recall:
-      - product/idea.md
-      - product/market.md
+      - {product}/idea.md
+      - {product}/market.md
   business_case:
     command: /business-plan
     note: Needs human sign-off.
     recall:
-      - product/market.md
-      - product/business-plan.md
+      - {product}/market.md
+      - {product}/business-plan.md
   tech_architecture:
     command: /choose-architecture
     recall:
-      - product/business-plan.md
-      - product/architecture.md
-      - product/adr
+      - {product}/business-plan.md
+      - {product}/architecture.md
+      - {product}/adr
   architecture_rules:
     command: /define-conventions
     recall:
-      - product/architecture.md
+      - {product}/architecture.md
   sprint_planning:
     command: /plan-sprints
     recall:
-      - product/roadmap.md
-      - product/business-plan.md
+      - {product}/roadmap.md
+      - {product}/business-plan.md
   sprint_execution:
     command: /start-sprint
     command_when_done: /close-sprint
     verify_ui: /midas-verify
     recall:
-      - product/features.json
+      - {product}/features.json
       - "{runs}/verifications"
       - "{runs}/sprints"
   shipped:

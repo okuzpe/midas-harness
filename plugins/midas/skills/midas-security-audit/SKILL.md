@@ -15,7 +15,7 @@ argument-hint: "[--level L1|L2|L3] [--scope code|deps|secrets|design|all]"
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
 > First read the state file at **`paths.state`**; this is an advanced, non-advancing audit — never auto-run it.
 
-> **Paths:** Substitute `{runs}/` with `paths.runs` from state (classic: `.harness/`, compact: `.midas/`).
+> **Paths:** Read `layout` + `paths` from **`paths.state`**. Substitute `{runs}/` → `paths.runs`, `{product}/` → `paths.product`. See `AGENTS.md` § Path resolution.
 
 A standalone, standard-grounded security audit — the security analog of `/midas-tribunal`. It does **not**
 reinvent a scanner: it **orchestrates** a recognized standard as the checklist, runs the project's real
@@ -35,8 +35,8 @@ Use this when you want a **deep, before-ship** audit against the current industr
 Fetch the current control text via Context7 / the OWASP site — never audit a standard from memory.
 
 ## Inputs (read first, write last)
-- **`paths.state`**, `product/architecture.md` (attack surface + trust boundaries),
-  `product/business-plan.md` (data sensitivity → the ASVS level), `<paths.engine>/rules/security.md`.
+- **`paths.state`**, `{product}/architecture.md` (attack surface + trust boundaries),
+  `{product}/business-plan.md` (data sensitivity → the ASVS level), `<paths.engine>/rules/security.md`.
 - The codebase: UI / API / data / auth surfaces, dependency manifests, CI config, `.mcp.json` / agent config.
 
 ## Procedure
@@ -48,7 +48,7 @@ public read-only → L1) and proceed at the recommendation — the human can ove
 product is **AI-bearing** (LLM / agent / RAG / tool-use in the architecture); if so, add the LLM/Agentic lenses.
 
 ### 2. Threat-model the design (STRIDE)
-Over `product/architecture.md`'s components and trust boundaries, walk **STRIDE** (Spoofing, Tampering,
+Over `{product}/architecture.md`'s components and trust boundaries, walk **STRIDE** (Spoofing, Tampering,
 Repudiation, Information disclosure, Denial of service, Elevation of privilege). Record each credible threat
 with the boundary it crosses and the ASVS control that should cover it. This catches design-level risk the
 scanners cannot.
@@ -81,7 +81,7 @@ table, the STRIDE notes, the tools ran/recommended list, and the action bridge. 
 user's go-ahead, apply) findings → action:
 - `fix` / `mitigate` → a task surfaced at the next `/start-sprint`;
 - `accept` → recorded with rationale (and an ADR if it's an architectural risk decision);
-- `defer` → `OQ-NN` in `product/open-questions.md` (non-blocking, logged).
+- `defer` → `OQ-NN` in `{product}/open-questions.md` (non-blocking, logged).
 You MAY set `last_security: { n: NN, critical: X, high: Y, at: <date> }` in `state.yaml` (read-modify-write
 the whole file per schema). **Never set `gate: passed` or advance `stage`** — this audit informs; the gates decide.
 
@@ -107,7 +107,7 @@ MIDAS_SECURITY_RESULT: level=L2 critical=a high=b medium=c low=d verdict=pass|fi
 ## Action bridge
 - <id> fix     → task at next /start-sprint
 - <id> accept  → rationale (+ ADR-00X if architectural)
-- <id> defer   → product/open-questions.md OQ-NN
+- <id> defer   → {product}/open-questions.md OQ-NN
 ```
 
 ## Safeguards (avoid theater)

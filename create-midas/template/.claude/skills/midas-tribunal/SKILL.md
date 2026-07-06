@@ -27,7 +27,7 @@ arguments** — the producer never grades its own homework.
 > flow, not a required gate. Debaters run on the build/scout tiers; you
 render a verdict **per claim**. This is distinct from `/close-sprint` (single-sprint conformance vs
 frozen rules): the tribunal argues *whether the decisions themselves are right*, across the whole
-`product/*` + `<paths.engine>/rules/*` + `src/*` surface.
+`{product}/*` + `<paths.engine>/rules/*` + `src/*` surface.
 
 Why this shape (grounded in research; sources in `<paths.engine>/research/debate-method.md`): multi-agent debate only beats single-pass critique when every
 claim cites **checkable evidence**, the **producer is separated from the grader**, and **genuine
@@ -42,14 +42,14 @@ synthesize.
 | Lens (persona) | Provocation | Targets |
 |---|---|---|
 | Premortem | "It's 12 months out and the project failed — why?" | whole project |
-| Skeptic / Devil's-Advocate | "Why is this idea actually worth building?" | `product/idea.md` |
-| Inverter (Munger) | "What guarantees we fail? Are we doing it?" | `product/roadmap.md` |
-| Economist / Unit-Economics | "Show me the money — does the model close?" | `product/business-plan.md` |
-| Competitor / Red-Team | "Why won't an incumbent crush this in a quarter?" | `product/market.md` |
-| User / Red-Hat | "Would a real user actually switch? Gut check." | idea + `product/design-system.md` |
-| Design Critic | "Is this distinctive and on-direction, or generic default slop?" | `product/design-direction.md` + `product/design-system.md` + UI `src/*` |
-| Architecture Tribunal (ATAM) | "Name the risks, sensitivity & tradeoff points." | `product/architecture.md` + `adr/*` |
-| Maintainer / ADR-review | "Will the next dev curse these decisions?" | `product/adr/*` |
+| Skeptic / Devil's-Advocate | "Why is this idea actually worth building?" | `{product}/idea.md` |
+| Inverter (Munger) | "What guarantees we fail? Are we doing it?" | `{product}/roadmap.md` |
+| Economist / Unit-Economics | "Show me the money — does the model close?" | `{product}/business-plan.md` |
+| Competitor / Red-Team | "Why won't an incumbent crush this in a quarter?" | `{product}/market.md` |
+| User / Red-Hat | "Would a real user actually switch? Gut check." | idea + `{product}/design-system.md` |
+| Design Critic | "Is this distinctive and on-direction, or generic default slop?" | `{product}/design-direction.md` + `{product}/design-system.md` + UI `src/*` |
+| Architecture Tribunal (ATAM) | "Name the risks, sensitivity & tradeoff points." | `{product}/architecture.md` + `adr/*` |
+| Maintainer / ADR-review | "Will the next dev curse these decisions?" | `{product}/adr/*` |
 | Security Adversary (STRIDE) | "Walk each trust boundary — where do I get in?" | `<paths.engine>/rules/security.md` + `src/*` |
 | Reliability / FMEA | "What fails silently and is invisible till prod?" | architecture + `<paths.engine>/rules/testing.md` |
 | Simplifier / YAGNI | "Cut it. What survives the cut and why?" | roadmap + rules + scope |
@@ -74,8 +74,8 @@ Each scope activates the matching subset of lenses (e.g. `architecture` → ATAM
 
 ### Round 0 — Convene & index (scout / Haiku)
 Read **`paths.state`**. Resolve scope + depth. Dispatch **scout** subagents to build a per-lens
-**evidence pack**: exact paths in `product/*`, the relevant `<paths.engine>/rules/*` bodies, `src/*`
-`file:line` ranges, `product/adr/*`. Inject only the slice each lens needs — never dump all rules.
+**evidence pack**: exact paths in `{product}/*`, the relevant `<paths.engine>/rules/*` bodies, `src/*`
+`file:line` ranges, `{product}/adr/*`. Inject only the slice each lens needs — never dump all rules.
 
 ### Round 1 — Opening positions (build / Sonnet, parallel, one seat per lens)
 For each active lens dispatch a **Defense** seat (state the **steelman** of the target claim, cited)
@@ -104,8 +104,8 @@ the gate-parseable tally line, the ranked findings table, the dissent section, t
 routing, and the full transcript as a collapsible appendix. Then **propose** (and on the user's
 go-ahead, apply) the findings→action bridge:
 - `fix` → a task surfaced at the next `/start-sprint`;
-- `amend-rule` → open `product/adr/ADR-00X` capturing thesis / antithesis / synthesis;
-- `defer` → append `OQ-NN` to `product/open-questions.md` (non-blocking, logged).
+- `amend-rule` → open `{product}/adr/ADR-00X` capturing thesis / antithesis / synthesis;
+- `defer` → append `OQ-NN` to `{product}/open-questions.md` (non-blocking, logged).
 
 You MAY set `last_tribunal: { n: NN, criticals: X, at: <date> }` in `state.yaml` (read-modify-write the
 whole file per schema). **Never set `gate: passed` or advance `stage`** — the tribunal informs; the
@@ -130,8 +130,8 @@ MIDAS_TRIBUNAL_RESULT: criticals=X highs=Y        # gate-parseable line
 
 ## Recommended actions (findings → action bridge)
 - <id> fix    → task at next /start-sprint
-- <id> amend  → open product/adr/ADR-00X (thesis/antithesis/synthesis)
-- <id> defer  → product/open-questions.md OQ-NN
+- <id> amend  → open {product}/adr/ADR-00X (thesis/antithesis/synthesis)
+- <id> defer  → {product}/open-questions.md OQ-NN
 
 ## Full transcript (appendix)
 <round-by-round positions, rebuttals, struck-for-no-evidence claims, re-verification results>

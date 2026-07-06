@@ -28,7 +28,7 @@ extension under `harness/rules/` that overrides or supplements the items here.
       **CHECK:** linter (`eslint max-lines-per-function` / equivalent) reports no function over the stack limit; absent a linter, no body exceeds ~40 logical lines.
 - [ ] No function has more than 3–4 parameters; group related params into a named object/struct.
       **CHECK:** `manual:`/AST: no signature in the diff declares > 4 positional parameters.
-- [ ] Module/layer boundaries defined in `product/architecture.md` are respected — no
+- [ ] Module/layer boundaries defined in `{product}/architecture.md` are respected — no
       cross-layer imports.
       **CHECK:** grep imports against `harness/rules/folder-structure.md` (the project's Phase-5-generated rule; e.g. `grep -rn "from '@/db'" <src-root>/ui/` → empty); any forbidden cross-layer import is a fail.
 

@@ -15,10 +15,10 @@ This is the cheapest phase; speed matters more than depth.
 
 ## Key steps
 
-1. **Record verbatim.** Write the raw idea into `product/idea.md` under a `## Raw idea` heading.
+1. **Record verbatim.** Write the raw idea into `{product}/idea.md` under a `## Raw idea` heading.
    Do not paraphrase or improve it yet.
 2. **Derive a 1-line pitch.** Synthesize a single sentence: `<verb> <for whom> <so that <outcome>>`.
-   Append it to `product/idea.md` under `## One-line pitch`.
+   Append it to `{product}/idea.md` under `## One-line pitch`.
 3. **Identify mode.** Ask: is this greenfield (empty repo) or brownfield (existing code)?
    Record `mode: greenfield|brownfield` in `harness/state.yaml`.
 4. **Seed state.** Create or overwrite `harness/state.yaml` with the schema from
@@ -31,12 +31,12 @@ This is the cheapest phase; speed matters more than depth.
 
 | File | Notes |
 |---|---|
-| `product/idea.md` | Raw idea + 1-line pitch |
+| `{product}/idea.md` | Raw idea + 1-line pitch |
 | `harness/state.yaml` | Seeded with mode, stage, routing |
 
 ## Exit gate checklist
 
-- [ ] `product/idea.md` exists and contains an unedited `## Raw idea` section
+- [ ] `{product}/idea.md` exists and contains an unedited `## Raw idea` section
 - [ ] `## One-line pitch` is present and fits one sentence
 - [ ] `mode` is set (`greenfield` or `brownfield`) in `harness/state.yaml`
 - [ ] `harness/state.yaml` is valid against `harness/state.schema.md`

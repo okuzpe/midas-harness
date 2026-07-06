@@ -75,14 +75,17 @@ export function loadStageCommandTable(root = ROOT) {
 }
 
 /**
- * Recall paths for bundle `recall` profile (canonical product paths only).
+ * Recall paths for bundle `recall` profile (canonical classic coordinates).
+ * `{product}/` tokens map to `product/` canonical; `{runs}/` entries are excluded (handled in bundle).
  * @param {string} stage
  * @param {string} [root]
  * @returns {string[]}
  */
 export function stageRecallPaths(stage, root = ROOT) {
   const { stages } = loadStageCommandTable(root);
-  return stages[stage]?.recall?.filter((p) => !p.startsWith('{')) ?? [];
+  return (stages[stage]?.recall ?? [])
+    .filter((p) => !p.startsWith('{runs}'))
+    .map((p) => (p.startsWith('{product}/') ? `product/${p.slice('{product}/'.length)}` : p));
 }
 
 /**

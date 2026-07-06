@@ -22,13 +22,13 @@ A vague rule here weakens every downstream audit, so each rule MUST be checkable
 pass/fail with on-disk evidence). Orchestrate-tier decides the rules; **build** writes the files.
 
 > **Precondition.** `stage: tech_architecture` must be `passed` (or `architecture_rules` resuming).
-> If `product/architecture.md` or the ADRs are missing, stop — there is nothing to encode yet.
+> If `{product}/architecture.md` or the ADRs are missing, stop — there is nothing to encode yet.
 > **Recommended optional checkpoint:** this is the *pre-rules-freeze* moment — a `/midas-tribunal` here is
 > the last cheap chance to challenge the idea/market/stack decisions before they're frozen into rules.
 > Optional, the human's call; never block on it.
 
 ## Inputs
-- **`paths.state`**, `product/architecture.md`, `product/adr/ADR-*.md`.
+- **`paths.state`**, `{product}/architecture.md`, `{product}/adr/ADR-*.md`.
 - `<paths.engine>/conventions.md` (the base floor — extend, never overwrite) and `<paths.engine>/rules/` (existing
   always-on rules) and `<paths.engine>/rules/context7-usage.md`.
 - `<paths.engine>/design-system/tokens.json` + `tokens.css` (the token store the design system references).
@@ -53,15 +53,15 @@ Extend `<paths.engine>/rules/` with project rules derived from the architecture'
   hallucinated idiom frozen into law — drop it or re-derive it from current docs.
 - Each rule states a **CHECK** line: the concrete, evidence-based condition the Phase-8 audit
   evaluates (e.g. "no file under `ui/` imports from `db/`"). Drop anything you cannot make checkable.
-- Write **`product/conventions.md`** — the project's stack-specific prose conventions (naming, error
+- Write **`{product}/conventions.md`** — the project's stack-specific prose conventions (naming, error
   handling, test patterns) that **override** the base `<paths.engine>/conventions.md`. This is the
-  `product/conventions.md` layer named in the precedence chain (Step 4): the checkable rules above are the
+  `{product}/conventions.md` layer named in the precedence chain (Step 4): the checkable rules above are the
   *constraints*; this is the narrative they encode. Keep it to real overrides — never restate the base.
 
 ### 2. Set the DESIGN DIRECTION, then build the DESIGN SYSTEM to it
 **First, the direction — this is what kills generic, "Tailwind-default" output.** An LLM with no anchor
 invents bland UI; a concrete reference makes it good. Capture the *aesthetic intent* in
-`product/design-direction.md` (from `<paths.engine>/templates/design-direction.md`), and **ASK THE HUMAN for it
+`{product}/design-direction.md` (from `<paths.engine>/templates/design-direction.md`), and **ASK THE HUMAN for it
 via `AskUserQuestion` — their taste is the input; do NOT invent it**:
 - **Brand personality** (3–5 adjectives) and the product's vibe.
 - **2–3 real products to emulate** ("feels like Linear / Stripe / Things"), each with *what* to borrow
@@ -72,11 +72,11 @@ via `AskUserQuestion` — their taste is the input; do NOT invent it**:
 - **If the human has no references or defers** (an AI-only founder with no design taste is valid) —
   do **not** fall back to generic. The agent **proposes ≥2 concrete, named, domain-appropriate references**
   itself (real products in or adjacent to this space, each with *what* to borrow), records them in
-  `product/design-direction.md` marked **`assumed (confirm)`** (agent-proposed), and surfaces them for a
+  `{product}/design-direction.md` marked **`assumed (confirm)`** (agent-proposed), and surfaces them for a
   one-tap human confirmation. A *concrete* anchor is mandatory; *who* supplies it is not. This mirrors the
   required/deferrable-with-assumption pattern Phase-3 validation uses — never a blank or "modern & clean".
 
-**Then build the system *to* that direction.** Write `product/design-system.md` that **references**
+**Then build the system *to* that direction.** Write `{product}/design-system.md` that **references**
 `<paths.engine>/design-system/tokens.json` and `tokens.css` (do not duplicate values into prose); every token
 choice should **trace to the direction** (note which reference it draws from). It defines:
 - **Color palette**, **typography scale**, **spacing scale**, **radii** — as token references.
@@ -91,11 +91,11 @@ If the token files are missing or stale, populate them from the direction + the 
 
 ### 3. Build the project PLAYBOOKS (the few repeated tasks, done the project's way)
 Rules are *constraints* the audit checks; **playbooks** are *procedures* the build agent follows so every
-sprint does a recurring task the same way. Emit a **small, bounded set** to `product/playbooks/<verb-noun>.md`
+sprint does a recurring task the same way. Emit a **small, bounded set** to `{product}/playbooks/<verb-noun>.md`
 (from `<paths.engine>/templates/playbook.md`):
 - **Pick the 0–4 tasks that actually recur** for this stack/architecture — derived from the architecture's
   real surfaces (e.g. "add an API endpoint", "add a DB migration", "scaffold a UI component", the
-  "implement → test → done" ritual), not a generic list. **Zero is valid** — an empty `product/playbooks/`
+  "implement → test → done" ritual), not a generic list. **Zero is valid** — an empty `{product}/playbooks/`
   passes the gate when nothing both recurs *and* has a non-obvious right way.
 - Each playbook is a tight recipe: *use-when*, a **`Trigger`** (a diff predicate so Phase-8 can catch a
   matching change that bypassed the playbook), ordered **steps**, the **rules/tokens it must honor**
@@ -112,7 +112,7 @@ sprint does a recurring task the same way. Emit a **small, bounded set** to `pro
 The encoded layer must agree with `<paths.engine>/conventions.md`:
 
 ```
-stack-specific rules  >  product/conventions.md  >  product/design-system.md  >  base conventions
+stack-specific rules  >  {product}/conventions.md  >  {product}/design-system.md  >  base conventions
 ```
 
 This is the single taxonomy — do not introduce a parallel "standards" layer.
@@ -142,8 +142,8 @@ reflect the new rules. Run `node <paths.scripts>/render-adapters.mjs` (or `/mida
 a generated adapter. Confirm the render succeeded and adapters are in sync.
 
 ### 7. Record state
-Update **`paths.state`** (read-modify-write): list the new rule files + `product/design-system.md` + the
-`product/playbooks/*` + the scaffolded tooling configs in `phases.architecture_rules.artifacts`, set
+Update **`paths.state`** (read-modify-write): list the new rule files + `{product}/design-system.md` + the
+`{product}/playbooks/*` + the scaffolded tooling configs in `phases.architecture_rules.artifacts`, set
 `stage_status: gate_pending`, and record which `tools` the adapters were rendered for. Do not self-advance the stage.
 
 ## Exit gate (orchestrate audits)
@@ -161,7 +161,7 @@ On pass: freeze the verdict in `{runs}/audits/gate-05.md`, set the gate passed; 
 
 ## Tier & cost
 Deciding the rule set, the design-system structure, and **which 0–4 tasks deserve a playbook** →
-**orchestrate** (Opus). Writing the rule files, `product/design-system.md`, tokens, and the playbooks →
+**orchestrate** (Opus). Writing the rule files, `{product}/design-system.md`, tokens, and the playbooks →
 **build** (Sonnet). Context7 fetches for stack/UI-framework
 rules → **scout** (Haiku). Prefer a UI/design specialist (`voltagent-core-dev:ui-designer`,
 `frontend-design`) for the design system if installed; otherwise `midas-builder`.

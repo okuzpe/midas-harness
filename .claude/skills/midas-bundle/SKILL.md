@@ -27,14 +27,14 @@ the bundle use **classic canonical** coordinates (`harness/`, `.harness/`); impo
 | `memory` | Seed a new project (product + stack rules; **no state** overwrite on merge) |
 | `full` | **default** — memory + frozen evidence + `.mcp.json` + enforcement configs |
 | `config` | tools/MCP/routing/enforcement only |
-| `tests` | full + `*.test.*` / `*.spec.*` under `product/` |
+| `tests` | full + `*.test.*` / `*.spec.*` under `{product}/` |
 | `recall` | Same path set as `/midas-recall` (~15 files) |
 
 ## Export
 
 ```bash
 node <paths.scripts>/bundle.mjs export --profile memory -o midas-bundle.json
-node <paths.scripts>/bundle.mjs export --only product/playbooks,product/conventions.md -o rules-pack.json
+node <paths.scripts>/bundle.mjs export --only {product}/playbooks,{product}/conventions.md -o rules-pack.json
 node <paths.scripts>/bundle.mjs export --profile full --include-tests -o full-plus-tests.json
 ```
 
@@ -67,12 +67,12 @@ After a successful import, suggest `/midas-doctor --fix` so adapters match impor
 **Seed new project:** export `--profile memory` from source → `npx create midas` + `/midas-init` on dest →
 import `--merge` (state stays from init) → `/midas-doctor --fix`.
 
-**Share rules/playbooks:** export `--only harness/rules,product/playbooks,product/conventions.md`.
+**Share rules/playbooks:** export `--only harness/rules,{product}/playbooks,{product}/conventions.md`.
 
 ## Hard boundaries
 
 - Does **not** advance `stage` or gates.
-- Does **not** export `product/src/` unless `--include-src`.
+- Does **not** export `{product}/src/` unless `--include-src`.
 - Does **not** export lockfiles or generated adapters (`CLAUDE.md`, `.cursor/rules/*`).
 - JSON is transport only — imported files live in git like any other artifact.
 

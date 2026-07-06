@@ -165,7 +165,8 @@ Decisions about the repository itself (not about a product built with Midas) are
 
 | ADR | Status | Topic |
 |---|---|---|
-| [ADR-001](adr/ADR-001-install-layout.md) | accepted | Install layout — consolidate engine internals under `.midas/` (opt-in `--layout=compact`, classic default) |
+| [ADR-001](adr/ADR-001-install-layout.md) | accepted | Install layout — compact opt-in (superseded default → ADR-006 hub) |
+| [ADR-006](adr/ADR-006-hub-layout.md) | accepted | Hub layout — default install; `product/` under `.midas/` |
 | [ADR-002](adr/ADR-002-code-intelligence-mcp.md) | rejected | Optional code-intelligence MCP (code-graph) — rejected: too much install complexity for a dependency-free harness |
 | [ADR-003](adr/ADR-003-project-memory-model.md) | accepted | Project memory model — `state.yaml` spine + `{runs}/*` records (`.harness/` or `.midas/`) |
 | [ADR-004](adr/ADR-004-audit-skill-surface.md) | accepted (deferred) | Audit skill surface — keep tribunal/security/close-sprint separate |
@@ -180,6 +181,8 @@ Decisions about the repository itself (not about a product built with Midas) are
 
 Do not confuse `npm run build` (distribution) with `node scripts/bundle.mjs export` (portable knowledge).
 
-## Install layouts (classic vs compact)
+## Install layouts (classic, compact, hub)
 
-Product installs default to **classic** (`harness/`, `scripts/`, `.harness/` at the project root). **`--layout=compact`** relocates engine internals under `.midas/` while tool-mandated paths stay at the root. Path resolution is centralized in `scripts/paths.mjs`; skills read `layout` + `paths` from state and substitute `{runs}/` tokens in pipeline prose. See [ADR-001](adr/ADR-001-install-layout.md) and [INSTALL.md](../INSTALL.md).
+New product installs default to **hub** — engine, state, runs, and `product/` under `.midas/`; tool-mandated paths stay at the repo root. **`--layout=classic`** and **`--layout=compact`** remain supported (compact keeps `product/` at root). Path resolution is in `scripts/paths.mjs`; skills read `layout` + `paths` from state and substitute `{runs}/` and `{product}/` tokens. See [ADR-006](adr/ADR-006-hub-layout.md), [ADR-001](adr/ADR-001-install-layout.md), and [INSTALL.md](../INSTALL.md).
+
+The **engine repository** (this repo) dogfoods **classic** layout by design.

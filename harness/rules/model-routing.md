@@ -77,7 +77,7 @@ project needs a different default tier-to-model mapping, change it at the source
 
 Beyond tier selection, the biggest savings in a multi-agent harness come from not re-paying for the
 same tokens:
-- **Cache the stable corpus.** `paths.state` + `<paths.engine>/rules/*` + `product/*` are re-read on every
+- **Cache the stable corpus.** `paths.state` + `<paths.engine>/rules/*` + `{product}/*` are re-read on every
   dispatch — put them behind a prompt-cache breakpoint so repeated reads are not re-billed.
 - **Batch the fan-outs.** Latency-tolerant parallel work (tribunal debaters, market-research / scout
   sweeps, per-rule audits) belongs on the Batch API, not N synchronous calls.

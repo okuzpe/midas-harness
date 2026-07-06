@@ -1,9 +1,9 @@
-// paths.mjs — layout-aware path resolver (classic vs compact). Dependency-free.
+// paths.mjs — layout-aware path resolver (classic | compact | hub). Dependency-free.
 
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
-/** Fixed subdirs under the runs base (classic: .harness/, compact: .midas/). */
+/** Fixed subdirs under the runs base (classic: .harness/, compact/hub: .midas/). */
 export const RUNS_SUBDIRS = ['audits', 'verifications', 'debates', 'sprints', 'sweeps', 'cache'];
 
 const CLASSIC = {
@@ -13,6 +13,7 @@ const CLASSIC = {
   state: 'harness/state.yaml',
   version: 'harness/VERSION',
   runs: '.harness',
+  product: 'product',
   agentsDoc: 'docs/agents-and-models.md',
 };
 
@@ -23,60 +24,91 @@ const COMPACT = {
   state: '.midas/state.yaml',
   version: '.midas/engine/VERSION',
   runs: '.midas',
+  product: 'product',
   agentsDoc: '.midas/docs/agents-and-models.md',
 };
+
+const HUB = {
+  layout: 'hub',
+  engine: '.midas/engine',
+  scripts: '.midas/scripts',
+  state: '.midas/state.yaml',
+  version: '.midas/engine/VERSION',
+  runs: '.midas',
+  product: '.midas/product',
+  agentsDoc: '.midas/docs/agents-and-models.md',
+};
+
+/** @param {string} root */
+function readLayoutFromState(root) {
+  const candidates = [
+    join(root, '.midas', 'state.yaml'),
+    join(root, 'harness', 'state.yaml'),
+  ];
+  for (const f of candidates) {
+    if (!existsSync(f)) continue;
+    const raw = readFileSync(f, 'utf8');
+    const m = raw.match(/^layout:\s*(\S+)/m);
+    if (m && ['classic', 'compact', 'hub'].includes(m[1])) return m[1];
+  }
+  return null;
+}
 
 /**
  * Detect installed layout from disk markers.
  * @param {string} root project root
- * @returns {'classic' | 'compact' | null}
+ * @returns {'classic' | 'compact' | 'hub' | null}
  */
 export function detectLayout(root) {
   const r = resolve(root);
-  const compact =
-    existsSync(join(r, '.midas', 'state.yaml')) || existsSync(join(r, '.midas', 'engine', 'VERSION'));
-  const classic =
+  const fromState = readLayoutFromState(r);
+  if (fromState) return fromState;
+
+  const hasClassic =
     existsSync(join(r, 'harness', 'state.yaml')) || existsSync(join(r, 'harness', 'VERSION'));
-  if (compact && classic) return null; // corruption — both layouts present
-  if (compact) return 'compact';
-  if (classic) return 'classic';
+  const hasMidas =
+    existsSync(join(r, '.midas', 'state.yaml')) || existsSync(join(r, '.midas', 'engine', 'VERSION'));
+  const hasHubProduct = existsSync(join(r, '.midas', 'product'));
+  const hasRootProduct = existsSync(join(r, 'product'));
+
+  if (hasClassic && hasMidas) return null;
+  if (hasMidas && hasHubProduct) return 'hub';
+  if (hasMidas) return hasRootProduct ? 'compact' : 'hub';
+  if (hasClassic) return 'classic';
   return null;
 }
 
 /**
  * Resolve Midas path map for a project root.
  * @param {string} [root='.'] project root
- * @param {'classic' | 'compact'} [layout] force layout; default = detect or classic
+ * @param {'classic' | 'compact' | 'hub'} [layout] force layout; default = detect or classic
  * @returns {object & { projectRoot: string, layoutConflict: boolean }}
  */
 export function resolvePaths(root = '.', layout) {
   const projectRoot = resolve(root);
   const detected = detectLayout(projectRoot);
   const layoutConflict = detected === null && (
-    existsSync(join(projectRoot, '.midas', 'state.yaml')) ||
-    existsSync(join(projectRoot, '.midas', 'engine', 'VERSION'))
-  ) && (
-    existsSync(join(projectRoot, 'harness', 'state.yaml')) ||
-    existsSync(join(projectRoot, 'harness', 'VERSION'))
+    (existsSync(join(projectRoot, '.midas', 'state.yaml')) ||
+      existsSync(join(projectRoot, '.midas', 'engine', 'VERSION'))) &&
+    (existsSync(join(projectRoot, 'harness', 'state.yaml')) ||
+      existsSync(join(projectRoot, 'harness', 'VERSION')))
   );
 
   const chosen = layout || detected || 'classic';
-  const base = chosen === 'compact' ? { ...COMPACT } : { ...CLASSIC };
+  const base =
+    chosen === 'hub' ? { ...HUB } : chosen === 'compact' ? { ...COMPACT } : { ...CLASSIC };
 
   return {
     ...base,
     projectRoot,
     layoutConflict,
-    /** Join project root with a repo-relative segment. */
     join(...segments) {
       return join(projectRoot, ...segments);
     },
-    /** Path to a runs subdir, e.g. runsPath('audits') → '.harness/audits' or '.midas/audits'. */
     runsPath(subdir) {
       const p = join(base.runs, subdir);
       return p.replace(/\\/g, '/');
     },
-    /** Absolute path to doctor/render script directory entry. */
     doctorScript() {
       return join(projectRoot, base.scripts, 'doctor.mjs');
     },
@@ -84,8 +116,10 @@ export function resolvePaths(root = '.', layout) {
       return join(projectRoot, base.scripts, 'render-adapters.mjs');
     },
     adaptersHash() {
-      if (base.layout === 'compact') return join(projectRoot, base.runs, 'cache', 'adapters.hash');
-      return join(projectRoot, base.runs, 'adapters.hash');
+      if (base.layout === 'classic') {
+        return join(projectRoot, base.runs, 'adapters.hash');
+      }
+      return join(projectRoot, base.runs, 'cache', 'adapters.hash');
     },
   };
 }
@@ -105,6 +139,12 @@ export const MIGRATION_MAP = [
   { from: '.harness/adapters.hash', to: '.midas/cache/adapters.hash', type: 'file' },
 ];
 
+/** Additional moves for hub (product under .midas/). */
+export const HUB_PRODUCT_MOVE = { from: 'product', to: '.midas/product', type: 'dir' };
+
+/** Full classic → hub plan (compact engine moves + product). */
+export const MIGRATION_MAP_HUB = [...MIGRATION_MAP, HUB_PRODUCT_MOVE];
+
 /** YAML block for compact layout paths (for state.yaml). */
 export function compactPathsYaml() {
   return {
@@ -112,5 +152,17 @@ export function compactPathsYaml() {
     scripts: COMPACT.scripts,
     state: COMPACT.state,
     runs: COMPACT.runs,
+    product: COMPACT.product,
+  };
+}
+
+/** YAML block for hub layout paths (for state.yaml). */
+export function hubPathsYaml() {
+  return {
+    engine: HUB.engine,
+    scripts: HUB.scripts,
+    state: HUB.state,
+    runs: HUB.runs,
+    product: HUB.product,
   };
 }

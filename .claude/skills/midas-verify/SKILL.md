@@ -39,7 +39,7 @@ This skill is rung 4 of the verification ladder in `<paths.engine>/rules/verific
 Browser MCPs are expensive — Playwright ~114k tokens/task, Chrome DevTools ~17k on load. **Do not pay
 that cost blindly.**
 
-1. Read the active `product/sprints/NN-*.md` acceptance criteria and the sprint diff.
+1. Read the active `{product}/sprints/NN-*.md` acceptance criteria and the sprint diff.
 2. Decide **UI-touching** = the sprint renders or changes any user-facing surface (pages, components,
    styles, flows) **and** `--scope` is `ui` or `all` (default infer from the sprint).
 3. **If the sprint is not UI-touching** (pure API/lib/infra, or `--scope api`): **do not load any
@@ -55,10 +55,10 @@ that cost blindly.**
 ## Procedure
 
 ### 1. Read state + acceptance criteria (read first)
-Load **`paths.state`**, the active `product/sprints/NN-*.md` (its **acceptance criteria** are the
-claims under test), `product/design-system.md`, and `<paths.engine>/design-system/tokens.json` +
+Load **`paths.state`**, the active `{product}/sprints/NN-*.md` (its **acceptance criteria** are the
+claims under test), `{product}/design-system.md`, and `<paths.engine>/design-system/tokens.json` +
 `tokens.css`. Resolve the target sprint (`sprint-NN` arg or the active one) and `--scope`. Determine the
-app's run/preview command from `product/architecture.md` (dev server URL, build, or storybook).
+app's run/preview command from `{product}/architecture.md` (dev server URL, build, or storybook).
 
 ### 2. Bring up the app
 Start the app/preview in the background (the project's dev or preview command). Confirm it serves before
@@ -78,7 +78,7 @@ cannot see — record each as a row in the **runtime-health table** (screen · o
   assertion, or framework error-boundary trip is a **fail** (record the message + source-mapped stack).
 - **Network:** zero **failed requests** (4xx/5xx, CORS, timeouts) on the happy path; flag slow calls.
 - **Performance:** a Core Web Vitals / Lighthouse spot-check on the key screen — record LCP/CLS/INP and
-  flag a regression against any budget in `product/architecture.md` (advisory MED unless a budget exists).
+  flag a regression against any budget in `{product}/architecture.md` (advisory MED unless a budget exists).
 
 If Chrome DevTools MCP is unavailable, capture console + network via Playwright and note the lighter
 tool in the record. Uncaught console errors and failed happy-path requests are **first-class fails**.
@@ -89,7 +89,7 @@ On the key screens, inspect computed styles and assert the UI **references the d
 grid, type scale, focus ring. **Flag hardcoded values** that bypass tokens (e.g. a raw hex not traceable
 to a `--ds-*` token) as a fail with the offending selector + computed value. Spot-check **AA contrast**
 and the **focus-visible** ring on interactive elements, and dark mode if `[data-theme="dark"]` is in scope.
-**Also judge it against `product/design-direction.md`:** does the screen match the referenced products /
+**Also judge it against `{product}/design-direction.md`:** does the screen match the referenced products /
 mood, or does it look **generic** (default Tailwind/Bootstrap, stock gradients, rounded-everything)? Flag
 generic-feeling screens as a design finding (MED), citing the direction it drifted from — consistency with
 tokens is not the same as being on-direction.

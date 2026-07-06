@@ -55,7 +55,7 @@ branch strategies (e.g. GitHub Flow vs trunk-based) are added by `/define-conven
       proactively by the agent.
       **CHECK:** `manual:` each push traces to an explicit human request in the session; an agent-initiated push is a fail.
 - [ ] PRs are opened against the default branch; the PR description references the sprint task
-      and acceptance criteria from `product/sprints/NN-*.md`.
+      and acceptance criteria from `{product}/sprints/NN-*.md`.
       **CHECK:** `manual:` the PR targets the default branch and links the sprint task; a PR with no sprint reference is a fail.
 - [ ] Merge commits are squashed or rebased per the strategy set in `/define-conventions`; the
       choice is consistent across the team (one strategy per project).

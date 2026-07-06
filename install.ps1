@@ -2,7 +2,8 @@
 # (create-midas/index.mjs); this script just bootstraps it so there is no parallel bash/PowerShell
 # install logic to drift.
 #
-# One-line install (run INSIDE the project you want to add Midas to):
+# One-line install (run INSIDE the project you want to add Midas to).
+# Default layout is hub (Midas + product under .midas/). Legacy: --layout=classic or --layout=compact
 #   irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | iex
 #
 # Uninstall (surgical — removes only Midas's files, keeps your work; --purge to remove everything):

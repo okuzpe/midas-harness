@@ -29,13 +29,14 @@ transition after that.
 ## Schema
 
 ```yaml
-midas_version: 0.5.30          # engine version that wrote this file (for /midas-update)
-layout: classic                # classic | compact — omit = inferred from disk (see ADR-001)
-paths:                         # optional; installer/doctor --fix writes this for compact
-  engine: harness
-  scripts: scripts
-  state: harness/state.yaml
-  runs: .harness               # subdirs: audits/, verifications/, debates/, sprints/, sweeps/, cache/
+midas_version: 1.0.0           # engine version that wrote this file (for /midas-update)
+layout: hub                    # classic | compact | hub — omit = inferred from disk (see ADR-001, ADR-006)
+paths:                         # optional; installer/doctor --fix writes this for compact/hub
+  engine: .midas/engine
+  scripts: .midas/scripts
+  state: .midas/state.yaml
+  runs: .midas                 # subdirs: audits/, verifications/, debates/, sprints/, sweeps/, cache/
+  product: .midas/product      # hub only; classic/compact use product/ at repo root
 name: taskpilot              # project slug
 mode: greenfield             # greenfield | brownfield  (maturity: E0/E1 → greenfield, E2/E3 → brownfield)
 language: en                 # artifact language
@@ -82,9 +83,9 @@ enforcement:
 
 # Per-phase ledger. artifacts = files that must exist for the gate to pass.
 phases:
-  idea_intake:       { status: passed, gate: passed, artifacts: [product/idea.md] }
-  contextualize:     { status: passed, gate: passed, artifacts: [product/idea.md, product/open-questions.md] }
-  tech_architecture: { status: in_progress, gate: pending, artifacts: [product/architecture.md] }
+  idea_intake:       { status: passed, gate: passed, artifacts: [{product}/idea.md] }
+  contextualize:     { status: passed, gate: passed, artifacts: [{product}/idea.md, {product}/open-questions.md] }
+  tech_architecture: { status: in_progress, gate: pending, artifacts: [{product}/architecture.md] }
 
 sprints:                     # appended during sprint planning; updated each cycle
   - id: "01"
@@ -124,7 +125,8 @@ last_capture: { at: 2026-06-15, kind: rule, target: harness/rules/naming.md }
 4. **Keep it minimal.** `state.yaml` holds only *operational* state — the program counter (stage,
    gates, routing, tool/MCP lists, and short pointers like the current sprint id or `last_audit`).
    Long-form detail (sprint bodies, audit findings, package inventories, verification logs) lives in
-   `product/*` and `.harness/*`; `state.yaml` references them by path. Do not let it grow into a data dump.
+   `{product}/*` (resolved via `paths.product`) and `{runs}/*`; `state.yaml` references them by path.
+   Do not let it grow into a data dump.
 5. **`execution_mode` is orthogonal to `cost_profile`.** It never changes *which* Claude tier a
    decision uses, only *where* `build`/`scout` may run. `orchestrate` gate verdicts (Phase 1/3/4/8,
    code/security review) are Claude-cloud in **every** mode; under `local` they are recorded

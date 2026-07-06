@@ -13,7 +13,7 @@ decision. Every claim must be cited; opinions must be flagged as such.
 
 ## Inputs
 
-- `product/idea.md` v2 (from Phase 1) — user, problem, metric, non-goals
+- `{product}/idea.md` v2 (from Phase 1) — user, problem, metric, non-goals
 - `harness/state.yaml` (stage must be `market_research`)
 
 ## Key steps
@@ -26,7 +26,7 @@ decision. Every claim must be cited; opinions must be flagged as such.
 2. **Run research.** Invoke `midas-scout` with `WebSearch` + `WebFetch` to gather raw evidence.
    If an external deep-research skill is installed in the host tool, you may delegate the fan-out.
    Collect at minimum 3 distinct competitors with public evidence.
-3. **Write `product/market.md`.** Build uses the template below:
+3. **Write `{product}/market.md`.** Build uses the template below:
    - `## Market snapshot` — size estimate with source and date
    - `## Competitors` — table: name | segment | key differentiator | weakness (one row per competitor)
    - `## Differentiation thesis` — 2–4 sentences; what Midas enables that incumbents cannot
@@ -43,11 +43,11 @@ decision. Every claim must be cited; opinions must be flagged as such.
 
 | File | Notes |
 |---|---|
-| `product/market.md` | Competitive landscape, cited |
+| `{product}/market.md` | Competitive landscape, cited |
 
 ## Exit gate checklist
 
-- [ ] `product/market.md` exists with all five sections present
+- [ ] `{product}/market.md` exists with all five sections present
 - [ ] At least 3 named competitors with evidence (not hypothetical)
 - [ ] Differentiation thesis is present and specific (not generic)
 - [ ] `## Demand signals` present with a frank demand verdict (strong/mixed/weak) and cited evidence

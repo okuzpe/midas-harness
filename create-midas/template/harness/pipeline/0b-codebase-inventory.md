@@ -30,13 +30,13 @@ the project's written intent** — `README*`, `docs/`, briefs/specs/`NOTES`, the
    `/midas-adopt` Step 4 backfill records *what's written*, not an invention (cite the source).
 
 ## Output artifacts
-`product/inventory.md` — the factual snapshot.
+`{product}/inventory.md` — the factual snapshot.
 
 ## Exit gate
 - [ ] Languages, frameworks, and **pinned versions** captured (Context7-verified).
 - [ ] Existing agent-config files catalogued (for managed-marker merge, not overwrite).
 - [ ] Test / build / CI setup recorded.
-- [ ] Nothing written outside `product/inventory.md` yet.
+- [ ] Nothing written outside `{product}/inventory.md` yet.
 
 ## Recommended agents
 `midas-scout` (Haiku) extracts; `midas-orchestrator` (Opus) infers. Then continue with `/midas-adopt`

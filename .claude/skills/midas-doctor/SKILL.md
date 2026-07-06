@@ -14,7 +14,7 @@ mcp-recommended: [context7]
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
 > First read the state file at **`paths.state`**. No stage precondition — doctor may run at any lifecycle stage.
 
-> **Paths:** Run `node <paths.scripts>/doctor.mjs` (classic: `scripts/`, compact: `.midas/scripts/`). Adapters render from `<paths.engine>/conventions.md` + rules.
+> **Paths:** Run `node <paths.scripts>/doctor.mjs`. Adapters render from `<paths.engine>/conventions.md` + rules. Substitute `{runs}/` and `{product}/` per `AGENTS.md` § Path resolution.
 
 Generated adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `GEMINI.md`) are
 **rendered** from `<paths.engine>/conventions.md` + `<paths.engine>/rules/*` — never hand-edited. `midas-doctor` is the

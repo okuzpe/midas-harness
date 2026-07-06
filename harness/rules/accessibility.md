@@ -20,7 +20,7 @@ each one as `N/A (no UI)` in the audit; do not delete the rule.
 - [ ] All UI reads design tokens — no hardcoded colour, spacing, type size, or radius in component code.
       **CHECK:** `grep -rniE "#[0-9a-fA-F]{3,8}|rgba?\(" <ui-src>` → every hit is a token *definition*,
       not an inline value in a component; an inline hex/rgb in component code is a fail.
-- [ ] The built UI visibly traces to `product/design-direction.md` (its named references), not a
+- [ ] The built UI visibly traces to `{product}/design-direction.md` (its named references), not a
       framework default.
       **CHECK:** `manual:` a reviewer can name which reference each key screen draws from; "generic
       Bootstrap/Tailwind default" with no traceable anchor is a fail.

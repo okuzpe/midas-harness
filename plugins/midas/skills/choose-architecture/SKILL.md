@@ -1,6 +1,6 @@
 ---
 name: choose-architecture
-description: Phase 4 — pin the tech stack and architecture from the business case, Context7-verify every version, and write product/architecture.md plus one ADR per decision. Use after the business case is signed off (stage business_case → tech_architecture) and before any rules or code exist.
+description: Phase 4 — pin the tech stack and architecture from the business case, Context7-verify every version, and write {product}/architecture.md plus one ADR per decision. Use after the business case is signed off (stage business_case → tech_architecture) and before any rules or code exist.
 user-invocable: true
 disable-model-invocation: true
 model: inherit
@@ -27,8 +27,8 @@ decision phase — Opus reasons about trade-offs; scout (Haiku) does the Context
 
 ## Inputs (read first, write last)
 - **`paths.state`** — current stage, `routing`, `mcp`.
-- `product/business-plan.md` — MVP scope, non-goals, success metrics, model.
-- `product/idea.md`, `product/market.md` — product/user/problem context.
+- `{product}/business-plan.md` — MVP scope, non-goals, success metrics, model.
+- `{product}/idea.md`, `{product}/market.md` — {product}/user/problem context.
 - `<paths.engine>/rules/context7-usage.md` — the version-verification rule you MUST honor here.
 
 ## Procedure
@@ -96,7 +96,7 @@ to the **scout** tier. Record the exact pinned version (e.g. `next@15.x`, `drizz
 the Context7 verification next to each choice. If Context7 is unreachable, use the documented web
 fallback and add the visible note — never pin from memory.
 
-### 5. Write `product/architecture.md`
+### 5. Write `{product}/architecture.md`
 One document, containing:
 - **Requirements coverage** — the Step-1 checklist mapped to the chosen components.
 - **Stack table** — layer · choice · **pinned version** · Context7-verified (✓/web-fallback) · why.
@@ -107,7 +107,7 @@ One document, containing:
 - **Risks & deferrals** — what is explicitly out of MVP scope (mirrors business-case non-goals).
 
 ### 6. Write one ADR per decision
-For each surviving decision, write `product/adr/ADR-NNN-<slug>.md` (zero-padded, sequential) using
+For each surviving decision, write `{product}/adr/ADR-NNN-<slug>.md` (zero-padded, sequential) using
 the standard shape: **Status** (Accepted), **Context** (requirement + constraints), **Decision**
 (the choice + pinned version), **Alternatives considered** (the candidates from Step 2 and why
 rejected), **Consequences** (what this commits us to, what it costs). One decision per ADR; never
@@ -129,7 +129,7 @@ gate and writes the verdict (the producer never grades its own homework).
   is noted in its ADR as a human decision.
 - Stack is **pinned** and every third-party version is **Context7-verified** (or web-fallback noted).
 - A system **diagram** is present.
-- **One ADR per decision** exists under `product/adr/`.
+- **One ADR per decision** exists under `{product}/adr/`.
 - **Every Step-1 requirement is covered** by a named component.
 - Architecture scope matches the business-case MVP (no gold-plating, no missing must-haves).
 

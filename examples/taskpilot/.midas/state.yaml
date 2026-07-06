@@ -1,4 +1,11 @@
-midas_version: 0.5.30
+midas_version: 1.0.0
+layout: hub
+paths:
+  engine: .midas/engine
+  scripts: .midas/scripts
+  state: .midas/state.yaml
+  runs: .midas
+  product: .midas/product
 name: taskpilot
 mode: greenfield
 language: en
@@ -24,60 +31,60 @@ mcp:   [context7, sequential-thinking]
 # Enforcement scaffolded in Phase 5 (recommend-don't-wall). doctor.mjs warns if a named config is
 # missing; git_hooks/commit_msg installed:false = the solo dev deferred local hooks (CI still enforces).
 enforcement:
-  linter:     { config: product/biome.json, installed: true }
-  formatter:  { config: product/biome.json, installed: true }
-  git_hooks:  { config: product/lefthook.yml, installed: false }
-  commit_msg: { config: product/commitlint.config.js, installed: false }
+  linter:     { config: .midas/product/biome.json, installed: true }
+  formatter:  { config: .midas/product/biome.json, installed: true }
+  git_hooks:  { config: .midas/product/lefthook.yml, installed: false }
+  commit_msg: { config: .midas/product/commitlint.config.js, installed: false }
 
 phases:
   idea_intake:
     status: passed
     gate: passed
-    artifacts: [product/idea.md]
+    artifacts: [.midas/product/idea.md]
   contextualize:
     status: passed
     gate: passed
-    artifacts: [product/idea.md, product/open-questions.md]
+    artifacts: [.midas/product/idea.md, .midas/product/open-questions.md]
   market_research:
     status: passed
     gate: passed
-    artifacts: [product/market.md]
+    artifacts: [.midas/product/market.md]
   business_case:
     status: passed
     gate: passed
-    artifacts: [product/business-plan.md]
+    artifacts: [.midas/product/business-plan.md]
   tech_architecture:
     status: passed
     gate: passed
-    artifacts: [product/architecture.md, product/adr/ADR-001-stack.md]
+    artifacts: [.midas/product/architecture.md, .midas/product/adr/ADR-001-stack.md]
   architecture_rules:
     status: passed
     gate: passed
     artifacts:
-      - harness/rules/folder-structure.md
-      - harness/rules/tenant-isolation.md
-      - harness/rules/session-cookies.md
-      - product/conventions.md
-      - product/design-direction.md
-      - product/design-system.md
-      - product/playbooks/add-api-route.md
-      - product/playbooks/add-drizzle-migration.md
-      - product/playbooks/bump-dependency.md
+      - .midas/engine/rules/folder-structure.md
+      - .midas/engine/rules/tenant-isolation.md
+      - .midas/engine/rules/session-cookies.md
+      - .midas/product/conventions.md
+      - .midas/product/design-direction.md
+      - .midas/product/design-system.md
+      - .midas/product/playbooks/add-api-route.md
+      - .midas/product/playbooks/add-drizzle-migration.md
+      - .midas/product/playbooks/bump-dependency.md
   sprint_planning:
     status: passed
     gate: passed
-    artifacts: [product/roadmap.md, product/sprints/01-auth-and-task-crud.md]
+    artifacts: [.midas/product/roadmap.md, .midas/product/sprints/01-auth-and-task-crud.md]
   sprint_execution:
     status: passed
     gate: passed
     artifacts:
-      - product/src/lib/db/schema.ts
-      - product/src/lib/auth/session.ts
-      - product/src/app/api/tasks/route.ts
+      - .midas/product/src/lib/db/schema.ts
+      - .midas/product/src/lib/auth/session.ts
+      - .midas/product/src/app/api/tasks/route.ts
   audit:
     status: passed
     gate: passed
-    artifacts: [.harness/audits/audit-01.md]
+    artifacts: [.midas/audits/audit-01.md]
 
 sprints:
   - id: "01"

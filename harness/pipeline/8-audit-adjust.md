@@ -10,9 +10,9 @@ or declare the MVP complete. The producer never grades its own work.
 
 ## Inputs
 
-- Completed sprint file `product/sprints/NN-<slug>.md` (Phase 7, status `done`)
+- Completed sprint file `{product}/sprints/NN-<slug>.md` (Phase 7, status `done`)
 - `harness/rules/*` (Phase 5 — frozen; amendments require a logged decision)
-- `product/business-plan.md` (Phase 3 — scope reference)
+- `{product}/business-plan.md` (Phase 3 — scope reference)
 - `harness/state.yaml` (stage `sprint_execution`, the active sprint's work landed — Phase 8 runs in place)
 
 ## Key steps
@@ -30,7 +30,7 @@ a prior sweep left unresolved high-severity findings.
    verification command or grep pattern against the new code. Record each rule as
    `pass`, `fail`, or `n/a` with evidence (file:line or test name).
 2. **Scope reconciliation.** Verify that no code added in this sprint implements a
-   feature outside MVP scope (`product/business-plan.md § MVP scope`). Flag any drift.
+   feature outside MVP scope (`{product}/business-plan.md § MVP scope`). Flag any drift.
 3. **Classify findings.**
    - `conformance-fix` — code violates a rule; the code must change, not the rule.
    - `rule-amendment` — the rule was wrong or the context changed; update the rule file

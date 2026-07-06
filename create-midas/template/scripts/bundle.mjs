@@ -97,15 +97,20 @@ function sha256(text) {
 /** @param {string} rel repo-relative */
 export function toCanonical(rel, layout) {
   const p = posix(rel);
-  if (layout !== 'compact') return p;
-  const fileMaps = MIGRATION_MAP.filter((m) => m.type === 'file').sort((a, b) => b.to.length - a.to.length);
-  for (const { from, to } of fileMaps) {
-    if (p === to) return from;
+  if (layout === 'hub') {
+    if (p === '.midas/product') return 'product';
+    if (p.startsWith('.midas/product/')) return 'product' + p.slice('.midas/product'.length);
   }
-  const sorted = [...MIGRATION_MAP].sort((a, b) => b.to.length - a.to.length);
-  for (const { from, to } of sorted) {
-    if (p === to) return from;
-    if (p.startsWith(to + '/')) return from + p.slice(to.length);
+  if (layout === 'compact' || layout === 'hub') {
+    const fileMaps = MIGRATION_MAP.filter((m) => m.type === 'file').sort((a, b) => b.to.length - a.to.length);
+    for (const { from, to } of fileMaps) {
+      if (p === to) return from;
+    }
+    const sorted = [...MIGRATION_MAP].sort((a, b) => b.to.length - a.to.length);
+    for (const { from, to } of sorted) {
+      if (p === to) return from;
+      if (p.startsWith(to + '/')) return from + p.slice(to.length);
+    }
   }
   return p;
 }
@@ -113,15 +118,20 @@ export function toCanonical(rel, layout) {
 /** @param {string} canonical classic coordinates */
 export function fromCanonical(canonical, layout) {
   const p = posix(canonical);
-  if (layout !== 'compact') return p;
-  const fileMaps = MIGRATION_MAP.filter((m) => m.type === 'file').sort((a, b) => b.from.length - a.from.length);
-  for (const { from, to } of fileMaps) {
-    if (p === from) return to;
+  if (layout === 'hub') {
+    if (p === 'product') return '.midas/product';
+    if (p.startsWith('product/')) return '.midas/product' + p.slice('product'.length);
   }
-  const sorted = [...MIGRATION_MAP].sort((a, b) => b.from.length - a.from.length);
-  for (const { from, to } of sorted) {
-    if (p === from) return to;
-    if (p.startsWith(from + '/')) return to + p.slice(from.length);
+  if (layout === 'compact' || layout === 'hub') {
+    const fileMaps = MIGRATION_MAP.filter((m) => m.type === 'file').sort((a, b) => b.from.length - a.from.length);
+    for (const { from, to } of fileMaps) {
+      if (p === from) return to;
+    }
+    const sorted = [...MIGRATION_MAP].sort((a, b) => b.from.length - a.from.length);
+    for (const { from, to } of sorted) {
+      if (p === from) return to;
+      if (p.startsWith(from + '/')) return to + p.slice(from.length);
+    }
   }
   return p;
 }
@@ -251,7 +261,7 @@ export function collectRecallPaths(stateYaml, root, layout) {
 
   const activeId = findActiveSprintId(stateYaml);
   if (activeId) {
-    for (const f of listUnder(root, 'product/sprints')) {
+    for (const f of listUnder(root, fromCanonical('product/sprints', layout))) {
       const base = f.split('/').pop() || '';
       if (base.startsWith(`${activeId}-`) || base.startsWith(`${activeId.padStart(2, '0')}-`)) {
         paths.add(toCanonical(f, layout));
@@ -272,7 +282,7 @@ export function collectRecallPaths(stateYaml, root, layout) {
     }
   }
   if (stage === 'sprint_execution') {
-    for (const f of listUnder(root, 'product/playbooks')) paths.add(toCanonical(f, layout));
+    for (const f of listUnder(root, fromCanonical('product/playbooks', layout))) paths.add(toCanonical(f, layout));
     for (const r of collectProjectRulePaths(stateYaml, root, layout)) paths.add(r);
   }
   const mode = parseStateScalar(stateYaml, 'mode');
@@ -289,7 +299,7 @@ export function collectRecallPaths(stateYaml, root, layout) {
 
 function collectTestPaths(root, layout) {
   const out = new Set();
-  const productRoot = join(root, 'product');
+  const productRoot = join(root, fromCanonical('product', layout));
   if (!existsSync(productRoot)) return [];
   for (const f of walkFiles(productRoot)) {
     const rel = posix(relative(root, f));

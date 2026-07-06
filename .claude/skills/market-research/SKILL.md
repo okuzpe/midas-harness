@@ -1,6 +1,6 @@
 ---
 name: market-research
-description: Phase 2 of Midas — validate the (now-clear) idea against the real market. Derive research questions, fan out web searches (optional host deep-research if installed), adversarially verify every claim with citations, and synthesize a competitor matrix + differentiation thesis + top risks into product/market.md. Use after /contextualize, before the business case.
+description: Phase 2 of Midas — validate the (now-clear) idea against the real market. Derive research questions, fan out web searches (optional host deep-research if installed), adversarially verify every claim with citations, and synthesize a competitor matrix + differentiation thesis + top risks into {product}/market.md. Use after /contextualize, before the business case.
 user-invocable: true
 disable-model-invocation: true
 model: inherit
@@ -25,7 +25,7 @@ competitive landscape **with citations**. The producer gathers and synthesizes; 
 frames the questions and audits the gate — it does not rubber-stamp its own report.
 
 ## Steps
-1. **Derive research questions** from `product/idea.md`: market-size signals, direct competitors,
+1. **Derive research questions** from `{product}/idea.md`: market-size signals, direct competitors,
    substitutes/alternatives, pricing norms, distribution channels, regulatory/compliance constraints,
    and **demand signals** — evidence that the problem is real and people pay to solve it (competitor
    traction/reviews/funding, complaints in forums/Reddit/app-store reviews, search/community interest,
@@ -40,7 +40,7 @@ frames the questions and audits the gate — it does not rubber-stamp its own re
    **demand verdict** — *strong / mixed / weak* desk-signal — citing the evidence behind it (traction,
    pain complaints, search interest, willingness-to-pay). State plainly what the desk can and **cannot**
    prove: it shows a market exists, not that *these* customers will pay — that is field validation (Phase 3).
-5. **Write `product/market.md`** from `<paths.engine>/templates/market.md`. Update **`paths.state`** (read-modify-write)
+5. **Write `{product}/market.md`** from `<paths.engine>/templates/market.md`. Update **`paths.state`** (read-modify-write)
    (`market_research: in_progress` → leave the gate verdict to the orchestrator).
 
 ## Cost / tiers
@@ -54,5 +54,5 @@ search/extraction. Build (Sonnet) writes the synthesis.
 - [ ] Top 3 market risks named, each with an early signal.
 - [ ] **Demand signals** assessed with a frank desk-demand verdict (strong/mixed/weak) and evidence —
       not just a competitor list. (Whether *these* customers pay is field validation, weighed in Phase 3.)
-- [ ] `product/market.md` written; gate verdict rendered by the orchestrator before advancing to
+- [ ] `{product}/market.md` written; gate verdict rendered by the orchestrator before advancing to
       `business_case`.

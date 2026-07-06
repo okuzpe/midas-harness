@@ -35,15 +35,15 @@ adequate docs and that no stale or contradictory docs were introduced. Stack-spe
       **CHECK:** `manual:` a comment citing a spec/issue/paper includes its URL or issue id.
 
 ### Harness artifacts
-- [ ] Each sprint's `product/sprints/NN-*.md` has a completed acceptance column before the
+- [ ] Each sprint's `{product}/sprints/NN-*.md` has a completed acceptance column before the
       Phase-8 audit (done items summarize what was built, not just the original goal).
       **CHECK:** the active sprint file's acceptance/Tasks table has no `todo`/`in-progress` rows at audit time.
 - [ ] Any rule in `harness/rules/` that is consciously amended during a sprint includes a
       `## Amendment` entry at the bottom with date, reason, and who decided.
       **CHECK:** `manual:` each rule changed this sprint carries a dated `## Amendment` entry; a silent rule edit is a fail.
-- [ ] ADRs (`product/adr/ADR-*.md`) follow the template: Context, Decision, Consequences.
+- [ ] ADRs (`{product}/adr/ADR-*.md`) follow the template: Context, Decision, Consequences.
       An ADR is never deleted — superseded ADRs are marked `[SUPERSEDED by ADR-N]`.
-      **CHECK:** each ADR has Context/Decision/Consequences sections; `git log --diff-filter=D -- product/adr/` shows no deleted ADR.
+      **CHECK:** each ADR has Context/Decision/Consequences sections; `git log --diff-filter=D -- {product}/adr/` shows no deleted ADR.
 
 ### README and setup docs
 - [ ] `README.md` (or the stack entry-point doc) contains a working *Getting Started* section

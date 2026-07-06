@@ -10,7 +10,7 @@ that constrain Phase 7. Fetching current docs before pinning any library is mand
 
 ## Inputs
 
-- `product/business-plan.md` (Phase 3) — MVP scope and non-goals
+- `{product}/business-plan.md` (Phase 3) — MVP scope and non-goals
 - `harness/state.yaml` (stage must be `tech_architecture`)
 
 ## Key steps
@@ -35,12 +35,12 @@ that constrain Phase 7. Fetching current docs before pinning any library is mand
    and **ask via `AskUserQuestion`** — recommended option marked, one-line trade-off each. No preference →
    use the recommendation (never block); an override is the user's call, recorded in that decision's ADR.
    Only the chosen options get version-pinned. Keep it to the few decisions that truly matter.
-4. **Write `product/architecture.md`.** Include:
+4. **Write `{product}/architecture.md`.** Include:
    - `## Stack` — table: layer | choice | version | rationale
    - `## System diagram` — ASCII or Mermaid flowchart covering data flow end-to-end
    - `## Constraints` — hard limits derived from non-goals and business plan
    - `## Open decisions` — any choices deferred to a future sprint ADR
-5. **Write ADRs.** One file per significant decision: `product/adr/ADR-001-<slug>.md`.
+5. **Write ADRs.** One file per significant decision: `{product}/adr/ADR-001-<slug>.md`.
    Format: Status | Context | Decision | Consequences. At minimum, one ADR is required
    (e.g. the primary persistence layer or framework choice). **Each macro-pattern fork (app shape, auth
    strategy, lock-in) gets its own ADR** recording the choice/default + the coupling-vs-control trade-off.
@@ -53,17 +53,17 @@ that constrain Phase 7. Fetching current docs before pinning any library is mand
 
 | File | Notes |
 |---|---|
-| `product/architecture.md` | Stack, diagram, constraints |
-| `product/adr/ADR-NNN-<slug>.md` | One file per decision; at least one required |
+| `{product}/architecture.md` | Stack, diagram, constraints |
+| `{product}/adr/ADR-NNN-<slug>.md` | One file per decision; at least one required |
 
 ## Exit gate checklist
 
-- [ ] `product/architecture.md` exists with all four sections
+- [ ] `{product}/architecture.md` exists with all four sections
 - [ ] Each macro architecture pattern (app shape, auth strategy, lock-in) was surfaced to the human in plain language and its choice/default + trade-off recorded in its own ADR
 - [ ] The consequential stack choices were recommended (industry standard) and put to the user; the selection (or explicit "use the recommendation") is recorded, overrides noted in the ADR
 - [ ] Every third-party library in the stack was verified via Context7 (or documented web fallback)
 - [ ] System diagram covers the full data flow (not just the frontend)
-- [ ] At least one ADR exists in `product/adr/`
+- [ ] At least one ADR exists in `{product}/adr/`
 - [ ] Every non-negotiable requirement from step 1 is covered by a stack entry
 - [ ] No third-party API was coded from memory (Context7 or web fallback evidence present)
 - [ ] Gate verdict written to `{runs}/audits/gate-04.md`

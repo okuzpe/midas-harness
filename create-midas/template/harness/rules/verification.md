@@ -37,7 +37,7 @@ error the compiler would have caught for free). Each rung is a gate for the next
 
 **Scope:** the automated stack Midas ships today is **web browser** verification via Playwright MCP
 and Chrome DevTools MCP (`/midas-verify`). **Native mobile** (iOS/Android) automation is not wired —
-when `product/architecture.md` declares a mobile client, prove it with the stack's own test runner and
+when `{product}/architecture.md` declares a mobile client, prove it with the stack's own test runner and
 manual/device QA until a future `/midas-verify-mobile` (or equivalent) is adopted in Phase 4–5.
 
 A UI change is proven in a **real browser**, with two complementary tools (see `/midas-verify`). Load
@@ -56,7 +56,7 @@ a browser MCP **only** when the change renders or alters a user-facing surface �
       fail. (If Chrome DevTools MCP is absent, fall back to Playwright's console/network capture and
       record which tool proved it.)
 - [ ] No horizontal overflow at a narrow viewport (~320–375px); UI references design tokens (no
-      hardcoded colour/spacing/type/radii) per `product/design-system.md`.
+      hardcoded colour/spacing/type/radii) per `{product}/design-system.md`.
       **CHECK:** `manual:` no horizontal overflow on key screens (see `accessibility.md` § layout overflow);
       `/midas-verify` automates where wired.
       a hardcoded value not traceable to a `--ds-*` token is a fail.
@@ -76,13 +76,13 @@ a browser MCP **only** when the change renders or alters a user-facing surface �
       **CHECK:** the sprint's `{runs}/audits/audit-NN.md` exists and was produced by the auditor tier,
       not the producer; its `MIDAS_AUDIT_RESULT` tally shows `unresolved=0 verdict=pass`.
 
-### The spec ledger — `product/features.json` (the passing/failing gate)
-The sprint's machine-checkable spec (`product/features.json`, seeded at Phase-6 planning from the MVP
+### The spec ledger — `{product}/features.json` (the passing/failing gate)
+The sprint's machine-checkable spec (`{product}/features.json`, seeded at Phase-6 planning from the MVP
 scope) is the ledger this ladder feeds: a feature flips to `status: passing` **only** when the rungs its
 acceptance criteria demand are green, with the proof recorded in its `evidence`. The build agent edits
 **only** `status`/`evidence`, never the spec fields (see `harness/templates/features.json.tmpl`).
 - [ ] Every `passing` feature carries `evidence`; every shipped behaviour has a feature entry.
-      **CHECK:** in `product/features.json`, a `status: "passing"` with empty `evidence`, or a shipped
+      **CHECK:** in `{product}/features.json`, a `status: "passing"` with empty `evidence`, or a shipped
       behaviour with no feature entry, is a fail; Phase 8 grades the file against the verification records.
 
 ## Cost & escalation

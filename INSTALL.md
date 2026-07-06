@@ -5,8 +5,8 @@
 
 Midas installs **into any project** (new or existing). Every method runs the same dependency-free Node
 installer, which copies the harness in **non-destructively** (it only adds files — it never deletes
-yours), generates the tool adapters, writes a default state file (`harness/state.yaml` classic or
-`.midas/state.yaml` compact), and merges a Midas block
+yours), generates the tool adapters, writes a default state file (`.midas/state.yaml` for hub/compact or
+`harness/state.yaml` classic), and merges a Midas block
 into `.gitignore` (secrets, `node_modules/` and common build dirs, volatile hashes — the harness itself stays
 committed) so the project is ready
 to use. Then run `/midas-init` once — the **one-time guided setup** (it adopts an existing repo for
@@ -18,7 +18,8 @@ you); it retires itself afterward and `/midas-status` drives the rest.
 
 ## One command (recommended)
 
-Run **inside the project** you want to add Midas to.
+Run **inside the project** you want to add Midas to. **Default layout is `hub`** — everything Midas-owned
+under `.midas/` (engine, product artifacts, runs, state). Tool adapters stay at the repo root.
 
 **macOS / Linux**
 ```bash
@@ -32,7 +33,7 @@ irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | ie
 
 **Any platform, no shell script** (works with every package manager):
 ```bash
-npx  github:okuzpe/midas-harness          # or a target dir:  npx github:okuzpe/midas-harness ./my-app
+npx  github:okuzpe/midas-harness          # hub layout (default)
 pnpm dlx github:okuzpe/midas-harness
 bunx github:okuzpe/midas-harness
 ```
@@ -40,7 +41,8 @@ bunx github:okuzpe/midas-harness
 All three forms do the same thing; the `curl`/`irm` shims just check Node and then call the `npx` form.
 
 ### Flags
-- `--layout` — `classic` (default) or `compact`. Compact consolidates engine internals under `.midas/` (see [ADR-001](docs/adr/ADR-001-install-layout.md)); tool-mandated paths (`AGENTS.md`, `.claude/`, `.cursor/`, `.mcp.json`) stay at the project root.
+- `--layout` — `hub` (default), `classic`, or `compact`. See [ADR-006](docs/adr/ADR-006-hub-layout.md).
+  Tool-mandated paths (`AGENTS.md`, `.claude/`, `.cursor/`, `.mcp.json`) always stay at the project root.
 - `--tools` — comma-separated AI tools (e.g. `cursor`, `cursor,gemini,codex`, or `claude-code,cursor`).
   On a TTY the installer shows a **compatibility matrix** and accepts presets: **`c`** = cursor only,
   **`s`** = cursor + gemini + codex, **`a`** = all adapter tools. Non-interactive installs default to all
@@ -49,19 +51,20 @@ All three forms do the same thing; the `curl`/`irm` shims just check Node and th
 - `-h`, `--help` — usage.
 - a positional `target-dir` — install into that directory instead of the current one.
 
-**Compact layout (less root clutter):**
+**Legacy layouts:**
 ```bash
-npx github:okuzpe/midas-harness --layout=compact --tools=cursor
+npx github:okuzpe/midas-harness --layout=classic --tools=cursor   # harness/ at repo root
+npx github:okuzpe/midas-harness --layout=compact --tools=cursor   # engine in .midas/, product at root
 ```
-Post-install doctor: `node .midas/scripts/doctor.mjs` (classic: `node scripts/doctor.mjs`).
+Post-install doctor: `node .midas/scripts/doctor.mjs` (hub/compact; classic: `node scripts/doctor.mjs`).
 
-### Three layers at the project root
+### Three layers at the project root (hub layout)
 
-| Layer | Examples | Moves in compact? |
+| Layer | Examples | Hub location |
 |---|---|---|
-| Tool-mandated | `AGENTS.md`, `.claude/`, `.cursor/`, `.mcp.json` | No |
-| Your product | `product/` | No |
-| Engine internals | `harness/`, `scripts/`, `.harness/` (classic) | Yes → `.midas/` |
+| Tool-mandated | `AGENTS.md`, `.claude/`, `.cursor/`, `.mcp.json` | repo root |
+| Your app code (optional) | `src/`, `app/` | repo root (if outside Midas product tree) |
+| Midas + product methodology | engine, `product/`, runs, state | **`.midas/`** |
 
 **Cursor-only:**
 ```bash
@@ -158,7 +161,7 @@ if needed), and bumps the `midas_version` stamp. Adapters re-render for the tool
 state file (`--tools` is **not** applied on update):
 
 ```bash
-npx github:okuzpe/midas-harness#v0.5.30 --update   # pin a version, or omit #vX.Y.Z for the latest main
+npx github:okuzpe/midas-harness#v1.0.0 --update   # pin a version, or omit #vX.Y.Z for the latest main
 ```
 
 `--update` overwrites engine files, so if you consciously **amended a rule**, review `git diff` and
@@ -198,7 +201,7 @@ npx github:okuzpe/midas-harness --uninstall
 - **Keeps your product work** (`product/`, `{runs}/`, state file) unless you pass `--purge`.
 
 For exact removal of a pinned install, uninstall with the same release:
-`npx github:okuzpe/midas-harness#v0.5.30 --uninstall`.
+`npx github:okuzpe/midas-harness#v1.0.0 --uninstall`.
 
 > Prefer to do it by hand? Midas only ever adds files — delete `.claude/`, engine dirs (`harness/` or
 > `.midas/`), `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`,

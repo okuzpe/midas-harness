@@ -7,44 +7,30 @@ show every Midas phase artifact populated with real, consistent content.
 
 | Phase | Artifact(s) |
 |---|---|
-| 0 Idea Intake | `product/idea.md` |
-| 1 Contextualize | `product/idea.md` (v2 embedded), `product/open-questions.md` |
-| 2 Market Research | `product/market.md` |
-| 3 Business Case | `product/business-plan.md` |
-| 4 Tech Architecture | `product/architecture.md`, `product/adr/ADR-001-stack.md` |
-| 5 Architecture Rules & Design System | `harness/rules/*` (generated stack rules: `folder-structure`, `tenant-isolation`, `session-cookies`), `product/conventions.md` (override layer), `product/design-direction.md`, `product/design-system.md`, `product/playbooks/*`, and the enforcement scaffolding (`product/biome.json`, `lefthook.yml`, `commitlint.config.js` — CI scaffold in `state.yaml` enforcement block) |
-| 6 Sprint Planning | `product/roadmap.md`, `product/sprints/01-auth-and-task-crud.md`, `product/features.json` |
-| 7 Sprint Execution | `product/src/` (the full Sprint-1 vertical slice: auth, task CRUD, middleware, board stub + tests), `.harness/sprints/01-progress.md` (STM demo, ADR-003) |
-| 8 Per-sprint Audit | `.harness/audits/audit-01.md` — a **closed** 7 → 8 loop: verdict **PASS** + gate-parseable tally line |
-| State | `harness/state.yaml` (sprint `01` `done`; loop pointing at Sprint 2) |
+| 0 Idea Intake | `.midas/product/idea.md` |
+| 1 Contextualize | `.midas/product/idea.md` (v2 embedded), `.midas/product/open-questions.md` |
+| 2 Market Research | `.midas/product/market.md` |
+| 3 Business Case | `.midas/product/business-plan.md` |
+| 4 Tech Architecture | `.midas/product/architecture.md`, `.midas/product/adr/ADR-001-stack.md` |
+| 5 Architecture Rules & Design System | `.midas/engine/rules/*` (generated stack rules), `.midas/product/conventions.md`, `.midas/product/design-direction.md`, `.midas/product/design-system.md`, `.midas/product/playbooks/*`, enforcement scaffolding under `.midas/product/` |
+| 6 Sprint Planning | `.midas/product/roadmap.md`, `.midas/product/sprints/01-auth-and-task-crud.md`, `.midas/product/features.json` |
+| 7 Sprint Execution | `.midas/product/src/` (Sprint-1 slice), `.midas/sprints/01-progress.md` (STM demo, ADR-003) |
+| 8 Per-sprint Audit | `.midas/audits/audit-01.md` — closed 7 → 8 loop |
+| State | `.midas/state.yaml` (`layout: hub`; sprint `01` done) |
 
 ## How to read it
 
-1. Start with `harness/state.yaml` — it records where in the lifecycle TaskPilot sits: sprint `"01"`
-   is `done` and the **7 ⇄ 8 loop has turned once**, so `stage` points back at `sprint_execution`
-   ready to `/start-sprint` for Sprint 2.
+1. Start with `.midas/state.yaml` — hub layout; sprint `"01"` is `done` and the **7 ⇄ 8 loop has turned once**.
 2. Read phase artifacts in order (0 → 8) to trace how a raw idea becomes running code.
-3. Look at `.harness/audits/audit-01.md` to see a real **closing** conformance audit: the
-   gate-parseable `MIDAS_AUDIT_RESULT` tally line, rule-by-rule pass/fail with evidence, one
-   consciously-amended rule (A-01) carried forward, and the next-sprint decision.
-4. The code slice under `product/src/` is the **full Sprint-1 vertical slice** — auth
-   (register/login/logout + sessions), task CRUD (`/api/tasks` + `/api/tasks/[id]`), middleware, a
-   `/board` stub, and the unit + integration tests the audit checks. It is still illustrative, not a
-   deployable app (imports reference packages a real project would `npm install`).
+3. Look at `.midas/audits/audit-01.md` to see a real **closing** conformance audit.
+4. The code slice under `.midas/product/src/` is the **full Sprint-1 vertical slice**.
 
 ## What this is NOT
 
 - Not a production-ready codebase. Files are illustrative; imports reference packages declared in
   `product/package.json` that a real project would `npm install`.
-- Not a re-copy of the base rule floor. The example **does** ship the project-specific Phase-5 artifacts —
-  the generated stack rules (`harness/rules/folder-structure.md`, `tenant-isolation.md`,
-  `session-cookies.md`), the `product/conventions.md` override layer, and the enforcement scaffolding
-  (`product/biome.json`, `lefthook.yml`, `commitlint.config.js` — CI scaffold in `state.yaml` enforcement block) — so the "chose Next.js + Drizzle + Postgres → here are the
-  enforced stack rules" path is shown end-to-end. The eight **base** always-on rules
-  (`harness/rules/{code-quality,security,naming,testing,git-commits,docs,context7-usage,accessibility}.md`)
-  are inherited from the engine install and are not re-copied here; `harness/design-system/tokens.{json,css}`
-  remain elided. The three playbooks are genuine — `/api/*` routes, schema changes, and dependency bumps
-  each recur across the three sprints, and each carries a `Trigger` so Phase 8 can flag a matching change
-  that bypassed it — not a count to hit (zero playbooks is a valid outcome).
+- Not a re-copy of the base rule floor. The example ships Phase-5 artifacts under `.midas/engine/rules/`
+  and `.midas/product/` — stack rules, conventions override, enforcement scaffolding — so the
+  "chose Next.js + Drizzle + Postgres → enforced stack rules" path is shown end-to-end.
 - Not a tutorial for TaskPilot-the-product. It is a tutorial for **Midas** and how its artifacts
   connect phase-to-phase.

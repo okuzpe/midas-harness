@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| **Status** | accepted — **compact is opt-in** (`--layout=compact`); classic remains default. CI and docs verify both layouts; migration via `scripts/migrate-layout.mjs` (dry-run default). |
+| **Status** | accepted — **default install is now `hub`** (ADR-006). `compact` and `classic` remain opt-in. Migration via `scripts/migrate-layout.mjs --target=hub|compact`. |
 | **Date** | 2026-06-29 |
 | **Deciders** | maintainer + orchestrate tier |
 | **Context7 verified** | n/a (no third-party library decision) |

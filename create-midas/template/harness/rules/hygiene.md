@@ -13,7 +13,7 @@ hygiene: unreachable flows, ledger drift, and stale harness/docs artifacts. The 
 
 - **Brownfield** (`paths.state` → `mode: brownfield`): run `/midas-sweep all` before the
   **first** `/close-sprint` after adoption, and again before any sprint close that touched routes,
-  navigation, or `product/features.json`.
+  navigation, or `{product}/features.json`.
 - **Greenfield**: sweep is **recommended** before `/close-sprint` when the sprint diff is large or
   added new routes/pages; not required if no sweep was run — unless a prior sweep this cycle reported
   unresolved high-severity findings (see below).
@@ -35,22 +35,22 @@ hygiene: unreachable flows, ledger drift, and stale harness/docs artifacts. The 
       unmentioned high-severity row is a fail.
 
 ### Ledger honesty
-- [ ] `product/features.json` status/evidence matches observable behaviour for features touched this sprint.
+- [ ] `{product}/features.json` status/evidence matches observable behaviour for features touched this sprint.
       **CHECK:** `manual:` for each feature id touched in the sprint diff, `status: passing` rows
       carry non-empty `evidence` (test path, route, or verify record); `failing` rows are not
       contradicted by shipped code in the same diff without a recorded deferral.
 
 ### Playbook triggers
 - [ ] No zombie playbooks — recipes whose `Trigger` never matches the codebase are flagged or retired.
-      **CHECK:** `manual:` for each `product/playbooks/*.md` cited in the sprint or architecture,
+      **CHECK:** `manual:` for each `{product}/playbooks/*.md` cited in the sprint or architecture,
       grep `<src-root>/` for the trigger predicate; a playbook with zero matches and no `## Retired` note in
       the sweep or audit is a warn (fail if the sprint added or edited that playbook without fixing
       the trigger).
 
 ### Stale product docs
 - [ ] Open questions and doc links stay honest after the sprint.
-      **CHECK:** `manual:` rows in `product/open-questions.md` marked OPEN that are answered in
-      `product/idea.md` are a fail; internal markdown links in changed `product/*` files that 404 on
+      **CHECK:** `manual:` rows in `{product}/open-questions.md` marked OPEN that are answered in
+      `{product}/idea.md` are a fail; internal markdown links in changed `{product}/*` files that 404 on
       disk are a fail (grep `](` targets against the tree).
 
 ## Relationship to other tools

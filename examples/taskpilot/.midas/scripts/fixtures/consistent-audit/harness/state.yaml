@@ -1,0 +1,8 @@
+# TEST FIXTURE (not a real project). A closed sprint whose audit record is clean. doctor's gate:records
+# must STAY QUIET here (no false positive). Exercised by scripts/test.mjs (section K).
+name: fixture-consistent
+stage: sprint_execution
+sprints:
+  - id: "01"
+    title: "Fixture sprint"
+    status: done

@@ -33,7 +33,7 @@ Bring Midas to a project that already has code, **without trampling what's there
 
 Before writing anything, produce a **preflight report** for the user:
 
-- What will be created vs merged (new engine tree at `<paths.engine>/`, `product/inventory.md`, rules draft).
+- What will be created vs merged (new engine tree at `<paths.engine>/`, `{product}/inventory.md`, rules draft).
 - What conflicts with existing `AGENTS.md` / `CLAUDE.md` (managed-marker regions only).
 - Estimated effort: **light** (E2 partial) / **medium** (E2 + debt) / **heavy** (E3 + baseline audit).
 - Recommended path: full adopt vs **incremental** (Step 3 only: folder-structure rule first, then stack rules).
@@ -46,24 +46,24 @@ Dispatch **scout** subagents to extract, read-only: the file/dir tree, manifests
 Context7), test setup, CI, and any existing `AGENTS.md` / `CLAUDE.md` / `.cursor` / `.windsurf`. **Also
 harvest the project's stated intent** — `README*`, `docs/`, any brief/spec/`NOTES`, and the manifest
 `description` — so the product context comes from what's written, not invented (feeds Step 4). Write
-`product/inventory.md`. Playbook: `<paths.engine>/pipeline/0b-codebase-inventory.md`.
+`{product}/inventory.md`. Playbook: `<paths.engine>/pipeline/0b-codebase-inventory.md`.
 **Scan robustly:** read the repo's files (manifests/source/tests), not local toolchains a sandbox may
 lack; run probes independently and swallow benign "not found" (`… || true`) so absence is data, not an error.
 
 ### Step 2 — Infer the de-facto architecture (orchestrate)
 From the inventory, infer the real architecture (components, data flow, boundaries) and write
-`product/architecture.md` describing **what exists** (not an ideal). Record significant existing
-decisions as ADRs under `product/adr/`, marked "as-built".
+`{product}/architecture.md` describing **what exists** (not an ideal). Record significant existing
+decisions as ADRs under `{product}/adr/`, marked "as-built".
 
 ### Step 3 — Reverse-engineer rules from the real code (the brownfield keystone)
-Derive `<paths.engine>/rules/*` and `product/conventions.md` from the **actual conventions in the code**
+Derive `<paths.engine>/rules/*` and `{product}/conventions.md` from the **actual conventions in the code**
 (folder structure, naming, error handling, test policy) — **codify reality**. Where the code violates a
-sensible rule, do **not** rewrite it: record the gap as future-sprint **debt** in `product/debt.md`.
+sensible rule, do **not** rewrite it: record the gap as future-sprint **debt** in `{product}/debt.md`.
 This is the inverse of greenfield Phase 5 (which invents rules); here you extract them.
 
 ### Step 4 — Backfill product context from the harvested docs (document-existing mode)
-Using the intent harvested in Step 1, write `product/idea.md` (and, where the docs support it,
-`product/business-plan.md`) in **document-existing** mode: record the project's *actual* purpose,
+Using the intent harvested in Step 1, write `{product}/idea.md` (and, where the docs support it,
+`{product}/business-plan.md`) in **document-existing** mode: record the project's *actual* purpose,
 audience, and constraints — lifted from the README/docs with the source cited — rather than inventing
 them. Follow **infer → SHOW → confirm**: surface what you derived for the user to accept or correct; never
 silently bake it in. If the harvested intent **conflicts** with what the code/manifests show (a stale or
@@ -84,19 +84,19 @@ those are separate standing rituals the user may run later.
 
 ### Step 6 — Wire the harness (dry-run + diff-confirm)
 For each file:
-- **New file** (**`paths.state`**, `product/*`, a missing `CLAUDE.md`/adapters) → write directly.
+- **New file** (**`paths.state`**, `{product}/*`, a missing `CLAUDE.md`/adapters) → write directly.
 - **Pre-existing `AGENTS.md` / `CLAUDE.md` / `.mcp.json`** → compute the managed-marker block, **show the
   diff**, and `AskUserQuestion` to confirm before writing. On decline, print the block for manual paste.
 - Generate the tool adapters via `/midas-doctor` (the single render path).
 Set **`paths.state`**: `mode: brownfield` and the `entry_stage` by maturity — **`architecture_rules`
 for an E2 (partial) repo** (record `tech_architecture` as a deliberately-skipped gate; the as-built
-`product/architecture.md` + ADRs are still written, so `/define-conventions` runs under its
+`{product}/architecture.md` + ADRs are still written, so `/define-conventions` runs under its
 "`architecture_rules` resuming" precondition rather than bouncing), **`sprint_planning` for an E3 (mature)
 repo** once rules + a baseline audit are in place. Record an assumption in `state.yaml` for every skipped gate.
 
 ## Exit gate (adoption complete)
-- [ ] `product/inventory.md` + `product/architecture.md` (as-built) written; stack versions Context7-verified.
-- [ ] Rules derived from the real code; violations logged as debt (`product/debt.md`), not silently rewritten.
+- [ ] `{product}/inventory.md` + `{product}/architecture.md` (as-built) written; stack versions Context7-verified.
+- [ ] Rules derived from the real code; violations logged as debt (`{product}/debt.md`), not silently rewritten.
 - [ ] No pre-existing `AGENTS.md`/`CLAUDE.md`/source modified without a confirmed diff.
 - [ ] Baseline audit frozen to `{runs}/audits/`.
 - [ ] `state.yaml` records `mode: brownfield`, `entry_stage`, and assumptions for skipped gates.

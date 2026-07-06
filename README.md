@@ -63,10 +63,10 @@ flowchart LR
   AU -- metrics met --> SHIP[🚢 Ship]
 ```
 
-Each phase writes named artifacts under `product/` and is guarded by an **exit gate** the orchestrator
+Each phase writes named artifacts under `{product}/` (resolved via `paths.product`) and is guarded by an **exit gate** the orchestrator
 audits before advancing — and a human signs off on the irreversible calls (go/no-go, each ADR, every
-rule amendment, ship). State lives in one file (`paths.state` — classic: `harness/state.yaml`,
-compact: `.midas/state.yaml`), so any agent on any tool can resume. Full spec:
+rule amendment, ship). State lives in one file (`paths.state` — hub/compact: `.midas/state.yaml`,
+classic: `harness/state.yaml`), so any agent on any tool can resume. Full spec:
 [`harness/methodology.md`](./harness/methodology.md).
 
 ## Quickstart
@@ -98,8 +98,10 @@ Optional: `npm run status` in the repo root generates a local `status.html` dash
 
 ```bash
 npx github:okuzpe/midas-harness --tools=cursor
-# compact layout (engine under .midas/):
+# compact layout (product at repo root):
 npx github:okuzpe/midas-harness --layout=compact --tools=cursor
+# classic layout (legacy):
+npx github:okuzpe/midas-harness --layout=classic --tools=cursor
 # or Cursor + Gemini + Codex:
 npx github:okuzpe/midas-harness --tools=cursor,gemini,codex
 ```
@@ -174,7 +176,7 @@ A runnable Sprint-1 vertical slice — auth, task CRUD, middleware, board stub +
 artifact on disk. See [`examples/taskpilot/`](./examples/taskpilot/).
 
 ## Status
-**v0.5.30 — pre-1.0, actively developed (not yet a stable API).** Most complete on **Claude Code**
+**v1.0.0 — stable install layouts and path tokens.** Most complete on **Claude Code**
 (see [Honest scope](#supported-tools)). Details: [`CHANGELOG.md`](./CHANGELOG.md) ·
 [`VERSIONING.md`](./VERSIONING.md) · [docs site](https://okuzpe.github.io/midas-harness/).
 

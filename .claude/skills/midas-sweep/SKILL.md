@@ -15,7 +15,7 @@ argument-hint: "[code|docs|harness|all] [--depth quick|standard] [--fix]"
 > First read the state file at **`paths.state`**; this skill has no precondition stage — it runs at any stage — but
 
 > **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
-> if the project has no `product/` tree and no application source yet, report that there is little to
+> if the project has no `{product}/` tree and no application source yet, report that there is little to
 > sweep and limit the pass to harness/docs consistency.
 
 A standing **hygiene pass**, not a phase gate. You find **dead weight** (orphans, stale links, flows
@@ -26,7 +26,7 @@ lying about itself?*
 
 > **Recommended checkpoints** (surfaced by `/midas-status`, never forced):
 > **post-adopt** (after `/midas-adopt` inventory, before wiring), **pre-close-sprint** (large or messy
-> sprint, before `/close-sprint`), and **pre-plan-sprints** (reconcile `product/features.json` vs reality).
+> sprint, before `/close-sprint`), and **pre-plan-sprints** (reconcile `{product}/features.json` vs reality).
 > Non-advancing — it never changes `stage` by itself.
 
 ## Scope & depth
@@ -36,7 +36,7 @@ lying about itself?*
 | Scope | What it sweeps |
 |---|---|
 | `code` | source, tests, routes, imports, playbooks vs `src/*` |
-| `docs` | `product/*`, README, broken internal links, answered open questions still OPEN |
+| `docs` | `{product}/*`, README, broken internal links, answered open questions still OPEN |
 | `harness` | `state.yaml` vs sprint/gate files, skills referenced in docs, stale audits |
 | `all` | every row above |
 
@@ -49,7 +49,7 @@ lying about itself?*
 
 **Fix mode** (`--fix`): off by default. When passed, present a **numbered fix plan** and require an
 explicit **yes** (or per-item approval) before any write or delete. Never delete without listing the
-path first. Prefer **archive** (`product/archive/` or note in the sweep record) over hard delete when
+path first. Prefer **archive** (`{product}/archive/` or note in the sweep record) over hard delete when
 the item might still be useful history.
 
 ## What counts as a finding
@@ -60,8 +60,8 @@ Classify every hit into one category; cite `path` or `path:line`.
 |---|---|---|
 | `dead-flow` | API route or page with no inbound link, nav entry, or test caller; playbook `Trigger` never matches `src/*` | high |
 | `orphan` | file/module never imported; export only referenced from tests of itself | medium |
-| `ledger-drift` | `product/features.json` `passing` with empty `evidence`; feature in code absent from ledger; sprint in `roadmap.md` with no `product/sprints/NN-*.md` | high |
-| `stale-doc` | `product/open-questions.md` still OPEN but answered in `product/idea.md`; doc cites deleted path; acceptance criterion references removed test | medium |
+| `ledger-drift` | `{product}/features.json` `passing` with empty `evidence`; feature in code absent from ledger; sprint in `roadmap.md` with no `{product}/sprints/NN-*.md` | high |
+| `stale-doc` | `{product}/open-questions.md` still OPEN but answered in `{product}/idea.md`; doc cites deleted path; acceptance criterion references removed test | medium |
 | `harness-drift` | `state.yaml` sprint id without file; gate record disagrees with `stage` (run `node <paths.scripts>/doctor.mjs --gates-only` if present); skill named in docs but missing under `.claude/skills/` | medium |
 | `hygiene` | commented-out code blocks; `TODO` without `TODO(owner):`; duplicate utility next to an existing one | low |
 | `dependency` | manifest dep with zero imports (flag only — do not remove without user OK) | low |
@@ -81,10 +81,10 @@ Read **`paths.state`**. Resolve scope + depth. Allocate the next `sweep-NN` id u
   barrel `index.*` exports; grep importers for each route/page/module flagged as suspicious.
 - **Navigation / flow (code scope):** link targets in UI nav, sitemap, router config vs route files on
   disk; API routes referenced from frontend `fetch`/client calls or covered by `*.test.*`.
-- **Playbooks (code scope):** for each `product/playbooks/*.md`, read the `Trigger` block; grep `src/`
+- **Playbooks (code scope):** for each `{product}/playbooks/*.md`, read the `Trigger` block; grep `src/`
   for the predicate — flag playbooks whose trigger has **zero** matches.
-- **Ledger (docs/harness):** diff `product/features.json` against routes/tests; diff `product/roadmap.md`
-  sprint list against `product/sprints/`; scan `product/open-questions.md` against `product/idea.md`.
+- **Ledger (docs/harness):** diff `{product}/features.json` against routes/tests; diff `{product}/roadmap.md`
+  sprint list against `{product}/sprints/`; scan `{product}/open-questions.md` against `{product}/idea.md`.
 - **Harness (harness scope):** compare `state.yaml` `sprints[]` to files; list `{runs}/audits/`
   whose sprint is not `done` in state; optional `node <paths.scripts>/doctor.mjs --gates-only` when
   `scripts/doctor.mjs` exists.

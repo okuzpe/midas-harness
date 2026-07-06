@@ -11,7 +11,7 @@ the Phase 8 audit references exactly these files.
 
 ## Inputs
 
-- `product/architecture.md` + `product/adr/ADR-*.md` (Phase 4)
+- `{product}/architecture.md` + `{product}/adr/ADR-*.md` (Phase 4)
 - `harness/state.yaml` (stage must be `architecture_rules`)
 
 ## Key steps
@@ -23,19 +23,19 @@ the Phase 8 audit references exactly these files.
    - Example: `no-cross-layer-imports.md` with a grep pattern to detect violations.
 2. **Write the folder-structure rule.** `harness/rules/folder-structure.md` is mandatory.
    It defines the canonical directory layout for this project's codebase.
-3. **Write `product/conventions.md`.** Project-level overrides of `harness/conventions.md`
+3. **Write `{product}/conventions.md`.** Project-level overrides of `harness/conventions.md`
    (naming, error handling, test patterns specific to the chosen stack).
 4. **Set the design direction, then write the design system.**
-   - `product/design-direction.md` — the aesthetic **intent**: brand personality, **2–3 real products to
+   - `{product}/design-direction.md` — the aesthetic **intent**: brand personality, **2–3 real products to
      emulate** (+ what to borrow), mood keywords, **anti-references**. **Capture it from the human** (their
      taste is the input) — a concrete reference is what stops generic, default-looking UI. Prefer a design
      specialist (`voltagent-core-dev:ui-designer` / `design-bridge`) if installed.
-   - `product/design-system.md` — human-readable reference: color palette, spacing scale, typography,
+   - `{product}/design-system.md` — human-readable reference: color palette, spacing scale, typography,
      component vocabulary, do/don't examples — **built to the direction** (each choice traces to a reference).
    - `harness/design-system/tokens.json` — machine-readable token map.
    - `harness/design-system/tokens.css` — CSS custom properties derived from the token map.
 5. **Write the project playbooks.** Emit **up to 4** markdown recipes (zero is valid) to
-   `product/playbooks/<verb-noun>.md` for the tasks that *repeat* in this stack (e.g. add an API
+   `{product}/playbooks/<verb-noun>.md` for the tasks that *repeat* in this stack (e.g. add an API
    endpoint, add a DB migration, scaffold a component). Each: use-when, a `Trigger` (diff predicate),
    steps, the rules/tokens it honors (reference by `<slug>.md`, don't restate), a Context7 fetch for any
    third-party API, and a
@@ -58,10 +58,10 @@ the Phase 8 audit references exactly these files.
 | File | Notes |
 |---|---|
 | `harness/rules/<slug>.md` | One file per rule; folder-structure required |
-| `product/conventions.md` | Stack-specific overrides |
-| `product/playbooks/<verb-noun>.md` | 0–4 recipes for the project's repeated tasks (zero is valid) |
-| `product/design-direction.md` | Aesthetic intent (brand + real references + anti-references) — anchors the tokens |
-| `product/design-system.md` | Human-readable design reference |
+| `{product}/conventions.md` | Stack-specific overrides |
+| `{product}/playbooks/<verb-noun>.md` | 0–4 recipes for the project's repeated tasks (zero is valid) |
+| `{product}/design-direction.md` | Aesthetic intent (brand + real references + anti-references) — anchors the tokens |
+| `{product}/design-system.md` | Human-readable design reference |
 | `harness/design-system/tokens.json` | Token map |
 | `harness/design-system/tokens.css` | CSS custom properties |
 | linter/formatter + git-hook + CI config | Enforcement scaffolding wired to the rules (installed on the user's OK) |
@@ -71,16 +71,16 @@ the Phase 8 audit references exactly these files.
 - [ ] `harness/rules/folder-structure.md` exists and describes the real project layout
 - [ ] Every other architectural decision from Phase 4 has a corresponding rule file
 - [ ] Each rule is CHECKABLE (grep pattern, lint rule, or explicit verification command given)
-- [ ] **`product/conventions.md`** present and references the base `harness/conventions.md`
+- [ ] **`{product}/conventions.md`** present and references the base `harness/conventions.md`
 - [ ] Stack rules **Context7-verified** at pinned versions; every generated stack rule carries
       `docs: <lib>@<version> via <tool>` provenance (no provenance → fail)
 - [ ] Stack rules cover the framework's canonical idiom + lint set (not just naming/format)
 - [ ] Floor CHECKs re-targeted for the stack (`security`, `code-quality`, `testing`, `naming`) or
       recorded as confirmed-applicable; inert floor greps for the chosen stack → fail
-- [ ] `product/design-direction.md` captures aesthetic intent (brand + ≥2 real references + anti-references)
-- [ ] `product/design-system.md` defines colors, spacing, type, and components; accessibility floor
+- [ ] `{product}/design-direction.md` captures aesthetic intent (brand + ≥2 real references + anti-references)
+- [ ] `{product}/design-system.md` defines colors, spacing, type, and components; accessibility floor
       satisfiable or recorded **N/A (headless, no UI)**
-- [ ] `product/playbooks/` holds 0–4 recipes; each has ≥1 step no single rule states
+- [ ] `{product}/playbooks/` holds 0–4 recipes; each has ≥1 step no single rule states
 - [ ] Enforcement tooling scaffolded (linter+formatter, commit hook, commit-msg lint, CI lint job) —
       installed on user's OK or left with exact command; decision in `state.yaml → enforcement:`
 - [ ] `harness/design-system/tokens.json` and `tokens.css` are consistent with each other

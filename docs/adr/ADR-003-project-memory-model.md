@@ -15,8 +15,8 @@
 Persistent-memory products (e.g. [TrueMEM](https://www.truefoundry.com/es/blog/truemem-building-a-model-agnostic-memory-layer-for-ai),
 [Jenova](https://www.jenova.ai/es/resources/ai-with-persistent-memory), [Engram](https://github.com/Gentleman-Programming/engram))
 solve **session amnesia** with STM/LTM layers — often vector stores, SQLite, or vendor-global memory.
-Midas already stores long-form project truth in **git-visible** artifacts (`product/*`, `harness/rules/*`,
-`.harness/*`) and operational state in `harness/state.yaml`. `/midas-capture` crystallizes recurring
+Midas already stores long-form project truth in **git-visible** artifacts (`paths.product/*`, `harness/rules/*`,
+`{runs}/*`) and operational state in `harness/state.yaml`. `/midas-capture` crystallizes recurring
 preferences into rules/playbooks/conventions — explicitly **no hidden runtime store** (`AGENTS.md`).
 
 The remaining gaps:
@@ -39,9 +39,9 @@ Adopt a **three-layer memory model on disk**:
 
 | Layer | Role | Canonical locations |
 |---|---|---|
-| **Program counter** | where am I in the lifecycle | `harness/state.yaml` |
-| **STM** (session / sprint cycle) | what happened this working stretch | `.harness/sprints/NN-progress.md`, active `product/sprints/NN-*.md` |
-| **LTM** (durable project truth) | decisions, scope, rules, frozen evidence | `product/*`, `harness/rules/*`, `.harness/audits|debates|sweeps|verifications/*` |
+| **Program counter** | where am I in the lifecycle | `paths.state` (`harness/state.yaml` classic, `.midas/state.yaml` compact/hub) |
+| **STM** (session / sprint cycle) | what happened this working stretch | `{runs}/sprints/NN-progress.md`, active `{product}/sprints/NN-*.md` |
+| **LTM** (durable project truth) | decisions, scope, rules, frozen evidence | `{product}/*` (via `paths.product`), `harness/rules/*`, `{runs}/audits|debates|sweeps|verifications/*` |
 
 Add:
 

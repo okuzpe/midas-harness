@@ -25,8 +25,8 @@ Phase-8 audit possible.
 > whose DoD references rules cannot exist before the rules do.
 
 ## Inputs
-- **`paths.state`**, `product/business-plan.md` (MVP scope + non-goals + success metrics),
-  `product/architecture.md`, `<paths.engine>/rules/*`, `product/design-system.md`.
+- **`paths.state`**, `{product}/business-plan.md` (MVP scope + non-goals + success metrics),
+  `{product}/architecture.md`, `<paths.engine>/rules/*`, `{product}/design-system.md`.
 
 ## Procedure
 
@@ -40,11 +40,11 @@ that **sprint 1 is independently shippable** (a vertical slice that runs and dem
 each later sprint depends only on earlier ones. Keep sprints small; prefer more thin sprints over a
 few fat ones.
 
-### 3. Write `product/roadmap.md`
+### 3. Write `{product}/roadmap.md`
 The ordered sprint list with each sprint's one-line goal, the dependency order made explicit, and a
 mapping from sprints to the success metrics they advance. The roadmap covers **MVP only**.
 
-### 4. Write each `product/sprints/NN-<slug>.md`
+### 4. Write each `{product}/sprints/NN-<slug>.md`
 Zero-padded, sequential. Each sprint file contains:
 - **Goal** — one sentence; the demonstrable outcome.
 - **Scope / non-scope** — what is in, what is explicitly deferred.
@@ -56,23 +56,23 @@ Zero-padded, sequential. Each sprint file contains:
   testing rule, design-system token rule, Context7 rule) plus "acceptance criteria met, tests pass".
   The DoD is what Phase 8 audits, so it must point at checkable rules, not restate them.
 
-### 5. Seed `product/features.json`
-From MVP scope in `product/business-plan.md`, create one entry per MVP feature using
+### 5. Seed `{product}/features.json`
+From MVP scope in `{product}/business-plan.md`, create one entry per MVP feature using
 `<paths.engine>/templates/features.json.tmpl`. Each feature starts with `status: failing`. Phase 7 updates
 only `status` and `evidence` as work lands.
 
 ### 6. Record state
 Update **`paths.state`** (read-modify-write): append the planned sprints to `sprints[]` (each `{ id, title, status:
-planned, audit_notes: "", last_touched }`), list roadmap + sprint files + `product/features.json` in
+planned, audit_notes: "", last_touched }`), list roadmap + sprint files + `{product}/features.json` in
 `phases.sprint_planning.artifacts`, set `stage_status: gate_pending`. Do not self-advance the stage.
 
 ## Exit gate (orchestrate audits)
-- `product/roadmap.md` covers **MVP only** (every item traces to a metric/dependency; nothing from
+- `{product}/roadmap.md` covers **MVP only** (every item traces to a metric/dependency; nothing from
   non-goals).
 - Each sprint has **goal + scope + tasks + acceptance criteria + DoD**, and the **DoD references the
   frozen rules**.
 - Sprints are **dependency-ordered** and **sprint 1 is shippable**.
-- `product/features.json` seeded from MVP scope (every feature `status: failing`).
+- `{product}/features.json` seeded from MVP scope (every feature `status: failing`).
 - `sprints[]` is set in `state.yaml` (each `status: planned`).
 
 On pass: freeze the verdict in `{runs}/audits/gate-06.md`, set the gate passed; next action is `/start-sprint`
