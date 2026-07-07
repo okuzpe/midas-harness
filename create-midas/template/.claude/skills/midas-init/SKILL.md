@@ -155,10 +155,12 @@ Write additively (state file last), wrapping every Midas-managed region in `<!--
    `node <paths.scripts>/render-adapters.mjs`) — one render path.
 5. **`.mcp.json`** — secret-free, `${ENV_VAR}` only; `context7` + chosen optional servers. Merge into the
    managed region if one exists. **If the MVP has or will have a user-facing UI** (web app, dashboard,
-   marketing site), offer (recommend-don't-wall) to uncomment the **Playwright** and **Chrome DevTools**
-   blocks from `<paths.engine>/templates/mcp.json.tmpl`, add `playwright` and `chrome-devtools` to
-   `state.yaml → mcp:`, and note that `/midas-verify` (Phase 7) uses them — browser MCPs are expensive;
-   skip if the project is API/CLI-only. Record the user's choice either way.
+   marketing site), recommend installing **[agent-browser](https://github.com/vercel-labs/agent-browser)**
+   CLI (primary web driver for `/midas-verify` and `/midas-qa`) and optionally uncomment **Playwright**
+   and **Chrome DevTools** blocks from `<paths.engine>/templates/mcp.json.tmpl` for MCP fallback and
+   runtime health. **If the client is native/hybrid mobile** (React Native, Flutter, Capacitor), offer
+   (recommend-don't-wall) Maestro MCP (`maestro` + `args: ["mcp"]`) — user must approve MCP install.
+   Add wired servers to `state.yaml → mcp:`; skip what the user declines. API/CLI-only: skip browser/mobile MCPs.
 6. **State file** at **`paths.state`** (per `<paths.engine>/state.schema.md`, read-modify-write the whole file). Set
    `midas_version`, `name`, **`mode`** (per the E-level mapping: E0/E1 `greenfield`, E2/E3 `brownfield`),
    `language`, `created`/`updated` (today, supplied), the **`stage` from the maturity table**,

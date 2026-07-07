@@ -33,40 +33,42 @@ error the compiler would have caught for free). Each rung is a gate for the next
       **CHECK:** `manual:` the project's run/preview/start command boots and stays up; an uncaught
       exception, failed import, or crash-on-launch is a fail (record the command + the observed output).
 
-### 4. Browser verification — UI-touching changes only (drive + inspect)
+### 4. Browser / mobile verification — UI-touching changes only (drive + inspect)
 
-**Scope:** the automated stack Midas ships today is **web browser** verification via Playwright MCP
-and Chrome DevTools MCP (`/midas-verify`). **Native mobile** (iOS/Android) automation is not wired —
-when `{product}/architecture.md` declares a mobile client, prove it with the stack's own test runner and
-manual/device QA until a future `/midas-verify-mobile` (or equivalent) is adopted in Phase 4–5.
+**Scope:** web verification via **`agent-browser` CLI** (preferred) or Playwright MCP (fallback) plus optional
+Chrome DevTools MCP for runtime health (`/midas-verify --scope web|all`). **Responsive mobile web** uses
+agent-browser device profiles (`iPhone 14`, `Pixel 7`, …) in the same `verify-NN.md` record. **Native
+mobile** (React Native, Flutter, Capacitor) uses Maestro MCP with inline YAML (`/midas-verify --scope
+mobile|all`) — evidence in the **`## Mobile (native)`** section of the same record, not a separate filename.
 
-A UI change is proven in a **real browser**, with two complementary tools (see `/midas-verify`). Load
-a browser MCP **only** when the change renders or alters a user-facing surface — they are expensive
-(Playwright ~per-flow; Chrome DevTools ~17k tokens/load).
-- [ ] **Drive** each acceptance-criterion flow (navigate → fill → click → assert) and capture a
-      screenshot, using stable role/label/test-id selectors (Playwright MCP).
+UI journeys do **not** require committed `e2e/` files in `{product}/` when a frozen verify record exists.
+Unit/integration tests in `{product}/` still apply per [`testing.md`](./testing.md).
+
+Load browser MCPs **only** when agent-browser is absent and a rendered page is required — they are expensive.
+- [ ] **Drive** each acceptance-criterion web flow (navigate → fill → click → assert) and capture a
+      screenshot, using stable selectors. Prefer **agent-browser**; fall back to Playwright MCP.
       **CHECK:** a `/midas-verify` record (`{runs}/verifications/verify-NN.md`) exists with a
       per-criterion `pass | fail | blocked` verdict backed by a selector + screenshot; an uncovered
       acceptance-criterion journey is a fail.
-- [ ] **Inspect** the running app's runtime health (Chrome DevTools MCP): no **uncaught console
-      errors** and no **failed network requests on the happy path**, plus a Core Web Vitals /
-      Lighthouse spot-check on the key screen.
-      **CHECK:** the verify record's runtime-health table shows zero uncaught console errors and zero
-      failed happy-path requests on the screens under test; any error/4xx-5xx on the happy path is a
-      fail. (If Chrome DevTools MCP is absent, fall back to Playwright's console/network capture and
-      record which tool proved it.)
-- [ ] No horizontal overflow at a narrow viewport (~320–375px); UI references design tokens (no
-      hardcoded colour/spacing/type/radii) per `{product}/design-system.md`.
+- [ ] **Device profiles:** key screens checked at desktop and at least one mobile viewport; overflow
+      asserted (`scrollWidth <= clientWidth`).
+      **CHECK:** verify record **`## Device profiles`** table is filled for UI sprints; missing mobile
+      profile on a mobile-first screen is a fail.
+- [ ] **Native mobile** (when `architecture.md` declares a native/hybrid client): Maestro MCP exercises
+      each native criterion or rows are explicitly `blocked` with reason (unwired emulator/MCP).
+      **CHECK:** `manual:` for mobile-client sprints, `## Mobile (native)` section exists or every native
+      criterion is proven another way; silent skip is a fail.
+- [ ] **Inspect** runtime health: no uncaught console errors and no failed happy-path network requests.
+      **CHECK:** runtime-health table in verify record; Chrome DevTools, agent-browser, or Playwright
+      fallback documented per row.
+- [ ] No horizontal overflow at narrow viewport; UI references design tokens per `{product}/design-system.md`.
       **CHECK:** `manual:` no horizontal overflow on key screens (see `accessibility.md` § layout overflow);
       `/midas-verify` automates where wired.
-      a hardcoded value not traceable to a `--ds-*` token is a fail.
-- [ ] Each criterion in the verify record names the **tool** that proved it (header `Tools:` line plus a
-      per-row **Tool** column — canonical values in `harness/templates/sprint-progress.md` § Tool column;
-      e.g. `playwright-mcp`, `chrome-devtools-mcp`, `test-runner`, `@playwright/cli`); for UI sprints,
-      `.mcp.json` wires a browser MCP **or** the record documents the cheaper fallback used and why.
-      **CHECK:** `manual:` read `{runs}/verifications/verify-NN.md` — every acceptance-criterion row
-      carries a non-empty Tool value; a UI sprint with no browser MCP in `.mcp.json` and no documented
-      fallback in the record is a fail.
+- [ ] Each criterion names the **tool** that proved it (canonical values in `harness/templates/sprint-progress.md`
+      § Tool column: `agent-browser`, `agent-browser-ios`, `playwright-mcp`, `chrome-devtools-mcp`,
+      `maestro-mcp`, `test-runner`, `@playwright/cli`). A UI sprint may use **agent-browser without any
+      browser MCP** when the record documents it.
+      **CHECK:** `manual:` every acceptance-criterion row has a non-empty Tool value; undocumented fallback is a fail.
 
 ### 5. Independent review before the gate (producer never grades its own homework)
 - [ ] The sprint's conformance verdict is rendered by an **independent** reviewer — the orchestrate-tier

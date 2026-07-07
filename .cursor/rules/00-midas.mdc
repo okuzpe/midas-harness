@@ -305,7 +305,7 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** the project test command (`npm test` / `pytest` / …) exits 0 with zero failures.
   - **CHECK:** `manual:` each new public function/module has a unit test with its dependencies stubbed.
   - **CHECK:** `manual:` at least one integration test exercises each architecture module boundary touched this sprint.
-  - **CHECK:** `manual:` each acceptance-criterion journey has an E2E/API test (or a `/midas-verify` record); for UI journeys the `/midas-verify` record also shows **no uncaught console errors / no failed happy-path network requests** (runtime health, see `verification.md`); an uncovered journey — or a console/network error on the happy path — is a fail.
+  - **CHECK:** `manual:` each acceptance-criterion journey has a unit/integration test, a `/midas-verify` record row (web or mobile section), or equivalent API proof; for UI journeys the verify record also shows **no uncaught console errors / no failed happy-path network requests** (runtime health, see `verification.md`). **UI E2E does not require** a committed `e2e/` folder in `{product}/` when the frozen `{runs}/verifications/verify-NN.md` covers the journey.
   - **CHECK:** every test file sits in the pinned location (adjacent or mirrored); a stray test path is a fail.
   - **CHECK:** `manual:` each test targets one behaviour; a test asserting several unrelated outcomes is a fail.
   - **CHECK:** `manual:` test titles name scenario + expected result; a title that is just the function name is a fail.
@@ -323,9 +323,11 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** the project test command (`npm test` / `pytest` / …) exits 0; a behaviour change with no new/updated test in the same diff range is a fail.
   - **CHECK:** `manual:` the project's run/preview/start command boots and stays up; an uncaught exception, failed import, or crash-on-launch is a fail (record the command + the observed output).
   - **CHECK:** a `/midas-verify` record (`{runs}/verifications/verify-NN.md`) exists with a per-criterion `pass | fail | blocked` verdict backed by a selector + screenshot; an uncovered acceptance-criterion journey is a fail.
-  - **CHECK:** the verify record's runtime-health table shows zero uncaught console errors and zero failed happy-path requests on the screens under test; any error/4xx-5xx on the happy path is a fail. (If Chrome DevTools MCP is absent, fall back to Playwright's console/network capture and record which tool proved it.)
-  - **CHECK:** `manual:` no horizontal overflow on key screens (see `accessibility.md` § layout overflow); `/midas-verify` automates where wired. a hardcoded value not traceable to a `--ds-*` token is a fail.
-  - **CHECK:** `manual:` read `{runs}/verifications/verify-NN.md` — every acceptance-criterion row carries a non-empty Tool value; a UI sprint with no browser MCP in `.mcp.json` and no documented fallback in the record is a fail.
+  - **CHECK:** verify record **`## Device profiles`** table is filled for UI sprints; missing mobile profile on a mobile-first screen is a fail.
+  - **CHECK:** `manual:` for mobile-client sprints, `## Mobile (native)` section exists or every native criterion is proven another way; silent skip is a fail.
+  - **CHECK:** runtime-health table in verify record; Chrome DevTools, agent-browser, or Playwright fallback documented per row.
+  - **CHECK:** `manual:` no horizontal overflow on key screens (see `accessibility.md` § layout overflow); `/midas-verify` automates where wired.
+  - **CHECK:** `manual:` every acceptance-criterion row has a non-empty Tool value; undocumented fallback is a fail.
   - **CHECK:** the sprint's `{runs}/audits/audit-NN.md` exists and was produced by the auditor tier, not the producer; its `MIDAS_AUDIT_RESULT` tally shows `unresolved=0 verdict=pass`.
   - **CHECK:** in `{product}/features.json`, a `status: "passing"` with empty `evidence`, or a shipped behaviour with no feature entry, is a fail; Phase 8 grades the file against the verification records.
 - **Rule: Visual design fundamentals (always-on)** (`visual-design.md`)

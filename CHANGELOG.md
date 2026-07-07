@@ -9,6 +9,27 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+### Added
+- **Agent-driven QA (web + mobile)** — `/midas-verify` prefers `agent-browser` CLI; device profiles in verify records; Maestro MCP for native (`--scope mobile|all`); new `/midas-qa` for ad-hoc branch QA (`{runs}/qa/`).
+- **Architecture template** — `## Client` section for verification tooling per surface.
+
+### Changed
+- **`/midas-verify`** — `mcp-required` removed; `mcp-recommended: [playwright, chrome-devtools, maestro]`; single `verify-NN.md` with Web, Device profiles, and Mobile sections.
+- **`harness/rules/verification.md`** — rung 4 covers agent-browser, mobile profiles, and Maestro native paths.
+- **`harness/rules/testing.md`** — UI E2E may use verify records instead of committed `e2e/` folders.
+- **`midas-init`** — recommends agent-browser; offers Maestro for native clients.
+- **`mcp.json.tmpl`** — optional Maestro MCP block; `maestro` in `OPTIONAL_MCP_IDS`.
+
+---
+
+## [1.1.0] — 2026-07-07
+
+### Added
+- Agent-driven QA: `agent-browser` CLI, device profiles, Maestro MCP for native mobile, `/midas-qa` ad-hoc skill.
+
+### Changed
+- `/midas-verify` scope flags (`web|mobile|api|all`); single `verify-NN.md` record shape.
+
 ---
 
 ## [1.0.0] — 2026-07-06

@@ -139,21 +139,31 @@ For hackathons/prototypes, choose `track: lite` during `/midas-init` — see `ha
 
 ---
 
-## UI verification (web)
+## UI verification (web and mobile)
 
-If your MVP ships a **user-facing web UI**, Phase 7 uses `/midas-verify` to prove acceptance criteria in a
-real browser (verification ladder rung 4 in `harness/rules/verification.md`).
+Phase 7 uses `/midas-verify` to prove acceptance criteria in a running app (verification ladder rung 4 in
+`harness/rules/verification.md`). **UI journeys do not require** an `e2e/` folder in the product — evidence
+freezes to `{runs}/verifications/verify-NN.md`.
 
-1. During `/midas-init`, when asked about MCP servers, **uncomment** the optional blocks in `.mcp.json`:
-   - **Playwright** (`@playwright/mcp`) — drives flows (navigate, click, fill, assert, screenshot)
-   - **Chrome DevTools** (`chrome-devtools-mcp`) — console errors, network, Core Web Vitals (recommended)
-2. Ensure the state file `mcp:` lists `playwright` / `chrome-devtools` to match what you wired.
-3. After a UI-touching sprint lands, run `/midas-verify` before `/close-sprint`. Evidence freezes to
-   `{runs}/verifications/verify-NN.md` (each row names the **Tool** that proved the criterion).
+### Web (preferred: agent-browser CLI)
 
-`node <paths.scripts>/doctor.mjs` warns if the state file declares browser MCPs that are not present in `.mcp.json`.
-Classic: `node scripts/doctor.mjs` · compact: `node .midas/scripts/doctor.mjs`.
-API-only projects can skip browser MCPs — use the project's test runner instead.
+1. Install [agent-browser](https://github.com/vercel-labs/agent-browser) (`npm i -g agent-browser` or per project docs).
+2. Optionally uncomment **Playwright** and **Chrome DevTools** in `.mcp.json` for MCP fallback and runtime health.
+3. Run `/midas-verify` (or `/midas-verify --scope web`) before `/close-sprint`. Use device profiles
+   (`iPhone 14`, `Pixel 7`) in the verify record's **Device profiles** section.
 
-**Native mobile** (iOS/Android) automation is not wired in Midas today; use your stack's device/simulator
-tests until a mobile verify path is adopted in Phase 4–5.
+### Native / hybrid mobile
+
+When `architecture.md` declares React Native, Flutter, or Capacitor:
+
+1. Install [Maestro CLI](https://maestro.dev) and approve wiring **Maestro MCP** in `.mcp.json` (`maestro` + `args: ["mcp"]`).
+2. Run `/midas-verify --scope mobile` or `--scope all`. Native flows use **inline YAML** via Maestro MCP — no test files in `{product}/` by default.
+3. Windows: Android emulator + Maestro. iOS Simulator / real Safari: macOS only (`agent-browser -p ios` or Maestro iOS).
+
+### Ad-hoc QA during the sprint
+
+`/midas-qa` exercises changed routes on the current branch (agent-browser / Maestro). Optional evidence:
+`{runs}/qa/qa-adhoc-*.md` — does **not** replace `/midas-verify` at sprint close.
+
+`node <paths.scripts>/doctor.mjs` warns if `state.yaml → mcp:` declares servers not present in `.mcp.json`.
+API-only projects: use the test runner; skip browser/mobile tooling.

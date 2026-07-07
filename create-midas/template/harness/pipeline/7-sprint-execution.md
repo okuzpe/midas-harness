@@ -38,22 +38,22 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
    c. Write tests alongside the feature (not after). Test behavior, not implementation.
    d. **Verify the task before checking it off (the inner verify→fix loop).** Run the
       [`verification.md`](../rules/verification.md) ladder for what you just changed — rungs 1–3
-      always (static gate → behavioural tests → runtime smoke), plus rung 4 (drive + inspect in a
-      real browser via `/midas-verify`) when the task is UI-touching. **Observe the actual output,
+      always (static gate → behavioural tests → runtime smoke), plus rung 4 (drive + inspect via
+      `/midas-verify` or ad-hoc `/midas-qa` on the diff) when the task is UI-touching. **Observe the actual output,
       fix any failure, and re-run until green** — bounded at ~3 self-fix rounds, after which you stop
       and surface the blocker to the human (recommend-don't-wall). You self-check the cheap rungs
       here; the *independent* verdict (rung 5) is rendered at Phase 8, never by you.
    e. Check the task off `## Tasks` in the sprint file **only after it passes verification**, noting
       the proof (command output, test name, or screenshot reference) **and the tool/MCP that proved it**
-      (e.g. `test-runner`, `context7`, `playwright-mcp`, `@playwright/cli`). Mirror the same in
+      (e.g. `test-runner`, `context7`, `agent-browser`, `playwright-mcp`, `@playwright/cli`). Mirror the same in
       `{runs}/sprints/NN-progress.md` § Done (Task · Proof · Tool). If the task completes a feature in
       `{product}/features.json`, flip that feature's `status` to `passing` and fill its `evidence` —
       editing **only** `status`/`evidence`, never the spec fields.
 3. **Verify acceptance criteria.** After all tasks are checked, run or demonstrate
    every item in `## Acceptance criteria`. Record evidence (output, screenshot reference,
-   or test name) next to each item. For a UI-touching sprint, run `/midas-verify` so each
-   criterion is proven in a real browser (Playwright drives the flow; Chrome DevTools inspects
-   runtime health) and frozen to `{runs}/verifications/verify-NN.md`.
+   or test name) next to each item. For a UI-touching sprint, run `/midas-verify` (`--scope web|mobile|all`
+   per `architecture.md`) so each criterion is proven and frozen to `{runs}/verifications/verify-NN.md`.
+   **Optional inner loop:** `/midas-qa` on the branch diff (evidence in `{runs}/qa/`, non-gate).
    **Optional (recommended for large or messy sprints):** run `/midas-sweep` before handing off to
    Phase 8 — surface dead flows and ledger drift so the audit grades real behaviour, not cruft.
 4. **Self-check DoD.** Walk the `## Definition of Done` list:

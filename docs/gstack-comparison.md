@@ -318,7 +318,7 @@ medio / alto. Fuente gstack = README salvo indicación.
 | `/review` auto-fix | Fase 8 | Medio | Alto | Medio | Inner-loop fix sí; veredicto en Fase 8 |
 | `/investigate` | — | Alto | Alto | Bajo | **Adoptar** `/midas-investigate` |
 | `/qa` + regresión | `/midas-verify` | Alto | Alto | Medio | **Adoptar** regresión por bug en reglas |
-| `/qa-only` | verify (parcial) | Alto | Medio | Bajo | Modo report-only en verify |
+| `/qa-only` | `/midas-qa` + `/midas-verify` | Parcial — `/midas-qa` ad-hoc en rama; verify formal pre-close; sin auto-fix |
 | `/cso` | `/midas-security-audit` | — | — | — | Empate |
 | `/ship` | CI + humano | Medio | Medio | Medio | Evaluar skill “pre-PR checklist” no gate |
 | `/land-and-deploy` | — | Medio | Medio | Alto | Aplazar (Fase 9) |

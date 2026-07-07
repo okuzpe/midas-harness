@@ -121,7 +121,7 @@ releases) and installer-safety notes are in **[INSTALL.md](./INSTALL.md)**.
 |---|---|---|
 | **Core** | drive any project through the lifecycle | `/midas-init` · `/midas-status` · the phase commands (`/idea-intake` → `/close-sprint`) · `/midas-doctor` |
 | **Brownfield** | adopt Midas into an existing repo | `/midas-adopt` |
-| **Advanced** | deeper audits & scale | `/midas-tribunal` · `/midas-security-audit` · `/midas-verify` · `/midas-monorepo` · `/midas-bundle` · `/midas-recall` · `/midas-progress` · `/midas-sweep` · `/midas-capture` |
+| **Advanced** | deeper audits & scale | `/midas-tribunal` · `/midas-security-audit` · `/midas-verify` · `/midas-qa` · `/midas-monorepo` · `/midas-bundle` · `/midas-recall` · `/midas-progress` · `/midas-sweep` · `/midas-capture` |
 | **Maintenance** | keep an install current | `/midas-update` · `/midas-doctor` · `/midas-align` |
 
 Most users only need **Core** (+ `/midas-adopt` for an existing repo). Everything else is opt-in.
@@ -153,7 +153,7 @@ Midas ships a secret-free [`.mcp.json`](./.mcp.json) wiring **sequential-thinkin
 *habit* (fetch version-accurate docs before third-party code), not a vendor. Wire whichever doc tool you
 like: **[Context7](https://context7.com)** is the recommended free option (free anonymous tier — no API
 key), or use a web-fetch MCP / your editor's docs. Other optional servers:
-git/GitHub, fetch, filesystem, Playwright (UI sprints only). See [`SECURITY.md`](./SECURITY.md) for
+git/GitHub, fetch, filesystem, Playwright (UI fallback), Maestro (native mobile). See [`SECURITY.md`](./SECURITY.md) for
 least-privilege guidance.
 
 ### Cost-aware orchestration

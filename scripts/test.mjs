@@ -13,7 +13,7 @@ import { dirname, join, resolve, extname, basename } from 'node:path';
 import { execSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { computeAdapters, DEFAULT_ADAPTER_TOOLS, resolveAdapterTools } from './render-adapters.mjs';
-import { evaluateMcpDeclaredVsWired, evaluateSkillMcpRequired } from './mcp-drift.mjs';
+import { evaluateMcpDeclaredVsWired, evaluateSkillMcpRequired, OPTIONAL_MCP_IDS } from './mcp-drift.mjs';
 import { ensureMidasGitignore, GITIGNORE_BEGIN, GITIGNORE_END } from './gitignore-merge.mjs';
 import { detectLayout, resolvePaths, MIGRATION_MAP, MIGRATION_MAP_HUB, RUNS_SUBDIRS, hubPathsYaml, resolveProjectRootFromScript } from './paths.mjs';
 import { pathToFileURL } from 'node:url';
@@ -409,6 +409,10 @@ check('mcp:installer-preserves-user-config', /rel === '\.mcp\.json'/.test(instal
 
   const r6 = evaluateSkillMcpRequired(['sequential-thinking'], mcpSeq);
   check('mcp-drift:skill-required-ok', r6.status === 'ok');
+
+  const stateMaestro = 'mcp: [maestro, sequential-thinking]\n';
+  const r7 = evaluateMcpDeclaredVsWired(stateMaestro, mcpSeq);
+  check('mcp-drift:optional-maestro-ok', r7.status === 'ok' && /maestro/.test(r7.note));
 }
 if (existsSync(join(ROOT, 'examples', 'taskpilot'))) {
   const tpOut = doctorOutput('examples/taskpilot');
@@ -723,6 +727,9 @@ if (existsSync(join(taskpilotRoot, 'harness', 'state.yaml'))) {
 }
 
 check('skill:midas-progress', existsSync(join(ROOT, '.claude', 'skills', 'midas-progress', 'SKILL.md')));
+check('skill:midas-qa', existsSync(join(ROOT, '.claude', 'skills', 'midas-qa', 'SKILL.md')));
+check('verify-record:device-profiles', /## Device profiles/.test(readFileSync(join(ROOT, 'harness', 'templates', 'verify-record.md'), 'utf8')));
+check('mcp-drift:maestro-optional', OPTIONAL_MCP_IDS.includes('maestro'));
 check('harness:stage-command-table', existsSync(join(ROOT, 'harness', 'stage-command-table.yaml')));
 
 check('mkdocs:adr-003', /ADR-003/.test(readFileSync(join(ROOT, 'mkdocs.yml'), 'utf8')));

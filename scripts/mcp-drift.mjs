@@ -7,7 +7,7 @@ import { join } from 'node:path';
 export const BROWSER_MCP_IDS = ['playwright', 'chrome-devtools'];
 
 /** Declared in state but often left unwired in committed .mcp.json (remote / optional). */
-export const OPTIONAL_MCP_IDS = ['context7'];
+export const OPTIONAL_MCP_IDS = ['context7', 'maestro'];
 
 /** Parse `mcp: [a, b]` from state.yaml → string[] (no YAML dependency). */
 export function parseMcpList(yaml) {

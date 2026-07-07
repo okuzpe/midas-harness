@@ -10,6 +10,15 @@
 
 …
 
+## Client
+
+<!-- TODO: `web` | `react-native` | `flutter` | `capacitor` | `hybrid` | `api-only` — drives /midas-verify --scope -->
+
+| Surface | Type | Verification tool (Phase 7) |
+|---|---|---|
+| <!-- e.g. Web app --> | web | agent-browser CLI (+ optional Playwright/Chrome DevTools MCP) |
+| <!-- e.g. iOS/Android app --> | react-native / flutter / capacitor | Maestro MCP (`/midas-verify --scope mobile`) |
+
 ## Architecture diagram
 
 <!-- TODO: ASCII or Mermaid diagram showing major components and data flows.

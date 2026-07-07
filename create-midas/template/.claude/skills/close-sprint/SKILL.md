@@ -22,7 +22,7 @@ homework** — this is an independent orchestrate-tier audit.
 
 > **vs `/start-sprint`:** `start-sprint` ran the **pre-sprint** drift audit and set the sprint `active`.
 > `close-sprint` is the **formal Phase-8 gate** — only after tasks, tests, and UI `/midas-verify` journeys
-> (when applicable) are green. Never open a sprint with close-sprint; never ship a gate without it.
+> (web and/or mobile sections in `verify-NN.md`, when applicable) are green. Never open a sprint with close-sprint; never ship a gate without it.
 
 > **Precondition.** A sprint must be `active` in `state.yaml.sprints[]` with its work landed (tasks
 > done, tests run). If no active sprint, stop and report.

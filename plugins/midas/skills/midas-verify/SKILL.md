@@ -1,145 +1,168 @@
 ---
 name: midas-verify
-description: End-to-end / UI verification of a sprint. DRIVE a real browser (Playwright MCP) to exercise the active sprint's acceptance criteria (navigate, fill, click, assert, screenshot) AND INSPECT the running app's runtime health (Chrome DevTools MCP) — console errors, failed network requests, Core Web Vitals — then check the rendered UI against the design tokens and freeze a per-claim pass/fail verdict with evidence to {runs}/verifications/verify-NN.md. Use after a UI-touching sprint lands, before /close-sprint. Hard-skips non-UI sprints (browser MCPs are expensive).
+description: End-to-end / UI verification of a sprint. DRIVE flows with agent-browser CLI (preferred) or Playwright MCP fallback; INSPECT runtime health (Chrome DevTools MCP); exercise mobile viewports and native apps (Maestro MCP inline YAML) per --scope; freeze per-claim verdicts to {runs}/verifications/verify-NN.md. Use after a UI-touching sprint lands, before /close-sprint. Hard-skips non-UI sprints.
 user-invocable: true
 disable-model-invocation: true
 model: inherit
 harness-tier: build
 recommended-model: claude-sonnet-4-6
-mcp-required: [playwright]
-mcp-recommended: [chrome-devtools]
-argument-hint: "[sprint-NN] [--scope ui|api|all]"
+mcp-recommended: [playwright, chrome-devtools, maestro]
+argument-hint: "[sprint-NN] [--scope web|mobile|api|all] [--profile ios-safari]"
 ---
 
-# midas-verify — End-to-End / UI Verification (Playwright + Chrome DevTools)
+# midas-verify — End-to-End / UI Verification (agent-browser + Playwright + Maestro)
 
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
 > First read the state file at **`paths.state`**; there must be a sprint whose work has **landed** (tasks done, tests
+> run) and that **touches UI** (or `--scope mobile` for native). If no such sprint exists, report and stop.
 
 > **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
-> run) and that **touches UI**. If no such sprint exists, report and stop.
 
 Behavioral proof that a sprint's **acceptance criteria actually hold in a running app** — not that the
 code reads correctly. `/close-sprint` audits the diff against frozen *rules*; this skill audits the
-*living UI* against the sprint's *acceptance criteria* by driving a real browser. The two are
-complementary: verify produces the behavioral evidence; `/close-sprint` consumes failures as drift.
-This skill is rung 4 of the verification ladder in `<paths.engine>/rules/verification.md`.
+*living UI* against the sprint's *acceptance criteria*. Verify produces evidence; `/close-sprint` consumes
+failures as drift. This skill is rung 4 of the verification ladder in `<paths.engine>/rules/verification.md`.
 
-**Two complementary browser tools — drive and inspect.** Use the cheapest that proves each claim:
-- **Playwright MCP — *drive* the flow.** Navigate, fill, click, assert the DOM / accessibility tree,
-  screenshot. Cross-browser, deterministic refs, cheap text snapshots. This proves *the flow works*.
-- **Chrome DevTools MCP — *inspect* runtime health.** Console errors, failed network requests,
-  performance / Core Web Vitals, Lighthouse. Chrome-only, ~17k tokens on load. This proves *it's
-  healthy under the hood* — things Playwright is blind to. **If it isn't installed, fall back to
-  Playwright's console/network capture (`--caps=network`, console level) and record which tool proved
-  the claim.**
+**Taxonomy (no E2E folder in product):** unit/integration tests live in `{product}/`; UI journeys are
+proven here and frozen in **`{runs}/verifications/verify-NN.md`** (+ screenshots). The agent runs ephemeral
+flows — it does not commit `e2e/` suites to the product repo.
 
-## HARD GATE — only run for UI-touching sprints
+## Tool ladder — cheapest that proves each claim
 
-Browser MCPs are expensive — Playwright ~114k tokens/task, Chrome DevTools ~17k on load. **Do not pay
-that cost blindly.**
+| Priority | Tool | When |
+|---|---|---|
+| 1 | `test-runner` / `@playwright/cli` | API-only criteria; request testing without a rendered page |
+| 2 | **`agent-browser` CLI** | Web UI: navigate, fill, click, assert, screenshot; mobile viewports (`set device` / `set viewport`) |
+| 3 | **Playwright MCP** | Fallback when `agent-browser` is not installed and a rendered page is required |
+| 4 | **Chrome DevTools MCP** | Runtime health on desktop (console, network, CWV) — optional |
+| 5 | **Maestro MCP** | `--scope mobile` or `all` when `{product}/architecture.md` declares native/hybrid (`react-native`, `flutter`, `capacitor`) |
+| 6 | **`agent-browser -p ios`** | `--profile ios-safari` on macOS for real Mobile Safari (not Windows) |
 
-1. Read the active `{product}/sprints/NN-*.md` acceptance criteria and the sprint diff.
-2. Decide **UI-touching** = the sprint renders or changes any user-facing surface (pages, components,
-   styles, flows) **and** `--scope` is `ui` or `all` (default infer from the sprint).
-3. **If the sprint is not UI-touching** (pure API/lib/infra, or `--scope api`): **do not load any
-   browser MCP.** Say so explicitly — *"Sprint NN touches no UI; browser MCPs skipped (saved ~114k+
-   tokens)."* — and verify any API/behavioral criteria with the **existing test runner**
-   (`npm test`/`pytest`/…) or `@playwright/cli` request testing, then freeze that lighter verdict
-   (same record, no browser evidence).
-4. **Prefer the cheapest tool that proves the claim.** Existing E2E/component tests or `@playwright/cli`
-   first; spin up the **full Playwright MCP browser only** when a claim genuinely needs a rendered,
-   interactive page (visual layout, real clicks, design-token inspection); add **Chrome DevTools MCP**
-   only when a claim needs runtime introspection (console/network/perf). Record which tool proved each claim.
+### Pre-check `agent-browser` (cross-platform)
+
+Before driving web UI, detect the CLI:
+
+```bash
+# POSIX
+command -v agent-browser >/dev/null 2>&1 && echo ready || echo missing
+
+# Windows PowerShell
+Get-Command agent-browser -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
+
+# Windows cmd
+where.exe agent-browser 2>nul
+```
+
+If **ready**: use `agent-browser` for all web drive steps. If **missing**: log the reason in the verify
+record and fall back to Playwright MCP (if wired) or mark UI rows `blocked`.
+
+**agent-browser web flow:** `open <url>` → `set device "iPhone 14"` or `set viewport 390 844` →
+`snapshot -i` → `click @e1` / `fill @e2 "text"` → `screenshot path.png`.
+
+## HARD GATE — scope and cost
+
+Browser/native automation is expensive. **Do not pay that cost blindly.**
+
+1. Read the active `{product}/sprints/NN-*.md` acceptance criteria, the sprint diff, and
+   `{product}/architecture.md` (`client` type).
+2. Resolve `--scope`:
+   - **`api`** — no browser; test runner / `@playwright/cli` only.
+   - **`web`** (default for web-only products) — agent-browser / Playwright for rendered surfaces.
+   - **`mobile`** — Maestro MCP for native/hybrid criteria only; skip web unless architecture also has web.
+   - **`all`** — web + mobile sections in one record.
+3. **Non-UI sprints** (`--scope api` or sprint touches no UI): skip browser MCPs; say so explicitly;
+   verify API criteria with the test runner; freeze the lighter verdict (same `verify-NN.md`, no screenshots).
+4. **Prefer the cheapest tool** per claim; record the **Tool** column for every row.
 
 ## Procedure
 
 ### 1. Read state + acceptance criteria (read first)
-Load **`paths.state`**, the active `{product}/sprints/NN-*.md` (its **acceptance criteria** are the
-claims under test), `{product}/design-system.md`, and `<paths.engine>/design-system/tokens.json` +
-`tokens.css`. Resolve the target sprint (`sprint-NN` arg or the active one) and `--scope`. Determine the
-app's run/preview command from `{product}/architecture.md` (dev server URL, build, or storybook).
+Load **`paths.state`**, the active `{product}/sprints/NN-*.md`, `{product}/design-system.md`,
+`{product}/architecture.md`, and `<paths.engine>/design-system/tokens.json` + `tokens.css`.
+Resolve sprint id (`sprint-NN` arg or active), `--scope`, and `--profile`. Determine run/preview command
+and URL from architecture.
 
 ### 2. Bring up the app
-Start the app/preview in the background (the project's dev or preview command). Confirm it serves before
-driving it. Prefer an ephemeral/test profile; never point a browser at production or a real user account.
+Start dev/preview in the background. Confirm it serves. Prefer ephemeral/test profile; never production.
 
-### 3. Exercise each acceptance criterion in a real browser (drive — Playwright)
-For **each** acceptance criterion, script a Playwright flow that proves it end-to-end:
-**navigate → fill → click → assert → screenshot**. Use accessible, stable selectors (role/label/test-id),
-not brittle CSS. Capture for every criterion: the **selector(s)** touched, the **assertion** result, and
-a **screenshot** as evidence. Cover the happy path **and** at least one failure/edge path where the
-criterion implies one (empty state, validation error, unauthorized).
+### 3. Web — exercise criteria (drive — agent-browser preferred)
 
-### 3b. Inspect runtime health (inspect — Chrome DevTools)
-While the same flows run, attach **Chrome DevTools MCP** to the running app and capture what Playwright
-cannot see — record each as a row in the **runtime-health table** (screen · observed value · verdict):
-- **Console:** zero **uncaught errors / unhandled rejections** on the happy path. A thrown error, failed
-  assertion, or framework error-boundary trip is a **fail** (record the message + source-mapped stack).
-- **Network:** zero **failed requests** (4xx/5xx, CORS, timeouts) on the happy path; flag slow calls.
-- **Performance:** a Core Web Vitals / Lighthouse spot-check on the key screen — record LCP/CLS/INP and
-  flag a regression against any budget in `{product}/architecture.md` (advisory MED unless a budget exists).
+For each **web** acceptance criterion under `--scope web` or `all`:
 
-If Chrome DevTools MCP is unavailable, capture console + network via Playwright and note the lighter
-tool in the record. Uncaught console errors and failed happy-path requests are **first-class fails**.
+1. **Desktop** (default viewport): drive the flow; screenshot.
+2. **Mobile viewport** — at least one profile per key screen:
+   - `iPhone SE` (375×667), `iPhone 14` (390×844), or `Pixel 7` (412×915)
+   - Use `agent-browser set device "<name>"` or `set viewport W H`
+3. Assert overflow: `scrollWidth <= clientWidth` at narrow width (~320–375px).
+4. Capture selector(s), assertion, screenshot path per criterion.
 
-### 4. Check rendered UI against the design tokens AND the design direction
-On the key screens, inspect computed styles and assert the UI **references the design system**
-(`<paths.engine>/design-system/tokens.css` `--ds-*` vars / `tokens.json` values): colours, spacing on the 8px
-grid, type scale, focus ring. **Flag hardcoded values** that bypass tokens (e.g. a raw hex not traceable
-to a `--ds-*` token) as a fail with the offending selector + computed value. Spot-check **AA contrast**
-and the **focus-visible** ring on interactive elements, and dark mode if `[data-theme="dark"]` is in scope.
-**Also judge it against `{product}/design-direction.md`:** does the screen match the referenced products /
-mood, or does it look **generic** (default Tailwind/Bootstrap, stock gradients, rounded-everything)? Flag
-generic-feeling screens as a design finding (MED), citing the direction it drifted from — consistency with
-tokens is not the same as being on-direction.
+**iOS Safari real (`--profile ios-safari`, macOS only):**
 
-**And assert NO overflow at a narrow viewport** (the deterministic containment detector): set the viewport to
-~320–375px and assert `document.documentElement.scrollWidth <= document.documentElement.clientWidth` on each
-key screen (no unexpected horizontal scrollbar), and spot-check that buttons/inputs/cards stay inside their
-parent box. A page that scrolls horizontally at narrow width — or a control that escapes its container — is a
-**HIGH** finding with a screenshot. This catches the classic "buttons/inputs overflow their parent" regression
-that token checks alone miss.
+```bash
+agent-browser -p ios --device "iPhone 16 Pro" open https://localhost:PORT/path
+agent-browser -p ios snapshot -i
+agent-browser -p ios tap @e1
+agent-browser -p ios screenshot verify-NN/ios-safari.png
+```
 
-### 5. Render a per-claim VERDICT with evidence
-For each criterion render `pass | fail | blocked` with: the selector(s), the asserted vs actual value,
-and the screenshot path. A claim with no runnable evidence is `blocked` (not a silent pass). Token
-violations, contrast/focus failures, **and runtime-health failures (uncaught console errors, failed
-happy-path requests)** are first-class **fails**, severity-tagged (CRIT/HIGH/MED/LOW). **"All criteria
-pass" is a valid, honest verdict — do not invent failures**; equally, never mark a criterion pass without
-on-disk evidence.
+On Windows/Linux: mark ios-safari rows **`blocked`** with reason; use viewport emulation as substitute.
 
-### 6. Freeze the verification record (write last)
-Write `{runs}/verifications/verify-NN.md` (NN = sprint id), **frozen and immutable**, mirroring the
-`audit-NN.md` / `debate-NN.md` idiom: the gate-parseable tally line, the per-criterion table with
-evidence, the runtime-health table, the design-token findings, and the screenshots (committed under
-`{runs}/verifications/verify-NN/`). Save screenshots beside the record; reference them by relative path.
-You **MAY** set `last_verification: { n: NN, fails: X, at: <date> }` in `state.yaml` (read-modify-write the
-whole file per schema). **Never set `gate: passed` or advance `stage`** — verify informs; `/close-sprint` decides.
+**Playwright MCP fallback** (when agent-browser missing): same flows via Playwright MCP tools.
+
+### 3b. Runtime health (inspect — Chrome DevTools)
+On key **desktop** screens, attach Chrome DevTools MCP (or agent-browser/Playwright console+network capture).
+Record runtime-health table: console errors, failed requests, CWV (advisory unless budget in architecture).
+Uncaught errors and failed happy-path requests are **first-class fails**.
+
+### 3c. Mobile native — Maestro MCP (`--scope mobile` or `all`)
+
+When architecture declares `react-native`, `flutter`, `capacitor`, or `hybrid`:
+
+1. Ensure Maestro MCP is wired (`maestro` + `args: ["mcp"]` in `.mcp.json`) — if not, native rows are **`blocked`**, not silent pass.
+2. `list_devices` → pick Android emulator (Windows) or iOS simulator (macOS).
+3. Per criterion: `inspect_screen` → build inline YAML → `run { yaml: "..." }` → `take_screenshot`.
+4. **Do not write YAML to `{product}/`** — inline only; optional promotion of stable flows to
+   `{runs}/verifications/verify-NN/mobile-flows/` for CI reuse.
+5. **Hybrid:** native shell via Maestro; WebView content via `agent-browser` against local URL.
+   Use column **Surface:** `native | webview` in the mobile table.
+
+### 4. Design tokens + design direction
+On key screens (web), assert `--ds-*` token usage; flag hardcoded values. Spot-check AA contrast and
+focus ring. Judge against `{product}/design-direction.md` (generic UI = MED finding).
+
+### 5. Per-claim VERDICT
+Each criterion: `pass | fail | blocked` with evidence. No silent passes.
+
+### 6. Freeze verification record (write last)
+Write **one** `{runs}/verifications/verify-NN.md` (NN = sprint id only — never `verify-mobile-NN.md`).
+Use `<paths.engine>/templates/verify-record.md`. Sections:
+
+- `## Per-criterion results` (web + API)
+- `## Device profiles` (viewport / device name / overflow verdict)
+- `## Mobile (native)` (when scope includes mobile)
+- `## Runtime health`, `## Design-token findings`
+- Single **`MIDAS_VERIFY_RESULT`** tally line for the whole record
+
+Screenshots under `{runs}/verifications/verify-NN/`. You **MAY** set `last_verification` in `state.yaml`.
+**Never advance `stage` or set `gate: passed`.**
 
 ### 7. Feed failures back
-Surface each `fail` as a fix-task and route it to `/close-sprint` as behavioral **drift** (it already
-treats failed checks as fix-now-or-amend). Critical fails block the sprint from closing; LOW nits are
-capped and listed for later. The next ritual after verify is **`/close-sprint`**.
+Route each `fail` to `/close-sprint` as behavioral drift.
 
-## Output format (`{runs}/verifications/verify-NN.md`)
+## Output format
 
-Use `<paths.engine>/templates/verify-record.md` as the output skeleton. Fill every section; keep the
-`MIDAS_VERIFY_RESULT` tally line exactly as shown in the template.
+Use `<paths.engine>/templates/verify-record.md`. Keep `MIDAS_VERIFY_RESULT` exactly as in the template.
 
 ## Exit gate (verification complete)
-- [ ] **Hard gate honoured**: browser MCPs loaded only for UI-touching scope; non-UI sprints skipped with a logged reason.
-- [ ] **Every acceptance criterion** has a `pass | fail | blocked` verdict backed by on-disk evidence (screenshot + selector); none silently passed.
-- [ ] **Runtime health inspected** (Chrome DevTools or fallback): zero uncaught console errors and zero failed happy-path requests on the screens under test; a CWV/Lighthouse spot-check recorded.
-- [ ] **Rendered UI checked against the design tokens**; hardcoded-value, contrast, and focus violations recorded as fails.
-- [ ] **Key screens checked for horizontal overflow at a narrow viewport** (~320–375px): no unexpected scrollbar; buttons/inputs/cards stay contained.
-- [ ] `{runs}/verifications/verify-NN.md` frozen with the `MIDAS_VERIFY_RESULT` tally line; screenshots committed beside it.
-- [ ] `state.yaml` **stage NOT advanced**, no gate marked passed; failures routed to `/close-sprint`.
+- [ ] Scope honoured; non-UI/API-only skips logged.
+- [ ] Every criterion has `pass | fail | blocked` with on-disk evidence.
+- [ ] Web UI: agent-browser used when installed; fallback documented otherwise.
+- [ ] Mobile viewports: at least one device profile per key screen (web scope).
+- [ ] Native (when in scope): Maestro inline or `blocked` with reason.
+- [ ] Runtime health recorded; token/overflow checks done.
+- [ ] Single `verify-NN.md` frozen with `MIDAS_VERIFY_RESULT`.
+- [ ] `state.yaml` stage NOT advanced.
 
 ## Tier & cost
-Scripting the flows, driving the browser, and writing the record → **build** (Sonnet). Reading state /
-extracting acceptance criteria + selectors → **scout** (Haiku). The pass/fail verdict and ship-relevant
-severity call belong to the **orchestrate** audit (`/close-sprint`) that consumes this record — verify
-**produces evidence, it does not pass the gate**. Cost discipline: **skip browser MCPs unless UI is in
-scope** (Playwright ~114k tokens/task, Chrome DevTools ~17k on load); prefer the existing test runner or
-`@playwright/cli` whenever a full, rendered browser isn't required. Respect `state.yaml.cost_profile`.
+Build tier drives flows and writes the record; scout tier for reading criteria/selectors. Respect
+`state.yaml.cost_profile`. Prefer agent-browser over Playwright MCP; skip browser MCPs when `--scope api`.

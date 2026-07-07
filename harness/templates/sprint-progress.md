@@ -11,7 +11,7 @@
 
 | Task | Proof | Tool |
 |---|---|---|
-| <!-- task id or title --> | <!-- test name / command / screenshot ref --> | <!-- context7 \| test-runner \| playwright-mcp \| chrome-devtools-mcp \| @playwright/cli \| smoke --> |
+| <!-- task id or title --> | <!-- test name / command / screenshot ref --> | <!-- context7 \| test-runner \| agent-browser \| agent-browser-ios \| playwright-mcp \| chrome-devtools-mcp \| maestro-mcp \| @playwright/cli \| smoke --> |
 
 <!-- One row per completed task this cycle. Tool = which MCP or runner proved the work (git-visible traceability). -->
 
@@ -24,9 +24,12 @@ Use these strings in the **Tool** column (and in verify records). They map to `s
 |---|---|
 | `test-runner` | Project test command (`npm test`, `pytest`, …) |
 | `context7` | Context7 MCP doc fetch |
-| `playwright-mcp` | Playwright MCP (`playwright` in state / `.mcp.json`) |
+| `agent-browser` | [agent-browser](https://github.com/vercel-labs/agent-browser) CLI — preferred web driver (viewport/device emulation) |
+| `agent-browser-ios` | agent-browser `-p ios` — real Mobile Safari (macOS + Xcode + Appium) |
+| `playwright-mcp` | Playwright MCP (`playwright` in state / `.mcp.json`) — fallback when agent-browser absent |
 | `chrome-devtools-mcp` | Chrome DevTools MCP (`chrome-devtools` in state / `.mcp.json`) |
-| `@playwright/cli` | Playwright CLI fallback when browser MCP is unwired |
+| `maestro-mcp` | Maestro MCP (`maestro mcp`) — native/hybrid mobile (`--scope mobile`) |
+| `@playwright/cli` | Playwright CLI request testing without full browser MCP |
 | `smoke` | Runtime boot / manual smoke (non-UI) |
 
 ## Next

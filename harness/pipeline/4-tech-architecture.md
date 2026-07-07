@@ -65,6 +65,7 @@ that constrain Phase 7. Fetching current docs before pinning any library is mand
 - [ ] System diagram covers the full data flow (not just the frontend)
 - [ ] At least one ADR exists in `{product}/adr/`
 - [ ] Every non-negotiable requirement from step 1 is covered by a stack entry
+- [ ] If the client includes **native or hybrid mobile**, `architecture.md` § Client names the verify tool (Maestro MCP / agent-browser) and emulator/simulator prerequisites
 - [ ] No third-party API was coded from memory (Context7 or web fallback evidence present)
 - [ ] Gate verdict written to `{runs}/audits/gate-04.md`
 

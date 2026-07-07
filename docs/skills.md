@@ -35,7 +35,8 @@ where supported. See the [tools matrix](https://github.com/okuzpe/midas-harness#
 | `/midas-align` | Maintenance | Full propagation pass — matrix + `npm run align` / doctor ladder + gap report (sources → bundles → versions → docs). | build |
 | `/midas-tribunal` | Audit | Whole-project adversarial debate — Defense vs Prosecution vs Catfish; Opus judges per claim. | orchestrate |
 | `/midas-monorepo` | Scale | Set Midas up across a monorepo — nested `AGENTS.md` per package, per-package rules. | orchestrate |
-| `/midas-verify` | Audit | Browser-gated E2E/UI verification (UI sprints only) — Playwright *drives* the flows, Chrome DevTools *inspects* runtime health (console/network/perf); per-claim verdict + screenshots. | build |
+| `/midas-verify` | Audit | Sprint UI verification — **agent-browser** CLI (preferred) or Playwright MCP; Chrome DevTools runtime health; **Maestro MCP** for native (`--scope web\|mobile\|all`); device profiles; single `verify-NN.md` record (no `e2e/` in product). | build |
+| `/midas-qa` | Phase 7 | Ad-hoc branch/PR QA — diff → routes; agent-browser / Maestro; optional `{runs}/qa/` record (non-gate). | build |
 | `/midas-security-audit` | Audit | Deep security audit — OWASP ASVS 5.0 + Top 10 + LLM/Agentic Top 10, STRIDE threat model, runs Semgrep/SCA/gitleaks (recommends if absent), freezes a ranked findings report. Non-advancing. | orchestrate |
 | `/midas-sweep` | Maintenance | Hygiene & dead-flow detection — orphan code, unreachable routes, stale docs, playbook/zombie triggers, `features.json` drift; optional `--fix` with explicit confirm. Freezes to `.harness/sweeps/`. | build |
 | `/midas-update` | Maintenance | Migrate an install to the current engine — dry-run + diff-confirm, bump version stamp. | build |
@@ -52,11 +53,10 @@ Each `SKILL.md` frontmatter declares:
 - `recommended-model` — the canonical model ID for that tier.
 - `disable-model-invocation: true` — side-effecting or irreversible skills that must only run on
   explicit user invocation. They open with a guard block that stops inference-triggered execution.
-- `mcp-recommended` — MCPs the skill suggests (`context7`, `sequential-thinking`, etc.) — advisory, not required.
-- `mcp-required` — MCPs the skill needs to run (`playwright` for `/midas-verify`, etc.). If the server is
-  not wired in `.mcp.json`, the skill must document a fallback or stop with a clear message — never
-  silently skip. `node scripts/doctor.mjs` warns via `mcp:skill-required` (and `mcp:declared-vs-wired`
-  for `state.yaml → mcp:` intent).
+- `mcp-recommended` — MCPs the skill suggests (`playwright`, `chrome-devtools`, `maestro`, `context7`, …) — advisory.
+- `mcp-required` — MCPs the skill needs to run. If the server is not wired in `.mcp.json`, the skill must
+  document a fallback or stop with a clear message — never silently skip. `node scripts/doctor.mjs` warns
+  via `mcp:skill-required` (and `mcp:declared-vs-wired` for `state.yaml → mcp:` intent).
 
 ---
 

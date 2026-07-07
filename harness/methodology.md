@@ -72,8 +72,8 @@ here; the **independent** verdict is always Phase 8 (the producer never grades i
 | Step | Command / ritual | Who | When |
 |---|---|---|---|
 | 1 Kickoff | `/start-sprint` | orchestrate | Sprint `planned` → `active`; pre-sprint drift audit + working plan |
-| 2 Build | implement tasks | build | Per-task inner loop; Context7 before third-party APIs |
-| 3 UI proof | `/midas-verify` | scout/build | UI sprints — acceptance journeys before close |
+| 2 Build | implement tasks (+ optional `/midas-qa`) | build | Per-task inner loop; Context7 before third-party APIs |
+| 3 UI proof | `/midas-verify` | scout/build | Web/mobile acceptance journeys before close (`--scope` per architecture) |
 | 4 Hygiene (optional) | `/midas-sweep` | scout | Large/messy diffs — `/midas-status` may suggest |
 | 5 Security (optional) | `/midas-security-audit` | orchestrate | Informational; does not advance gates |
 | 6 Gate | `/close-sprint` | orchestrate | Formal Phase-8 audit; freezes `{runs}/audits/audit-NN.md` |

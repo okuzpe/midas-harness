@@ -50,10 +50,16 @@
       "args": ["-y", "@playwright/mcp@latest"]
     },
 
-    "{{!optional-chrome-devtools}}": "OPTIONAL — Chrome DevTools to INSPECT runtime health (console errors, failed network, Core Web Vitals, Lighthouse). Complements Playwright in /midas-verify. ~17k tokens on load; needs Chrome + Node >=20.19/22.12. Uncomment with Playwright for UI projects.",
+    "{{!optional-chrome-devtools}}": "OPTIONAL — Chrome DevTools to INSPECT runtime health (console errors, failed network, Core Web Vitals, Lighthouse). Complements /midas-verify. ~17k tokens on load; needs Chrome + Node >=20.19/22.12. Uncomment with Playwright for UI projects.",
     "{{!chrome-devtools}}": {
       "command": "npx",
       "args": ["-y", "chrome-devtools-mcp@latest"]
+    },
+
+    "{{!optional-maestro}}": "OPTIONAL — Maestro MCP for native/hybrid mobile verification (/midas-verify --scope mobile|all). Requires Maestro CLI (maestro.dev). User must approve before enabling. Inline YAML only — no test files in product by default.",
+    "{{!maestro}}": {
+      "command": "maestro",
+      "args": ["mcp"]
     }
 
   }

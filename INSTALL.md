@@ -161,7 +161,7 @@ if needed), and bumps the `midas_version` stamp. Adapters re-render for the tool
 state file (`--tools` is **not** applied on update):
 
 ```bash
-npx github:okuzpe/midas-harness#v1.0.0 --update   # pin a version, or omit #vX.Y.Z for the latest main
+npx github:okuzpe/midas-harness#v1.1.0 --update   # pin a version, or omit #vX.Y.Z for the latest main
 ```
 
 `--update` overwrites engine files, so if you consciously **amended a rule**, review `git diff` and
@@ -221,7 +221,7 @@ npx github:okuzpe/midas-harness --uninstall
 - **Keeps your product work** (`product/`, `{runs}/`, state file) unless you pass `--purge`.
 
 For exact removal of a pinned install, uninstall with the same release:
-`npx github:okuzpe/midas-harness#v1.0.0 --uninstall`.
+`npx github:okuzpe/midas-harness#v1.1.0 --uninstall`.
 
 > Prefer to do it by hand? Midas only ever adds files — delete `.claude/`, engine dirs (`harness/` or
 > `.midas/`), `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`,
