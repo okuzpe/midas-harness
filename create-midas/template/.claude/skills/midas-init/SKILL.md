@@ -1,12 +1,13 @@
 ---
 name: midas-init
-description: Adaptive one-time setup for Midas — scans everything the project already has (code, manifests, README, docs, notes), classifies its maturity, pre-fills every artifact it can infer, asks only the genuine gaps in one batched round, and places the project at the correct phase. Use once, when the user explicitly runs /midas-init.
+description: Adaptive one-time setup for Midas — scans everything the project already has (code, manifests, README, docs, notes), classifies its maturity, pre-fills every artifact it can infer, asks only the genuine gaps in one batched round, places the project at the correct phase, and optionally wires monorepos (--monorepo). Use once, when the user explicitly runs /midas-init.
 user-invocable: true
 disable-model-invocation: true
 model: inherit
 harness-tier: orchestrate
 recommended-model: claude-opus-4-8
 mcp-recommended: [context7]
+argument-hint: "[--monorepo] [--dry-run]"
 ---
 
 # midas-init — the adaptive intake (one-time setup)
@@ -16,16 +17,18 @@ mcp-recommended: [context7]
 
 > **Paths:** Motor = `paths.engine`; scripts = `paths.scripts`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
 
-**Run this once.** The installer wrote a default state file so nothing is broken, but it made
+**Run this once** for full intake. The installer wrote a default state file so nothing is broken, but it made
 no real decisions. `/midas-init` is the **one-time guided setup** — and it adapts to *where the project
 already is* instead of forcing every repo to start from a blank `/idea-intake`.
 
-- **If `state.yaml` has `setup_complete: true`** → setup is already done. **STOP** and point the user at
-  `/midas-status`. (You will not be needed again.)
-- **Otherwise** → run the intake below, then set `setup_complete: true` and tell the user verbatim:
-  *"Setup complete — from here, just use `/midas-status`; you won't need `/midas-init` again."*
+- **If `setup_complete: true` and the user passed `--monorepo`** → skip Phases A–E; run **Phase F only**
+  (monorepo wiring). Do not flip `setup_complete`; then point at `/midas-status`.
+- **If `setup_complete: true` without `--monorepo`** → setup is already done. **STOP** and point the user at
+  `/midas-status`.
+- **Otherwise** → run the full intake below, then set `setup_complete: true` and tell the user verbatim:
+  *"Setup complete — from here, just use `/midas-status`; you won't need `/midas-init` again (except `--monorepo` wiring)."*
 
-The flow is **SCAN → CLASSIFY → TRACK → PRE-FILL → SHOW + ASK (gaps only) → GENERATE → `setup_complete: true`**.
+The flow is **SCAN → CLASSIFY → TRACK → PRE-FILL → SHOW + ASK (gaps only) → GENERATE → [MONOREPO] → `setup_complete: true`**.
 The governing rule everywhere below is **infer → SHOW → confirm**: anything you deduce from the project is
 shown to the user to accept or correct — **never silently baked** into an artifact. Ask in a **single
 batched round** (`AskUserQuestion`), pre-filled, so the user confirms rather than answers blank prompts.
@@ -131,8 +134,9 @@ missing or unconfirmed**:
    artifact language. **Context7 uses its free anonymous tier — never ask for or wire an API key.**
 
 So this round scales to the project: a blank repo answers the full set (nothing to infer); a mature repo
-just confirms a classification and a couple of operational questions. **If a monorepo was detected,** note
-that `/midas-monorepo` should run before `/plan-sprints`.
+just confirms a classification and a couple of operational questions. **If a monorepo was detected,**
+ask whether to wire nested `AGENTS.md` files now (Phase F) or skip and run `/midas-init --monorepo` later
+before `/plan-sprints`.
 
 ## Phase E — GENERATE (write last; place at the chosen stage)
 
@@ -179,6 +183,18 @@ token (e.g. the GitHub MCP's `GITHUB_TOKEN`), print the OS-specific command and 
 - POSIX: `export <ENV_VAR>="<your-token>"` (add to your shell profile to persist)
 
 Never echo, store, or commit a token. `.mcp.json` references it only as `${ENV_VAR}`.
+
+## Phase F — MONOREPO (optional)
+
+Run when **any** of: user passed `--monorepo`; Phase D confirmed monorepo wiring; workspace markers were
+detected and the user opted in during GENERATE.
+
+Follow **`<paths.engine>/pipeline/monorepo-wiring.md`** (DETECT → INDEX → WRITE). Respect `--dry-run`
+(write nothing; print the plan). On success, `state.yaml.packages[]` is populated and nested `AGENTS.md`
+files exist. If declined or not a monorepo, skip — `setup_complete` still proceeds.
+
+> **`/midas-monorepo` is deprecated** — it redirects here. Re-run `/midas-init --monorepo` on an
+> already-initialized project (`setup_complete: true`) to wire packages without repeating intake.
 
 ## Exit
 Confirm: files written (or the manual paste path), the secret command if any, the **maturity level chosen**,

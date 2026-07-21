@@ -1,14 +1,30 @@
 #!/usr/bin/env node
 // status-page.mjs — generate a static status.html from state + runs artifacts (no deps).
-import { readFileSync, existsSync, readdirSync, writeFileSync } from 'node:fs';
+import { readFileSync, existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { resolvePaths, resolveProjectRootFromScript } from './paths.mjs';
 
-const rootArg = process.argv[2];
+const args = process.argv.slice(2);
+let rootArg = null;
+let outArg = null;
+for (let i = 0; i < args.length; i++) {
+  const arg = args[i];
+  if (arg === '--out' && i + 1 < args.length) {
+    outArg = args[++i];
+    continue;
+  }
+  if (arg.startsWith('--out=')) {
+    outArg = arg.slice('--out='.length);
+    continue;
+  }
+  if (!arg.startsWith('-') && rootArg === null) {
+    rootArg = arg;
+  }
+}
+
 const ROOT = rootArg ? resolve(process.cwd(), rootArg) : resolveProjectRootFromScript(import.meta.url);
 const paths = resolvePaths(ROOT);
-const OUT = join(ROOT, 'status.html');
+const OUT = outArg ? resolve(process.cwd(), outArg) : join(ROOT, 'status.html');
 
 function read(rel) {
   const p = join(ROOT, rel);
@@ -75,5 +91,6 @@ const html = `<!DOCTYPE html>
 </html>
 `;
 
+mkdirSync(dirname(OUT), { recursive: true });
 writeFileSync(OUT, html, 'utf8');
 console.log(`wrote ${OUT}`);

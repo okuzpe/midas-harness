@@ -10,13 +10,17 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ["16.20.2", "20", "24"]
     steps:
       # docs: GitHub Actions security hardening via docs.github.com (2026-06-27).
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: "20"
+          node-version: ${{ matrix.node-version }}
 
       - name: Structural test suite
         run: node scripts/test.mjs
@@ -53,6 +57,19 @@ jobs:
           test -f /tmp/midas-smoke/.midas/state.yaml
           test -d /tmp/midas-smoke/.midas/product
           node /tmp/midas-smoke/.midas/scripts/doctor.mjs
+
+      - name: Diagnose smoke test (read-only CLI)
+        run: |
+          tmp=$(mktemp -d)
+          rmdir "$tmp"
+          set +e
+          node create-midas/index.mjs --diagnose "$tmp" >/tmp/midas-diagnose.out
+          code=$?
+          set -e
+          test "$code" -eq 1
+          grep -q "Status: not_installed" /tmp/midas-diagnose.out
+          test ! -e "$tmp"
+          node create-midas/index.mjs --diagnose /tmp/midas-smoke | grep -q "Status:"
 
       - name: Update smoke test
         run: |

@@ -24,6 +24,9 @@ tools for evidence, and freezes a ranked findings report. It **complements** (do
 - `/midas-tribunal security` — the debate-style security lens.
 Use this when you want a **deep, before-ship** audit against the current industry standard.
 
+> **Shared audit fragments:** `<paths.engine>/templates/audit-checklists.md` (gate semantics vs
+> `/close-sprint`, evidence rule, `MIDAS_SECURITY_RESULT` tally). Complements `<paths.engine>/rules/security.md`.
+
 ## What it grounds against (the standard, not vibes)
 - **OWASP ASVS 5.0** (2025) — the verification checklist, at the level matched to the product's risk:
   **L1** (basic, public / low-risk), **L2** (most apps — the default), **L3** (high-value: payments,

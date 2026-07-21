@@ -4,8 +4,10 @@
 import {
   existsSync,
   mkdirSync,
+  cpSync,
   readFileSync,
   readdirSync,
+  mkdtempSync,
   renameSync,
   rmSync,
   statSync,
@@ -13,6 +15,7 @@ import {
 } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { tmpdir } from 'node:os';
 import {
   detectLayout,
   MIGRATION_MAP,
@@ -28,6 +31,7 @@ const targetArg = args.find((a) => a.startsWith('--target='));
 const targetLayout = targetArg ? targetArg.slice('--target='.length) : 'compact';
 const rootArg = args.find((a) => !a.startsWith('-'));
 const ROOT = rootArg ? resolve(process.cwd(), rootArg) : process.cwd();
+const TEST_FAIL_STEP = process.env.MIDAS_TEST_FAIL_STEP || '';
 
 if (!['compact', 'hub'].includes(targetLayout)) {
   console.error('migrate-layout: --target must be compact or hub');
@@ -49,11 +53,53 @@ function printPlan(rows, label) {
 
 function applyMove(r) {
   mkdirSync(dirname(r.dst), { recursive: true });
-  if (r.type === 'dir') {
-    renameSync(r.src, r.dst);
-  } else {
-    if (existsSync(r.dst)) rmSync(r.dst);
-    renameSync(r.src, r.dst);
+  renameSync(r.src, r.dst);
+}
+
+function migrationRollbackPaths() {
+  return ['.midas', 'harness', 'scripts', 'product', 'docs/agents-and-models.md'];
+}
+
+function beginRollbackSession(root, relPaths) {
+  const backupRoot = mkdtempSync(join(tmpdir(), 'midas-migration-backup-'));
+  const entries = [];
+  for (const rel of relPaths) {
+    const abs = join(root, rel);
+    if (!existsSync(abs)) continue;
+    const info = statSync(abs);
+    const kind = info.isDirectory() ? 'dir' : 'file';
+    const backupAbs = join(backupRoot, rel);
+    mkdirSync(dirname(backupAbs), { recursive: true });
+    cpSync(abs, backupAbs, { recursive: kind === 'dir', force: true, preserveTimestamps: true });
+    entries.push({ rel, kind });
+  }
+  return { root, backupRoot, relPaths: [...relPaths], entries };
+}
+
+function rollbackMigration(session) {
+  if (!session) return;
+  const cleanupPaths = [...new Set(session.relPaths)].sort((a, b) => b.length - a.length);
+  for (const rel of cleanupPaths) {
+    rmSync(join(session.root, rel), { recursive: true, force: true });
+  }
+  for (const { rel, kind } of session.entries) {
+    const backupAbs = join(session.backupRoot, rel);
+    if (!existsSync(backupAbs)) continue;
+    const dst = join(session.root, rel);
+    mkdirSync(dirname(dst), { recursive: true });
+    cpSync(backupAbs, dst, { recursive: kind === 'dir', force: true, preserveTimestamps: true });
+  }
+  rmSync(session.backupRoot, { recursive: true, force: true });
+}
+
+function discardRollbackSession(session) {
+  if (!session) return;
+  rmSync(session.backupRoot, { recursive: true, force: true });
+}
+
+function maybeFail(step) {
+  if (TEST_FAIL_STEP === step) {
+    throw new Error(`MIDAS_TEST_FAIL_STEP=${step}`);
   }
 }
 
@@ -147,6 +193,10 @@ function buildPlan(current, target) {
   return [];
 }
 
+function findConflicts(rows) {
+  return rows.filter((r) => existsSync(r.src) && existsSync(r.dst));
+}
+
 async function main() {
   const layout = detectLayout(ROOT);
   if (layout === targetLayout) {
@@ -171,36 +221,56 @@ async function main() {
   const label = `${current} → ${targetLayout}`;
   printPlan(rows, label);
 
+  const conflicts = findConflicts(rows);
+  if (conflicts.length) {
+    console.error('\n  migrate-layout: refusing to overwrite existing destination path(s):');
+    for (const r of conflicts) console.error(`     · ${r.dst}`);
+    console.error('  Remove the destination(s) or resolve the partial migration before re-running --apply.\n');
+    process.exit(1);
+  }
+
   if (dryRun) {
     console.log('\n  Re-run with --apply to execute. Then run doctor --fix.\n');
     process.exit(0);
   }
 
-  const stateMove = rows.find((r) => r.from === 'harness/state.yaml');
-  if (stateMove) applyMove(stateMove);
+  const rollbackSession = beginRollbackSession(ROOT, migrationRollbackPaths());
+  try {
+    const stateMove = rows.find((r) => r.from === 'harness/state.yaml');
+    if (stateMove) {
+      applyMove(stateMove);
+      maybeFail('after-first-move');
+    }
 
-  for (const r of rows) {
-    if (r.from === 'harness/state.yaml') continue;
-    applyMove(r);
+    for (const r of rows) {
+      if (r.from === 'harness/state.yaml') continue;
+      applyMove(r);
+      maybeFail('after-first-move');
+    }
+
+    patchStateYaml(targetLayout);
+
+    if (targetLayout === 'hub') {
+      const n = rewriteMarkdownLinks(join(ROOT, '.midas', 'product'));
+      if (n) console.log(`  Rewrote markdown links in ${n} file(s) under .midas/product/`);
+    }
+
+    const renderPath = join(ROOT, '.midas', 'scripts', 'render-adapters.mjs');
+    if (existsSync(renderPath)) {
+      const mod = await import(pathToFileURL(renderPath).href);
+      if (typeof mod.renderAdapters === 'function') mod.renderAdapters(ROOT);
+    }
+
+    console.log('\n  migrate-layout: done. Run `node .midas/scripts/doctor.mjs` to verify.\n');
+  } catch (err) {
+    rollbackMigration(rollbackSession);
+    throw err;
+  } finally {
+    discardRollbackSession(rollbackSession);
   }
-
-  patchStateYaml(targetLayout);
-
-  if (targetLayout === 'hub') {
-    const n = rewriteMarkdownLinks(join(ROOT, '.midas', 'product'));
-    if (n) console.log(`  Rewrote markdown links in ${n} file(s) under .midas/product/`);
-  }
-
-  const renderPath = join(ROOT, '.midas', 'scripts', 'render-adapters.mjs');
-  if (existsSync(renderPath)) {
-    const mod = await import(pathToFileURL(renderPath).href);
-    if (typeof mod.renderAdapters === 'function') mod.renderAdapters(ROOT);
-  }
-
-  console.log('\n  migrate-layout: done. Run `node .midas/scripts/doctor.mjs` to verify.\n');
 }
 
 main().catch((err) => {
-  console.error('migrate-layout:', err.message || err);
+  console.error(`migrate-layout: rolled back after failure — ${err.message || err}`);
   process.exit(1);
 });

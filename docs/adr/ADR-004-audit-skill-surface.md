@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted (deferred implementation) — 2026-07-06
+Accepted — 2026-07-06; **shared fragments implemented** 2026-07-08
 
 ## Context
 
@@ -19,10 +19,11 @@ Unifying them risks conflating optional debate with mandatory gate semantics.
 **Do not merge** audit skills in v0.5.x. Keep three commands with explicit roles documented in
 `harness/methodology.md` § Phase 7 execution ladder and cross-links in `start-sprint` / `close-sprint`.
 
-Future work may add a **shared checklist fragment** in `harness/templates/audit-record.md` consumed by
-all three — not a single slash-command.
+Shared checklist fragments live in **`harness/templates/audit-checklists.md`** (gate semantics, evidence
+rule, tally formats, hygiene hook) — consumed by all three skills; not a single slash-command.
 
 ## Consequences
 
 - Agents must still run `/close-sprint` for gates; tribunal/security remain optional.
 - Reduced blast radius vs a mega-skill that could be mistaken for a gate pass.
+- Duplicated audit prose is centralized in `audit-checklists.md`; record shapes stay in per-type templates.

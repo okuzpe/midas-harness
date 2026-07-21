@@ -27,6 +27,9 @@ homework** — this is an independent orchestrate-tier audit.
 > **Precondition.** A sprint must be `active` in `state.yaml.sprints[]` with its work landed (tasks
 > done, tests run). If no active sprint, stop and report.
 
+> **Shared audit fragments:** `<paths.engine>/templates/audit-checklists.md` (gate semantics, evidence
+> rule, tally format, hygiene hook). Record shape: `harness/templates/audit-record.md`.
+
 ## Procedure
 
 ### 0. Hygiene pass (`<paths.engine>/rules/hygiene.md`)

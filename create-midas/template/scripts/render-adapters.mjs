@@ -107,11 +107,146 @@ function spliceManaged(existing, innerBody) {
  * continuation lines into one digest entry per CHECK.
  */
 function extractCheckLines(text) {
+  return extractCheckItems(text).map((item) => `**CHECK:** ${item.body}`);
+}
+
+function ruleOwnerForSlug(slug) {
+  return ['testing', 'verification', 'acceptance-criteria', 'visual-design'].includes(slug)
+    ? 'build'
+    : 'orchestrate';
+}
+
+function checkSeverityFor(item) {
+  return isManualCheckBody(item.body) ? 'medium' : 'high';
+}
+
+function isManualCheckBody(body) {
+  return /^`?manual:`?\s*/i.test(body) || /^\*\(manual(?:[:.)][^)]*)?\)\*?\s*/i.test(body);
+}
+
+const GATE_ROWS = [
+  {
+    id: 'gate-00',
+    phase: 'idea_intake',
+    stage: 0,
+    severity: 'high',
+    state: 'active',
+    owner: 'orchestrate',
+    recorded_at: null,
+    summary: 'Preserve the raw idea, one-line pitch, and project mode.',
+    evidence_required: ['{product}/idea.md', 'harness/state.yaml'],
+  },
+  {
+    id: 'gate-01',
+    phase: 'contextualize',
+    stage: 1,
+    severity: 'high',
+    state: 'active',
+    owner: 'orchestrate',
+    recorded_at: null,
+    summary: 'Close blocking questions and capture the project context.',
+    evidence_required: ['{product}/open-questions.md', 'harness/state.yaml'],
+  },
+  {
+    id: 'gate-02',
+    phase: 'market_research',
+    stage: 2,
+    severity: 'high',
+    state: 'active',
+    owner: 'orchestrate',
+    recorded_at: null,
+    summary: 'Collect cited competitor evidence and define the market shape.',
+    evidence_required: ['{product}/market.md', 'harness/state.yaml'],
+  },
+  {
+    id: 'gate-03',
+    phase: 'business_case',
+    stage: 3,
+    severity: 'high',
+    state: 'active',
+    owner: 'orchestrate',
+    recorded_at: null,
+    summary: 'Lock the MVP scope, metrics, and go/no-go decision.',
+    evidence_required: ['{product}/business-plan.md', 'harness/state.yaml'],
+  },
+  {
+    id: 'gate-04',
+    phase: 'tech_architecture',
+    stage: 4,
+    severity: 'high',
+    state: 'active',
+    owner: 'orchestrate',
+    recorded_at: null,
+    summary: 'Pin the stack, record ADRs, and freeze the technical shape.',
+    evidence_required: ['{product}/architecture.md', '{product}/adr/ADR-*.md', 'harness/state.yaml'],
+  },
+  {
+    id: 'gate-05',
+    phase: 'architecture_rules',
+    stage: 5,
+    severity: 'high',
+    state: 'active',
+    owner: 'orchestrate',
+    recorded_at: null,
+    summary: 'Render rules, design tokens, and explicit CHECK coverage.',
+    evidence_required: ['harness/rules/*.md', 'CLAUDE.md', '.cursor/rules/00-midas.mdc', 'GEMINI.md'],
+  },
+  {
+    id: 'gate-06',
+    phase: 'sprint_planning',
+    stage: 6,
+    severity: 'high',
+    state: 'active',
+    owner: 'orchestrate',
+    recorded_at: null,
+    summary: 'Plan the roadmap and give every sprint a clear definition of done.',
+    evidence_required: ['{product}/sprints/*.md', 'harness/state.yaml'],
+  },
+  {
+    id: 'gate-07',
+    phase: 'sprint_execution',
+    stage: 7,
+    severity: 'high',
+    state: 'active',
+    owner: 'build',
+    recorded_at: null,
+    summary: 'Keep the active sprint green with tests, evidence, and audit trails.',
+    evidence_required: ['{runs}/sprints/*.md', '{runs}/verifications/*.md', 'harness/state.yaml'],
+  },
+  {
+    id: 'gate-08',
+    phase: 'audit',
+    stage: 8,
+    severity: 'high',
+    state: 'active',
+    owner: 'orchestrate',
+    recorded_at: null,
+    summary: 'Freeze the conformance audit and resolve drift before advancing.',
+    evidence_required: ['{runs}/audits/*.md', '{runs}/verifications/*.md', 'harness/state.yaml'],
+  },
+];
+
+/**
+ * Extract structured CHECK items from a rule file body.
+ * Returns a compact record per CHECK with a rough kind label.
+ */
+function extractCheckItems(text) {
   const lines = text.split(/\r?\n/);
   const checks = [];
+  let headings = [];
   let i = 0;
   while (i < lines.length) {
     const line = lines[i];
+    const heading = line.match(/^(#{2,4})\s+(.+)$/);
+    if (heading) {
+      const level = heading[1].length;
+      const title = heading[2].trim();
+      if (level === 2) headings = [title];
+      else if (level === 3) headings = [headings[0] || '', title].filter(Boolean);
+      else headings = [...headings.slice(0, 2), title].filter(Boolean);
+      i++;
+      continue;
+    }
     if (/^\s*>/.test(line)) {
       i++;
       continue;
@@ -128,12 +263,16 @@ function extractCheckLines(text) {
       if (/^\s*#/.test(cont)) break;
       if (/^\s*(?:-\s+(?:\[[ x]\]\s+)?)?\*\*CHECK:\*\*/.test(cont)) break;
       if (/^\s*-\s+\[/.test(cont)) break;
-      if (/^\s{4,}\S/.test(cont) && !/^\s*>/.test(cont)) {
+      if (/^\s{2,}\S/.test(cont) && !/^\s*>/.test(cont)) {
         body += ' ' + cont.trim();
         i++;
       } else break;
     }
-    checks.push(`**CHECK:** ${body}`);
+    checks.push({
+      kind: isManualCheckBody(body) ? 'manual' : 'command',
+      body,
+      section: headings.join(' > ') || null,
+    });
   }
   return checks;
 }
@@ -160,6 +299,56 @@ function readRulesDigest(root, engineRel = 'harness') {
     }
   }
   return { raw, body: out.join('\n') };
+}
+
+/** Build the structured rule-check index mirrored into {engine}/checks.json. */
+export function computeChecksIndex(root, engineRel = 'harness') {
+  const dir = join(root, engineRel, 'rules');
+  if (!existsSync(dir)) {
+    return { schema_version: 1, updated: null, source: `${engineRel}/rules`, rules: [] };
+  }
+  const files = readdirSync(dir).filter((f) => f.endsWith('.md')).sort();
+  const rules = files.map((f) => {
+    const text = readFileSync(join(dir, f), 'utf8');
+    const title = (text.match(/^#\s+(.+)$/m) || [, f.replace(/\.md$/, '')])[1];
+    const slug = f.replace(/\.md$/, '');
+    const owner = ruleOwnerForSlug(slug);
+    const checks = extractCheckItems(text).map((check) => ({
+      ...check,
+      phase: 8,
+      owner,
+      severity: checkSeverityFor(check),
+    }));
+    return {
+      path: `${engineRel}/rules/${f}`,
+      slug,
+      title,
+      owner,
+      phase: 8,
+      check_count: checks.length,
+      checks,
+    };
+  });
+  return {
+    schema_version: 1,
+    updated: new Date().toISOString().slice(0, 10),
+    source: `${engineRel}/rules`,
+    rules,
+  };
+}
+
+/** Build the structured phase-gate registry mirrored into {engine}/gates.json. */
+export function computeGatesIndex(root, engineRel = 'harness') {
+  void root;
+  return {
+    schema_version: 1,
+    updated: new Date().toISOString().slice(0, 10),
+    source: `${engineRel}/methodology.md`,
+    gates: GATE_ROWS.map((gate) => ({
+      ...gate,
+      recorded_at: new Date().toISOString().slice(0, 10),
+    })),
+  };
 }
 
 // --- render logic (exported so doctor.mjs can re-derive without duplication) --------------------
@@ -259,6 +448,8 @@ export function computeAdapters(root = ROOT) {
 export function renderAdapters(root = ROOT) {
   const p = resolvePaths(root);
   const { hash, files } = computeAdapters(root);
+  const gatesIndex = computeGatesIndex(root, p.engine);
+  const checksIndex = computeChecksIndex(root, p.engine);
   const results = [];
 
   for (const f of files) {
@@ -277,6 +468,18 @@ export function renderAdapters(root = ROOT) {
   writeFileSync(hashAbs, hash + '\n', 'utf8');
   const hashRel = hashAbs.slice(p.projectRoot.length + 1).replace(/\\/g, '/');
   results.push({ path: hashRel, status: 'written' });
+
+  const gatesAbs = join(root, p.engine, 'gates.json');
+  ensureDir(gatesAbs);
+  writeFileSync(gatesAbs, `${JSON.stringify(gatesIndex, null, 2)}\n`, 'utf8');
+  const gatesRel = gatesAbs.slice(p.projectRoot.length + 1).replace(/\\/g, '/');
+  results.push({ path: gatesRel, status: 'written' });
+
+  const checksAbs = join(root, p.engine, 'checks.json');
+  ensureDir(checksAbs);
+  writeFileSync(checksAbs, `${JSON.stringify(checksIndex, null, 2)}\n`, 'utf8');
+  const checksRel = checksAbs.slice(p.projectRoot.length + 1).replace(/\\/g, '/');
+  results.push({ path: checksRel, status: 'written' });
 
   return { hash, results };
 }

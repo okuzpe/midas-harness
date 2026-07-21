@@ -34,6 +34,9 @@ claim cites **checkable evidence**, the **producer is separated from the grader*
 dissent is forced** — otherwise it degenerates to premature consensus, sycophancy, and judge bias.
 Every rule below exists to defend one of those failure modes.
 
+> **Shared audit fragments:** `<paths.engine>/templates/audit-checklists.md` (gate semantics vs
+> `/close-sprint`, evidence rule, tally format). Record shape: `harness/templates/debate-record.md`.
+
 ## The lenses (each a persona + provocation + on-disk target)
 
 Activate the lenses relevant to the scope; run them as **parallel** seats (parallel thinking), then

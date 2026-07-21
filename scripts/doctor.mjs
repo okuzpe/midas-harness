@@ -14,12 +14,15 @@
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { computeAdapters, renderAdapters } from './render-adapters.mjs';
+import { computeAdapters, computeChecksIndex, computeGatesIndex, renderAdapters } from './render-adapters.mjs';
 import { evaluateMcpDeclaredVsWired, evaluateSkillMcpRequired, collectSkillMcpRequired } from './mcp-drift.mjs';
 import { parseSprints, parseEnforcement, parseRouting, parseToolsFromStateYaml } from './yaml-lite.mjs';
 import { syncCursorMcp, wrapMcpServersForWindows } from './mcp-cursor-sync.mjs';
 import { ensureMidasGitignore } from './gitignore-merge.mjs';
 import { resolvePaths, detectLayout, resolveProjectRootFromScript } from './paths.mjs';
+import { computeStageCommandTableYaml, renderStageCommandTable } from './stage-command-table.mjs';
+import { computeDesignSystemCss, renderDesignSystemTokens } from './design-system.mjs';
+import { computePluginManifest, computePluginReadme, computeMarketplaceJson } from './build-plugin.mjs';
 
 const HELP = `midas doctor — adapter drift checker + install health check
 
@@ -72,8 +75,12 @@ if (FIX) {
     process.exit(1);
   }
   const { hash, results } = renderAdapters(ROOT);
+  const stageTable = renderStageCommandTable(ROOT);
+  const designSystem = renderDesignSystemTokens(ROOT);
   console.log(`midas doctor --fix: re-rendered adapters from ${paths.engine}/conventions.md`);
   for (const r of results) console.log(`  ${r.status === 'unchanged' ? 'unchanged' : 'wrote    '} ${r.path}`);
+  console.log(`  ${stageTable.status === 'unchanged' ? 'unchanged' : 'wrote    '} ${stageTable.path}`);
+  console.log(`  ${designSystem.status === 'unchanged' ? 'unchanged' : 'wrote    '} ${designSystem.path}`);
   console.log(`  source hash: ${hash}`);
   const stateForMcp = read(paths.state) || '';
   const sync = syncCursorMcp(ROOT, stateForMcp);
@@ -236,6 +243,49 @@ if (mcp === null) {
     }
   }
 }
+{
+  const templateMcp = read(join('create-midas', 'template', '.mcp.json'));
+  if (templateMcp !== null && mcp !== null) {
+    check(
+      'mcp:template-sync',
+      templateMcp === mcp ? 'ok' : 'warn',
+      templateMcp === mcp ? '' : 'create-midas/template/.mcp.json drifted from root .mcp.json',
+    );
+  }
+}
+{
+  const pluginRoot = join(ROOT, 'plugins', 'midas');
+  if (existsSync(pluginRoot)) {
+    const pluginJson = read(join('plugins', 'midas', '.claude-plugin', 'plugin.json'));
+    if (pluginJson !== null) {
+      check(
+        'plugin:manifest-json',
+        pluginJson === JSON.stringify(computePluginManifest(), null, 2) + '\n' ? 'ok' : 'warn',
+        pluginJson === JSON.stringify(computePluginManifest(), null, 2) + '\n'
+          ? ''
+          : 'plugins/midas/.claude-plugin/plugin.json drifted from the generated manifest',
+      );
+    }
+    const pluginReadme = read(join('plugins', 'midas', 'README.md'));
+    if (pluginReadme !== null) {
+      check(
+        'plugin:readme',
+        pluginReadme === computePluginReadme() ? 'ok' : 'warn',
+        pluginReadme === computePluginReadme() ? '' : 'plugins/midas/README.md drifted from the generated README',
+      );
+    }
+    const marketplaceJson = read(join('.claude-plugin', 'marketplace.json'));
+    if (marketplaceJson !== null) {
+      check(
+        'plugin:marketplace-json',
+        marketplaceJson === JSON.stringify(computeMarketplaceJson(), null, 2) + '\n' ? 'ok' : 'warn',
+        marketplaceJson === JSON.stringify(computeMarketplaceJson(), null, 2) + '\n'
+          ? ''
+          : '.claude-plugin/marketplace.json drifted from the generated marketplace',
+      );
+    }
+  }
+}
 
 {
   const mcpDrift = evaluateMcpDeclaredVsWired(stateRaw, mcp);
@@ -317,6 +367,115 @@ if (!stateRaw) {
 
   if (scanned === 0) check('gate:records', 'skip', 'no parseable MIDAS_*_RESULT tally lines');
   else if (flagged === 0) check('gate:records', 'ok', `${scanned} record(s) consistent with state`);
+}
+
+// Structured gate registry: machine-readable phase gate index that mirrors the methodology table.
+const gatesRegistryRaw = read(join(paths.engine, 'gates.json'));
+if (gatesRegistryRaw === null) {
+  check('gates:registry', 'skip', `no ${paths.engine}/gates.json`);
+} else {
+  try {
+    const generatedGatesRegistry = computeGatesIndex(ROOT, paths.engine);
+    const gatesRegistry = JSON.parse(gatesRegistryRaw);
+    const gates = Array.isArray(gatesRegistry.gates) ? gatesRegistry.gates : [];
+    const phases = gates.map((g) => g?.phase).filter(Boolean);
+    const expected = ['idea_intake', 'contextualize', 'market_research', 'business_case', 'tech_architecture', 'architecture_rules', 'sprint_planning', 'sprint_execution', 'audit'];
+    const missing = expected.filter((phase) => !phases.includes(phase));
+    if (missing.length) {
+      check('gates:registry', 'warn', `missing phase entries: ${missing.join(', ')}`);
+    } else if (JSON.stringify(gatesRegistry) !== JSON.stringify(generatedGatesRegistry)) {
+      check('gates:registry', 'warn', 'gates.json drifted from the generated registry — run `node scripts/doctor.mjs --fix`');
+    } else {
+      check('gates:registry', 'ok', `${gates.length} phase gate entries`);
+    }
+  } catch (err) {
+    check('gates:registry', 'warn', err.message || 'invalid JSON');
+  }
+}
+
+// Structured stage-command table: canonical phase -> ritual/recall map.
+const stageTableRaw = read(join(paths.engine, 'stage-command-table.yaml'));
+if (stageTableRaw === null) {
+  check('stage-table', 'skip', `no ${paths.engine}/stage-command-table.yaml`);
+} else {
+  try {
+    const generatedStageTable = computeStageCommandTableYaml();
+    if (stageTableRaw !== generatedStageTable) {
+      check('stage-table', 'warn', 'stage-command-table.yaml drifted from the generated table — run `node scripts/doctor.mjs --fix`');
+    } else {
+      check('stage-table', 'ok', 'canonical stage-command table');
+    }
+  } catch (err) {
+    check('stage-table', 'warn', err.message || 'invalid stage-command table');
+  }
+}
+
+// Structured design-system CSS: generated from harness/design-system/tokens.json.
+const designSystemCssRaw = read(join(paths.engine, 'design-system/tokens.css'));
+if (designSystemCssRaw === null) {
+  check('design-system:tokens', 'skip', `no ${paths.engine}/design-system/tokens.css`);
+} else {
+  try {
+    const generatedDesignSystemCss = computeDesignSystemCss(ROOT);
+    if (designSystemCssRaw !== generatedDesignSystemCss) {
+      check('design-system:tokens', 'warn', 'design-system/tokens.css drifted from the generated CSS — run `node scripts/doctor.mjs --fix`');
+    } else {
+      check('design-system:tokens', 'ok', 'design-system tokens are generated from tokens.json');
+    }
+  } catch (err) {
+    check('design-system:tokens', 'warn', err.message || 'invalid design-system tokens');
+  }
+}
+
+// Structured check index: machine-readable CHECK digest extracted from harness/rules/*.md.
+const checksIndexRaw = read(join(paths.engine, 'checks.json'));
+if (checksIndexRaw === null) {
+  check('checks:index', 'skip', `no ${paths.engine}/checks.json`);
+} else {
+  try {
+    const generatedChecksIndex = computeChecksIndex(ROOT, paths.engine);
+    const checksIndex = JSON.parse(checksIndexRaw);
+    const rules = Array.isArray(checksIndex.rules) ? checksIndex.rules : [];
+    const ruleFiles = existsSync(join(ROOT, paths.engine, 'rules'))
+      ? readdirSync(join(ROOT, paths.engine, 'rules')).filter((f) => f.endsWith('.md')).length
+      : 0;
+    const missingChecks = rules.filter((r) => !Array.isArray(r.checks) || r.checks.length === 0);
+    const malformedRules = rules.filter((r) =>
+      !r || typeof r !== 'object' ||
+      typeof r.slug !== 'string' ||
+      typeof r.title !== 'string' ||
+      typeof r.path !== 'string' ||
+      typeof r.owner !== 'string' ||
+      r.phase !== 8 ||
+      typeof r.check_count !== 'number' ||
+      !Array.isArray(r.checks) ||
+      r.checks.some((c) =>
+        !c || typeof c !== 'object' ||
+        typeof c.kind !== 'string' ||
+        typeof c.body !== 'string' ||
+        typeof c.owner !== 'string' ||
+        c.owner !== r.owner ||
+        c.phase !== 8 ||
+        !['command', 'manual'].includes(c.kind) ||
+        !['high', 'medium'].includes(c.severity) ||
+        (c.kind === 'manual' ? c.severity !== 'medium' : c.severity !== 'high') ||
+        !(c.section === null || typeof c.section === 'string')
+      )
+    );
+    if (ruleFiles && rules.length !== ruleFiles) {
+      check('checks:index', 'warn', `index has ${rules.length} rule rows but rules dir has ${ruleFiles} files`);
+    } else if (malformedRules.length) {
+      check('checks:index', 'warn', `malformed structured rows: ${malformedRules.map((r) => r.slug || r.path).join(', ')}`);
+    } else if (missingChecks.length) {
+      check('checks:index', 'warn', `rules with no structured checks: ${missingChecks.map((r) => r.slug || r.path).join(', ')}`);
+    } else if (JSON.stringify(checksIndex) !== JSON.stringify(generatedChecksIndex)) {
+      check('checks:index', 'warn', 'checks.json drifted from the generated index — run `node scripts/doctor.mjs --fix`');
+    } else {
+      check('checks:index', 'ok', `${rules.length} rule rows with structured CHECKs`);
+    }
+  } catch (err) {
+    check('checks:index', 'warn', err.message || 'invalid JSON');
+  }
 }
 
 console.log('\nmidas doctor — health');

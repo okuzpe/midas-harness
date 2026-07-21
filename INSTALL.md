@@ -48,6 +48,8 @@ All three forms do the same thing; the `curl`/`irm` shims just check Node and th
   **`s`** = cursor + gemini + codex, **`a`** = all adapter tools. Non-interactive installs default to all
   adapter tools. **Ignored on `--update`** — your existing state file `tools:` list is preserved.
 - `--force` — overwrite files that already exist (default: skip them).
+- `--diagnose` — read-only; print install state and the **single next command** (no writes). Works even
+  when Midas is not installed yet.
 - `-h`, `--help` — usage.
 - a positional `target-dir` — install into that directory instead of the current one.
 
@@ -145,13 +147,28 @@ Fresh projects get one created.
 2. `/midas-init` — the **one-time guided setup** (a few questions once; for an existing repo it runs the
    brownfield adoption for you). It then retires — you won't run it again.
 3. `/midas-status` — from here on, shows the current phase and the single next command.
-4. **`/midas-bundle`** — export/import portable JSON when seeding a new project or sharing rules/playbooks
+4. **`/midas-reconcile`** — when unsure which command to run (install vs update vs init); read-only.
+5. **`/midas-bundle`** — export/import portable JSON when seeding a new project or sharing rules/playbooks
    between repos (`node <paths.scripts>/bundle.mjs export --profile memory -o bundle.json`).
-5. After substantive edits (rules, skills, installer, docs): **`/midas-align`** — propagation pass per
+6. After substantive edits (rules, skills, installer, docs): **`/midas-align`** — propagation pass per
    `<paths.engine>/rules/change-propagation.md` (engine repo: `npm run align`).
-6. Drive the lifecycle: `/idea-intake` → `/contextualize` → `/market-research` → `/business-plan` →
+7. Drive the lifecycle: `/idea-intake` → `/contextualize` → `/market-research` → `/business-plan` →
    `/choose-architecture` → `/define-conventions` → `/plan-sprints` → `/start-sprint` → `/close-sprint`.
    Run `/midas-tribunal` any time for a whole-project adversarial debate.
+
+## Which command should I run? (troubleshooting)
+
+| Situation | Terminal | Then in Cursor |
+|-----------|----------|----------------|
+| **Never installed Midas** (your MiLlave case) | `npx github:okuzpe/midas-harness#v1.1.1 --tools=cursor` | `/midas-init` |
+| **`--update` said "no existing install"** | Same as above — **drop `--update`** | `/midas-init` |
+| Installed, first time in editor | — | `/midas-init` |
+| Installed, `setup_complete: true` | — | `/midas-status` |
+| Existing codebase, brownfield | install + | `/midas-init` (may route to `/midas-adopt`) |
+| Engine refresh only | `npx ...#v1.1.1 --update` | `/midas-update` (optional diff-confirm) |
+| **Not sure** | `npx github:okuzpe/midas-harness --diagnose` | `/midas-reconcile` |
+
+`--diagnose` and `/midas-reconcile` are **read-only** — they never write files.
 
 ## Updating
 Run the same one command with **`--update`** — it refreshes the engine, **keeps your work** (`product/`,
@@ -161,7 +178,7 @@ if needed), and bumps the `midas_version` stamp. Adapters re-render for the tool
 state file (`--tools` is **not** applied on update):
 
 ```bash
-npx github:okuzpe/midas-harness#v1.1.0 --update   # pin a version, or omit #vX.Y.Z for the latest main
+npx github:okuzpe/midas-harness#v1.1.1 --update   # pin a version, or omit #vX.Y.Z for the latest main
 ```
 
 `--update` overwrites engine files, so if you consciously **amended a rule**, review `git diff` and
@@ -221,7 +238,7 @@ npx github:okuzpe/midas-harness --uninstall
 - **Keeps your product work** (`product/`, `{runs}/`, state file) unless you pass `--purge`.
 
 For exact removal of a pinned install, uninstall with the same release:
-`npx github:okuzpe/midas-harness#v1.1.0 --uninstall`.
+`npx github:okuzpe/midas-harness#v1.1.1 --uninstall`.
 
 > Prefer to do it by hand? Midas only ever adds files — delete `.claude/`, engine dirs (`harness/` or
 > `.midas/`), `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`,

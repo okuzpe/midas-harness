@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "sequential-thinking": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+      "command": "npm",
+      "args": ["exec", "--yes", "@modelcontextprotocol/server-sequential-thinking"]
     }
   }
 }

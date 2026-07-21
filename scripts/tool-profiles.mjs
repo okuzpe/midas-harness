@@ -27,7 +27,7 @@ export const TOOL_PROFILES = {
     label: 'Claude Code',
     level: 'Full',
     agentsMd: 'via @AGENTS.md in CLAUDE.md',
-    skills: 'native (.claude/skills/) + subagents',
+    skills: 'native project law + skills + subagents',
     routing: '✅ per-agent',
     adapters: ['CLAUDE.md'],
     extras: ['.claude/agents/'],
@@ -41,14 +41,14 @@ export const TOOL_PROFILES = {
     label: 'Cursor',
     level: 'Good',
     agentsMd: 'native',
-    skills: '.claude/skills/ + .cursor/rules/ + .cursor/mcp.json',
+    skills: 'AGENTS.md + .cursor/rules/ + optional MCP sync',
     routing: 'advisory',
     adapters: ['.cursor/rules/00-midas.mdc'],
     extras: ['.cursor/mcp.json', '.claude/skills/', 'AGENTS.md'],
     onboarding: [
       'Reload Window after install (Ctrl+Shift+P → “Reload Window”).',
-      'Settings → Tools & MCP — enable `sequential-thinking` (from `.cursor/mcp.json`).',
-      'In Agent chat, type `/midas-init` once, then `/midas-status` (skills load from `.claude/skills/`).',
+      'Settings → Tools & MCP — enable `sequential-thinking` if you want the optional MCP path.',
+      'In Agent chat, type `/midas-init` once, then `/midas-status`; the generated rule file is the main contract.',
       'Use your strongest model for architecture/audits; fastest for research (see AGENTS.md).',
     ],
   },
@@ -56,19 +56,19 @@ export const TOOL_PROFILES = {
     label: 'Windsurf',
     level: 'Basic',
     agentsMd: 'native',
-    skills: '.windsurf/rules/ + AGENTS.md',
+    skills: 'AGENTS.md + .windsurf/rules/',
     routing: 'advisory',
     adapters: ['.windsurf/rules/00-midas.md'],
     extras: ['AGENTS.md'],
     onboarding: [
-      'Open the project in Windsurf — rules load from `.windsurf/rules/00-midas.md`.',
+      'Open the project in Windsurf — the generated rule file is the main surface.',
       'Re-open the editor after `/midas-doctor` re-renders adapters.',
-      'Run `/midas-init` if your host exposes Midas skills; otherwise follow AGENTS.md phase commands.',
+      'Follow AGENTS.md phase commands; skill loading is host-dependent and may be partial.',
     ],
   },
   gemini: {
     label: 'Gemini CLI',
-    level: 'Good',
+    level: 'Full',
     agentsMd: 'GEMINI.md + AGENTS.md',
     skills: 'GEMINI.md context + gemini-extension.json',
     routing: 'advisory',
@@ -82,30 +82,30 @@ export const TOOL_PROFILES = {
   },
   codex: {
     label: 'OpenAI Codex',
-    level: 'Good',
+    level: 'Full',
     agentsMd: 'native',
-    skills: '.claude/skills/ (Agent Skills) + AGENTS.md',
+    skills: 'AGENTS.md + Agent Skills where supported',
     routing: 'advisory',
     adapters: [],
-    extras: ['AGENTS.md', '.claude/skills/'],
+    extras: ['AGENTS.md'],
     onboarding: [
       'Open the project in Codex — AGENTS.md is project law (always-on).',
-      'Agent Skills in `.claude/skills/` are discovered where your Codex build supports them.',
+      'If your Codex build exposes Agent Skills, it will discover the project skills automatically.',
       'Apply routing as intent: strongest model for gates/audits, fastest for search (AGENTS.md).',
     ],
   },
   copilot: {
     label: 'GitHub Copilot',
-    level: 'Good',
+    level: 'Full',
     agentsMd: 'native',
-    skills: '.claude/skills/ (Agent Skills) + AGENTS.md',
+    skills: 'AGENTS.md + Agent Skills where supported',
     routing: 'advisory',
     adapters: [],
-    extras: ['AGENTS.md', '.claude/skills/'],
+    extras: ['AGENTS.md'],
     onboarding: [
       'Open the project in your editor with Copilot — AGENTS.md is project law.',
-      'Agent Skills in `.claude/skills/` load where Copilot Agent Skills are enabled.',
-      'Use `/midas-init` workflow via Copilot chat when skills are available.',
+      'When Copilot Agent Skills are enabled, the project skills will be discovered automatically.',
+      'Use `/midas-init` workflow via Copilot chat when the host supports the slash-command flow.',
     ],
   },
 };
@@ -124,9 +124,7 @@ export function formatSupportedToolsMarkdown() {
   const rows = TOOL_IDS.map((id) => {
     const p = TOOL_PROFILES[id];
     const name = id === 'claude-code' ? '**Claude Code**' : p.label === 'Cursor' ? 'Cursor' : p.label;
-    const boldLevel = p.level === 'Full' || id === 'cursor' || id === 'gemini' || id === 'codex'
-      ? `**${p.level}**`
-      : p.level;
+    const boldLevel = p.level === 'Full' ? `**${p.level}**` : p.level;
     return `| ${name} | ${p.agentsMd} | ${p.skills} | ${p.routing} | ${boldLevel} |`;
   });
   return `${header}\n${rows.join('\n')}`;

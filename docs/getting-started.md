@@ -33,6 +33,14 @@ bunx github:okuzpe/midas-harness
 
 All three forms run the same dependency-free Node installer.
 
+**Not sure which command to run?** (install vs update vs init)
+
+```bash
+npx github:okuzpe/midas-harness --diagnose
+```
+
+Read-only — prints install state and the single next CLI or slash command. After install, use `/midas-reconcile` in your editor for the same check.
+
 **Cursor-only** (skills + rules + MCP):
 ```bash
 npx github:okuzpe/midas-harness --tools=cursor

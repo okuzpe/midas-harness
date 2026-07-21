@@ -15,19 +15,21 @@
 
 import { cpSync, writeFileSync, existsSync, mkdirSync, rmSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const SCRIPT_DIR = dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
 const ROOT = resolve(SCRIPT_DIR, '..');
 
 // --- metadata (edit these before publishing) ---------------------------------------------------
-const OWNER = 'okuzpe'; // GitHub owner/org
-const AUTHOR = { name: 'Midas' };
-const DESCRIPTION =
+export const OWNER = 'okuzpe'; // GitHub owner/org
+export const AUTHOR = { name: 'Midas' };
+export const DESCRIPTION =
   'Portable product-development harness: drive a product from idea to shipped code through 9 audited ' +
   'phases, with cost-tiered agents, a Context7-first rule, and a whole-project adversarial debate (/midas-tribunal).';
 
 const PLUGIN_DIR = join(ROOT, 'plugins', 'midas');
 const MARKETPLACE_DIR = join(ROOT, '.claude-plugin');
+const IS_MAIN = process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url));
 
 // --- helpers -----------------------------------------------------------------------------------
 function writeJson(absFile, obj) {
@@ -35,26 +37,16 @@ function writeJson(absFile, obj) {
   writeFileSync(absFile, JSON.stringify(obj, null, 2) + '\n', 'utf8');
 }
 
-// --- 1. render plugins/midas/ from .claude/ + .mcp.json ----------------------------------------
-// Start clean so deletions in source propagate (no stale skills left behind).
-if (existsSync(PLUGIN_DIR)) rmSync(PLUGIN_DIR, { recursive: true, force: true });
-mkdirSync(PLUGIN_DIR, { recursive: true });
-
-cpSync(join(ROOT, '.claude', 'skills'), join(PLUGIN_DIR, 'skills'), { recursive: true });
-cpSync(join(ROOT, '.claude', 'agents'), join(PLUGIN_DIR, 'agents'), { recursive: true });
-if (existsSync(join(ROOT, '.mcp.json'))) {
-  cpSync(join(ROOT, '.mcp.json'), join(PLUGIN_DIR, '.mcp.json'));
+export function computePluginManifest() {
+  return {
+    name: 'midas',
+    description: DESCRIPTION,
+    author: AUTHOR,
+  };
 }
 
-writeJson(join(PLUGIN_DIR, '.claude-plugin', 'plugin.json'), {
-  name: 'midas',
-  description: DESCRIPTION,
-  author: AUTHOR,
-});
-
-writeFileSync(
-  join(PLUGIN_DIR, 'README.md'),
-  [
+export function computePluginReadme() {
+  return [
     '# midas (generated plugin)',
     '',
     '> **GENERATED — do not hand-edit.** This tree is rendered from `.claude/skills`, `.claude/agents`,',
@@ -66,27 +58,49 @@ writeFileSync(
     'do NOT auto-install project rules or `CLAUDE.md`. Run `/midas-init` once after install to write',
     '`AGENTS.md`, the `CLAUDE.md` shim, and the tool adapters into your project.',
     '',
-  ].join('\n'),
-  'utf8',
-);
+  ].join('\n');
+}
 
-// --- 2. write the repo-root marketplace.json ---------------------------------------------------
-writeJson(join(MARKETPLACE_DIR, 'marketplace.json'), {
-  $schema: 'https://anthropic.com/claude-code/marketplace.schema.json',
-  name: 'midas',
-  description: 'Marketplace for the Midas product-development harness.',
-  owner: AUTHOR,
-  plugins: [
-    {
-      name: 'midas',
-      description: DESCRIPTION,
-      author: AUTHOR,
-      source: './plugins/midas',
-      category: 'development',
-      homepage: `https://github.com/${OWNER}/midas-harness`,
-    },
-  ],
-});
+export function computeMarketplaceJson() {
+  return {
+    $schema: 'https://anthropic.com/claude-code/marketplace.schema.json',
+    name: 'midas',
+    description: 'Marketplace for the Midas product-development harness.',
+    owner: AUTHOR,
+    plugins: [
+      {
+        name: 'midas',
+        description: DESCRIPTION,
+        author: AUTHOR,
+        source: './plugins/midas',
+        category: 'development',
+        homepage: `https://github.com/${OWNER}/midas-harness`,
+      },
+    ],
+  };
+}
 
-console.log('midas build-plugin: rendered plugins/midas/ + .claude-plugin/marketplace.json');
-console.log('  owner=okuzpe; adjust author metadata in this script before publishing if desired.');
+export function renderPluginTree() {
+  // --- 1. render plugins/midas/ from .claude/ + .mcp.json --------------------------------------
+  // Start clean so deletions in source propagate (no stale skills left behind).
+  if (existsSync(PLUGIN_DIR)) rmSync(PLUGIN_DIR, { recursive: true, force: true });
+  mkdirSync(PLUGIN_DIR, { recursive: true });
+
+  cpSync(join(ROOT, '.claude', 'skills'), join(PLUGIN_DIR, 'skills'), { recursive: true });
+  cpSync(join(ROOT, '.claude', 'agents'), join(PLUGIN_DIR, 'agents'), { recursive: true });
+  if (existsSync(join(ROOT, '.mcp.json'))) {
+    cpSync(join(ROOT, '.mcp.json'), join(PLUGIN_DIR, '.mcp.json'));
+  }
+
+  writeJson(join(PLUGIN_DIR, '.claude-plugin', 'plugin.json'), computePluginManifest());
+  writeFileSync(join(PLUGIN_DIR, 'README.md'), computePluginReadme(), 'utf8');
+
+  // --- 2. write the repo-root marketplace.json -------------------------------------------------
+  writeJson(join(MARKETPLACE_DIR, 'marketplace.json'), computeMarketplaceJson());
+}
+
+if (IS_MAIN) {
+  renderPluginTree();
+  console.log('midas build-plugin: rendered plugins/midas/ + .claude-plugin/marketplace.json');
+  console.log('  owner=okuzpe; adjust author metadata in this script before publishing if desired.');
+}

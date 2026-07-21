@@ -37,6 +37,7 @@ const FILES = [
   'scripts/paths.mjs',
   'scripts/migrate-layout.mjs',
   'scripts/stage-command-table.mjs',
+  'scripts/design-system.mjs',
   'scripts/bundle.mjs',
   'gemini-extension.json',
 ];
@@ -54,6 +55,10 @@ for (const f of FILES) {
   mkdirSync(dirname(dst), { recursive: true });
   cpSync(join(ROOT, f), dst);
 }
+cpSync(
+  join(ROOT, 'create-midas', 'install-diagnose.mjs'),
+  join(TEMPLATE, 'scripts', 'install-diagnose.mjs'),
+);
 
 // Render the PROJECT AGENTS.md from the template (strip the leading {{! author note }} block; keep the
 // {{PROJECT_NAME}}/{{STACK}}/{{TOOLS}} placeholders for the installer to fill).

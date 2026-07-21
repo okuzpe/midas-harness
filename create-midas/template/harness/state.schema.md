@@ -29,7 +29,7 @@ transition after that.
 ## Schema
 
 ```yaml
-midas_version: 1.1.0           # engine version that wrote this file (for /midas-update)
+midas_version: 1.1.1           # engine version that wrote this file (for /midas-update)
 layout: hub                    # classic | compact | hub — omit = inferred from disk (see ADR-001, ADR-006)
 paths:                         # optional; installer/doctor --fix writes this for compact/hub
   engine: .midas/engine
@@ -99,7 +99,7 @@ last_tribunal: { n: "01", criticals: 0, at: 2026-06-15 }      # optional — wri
 last_verification: { n: "01", fails: 0, at: 2026-06-15 }      # optional — written by /midas-verify (informational only; never advances a gate)
 last_security: { n: "01", critical: 0, high: 0, at: 2026-06-15 } # optional — written by /midas-security-audit (informational only; never advances a gate)
 
-# Monorepo mode (optional — written by /midas-monorepo)
+# Monorepo mode (optional — written by /midas-init --monorepo or deprecated /midas-monorepo)
 packages:
   - path: apps/web
     name: web
@@ -126,7 +126,7 @@ last_capture: { at: 2026-06-15, kind: rule, target: harness/rules/naming.md }
    gates, routing, tool/MCP lists, and short pointers like the current sprint id or `last_audit`).
    Long-form detail (sprint bodies, audit findings, package inventories, verification logs) lives in
    `{product}/*` (resolved via `paths.product`) and `{runs}/*`; `state.yaml` references them by path.
-   Do not let it grow into a data dump.
+   Structured gate metadata lives in `paths.engine/gates.json`. Do not let `state.yaml` grow into a data dump.
 5. **`execution_mode` is orthogonal to `cost_profile`.** It never changes *which* Claude tier a
    decision uses, only *where* `build`/`scout` may run. `orchestrate` gate verdicts (Phase 1/3/4/8,
    code/security review) are Claude-cloud in **every** mode; under `local` they are recorded

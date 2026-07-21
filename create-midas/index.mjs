@@ -10,11 +10,12 @@
 // writes a default harness/state.yaml so the project is immediately usable. The one-time guided setup
 // is `/midas-init` (run it in your editor). Dependency-free (Node 16.7+). It only adds files.
 
-import { readdirSync, readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync, rmSync, rmdirSync, renameSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync, cpSync, rmSync, rmdirSync, renameSync, mkdtempSync, statSync } from 'node:fs';
 import { dirname, basename, join, resolve, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { createInterface } from 'node:readline/promises';
+import { createInterface } from 'node:readline';
 import { stdin as input, stdout as output } from 'node:process';
+import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -32,6 +33,7 @@ if (args.includes('-h') || args.includes('--help')) {
 const update = args.includes('--update'); // refresh an existing install: overwrite engine + bump the version stamp
 const force = args.includes('--force') || update;
 const uninstall = args.includes('--uninstall');
+const diagnose = args.includes('--diagnose');
 const dryRun = args.includes('--dry-run');
 const purge = args.includes('--purge');
 const layoutArg = args.find((a) => a.startsWith('--layout='));
@@ -43,6 +45,19 @@ if (installLayoutFlag && !['classic', 'compact', 'hub'].includes(installLayoutFl
 const targetArg = args.find((a) => !a.startsWith('-')) || '.';
 const TARGET = resolve(process.cwd(), targetArg);
 const NAME = basename(TARGET).toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/(^-|-$)/g, '') || 'project';
+const TEST_FAIL_STEP = process.env.MIDAS_TEST_FAIL_STEP || '';
+
+if (diagnose) {
+  const { runDiagnoseCli } = await import('./install-diagnose.mjs');
+  let bundledVersion = '1.1.1';
+  try {
+    bundledVersion = readFileSync(join(TEMPLATE, 'harness', 'VERSION'), 'utf8').trim();
+  } catch {
+    /* template VERSION optional during dev */
+  }
+  const installCmd = `npx github:okuzpe/midas-harness#v${bundledVersion} --tools=cursor`;
+  process.exit(runDiagnoseCli(TARGET, { installCmd }));
+}
 
 if (!existsSync(TEMPLATE)) {
   console.error('create-midas: bundled template is missing — please reinstall the package.');
@@ -63,10 +78,11 @@ if (update && !hasMidasInstall(TARGET)) {
   console.error(`create-midas: --update found no existing Midas install in ${TARGET}`);
   console.error('  (no harness/ or .midas/ engine stamp here). Run --update from the project root,');
   console.error('  or drop --update to install fresh. Nothing was written.');
+  console.error('  Tip: npx github:okuzpe/midas-harness --diagnose   (shows the exact next command)');
   process.exit(1);
 }
 // Guard 2 — a fresh install inside a directory that is ALREADY under a Midas project creates a
-// duplicate, nested harness. Refuse unless the user truly means it (--force; or use /midas-monorepo).
+// duplicate, nested harness. Refuse unless the user truly means it (--force; or use /midas-init --monorepo).
 if (!update && !force) {
   const ancestor = findAncestorMidasRoot(TARGET);
   if (ancestor) {
@@ -79,59 +95,80 @@ if (!update && !force) {
 
 const written = [];
 const skipped = [];
+const rollbackSession = beginRollbackSession(TARGET, installRollbackPaths());
 
 const installLayout = resolveInstallLayout();
-
-mkdirSync(TARGET, { recursive: true });
-copyTree(TEMPLATE, TARGET);
-
-if (installLayout === 'hub') {
-  applyHubLayout();
-} else if (installLayout === 'compact') {
-  applyCompactLayout();
-}
-
-const paths = await loadPaths(TARGET);
-
-// Fresh installs honour --tools (or an interactive prompt). --update keeps the existing state.yaml tools.
-const selectedTools = update ? null : await resolveSelectedTools();
-
-const stateMode = writeState(selectedTools, paths);
-
-// Generate tool adapters after state.yaml exists so render-adapters can read tools:.
+let paths;
+let selectedTools;
+let stateMode;
 let rendered = false;
+let verifyResult = null;
+let updatedTo = null;
+let installError = null;
 try {
-  const renderPath = join(TARGET, paths.scripts, 'render-adapters.mjs');
-  const mod = await import(pathToFileURL(renderPath).href);
-  if (typeof mod.renderAdapters === 'function') {
-    mod.renderAdapters(TARGET);
-    rendered = true;
-  }
-} catch (err) {
-  console.error('create-midas: adapter render failed:', err.message || err);
-}
+  mkdirSync(TARGET, { recursive: true });
+  copyTree(TEMPLATE, TARGET);
+  maybeFail('after-copy-tree');
 
-fillAgents(selectedTools, paths);
-ensureGeminiExtension(selectedTools || readToolsFromState(paths) || DEFAULT_TOOLS, paths);
-{
-  const mcpSyncPath = join(TARGET, paths.scripts, 'mcp-cursor-sync.mjs');
-  if (existsSync(mcpSyncPath)) {
-    const { fixMcpFileForWindows, syncCursorMcp } = await import(pathToFileURL(mcpSyncPath).href);
-    const rootMcp = join(TARGET, '.mcp.json');
-    if (existsSync(rootMcp) && (written.includes('.mcp.json') || update)) {
-      if (fixMcpFileForWindows(rootMcp)) written.push('.mcp.json');
+  if (installLayout === 'hub') {
+    applyHubLayout();
+  } else if (installLayout === 'compact') {
+    applyCompactLayout();
+  }
+  maybeFail('after-layout');
+
+  paths = await loadPaths(TARGET);
+
+  // Fresh installs honour --tools (or an interactive prompt). --update keeps the existing state.yaml tools.
+  selectedTools = update ? null : await resolveSelectedTools();
+
+  stateMode = writeState(selectedTools, paths);
+  maybeFail('after-state');
+
+  // Generate tool adapters after state.yaml exists so render-adapters can read tools:.
+  try {
+    const renderPath = join(TARGET, paths.scripts, 'render-adapters.mjs');
+    const mod = await import(pathToFileURL(renderPath).href);
+    if (typeof mod.renderAdapters === 'function') {
+      mod.renderAdapters(TARGET);
+      rendered = true;
     }
-    const toolList = selectedTools || readToolsFromState(paths) || DEFAULT_TOOLS;
-    const r = syncCursorMcp(TARGET, toolList, { wrapRoot: written.includes('.mcp.json') || update });
-    if (r.synced && !written.includes('.cursor/mcp.json')) written.push('.cursor/mcp.json');
+  } catch (err) {
+    console.error('create-midas: adapter render failed:', err.message || err);
   }
+
+  fillAgents(selectedTools, paths);
+  ensureGeminiExtension(selectedTools || readToolsFromState(paths) || DEFAULT_TOOLS, paths);
+  {
+    const mcpSyncPath = join(TARGET, paths.scripts, 'mcp-cursor-sync.mjs');
+    if (existsSync(mcpSyncPath)) {
+      const { fixMcpFileForWindows, syncCursorMcp } = await import(pathToFileURL(mcpSyncPath).href);
+      const rootMcp = join(TARGET, '.mcp.json');
+      if (existsSync(rootMcp) && (written.includes('.mcp.json') || update)) {
+        if (fixMcpFileForWindows(rootMcp)) written.push('.mcp.json');
+      }
+      const toolList = selectedTools || readToolsFromState(paths) || DEFAULT_TOOLS;
+      const r = syncCursorMcp(TARGET, toolList, { wrapRoot: written.includes('.mcp.json') || update });
+      if (r.synced && !written.includes('.cursor/mcp.json')) written.push('.cursor/mcp.json');
+    }
+  }
+  await ensureGitignore(paths);
+
+  verifyResult = rendered ? verifyInstall(paths) : null;
+
+  updatedTo = update ? bumpVersionStamp(paths) : null;
+  await report(selectedTools, paths);
+} catch (err) {
+  installError = err;
+  rollbackInstall(rollbackSession);
+} finally {
+  if (rollbackSession) discardRollbackSession(rollbackSession);
 }
-await ensureGitignore(paths);
 
-const verifyResult = rendered ? verifyInstall(paths) : null;
-
-const updatedTo = update ? bumpVersionStamp(paths) : null;
-await report(selectedTools, paths);
+if (installError) {
+  console.error(`create-midas: install failed; restored previous files — ${installError.message || installError}`);
+  process.exit(1);
+}
 
 if (verifyResult && !verifyResult.ok) process.exit(1);
 
@@ -157,6 +194,53 @@ function copyTree(srcDir, dstDir) {
       copyFileSync(src, dst);
       written.push(rel);
     }
+  }
+}
+
+function installRollbackPaths() {
+  return ['.claude', '.cursor', '.windsurf', 'harness', 'scripts', '.midas', 'product', 'AGENTS.md', 'CLAUDE.md', 'GEMINI.md', '.mcp.json', '.gitignore', 'gemini-extension.json', 'docs/agents-and-models.md'];
+}
+
+function beginRollbackSession(root, relPaths) {
+  const backupRoot = mkdtempSync(join(tmpdir(), 'midas-install-backup-'));
+  const entries = [];
+  for (const rel of relPaths) {
+    const abs = join(root, rel);
+    if (!existsSync(abs)) continue;
+    const info = statSync(abs);
+    const kind = info.isDirectory() ? 'dir' : 'file';
+    const backupAbs = join(backupRoot, rel);
+    mkdirSync(dirname(backupAbs), { recursive: true });
+    cpSync(abs, backupAbs, { recursive: kind === 'dir', force: true, preserveTimestamps: true });
+    entries.push({ rel, kind });
+  }
+  return { root, backupRoot, relPaths: [...relPaths], entries };
+}
+
+function rollbackInstall(session) {
+  if (!session) return;
+  const cleanupPaths = [...new Set(session.relPaths)].sort((a, b) => b.length - a.length);
+  for (const rel of cleanupPaths) {
+    rmSync(join(session.root, rel), { recursive: true, force: true });
+  }
+  for (const { rel, kind } of session.entries) {
+    const backupAbs = join(session.backupRoot, rel);
+    if (!existsSync(backupAbs)) continue;
+    const dst = join(session.root, rel);
+    mkdirSync(dirname(dst), { recursive: true });
+    cpSync(backupAbs, dst, { recursive: kind === 'dir', force: true, preserveTimestamps: true });
+  }
+  rmSync(session.backupRoot, { recursive: true, force: true });
+}
+
+function discardRollbackSession(session) {
+  if (!session) return;
+  rmSync(session.backupRoot, { recursive: true, force: true });
+}
+
+function maybeFail(step) {
+  if (TEST_FAIL_STEP === step) {
+    throw new Error(`MIDAS_TEST_FAIL_STEP=${step}`);
   }
 }
 
@@ -359,7 +443,8 @@ async function promptToolsInteractive() {
       console.log('    a. all adapter tools (default)');
     }
 
-    const answer = await rl.question(
+    const answer = await askQuestion(
+      rl,
       '\n  Numbers/names (comma-separated), preset (c|s|a), or Enter for all: ',
     );
     const trimmed = answer.trim();
@@ -387,6 +472,12 @@ async function promptToolsInteractive() {
   } finally {
     rl.close();
   }
+}
+
+function askQuestion(rl, prompt) {
+  return new Promise((resolve) => {
+    rl.question(prompt, resolve);
+  });
 }
 
 
@@ -703,14 +794,14 @@ function printHelp() {
 Install:
   npx github:okuzpe/midas-harness          into the current directory (from GitHub)
   npx github:okuzpe/midas-harness my-app   into ./my-app
-  npx github:okuzpe/midas-harness#v1.1.0   pin a release for a reproducible install
+  npx github:okuzpe/midas-harness#v1.1.1   pin a release for a reproducible install
   npx github:okuzpe/midas-harness --layout=hub   explicit hub (default when flag omitted)
   npx github:okuzpe/midas-harness --layout=classic   legacy layout (harness/ at repo root)
   npx github:okuzpe/midas-harness --layout=compact   engine under .midas/, product at root (ADR-001)
 
 Update an existing install (overwrites the engine, KEEPS your work, bumps the version stamp):
   npx github:okuzpe/midas-harness --update             refresh to the latest (main)
-  npx github:okuzpe/midas-harness#v1.1.0 --update      refresh to a pinned release
+  npx github:okuzpe/midas-harness#v1.1.1 --update      refresh to a pinned release
 
 Uninstall (surgical — removes only Midas's files, keeps your work):
   npx github:okuzpe/midas-harness --uninstall             remove the engine, keep product/ + runs + state.yaml
@@ -728,9 +819,11 @@ Options:
   --uninstall  remove Midas instead of installing it
   --dry-run    (uninstall) print the plan without deleting anything
   --purge      (uninstall) also delete your product artifacts and audit trail
+  --diagnose   read-only — print install state and the single next command (no writes)
   -h, --help   show this help
 
 After install, open the project in your chosen tool and run /midas-init (one-time setup), then /midas-status.
+Not sure? Run: npx github:okuzpe/midas-harness --diagnose
 Cursor:           npx github:okuzpe/midas-harness --tools=cursor
 Compact layout:   npx github:okuzpe/midas-harness --layout=compact --tools=cursor
 Classic layout:   npx github:okuzpe/midas-harness --layout=classic --tools=cursor

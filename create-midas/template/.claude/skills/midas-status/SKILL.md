@@ -15,9 +15,33 @@ recommended-model: claude-haiku-4-5
 A cheap, **read-only** status check. It never writes, never advances state, and never runs a gate to
 completion — it reports the truth already on disk. Safe to run at any time, including mid-phase.
 
+## Command router (when the user is lost)
+
+| Situation | Command |
+|---|---|
+| Not installed / wrong cwd / version behind | `/midas-reconcile` |
+| Where am I in the pipeline? | `/midas-status` (this skill) |
+| Resuming after a break (>7 days or mid-phase) | `/midas-recall` |
+| Edited `conventions.md` or rules | `/midas-doctor` |
+| Edited engine skills / installer / VERSION | `/midas-align` |
+| Monorepo needs nested `AGENTS.md` | `/midas-init --monorepo` |
+| Sprint UI proof before close | `/midas-verify` |
+| Quick branch/PR smoke test | `/midas-qa` |
+| Dead code / ledger drift | `/midas-sweep` |
+| Export/import project knowledge | `node <paths.scripts>/bundle.mjs` |
+
+Audit roles (shared checklists: `<paths.engine>/templates/audit-checklists.md`):
+
+| Need | Command | Gate? |
+|---|---|---|
+| Sprint conformance | `/close-sprint` | **Yes** |
+| Were decisions right? | `/midas-tribunal` | No |
+| Deep security scan | `/midas-security-audit` | No |
+
 ## Steps
 
-1. **Read the state file** at `paths.state`. If it is missing, report that Midas is not installed → `/midas-init`.
+1. **Read the state file** at `paths.state`. If it is missing, report that Midas is not installed →
+   run `npx github:okuzpe/midas-harness --diagnose` or `/midas-reconcile` (or install per INSTALL.md).
    **If it exists but `setup_complete` is not `true`,** the single next action is **`/midas-init`** (finish
    the one-time setup) regardless of `stage` — say so and stop. If it exists but does not parse, say so
    plainly and point at `/midas-doctor`.

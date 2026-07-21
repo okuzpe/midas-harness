@@ -9,16 +9,23 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+---
+
+## [1.1.1] — 2026-07-08
+
 ### Added
-- **Agent-driven QA (web + mobile)** — `/midas-verify` prefers `agent-browser` CLI; device profiles in verify records; Maestro MCP for native (`--scope mobile|all`); new `/midas-qa` for ad-hoc branch QA (`{runs}/qa/`).
-- **Architecture template** — `## Client` section for verification tooling per surface.
+- **`--diagnose`** installer flag and **`/midas-reconcile`** skill — read-only "which command next?" when install vs update vs init is unclear.
+- **`harness/templates/audit-checklists.md`** — shared fragments for `/close-sprint`, `/midas-tribunal`, `/midas-security-audit` (ADR-004).
+- **`harness/pipeline/monorepo-wiring.md`** — extracted monorepo procedure; `/midas-monorepo` is now a thin alias.
+
+### Fixed
+- **`create-midas --diagnose`** — flag parsing ran before `diagnose`/`TARGET` were initialized (TDZ crash).
+- **`create-midas` npm pack** — `install-diagnose.mjs` included in published `files`.
 
 ### Changed
-- **`/midas-verify`** — `mcp-required` removed; `mcp-recommended: [playwright, chrome-devtools, maestro]`; single `verify-NN.md` with Web, Device profiles, and Mobile sections.
-- **`harness/rules/verification.md`** — rung 4 covers agent-browser, mobile profiles, and Maestro native paths.
-- **`harness/rules/testing.md`** — UI E2E may use verify records instead of committed `e2e/` folders.
-- **`midas-init`** — recommends agent-browser; offers Maestro for native clients.
-- **`mcp.json.tmpl`** — optional Maestro MCP block; `maestro` in `OPTIONAL_MCP_IDS`.
+- Audit skills (`close-sprint`, `midas-tribunal`, `midas-security-audit`) reference shared checklist template.
+- **`midas-init`** — monorepo path delegates to `monorepo-wiring.md`.
+- **`INSTALL.md`**, **`docs/getting-started.md`** — troubleshooting via `--diagnose` / `/midas-reconcile`.
 
 ---
 

@@ -16,6 +16,9 @@ argument-hint: "[--dry-run]"
 
 > **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
 
+> **Wrong command?** If install vs update vs init is unclear, run `npx github:okuzpe/midas-harness --diagnose`
+> (terminal, works even before Midas is installed) or `/midas-reconcile` after install — both are read-only.
+
 Bring an existing Midas install up to the current engine, **safely**. Read `layout` + `paths` from **`paths.state`**. Substitute `{runs}/` → `paths.runs`, `{product}/` → `paths.product` before any path below.
 
 **Optional layout migration (classic → compact):** if the user asks to declutter the root, run `node <paths.scripts>/migrate-layout.mjs --dry-run` first, show the table, confirm, then `--apply`. This is separate from a version bump — never run silently during `--update`.

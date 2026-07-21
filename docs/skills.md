@@ -26,22 +26,51 @@ where supported. See the [tools matrix](https://github.com/okuzpe/midas-harness#
 
 | Command | Role | One-line description | Tier |
 |---|---|---|---|
-| `/midas-init` | Setup | Adaptive intake — scans the project (code + README/docs), classifies maturity (E0–E3), pre-fills what it can infer, asks only the gaps, places you at the right phase. Run once per project. | orchestrate |
-| `/midas-status` | Navigation | Read-only — print current phase, gate status, and single next action. | scout |
+| `/midas-init` | Setup | Adaptive intake — scans the project, classifies maturity (E0–E3), pre-fills artifacts, places you at the right phase. Optional **`--monorepo`** wires nested `AGENTS.md` per package (Phase F). | orchestrate |
+| `/midas-status` | Navigation | Read-only router — phase, gate status, single next action; includes a when-to-use-which-command table. | scout |
+| `/midas-reconcile` | Navigation | Read-only — install/setup/version/cwd check; single next CLI or slash command. | scout |
 | `/midas-recall` | Navigation | Read-only context pack — ~15 priority paths + brief for resuming mid-phase/sprint. | scout |
 | `/midas-progress` | Phase 7 | Write STM — update `{runs}/sprints/NN-progress.md` after tasks (Done/Learned/Next). | build |
 | `/midas-adopt` | Brownfield | Adopt Midas into an existing project — inventory, reverse-engineer rules, baseline audit. | orchestrate |
 | `/midas-doctor` | Maintenance | Re-derive generated adapters from `harness/conventions.md`, diff against disk, re-render. | build |
 | `/midas-align` | Maintenance | Full propagation pass — matrix + `npm run align` / doctor ladder + gap report (sources → bundles → versions → docs). | build |
 | `/midas-tribunal` | Audit | Whole-project adversarial debate — Defense vs Prosecution vs Catfish; Opus judges per claim. | orchestrate |
-| `/midas-monorepo` | Scale | Set Midas up across a monorepo — nested `AGENTS.md` per package, per-package rules. | orchestrate |
+| `/midas-monorepo` | Scale | **Deprecated** — use `/midas-init --monorepo`. Alias kept for backward compatibility. | orchestrate |
 | `/midas-verify` | Audit | Sprint UI verification — **agent-browser** CLI (preferred) or Playwright MCP; Chrome DevTools runtime health; **Maestro MCP** for native (`--scope web\|mobile\|all`); device profiles; single `verify-NN.md` record (no `e2e/` in product). | build |
 | `/midas-qa` | Phase 7 | Ad-hoc branch/PR QA — diff → routes; agent-browser / Maestro; optional `{runs}/qa/` record (non-gate). | build |
 | `/midas-security-audit` | Audit | Deep security audit — OWASP ASVS 5.0 + Top 10 + LLM/Agentic Top 10, STRIDE threat model, runs Semgrep/SCA/gitleaks (recommends if absent), freezes a ranked findings report. Non-advancing. | orchestrate |
 | `/midas-sweep` | Maintenance | Hygiene & dead-flow detection — orphan code, unreachable routes, stale docs, playbook/zombie triggers, `features.json` drift; optional `--fix` with explicit confirm. Freezes to `.harness/sweeps/`. | build |
 | `/midas-update` | Maintenance | Migrate an install to the current engine — dry-run + diff-confirm, bump version stamp. | build |
 | `/midas-capture` | Learning | Crystallize a recurring request/correction into the right artifact (rule / playbook / convention) via a rubric. The agent proposes it on ~2-3 repeats (asks first); also invokable manually. | build |
-| `/midas-bundle` | Maintenance | Export/import portable JSON — product knowledge, stack rules, playbooks, frozen evidence, MCP/enforcement config (no secrets); seed projects or share subsets. | build |
+| `/midas-bundle` | Maintenance | Export/import portable JSON via `node scripts/bundle.mjs` — product knowledge, rules, evidence (no secrets). Skill wraps the script for agent-guided subset export. | build |
+
+---
+
+## Which command when? (router)
+
+Use **`/midas-status`** for the single next lifecycle step. Use this table when you are unsure *which*
+skill fits:
+
+| Situation | Command |
+|---|---|
+| Install confusion (missing, wrong cwd, version behind) | `/midas-reconcile` |
+| Where am I in the pipeline? | `/midas-status` |
+| Resuming after a break | `/midas-recall` |
+| One-time setup (+ optional monorepo) | `/midas-init` [`--monorepo`] |
+| Edited `harness/conventions.md` or rules | `/midas-doctor` |
+| Edited engine / installer / skills | `/midas-align` |
+| Sprint UI proof (gate evidence) | `/midas-verify` |
+| Quick PR/branch smoke test | `/midas-qa` |
+| Dead code / ledger drift | `/midas-sweep` |
+| Export/import knowledge | `node scripts/bundle.mjs` |
+
+**Audits** (shared fragments: `harness/templates/audit-checklists.md`):
+
+| Need | Command | Advances gates? |
+|---|---|---|
+| Sprint conformance (Phase 8) | `/close-sprint` | **Yes** |
+| Were decisions right? | `/midas-tribunal` | No |
+| Deep security (OWASP/STRIDE) | `/midas-security-audit` | No |
 
 ---
 

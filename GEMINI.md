@@ -216,8 +216,8 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** a link-checker over changed docs returns no 4xx/5xx; a broken link is a fail.
   - **CHECK:** `manual:` cross-read changed docs against `harness/conventions.md` + rules; a contradiction is a fail (harness file wins).
 - **Rule: Enforcement state is recorded and honest (always-on)** (`enforcement-state.md`)
-  - **CHECK:** `node <paths.scripts>/doctor.mjs <project>` reports no `enforcement` **warn** — every named config
-  - **CHECK:** when a stack rule's CHECK names a linter/scanner as its machine-readable form, a matching
+  - **CHECK:** `node <paths.scripts>/doctor.mjs <project>` reports no `enforcement` **warn** — every named config file exists on disk. Any `installed: false` is reported as an advisory `ok` note, not a fail.
+  - **CHECK:** when a stack rule's CHECK names a linter/scanner as its machine-readable form, a matching `enforcement:` entry exists and its config file is present. *(manual.)*
 - **Rule: Git commits (always-on)** (`git-commits.md`)
   - **CHECK:** `git log <base>..HEAD --format=%s | grep -vE "^(feat|fix|docs|refactor|test|chore|perf|style|ci)(\(.+\))?!?: .{1,62}$"` → empty.
   - **CHECK:** same `git log` scan as above; any subject whose type is outside the allowed set is a fail.
@@ -243,11 +243,11 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` for each `{product}/playbooks/*.md` cited in the sprint or architecture, grep `<src-root>/` for the trigger predicate; a playbook with zero matches and no `## Retired` note in the sweep or audit is a warn (fail if the sprint added or edited that playbook without fixing the trigger).
   - **CHECK:** `manual:` rows in `{product}/open-questions.md` marked OPEN that are answered in `{product}/idea.md` are a fail; internal markdown links in changed `{product}/*` files that 404 on disk are a fail (grep `](` targets against the tree).
 - **Rule: Cost-aware model routing (always-on)** (`model-routing.md`)
-  - **CHECK:** A high-stakes gate verdict or audit (Phase 1/3/4/8, code-review, security-review) is
-  - **CHECK:** *(manual)* Under any `execution_mode`, a binding gate/audit/verify verdict header (Phase
-  - **CHECK:** Doc fetches and file/status extraction are delegated to `midas-scout` (or `Explore`),
-  - **CHECK:** Each multi-tier phase delegates its produce/fetch legs to `midas-builder` / `midas-scout`
-  - **CHECK:** `paths.state -> routing` ids are all known model ids and, under
+  - **CHECK:** A high-stakes gate verdict or audit (Phase 1/3/4/8, code-review, security-review) is produced **via the `midas-orchestrator` sub-agent** — its pinned `model:` is the provenance. The model id written into an audit/verify/tribunal record header is **provenance-by-delegation, not self-report**; a record produced on the inherited session model must not claim a tier it did not run on.
+  - **CHECK:** *(manual)* Under any `execution_mode`, a binding gate/audit/verify verdict header (Phase 1/3/4/8, code-review, security-review) names a **Claude `orchestrate`** model as provenance; a local model id in a binding verdict header is a fail — it may appear only on a record explicitly marked `un-attested`.
+  - **CHECK:** Doc fetches and file/status extraction are delegated to `midas-scout` (or `Explore`), not run on the orchestrate tier. *(manual: a phase whose only work is fetch/extract names a scout delegation in its SKILL body.)*
+  - **CHECK:** Each multi-tier phase delegates its produce/fetch legs to `midas-builder` / `midas-scout` in the SKILL body — `harness-tier` is the dispatch tier only, never the whole cost story. *(manual.)*
+  - **CHECK:** `paths.state -> routing` ids are all known model ids and, under `cost_profile: balanced`, **equal the pinned `model:` of the three first-party agents**. Run `node <paths.scripts>/doctor.mjs <project>`; a `routing:*` warning is a fail. *(The engine enforces the same reconciliation against the example state in `scripts/test.mjs`.)*
   - **CHECK:** *(manual)* a latency-tolerant fan-out of ≥3 same-shaped calls uses batching, not a serial loop.
 - **Rule: Naming (always-on)** (`naming.md`)
   - **CHECK:** `git diff --name-only <base>..HEAD` shows no path segment matching `[A-Z _]` (outside framework-mandated names like `README`, `Dockerfile`).

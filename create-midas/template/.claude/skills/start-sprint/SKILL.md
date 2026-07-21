@@ -70,6 +70,7 @@ to satisfy. Update **`paths.state`** (read-modify-write): set the sprint `status
 ### 6. Hand off to implementation
 Implementation runs on the **build** tier. Print: *"👉 Optional: `/midas-recall sprint` for a context pack
 before coding (scout tier; read-only)."* — do **not** re-load the full rule set here; recall delegates to scout.
+During long sprints, remind: *"👉 `/midas-progress` after significant tasks (STM in `{runs}/sprints/NN-progress.md`)."*
 Before writing any third-party code, follow
 `<paths.engine>/rules/context7-usage.md` (`resolve-library-id` → `get-library-docs` at the pinned version).
 **If a task matches a `{product}/playbooks/*` recipe** (one of the project's repeated procedures), the
