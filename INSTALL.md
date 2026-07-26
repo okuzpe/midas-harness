@@ -190,12 +190,12 @@ Phase 8 (`/close-sprint`) grades `harness/rules/security.md`: `.gitignore` must 
 
 | Situation | Terminal | Then in Cursor |
 |-----------|----------|----------------|
-| **Never installed Midas** (your MiLlave case) | `npx github:okuzpe/midas-harness#v1.1.3 --tools=cursor` | `/midas-init` |
+| **Never installed Midas** (your MiLlave case) | `npx github:okuzpe/midas-harness#v1.1.4 --tools=cursor` | `/midas-init` |
 | **`--update` said "no existing install"** | Same as above — **drop `--update`** | `/midas-init` |
 | Installed, first time in editor | — | `/midas-init` |
 | Installed, `setup_complete: true` | — | `/midas-status` |
 | Existing codebase, brownfield | install + | `/midas-init` (may route to `/midas-adopt`) |
-| Engine refresh only | `npx ...#v1.1.3 --update` | `/midas-update` (optional diff-confirm) |
+| Engine refresh only | `npx ...#v1.1.4 --update` | `/midas-update` (optional diff-confirm) |
 | **Not sure** | `npx github:okuzpe/midas-harness --diagnose` | `/midas-reconcile` |
 
 `--diagnose` and `/midas-reconcile` are **read-only** — they never write files.
@@ -208,7 +208,7 @@ if needed), and bumps the `midas_version` stamp. Adapters re-render for the tool
 state file (`--tools` is **not** applied on update):
 
 ```bash
-npx github:okuzpe/midas-harness#v1.1.3 --update   # pin a version, or omit #vX.Y.Z for the latest main
+npx github:okuzpe/midas-harness#v1.1.4 --update   # pin a version, or omit #vX.Y.Z for the latest main
 ```
 
 `--update` overwrites engine files, so if you consciously **amended a rule**, review `git diff` and
@@ -268,7 +268,7 @@ npx github:okuzpe/midas-harness --uninstall
 - **Keeps your product work** (`product/`, `{runs}/`, state file) unless you pass `--purge`.
 
 For exact removal of a pinned install, uninstall with the same release:
-`npx github:okuzpe/midas-harness#v1.1.3 --uninstall`.
+`npx github:okuzpe/midas-harness#v1.1.4 --uninstall`.
 
 > Prefer to do it by hand? Midas only ever adds files — delete `.claude/`, engine dirs (`harness/` or
 > `.midas/`), `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`,

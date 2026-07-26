@@ -11,6 +11,11 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [1.1.4] — 2026-07-26
+
+- Fixed package installs for `npx github:okuzpe/midas-harness#v1.1.3` by resolving model profiles from files bundled inside the published package.
+- Updated install pins, docs, and release metadata to `v1.1.4`.
+
 ## [1.1.3] — 2026-07-26
 
 - Deterministic `checks.json` / `gates.json` now use source digests instead of clock timestamps.
@@ -1088,7 +1093,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v1.1.3...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v1.1.4...HEAD
+[1.1.4]: https://github.com/okuzpe/midas-harness/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/okuzpe/midas-harness/compare/v1.1.2...v1.1.3
 [1.0.0]: https://github.com/okuzpe/midas-harness/compare/v0.5.30...v1.0.0
 [0.5.30]: https://github.com/okuzpe/midas-harness/compare/v0.5.29...v0.5.30

@@ -42,6 +42,6 @@ them.
 - `--purge` — with `--uninstall`, also remove generated adapters and `.harness/` caches.
 - `-h`, `--help` — show usage.
 
-Pin a release: `npx github:okuzpe/midas-harness#v1.1.3`
+Pin a release: `npx github:okuzpe/midas-harness#v1.1.4`
 
 Apache-2.0. Issues and docs: <https://github.com/okuzpe/midas-harness>.

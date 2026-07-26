@@ -178,7 +178,7 @@ A runnable Sprint-1 vertical slice — auth, task CRUD, middleware, board stub +
 artifact on disk. See [`examples/taskpilot/`](./examples/taskpilot/).
 
 ## Status
-**v1.1.3 — deterministic registries, portable skills, and routing cleanup.** Most complete on **Claude Code**
+**v1.1.4 — hotfix for package installs: the updater now resolves model profiles from bundled files.** Most complete on **Claude Code**
 (see [Honest scope](#supported-tools)). Details: [`CHANGELOG.md`](./CHANGELOG.md) ·
 [`VERSIONING.md`](./VERSIONING.md) · [docs site](https://okuzpe.github.io/midas-harness/).
 
