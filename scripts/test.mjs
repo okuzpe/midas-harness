@@ -14,7 +14,7 @@ import { execSync, spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { computeAdapters, computeChecksIndex, computeGatesIndex, DEFAULT_ADAPTER_TOOLS, resolveAdapterTools } from './render-adapters.mjs';
 import { evaluateMcpDeclaredVsWired, evaluateSkillMcpRequired, OPTIONAL_MCP_IDS } from './mcp-drift.mjs';
-import { ensureMidasGitignore, GITIGNORE_BEGIN, GITIGNORE_END } from './gitignore-merge.mjs';
+import { ensureMidasGitignore, GITIGNORE_BEGIN, GITIGNORE_END, auditGitignore } from './gitignore-merge.mjs';
 import { detectLayout, resolvePaths, MIGRATION_MAP, MIGRATION_MAP_HUB, RUNS_SUBDIRS, hubPathsYaml, resolveProjectRootFromScript } from './paths.mjs';
 import { pathToFileURL } from 'node:url';
 import { exportBundle, applyImport, checkMcpSecrets, ENGINE_BASE_RULES, toCanonical, fromCanonical, planImport } from './bundle.mjs';
@@ -616,6 +616,8 @@ check('mcp:installer-preserves-user-config', /rel === '\.mcp\.json'/.test(instal
 if (existsSync(join(ROOT, 'examples', 'taskpilot'))) {
   const tpOut = doctorOutput('examples/taskpilot');
   check('behavioral:mcp-drift-taskpilot', /ok\s+mcp:declared-vs-wired/.test(tpOut), 'taskpilot .mcp.json should satisfy declared MCPs');
+  const tpGi = auditGitignore(join(ROOT, 'examples', 'taskpilot'));
+  check('taskpilot:gitignore-audit', tpGi.status === 'ok', tpGi.note);
 }
 
 // --- O. tool selection + tool-aware adapter render ----------------------------------------------
@@ -652,8 +654,13 @@ if (existsSync(snippetPath)) {
   }
   check('gitignore:snippet:volatile-hash', /\.harness\/\*\.hash/.test(snippet));
   check('gitignore:snippet:node-modules', /\bnode_modules\//.test(snippet));
+  check('gitignore:snippet:coverage', /\bcoverage\//.test(snippet));
+  check('gitignore:snippet:playwright-report', /playwright-report\//.test(snippet));
+  check('gitignore:snippet:status-html', /\bstatus\.html\b/.test(snippet));
 }
 check('gitignore:merge-module', existsSync(join(ROOT, 'scripts', 'gitignore-merge.mjs')));
+check('gitignore:audit-export', /export function auditGitignore/.test(readFileSync(join(ROOT, 'scripts', 'gitignore-merge.mjs'), 'utf8')));
+check('doctor:gitignore-check', /gitignore:midas-block/.test(readFileSync(join(ROOT, 'scripts', 'doctor.mjs'), 'utf8')));
 {
   const giRoot = mkdtempSync(join(tmpdir(), 'midas-gi-'));
   const tplDir = join(giRoot, 'harness', 'templates');

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-07-21",
+  "updated": "2026-07-26",
   "source": "harness/methodology.md",
   "gates": [
     {
@@ -10,7 +10,7 @@
       "severity": "high",
       "state": "active",
       "owner": "orchestrate",
-      "recorded_at": "2026-07-21",
+      "recorded_at": "2026-07-26",
       "summary": "Preserve the raw idea, one-line pitch, and project mode.",
       "evidence_required": [
         "{product}/idea.md",
@@ -24,7 +24,7 @@
       "severity": "high",
       "state": "active",
       "owner": "orchestrate",
-      "recorded_at": "2026-07-21",
+      "recorded_at": "2026-07-26",
       "summary": "Close blocking questions and capture the project context.",
       "evidence_required": [
         "{product}/open-questions.md",
@@ -38,7 +38,7 @@
       "severity": "high",
       "state": "active",
       "owner": "orchestrate",
-      "recorded_at": "2026-07-21",
+      "recorded_at": "2026-07-26",
       "summary": "Collect cited competitor evidence and define the market shape.",
       "evidence_required": [
         "{product}/market.md",
@@ -52,7 +52,7 @@
       "severity": "high",
       "state": "active",
       "owner": "orchestrate",
-      "recorded_at": "2026-07-21",
+      "recorded_at": "2026-07-26",
       "summary": "Lock the MVP scope, metrics, and go/no-go decision.",
       "evidence_required": [
         "{product}/business-plan.md",
@@ -66,7 +66,7 @@
       "severity": "high",
       "state": "active",
       "owner": "orchestrate",
-      "recorded_at": "2026-07-21",
+      "recorded_at": "2026-07-26",
       "summary": "Pin the stack, record ADRs, and freeze the technical shape.",
       "evidence_required": [
         "{product}/architecture.md",
@@ -81,7 +81,7 @@
       "severity": "high",
       "state": "active",
       "owner": "orchestrate",
-      "recorded_at": "2026-07-21",
+      "recorded_at": "2026-07-26",
       "summary": "Render rules, design tokens, and explicit CHECK coverage.",
       "evidence_required": [
         "harness/rules/*.md",
@@ -97,7 +97,7 @@
       "severity": "high",
       "state": "active",
       "owner": "orchestrate",
-      "recorded_at": "2026-07-21",
+      "recorded_at": "2026-07-26",
       "summary": "Plan the roadmap and give every sprint a clear definition of done.",
       "evidence_required": [
         "{product}/sprints/*.md",
@@ -111,7 +111,7 @@
       "severity": "high",
       "state": "active",
       "owner": "build",
-      "recorded_at": "2026-07-21",
+      "recorded_at": "2026-07-26",
       "summary": "Keep the active sprint green with tests, evidence, and audit trails.",
       "evidence_required": [
         "{runs}/sprints/*.md",
@@ -126,7 +126,7 @@
       "severity": "high",
       "state": "active",
       "owner": "orchestrate",
-      "recorded_at": "2026-07-21",
+      "recorded_at": "2026-07-26",
       "summary": "Freeze the conformance audit and resolve drift before advancing.",
       "evidence_required": [
         "{runs}/audits/*.md",

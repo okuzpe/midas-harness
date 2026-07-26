@@ -11,6 +11,19 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [1.1.2] — 2026-07-26
+
+### Added
+- **`gitignore:midas-block`** health check in `doctor.mjs` — warns when `.gitignore` lacks the Midas block or security patterns (`harness/rules/security.md`).
+- **`auditGitignore()`** in `gitignore-merge.mjs` — read-only audit reused by doctor and tests.
+- **`examples/taskpilot/.gitignore`** — Midas block for the worked example.
+- **`INSTALL.md` § Git hygiene** — what to commit vs ignore (`{runs}/`, secrets, test output).
+
+### Changed
+- **`gitignore-midas.snippet`** — `coverage/`, `test-results/`, `playwright-report/`, `status.html`, `*.midas-bundle.json`.
+
+---
+
 ## [1.1.1] — 2026-07-08
 
 ### Added

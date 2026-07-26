@@ -141,6 +141,36 @@ harness conventions into them. If `.gitignore` already exists, Midas **appends**
 overwrites your rules); on `--update`, missing patterns (e.g. `node_modules/`) are added inside the block.
 Fresh projects get one created.
 
+## Git hygiene — what to commit
+
+Midas splits project memory into **auditable artifacts** (commit them) and **volatile/local** paths
+(gitignore them). The installer merges `harness/templates/gitignore-midas.snippet` into your root
+`.gitignore` via `node <paths.scripts>/gitignore-merge.mjs` (also runs on install, `--update`,
+`/midas-init`, and `doctor --fix`).
+
+| Commit to git | Do **not** commit |
+|---|---|
+| `paths.state` (`harness/state.yaml` or `.midas/state.yaml`) | `.env`, `*.pem`, API keys, credentials |
+| `{product}/*` (idea, architecture, sprints, code) | `node_modules/`, build dirs (`dist/`, `.next/`, …) |
+| Frozen runs: `{runs}/audits/`, `verifications/`, `sweeps/`, `debates/`, `sprints/*-progress.md` | `{runs}/cache/`, `*.hash`, `status.html` |
+| Engine + skills: `harness/` or `.midas/engine/`, `.claude/skills/` | Test/browser output: `coverage/`, `test-results/`, `playwright-report/` |
+| Tool adapters at repo root (`AGENTS.md`, `.cursor/rules/`, …) | Portable bundle exports: `*.midas-bundle.json` (may contain project knowledge) |
+
+**Classic vs hub:** `harness/` is the **engine** (committed). `.harness/` or `.midas/` holds **run output**
+— audits and verify *records* are committed; only `cache/` and adapter hashes are ignored.
+
+**Verify after install or update:**
+
+```bash
+node <paths.scripts>/doctor.mjs
+# health line: gitignore:midas-block — ok | warn
+
+node <paths.scripts>/gitignore-merge.mjs   # append or upgrade missing patterns
+```
+
+Phase 8 (`/close-sprint`) grades `harness/rules/security.md`: `.gitignore` must cover `.env`, `*.pem`,
+`secret`, and `credential` patterns. A missing block is a **warn** in doctor and a **fail** at audit time.
+
 ## After installing
 1. Open the project in **your chosen tool** (Claude Code, **Cursor**, Windsurf, Gemini CLI, or any editor
    that reads `AGENTS.md` for Codex/Copilot).
@@ -160,12 +190,12 @@ Fresh projects get one created.
 
 | Situation | Terminal | Then in Cursor |
 |-----------|----------|----------------|
-| **Never installed Midas** (your MiLlave case) | `npx github:okuzpe/midas-harness#v1.1.1 --tools=cursor` | `/midas-init` |
+| **Never installed Midas** (your MiLlave case) | `npx github:okuzpe/midas-harness#v1.1.2 --tools=cursor` | `/midas-init` |
 | **`--update` said "no existing install"** | Same as above — **drop `--update`** | `/midas-init` |
 | Installed, first time in editor | — | `/midas-init` |
 | Installed, `setup_complete: true` | — | `/midas-status` |
 | Existing codebase, brownfield | install + | `/midas-init` (may route to `/midas-adopt`) |
-| Engine refresh only | `npx ...#v1.1.1 --update` | `/midas-update` (optional diff-confirm) |
+| Engine refresh only | `npx ...#v1.1.2 --update` | `/midas-update` (optional diff-confirm) |
 | **Not sure** | `npx github:okuzpe/midas-harness --diagnose` | `/midas-reconcile` |
 
 `--diagnose` and `/midas-reconcile` are **read-only** — they never write files.
@@ -178,7 +208,7 @@ if needed), and bumps the `midas_version` stamp. Adapters re-render for the tool
 state file (`--tools` is **not** applied on update):
 
 ```bash
-npx github:okuzpe/midas-harness#v1.1.1 --update   # pin a version, or omit #vX.Y.Z for the latest main
+npx github:okuzpe/midas-harness#v1.1.2 --update   # pin a version, or omit #vX.Y.Z for the latest main
 ```
 
 `--update` overwrites engine files, so if you consciously **amended a rule**, review `git diff` and
@@ -238,7 +268,7 @@ npx github:okuzpe/midas-harness --uninstall
 - **Keeps your product work** (`product/`, `{runs}/`, state file) unless you pass `--purge`.
 
 For exact removal of a pinned install, uninstall with the same release:
-`npx github:okuzpe/midas-harness#v1.1.1 --uninstall`.
+`npx github:okuzpe/midas-harness#v1.1.2 --uninstall`.
 
 > Prefer to do it by hand? Midas only ever adds files — delete `.claude/`, engine dirs (`harness/` or
 > `.midas/`), `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`,

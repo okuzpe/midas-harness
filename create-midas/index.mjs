@@ -49,7 +49,7 @@ const TEST_FAIL_STEP = process.env.MIDAS_TEST_FAIL_STEP || '';
 
 if (diagnose) {
   const { runDiagnoseCli } = await import('./install-diagnose.mjs');
-  let bundledVersion = '1.1.1';
+  let bundledVersion = '1.1.2';
   try {
     bundledVersion = readFileSync(join(TEMPLATE, 'harness', 'VERSION'), 'utf8').trim();
   } catch {
@@ -794,14 +794,14 @@ function printHelp() {
 Install:
   npx github:okuzpe/midas-harness          into the current directory (from GitHub)
   npx github:okuzpe/midas-harness my-app   into ./my-app
-  npx github:okuzpe/midas-harness#v1.1.1   pin a release for a reproducible install
+  npx github:okuzpe/midas-harness#v1.1.2   pin a release for a reproducible install
   npx github:okuzpe/midas-harness --layout=hub   explicit hub (default when flag omitted)
   npx github:okuzpe/midas-harness --layout=classic   legacy layout (harness/ at repo root)
   npx github:okuzpe/midas-harness --layout=compact   engine under .midas/, product at root (ADR-001)
 
 Update an existing install (overwrites the engine, KEEPS your work, bumps the version stamp):
   npx github:okuzpe/midas-harness --update             refresh to the latest (main)
-  npx github:okuzpe/midas-harness#v1.1.1 --update      refresh to a pinned release
+  npx github:okuzpe/midas-harness#v1.1.2 --update      refresh to a pinned release
 
 Uninstall (surgical — removes only Midas's files, keeps your work):
   npx github:okuzpe/midas-harness --uninstall             remove the engine, keep product/ + runs + state.yaml

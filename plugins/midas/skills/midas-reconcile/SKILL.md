@@ -52,7 +52,7 @@ Do not invent a different command unless the script is missing (fallback below).
 
 | Observation | Next step |
 |-------------|-------------|
-| No `harness/VERSION` and no `.midas/engine/VERSION` | `npx github:okuzpe/midas-harness#v1.1.1 --tools=cursor` then `/midas-init` |
+| No `harness/VERSION` and no `.midas/engine/VERSION` | `npx github:okuzpe/midas-harness#v1.1.2 --tools=cursor` then `/midas-init` |
 | Engine present, `setup_complete: false` in `paths.state` | `/midas-init` (brownfield → often `/midas-adopt`) |
 | `midas_version` < engine `VERSION` | `npx ... --update` or `/midas-update` |
 | Parent dir has Midas, this folder does not | `cd` to parent; `/midas-status` |

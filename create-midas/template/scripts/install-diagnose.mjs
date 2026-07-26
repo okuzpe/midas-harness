@@ -5,7 +5,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const DEFAULT_INSTALL_CMD = 'npx github:okuzpe/midas-harness#v1.1.1 --tools=cursor';
+const DEFAULT_INSTALL_CMD = 'npx github:okuzpe/midas-harness#v1.1.2 --tools=cursor';
 
 function stripYamlComment(value) {
   let inSingle = false;

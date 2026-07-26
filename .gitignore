@@ -37,6 +37,14 @@ target/
 # midas: amend — patterns added on install/update
 .midas/cache/
 .midas/*.hash
+
+# midas: amend — patterns added on install/update
+coverage/
+test-results/
+playwright-report/
+blob-report/
+status.html
+*.midas-bundle.json
 # midas:end
 
 # MkDocs build output (CI uses _site/; default `mkdocs build` writes site/ — both ignored)

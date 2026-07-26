@@ -23,6 +23,16 @@ venv/
 target/
 *.log
 
+# Test / browser tooling (midas-verify, midas-qa, CI)
+coverage/
+test-results/
+playwright-report/
+blob-report/
+
+# Midas local tooling output (not frozen evidence)
+status.html
+*.midas-bundle.json
+
 # Midas volatile state (state.yaml IS committed; caches/hashes are not)
 .harness/cache/
 .harness/*.hash

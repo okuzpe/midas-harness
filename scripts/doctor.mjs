@@ -18,7 +18,7 @@ import { computeAdapters, computeChecksIndex, computeGatesIndex, renderAdapters 
 import { evaluateMcpDeclaredVsWired, evaluateSkillMcpRequired, collectSkillMcpRequired } from './mcp-drift.mjs';
 import { parseSprints, parseEnforcement, parseRouting, parseToolsFromStateYaml } from './yaml-lite.mjs';
 import { syncCursorMcp, wrapMcpServersForWindows } from './mcp-cursor-sync.mjs';
-import { ensureMidasGitignore } from './gitignore-merge.mjs';
+import { auditGitignore, ensureMidasGitignore } from './gitignore-merge.mjs';
 import { resolvePaths, detectLayout, resolveProjectRootFromScript } from './paths.mjs';
 import { computeStageCommandTableYaml, renderStageCommandTable } from './stage-command-table.mjs';
 import { computeDesignSystemCss, renderDesignSystemTokens } from './design-system.mjs';
@@ -194,6 +194,11 @@ if (paths.layoutConflict) {
 // critical files
 for (const f of ['AGENTS.md', join(paths.engine, 'conventions.md'), join(paths.engine, 'methodology.md')]) {
   check(`file:${f}`, existsSync(join(ROOT, f)) ? 'ok' : 'warn', existsSync(join(ROOT, f)) ? '' : 'missing');
+}
+
+{
+  const gi = auditGitignore(ROOT);
+  check('gitignore:midas-block', gi.status, gi.note);
 }
 
 // .mcp.json must be secret-free (only ${ENV_VAR} placeholders)

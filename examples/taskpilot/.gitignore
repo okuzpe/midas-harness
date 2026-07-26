@@ -1,3 +1,4 @@
+# midas:begin GITIGNORE — installed by create-midas; extend with your own patterns below
 # Secrets — never commit (.env.example is OK to commit)
 .env
 .env.*
@@ -38,3 +39,4 @@ status.html
 .harness/*.hash
 .midas/cache/
 .midas/*.hash
+# midas:end
