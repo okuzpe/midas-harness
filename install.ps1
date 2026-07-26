@@ -3,7 +3,7 @@
 # install logic to drift.
 #
 # One-line install (run INSIDE the project you want to add Midas to).
-# Default layout is hub (Midas + product under .midas/). Legacy: --layout=classic or --layout=compact
+# v2 installs one canonical `.harness/` layout. Legacy layouts use explicit `--migrate`.
 #   irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | iex
 #
 # Uninstall (surgical — removes only Midas's files, keeps your work; --purge to remove everything):
@@ -22,12 +22,12 @@ $ErrorActionPreference = "Stop"
 $Repo = "okuzpe/midas-harness"
 
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
-  Write-Error "midas: Node.js (>=16.7) is required. Install: winget install OpenJS.NodeJS.LTS  (or https://nodejs.org)"
+  Write-Error "midas: Node.js (>=22) is required. Install: winget install OpenJS.NodeJS.LTS  (or https://nodejs.org)"
   exit 1
 }
 $nodeMajor = [int](& node -p "process.versions.node.split('.')[0]")
-if ($nodeMajor -lt 16) {
-  Write-Error "midas: Node $nodeMajor is too old - need Node >=16.7. Upgrade at https://nodejs.org."
+if ($nodeMajor -lt 22) {
+  Write-Error "midas: Node $nodeMajor is too old - need Node >=22. Upgrade at https://nodejs.org."
   exit 1
 }
 
@@ -41,7 +41,7 @@ if ($local -and (Test-Path $local)) {
 
 # Curl-pipe path: delegate to npx, which clones the repo from GitHub and runs the bin.
 if (-not (Get-Command npx -ErrorAction SilentlyContinue)) {
-  Write-Error "midas: npx is required (it ships with Node >=16.7). Reinstall Node.js."
+  Write-Error "midas: npx is required (it ships with Node >=22). Reinstall Node.js."
   exit 1
 }
 & npx -y "github:$Repo" @InstallerArgs

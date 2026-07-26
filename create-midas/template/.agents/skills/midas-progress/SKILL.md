@@ -14,7 +14,7 @@ metadata:
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
 
 > **Paths:** `{runs}/sprints/NN-progress.md` from template `<paths.engine>/templates/sprint-progress.md`.
-> See `harness/rules/session-continuity.md` and `harness/research/memory-model.md`.
+> See `<paths.engine>/rules/session-continuity.md` and `<paths.engine>/research/memory-model.md`.
 
 Cheap **write** path for Phase 7 continuity. Updates the active sprint's progress file so `/midas-recall` and
 Phase-8 audits see git-visible evidence of what was proved and how.

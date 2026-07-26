@@ -10,7 +10,7 @@ where supported. See the [tools matrix](https://github.com/okuzpe/midas-harness#
 
 | Command | Phase | One-line description | Tier |
 |---|---|---|---|
-| `/idea-intake` | 0 | Capture the raw product idea and initialize `harness/state.yaml`. | orchestrate |
+| `/idea-intake` | 0 | Capture the raw product idea and initialize `.harness/state.yaml`. | orchestrate |
 | `/contextualize` | 1 | Gap loop — generate and rank blocking questions until zero blockers remain. | orchestrate |
 | `/market-research` | 2 | Validate the idea against the real market; synthesize competitor matrix + differentiation thesis. | orchestrate |
 | `/business-plan` | 3 | Turn the validated opportunity into a go/no-go business case with measurable success metrics. | orchestrate |
@@ -42,7 +42,7 @@ where supported. See the [tools matrix](https://github.com/okuzpe/midas-harness#
 | `/midas-sweep` | Maintenance | Hygiene & dead-flow detection — orphan code, unreachable routes, stale docs, playbook/zombie triggers, `features.json` drift; optional `--fix` with explicit confirm. Freezes to `.harness/sweeps/`. | build |
 | `/midas-update` | Maintenance | Migrate an install to the current engine — dry-run + diff-confirm, bump version stamp. | build |
 | `/midas-capture` | Learning | Crystallize a recurring request/correction into the right artifact (rule / playbook / convention) via a rubric. The agent proposes it on ~2-3 repeats (asks first); also invokable manually. | build |
-| `/midas-bundle` | Maintenance | Export/import portable JSON via `node scripts/bundle.mjs` — product knowledge, rules, evidence (no secrets). Skill wraps the script for agent-guided subset export. | build |
+| `/midas-bundle` | Maintenance | Export/import portable JSON via `node .harness/scripts/bundle.mjs` — product knowledge, rules, evidence (no secrets). Skill wraps the script for agent-guided subset export. | build |
 
 ---
 
@@ -62,7 +62,7 @@ skill fits:
 | Sprint UI proof (gate evidence) | `/midas-verify` |
 | Quick PR/branch smoke test | `/midas-qa` |
 | Dead code / ledger drift | `/midas-sweep` |
-| Export/import knowledge | `node scripts/bundle.mjs` |
+| Export/import knowledge | `node .harness/scripts/bundle.mjs` |
 
 **Audits** (shared fragments: `harness/templates/audit-checklists.md`):
 
@@ -94,7 +94,7 @@ Each `SKILL.md` frontmatter declares:
 - Skills with `disable-model-invocation: true` include a guard: if the skill was reached by
   inference rather than explicit invocation, the agent stops and reports.
 - The Brownfield doctrine applies to `/midas-adopt` and `/define-conventions`: no pre-existing
-  `AGENTS.md` / `CLAUDE.md` / source is modified without a dry-run diff and explicit confirm.
+  `AGENTS.md` / `.claude/CLAUDE.md` / source is modified without a dry-run diff and explicit confirm.
 - Run `/midas-doctor` after editing `harness/conventions.md` or any rule file to re-sync the
   generated tool adapters.
 - After substantive engine edits (skills, installer, VERSION, bundles), run `/midas-align` or

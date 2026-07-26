@@ -4,7 +4,7 @@
 # bash/PowerShell install logic to drift.
 #
 # One-line install (run INSIDE the project you want to add Midas to).
-# Default layout is hub (Midas + product under .midas/). Legacy: pass --layout=classic or --layout=compact
+# v2 installs one canonical `.harness/` layout. Legacy layouts use explicit `--migrate`.
 #   curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash
 #   curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash -s -- --force
 #
@@ -18,12 +18,12 @@ set -euo pipefail
 REPO="okuzpe/midas-harness"
 
 if ! command -v node >/dev/null 2>&1; then
-  echo "midas: Node.js (>=16.7) is required. Install from https://nodejs.org (macOS: brew install node)." >&2
+  echo "midas: Node.js (>=22) is required. Install from https://nodejs.org (macOS: brew install node)." >&2
   exit 1
 fi
 NODE_MAJOR="$(node -p 'process.versions.node.split(".")[0]')"
-if [ "$NODE_MAJOR" -lt 16 ]; then
-  echo "midas: Node $NODE_MAJOR is too old — need Node >=16.7. Upgrade at https://nodejs.org." >&2
+if [ "$NODE_MAJOR" -lt 22 ]; then
+  echo "midas: Node $NODE_MAJOR is too old — need Node >=22. Upgrade at https://nodejs.org." >&2
   exit 1
 fi
 
@@ -36,7 +36,7 @@ fi
 
 # Curl-pipe path: delegate to npx, which clones the repo from GitHub and runs the bin.
 if ! command -v npx >/dev/null 2>&1; then
-  echo "midas: npx is required (it ships with Node >=16.7). Reinstall Node.js." >&2
+  echo "midas: npx is required (it ships with Node >=22). Reinstall Node.js." >&2
   exit 1
 fi
 exec npx -y "github:$REPO" "$@"

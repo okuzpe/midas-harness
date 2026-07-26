@@ -29,15 +29,15 @@ pass/fail with on-disk evidence). Orchestrate-tier decides the rules; **build** 
 
 ## Inputs
 - **`paths.state`**, `{product}/architecture.md`, `{product}/adr/ADR-*.md`.
-- `<paths.engine>/conventions.md` (the base floor — extend, never overwrite) and `<paths.engine>/rules/` (existing
-  always-on rules) and `<paths.engine>/rules/context7-usage.md`.
+- `<paths.engine>/conventions.md` and `<paths.engine>/rules/` (immutable base floor),
+  `<paths.rules>/` (project-owned rules), and `<paths.engine>/rules/context7-usage.md`.
 - `<paths.engine>/design-system/tokens.json` + `tokens.css` (the token store the design system references).
 
 ## Procedure
 
 ### 1. Encode folder-structure + conventions as CHECKABLE rules
-Extend `<paths.engine>/rules/` with project rules derived from the architecture's boundaries:
-- A **folder-structure rule** (`<paths.engine>/rules/folder-structure.md`): the canonical tree, where each
+Write project rules derived from the architecture's boundaries to `<paths.rules>/`:
+- A **folder-structure rule** (`<paths.rules>/folder-structure.md`): the canonical tree, where each
   layer lives, and the **import/boundary rules** (which layer may import which) — stated so a diff
   can be checked against it.
 - **Stack-specific convention rules**, generated for the chosen frameworks and **Context7-verified**
@@ -137,7 +137,7 @@ whether it was installed — so a declined install is auditable, never silent. `
 warns if a named config file is missing on disk.
 
 ### 6. Re-render adapters (sync engine)
-Generated adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`) must
+Generated adapters (`.claude/CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`) must
 reflect the new rules. Run `node <paths.scripts>/render-adapters.mjs` (or `/midas-doctor`). **Never** hand-edit
 a generated adapter. Confirm the render succeeded and adapters are in sync.
 

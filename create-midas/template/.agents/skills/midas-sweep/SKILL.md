@@ -62,7 +62,7 @@ Classify every hit into one category; cite `path` or `path:line`.
 | `orphan` | file/module never imported; export only referenced from tests of itself | medium |
 | `ledger-drift` | `{product}/features.json` `passing` with empty `evidence`; feature in code absent from ledger; sprint in `roadmap.md` with no `{product}/sprints/NN-*.md` | high |
 | `stale-doc` | `{product}/open-questions.md` still OPEN but answered in `{product}/idea.md`; doc cites deleted path; acceptance criterion references removed test | medium |
-| `harness-drift` | `state.yaml` sprint id without file; gate record disagrees with `stage` (run `node <paths.scripts>/doctor.mjs --gates-only` if present); skill named in docs but missing under `.claude/skills/` | medium |
+| `harness-drift` | `state.yaml` sprint id without file; gate record disagrees with `stage` (run `node <paths.scripts>/doctor.mjs --gates-only` if present); skill named in docs but missing under `<paths.engine>/skills/` | medium |
 | `hygiene` | commented-out code blocks; `TODO` without `TODO(owner):`; duplicate utility next to an existing one | low |
 | `dependency` | manifest dep with zero imports (flag only — do not remove without user OK) | low |
 
@@ -87,7 +87,7 @@ Read **`paths.state`**. Resolve scope + depth. Allocate the next `sweep-NN` id u
   sprint list against `{product}/sprints/`; scan `{product}/open-questions.md` against `{product}/idea.md`.
 - **Harness (harness scope):** compare `state.yaml` `sprints[]` to files; list `{runs}/audits/`
   whose sprint is not `done` in state; optional `node <paths.scripts>/doctor.mjs --gates-only` when
-  `scripts/doctor.mjs` exists.
+  `<paths.scripts>/doctor.mjs` exists.
 - **Hygiene greps (all):** `grep` for commented-out code (`^\s*(//|#).*[;{}()]`), bare `TODO` (no owner),
   duplicate filenames for utilities (`utils`, `helpers`).
 
@@ -138,7 +138,7 @@ After the report, if `--fix`:
 
 ## Rule contract
 
-Graded at Phase 8 via [`<paths.engine>/rules/hygiene.md`](../../<paths.engine>/rules/hygiene.md):
+Graded at Phase 8 via `<paths.engine>/rules/hygiene.md`:
 
 - **Brownfield** (`mode: brownfield`): a sweep record this sprint cycle, or `sweep: skipped — reason` in
   the audit, is **required** before close.

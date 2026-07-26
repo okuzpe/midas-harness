@@ -26,7 +26,8 @@ Phase-8 audit possible.
 
 ## Inputs
 - **`paths.state`**, `{product}/business-plan.md` (MVP scope + non-goals + success metrics),
-  `{product}/architecture.md`, `<paths.engine>/rules/*`, `{product}/design-system.md`.
+  `{product}/architecture.md`, the effective rules from `<paths.engine>/rules/*` plus `<paths.rules>/*`,
+  `{product}/design-system.md`.
 
 ## Procedure
 
@@ -73,7 +74,7 @@ planned, audit_notes: "", last_touched }`), list roadmap + sprint files + `{prod
   frozen rules**.
 - Sprints are **dependency-ordered** and **sprint 1 is shippable**.
 - `{product}/features.json` seeded from MVP scope (every feature `status: failing`).
-- `sprints[]` is set in `state.yaml` (each `status: planned`).
+- `sprints[]` is set in `paths.state` (each `status: planned`).
 
 On pass: freeze the verdict in `{runs}/audits/gate-06.md`, set the gate passed; next action is `/start-sprint`
 (Phase 7) on sprint 1. On fail: report the under-specified sprint or broken ordering.

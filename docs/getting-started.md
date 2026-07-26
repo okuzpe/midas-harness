@@ -4,7 +4,7 @@ For the full authoritative install guide — flags, alternatives, and uninstall 
 **[INSTALL.md](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md)** in the repo. This
 page is a quick-reference summary.
 
-**Requirement:** Node.js >= 16.7 (`node -v` to check).
+**Requirement:** Node.js >= 22 (`node -v` to check).
 
 ---
 
@@ -26,7 +26,7 @@ irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | ie
 ```bash
 npx  github:okuzpe/midas-harness
 # compact layout (less root clutter):
-npx  github:okuzpe/midas-harness --layout=compact
+npx github:okuzpe/midas-harness#v2.0.0-rc.1 --tools=cursor
 pnpm dlx github:okuzpe/midas-harness
 bunx github:okuzpe/midas-harness
 ```
@@ -81,7 +81,7 @@ After installing, open the project in **Claude Code**, **Cursor**, or your chose
 
 This adaptive intake **scans what the project already has** (code, manifests, README, docs),
 classifies its maturity (E0 empty → E3 mature), pre-fills what it can infer, asks only the genuine
-gaps in one batched round, and writes the state file (`paths.state`) plus the tool adapters (CLAUDE.md,
+gaps in one batched round, and writes the state file (`.harness/state.yaml`) plus the selected host adapters (`.claude/CLAUDE.md`,
 .cursor/rules/, GEMINI.md, etc.) — placing you at the right phase.
 
 ```text

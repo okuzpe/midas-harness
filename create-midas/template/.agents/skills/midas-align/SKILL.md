@@ -73,7 +73,7 @@ When the diff touches skills, installer, layout, or pipeline:
 
 - [ ] `INSTALL.md` / `docs/getting-started.md` / `docs/skills.md` mention new commands or flags
 - [ ] `docs/repository-architecture.md` change-path table still accurate
-- [ ] No ritual guard in `.claude/skills/` still hardcodes `harness/state.yaml` as the **only** read path
+- [ ] No ritual guard in `harness/skills/` still hardcodes a legacy state path
 
 ### 5. Gap report (required output)
 

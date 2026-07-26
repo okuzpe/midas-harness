@@ -44,6 +44,6 @@ Run the tests; report the actual result, not an assumption.
 ## Boundaries
 - Produce artifacts; **do not render your own gate verdict** — that is the orchestrator's job, kept
   separate so the audit stays honest.
-- Never hand-edit a generated adapter (`CLAUDE.md`, `.cursor/rules/*`, `.windsurf/rules/*`); edit the
+- Never hand-edit a generated adapter (`.claude/CLAUDE.md`, `.cursor/rules/*`, `.windsurf/rules/*`); edit the
   source and let `/midas-doctor` re-render.
 - Conventional Commits; commit or push **only when the human asks**. Secrets only via `${ENV_VAR}`.

@@ -50,7 +50,7 @@ Dispatch **scout** subagents to read, without writing anything yet:
    `{product}/` artifacts. This is what lets a project "with very little" (just a written idea) skip the
    blank idea-intake.
 3. **Existing tool surfaces.** Which of `.claude/`, `.cursor/`, `.windsurf/`, `.github/copilot-instructions.md`,
-   `AGENTS.md`, `CLAUDE.md`, `.mcp.json` exist (so GENERATE uses managed markers, never clobbers).
+   `AGENTS.md`, `.claude/CLAUDE.md`, `.mcp.json` exist (so GENERATE uses managed markers, never clobbers).
 4. **OS.** Platform, so GENERATE prints the right env-var command (`setx` on Windows, `export` on POSIX).
    Dates come from the user/today — never a live clock inside a script.
 
@@ -82,7 +82,7 @@ stage is set by `/midas-adopt` (`architecture_rules` when conventions still need
 `sprint_planning` once rules + a baseline audit are in place); stage and its next command stay a matched pair.
 
 A skipped gate (anything the maturity level jumps over) carries a **recorded assumption** and an honest
-`entry_stage` in `state.yaml` — exactly like a deferred Phase-1 question.
+`entry_stage` in `paths.state` — exactly like a deferred Phase-1 question.
 
 ## Phase B2 — TRACK (full vs lite)
 
@@ -93,13 +93,13 @@ Ask the user (one question in the batched round):
   by default; records assumptions. See `<paths.engine>/pipeline/lite.md`.
 
   **Lite ritual checklist** (copy into the session when `track: lite`):
-  1. Pre-fill `{product}/idea.md` from scan; record skipped gates + assumptions in `state.yaml`.
+  1. Pre-fill `{product}/idea.md` from scan; record skipped gates + assumptions in `paths.state`.
   2. Run a compressed plan: MVP scope + one sprint outline (roadmap optional stub).
   3. Set `entry_stage: sprint_planning`; advance to `/plan-sprints` or `/start-sprint` when a single sprint exists.
   4. Execute with the Phase 7 ladder (`methodology.md` § Phase 7 execution ladder).
   5. Close with `/close-sprint` — no lite bypass for Phase 8.
 
-Write `track:` to `state.yaml`. For Lite on E0/E1, after Idea+Plan completes set `entry_stage: sprint_planning`
+Write `track:` to `paths.state`. For Lite on E0/E1, after Idea+Plan completes set `entry_stage: sprint_planning`
 and skip directly to `/plan-sprints` or `/start-sprint` when a single sprint plan exists.
 
 ## Phase C — PRE-FILL (draft from the scan; do not commit yet)
@@ -141,12 +141,12 @@ before `/plan-sprints`.
 ## Phase E — GENERATE (write last; place at the chosen stage)
 
 Write additively (state file last), wrapping every Midas-managed region in `<!-- midas:begin -->` …
-`<!-- midas:end -->`. **Never** rewrite hand-authored content; for a pre-existing `AGENTS.md`/`CLAUDE.md`/
+`<!-- midas:end -->`. **Never** rewrite hand-authored content; for a pre-existing `AGENTS.md`/`.claude/CLAUDE.md`/
 `.mcp.json`, show the diff and confirm (`AskUserQuestion`) before writing, else print the block to paste.
 
 1. **Confirmed artifacts.** Write the pre-filled artifacts the user accepted — at minimum `{product}/idea.md`
    for **E1+** (filled, not a blank template). Scaffold `{product}/adr/`, `{product}/sprints/`.
-2. **E2 / E3 → run `/midas-adopt` in the same run.** Perform the `.claude/skills/midas-adopt/SKILL.md`
+2. **E2 / E3 → run `/midas-adopt` in the same run.** Perform the `<paths.engine>/skills/midas-adopt/SKILL.md`
    procedure (inventory → reverse-engineer architecture + rules from the real code **and the harvested
    docs** → baseline audit → wire with **dry-run + diff-confirm**). One flow, not two commands. **Resumable:**
    if adoption is declined or interrupted, leave `setup_complete: false`; on re-run, detect already-written
@@ -154,7 +154,7 @@ Write additively (state file last), wrapping every Midas-managed region in `<!--
 3. **`AGENTS.md`** — render from `<paths.engine>/templates/AGENTS.md.tmpl`, placeholders filled (name, mode, tools, MCP).
    Summarize conventions + the Context7 rule; don't restate them (they live in `<paths.engine>/conventions.md`
    and `<paths.engine>/rules/context7-usage.md`).
-4. **Tool adapters** (selected tools only) — `CLAUDE.md` as a thin `@AGENTS.md` shim, `.cursor/…`,
+4. **Tool adapters** (selected tools only) — `.claude/CLAUDE.md` as a thin `@../AGENTS.md` shim, `.cursor/…`,
    `.windsurf/…`. **Generated, not hand-authored**: delegate the render to `/midas-doctor` (or
    `node <paths.scripts>/render-adapters.mjs`) — one render path.
 5. **`.mcp.json`** — secret-free, `${ENV_VAR}` only; `context7` + chosen optional servers. Merge into the
@@ -164,13 +164,13 @@ Write additively (state file last), wrapping every Midas-managed region in `<!--
    and **Chrome DevTools** blocks from `<paths.engine>/templates/mcp.json.tmpl` for MCP fallback and
    runtime health. **If the client is native/hybrid mobile** (React Native, Flutter, Capacitor), offer
    (recommend-don't-wall) Maestro MCP (`maestro` + `args: ["mcp"]`) — user must approve MCP install.
-   Add wired servers to `state.yaml → mcp:`; skip what the user declines. API/CLI-only: skip browser/mobile MCPs.
+   Add wired servers to `paths.state → mcp:`; skip what the user declines. API/CLI-only: skip browser/mobile MCPs.
 6. **State file** at **`paths.state`** (per `<paths.engine>/state.schema.md`, read-modify-write the whole file). Set
    `midas_version`, `name`, **`mode`** (per the E-level mapping: E0/E1 `greenfield`, E2/E3 `brownfield`),
    `language`, `created`/`updated` (today, supplied), the **`stage` from the maturity table**,
    `stage_status: not_started`, `entry_stage` (= that stage) + a recorded assumption for every gate the
    level skipped, `cost_profile`, the resolved `routing`, `tools`, `mcp`, the `phases` ledger, and finally
-   **`setup_complete: true`**. On **compact** installs preserve or set `layout: compact` and the `paths:` block.
+   **`setup_complete: true`**, `layout: harness`, and the canonical `.harness/*` `paths:` block.
 7. **`.gitignore`** — run `node <paths.scripts>/gitignore-merge.mjs` from the project root (merges
    `<paths.engine>/templates/gitignore-midas.snippet`: secrets, `node_modules/`, common build dirs,
    `{runs}/cache/`). Never remove user patterns. The installer normally does this — repeat if copy-only
@@ -190,7 +190,7 @@ Run when **any** of: user passed `--monorepo`; Phase D confirmed monorepo wiring
 detected and the user opted in during GENERATE.
 
 Follow **`<paths.engine>/pipeline/monorepo-wiring.md`** (DETECT → INDEX → WRITE). Respect `--dry-run`
-(write nothing; print the plan). On success, `state.yaml.packages[]` is populated and nested `AGENTS.md`
+(write nothing; print the plan). On success, `paths.state → packages[]` is populated and nested `AGENTS.md`
 files exist. If declined or not a monorepo, skip — `setup_complete` still proceeds.
 
 > **`/midas-monorepo` is deprecated** — it redirects here. Re-run `/midas-init --monorepo` on an

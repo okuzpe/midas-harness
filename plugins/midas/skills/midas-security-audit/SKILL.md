@@ -85,7 +85,7 @@ user's go-ahead, apply) findings → action:
 - `fix` / `mitigate` → a task surfaced at the next `/start-sprint`;
 - `accept` → recorded with rationale (and an ADR if it's an architectural risk decision);
 - `defer` → `OQ-NN` in `{product}/open-questions.md` (non-blocking, logged).
-You MAY set `last_security: { n: NN, critical: X, high: Y, at: <date> }` in `state.yaml` (read-modify-write
+You MAY set `last_security: { n: NN, critical: X, high: Y, at: <date> }` in `paths.state` (read-modify-write
 the whole file per schema). **Never set `gate: passed` or advance `stage`** — this audit informs; the gates decide.
 
 ## Output format (`{runs}/security/security-NN.md`)

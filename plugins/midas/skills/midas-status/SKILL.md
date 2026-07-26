@@ -55,7 +55,7 @@ Audit roles (shared checklists: `<paths.engine>/templates/audit-checklists.md`):
    *user* to type.** The phase rituals are gated (`disable-model-invocation`); **never call the Skill tool on
    them** (it errors) — present the command (e.g. *"👉 Run `/define-conventions`"*), don't invoke it.
 
-   **Canonical table:** `<paths.engine>/stage-command-table.yaml` (also parsed by `scripts/stage-command-table.mjs`).
+   **Canonical table:** `<paths.engine>/stage-command-table.yaml` (also parsed by `<paths.scripts>/stage-command-table.mjs`).
    Summary:
 
    | stage | next action |

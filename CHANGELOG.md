@@ -11,6 +11,27 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.0.0-rc.1] — 2026-07-26
+
+### Added
+
+- One canonical installed layout under `.harness/`, with explicit paths for engine, scripts, product,
+  project rules, runs, cache, migration receipts, state, and ownership manifest.
+- Read-only `--migrate` preview and explicit transactional `--migrate --apply` for classic, compact,
+  and hub 1.x installs, including staging, SHA-256 verification, rollback, selective movement, and
+  preservation reports for unknown application files.
+- Ownership roles (`vendor`, `generated`, `user`) used by update, doctor, and uninstall.
+- Canonical `harness/skills` and `harness/agents` sources with generated Claude and Agent Skills mirrors.
+
+### Changed
+
+- New installs reject legacy layout flags; `--update` refuses to relocate a 1.x installation.
+- `doctor --strict` validates canonical layout, manifest integrity, selected-host mirrors, generated
+  registries, routing, version, and legacy Midas artifacts.
+- Minimum Node.js version is 22; CI covers Node 22, 24, and 26 plus six hosts on Linux, Windows, and macOS.
+
+---
+
 ## [1.1.4] — 2026-07-26
 
 - Fixed package installs for `npx github:okuzpe/midas-harness#v1.1.3` by resolving model profiles from files bundled inside the published package.
@@ -1093,7 +1114,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v1.1.4...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.1...HEAD
+[2.0.0-rc.1]: https://github.com/okuzpe/midas-harness/compare/v1.1.4...v2.0.0-rc.1
 [1.1.4]: https://github.com/okuzpe/midas-harness/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/okuzpe/midas-harness/compare/v1.1.2...v1.1.3
 [1.0.0]: https://github.com/okuzpe/midas-harness/compare/v0.5.30...v1.0.0

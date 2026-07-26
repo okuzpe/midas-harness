@@ -143,7 +143,7 @@ Use `<paths.engine>/templates/verify-record.md`. Sections:
 - `## Runtime health`, `## Design-token findings`
 - Single **`MIDAS_VERIFY_RESULT`** tally line for the whole record
 
-Screenshots under `{runs}/verifications/verify-NN/`. You **MAY** set `last_verification` in `state.yaml`.
+Screenshots under `{runs}/verifications/verify-NN/`. You **MAY** set `last_verification` in `paths.state`.
 **Never advance `stage` or set `gate: passed`.**
 
 ### 7. Feed failures back
@@ -161,7 +161,7 @@ Use `<paths.engine>/templates/verify-record.md`. Keep `MIDAS_VERIFY_RESULT` exac
 - [ ] Native (when in scope): Maestro inline or `blocked` with reason.
 - [ ] Runtime health recorded; token/overflow checks done.
 - [ ] Single `verify-NN.md` frozen with `MIDAS_VERIFY_RESULT`.
-- [ ] `state.yaml` stage NOT advanced.
+- [ ] `paths.state` stage NOT advanced.
 
 ## Tier & cost
 Build tier drives flows and writes the record; scout tier for reading criteria/selectors. Respect

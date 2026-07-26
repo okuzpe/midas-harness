@@ -42,10 +42,10 @@ A change is breaking if an existing install would need a migration step to stay 
 - **Renamed or removed skill / command** — e.g. `/start-sprint` renamed to `/sprint-start`; any
   invocation in docs, habits, or CI scripts breaks.
 - **Phase taxonomy change** — adding, removing, reordering, or renaming a stage enum value in
-  `harness/state.yaml`; existing state files reference the old names.
+  `.harness/state.yaml`; existing state files reference the old names.
 - **Adapter-generation contract change** — changes to the sections that `render-adapters.mjs` writes
-  into `CLAUDE.md`, `.cursor/rules/`, or `.windsurf/rules/` that break the downstream tool's parsing.
-- **State schema incompatibility** — removing or renaming a required field in `harness/state.yaml`;
+  into `.claude/CLAUDE.md`, `.cursor/rules/`, or `.windsurf/rules/` that break the downstream tool's parsing.
+- **State schema incompatibility** — removing or renaming a required field in `.harness/state.yaml`;
   existing state files would fail validation.
 - **Frontmatter contract change** — changing required SKILL.md or agent frontmatter keys such that
   existing skill files become invalid.
@@ -63,9 +63,9 @@ A change is breaking if an existing install would need a migration step to stay 
 
 ---
 
-## Version stamp in `harness/state.yaml`
+## Version stamp in `.harness/state.yaml`
 
-Every `harness/state.yaml` carries:
+Every `.harness/state.yaml` carries:
 
 ```yaml
 midas_version: 0.5.30   # engine version that wrote or last migrated this file
@@ -80,7 +80,7 @@ midas_version: 0.5.30   # engine version that wrote or last migrated this file
 
 When upgrading across a breaking version boundary:
 
-1. Run `/midas-update` — it reads `midas_version` from `harness/state.yaml`, diffs it against the
+1. Run `/midas-update` — it reads `midas_version` from `.harness/state.yaml`, diffs it against the
    target version's migration notes, and proposes the minimal set of file edits required.
 2. Review the diff. Confirm before any writes.
 3. `/midas-update` bumps `midas_version` in `state.yaml` on success.
@@ -96,6 +96,9 @@ under a `### Migration` subsection.
 **Hub layout** is the default install: engine, state, runs, and product methodology artifacts under
 `.midas/` (`layout: hub`, `paths.product`). Classic and compact remain via `--layout=`. Portable
 bundles keep classic canonical coordinates; import remaps per target layout (ADR-006).
+
+This section is historical. In v2, ADR-007 supersedes these install-layout guarantees: new installs
+use `.harness/`; classic, compact, and hub remain supported only as explicit migration inputs.
 
 Surfaces frozen at 1.0:
 

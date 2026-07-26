@@ -66,14 +66,14 @@ flowchart LR
 
 Each phase writes named artifacts under `{product}/` (resolved via `paths.product`) and is guarded by an **exit gate** the orchestrator
 audits before advancing — and a human signs off on the irreversible calls (go/no-go, each ADR, every
-rule amendment, ship). State lives in one file (`paths.state` — hub/compact: `.midas/state.yaml`,
-classic: `harness/state.yaml`), so any agent on any tool can resume. Full spec:
+rule amendment, ship). State lives in one file (`.harness/state.yaml`), so any agent on any tool can
+resume. Full spec:
 [`harness/methodology.md`](./harness/methodology.md).
 
 ## Quickstart
 
-Install Midas into any project (new **or** existing) — it only adds files (never deletes yours). Run it
-**inside the project**:
+Install Midas into any project (new **or** existing). Fresh installs preserve existing files; v1
+migration is a separate, explicit, transactional operation. Run it **inside the project**:
 
 ```bash
 # macOS / Linux
@@ -99,10 +99,6 @@ Optional: `npm run status` in the repo root generates a local `status.html` dash
 
 ```bash
 npx github:okuzpe/midas-harness --tools=cursor
-# compact layout (product at repo root):
-npx github:okuzpe/midas-harness --layout=compact --tools=cursor
-# classic layout (legacy):
-npx github:okuzpe/midas-harness --layout=classic --tools=cursor
 # or Cursor + Gemini + Codex:
 npx github:okuzpe/midas-harness --tools=cursor,gemini,codex
 ```
@@ -131,14 +127,14 @@ Most users only need **Core** (+ `/midas-adopt` for an existing repo). Everythin
 
 | Tool | AGENTS.md | Skills | Adapter | MCP | Routing |
 |---|---|---|---|---|---|
-| **Claude Code** | via `@AGENTS.md` in `CLAUDE.md` | native `.claude/skills/` + portable `.agents/skills/` | `CLAUDE.md` | project `.mcp.json` | per-agent |
+| **Claude Code** | via `@../AGENTS.md` in `.claude/CLAUDE.md` | native `.claude/skills/` | `.claude/CLAUDE.md` | project `.mcp.json` | per-agent |
 | Cursor | native `AGENTS.md` | portable `.agents/skills/` + `.cursor/rules/` | `.cursor/rules/00-midas.mdc` | `.cursor/mcp.json` sync | advisory |
 | OpenAI Codex | native `AGENTS.md` | portable `.agents/skills/` | none | project `.mcp.json` | advisory |
 | GitHub Copilot | native `AGENTS.md` | portable `.agents/skills/` | none | project `.mcp.json` | advisory |
 | Gemini CLI | `GEMINI.md` + `AGENTS.md` | portable `.agents/skills/` + Gemini project memory | `GEMINI.md` | project `.mcp.json` | advisory |
 | Windsurf | native `AGENTS.md` | portable `.agents/skills/` + `.windsurf/rules/` | `.windsurf/rules/00-midas.md` | project `.mcp.json` | advisory |
 
-Generated adapters (`CLAUDE.md`, `.cursor/rules`, `.windsurf/rules`, `GEMINI.md`) and the portable
+Generated adapters (`.claude/CLAUDE.md`, `.cursor/rules`, `.windsurf/rules`, `GEMINI.md`) and the portable
 `.agents/skills/` mirror are re-rendered from a single source by `/midas-doctor` and the installer build
 — no hand-editing, no drift.
 For the contributor-facing source/generated-file map, see
@@ -178,7 +174,7 @@ A runnable Sprint-1 vertical slice — auth, task CRUD, middleware, board stub +
 artifact on disk. See [`examples/taskpilot/`](./examples/taskpilot/).
 
 ## Status
-**v1.1.4 — hotfix for package installs: the updater now resolves model profiles from bundled files.** Most complete on **Claude Code**
+**v2.0.0-rc.1 — release candidate for the unified `.harness/` layout and transactional 1.x migration.** Most complete on **Claude Code**
 (see [Honest scope](#supported-tools)). Details: [`CHANGELOG.md`](./CHANGELOG.md) ·
 [`VERSIONING.md`](./VERSIONING.md) · [docs site](https://okuzpe.github.io/midas-harness/).
 
@@ -187,7 +183,7 @@ artifact on disk. See [`examples/taskpilot/`](./examples/taskpilot/).
 
 ## For contributors — where things live
 
-This repo has **three layers**: sources (`.claude/`, `harness/`, `scripts/`), generated adapters
-(`CLAUDE.md`, `.cursor/`, …), and distribution bundles (`plugins/midas/`, `create-midas/template/`).
+This repo has **three layers**: sources (`harness/skills`, `harness/agents`, `harness/`, `scripts/`), generated adapters
+(`.claude/CLAUDE.md`, `.cursor/`, …), and distribution bundles (`plugins/midas/`, `create-midas/template/`).
 Edit sources only; run `npm run verify` before opening a PR. Full map:
 [`docs/repository-architecture.md`](./docs/repository-architecture.md).

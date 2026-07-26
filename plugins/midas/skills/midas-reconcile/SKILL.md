@@ -28,8 +28,7 @@ Use when:
 node <paths.scripts>/install-diagnose.mjs
 ```
 
-Classic layout: `node scripts/install-diagnose.mjs`  
-Hub/compact: `node .midas/scripts/install-diagnose.mjs`
+Canonical v2 layout: `node .harness/scripts/install-diagnose.mjs`
 
 **If Midas is not installed yet** (no `paths.scripts`):
 
@@ -42,7 +41,7 @@ Run from the **project root** you care about (or pass the path as the script's f
 ### 2. Present the output verbatim
 
 The script prints:
-- **Status** (`not_installed` | `setup_pending` | `version_behind` | `nested_or_wrong_cwd` | `ready`)
+- **Status** (`not_installed` | `legacy_layout` | `setup_pending` | `version_behind` | `nested_or_wrong_cwd` | `ready`)
 - **Next (terminal)** — e.g. fresh `npx ...` install or `--update`
 - **Next (editor)** — e.g. `/midas-init`, `/midas-status`, `/midas-update`
 
@@ -52,9 +51,10 @@ Do not invent a different command unless the script is missing (fallback below).
 
 | Observation | Next step |
 |-------------|-------------|
-| No `harness/VERSION` and no `.midas/engine/VERSION` | `npx github:okuzpe/midas-harness#v1.1.2 --tools=cursor` then `/midas-init` |
+| No `.harness/engine/VERSION`, `harness/VERSION`, or `.midas/engine/VERSION` | `npx github:okuzpe/midas-harness#v2.0.0-rc.1 --tools=cursor` then `/midas-init` |
+| `harness/VERSION` or `.midas/engine/VERSION` exists but canonical engine does not | Preview `npx ...#v2.0.0-rc.1 --migrate`; after review add `--apply` |
 | Engine present, `setup_complete: false` in `paths.state` | `/midas-init` (brownfield → often `/midas-adopt`) |
-| `midas_version` < engine `VERSION` | `npx ... --update` or `/midas-update` |
+| v2 `midas_version` < engine `VERSION` | `npx ... --update` or `/midas-update` |
 | Parent dir has Midas, this folder does not | `cd` to parent; `/midas-status` |
 | Otherwise | `/midas-status` |
 

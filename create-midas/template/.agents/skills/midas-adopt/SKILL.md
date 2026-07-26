@@ -1,6 +1,6 @@
 ---
 name: midas-adopt
-description: "Adopt Midas into an EXISTING (brownfield) project. Inventory the codebase, reverse-engineer the de-facto architecture and rules from the real code, backfill product context, and establish a baseline audit — writing into any pre-existing AGENTS.md/CLAUDE.md/source only after a dry-run diff you confirm. Use instead of greenfield /idea-intake when the repo already has code."
+description: "Adopt Midas into an EXISTING (brownfield) project. Inventory the codebase, reverse-engineer the de-facto architecture and rules from the real code, backfill product context, and establish a baseline audit — writing into any pre-existing AGENTS.md/host adapter/source only after a dry-run diff you confirm. Use instead of greenfield /idea-intake when the repo already has code."
 metadata:
   midas-disable-model-invocation: true
   midas-harness-tier: orchestrate
@@ -22,7 +22,7 @@ automatically when its scan finds real code, or you can invoke it directly on an
 
 Bring Midas to a project that already has code, **without trampling what's there**. The golden rule:
 
-> **Dry-run + diff-confirm.** Never write into a pre-existing `AGENTS.md`, `CLAUDE.md`, rule file, or any
+> **Dry-run + diff-confirm.** Never write into a pre-existing `AGENTS.md`, `.claude/CLAUDE.md`, rule file, or any
 > source file without first showing the exact diff and getting explicit confirmation (via
 > `AskUserQuestion`). New files (that don't exist yet) may be written directly. You only ever *add* or
 > *append inside managed `<!-- midas:begin -->` markers* — you never rewrite hand-authored content.
@@ -34,7 +34,7 @@ Bring Midas to a project that already has code, **without trampling what's there
 Before writing anything, produce a **preflight report** for the user:
 
 - What will be created vs merged (new engine tree at `<paths.engine>/`, `{product}/inventory.md`, rules draft).
-- What conflicts with existing `AGENTS.md` / `CLAUDE.md` (managed-marker regions only).
+- What conflicts with existing `AGENTS.md` / `.claude/CLAUDE.md` (managed-marker regions only).
 - Estimated effort: **light** (E2 partial) / **medium** (E2 + debt) / **heavy** (E3 + baseline audit).
 - Recommended path: full adopt vs **incremental** (Step 3 only: folder-structure rule first, then stack rules).
 
@@ -43,7 +43,7 @@ If `--preflight` or the user asks for a dry run, **stop after the report** — n
 ### Step 1 — Inventory: code AND intent (scout)
 Dispatch **scout** subagents to extract, read-only: the file/dir tree, manifests (`package.json`,
 `pyproject.toml`, `go.mod`, `Cargo.toml`, …), languages/frameworks + **pinned versions** (verify with
-Context7), test setup, CI, and any existing `AGENTS.md` / `CLAUDE.md` / `.cursor` / `.windsurf`. **Also
+Context7), test setup, CI, and any existing `AGENTS.md` / `.claude/CLAUDE.md` / `.cursor` / `.windsurf`. **Also
 harvest the project's stated intent** — `README*`, `docs/`, any brief/spec/`NOTES`, and the manifest
 `description` — so the product context comes from what's written, not invented (feeds Step 4). Write
 `{product}/inventory.md`. Playbook: `<paths.engine>/pipeline/0b-codebase-inventory.md`.
@@ -56,7 +56,7 @@ From the inventory, infer the real architecture (components, data flow, boundari
 decisions as ADRs under `{product}/adr/`, marked "as-built".
 
 ### Step 3 — Reverse-engineer rules from the real code (the brownfield keystone)
-Derive `<paths.engine>/rules/*` and `{product}/conventions.md` from the **actual conventions in the code**
+Derive `<paths.rules>/*` and `{product}/conventions.md` from the **actual conventions in the code**
 (folder structure, naming, error handling, test policy) — **codify reality**. Where the code violates a
 sensible rule, do **not** rewrite it: record the gap as future-sprint **debt** in `{product}/debt.md`.
 This is the inverse of greenfield Phase 5 (which invents rules); here you extract them.
@@ -84,22 +84,22 @@ those are separate standing rituals the user may run later.
 
 ### Step 6 — Wire the harness (dry-run + diff-confirm)
 For each file:
-- **New file** (**`paths.state`**, `{product}/*`, a missing `CLAUDE.md`/adapters) → write directly.
-- **Pre-existing `AGENTS.md` / `CLAUDE.md` / `.mcp.json`** → compute the managed-marker block, **show the
+- **New file** (**`paths.state`**, `{product}/*`, a missing `.claude/CLAUDE.md`/adapter) → write directly.
+- **Pre-existing `AGENTS.md` / `.claude/CLAUDE.md` / `.mcp.json`** → compute the managed-marker block, **show the
   diff**, and `AskUserQuestion` to confirm before writing. On decline, print the block for manual paste.
 - Generate the tool adapters via `/midas-doctor` (the single render path).
 Set **`paths.state`**: `mode: brownfield` and the `entry_stage` by maturity — **`architecture_rules`
 for an E2 (partial) repo** (record `tech_architecture` as a deliberately-skipped gate; the as-built
 `{product}/architecture.md` + ADRs are still written, so `/define-conventions` runs under its
 "`architecture_rules` resuming" precondition rather than bouncing), **`sprint_planning` for an E3 (mature)
-repo** once rules + a baseline audit are in place. Record an assumption in `state.yaml` for every skipped gate.
+repo** once rules + a baseline audit are in place. Record an assumption in `paths.state` for every skipped gate.
 
 ## Exit gate (adoption complete)
 - [ ] `{product}/inventory.md` + `{product}/architecture.md` (as-built) written; stack versions Context7-verified.
 - [ ] Rules derived from the real code; violations logged as debt (`{product}/debt.md`), not silently rewritten.
-- [ ] No pre-existing `AGENTS.md`/`CLAUDE.md`/source modified without a confirmed diff.
+- [ ] No pre-existing `AGENTS.md`/`.claude/CLAUDE.md`/source modified without a confirmed diff.
 - [ ] Baseline audit frozen to `{runs}/audits/`.
-- [ ] `state.yaml` records `mode: brownfield`, `entry_stage`, and assumptions for skipped gates.
+- [ ] `paths.state` records `mode: brownfield`, `entry_stage`, and assumptions for skipped gates.
 - [ ] Next action printed: `/define-conventions` for an E2 (partial) repo, `/plan-sprints` for an E3 (mature) repo.
 
 ## Tier & cost

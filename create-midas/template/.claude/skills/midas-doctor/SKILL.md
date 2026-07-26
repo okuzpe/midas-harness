@@ -16,8 +16,8 @@ mcp-recommended: [context7]
 
 > **Paths:** Run `node <paths.scripts>/doctor.mjs`. Adapters render from `<paths.engine>/conventions.md` + rules. Substitute `{runs}/` and `{product}/` per `AGENTS.md` § Path resolution.
 
-Generated adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `GEMINI.md`) are
-**rendered** from `<paths.engine>/conventions.md` + `<paths.engine>/rules/*` — never hand-edited. `midas-doctor` is the
+Generated adapters (`.claude/CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `GEMINI.md`) are
+**rendered** from `<paths.engine>/conventions.md`, base rules, and project rules at `<paths.rules>` — never hand-edited. `midas-doctor` is the
 **single** path that keeps them in sync, plus a fast health check on the rest of the install. It diffs
 first and writes only with the user's go-ahead.
 
@@ -47,13 +47,16 @@ Findings are **mechanical** (adapter drift, version mismatch, MCP wiring, missin
 | `version` | state `midas_version` matches `<paths.engine>/VERSION` |
 | `routing` | Tier ids reconcile with `.claude/agents/midas-*.md` pins (`balanced` profile = exact match) |
 | `enforcement` | Phase-5 scaffold configs exist on disk; `installed:false` surfaced |
-| `layout:consistent` | `layout` in state matches disk markers (classic vs compact) |
+| `layout:consistent` | v2 state declares `layout: harness` and canonical disk markers agree |
+| `layout:legacy-artifacts` | No identifiable Midas files remain in legacy engine/run paths |
+| `manifest:integrity` | Vendor hashes and ownership roles in `.harness/manifest.json` are valid |
+| `mirror:*` | Selected-host skills/agents mirrors match canonical engine sources |
 | `file:*` | `AGENTS.md`, `<paths.engine>/conventions.md`, `<paths.engine>/methodology.md` present |
 | `mcp:secret-free` | `.mcp.json` uses `${ENV_VAR}` placeholders only |
 | `mcp:win-npx` | Windows: MCP servers must wrap `npx` in `cmd /c` |
 | `mcp:declared-vs-wired` | Every `state.yaml → mcp:` id wired in `.mcp.json` (`context7` optional) |
 | `mcp:skill-required` | Every skill `mcp-required` id wired in `.mcp.json` |
-| `skills:frontmatter` | Each `.claude/skills/*/SKILL.md` has valid frontmatter |
+| `skills:frontmatter` | Each `<paths.engine>/skills/*/SKILL.md` has valid frontmatter |
 | `gate:records` | Frozen sprint `audit-*` / `verify-*` tallies match `state.yaml` sprint status |
 
 Additional judgment checks (not all printed by the script):

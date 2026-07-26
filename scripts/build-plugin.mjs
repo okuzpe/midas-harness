@@ -1,17 +1,18 @@
 #!/usr/bin/env node
 // build-plugin.mjs — render the Claude Code plugin tree from source (dependency-free, Node ESM).
 //
-// Midas authors its skills/agents once under `.claude/` (the portable source of truth). A Claude Code
+// Midas authors its skills/agents once under `harness/`. A Claude Code
 // *plugin*, however, auto-discovers `skills/` and `agents/` at the PLUGIN ROOT. So this script renders
 // a self-contained plugin under `plugins/midas/` by copying the source components, and writes the
 // repo-root `.claude-plugin/marketplace.json` that lists it.
 //
-// The whole `plugins/midas/` tree is GENERATED — do not hand-edit it; edit `.claude/` and re-run:
+// The whole `plugins/midas/` tree and `.claude/{skills,agents}` are GENERATED — do not hand-edit;
+// edit `harness/{skills,agents}` and re-run:
 //   node scripts/build-plugin.mjs
 // Then a user installs Midas with:
 //   /plugin marketplace add okuzpe/midas-harness   →   /plugin install midas@midas
 //
-// No npm dependencies: only node:fs and node:path. Runs on Windows. Requires Node 16.7+ (cpSync).
+// No npm dependencies: only node:fs and node:path. Runs on Windows. Requires Node 22+.
 
 import { cpSync, writeFileSync, existsSync, mkdirSync, rmSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -49,7 +50,7 @@ export function computePluginReadme() {
   return [
     '# midas (generated plugin)',
     '',
-    '> **GENERATED — do not hand-edit.** This tree is rendered from `.claude/skills`, `.claude/agents`,',
+    '> **GENERATED — do not hand-edit.** This tree is rendered from `harness/skills`, `harness/agents`,',
     '> and `.mcp.json` by `scripts/build-plugin.mjs`. Edit the source and re-run the script.',
     '',
     'Install: `/plugin marketplace add ' + OWNER + '/midas-harness` then `/plugin install midas@midas`.',
@@ -81,13 +82,14 @@ export function computeMarketplaceJson() {
 }
 
 export function renderPluginTree() {
-  // --- 1. render plugins/midas/ from .claude/ + .mcp.json --------------------------------------
+  renderClaudeMirrors();
+  // --- 1. render plugins/midas/ from canonical harness sources + .mcp.json ----------------------
   // Start clean so deletions in source propagate (no stale skills left behind).
   if (existsSync(PLUGIN_DIR)) rmSync(PLUGIN_DIR, { recursive: true, force: true });
   mkdirSync(PLUGIN_DIR, { recursive: true });
 
-  cpSync(join(ROOT, '.claude', 'skills'), join(PLUGIN_DIR, 'skills'), { recursive: true });
-  cpSync(join(ROOT, '.claude', 'agents'), join(PLUGIN_DIR, 'agents'), { recursive: true });
+  cpSync(join(ROOT, 'harness', 'skills'), join(PLUGIN_DIR, 'skills'), { recursive: true });
+  cpSync(join(ROOT, 'harness', 'agents'), join(PLUGIN_DIR, 'agents'), { recursive: true });
   if (existsSync(join(ROOT, '.mcp.json'))) {
     cpSync(join(ROOT, '.mcp.json'), join(PLUGIN_DIR, '.mcp.json'));
   }
@@ -97,6 +99,16 @@ export function renderPluginTree() {
 
   // --- 2. write the repo-root marketplace.json -------------------------------------------------
   writeJson(join(MARKETPLACE_DIR, 'marketplace.json'), computeMarketplaceJson());
+}
+
+/** Materialize Claude's project discovery tree without treating it as authored source. */
+export function renderClaudeMirrors() {
+  for (const name of ['skills', 'agents']) {
+    const source = join(ROOT, 'harness', name);
+    const target = join(ROOT, '.claude', name);
+    if (existsSync(target)) rmSync(target, { recursive: true, force: true });
+    cpSync(source, target, { recursive: true });
+  }
 }
 
 if (IS_MAIN) {

@@ -25,14 +25,15 @@ proceeds on the **build** tier with Context7.
 > `close-sprint` = **formal Phase-8 gate** after tasks are done, tests green, and UI journeys verified.
 > Do not substitute one for the other — run start at kickoff, close at the gate.
 
-> **Precondition.** A sprint must be `planned` (or `active` being resumed) in `state.yaml.sprints[]`,
+> **Precondition.** A sprint must be `planned` (or `active` being resumed) in `paths.state → sprints[]`,
 > and Phase 6's gate must be passed. If no sprint is selectable, stop and report.
 
 ## Procedure
 
 ### 1. Read state + rules
 Load **`paths.state`** (sprints, routing, mode), the target `{product}/sprints/NN-*.md`, all
-`<paths.engine>/rules/*`, `{product}/design-system.md`, **`{product}/design-direction.md` whenever the sprint
+the effective rules from `<paths.engine>/rules/*` plus `<paths.rules>/*`, `{product}/design-system.md`,
+**`{product}/design-direction.md` whenever the sprint
 touches UI** (the named references + mood + anti-references — the anchor that keeps UI off generic
 defaults), `{product}/playbooks/*`, and `{product}/business-plan.md`. The rules are **frozen** — treat
 them as law for this audit.
@@ -46,7 +47,7 @@ sprints it catches accumulated drift before it compounds.
 ### 3. Decide sprint adjustments (logged)
 For each drift or scope mismatch, choose **one** and **log it**:
 - **Fix the code** — add a task to this sprint to bring it back into conformance, or
-- **Consciously amend a rule** — if the rule is wrong, update the rule in `<paths.engine>/rules/`, record a
+- **Consciously amend a rule** — if the rule is wrong, create or update its `<paths.rules>/` overlay, record a
   one-line rationale (and an ADR if architectural), and re-render adapters via
   `node <paths.scripts>/render-adapters.mjs` / `/midas-doctor`.
 
@@ -82,7 +83,7 @@ pass; **conformance to rules is verified in Phase 8** (`/close-sprint`).
 
 ## Exit (kickoff complete)
 The active sprint has a clear working plan, drift is either queued as fix-tasks or resolved via a
-logged rule amendment, agents are assigned, and `state.yaml` shows the sprint `active`. The next ritual
+logged rule amendment, agents are assigned, and `paths.state` shows the sprint `active`. The next ritual
 after the work lands is `/close-sprint`.
 
 ## Tier & cost

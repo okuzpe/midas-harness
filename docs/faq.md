@@ -35,9 +35,12 @@ per-subagent model routing — the tiers collapse to prose intent in `AGENTS.md`
 
 ---
 
-**Q: Why `.midas/` instead of putting everything in `harness/`?**
+**Q: Where does Midas live in v2?**
 
-Classic layout splits **engine source** (`harness/`) from **run output** (`.harness/`). **`layout: hub`** (default since 1.0.0) moves engine, runs, state, and `product/` under `.midas/`. Migrate a **classic** install with `node scripts/migrate-layout.mjs --target=hub` (dry-run first, then `--apply`). After migration, use `node .midas/scripts/doctor.mjs`. See [ADR-006](adr/ADR-006-hub-layout.md).
+Everything Midas-owned lives under `.harness/` except selected-host discovery adapters. Classic,
+compact, and hub 1.x installs remain detectable but are not updated in place. Preview with
+`npx github:okuzpe/midas-harness#v2.0.0-rc.1 --migrate`, then repeat with `--apply`; verify with
+`node .harness/scripts/doctor.mjs --strict`. See [ADR-007](adr/ADR-007-canonical-harness-layout.md).
 
 ---
 
@@ -47,7 +50,7 @@ Use `npx github:okuzpe/midas-harness` (or the `curl|bash` / `irm|iex` shims) for
 install: it copies all harness files into the repo so any tool can read them, and runs the adapter
 generator. Use the Claude Code plugin (`/plugin marketplace add okuzpe/midas-harness`) if you want
 to drive Midas purely from Claude Code without committing harness files to the repo. Note: the plugin
-does not write `AGENTS.md`, `CLAUDE.md`, or the state file — you still need `/midas-init`
+does not write `AGENTS.md`, `.claude/CLAUDE.md`, or the state file — you still need `/midas-init`
 afterward, but the resulting files are local-only.
 
 ---
@@ -55,7 +58,7 @@ afterward, but the resulting files are local-only.
 **Q: Is it safe to run `/midas-adopt` on a production codebase?**
 
 Yes, by design. `/midas-adopt` is read-only during the inventory phase. It only writes new files
-(inventory, architecture, rules) directly; for any pre-existing `AGENTS.md`, `CLAUDE.md`, `.mcp.json`,
+(inventory, architecture, rules) directly; for any pre-existing `AGENTS.md`, `.claude/CLAUDE.md`, `.mcp.json`,
 or source file it computes the exact diff, shows it to you, and requires explicit confirmation before
 touching anything. On decline it prints the block for manual paste. Nothing is ever silently rewritten.
 
@@ -79,7 +82,7 @@ Run the same one command with `--uninstall`: `npx github:okuzpe/midas-harness --
 `curl -fsSL …/install.sh | bash -s -- --uninstall`). It is **surgical** — it removes only Midas's own
 engine files and **keeps your work** (`product/`, `{runs}/`, state file) unless you pass
 `--purge`; use `--dry-run` to preview. Prefer to remove it by hand? Delete `.claude/`, engine dirs
-(`harness/` or `.midas/`), `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`,
+(`.harness/`), `AGENTS.md`, `.claude/CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`,
 `.windsurf/rules/00-midas.md`, and `.mcp.json`. Your source code is untouched. See
 [INSTALL.md](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md#uninstalling).
 

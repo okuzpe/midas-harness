@@ -155,7 +155,7 @@ contrato `**CHECK:**` en reglas, separación explícita productor/auditor, routi
 Midas congela evidencia de **sprints** en `.harness/audits/audit-NN.md` y `.harness/verifications/verify-NN.md`
 con líneas parseables (`MIDAS_AUDIT_RESULT: …`, `MIDAS_VERIFY_RESULT: …`). Los **gates de fase** (0–6)
 congelan en `.harness/audits/gate-0N.md` cuando el skill de fase cierra. El avance de
-`harness/state.yaml → stage` requiere veredicto orchestrate-tier. gstack encadena skills pero **no
+`.harness/state.yaml → stage` requiere veredicto orchestrate-tier. gstack encadena skills pero **no
 documenta gates formales** en el README.
 
 Referencias: [methodology.md](methodology.md), `harness/pipeline/8-audit-adjust.md`.
@@ -195,7 +195,7 @@ browser sidebar pero no un contrato de tiers equivalente.
 
 ### 3.7 Adapters multi-tool desde una fuente
 
-`scripts/render-adapters.mjs` genera `CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`,
+`.harness/scripts/render-adapters.mjs` genera `.claude/CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`,
 `GEMINI.md` desde `harness/conventions.md` + reglas. CI falla si hay drift.
 
 ### 3.8 Fases 0–3 (producto y mercado)

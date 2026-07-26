@@ -61,5 +61,5 @@ list the outstanding blocking questions. The producer never passes its own gate 
 
 ## Tier & delegation
 - **Dispatch + gate verdict:** `orchestrate` → delegate to `midas-orchestrator`.
-- **Write `{product}/idea.md`, `{product}/open-questions.md`, and `state.yaml` updates:** `build` → delegate to `midas-builder`.
+- **Write `{product}/idea.md`, `{product}/open-questions.md`, and `paths.state` updates:** `build` → delegate to `midas-builder`.
 - **Evidence extraction / file reads:** `scout` → delegate to `midas-scout` or `Explore`.

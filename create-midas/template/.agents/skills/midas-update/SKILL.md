@@ -19,18 +19,17 @@ metadata:
 > **Wrong command?** If install vs update vs init is unclear, run `npx github:okuzpe/midas-harness --diagnose`
 > (terminal, works even before Midas is installed) or `/midas-reconcile` after install — both are read-only.
 
-Bring an existing Midas install up to the current engine, **safely**. Read `layout` + `paths` from **`paths.state`**. Substitute `{runs}/` → `paths.runs`, `{product}/` → `paths.product` before any path below.
-
-**Optional layout migration (classic → compact):** if the user asks to declutter the root, run `node <paths.scripts>/migrate-layout.mjs --dry-run` first, show the table, confirm, then `--apply`. This is separate from a version bump — never run silently during `--update`.
+Bring an existing canonical v2 install up to the current engine, **safely**. Read `layout` + `paths`
+from **`paths.state`**. If the project is classic, compact, or hub 1.x, stop without writing and point
+to `npx github:okuzpe/midas-harness#v2.0.0-rc.1 --migrate`; applying requires the explicit `--apply`.
 
 ## Procedure
 1. **Read versions.** `from` = state `midas_version`; `to` = engine `VERSION` at `paths.version`. If `from == to`, report "already current" and stop.
 2. **Gather migration notes.** For each version between `from` and `to`, read `paths.engine/migrations/vX.Y.md`
    if present, else the `### Migration` subsection of that version's `CHANGELOG.md` entry. Summarize what changes.
-3. **Plan the minimal edits (dry-run).** Engine files refresh from the new engine: `paths.engine/`
-   (methodology/conventions/rules/pipeline/templates), `.claude/skills`, `.claude/agents`, `paths.scripts/`.
-   **Never** rewrite `{product}/*`, state content (except the version bump), or any hand-edited
-   file without a diff.
+3. **Plan the minimal edits (dry-run).** Use `.harness/manifest.json`: intact `vendor` files may refresh;
+   `generated` regions/mirrors may regenerate; `user` paths never overwrite. A vendor mismatch aborts
+   before writing. Preserve product, project rules, runs, MCP, and state except the version stamp.
 4. **Diff + confirm.** Show the diff per file and `AskUserQuestion` before writing. For files the user has
    edited outside `<!-- midas:begin -->` markers, preserve their content; only update managed regions.
    `--dry-run` prints the plan and writes nothing.
@@ -40,8 +39,8 @@ Bring an existing Midas install up to the current engine, **safely**. Read `layo
 7. **Report.** Summarize what migrated, what was preserved, and any manual follow-ups from the notes.
 
 ## Exit gate
-- [ ] `state.yaml.midas_version` equals engine `VERSION`.
-- [ ] No `{product}/*` artifact or hand-edited file changed without a confirmed diff.
+- [ ] `paths.state → midas_version` equals engine `VERSION`.
+- [ ] No user-owned product, rule, run, MCP, state, or content outside generated markers changed.
 - [ ] Adapters re-rendered; `/midas-doctor` reports in sync.
 
 ## Tier & cost

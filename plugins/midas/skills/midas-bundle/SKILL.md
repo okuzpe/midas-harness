@@ -1,6 +1,6 @@
 ---
 name: midas-bundle
-description: Export or import Midas project knowledge as portable JSON — state, product lifecycle docs, stack rules, playbooks, frozen evidence, MCP/enforcement config (no secrets), optional tests. Use to seed a new project, share a subset between repos, or backup selective memory. Complements git; does not replace it. Runs scripts/bundle.mjs deterministically; optional brief on export.
+description: Export or import Midas project knowledge as portable JSON — state, product lifecycle docs, stack rules, playbooks, frozen evidence, MCP/enforcement config (no secrets), optional tests. Use to seed a new project, share a subset between repos, or backup selective memory. Complements git; does not replace it. Runs <paths.scripts>/bundle.mjs deterministically; optional brief on export.
 user-invocable: true
 disable-model-invocation: true
 model: inherit
@@ -17,7 +17,7 @@ argument-hint: "export|import [--profile full|memory|knowledge|...] [-o file.jso
 > Full memory model: `<paths.engine>/research/memory-model.md`.
 
 Exports or imports **Midas knowledge** (not a full code backup) as a versioned JSON bundle. Paths inside
-the bundle use **classic canonical** coordinates (`harness/`, `.harness/`); import remaps for compact layout.
+the bundle use stable logical coordinates for backward compatibility; import maps them through `paths.*`.
 
 ## Profiles
 
@@ -58,7 +58,7 @@ node <paths.scripts>/bundle.mjs import midas-bundle.json --merge --replace-state
 |---|---|
 | `--merge` | Write only paths that do not exist |
 | `--replace` | Overwrite existing files (confirm with user first) |
-| `--replace-state` | Always write `state.yaml` when in the bundle — **never** use silently; gates are not re-run |
+| `--replace-state` | Always write `paths.state` when in the bundle — **never** use silently; gates are not re-run |
 
 After a successful import, suggest `/midas-doctor --fix` so adapters match imported rules.
 
@@ -67,13 +67,13 @@ After a successful import, suggest `/midas-doctor --fix` so adapters match impor
 **Seed new project:** export `--profile memory` from source → `npx create midas` + `/midas-init` on dest →
 import `--merge` (state stays from init) → `/midas-doctor --fix`.
 
-**Share rules/playbooks:** export `--only harness/rules,{product}/playbooks,{product}/conventions.md`.
+**Share rules/playbooks:** export `--only <paths.rules>,{product}/playbooks,{product}/conventions.md`.
 
 ## Hard boundaries
 
 - Does **not** advance `stage` or gates.
 - Does **not** export `{product}/src/` unless `--include-src`.
-- Does **not** export lockfiles or generated adapters (`CLAUDE.md`, `.cursor/rules/*`).
+- Does **not** export lockfiles or generated adapters (`.claude/CLAUDE.md`, `.cursor/rules/*`).
 - JSON is transport only — imported files live in git like any other artifact.
 
 ## Exit gate

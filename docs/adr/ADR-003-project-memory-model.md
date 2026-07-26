@@ -16,7 +16,7 @@ Persistent-memory products (e.g. [TrueMEM](https://www.truefoundry.com/es/blog/t
 [Jenova](https://www.jenova.ai/es/resources/ai-with-persistent-memory), [Engram](https://github.com/Gentleman-Programming/engram))
 solve **session amnesia** with STM/LTM layers — often vector stores, SQLite, or vendor-global memory.
 Midas already stores long-form project truth in **git-visible** artifacts (`paths.product/*`, `harness/rules/*`,
-`{runs}/*`) and operational state in `harness/state.yaml`. `/midas-capture` crystallizes recurring
+`{runs}/*`) and operational state in `.harness/state.yaml`. `/midas-capture` crystallizes recurring
 preferences into rules/playbooks/conventions — explicitly **no hidden runtime store** (`AGENTS.md`).
 
 The remaining gaps:
@@ -39,7 +39,7 @@ Adopt a **three-layer memory model on disk**:
 
 | Layer | Role | Canonical locations |
 |---|---|---|
-| **Program counter** | where am I in the lifecycle | `paths.state` (`harness/state.yaml` classic, `.midas/state.yaml` compact/hub) |
+| **Program counter** | where am I in the lifecycle | `paths.state` (`.harness/state.yaml` in v2) |
 | **STM** (session / sprint cycle) | what happened this working stretch | `{runs}/sprints/NN-progress.md`, active `{product}/sprints/NN-*.md` |
 | **LTM** (durable project truth) | decisions, scope, rules, frozen evidence | `{product}/*` (via `paths.product`), `harness/rules/*`, `{runs}/audits|debates|sweeps|verifications/*` |
 

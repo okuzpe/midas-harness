@@ -10,12 +10,12 @@ and the per-phase playbooks in `harness/pipeline/`.
 
 | # | Phase | Key output |
 |---|---|---|
-| 0 | Idea Intake | `product/idea.md`, `harness/state.yaml` |
+| 0 | Idea Intake | `.harness/product/idea.md`, `.harness/state.yaml` |
 | 1 | Contextualize & Gap Audit | `product/idea.md` v2, `product/open-questions.md` |
 | 2 | Market Research | `product/market.md` |
 | 3 | Business Case | `product/business-plan.md` |
 | 4 | Tech & Architecture | `product/architecture.md`, `product/adr/ADR-*.md` |
-| 5 | Architecture-as-Rules + Design System | `harness/rules/*`, `product/design-system.md`, `product/playbooks/*` |
+| 5 | Architecture-as-Rules + Design System | `.harness/rules/*`, `.harness/product/design-system.md`, `.harness/product/playbooks/*` |
 | 6 | Sprint Planning | `product/roadmap.md`, `product/sprints/NN-*.md` |
 | 7 | Sprint Execution | code + tests + updated sprint |
 | 8 | Per-sprint Audit & Adjust | `.harness/audits/audit-NN.md` |
@@ -80,7 +80,7 @@ about which gates were passed vs deliberately skipped (skipped gates carry a rec
 
 ## The harness contract
 
-- **Stateful** — one source of truth: `harness/state.yaml`. Skills read first, write last.
+- **Stateful** — one source of truth: `.harness/state.yaml`. Skills read first, write last.
 - **Auditable** — every phase yields artifacts and a gate verdict frozen in `.harness/audits/`.
 - **Resumable** — `/midas-status` reads state and prints the single next action; any agent on any
   tool can resume because the methodology is markdown, not a tool's memory.

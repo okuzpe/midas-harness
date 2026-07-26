@@ -27,21 +27,22 @@ followed by `/midas-status`.
   `AGENTS.md`, `.mcp.json`, the `render-adapters`/`doctor` scripts) into your project.
 - **Non-destructive:** files that already exist are skipped (use `--force` to overwrite). It only
   adds files — it never deletes yours.
-- Generates tool adapters from a single source (`CLAUDE.md`, `.cursor/rules/`, `.windsurf/rules/`, `GEMINI.md`).
+- Generates selected-host mirrors/adapters from canonical `.harness/engine/skills` and rules.
 - Prints a **per-tool compatibility summary** and onboarding steps (Cursor MCP reload, Gemini extension link, Codex AGENTS.md, …).
 
-Existing `AGENTS.md` / `CLAUDE.md` are preserved; run `/midas-init` to merge harness conventions into
+Existing `AGENTS.md` / `.claude/CLAUDE.md` are preserved outside Midas markers; run `/midas-init` to merge conventions into
 them.
 
 ## Options
 - `--force` — overwrite files that already exist.
-- `--update` — refresh engine files from the bundled template; preserves your `harness/state.yaml`.
+- `--migrate` — preview a v1 classic/compact/hub migration; add `--apply` to execute transactionally.
+- `--update` — refresh a v2 engine; preserves state, product, rules, runs, and user-owned config.
 - `--uninstall` — remove Midas-installed files (with confirmation).
 - `--tools=<list>` — e.g. `cursor`, `cursor,gemini,codex`, or `claude-code,cursor,windsurf,gemini`.
 - `--dry-run` — show what would be copied without writing.
 - `--purge` — with `--uninstall`, also remove generated adapters and `.harness/` caches.
 - `-h`, `--help` — show usage.
 
-Pin a release: `npx github:okuzpe/midas-harness#v1.1.4`
+Pin the release candidate: `npx github:okuzpe/midas-harness#v2.0.0-rc.1`
 
 Apache-2.0. Issues and docs: <https://github.com/okuzpe/midas-harness>.

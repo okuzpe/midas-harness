@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: ["16.20.2", "20", "24"]
+        node-version: ["22", "24", "26"]
     steps:
       # docs: GitHub Actions security hardening via docs.github.com (2026-06-27).
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
@@ -46,17 +46,17 @@ jobs:
           git diff --exit-code -- create-midas/template \
             || (echo "::error::create-midas/template is stale — run 'node scripts/build-create.mjs' and commit" && exit 1)
 
-      - name: Installer smoke test (hub default)
+      - name: Installer smoke test (canonical layout)
         run: |
           node create-midas/index.mjs /tmp/midas-smoke
           test -f /tmp/midas-smoke/AGENTS.md
           test -f /tmp/midas-smoke/.mcp.json
-          test -f /tmp/midas-smoke/CLAUDE.md
+          test -f /tmp/midas-smoke/.claude/CLAUDE.md
           test -f /tmp/midas-smoke/GEMINI.md
           test -d /tmp/midas-smoke/.claude/skills
-          test -f /tmp/midas-smoke/.midas/state.yaml
-          test -d /tmp/midas-smoke/.midas/product
-          node /tmp/midas-smoke/.midas/scripts/doctor.mjs
+          test -f /tmp/midas-smoke/.harness/state.yaml
+          test -d /tmp/midas-smoke/.harness/product
+          node /tmp/midas-smoke/.harness/scripts/doctor.mjs --strict
 
       - name: Diagnose smoke test (read-only CLI)
         run: |
@@ -75,40 +75,28 @@ jobs:
         run: |
           node create-midas/index.mjs /tmp/midas-update-smoke
           node create-midas/index.mjs --update /tmp/midas-update-smoke
-          node /tmp/midas-update-smoke/.midas/scripts/doctor.mjs
-
-      - name: Compact layout smoke test
-        run: |
-          node create-midas/index.mjs --layout=compact /tmp/midas-compact-smoke
-          test -f /tmp/midas-compact-smoke/.midas/state.yaml
-          test -d /tmp/midas-compact-smoke/.midas/engine
-          test -d /tmp/midas-compact-smoke/product
-          test -f /tmp/midas-compact-smoke/.midas/scripts/doctor.mjs
-          node /tmp/midas-compact-smoke/.midas/scripts/doctor.mjs
-
-      - name: Hub layout explicit smoke test
-        run: |
-          node create-midas/index.mjs --layout=hub /tmp/midas-hub-smoke
-          test -f /tmp/midas-hub-smoke/.midas/state.yaml
-          test -d /tmp/midas-hub-smoke/.midas/product
-          ! test -d /tmp/midas-hub-smoke/product
-          node /tmp/midas-hub-smoke/.midas/scripts/doctor.mjs
+          node /tmp/midas-update-smoke/.harness/scripts/doctor.mjs --strict
 
       - name: npm pack dry-run
         run: npm pack --dry-run 2>&1 | grep -q create-midas
 
-  windows-smoke:
-    runs-on: windows-latest
+  host-smoke:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        host: [claude-code, cursor, windsurf, gemini, codex, copilot]
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: "20"
-      - name: Installer smoke (Windows)
-        run: |
-          node create-midas/index.mjs $env:RUNNER_TEMP\midas-win-smoke
-          node $env:RUNNER_TEMP\midas-win-smoke\.midas\scripts\doctor.mjs
-        shell: pwsh
+          node-version: "24"
+      - name: Clean install and update for host
+        run: node scripts/ci-install-smoke.mjs ${{ matrix.host }}
+      - name: Windows migration and rollback fixtures
+        if: matrix.os == 'windows-latest' && matrix.host == 'codex'
+        run: node scripts/test.mjs
 
   docs:
     runs-on: ubuntu-latest

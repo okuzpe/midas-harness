@@ -29,10 +29,10 @@ flowchart LR
 ```
 
 Phases 0–6 run once (front-loaded). Phases 7–8 loop every sprint. Each phase produces named
-artifacts under `product/` and is guarded by an exit gate the orchestrator audits before advancing.
-One file holds all state: **`paths.state`** (classic: `harness/state.yaml`, compact: `.midas/state.yaml`).
-Install with `--layout=compact` to consolidate engine internals under `.midas/` — see
-[ADR-001](adr/ADR-001-install-layout.md) and [INSTALL.md](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md).
+artifacts under `.harness/product/` and is guarded by an exit gate the orchestrator audits before advancing.
+One file holds all state: **`.harness/state.yaml`**. Installed projects keep Midas internals under
+`.harness/`; v1 layouts migrate explicitly — see [ADR-007](adr/ADR-007-canonical-harness-layout.md)
+and [INSTALL.md](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md).
 
 See [Methodology](methodology.md) for the full phase table and the maturity-based entry points
 (E0–E3), or read the canonical [`harness/methodology.md`](https://github.com/okuzpe/midas-harness/blob/main/harness/methodology.md)

@@ -33,7 +33,7 @@ first; if Midas is not initialized, direct the user to `/midas-init`. Read first
      (rough is fine — Phase 1 sharpens these via the gap loop);
    - obvious **non-goals** the user has already named.
    Mark anything you inferred as an assumption, not a fact — do not invent specifics the user didn't give.
-3. **Confirm the mode.** Default from `state.yaml -> mode` (`greenfield` | `brownfield`). Confirm with
+3. **Confirm the mode.** Default from `paths.state -> mode` (`greenfield` | `brownfield`). Confirm with
    the user; if it changed, record the correction.
 4. **Advance state (write last).** Read-modify-write the whole **`paths.state`**:
    - record `{product}/idea.md` under `phases.idea_intake.artifacts`;
@@ -45,7 +45,7 @@ The orchestrator advances to Phase 1 **iff** all hold, with on-disk evidence:
 
 - the **raw idea is preserved verbatim** in `{product}/idea.md`;
 - a **one-line pitch** exists;
-- the **mode is set** (`greenfield` | `brownfield`) in `state.yaml`.
+- the **mode is set** (`greenfield` | `brownfield`) in `paths.state`.
 
 When satisfied, set `phases.idea_intake` to `{ status: passed, gate: passed }`, set `stage:
 contextualize, stage_status: not_started`, and tell the user the next action is **`/contextualize`**.
@@ -54,5 +54,5 @@ Producer never grades its own homework — the gate verdict is the orchestrator'
 
 ## Tier & delegation
 - **Dispatch + gate verdict:** `orchestrate` → delegate to `midas-orchestrator`.
-- **Write `{product}/idea.md` and update `state.yaml`:** `build` → delegate to `midas-builder`.
+- **Write `{product}/idea.md` and update `paths.state`:** `build` → delegate to `midas-builder`.
 - Scout is read-only; do not assign file writes to `midas-scout`.

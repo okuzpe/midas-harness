@@ -34,14 +34,16 @@ All rules in `harness/conventions.md` apply unconditionally. Key points:
 
 Stack-specific rules (generated in Phase 5) live in `harness/rules/` and take highest precedence.
 
-## Path resolution (layout-aware installs)
+## Path resolution
 
-Read `layout` and `paths` from **`paths.state`** first. Pipeline prose uses layout tokens:
+The engine repository keeps authored source in `harness/` and development scripts in `scripts/`.
+Installed v2 projects read `layout` and `paths` from **`.harness/state.yaml`** first:
 
-- **`{runs}/`** — substitute with `paths.runs` (classic: `.harness/`, compact/hub: `.midas/`)
-- **`{product}/`** — substitute with `paths.product` (classic/compact: `{product}/`, hub: `.midas/product/`)
+- **`{runs}/`** — `.harness/runs/`
+- **`{product}/`** — `.harness/product/`
 
-Engine source lives at `paths.engine` (classic: `harness/`, compact/hub: `.midas/engine/`).
+Installed engine source lives at `.harness/engine/`; project rule overlays live at `.harness/rules/`.
+Classic, compact, and hub paths are read-only migration inputs.
 
 ## Continuous capture of recurring patterns (always-on)
 
@@ -52,7 +54,7 @@ automatically (*recommend-don't-wall* — propose, never write silently):
 > *"You've asked for X three times — want me to capture it as a rule so the project always follows it?"*
 
 On the user's **OK**, write the **right** artifact and show the diff:
-- a **constraint / preference** → a **rule** in `harness/rules/<slug>.md` (with a `**CHECK:**`; re-render adapters);
+- a **constraint / preference** → a **rule** in `.harness/rules/<slug>.md` in installed projects (with a `**CHECK:**`; re-render adapters);
 - a **procedure** → a **playbook** in `{product}/playbooks/<verb-noun>.md`;
 - a **prose preference** → an entry in `{product}/conventions.md`.
 
@@ -88,5 +90,5 @@ On tools without per-agent model selection, apply as intent: fastest for researc
   (`disable-model-invocation`). **Never call them via the Skill tool** (it errors) or auto-run them — when one
   is the next step, **surface the command for the user to type** ("👉 Run `/…`"). Each also guards this in its body.
 - Secrets only via `${ENV_VAR}`; never write a key to disk or commit one.
-- Generated adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `GEMINI.md`) must not be
+- Generated adapters (`.claude/CLAUDE.md` in installs, `CLAUDE.md` in this engine repo, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `GEMINI.md`) must not be
   hand-edited; they are re-rendered by `/midas-doctor`.

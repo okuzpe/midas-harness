@@ -45,6 +45,9 @@ playwright-report/
 blob-report/
 status.html
 *.midas-bundle.json
+
+# midas: amend — patterns added on install/update
+.harness/migrations/backups/
 # midas:end
 
 # MkDocs build output (CI uses _site/; default `mkdocs build` writes site/ — both ignored)

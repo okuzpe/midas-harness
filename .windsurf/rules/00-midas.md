@@ -8,9 +8,10 @@ trigger: always_on
 
 # Midas base conventions (always-on)
 
-This file is the **single body** of project law. Its contents are inlined into the generated tool
-adapters (`CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `GEMINI.md`) and summarized in
-`AGENTS.md`. Edit it here; run `/midas-doctor` (or `node scripts/render-adapters.mjs`) to propagate.
+This file is the **base body** of project law. Its contents are inlined into generated tool adapters
+and summarized in `AGENTS.md`. In installed projects it is vendor-owned and immutable: project
+overrides belong in `{product}/conventions.md` or `<paths.rules>/`. Engine contributors edit this
+source and run `/midas-doctor`; installed projects run `/midas-doctor` after changing their overlays.
 
 ## Precedence (when rules conflict, higher wins)
 
@@ -23,14 +24,15 @@ chosen framework). `{product}/conventions.md` and `{product}/design-system.md` a
 team owns. This base file is the floor every project starts from. There is exactly **one** taxonomy —
 do not introduce a parallel "standards" layer.
 
-## Path resolution (layout-aware)
+## Path resolution
 
 Read `layout` and `paths` from **`paths.state`**. Pipeline and skills use tokens — substitute before I/O:
 
-- **`{runs}/`** → `paths.runs` (classic: `.harness/`, compact/hub: `.midas/`)
-- **`{product}/`** → `paths.product` (classic/compact: `product/`, hub: `.midas/product/`)
+- **`{runs}/`** → `paths.runs` (`.harness/runs/`)
+- **`{product}/`** → `paths.product` (`.harness/product/`)
 
-Engine source: `paths.engine` (`harness/` classic, `.midas/engine/` compact/hub).
+Engine source: `paths.engine` (`.harness/engine/`). Project rule overlays: `paths.rules`
+(`.harness/rules/`); an overlay wins over a base rule with the same slug.
 
 ## Code quality
 - Match the surrounding code: naming, structure, comment density, idioms. New code should be
@@ -91,7 +93,7 @@ Engine source: `paths.engine` (`harness/` classic, `.midas/engine/` compact/hub)
 - Treat all external input as untrusted.
 
 ## Design system
-- Base tokens ship in `harness/design-system/tokens.{json,css}`; project overrides live in
+- Base tokens ship in `<paths.engine>/design-system/tokens.{json,css}`; project overrides live in
   `{product}/design-system.md` with rendered files at `{product}/design-system/tokens.{json,css}`.
   Never hardcode colors, spacing, type sizes, or radii — reference `--ds-*` tokens.
 - Visual hierarchy, typography discipline, emphasis, and lightweight UX floors:
@@ -149,11 +151,11 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
 - [ ] Doc fetches for multi-file research are delegated to scout tier when an agent router is available.
       **CHECK:** `manual:` Phase-4/7 research legs that only fetch docs are tagged scout in the session plan; routing heavy fetches to orchestrate without justification is a warn.
 
-## Always-on rules — CHECK digest (full bodies in `harness/rules/`)
-- **Rule: Acceptance criteria (EARS) (always-on)** (`acceptance-criteria.md`)
+## Always-on rules — CHECK digest (base: `harness/rules/`; project: `harness/rules/`)
+- **Rule: Acceptance criteria (EARS) (always-on)** (`acceptance-criteria.md`, base)
   - **CHECK:** `manual:` read `{product}/sprints/NN-*.md` § Acceptance — any line that is a goal, not an observable behaviour, is a fail.
   - **CHECK:** `manual:` cross-read sprint acceptance table vs test files and `{runs}/verifications/` — an uncovered criterion is a fail.
-- **Rule: Accessibility & design-system floor (always-on)** (`accessibility.md`)
+- **Rule: Accessibility & design-system floor (always-on)** (`accessibility.md`, base)
   - **CHECK:** `grep -rniE "#[0-9a-fA-F]{3,8}|rgba?\(" <ui-src>` → every hit is a token *definition*, not an inline value in a component; an inline hex/rgb in component code is a fail.
   - **CHECK:** `manual:` a reviewer can name which reference each key screen draws from; "generic Bootstrap/Tailwind default" with no traceable anchor is a fail.
   - **CHECK:** `manual:` the design tokens are AA-verified (the starter `tokens.css` documents the ratios per semantic pair); any new colour pairing is checked against AA before use.
@@ -170,7 +172,7 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `grep -rniE "(^|[^-])height:[[:space:]]*[0-9]+px" <ui-src>` on buttons/inputs is a flag (excludes line/min/max-height); controls read `--ds-size-control-*`.
   - **CHECK:** `manual:` no horizontal scrollbar (`document.documentElement.scrollWidth <= clientWidth`); buttons/inputs stay inside their parent. `/midas-verify` automates this.
   - **CHECK:** `grep -rniE "z-index:[[:space:]]*[0-9]+" <ui-src>` → each is a `var(--ds-z-*)` token; a raw integer (e.g. `9999`) is a fail.
-- **Rule: Change propagation — keep sources, bundles, docs, and versions aligned (always-on)** (`change-propagation.md`)
+- **Rule: Change propagation — keep sources, bundles, docs, and versions aligned (always-on)** (`change-propagation.md`, base)
   - **CHECK:** `manual:` the PR/sprint notes or `/midas-align` report names each downstream surface touched; an unmentioned generated tree in the diff that was hand-edited is a fail.
   - **CHECK:** `npm run align` (engine) or `/midas-align` exits with `verdict=aligned` or lists only resolved gaps; exit 1 with open gaps is a fail before merge.
   - **CHECK:** `git diff --name-only` shows no lone edits under `plugins/midas/`, `create-midas/template/`, or managed adapter regions without a corresponding `.claude/`, `harness/`, or `scripts/` source change.
@@ -178,14 +180,14 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` a diff touching installer flags, layout, or skill commands also touches at least one user-facing doc; undocumented install/flow change is a fail.
   - **CHECK:** `node <paths.scripts>/doctor.mjs` reports no adapter `drift` after a `<paths.engine>/rules/` diff.
   - **CHECK:** `grep -rnE 'harness/state\.yaml' .claude/skills/` → only examples naming classic layout, not as the sole read path in ritual guards.
-- **Rule: Code quality (always-on)** (`code-quality.md`)
+- **Rule: Code quality (always-on)** (`code-quality.md`, base)
   - **CHECK:** `manual:` diff each new file against a sibling in the same directory; a naming/indent/idiom break that stands out from local style is a fail.
   - **CHECK:** `manual:` grep the codebase for the concept (`grep -rin "<concept>" <src-root>/`); a parallel implementation of an existing pattern is a fail.
-  - **CHECK:** any rules/standards/guidelines doc outside `harness/conventions.md` + `harness/rules/` is a fail (`find . -iname "*standard*" -o -iname "*guideline*"` outside those paths → empty).
+  - **CHECK:** any rules/standards/guidelines doc outside `<paths.engine>/conventions.md`, `<paths.engine>/rules/`, and `<paths.rules>/` is a fail (`find . -iname "*standard*" -o -iname "*guideline*"` outside those paths → empty).
   - **CHECK:** `manual:` the name is a verb-phrase describing the effect; a body with multiple unrelated responsibilities (independent side effects) is a fail.
   - **CHECK:** linter (`eslint max-lines-per-function` / equivalent) reports no function over the stack limit; absent a linter, no body exceeds ~40 logical lines.
   - **CHECK:** `manual:`/AST: no signature in the diff declares > 4 positional parameters.
-  - **CHECK:** grep imports against `harness/rules/folder-structure.md` (the project's Phase-5-generated rule; e.g. `grep -rn "from '@/db'" <src-root>/ui/` → empty); any forbidden cross-layer import is a fail.
+  - **CHECK:** grep imports against `<paths.rules>/folder-structure.md` (the project's Phase-5 rule; e.g. `grep -rn "from '@/db'" <src-root>/ui/` → empty); any forbidden cross-layer import is a fail.
   - **CHECK:** `eslint no-unused-vars` / `ts-prune` / `vulture` (per stack) reports zero unused or unreachable symbols in the diff.
   - **CHECK:** review for commented-out statements (`grep -nE "^\s*(//|#).*[;{}()]" <diff>`); a commented-out code block is a fail.
   - **CHECK:** `grep -rnE "TODO" <src-root>/ | grep -vE "TODO\((\w+|#[0-9]+)\):"` must be empty.
@@ -199,7 +201,7 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` each boundary entry validates shape/range before use; an unvalidated external read is a fail (evidence: `file:line`).
   - **CHECK:** `manual:` inspect error/response paths; a message returning a raw secret or internal stack trace to a caller is a fail.
   - **CHECK:** `grep -rnE "catch\s*\([^)]*\)\s*\{\s*\}|except[^\n]*:\s*\n\s*pass"` → empty.
-- **Rule: Documentation (always-on)** (`docs.md`)
+- **Rule: Documentation (always-on)** (`docs.md`, base)
   - **CHECK:** `manual:` each `export`ed symbol in the diff is preceded by a doc comment; an undocumented public export is a fail.
   - **CHECK:** `manual:` a doc comment that merely echoes the signature is a fail.
   - **CHECK:** `manual:` non-obvious params/returns (ranges, units, nullability) are documented; an undocumented constraint is a fail.
@@ -217,10 +219,10 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` a behaviour change whose docs are untouched in the same commit is a fail.
   - **CHECK:** a link-checker over changed docs returns no 4xx/5xx; a broken link is a fail.
   - **CHECK:** `manual:` cross-read changed docs against `harness/conventions.md` + rules; a contradiction is a fail (harness file wins).
-- **Rule: Enforcement state is recorded and honest (always-on)** (`enforcement-state.md`)
+- **Rule: Enforcement state is recorded and honest (always-on)** (`enforcement-state.md`, base)
   - **CHECK:** `node <paths.scripts>/doctor.mjs <project>` reports no `enforcement` **warn** — every named config file exists on disk. Any `installed: false` is reported as an advisory `ok` note, not a fail.
   - **CHECK:** when a stack rule's CHECK names a linter/scanner as its machine-readable form, a matching `enforcement:` entry exists and its config file is present. *(manual.)*
-- **Rule: Git commits (always-on)** (`git-commits.md`)
+- **Rule: Git commits (always-on)** (`git-commits.md`, base)
   - **CHECK:** `git log <base>..HEAD --format=%s | grep -vE "^(feat|fix|docs|refactor|test|chore|perf|style|ci)(\(.+\))?!?: .{1,62}$"` → empty.
   - **CHECK:** same `git log` scan as above; any subject whose type is outside the allowed set is a fail.
   - **CHECK:** `git log <base>..HEAD --format=%s | grep -iE ": (added|adding|fixed|fixing|updated|updating)\b"` → empty.
@@ -238,20 +240,20 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` each push traces to an explicit human request in the session; an agent-initiated push is a fail.
   - **CHECK:** `manual:` the PR targets the default branch and links the sprint task; a PR with no sprint reference is a fail.
   - **CHECK:** `manual:` merged history matches the project's single chosen strategy (no mixed merge/squash).
-- **Rule: Hygiene & dead-flow sweep (always-on)** (`hygiene.md`)
+- **Rule: Hygiene & dead-flow sweep (always-on)** (`hygiene.md`, base)
   - **CHECK:** `manual:` if `state.yaml` has `mode: brownfield`, either (a) a `{runs}/sweeps/sweep-NN.md` exists whose date falls within the active sprint window, or (b) `{runs}/audits/audit-NN.md` § hygiene records `sweep: skipped — <one-line reason>`. Neither is a fail on greenfield (`mode` absent or `greenfield`).
   - **CHECK:** `manual:` read the latest `{runs}/sweeps/sweep-NN.md` for this sprint cycle (if any); if `MIDAS_SWEEP_RESULT` shows `dead_flows>0` or `ledger_drift>0`, the sprint audit must list each as **fixed**, **deferred** (with issue/owner), or **accepted** (with rationale). An unmentioned high-severity row is a fail.
   - **CHECK:** `manual:` for each feature id touched in the sprint diff, `status: passing` rows carry non-empty `evidence` (test path, route, or verify record); `failing` rows are not contradicted by shipped code in the same diff without a recorded deferral.
   - **CHECK:** `manual:` for each `{product}/playbooks/*.md` cited in the sprint or architecture, grep `<src-root>/` for the trigger predicate; a playbook with zero matches and no `## Retired` note in the sweep or audit is a warn (fail if the sprint added or edited that playbook without fixing the trigger).
   - **CHECK:** `manual:` rows in `{product}/open-questions.md` marked OPEN that are answered in `{product}/idea.md` are a fail; internal markdown links in changed `{product}/*` files that 404 on disk are a fail (grep `](` targets against the tree).
-- **Rule: Cost-aware model routing (always-on)** (`model-routing.md`)
+- **Rule: Cost-aware model routing (always-on)** (`model-routing.md`, base)
   - **CHECK:** A high-stakes gate verdict or audit (Phase 1/3/4/8, code-review, security-review) is produced **via the `midas-orchestrator` sub-agent** — its pinned `model:` is the provenance. The model id written into an audit/verify/tribunal record header is **provenance-by-delegation, not self-report**; a record produced on the inherited session model must not claim a tier it did not run on.
   - **CHECK:** *(manual)* Under any `execution_mode`, a binding gate/audit/verify verdict header (Phase 1/3/4/8, code-review, security-review) names a **Claude `orchestrate`** model as provenance; a local model id in a binding verdict header is a fail — it may appear only on a record explicitly marked `un-attested`.
   - **CHECK:** Doc fetches and file/status extraction are delegated to `midas-scout` (or `Explore`), not run on the orchestrate tier. *(manual: a phase whose only work is fetch/extract names a scout delegation in its SKILL body.)*
   - **CHECK:** Each multi-tier phase delegates its produce/fetch legs to `midas-builder` / `midas-scout` in the SKILL body — `harness-tier` is the dispatch tier only, never the whole cost story. *(manual.)*
   - **CHECK:** `paths.state -> routing` ids are all known model ids and, under the legacy `claude` profile with `cost_profile: balanced`, **equal the pinned `model:` of the three first-party agents**. The `openai-mini` profile resolves all three tiers to `gpt-5.4-mini`. Run `node <paths.scripts>/doctor.mjs <project>`; a `routing:*` warning is a fail. *(The engine enforces the same reconciliation against the example state in `scripts/test.mjs`.)*
   - **CHECK:** *(manual)* a latency-tolerant fan-out of ≥3 same-shaped calls uses batching, not a serial loop.
-- **Rule: Naming (always-on)** (`naming.md`)
+- **Rule: Naming (always-on)** (`naming.md`, base)
   - **CHECK:** `git diff --name-only <base>..HEAD` shows no path segment matching `[A-Z _]` (outside framework-mandated names like `README`, `Dockerfile`).
   - **CHECK:** `git diff --name-only | grep -iE "/(utils?|helpers?|misc|common|stuff)\.[a-z]+$"` → empty (or each justified).
   - **CHECK:** `manual:` each `index.*` barrel sits on a public module boundary and re-exports only the public surface.
@@ -270,7 +272,7 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` grep the synonyms for one entity (`grep -rinE "user|account|member" <src-root>/`); two names for the same concept is a fail.
   - **CHECK:** `manual:` each domain noun in code matches a glossary term from `{product}/idea.md` / `{product}/architecture.md`.
   - **CHECK:** `manual:` a rename touches all occurrences in one commit; a partial rename leaving the old name is a fail.
-- **Rule: Security (always-on)** (`security.md`)
+- **Rule: Security (always-on)** (`security.md`, base)
   - **CHECK:** `git grep -nE "(sk-[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{16,}|-----BEGIN [A-Z ]*PRIVATE KEY)"` → empty; a secret-scanner (gitleaks/trufflehog) on the diff finds nothing.
   - **CHECK:** `manual:` every credential the code consumes resolves from `process.env`/env equivalent or a gitignored local file; a hardcoded credential is a fail.
   - **CHECK:** `grep -nE "(token|api[_-]?key|secret|password)\"\s*:\s*\"[^$]" .mcp.json` → empty (matches `/midas-doctor`'s `mcp:secret-free` check).
@@ -291,12 +293,12 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` response headers/bodies expose no server version or internal IDs not required by spec (e.g. `X-Powered-By` disabled).
   - **CHECK:** `grep -rnE "http://(?!localhost|127\.0\.0\.1)" <src-root>/ config/` → empty.
   - **CHECK:** `manual:` if the spec requires encryption-at-rest, `{product}/architecture.md` records the mechanism and the code/infra applies it.
-- **Rule: Session continuity (always-on)** (`session-continuity.md`)
+- **Rule: Session continuity (always-on)** (`session-continuity.md`, base)
   - **CHECK:** `manual:` when `stage: sprint_execution` and a sprint is `active`, either (a) `{runs}/sprints/NN-progress.md` exists with at least one **Learned** row updated this sprint cycle, or (b) `sprints[].last_touched` for that sprint is ≤ **7 days** before audit date. Greenfield with no active sprint → `n/a`.
   - **CHECK:** `manual:` when the sprint diff checks off tasks in `{product}/sprints/NN-*.md`, read `{runs}/sprints/NN-progress.md` § Done — each completed row carries a non-empty **Tool** value (e.g. `test-runner`, `context7`, `playwright-mcp`); a checked-off task with proof but no Tool is a fail. Sprints with zero tasks completed this cycle → `n/a`.
   - **CHECK:** `manual:` the capture log in `state.yaml` or the amended artifact's `## Amendment` notes `no conflicts` or documents the contradiction table outcome; a silent capture against an existing CHECK is a fail.
-  - **CHECK:** `manual:` the sprint diff introduces no new `*.db`, `.engram/`, or vector-store config; continuity evidence is `NN-progress.md`, `{product}/*`, or `harness/rules/*` only.
-- **Rule: Testing (always-on)** (`testing.md`)
+  - **CHECK:** `manual:` the sprint diff introduces no new `*.db`, `.engram/`, or vector-store config; continuity evidence is `NN-progress.md`, `{product}/*`, or `<paths.rules>/*` only.
+- **Rule: Testing (always-on)** (`testing.md`, base)
   - **CHECK:** `manual:` the sprint diff pairs each behavioural change with a new/updated test in the same range; a behaviour change with no test delta is a fail.
   - **CHECK:** `manual:` tests assert public outputs/effects; a test reaching into private state/mocks-everything is a fail.
   - **CHECK:** the project test command (`npm test` / `pytest` / …) exits 0 with zero failures.
@@ -315,7 +317,7 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** the CI workflow (`.github/workflows/*`) runs the test command on push/PR; absent, it is a fail.
   - **CHECK:** `manual:` branch protection / required check makes the test job mandatory for merge.
   - **CHECK:** `manual:` any known-flaky test has a tracking issue and a fix/quarantine within the sprint.
-- **Rule: Verification (always-on)** (`verification.md`)
+- **Rule: Verification (always-on)** (`verification.md`, base)
   - **CHECK:** the project's typecheck, lint, and build commands (`tsc --noEmit` / `mypy`, the linter, the build) each exit 0 with zero new errors on the sprint diff.
   - **CHECK:** the project test command (`npm test` / `pytest` / …) exits 0; a behaviour change with no new/updated test in the same diff range is a fail.
   - **CHECK:** `manual:` the project's run/preview/start command boots and stays up; an uncaught exception, failed import, or crash-on-launch is a fail (record the command + the observed output).
@@ -327,7 +329,7 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` every acceptance-criterion row has a non-empty Tool value; undocumented fallback is a fail.
   - **CHECK:** the sprint's `{runs}/audits/audit-NN.md` exists and was produced by the auditor tier, not the producer; its `MIDAS_AUDIT_RESULT` tally shows `unresolved=0 verdict=pass`.
   - **CHECK:** in `{product}/features.json`, a `status: "passing"` with empty `evidence`, or a shipped behaviour with no feature entry, is a fail; Phase 8 grades the file against the verification records.
-- **Rule: Visual design fundamentals (always-on)** (`visual-design.md`)
+- **Rule: Visual design fundamentals (always-on)** (`visual-design.md`, base)
   - **CHECK:** `manual:` on each key screen, exactly one primary CTA is visually dominant; a second filled primary on the same view is a fail.
   - **CHECK:** `grep -rniE "<h[1-6]" <ui-src>` → `manual:` each page's heading order has no skipped levels; a decorative size bump without semantic level is a fail.
   - **CHECK:** `manual:` the primary heading uses `--ds-text-2xl`/`--ds-text-3xl` or larger; body copy uses `--ds-text-md`; metadata/labels use `--ds-text-sm` or `--ds-text-secondary` — a screen where all text reads the same size/weight is a fail.

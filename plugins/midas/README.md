@@ -1,6 +1,6 @@
 # midas (generated plugin)
 
-> **GENERATED — do not hand-edit.** This tree is rendered from `.claude/skills`, `.claude/agents`,
+> **GENERATED — do not hand-edit.** This tree is rendered from `harness/skills`, `harness/agents`,
 > and `.mcp.json` by `scripts/build-plugin.mjs`. Edit the source and re-run the script.
 
 Install: `/plugin marketplace add okuzpe/midas-harness` then `/plugin install midas@midas`.

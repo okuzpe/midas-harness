@@ -27,7 +27,7 @@ arguments** — the producer never grades its own homework.
 > flow, not a required gate. Debaters run on the build/scout tiers; you
 render a verdict **per claim**. This is distinct from `/close-sprint` (single-sprint conformance vs
 frozen rules): the tribunal argues *whether the decisions themselves are right*, across the whole
-`{product}/*` + `<paths.engine>/rules/*` + `src/*` surface.
+`{product}/*` + effective rules from `<paths.engine>/rules/*` and `<paths.rules>/*` + `src/*` surface.
 
 Why this shape (grounded in research; sources in `<paths.engine>/research/debate-method.md`): multi-agent debate only beats single-pass critique when every
 claim cites **checkable evidence**, the **producer is separated from the grader**, and **genuine
@@ -35,7 +35,7 @@ dissent is forced** — otherwise it degenerates to premature consensus, sycopha
 Every rule below exists to defend one of those failure modes.
 
 > **Shared audit fragments:** `<paths.engine>/templates/audit-checklists.md` (gate semantics vs
-> `/close-sprint`, evidence rule, tally format). Record shape: `harness/templates/debate-record.md`.
+> `/close-sprint`, evidence rule, tally format). Record shape: `<paths.engine>/templates/debate-record.md`.
 
 ## The lenses (each a persona + provocation + on-disk target)
 
@@ -77,7 +77,7 @@ Each scope activates the matching subset of lenses (e.g. `architecture` → ATAM
 
 ### Round 0 — Convene & index (scout / Haiku)
 Read **`paths.state`**. Resolve scope + depth. Dispatch **scout** subagents to build a per-lens
-**evidence pack**: exact paths in `{product}/*`, the relevant `<paths.engine>/rules/*` bodies, `src/*`
+**evidence pack**: exact paths in `{product}/*`, the relevant effective base/project rule bodies, `src/*`
 `file:line` ranges, `{product}/adr/*`. Inject only the slice each lens needs — never dump all rules.
 
 ### Round 1 — Opening positions (build / Sonnet, parallel, one seat per lens)
@@ -110,7 +110,7 @@ go-ahead, apply) the findings→action bridge:
 - `amend-rule` → open `{product}/adr/ADR-00X` capturing thesis / antithesis / synthesis;
 - `defer` → append `OQ-NN` to `{product}/open-questions.md` (non-blocking, logged).
 
-You MAY set `last_tribunal: { n: NN, criticals: X, at: <date> }` in `state.yaml` (read-modify-write the
+You MAY set `last_tribunal: { n: NN, criticals: X, at: <date> }` in `paths.state` (read-modify-write the
 whole file per schema). **Never set `gate: passed` or advance `stage`** — the tribunal informs; the
 gates decide.
 

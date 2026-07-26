@@ -24,11 +24,11 @@ homework** — this is an independent orchestrate-tier audit.
 > `close-sprint` is the **formal Phase-8 gate** — only after tasks, tests, and UI `/midas-verify` journeys
 > (web and/or mobile sections in `verify-NN.md`, when applicable) are green. Never open a sprint with close-sprint; never ship a gate without it.
 
-> **Precondition.** A sprint must be `active` in `state.yaml.sprints[]` with its work landed (tasks
+> **Precondition.** A sprint must be `active` in `paths.state → sprints[]` with its work landed (tasks
 > done, tests run). If no active sprint, stop and report.
 
 > **Shared audit fragments:** `<paths.engine>/templates/audit-checklists.md` (gate semantics, evidence
-> rule, tally format, hygiene hook). Record shape: `harness/templates/audit-record.md`.
+> rule, tally format, hygiene hook). Record shape: `<paths.engine>/templates/audit-record.md`.
 
 ## Procedure
 
@@ -40,14 +40,15 @@ high-severity findings. When a sweep exists, resolve or consciously defer every 
 `ledger-drift` row before grading other rules — otherwise Phase 8 audits noise.
 
 ### 1. Read state + frozen rules
-Load **`paths.state`**, the active `{product}/sprints/NN-*.md`, all `<paths.engine>/rules/*`,
+Load **`paths.state`**, the active `{product}/sprints/NN-*.md`, all effective rules from
+`<paths.engine>/rules/*` plus `<paths.rules>/*` (project slug wins),
 `{product}/architecture.md` and `{product}/idea.md` (the module boundaries + glossary the
 code-quality/testing/security/naming CHECKs grade against), `{product}/conventions.md`,
 `{product}/design-system.md`, `{product}/design-direction.md` (the named UI references — the evidence the
 `accessibility.md` design-fidelity CHECK grades against), and `{product}/business-plan.md`.
 
 ### 2. Conformance audit (every rule, pass/fail, with evidence)
-For **each** rule in `<paths.engine>/rules/*` and the design-system token rule, evaluate the rule's CHECK
+For **each** effective base/project rule and the design-system token rule, evaluate the rule's CHECK
 against the sprint diff and render **pass/fail with on-disk evidence** (file:line). Confirm
 third-party code was written against Context7-verified docs at the pinned version. Where a task
 followed a `{product}/playbooks/*` recipe, confirm its **done-when** checks hold too — and **trigger-check
@@ -62,7 +63,7 @@ that nothing from **non-goals** crept in (no scope creep, no silently dropped mu
 ### 4. Resolve drift
 For every failed check or scope mismatch, choose **one** and record it:
 - **Fix now** — queue/apply the correction to restore conformance, or
-- **Consciously amend the rule** — if the rule is wrong, update `<paths.engine>/rules/` (+ ADR if
+- **Consciously amend the rule** — if the rule is wrong, create or update its `<paths.rules>/` overlay (+ ADR if
   architectural) with a logged rationale and re-render adapters (`node <paths.scripts>/render-adapters.mjs` /
   `/midas-doctor`).
 
@@ -81,7 +82,7 @@ MIDAS_AUDIT_RESULT: rules_failed=X unresolved=Y amended=Z verdict=pass|blocked
 
 `unresolved` counts fails neither fixed nor consciously amended. **Close the sprint only when
 `unresolved=0` and `verdict=pass`** — a blocked or unresolved tally must not be paired with a
-`status: done` sprint in `state.yaml` (doctor flags that mismatch).
+`status: done` sprint in `paths.state` (doctor flags that mismatch).
 
 ### 6. Plan adjustment + update state
 Update **`paths.state`** (read-modify-write): set the sprint `status: done`, write its `audit_notes`, refresh
@@ -99,7 +100,7 @@ revealed new work). Then **select next**:
   playbook's done-when satisfied (a matching change that bypassed the playbook is a fail).
 - **Drift fixed or the rule consciously amended** (logged) — nothing silent.
 - **Scope reconciled** against the business case.
-- `{runs}/audits/audit-NN.md` frozen; `state.yaml` updated.
+- `{runs}/audits/audit-NN.md` frozen; `paths.state` updated.
 - A clear next step: **next sprint** or **"MVP complete"**.
 
 ## Tier & cost

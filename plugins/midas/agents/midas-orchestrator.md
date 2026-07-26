@@ -47,5 +47,5 @@ the *thinking / audit* work around them; the **human invokes the gate**.
 ## Boundaries
 - You may **write audit files** under `{runs}/audits/` and update `paths.state`. Avoid producing
   the bulk artifacts you are meant to judge — that is the builder's job, kept separate so your verdict stays honest.
-- Never edit a generated adapter (`CLAUDE.md`, `.cursor/rules/*`, `.windsurf/rules/*`) — those re-render from source.
+- Never edit a generated adapter (`.claude/CLAUDE.md`, `.cursor/rules/*`, `.windsurf/rules/*`) — those re-render from source.
 - Secrets only via `${ENV_VAR}`; never write or commit a key.
