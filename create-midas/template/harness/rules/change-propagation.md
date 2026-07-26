@@ -12,7 +12,7 @@ file and leaving generated trees, version stamps, or docs stale is a **gap** —
 | You changed… | Also update / run |
 |---|---|
 | `<paths.engine>/conventions.md` or any `<paths.engine>/rules/*.md` | `node <paths.scripts>/render-adapters.mjs` (or `/midas-doctor --fix`); re-read adapters in every active tool |
-| `.claude/skills/*` or `.claude/agents/*` | **Engine repo:** `npm run build` (syncs `plugins/midas/` + `create-midas/template/`). **Product:** adapters only if conventions changed |
+| `.claude/skills/*`, `.agents/skills/*`, or `.claude/agents/*` | **Engine repo:** `npm run build` (syncs `plugins/midas/` + `create-midas/template/`). **Product:** adapters only if conventions changed |
 | `<paths.engine>/pipeline/*`, templates, methodology, state schema | Matching docs (`docs/*`, `INSTALL.md`, `README.md` when user-facing); rebuild template if engine repo |
 | Behaviour in product code | Tests per `testing.md`; docs per `docs.md`; `{product}/features.json` if tracked |
 | `harness/VERSION` (engine repo) | `package.json`, `create-midas/package.json`, `gemini-extension.json`, `CHANGELOG.md`, `harness/state.schema.md` example stamp, docs version pins — `scripts/test.mjs` asserts parity |
@@ -20,8 +20,9 @@ file and leaving generated trees, version stamps, or docs stale is a **gap** —
 | `.mcp.json` or skill `mcp-required` | `state.yaml → mcp:` list; `node <paths.scripts>/mcp-drift.mjs` / doctor `mcp:*` checks |
 | Sprint behaviour / acceptance criteria | Tests; `{runs}/verifications/` if UI; `{runs}/audits/` at `/close-sprint` |
 
-**Never hand-edit generated trees** (`plugins/midas/`, `create-midas/template/`, `CLAUDE.md`,
-`.cursor/rules/`, `.windsurf/rules/`, `GEMINI.md`) — edit the source, then run the render/build path.
+**Never hand-edit generated trees** (`plugins/midas/`, `create-midas/template/`, `.agents/skills/`,
+`CLAUDE.md`, `.cursor/rules/`, `.windsurf/rules/`, `GEMINI.md`) — edit the source, then run the
+render/build path.
 
 ## Adapter digest strategy (engine repo)
 

@@ -1,0 +1,207 @@
+---
+name: midas-init
+description: "Adaptive one-time setup for Midas — scans everything the project already has (code, manifests, README, docs, notes), classifies its maturity, pre-fills every artifact it can infer, asks only the genuine gaps in one batched round, places the project at the correct phase, and optionally wires monorepos (--monorepo). Use once, when the user explicitly runs /midas-init."
+metadata:
+  midas-argument-hint: "[--monorepo] [--dry-run]"
+  midas-disable-model-invocation: true
+  midas-harness-tier: orchestrate
+  midas-mcp-recommended: "[context7]"
+  midas-model: inherit
+  midas-recommended-model: claude-opus-4-8
+  midas-user-invocable: true
+---
+# midas-init — the adaptive intake (one-time setup)
+
+> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
+> First read the state file at **`paths.state`** (`layout` + `paths` block, or infer from disk). If the precondition stage is wrong, report and stop.
+
+> **Paths:** Motor = `paths.engine`; scripts = `paths.scripts`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
+
+**Run this once** for full intake. The installer wrote a default state file so nothing is broken, but it made
+no real decisions. `/midas-init` is the **one-time guided setup** — and it adapts to *where the project
+already is* instead of forcing every repo to start from a blank `/idea-intake`.
+
+- **If `setup_complete: true` and the user passed `--monorepo`** → skip Phases A–E; run **Phase F only**
+  (monorepo wiring). Do not flip `setup_complete`; then point at `/midas-status`.
+- **If `setup_complete: true` without `--monorepo`** → setup is already done. **STOP** and point the user at
+  `/midas-status`.
+- **Otherwise** → run the full intake below, then set `setup_complete: true` and tell the user verbatim:
+  *"Setup complete — from here, just use `/midas-status`; you won't need `/midas-init` again (except `--monorepo` wiring)."*
+
+The flow is **SCAN → CLASSIFY → TRACK → PRE-FILL → SHOW + ASK (gaps only) → GENERATE → [MONOREPO] → `setup_complete: true`**.
+The governing rule everywhere below is **infer → SHOW → confirm**: anything you deduce from the project is
+shown to the user to accept or correct — **never silently baked** into an artifact. Ask in a **single
+batched round** (`AskUserQuestion`), pre-filled, so the user confirms rather than answers blank prompts.
+This skill is **idempotent**: it owns only the regions between `<!-- midas:begin -->` … `<!-- midas:end -->`
+and never overwrites content outside them. **Never write a secret to disk.**
+
+---
+
+## Phase A — SCAN (read-only; harvest every signal, not just code)
+
+Dispatch **scout** subagents to read, without writing anything yet:
+
+1. **Code & config.** File/dir tree, manifests (`package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`,
+   `pom.xml`, …), languages/frameworks (+ pinned versions — a *hint* now; Phase 4 confirms via Context7),
+   test setup, CI, `.git` history depth, and **workspace markers** (`pnpm-workspace.yaml`, `workspaces`,
+   `turbo.json`, `nx.json`, Cargo `[workspace]`) that signal a **monorepo**.
+2. **Intent & product docs (the part the old flow ignored).** Read `README*`, `docs/`, any product brief,
+   spec, `NOTES`/`TODO`, design files, the `description` field of a manifest, and any pre-existing
+   `{product}/` artifacts. This is what lets a project "with very little" (just a written idea) skip the
+   blank idea-intake.
+3. **Existing tool surfaces.** Which of `.claude/`, `.cursor/`, `.windsurf/`, `.github/copilot-instructions.md`,
+   `AGENTS.md`, `CLAUDE.md`, `.mcp.json` exist (so GENERATE uses managed markers, never clobbers).
+4. **OS.** Platform, so GENERATE prints the right env-var command (`setx` on Windows, `export` on POSIX).
+   Dates come from the user/today — never a live clock inside a script.
+
+**Scan robustly.** Classify from what is *in the repo* (manifests, source files, tests, CI configs) — **not**
+from whether toolchains are installed on this machine (a sandbox / CI box may lack `go`/`flutter`/etc., and
+that is irrelevant to maturity). Prefer the Glob/Grep/Read tools over shell one-liners. When you do shell
+out, run each probe **independently and swallow benign failures** (append `|| true`, or `command -v x ||
+echo "x: not installed"`) so a missing dir, empty glob, or absent tool reads as **data ("not present"),
+never an error** — and never chain probes with `&&`, where one benign non-match aborts the whole scan.
+
+## Phase B — CLASSIFY maturity (place the project, don't assume)
+
+From the scan, classify the project into one level. When the signal is ambiguous, pick the **lower**
+level and let the user bump it up in Phase D — under-placing only adds a gate, over-placing skips one.
+
+| Level | What the scan found | Pre-fill | Entry `stage` (`mode`) | Next command |
+|---|---|---|---|---|
+| **E0 — Empty** | no code, no product docs | nothing | `idea_intake` (`greenfield`) | `/idea-intake` |
+| **E1 — Idea-only** | a README/brief/notes describing the product; **a manifest or bare scaffold but no real source counts as E1** | `{product}/idea.md` from those docs | `contextualize` (`greenfield`) | `/contextualize` |
+| **E2 — Partial** | **non-trivial source under `src/`/`lib`/`app` that implements product behavior**, but incomplete (thin/no tests, no clear architecture) | stack hint now; inventory + as-built architecture during adopt (Phase E) | `architecture_rules` (`brownfield`) | `/define-conventions` |
+| **E3 — Mature** | substantial, structured codebase with tests + CI | full adoption (arch + rules + baseline audit) | `sprint_planning` (`brownfield`) | `/plan-sprints` |
+
+**`mode` mapping (the persisted enum stays binary):** E0 + E1 → `mode: greenfield`; E2 + E3 → `mode: brownfield`.
+
+**Why E2 lands at `architecture_rules`:** `/midas-adopt` emits an *as-built* `{product}/architecture.md` +
+ADRs, so Phase 4 is recorded as a **deliberately-skipped gate** (with an assumption) and `/define-conventions`
+runs under its "`architecture_rules` resuming" precondition rather than bouncing. The exact E2/E3 landing
+stage is set by `/midas-adopt` (`architecture_rules` when conventions still need finalizing →
+`sprint_planning` once rules + a baseline audit are in place); stage and its next command stay a matched pair.
+
+A skipped gate (anything the maturity level jumps over) carries a **recorded assumption** and an honest
+`entry_stage` in `state.yaml` — exactly like a deferred Phase-1 question.
+
+## Phase B2 — TRACK (full vs lite)
+
+Ask the user (one question in the batched round):
+
+- **`track: full`** (default) — all 9 phases; market, business, tribunal available.
+- **`track: lite`** — Idea+Plan (phases 0–6 guided in one pass) → Execute → Audit. Skips market/business
+  by default; records assumptions. See `<paths.engine>/pipeline/lite.md`.
+
+  **Lite ritual checklist** (copy into the session when `track: lite`):
+  1. Pre-fill `{product}/idea.md` from scan; record skipped gates + assumptions in `state.yaml`.
+  2. Run a compressed plan: MVP scope + one sprint outline (roadmap optional stub).
+  3. Set `entry_stage: sprint_planning`; advance to `/plan-sprints` or `/start-sprint` when a single sprint exists.
+  4. Execute with the Phase 7 ladder (`methodology.md` § Phase 7 execution ladder).
+  5. Close with `/close-sprint` — no lite bypass for Phase 8.
+
+Write `track:` to `state.yaml`. For Lite on E0/E1, after Idea+Plan completes set `entry_stage: sprint_planning`
+and skip directly to `/plan-sprints` or `/start-sprint` when a single sprint plan exists.
+
+## Phase C — PRE-FILL (draft from the scan; do not commit yet)
+
+Build a draft of everything the scan can support, each value tagged with its **source** so the user can
+audit it:
+- **E1+**: a draft `{product}/idea.md` — pitch, problem, audience, goals — lifted from the README/brief
+  (cite where: *"problem ← README §Overview"*). Leave genuinely-unknown fields blank for Phase D.
+- **E2/E3**: stack hint from manifests; the architecture/rules drafts come from the **`/midas-adopt`**
+  recon in Phase E (it reverse-engineers them from the real code + the harvested docs).
+- Operational defaults: project name (dir slug), tools (every tool dir found, else `claude-code`),
+  language (`en`), cost profile (`balanced`).
+
+**If the harvested intent conflicts with the code/manifests** (a stale or aspirational README), do not pick
+a winner — tag that field **DISPUTED** and raise it as a confirm question in Phase D.
+
+## Phase D — SHOW + ASK (one batched round; gaps only)
+
+Show the user a tight summary: **detected maturity level + entry phase**, and every pre-filled value with
+its source (flag any **DISPUTED** ones). Then ask — in **one** `AskUserQuestion` batch — **only what's
+missing or unconfirmed**:
+
+1. **Maturity / entry phase** — confirm the E-level, **stating the gates it skips** so the choice is
+   informed (e.g. *"E2 skips idea-intake, contextualize, market and business-case — are those already
+   settled? otherwise pick a lower level"*), or correct it.
+2. **The real gaps** the scan couldn't fill, **scoped to the level**: for **E0/E1**, ask only operational
+   config + maturity confirm and let `/contextualize`'s gap loop collect the product gaps (target user,
+   metric, non-goals); for **E2/E3** (no upcoming contextualize), capture those product gaps here. Skip any
+   question the scan already answered (don't re-ask the project name, mode, or an inferred stack).
+3. **Operational config** (always needed): target tools · cost profile (`balanced`|`max_savings`|
+   `max_quality`) · MCP set (`context7` always on; `sequential-thinking` default on) ·
+   artifact language. **Context7 uses its free anonymous tier — never ask for or wire an API key.**
+
+So this round scales to the project: a blank repo answers the full set (nothing to infer); a mature repo
+just confirms a classification and a couple of operational questions. **If a monorepo was detected,**
+ask whether to wire nested `AGENTS.md` files now (Phase F) or skip and run `/midas-init --monorepo` later
+before `/plan-sprints`.
+
+## Phase E — GENERATE (write last; place at the chosen stage)
+
+Write additively (state file last), wrapping every Midas-managed region in `<!-- midas:begin -->` …
+`<!-- midas:end -->`. **Never** rewrite hand-authored content; for a pre-existing `AGENTS.md`/`CLAUDE.md`/
+`.mcp.json`, show the diff and confirm (`AskUserQuestion`) before writing, else print the block to paste.
+
+1. **Confirmed artifacts.** Write the pre-filled artifacts the user accepted — at minimum `{product}/idea.md`
+   for **E1+** (filled, not a blank template). Scaffold `{product}/adr/`, `{product}/sprints/`.
+2. **E2 / E3 → run `/midas-adopt` in the same run.** Perform the `.claude/skills/midas-adopt/SKILL.md`
+   procedure (inventory → reverse-engineer architecture + rules from the real code **and the harvested
+   docs** → baseline audit → wire with **dry-run + diff-confirm**). One flow, not two commands. **Resumable:**
+   if adoption is declined or interrupted, leave `setup_complete: false`; on re-run, detect already-written
+   `{product}/inventory.md` / `architecture.md` and resume rather than restart.
+3. **`AGENTS.md`** — render from `<paths.engine>/templates/AGENTS.md.tmpl`, placeholders filled (name, mode, tools, MCP).
+   Summarize conventions + the Context7 rule; don't restate them (they live in `<paths.engine>/conventions.md`
+   and `<paths.engine>/rules/context7-usage.md`).
+4. **Tool adapters** (selected tools only) — `CLAUDE.md` as a thin `@AGENTS.md` shim, `.cursor/…`,
+   `.windsurf/…`. **Generated, not hand-authored**: delegate the render to `/midas-doctor` (or
+   `node <paths.scripts>/render-adapters.mjs`) — one render path.
+5. **`.mcp.json`** — secret-free, `${ENV_VAR}` only; `context7` + chosen optional servers. Merge into the
+   managed region if one exists. **If the MVP has or will have a user-facing UI** (web app, dashboard,
+   marketing site), recommend installing **[agent-browser](https://github.com/vercel-labs/agent-browser)**
+   CLI (primary web driver for `/midas-verify` and `/midas-qa`) and optionally uncomment **Playwright**
+   and **Chrome DevTools** blocks from `<paths.engine>/templates/mcp.json.tmpl` for MCP fallback and
+   runtime health. **If the client is native/hybrid mobile** (React Native, Flutter, Capacitor), offer
+   (recommend-don't-wall) Maestro MCP (`maestro` + `args: ["mcp"]`) — user must approve MCP install.
+   Add wired servers to `state.yaml → mcp:`; skip what the user declines. API/CLI-only: skip browser/mobile MCPs.
+6. **State file** at **`paths.state`** (per `<paths.engine>/state.schema.md`, read-modify-write the whole file). Set
+   `midas_version`, `name`, **`mode`** (per the E-level mapping: E0/E1 `greenfield`, E2/E3 `brownfield`),
+   `language`, `created`/`updated` (today, supplied), the **`stage` from the maturity table**,
+   `stage_status: not_started`, `entry_stage` (= that stage) + a recorded assumption for every gate the
+   level skipped, `cost_profile`, the resolved `routing`, `tools`, `mcp`, the `phases` ledger, and finally
+   **`setup_complete: true`**. On **compact** installs preserve or set `layout: compact` and the `paths:` block.
+7. **`.gitignore`** — run `node <paths.scripts>/gitignore-merge.mjs` from the project root (merges
+   `<paths.engine>/templates/gitignore-midas.snippet`: secrets, `node_modules/`, common build dirs,
+   `{runs}/cache/`). Never remove user patterns. The installer normally does this — repeat if copy-only
+   or the Midas block predates dependency patterns.
+
+### Secrets (print, never write)
+Context7 needs no key (free anonymous tier). If the user wired an **optional** server that does need a
+token (e.g. the GitHub MCP's `GITHUB_TOKEN`), print the OS-specific command and stop short of running it:
+- Windows: `setx <ENV_VAR> "<your-token>"` (new shells only; reopen the terminal)
+- POSIX: `export <ENV_VAR>="<your-token>"` (add to your shell profile to persist)
+
+Never echo, store, or commit a token. `.mcp.json` references it only as `${ENV_VAR}`.
+
+## Phase F — MONOREPO (optional)
+
+Run when **any** of: user passed `--monorepo`; Phase D confirmed monorepo wiring; workspace markers were
+detected and the user opted in during GENERATE.
+
+Follow **`<paths.engine>/pipeline/monorepo-wiring.md`** (DETECT → INDEX → WRITE). Respect `--dry-run`
+(write nothing; print the plan). On success, `state.yaml.packages[]` is populated and nested `AGENTS.md`
+files exist. If declined or not a monorepo, skip — `setup_complete` still proceeds.
+
+> **`/midas-monorepo` is deprecated** — it redirects here. Re-run `/midas-init --monorepo` on an
+> already-initialized project (`setup_complete: true`) to wire packages without repeating intake.
+
+## Exit
+Confirm: files written (or the manual paste path), the secret command if any, the **maturity level chosen**,
+and the **single next action** from the maturity table (`/idea-intake`, `/contextualize`,
+`/define-conventions`, or `/plan-sprints`). Add: *"👉 Optional: `/midas-recall phase` to orient on the
+artifacts for your stage (read-only)."* Then it's `/midas-status` from here on.
+
+## Tier & cost
+Scanning + evidence extraction → **scout** (Haiku). Maturity classification, the infer→show→confirm calls,
+and the brownfield adoption → **orchestrate** (Opus). Drafting the pre-filled artifacts → **build** (Sonnet).

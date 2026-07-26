@@ -183,6 +183,6 @@ Do not confuse `npm run build` (distribution) with `node scripts/bundle.mjs expo
 
 ## Install layouts (classic, compact, hub)
 
-New product installs default to **hub** — engine, state, runs, and `product/` under `.midas/`; tool-mandated paths stay at the repo root. **`--layout=classic`** and **`--layout=compact`** remain supported (compact keeps `product/` at root). Path resolution is in `scripts/paths.mjs`; skills read `layout` + `paths` from state and substitute `{runs}/` and `{product}/` tokens. See [ADR-006](adr/ADR-006-hub-layout.md), [ADR-001](adr/ADR-001-install-layout.md), and [INSTALL.md](../INSTALL.md).
+New product installs default to **hub** — engine, state, runs, and `product/` under `.midas/`; tool-mandated paths stay at the repo root. **`--layout=classic`** and **`--layout=compact`** remain supported (compact keeps `product/` at root). Path resolution is in `scripts/paths.mjs`; skills read `layout` + `paths` from state and substitute `{runs}/` and `{product}/` tokens. See [ADR-006](adr/ADR-006-hub-layout.md), [ADR-001](adr/ADR-001-install-layout.md), and [INSTALL.md](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md).
 
 The **engine repository** (this repo) dogfoods **classic** layout by design.

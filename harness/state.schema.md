@@ -29,7 +29,7 @@ transition after that.
 ## Schema
 
 ```yaml
-midas_version: 1.1.2           # engine version that wrote this file (for /midas-update)
+midas_version: 1.1.3           # engine version that wrote this file (for /midas-update)
 layout: hub                    # classic | compact | hub — omit = inferred from disk (see ADR-001, ADR-006)
 paths:                         # optional; installer/doctor --fix writes this for compact/hub
   engine: .midas/engine
@@ -45,7 +45,7 @@ updated: 2026-06-16
 setup_complete: false        # the installer writes false; /midas-init flips it true when setup is done
 
 track: full                  # full | lite — lite collapses phases 0–6 (see harness/pipeline/lite.md)
-routing_profile: claude      # claude | openai | local-hybrid — preset for build/scout (orchestrate always Claude)
+routing_profile: openai-mini   # claude | openai-mini | local-hybrid (legacy `openai` accepted) — preset for the resolved routing map
 
 stage: tech_architecture     # current stage enum (see table)
 stage_status: in_progress    # not_started | in_progress | gate_pending | passed
@@ -57,9 +57,9 @@ routing:                     # resolved model ids for this profile (see docs/age
   build:       claude-sonnet-4-6
   scout:       claude-haiku-4-5
 
-execution_mode: cloud        # cloud | hybrid | local — WHERE tiers run (orthogonal to cost_profile).
-                             #   cloud  = every tier on Claude (default; unchanged behavior).
-                             #   hybrid = scout/build may run on a local open model; orchestrate ALWAYS Claude cloud.
+execution_mode: cloud        # cloud | hybrid | local — WHERE tiers run (orthogonal to cost_profile / routing_profile).
+                             #   cloud  = every tier on the selected profile (default for claude/openai-mini).
+                             #   hybrid = build/scout may run on a local open model; orchestrate ALWAYS Claude cloud.
                              #   local  = all tiers local; gate verdicts flagged un-attested (a local model never
                              #            renders a binding audit). See harness/rules/model-routing.md.
 local_model:                 # present only when execution_mode != cloud — provenance for build/scout run locally

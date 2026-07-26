@@ -67,6 +67,8 @@ function scriptBundleFiles() {
     'mcp-cursor-sync.mjs',
     'mcp-drift.mjs',
     'migrate-layout.mjs',
+    'model-profiles.mjs',
+    'portable-skills.mjs',
     'paths.mjs',
     'render-adapters.mjs',
     'stage-command-table.mjs',
@@ -85,6 +87,46 @@ function frontmatter(text) {
     if (i > 0 && !line.startsWith(' ')) fm[line.slice(0, i).trim()] = line.slice(i + 1).trim();
   }
   return fm;
+}
+
+function splitFrontmatter(text) {
+  const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+  if (!m) return null;
+  return { frontmatter: m[1], body: m[2] };
+}
+
+function parsePortableSkill(text) {
+  const parts = splitFrontmatter(text);
+  if (!parts) return null;
+  const out = { metadata: {} };
+  let inMetadata = false;
+  for (const line of parts.frontmatter.split(/\r?\n/)) {
+    if (!line.trim()) continue;
+    if (/^metadata:\s*$/.test(line)) {
+      inMetadata = true;
+      continue;
+    }
+    const meta = inMetadata && line.match(/^\s{2}([A-Za-z0-9_-]+):\s*(.*)$/);
+    if (meta) {
+      out.metadata[meta[1]] = normalizePortableScalar(meta[2]);
+      continue;
+    }
+    inMetadata = false;
+    const top = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
+    if (top) out[top[1]] = normalizePortableScalar(top[2]);
+  }
+  return out;
+}
+
+function normalizePortableScalar(value) {
+  const text = String(value ?? '').trim();
+  if (text.startsWith('"') && text.endsWith('"')) {
+    return text.slice(1, -1).replace(/\\\\/g, '\\').replace(/\\"/g, '"');
+  }
+  if (text.startsWith("'") && text.endsWith("'")) {
+    return text.slice(1, -1).replace(/''/g, "'");
+  }
+  return text;
 }
 
 function dirNames(dir) {
@@ -189,7 +231,7 @@ if (existsSync(tplRoot)) {
     JSON.stringify(dirNames(join(tplRoot, '.claude', 'skills'))) === JSON.stringify(dirNames(skillsDir)),
     're-run build-create.mjs',
   );
-  for (const f of ['AGENTS.md', '.mcp.json', 'harness/methodology.md', 'harness/conventions.md', 'harness/gates.json', 'harness/checks.json', 'harness/stage-command-table.yaml', 'scripts/render-adapters.mjs', 'scripts/yaml-lite.mjs', 'scripts/mcp-drift.mjs', 'scripts/mcp-cursor-sync.mjs', 'scripts/tool-profiles.mjs', 'scripts/gitignore-merge.mjs', 'scripts/paths.mjs', 'scripts/migrate-layout.mjs', 'scripts/stage-command-table.mjs', 'scripts/design-system.mjs', 'scripts/doctor.mjs', 'scripts/status-page.mjs', 'scripts/bundle.mjs', 'gemini-extension.json', 'docs/agents-and-models.md']) {
+  for (const f of ['AGENTS.md', '.mcp.json', 'harness/methodology.md', 'harness/conventions.md', 'harness/gates.json', 'harness/checks.json', 'harness/stage-command-table.yaml', 'scripts/render-adapters.mjs', 'scripts/yaml-lite.mjs', 'scripts/mcp-drift.mjs', 'scripts/mcp-cursor-sync.mjs', 'scripts/tool-profiles.mjs', 'scripts/model-profiles.mjs', 'scripts/portable-skills.mjs', 'scripts/gitignore-merge.mjs', 'scripts/paths.mjs', 'scripts/migrate-layout.mjs', 'scripts/stage-command-table.mjs', 'scripts/design-system.mjs', 'scripts/doctor.mjs', 'scripts/status-page.mjs', 'scripts/bundle.mjs', 'gemini-extension.json', 'docs/agents-and-models.md']) {
     check(`create-template:has:${f}`, existsSync(join(tplRoot, f)));
   }
   // The template must NOT carry repo-internal trees into a user project.
@@ -251,6 +293,38 @@ if (existsSync(buildCreate)) {
     }
   }
   {
+    const sourcePortableSkills = join(ROOT, '.claude', 'skills');
+    const templatePortableSkills = join(ROOT, 'create-midas', 'template', '.agents', 'skills');
+    if (existsSync(sourcePortableSkills) && existsSync(templatePortableSkills)) {
+      const sourceNames = dirNames(sourcePortableSkills);
+      const templateNames = dirNames(templatePortableSkills);
+      const sameShape = JSON.stringify(sourceNames) === JSON.stringify(templateNames);
+      let sameContent = sameShape;
+      if (sameShape) {
+        for (const name of sourceNames) {
+          const sourceText = readFileSync(join(sourcePortableSkills, name, 'SKILL.md'), 'utf8');
+          const templateText = readFileSync(join(templatePortableSkills, name, 'SKILL.md'), 'utf8');
+          const sourceParts = splitFrontmatter(sourceText);
+          const templateParts = parsePortableSkill(templateText);
+          sameContent = sameContent &&
+            !!sourceParts &&
+            !!templateParts &&
+            templateParts.name === name &&
+            templateParts.description === normalizePortableScalar((frontmatter(sourceText) || {}).description) &&
+            Object.keys(templateParts).every((k) => ['name', 'description', 'license', 'compatibility', 'allowed-tools', 'metadata'].includes(k)) &&
+            templateParts.metadata['midas-harness-tier'] &&
+            sourceParts.body.trim() === (templateText.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n?([\s\S]*)$/) || [])[1].trim();
+          if (!sameContent) break;
+        }
+      }
+      check(
+        'build-create:portable-skills-match',
+        sameShape && sameContent,
+        'create-midas/template/.agents/skills drifts from .claude/skills',
+      );
+    }
+  }
+  {
     const sourceAgentsTemplate = join(ROOT, 'harness', 'templates', 'AGENTS.md.tmpl');
     const bundledAgents = join(ROOT, 'create-midas', 'template', 'AGENTS.md');
     if (existsSync(sourceAgentsTemplate) && existsSync(bundledAgents)) {
@@ -260,6 +334,36 @@ if (existsSync(buildCreate)) {
         'create-template:agents-md:match',
         readFileSync(bundledAgents, 'utf8') === rendered,
         'create-midas/template/AGENTS.md drifted from harness/templates/AGENTS.md.tmpl render',
+      );
+    }
+  }
+  {
+    const sourcePortableSkills = join(ROOT, '.claude', 'skills');
+    const bundledPortableSkills = join(ROOT, 'create-midas', 'template', '.agents', 'skills');
+    if (existsSync(sourcePortableSkills) && existsSync(bundledPortableSkills)) {
+      const sourceNames = dirNames(sourcePortableSkills);
+      const portableNames = dirNames(bundledPortableSkills);
+      const sameShape = JSON.stringify(sourceNames) === JSON.stringify(portableNames);
+      let sameContent = sameShape;
+      if (sameShape) {
+        for (const name of sourceNames) {
+          const src = readFileSync(join(sourcePortableSkills, name, 'SKILL.md'), 'utf8');
+          const dst = readFileSync(join(bundledPortableSkills, name, 'SKILL.md'), 'utf8');
+          const srcParts = splitFrontmatter(src);
+          const dstParts = parsePortableSkill(dst);
+          sameContent = sameContent && !!srcParts && !!dstParts &&
+            dstParts.name === name &&
+            dstParts.description === normalizePortableScalar((frontmatter(src) || {}).description) &&
+            Object.keys(dstParts).every((k) => ['name', 'description', 'license', 'compatibility', 'allowed-tools', 'metadata'].includes(k)) &&
+            dstParts.metadata['midas-harness-tier'] &&
+            srcParts.body.trim() === (dst.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n?([\s\S]*)$/) || [])[1].trim();
+          if (!sameContent) break;
+        }
+      }
+      check(
+        'create-template:portable-skills:match',
+        sameShape && sameContent,
+        'create-midas/template/.agents/skills drifts from .claude/skills',
       );
     }
   }

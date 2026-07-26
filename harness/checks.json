@@ -1,7 +1,8 @@
 {
   "schema_version": 1,
-  "updated": "2026-07-26",
+  "updated": null,
   "source": "harness/rules",
+  "source_digest": "9024c94452fc9597a9c4e6b9af6296ae7abc9f68bba63184bf6381802a032225",
   "rules": [
     {
       "path": "harness/rules/acceptance-criteria.md",
@@ -847,7 +848,7 @@
         },
         {
           "kind": "command",
-          "body": "`paths.state -> routing` ids are all known model ids and, under `cost_profile: balanced`, **equal the pinned `model:` of the three first-party agents**. Run `node <paths.scripts>/doctor.mjs <project>`; a `routing:*` warning is a fail. *(The engine enforces the same reconciliation against the example state in `scripts/test.mjs`.)*",
+          "body": "`paths.state -> routing` ids are all known model ids and, under the legacy `claude` profile with `cost_profile: balanced`, **equal the pinned `model:` of the three first-party agents**. The `openai-mini` profile resolves all three tiers to `gpt-5.4-mini`. Run `node <paths.scripts>/doctor.mjs <project>`; a `routing:*` warning is a fail. *(The engine enforces the same reconciliation against the example state in `scripts/test.mjs`.)*",
           "section": "CHECKs",
           "phase": 8,
           "owner": "orchestrate",

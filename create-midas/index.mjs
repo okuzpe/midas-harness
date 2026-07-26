@@ -17,6 +17,7 @@ import { createInterface } from 'node:readline';
 import { stdin as input, stdout as output } from 'node:process';
 import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
+import { DEFAULT_ROUTING_PROFILE, isKnownRoutingProfile, normalizeRoutingProfile, resolveRoutingModels } from '../scripts/model-profiles.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const TEMPLATE = join(HERE, 'template');
@@ -36,6 +37,12 @@ const uninstall = args.includes('--uninstall');
 const diagnose = args.includes('--diagnose');
 const dryRun = args.includes('--dry-run');
 const purge = args.includes('--purge');
+const routingArg = args.find((a) => a.startsWith('--routing='));
+const installRoutingProfile = normalizeRoutingProfile(routingArg ? routingArg.slice('--routing='.length) : null) || DEFAULT_ROUTING_PROFILE;
+if (routingArg && !isKnownRoutingProfile(installRoutingProfile)) {
+  console.error('create-midas: --routing must be claude, openai-mini, or local-hybrid');
+  process.exit(1);
+}
 const layoutArg = args.find((a) => a.startsWith('--layout='));
 const installLayoutFlag = layoutArg ? layoutArg.slice('--layout='.length) : null;
 if (installLayoutFlag && !['classic', 'compact', 'hub'].includes(installLayoutFlag)) {
@@ -49,7 +56,7 @@ const TEST_FAIL_STEP = process.env.MIDAS_TEST_FAIL_STEP || '';
 
 if (diagnose) {
   const { runDiagnoseCli } = await import('./install-diagnose.mjs');
-  let bundledVersion = '1.1.2';
+  let bundledVersion = '1.1.3';
   try {
     bundledVersion = readFileSync(join(TEMPLATE, 'harness', 'VERSION'), 'utf8').trim();
   } catch {
@@ -122,7 +129,7 @@ try {
   // Fresh installs honour --tools (or an interactive prompt). --update keeps the existing state.yaml tools.
   selectedTools = update ? null : await resolveSelectedTools();
 
-  stateMode = writeState(selectedTools, paths);
+  stateMode = writeState(selectedTools, paths, installRoutingProfile);
   maybeFail('after-state');
 
   // Generate tool adapters after state.yaml exists so render-adapters can read tools:.
@@ -198,7 +205,7 @@ function copyTree(srcDir, dstDir) {
 }
 
 function installRollbackPaths() {
-  return ['.claude', '.cursor', '.windsurf', 'harness', 'scripts', '.midas', 'product', 'AGENTS.md', 'CLAUDE.md', 'GEMINI.md', '.mcp.json', '.gitignore', 'gemini-extension.json', 'docs/agents-and-models.md'];
+  return ['.claude', '.agents', '.cursor', '.windsurf', 'harness', 'scripts', '.midas', 'product', 'AGENTS.md', 'CLAUDE.md', 'GEMINI.md', '.mcp.json', '.gitignore', 'gemini-extension.json', 'docs/agents-and-models.md'];
 }
 
 function beginRollbackSession(root, relPaths) {
@@ -521,7 +528,7 @@ function detectMode() {
 }
 
 // Write a default harness/state.yaml (never clobber an existing one). Returns the mode, or null.
-function writeState(tools, paths) {
+function writeState(tools, paths, routingProfile = installRoutingProfile) {
   const stateFile = join(TARGET, paths.state);
   if (existsSync(stateFile)) return null;
   const version = (readMaybe(join(TARGET, paths.version)) || '0.0.0').trim();
@@ -529,6 +536,9 @@ function writeState(tools, paths) {
   const today = new Date().toISOString().slice(0, 10);
   const stage = mode === 'brownfield' ? 'tech_architecture' : 'idea_intake';
   const toolList = (tools || DEFAULT_TOOLS).join(', ');
+  const routingProfileName = normalizeRoutingProfile(routingProfile) || DEFAULT_ROUTING_PROFILE;
+  const routing = resolveRoutingModels(routingProfileName);
+  const executionMode = routingProfileName === 'local-hybrid' ? 'hybrid' : 'cloud';
   const layoutLines =
     paths.layout === 'hub'
       ? [
@@ -567,12 +577,22 @@ function writeState(tools, paths) {
     `entry_stage: ${stage}`,
     '',
     'cost_profile: balanced',
+    `routing_profile: ${routingProfileName}`,
     'routing:',
-    '  orchestrate: claude-opus-4-8',
-    '  build:       claude-sonnet-4-6',
-    '  scout:       claude-haiku-4-5',
+    `  orchestrate: ${routing.orchestrate}`,
+    `  build:       ${routing.build}`,
+    `  scout:       ${routing.scout}`,
     '',
-    'execution_mode: cloud',
+    `execution_mode: ${executionMode}`,
+    ...(routingProfileName === 'local-hybrid'
+      ? [
+          '',
+          'local_model:',
+          '  id: local_model.id',
+          '  runtime: ollama',
+          '  vram_gb: 24',
+        ]
+      : []),
     '',
     `tools: [${toolList}]`,
     'mcp:   [context7, sequential-thinking]',
@@ -635,7 +655,7 @@ async function report(tools, paths) {
       console.log('     no tool-specific adapters (Codex/Copilot use AGENTS.md)');
     }
   }
-  if (stateMode) console.log(`     ${paths.state} created (mode: ${stateMode}, layout: ${paths.layout}, tools: ${activeTools.join(', ')})`);
+  if (stateMode) console.log(`     ${paths.state} created (mode: ${stateMode}, layout: ${paths.layout}, routing: ${installRoutingProfile}, tools: ${activeTools.join(', ')})`);
   if (written.includes('.gitignore')) console.log('     .gitignore updated (secrets, node_modules/deps, Midas volatile paths).');
   if (verifyResult?.ok) console.log('     verify: ok — adapters in sync (midas-doctor passed).');
 
@@ -762,7 +782,7 @@ function runUninstall() {
 
 function pruneEmptyDirs(layout) {
   if (dryRun) return;
-  const roots = ['.claude', '.cursor', '.windsurf', '.harness', 'harness', 'docs', 'scripts', '.midas'];
+  const roots = ['.claude', '.agents', '.cursor', '.windsurf', '.harness', 'harness', 'docs', 'scripts', '.midas'];
   for (const root of roots) pruneEmptyTree(join(TARGET, root));
 }
 
@@ -794,14 +814,14 @@ function printHelp() {
 Install:
   npx github:okuzpe/midas-harness          into the current directory (from GitHub)
   npx github:okuzpe/midas-harness my-app   into ./my-app
-  npx github:okuzpe/midas-harness#v1.1.2   pin a release for a reproducible install
+  npx github:okuzpe/midas-harness#v1.1.3   pin a release for a reproducible install
   npx github:okuzpe/midas-harness --layout=hub   explicit hub (default when flag omitted)
   npx github:okuzpe/midas-harness --layout=classic   legacy layout (harness/ at repo root)
   npx github:okuzpe/midas-harness --layout=compact   engine under .midas/, product at root (ADR-001)
 
 Update an existing install (overwrites the engine, KEEPS your work, bumps the version stamp):
   npx github:okuzpe/midas-harness --update             refresh to the latest (main)
-  npx github:okuzpe/midas-harness#v1.1.2 --update      refresh to a pinned release
+  npx github:okuzpe/midas-harness#v1.1.3 --update      refresh to a pinned release
 
 Uninstall (surgical — removes only Midas's files, keeps your work):
   npx github:okuzpe/midas-harness --uninstall             remove the engine, keep product/ + runs + state.yaml
@@ -810,6 +830,7 @@ Uninstall (surgical — removes only Midas's files, keeps your work):
 
 Options:
   --layout     (install) hub (default), classic, or compact — see ADR-006
+  --routing    (install) claude, openai-mini, or local-hybrid (legacy openai alias accepted)
   --tools      (install) comma-separated AI tools (e.g. cursor or cursor,gemini,codex).
                Presets at interactive prompt: c=cursor · s=cursor,gemini,codex · a=all adapters.
                Interactive prompt when stdin is a TTY; defaults to all adapter tools otherwise.

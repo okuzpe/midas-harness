@@ -10,6 +10,7 @@
 import { cpSync, rmSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { renderPortableSkillsTree } from './portable-skills.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..');
@@ -33,6 +34,8 @@ const FILES = [
   'scripts/status-page.mjs',
   'scripts/mcp-cursor-sync.mjs',
   'scripts/tool-profiles.mjs',
+  'scripts/model-profiles.mjs',
+  'scripts/portable-skills.mjs',
   'scripts/gitignore-merge.mjs',
   'scripts/paths.mjs',
   'scripts/migrate-layout.mjs',
@@ -46,6 +49,7 @@ if (existsSync(TEMPLATE)) rmSync(TEMPLATE, { recursive: true, force: true });
 mkdirSync(TEMPLATE, { recursive: true });
 
 for (const d of DIRS) cpSync(join(ROOT, d), join(TEMPLATE, d), { recursive: true });
+renderPortableSkillsTree(TEMPLATE);
 for (const rel of HARNESS_EXCLUDE) {
   const excluded = join(TEMPLATE, 'harness', rel);
   if (existsSync(excluded)) rmSync(excluded, { force: true });

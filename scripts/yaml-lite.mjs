@@ -79,9 +79,10 @@ export function parseEnforcement(yaml) {
   return out;
 }
 
-/** Parse `cost_profile` + `routing:` tier map from state.yaml. */
+/** Parse routing-related fields from state.yaml. */
 export function parseRouting(yaml) {
-  const profile = (yaml.match(/^cost_profile:\s*([^\s#]+)/m) || [])[1] || null;
+  const costProfile = (yaml.match(/^cost_profile:\s*([^\s#]+)/m) || [])[1] || null;
+  const routingProfile = (yaml.match(/^routing_profile:\s*([^\s#]+)/m) || [])[1] || null;
   const routing = {};
   const lines = yaml.split(/\r?\n/);
   const i = lines.findIndex((l) => /^routing:/.test(l));
@@ -92,7 +93,7 @@ export function parseRouting(yaml) {
       if (m) routing[m[1]] = m[2];
     }
   }
-  return { profile, routing };
+  return { costProfile, routingProfile, profile: routingProfile || costProfile, routing };
 }
 
 /** Read `midas_version` scalar from state.yaml. */

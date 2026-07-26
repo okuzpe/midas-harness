@@ -16,8 +16,9 @@
 
 **Midas** is a copy-in kit of plain markdown — skills, rules, slash-commands, and agent definitions —
 that drives a software **product** from a raw idea to shipped code through **9 audited phases**. It runs
-best on **Claude Code**; generated adapters and `AGENTS.md` carry the rules to Cursor, Copilot, Codex,
-Windsurf and Gemini (see [Supported tools](#supported-tools) for what carries to other tools).
+best on **Claude Code**; generated adapters, `AGENTS.md`, and the portable `.agents/skills/` mirror carry
+the rules to Cursor, Copilot, Codex, Windsurf and Gemini (see [Supported tools](#supported-tools) for
+what carries to other tools).
 
 Full docs: **[okuzpe.github.io/midas-harness](https://okuzpe.github.io/midas-harness/)**.
 
@@ -128,17 +129,18 @@ Most users only need **Core** (+ `/midas-adopt` for an existing repo). Everythin
 
 ### Supported tools
 
-| Tool | Reads `AGENTS.md` | Skills / commands | Model routing | Level |
-|---|---|---|---|---|
-| **Claude Code** | via `@AGENTS.md` in `CLAUDE.md` | native (`.claude/skills/`) + subagents | ✅ per-agent | **Full** |
-| Cursor | native | `.claude/skills/` + `.cursor/rules/` + `.cursor/mcp.json` | advisory | **Good** |
-| OpenAI Codex | native | `.claude/skills/` (Agent Skills) + `AGENTS.md` | advisory | **Good** |
-| GitHub Copilot | native | `.claude/skills/` (Agent Skills) + `AGENTS.md` | advisory | **Good** |
-| Gemini CLI | `GEMINI.md` + `AGENTS.md` | `gemini-extension.json` + full rule context | advisory | **Good** |
-| Windsurf | native | `.windsurf/rules/` + `AGENTS.md` | advisory | Basic |
+| Tool | AGENTS.md | Skills | Adapter | MCP | Routing |
+|---|---|---|---|---|---|
+| **Claude Code** | via `@AGENTS.md` in `CLAUDE.md` | native `.claude/skills/` + portable `.agents/skills/` | `CLAUDE.md` | project `.mcp.json` | per-agent |
+| Cursor | native `AGENTS.md` | portable `.agents/skills/` + `.cursor/rules/` | `.cursor/rules/00-midas.mdc` | `.cursor/mcp.json` sync | advisory |
+| OpenAI Codex | native `AGENTS.md` | portable `.agents/skills/` | none | project `.mcp.json` | advisory |
+| GitHub Copilot | native `AGENTS.md` | portable `.agents/skills/` | none | project `.mcp.json` | advisory |
+| Gemini CLI | `GEMINI.md` + `AGENTS.md` | portable `.agents/skills/` + Gemini project memory | `GEMINI.md` | project `.mcp.json` | advisory |
+| Windsurf | native `AGENTS.md` | portable `.agents/skills/` + `.windsurf/rules/` | `.windsurf/rules/00-midas.md` | project `.mcp.json` | advisory |
 
-Generated adapters (`CLAUDE.md`, `.cursor/rules`, `.windsurf/rules`, `GEMINI.md`) are re-rendered from a
-single source by `/midas-doctor` — no hand-editing, no drift.
+Generated adapters (`CLAUDE.md`, `.cursor/rules`, `.windsurf/rules`, `GEMINI.md`) and the portable
+`.agents/skills/` mirror are re-rendered from a single source by `/midas-doctor` and the installer build
+— no hand-editing, no drift.
 For the contributor-facing source/generated-file map, see
 [`docs/repository-architecture.md`](./docs/repository-architecture.md).
 
@@ -176,7 +178,7 @@ A runnable Sprint-1 vertical slice — auth, task CRUD, middleware, board stub +
 artifact on disk. See [`examples/taskpilot/`](./examples/taskpilot/).
 
 ## Status
-**v1.0.0 — stable install layouts and path tokens.** Most complete on **Claude Code**
+**v1.1.3 — deterministic registries, portable skills, and routing cleanup.** Most complete on **Claude Code**
 (see [Honest scope](#supported-tools)). Details: [`CHANGELOG.md`](./CHANGELOG.md) ·
 [`VERSIONING.md`](./VERSIONING.md) · [docs site](https://okuzpe.github.io/midas-harness/).
 

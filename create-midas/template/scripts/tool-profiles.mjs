@@ -2,8 +2,6 @@
 
 import { resolvePaths } from './paths.mjs';
 
-/** @typedef {'Full'|'Good'|'Basic'} ToolLevel */
-
 /** Order matches create-midas KNOWN_TOOLS. */
 export const TOOL_IDS = ['claude-code', 'cursor', 'windsurf', 'gemini', 'codex', 'copilot'];
 
@@ -13,24 +11,22 @@ export const ADAPTER_TOOL_IDS = ['claude-code', 'cursor', 'windsurf', 'gemini'];
 /**
  * @type {Record<string, {
  *   label: string,
- *   level: ToolLevel,
  *   agentsMd: string,
  *   skills: string,
+ *   adapter: string,
+ *   mcp: string,
  *   routing: string,
- *   adapters: string[],
- *   extras: string[],
  *   onboarding: string[],
- * }>}
+ * }>}>
  */
 export const TOOL_PROFILES = {
   'claude-code': {
     label: 'Claude Code',
-    level: 'Full',
     agentsMd: 'via @AGENTS.md in CLAUDE.md',
-    skills: 'native project law + skills + subagents',
-    routing: '✅ per-agent',
-    adapters: ['CLAUDE.md'],
-    extras: ['.claude/agents/'],
+    skills: 'native `.claude/skills/` + portable `.agents/skills/`',
+    adapter: 'CLAUDE.md',
+    mcp: 'project `.mcp.json`',
+    routing: 'per-agent',
     onboarding: [
       'Open the project in Claude Code.',
       'Run `/midas-init` once (guided setup), then `/midas-status` for the next command.',
@@ -39,27 +35,25 @@ export const TOOL_PROFILES = {
   },
   cursor: {
     label: 'Cursor',
-    level: 'Good',
-    agentsMd: 'native',
-    skills: 'AGENTS.md + .cursor/rules/ + optional MCP sync',
+    agentsMd: 'native `AGENTS.md`',
+    skills: 'portable `.agents/skills/` + `.cursor/rules/`',
+    adapter: '.cursor/rules/00-midas.mdc',
+    mcp: '`.cursor/mcp.json` sync',
     routing: 'advisory',
-    adapters: ['.cursor/rules/00-midas.mdc'],
-    extras: ['.cursor/mcp.json', '.claude/skills/', 'AGENTS.md'],
     onboarding: [
       'Reload Window after install (Ctrl+Shift+P → “Reload Window”).',
       'Settings → Tools & MCP — enable `sequential-thinking` if you want the optional MCP path.',
       'In Agent chat, type `/midas-init` once, then `/midas-status`; the generated rule file is the main contract.',
-      'Use your strongest model for architecture/audits; fastest for research (see AGENTS.md).',
+      'Use your fastest model for search and your strongest for architecture/audits (see AGENTS.md).',
     ],
   },
   windsurf: {
     label: 'Windsurf',
-    level: 'Basic',
-    agentsMd: 'native',
-    skills: 'AGENTS.md + .windsurf/rules/',
+    agentsMd: 'native `AGENTS.md`',
+    skills: 'portable `.agents/skills/` + `.windsurf/rules/`',
+    adapter: '.windsurf/rules/00-midas.md',
+    mcp: 'project `.mcp.json`',
     routing: 'advisory',
-    adapters: ['.windsurf/rules/00-midas.md'],
-    extras: ['AGENTS.md'],
     onboarding: [
       'Open the project in Windsurf — the generated rule file is the main surface.',
       'Re-open the editor after `/midas-doctor` re-renders adapters.',
@@ -68,12 +62,11 @@ export const TOOL_PROFILES = {
   },
   gemini: {
     label: 'Gemini CLI',
-    level: 'Full',
-    agentsMd: 'GEMINI.md + AGENTS.md',
-    skills: 'GEMINI.md context + gemini-extension.json',
+    agentsMd: '`GEMINI.md` + `AGENTS.md`',
+    skills: 'portable `.agents/skills/` + Gemini project memory',
+    adapter: 'GEMINI.md',
+    mcp: 'project `.mcp.json`',
     routing: 'advisory',
-    adapters: ['GEMINI.md'],
-    extras: ['gemini-extension.json', 'AGENTS.md'],
     onboarding: [
       'From the project root: `gemini` — GEMINI.md is project memory (rules + CHECK digest).',
       'Register the extension once: `gemini extensions link .` (uses `gemini-extension.json`).',
@@ -82,29 +75,27 @@ export const TOOL_PROFILES = {
   },
   codex: {
     label: 'OpenAI Codex',
-    level: 'Full',
-    agentsMd: 'native',
-    skills: 'AGENTS.md + Agent Skills where supported',
+    agentsMd: 'native `AGENTS.md`',
+    skills: 'portable `.agents/skills/`',
+    adapter: 'none',
+    mcp: 'project `.mcp.json`',
     routing: 'advisory',
-    adapters: [],
-    extras: ['AGENTS.md'],
     onboarding: [
       'Open the project in Codex — AGENTS.md is project law (always-on).',
-      'If your Codex build exposes Agent Skills, it will discover the project skills automatically.',
-      'Apply routing as intent: strongest model for gates/audits, fastest for search (AGENTS.md).',
+      'The portable `.agents/skills/` tree is the discovery path for Codex-compatible skills.',
+      'Apply routing as intent: fastest for search, strongest for architecture and audits (AGENTS.md).',
     ],
   },
   copilot: {
     label: 'GitHub Copilot',
-    level: 'Full',
-    agentsMd: 'native',
-    skills: 'AGENTS.md + Agent Skills where supported',
+    agentsMd: 'native `AGENTS.md`',
+    skills: 'portable `.agents/skills/`',
+    adapter: 'none',
+    mcp: 'project `.mcp.json`',
     routing: 'advisory',
-    adapters: [],
-    extras: ['AGENTS.md'],
     onboarding: [
       'Open the project in your editor with Copilot — AGENTS.md is project law.',
-      'When Copilot Agent Skills are enabled, the project skills will be discovered automatically.',
+      'The portable `.agents/skills/` tree is the discovery path for Copilot-compatible skills.',
       'Use `/midas-init` workflow via Copilot chat when the host supports the slash-command flow.',
     ],
   },
@@ -119,31 +110,32 @@ export function doctorCommandFor(projectRoot = '.') {
 
 /** Markdown table for README / docs (pipe table). */
 export function formatSupportedToolsMarkdown() {
-  const header =
-    '| Tool | Reads `AGENTS.md` | Skills / commands | Model routing | Level |\n|---|---|---|---|---|';
+  const header = '| Tool | AGENTS.md | Skills | Adapter | MCP | Routing |';
+  const divider = '|---|---|---|---|---|---|';
   const rows = TOOL_IDS.map((id) => {
     const p = TOOL_PROFILES[id];
-    const name = id === 'claude-code' ? '**Claude Code**' : p.label === 'Cursor' ? 'Cursor' : p.label;
-    const boldLevel = p.level === 'Full' ? `**${p.level}**` : p.level;
-    return `| ${name} | ${p.agentsMd} | ${p.skills} | ${p.routing} | ${boldLevel} |`;
+    const name = id === 'claude-code' ? '**Claude Code**' : p.label;
+    return `| ${name} | ${p.agentsMd} | ${p.skills} | ${p.adapter} | ${p.mcp} | ${p.routing} |`;
   });
-  return `${header}\n${rows.join('\n')}`;
+  return `${header}\n${divider}\n${rows.join('\n')}`;
 }
 
 /** Compact ASCII table for installer TTY prompt. */
 export function printCompatibilityMatrix(selectedIds = TOOL_IDS) {
   console.log('\n  Supported tools — what Midas wires on install');
-  console.log('  ─────────────────────────────────────────────────────────────────');
-  console.log('  Tool           Level   Skills / commands');
+  console.log('  ───────────────────────────────────────────────────────────────────────────────');
+  console.log('  Tool           AGENTS.md           Skills                    Adapter   MCP              Routing');
   for (const id of TOOL_IDS) {
     const p = TOOL_PROFILES[id];
     const mark = selectedIds.includes(id) ? '●' : '○';
     const tool = `${mark} ${id}`.padEnd(16);
-    const level = p.level.padEnd(7);
-    console.log(`  ${tool}${level}${p.skills}`);
+    const agents = p.agentsMd.padEnd(20);
+    const skills = p.skills.padEnd(26);
+    const adapter = p.adapter.padEnd(10);
+    const mcp = p.mcp.padEnd(16);
+    console.log(`  ${tool}${agents}${skills}${adapter}${mcp}${p.routing}`);
   }
-  console.log('  ─────────────────────────────────────────────────────────────────');
-  console.log('  ● = selected   ○ = not selected');
+  console.log('  ───────────────────────────────────────────────────────────────────────────────');
   console.log('  Presets: c = cursor only · s = cursor,gemini,codex · a = all adapter tools (default)');
 }
 
@@ -155,18 +147,22 @@ export function printToolOnboarding(activeTools, projectRoot = '.') {
   const doctorCmd = doctorCommandFor(projectRoot);
   const layout = resolvePaths(projectRoot).layout;
 
-  console.log('\n  ── Tool compatibility ───────────────────────────────────────');
+  console.log('\n  ── Tool compatibility ─────────────────────────────────────────────────────────');
   console.log(`  Layout: ${layout}   ·   verify: ${doctorCmd}`);
-  console.log('  Tool           Level   Wired by this install');
+  console.log('  Tool           AGENTS.md           Skills                    Adapter');
   for (const id of tools) {
     const p = TOOL_PROFILES[id];
-    const wired = [...p.adapters, ...p.extras].join(' · ') || 'AGENTS.md · .claude/skills/';
-    console.log(`  ${p.label.padEnd(16)}${p.level.padEnd(8)}${wired}`);
+    console.log(`  ${p.label.padEnd(16)}${p.agentsMd.padEnd(20)}${p.skills.padEnd(26)}${p.adapter}`);
   }
 
   for (const id of tools) {
     const p = TOOL_PROFILES[id];
     console.log(`\n  ── ${p.label} — next steps ──`);
+    console.log(`     AGENTS.md: ${p.agentsMd}`);
+    console.log(`     Skills: ${p.skills}`);
+    console.log(`     Adapter: ${p.adapter}`);
+    console.log(`     MCP: ${p.mcp}`);
+    console.log(`     Routing: ${p.routing}`);
     p.onboarding.forEach((line, i) => console.log(`     ${i + 1}. ${line}`));
   }
 }

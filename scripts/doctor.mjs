@@ -23,6 +23,7 @@ import { resolvePaths, detectLayout, resolveProjectRootFromScript } from './path
 import { computeStageCommandTableYaml, renderStageCommandTable } from './stage-command-table.mjs';
 import { computeDesignSystemCss, renderDesignSystemTokens } from './design-system.mjs';
 import { computePluginManifest, computePluginReadme, computeMarketplaceJson } from './build-plugin.mjs';
+import { normalizeRoutingProfile, resolveRoutingModels, knownRoutingModelIds } from './model-profiles.mjs';
 
 const HELP = `midas doctor — adapter drift checker + install health check
 
@@ -139,24 +140,37 @@ if (!stateRaw) {
     build: agentModel('midas-builder'),
     scout: agentModel('midas-scout'),
   };
-  const allow = new Set([
-    ...Object.values(pinned).filter(Boolean),
-    'gpt-5.3-codex', 'gpt-5-mini', // openai routing_profile presets (advisory)
-  ]);
+  const allow = knownRoutingModelIds();
   if (allow.size === 0) {
     check('routing', 'skip', 'no .claude/agents to reconcile against');
   } else {
     const tiers = ['orchestrate', 'build', 'scout'];
-    const { profile, routing } = parseRouting(stateRaw);
+    const { costProfile, routingProfile, routing } = parseRouting(stateRaw);
+    const activeProfile = normalizeRoutingProfile(routingProfile) || 'claude';
     const unknown = tiers.filter((t) => routing[t] && !allow.has(routing[t]));
     if (unknown.length) {
       check('routing', 'warn', `${unknown.map((t) => `${t}=${routing[t]}`).join(', ')} not a known model id — see docs/agents-and-models.md`);
-    } else if (profile === 'balanced') {
-      const mism = tiers.filter((t) => routing[t] && pinned[t] && routing[t] !== pinned[t]);
+    } else if (activeProfile === 'claude') {
+      if (costProfile === 'balanced') {
+        const mism = tiers.filter((t) => routing[t] && pinned[t] && routing[t] !== pinned[t]);
+        check('routing', mism.length ? 'warn' : 'ok',
+          mism.length ? mism.map((t) => `${t}: state ${routing[t]} != agent ${pinned[t]}`).join('; ') : 'matches agent pins');
+      } else {
+        check('routing', 'ok', `profile ${costProfile || '(unset)'} - ids valid (legacy claude routing is advisory intent)`);
+      }
+    } else if (activeProfile === 'openai-mini') {
+      const expected = resolveRoutingModels('openai-mini');
+      const mism = tiers.filter((t) => routing[t] && routing[t] !== expected[t]);
       check('routing', mism.length ? 'warn' : 'ok',
-        mism.length ? mism.map((t) => `${t}: state ${routing[t]} != agent ${pinned[t]}`).join('; ') : 'matches agent pins');
+        mism.length ? mism.map((t) => `${t}: state ${routing[t]} != profile ${expected[t]}`).join('; ') : 'openai-mini profile resolves to gpt-5.4-mini');
+    } else if (activeProfile === 'local-hybrid') {
+      const localModel = (stateRaw.match(/^local_model:\s*\n(?:[^\n]*\n)*?\s*id:\s*([^\s#]+)/m) || [])[1] || 'local_model.id';
+      const expected = resolveRoutingModels('local-hybrid', { localModelId: localModel });
+      const mism = tiers.filter((t) => routing[t] && routing[t] !== expected[t]);
+      check('routing', mism.length ? 'warn' : 'ok',
+        mism.length ? mism.map((t) => `${t}: state ${routing[t]} != profile ${expected[t]}`).join('; ') : `local-hybrid profile resolves to ${localModel}`);
     } else {
-      check('routing', 'ok', `profile ${profile || '(unset)'} — ids valid (non-balanced profiles are advisory intent)`);
+      check('routing', 'warn', `unknown routing_profile ${routingProfile || '(unset)'} - see docs/agents-and-models.md`);
     }
   }
 

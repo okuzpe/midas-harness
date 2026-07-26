@@ -17,6 +17,7 @@
 // No npm dependencies: only node:fs and node:path. Runs on Windows: `node scripts/render-adapters.mjs`.
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { dirname, join, resolve } from 'node:path';
 import { parseToolsFromStateYaml } from './yaml-lite.mjs';
 import { resolvePaths } from './paths.mjs';
@@ -76,6 +77,11 @@ function djb2(str) {
     h = ((h << 5) + h + str.charCodeAt(i)) >>> 0; // h * 33 + c, kept unsigned 32-bit
   }
   return h.toString(16).padStart(8, '0');
+}
+
+/** SHA-256 helper for stable source digests. */
+function sha256(str) {
+  return createHash('sha256').update(str).digest('hex');
 }
 
 /** Ensure the parent directory of an absolute file path exists. */
@@ -305,11 +311,13 @@ function readRulesDigest(root, engineRel = 'harness') {
 export function computeChecksIndex(root, engineRel = 'harness') {
   const dir = join(root, engineRel, 'rules');
   if (!existsSync(dir)) {
-    return { schema_version: 1, updated: null, source: `${engineRel}/rules`, rules: [] };
+    return { schema_version: 1, updated: null, source: `${engineRel}/rules`, source_digest: sha256(`${engineRel}/rules`), rules: [] };
   }
   const files = readdirSync(dir).filter((f) => f.endsWith('.md')).sort();
+  let raw = '';
   const rules = files.map((f) => {
     const text = readFileSync(join(dir, f), 'utf8');
+    raw += text;
     const title = (text.match(/^#\s+(.+)$/m) || [, f.replace(/\.md$/, '')])[1];
     const slug = f.replace(/\.md$/, '');
     const owner = ruleOwnerForSlug(slug);
@@ -331,22 +339,24 @@ export function computeChecksIndex(root, engineRel = 'harness') {
   });
   return {
     schema_version: 1,
-    updated: new Date().toISOString().slice(0, 10),
+    updated: null,
     source: `${engineRel}/rules`,
+    source_digest: sha256(`${engineRel}/rules\n${raw}`),
     rules,
   };
 }
 
 /** Build the structured phase-gate registry mirrored into {engine}/gates.json. */
 export function computeGatesIndex(root, engineRel = 'harness') {
-  void root;
+  const methodology = readFileSync(join(root, engineRel, 'methodology.md'), 'utf8');
   return {
     schema_version: 1,
-    updated: new Date().toISOString().slice(0, 10),
+    updated: null,
     source: `${engineRel}/methodology.md`,
+    source_digest: sha256(`${engineRel}/methodology.md\n${methodology}\n${JSON.stringify(GATE_ROWS)}`),
     gates: GATE_ROWS.map((gate) => ({
       ...gate,
-      recorded_at: new Date().toISOString().slice(0, 10),
+      recorded_at: null,
     })),
   };
 }

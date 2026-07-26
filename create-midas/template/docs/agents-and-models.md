@@ -2,7 +2,7 @@
 
 **All model IDs in Midas live here.** Skills and rules reference *tier names* (`orchestrate`,
 `build`, `scout`), not literal model IDs, wherever possible. When a new model ships, update this
-file and the three agent files in `.claude/agents/` — nowhere else.
+file, `scripts/model-profiles.mjs`, and the three agent files in `.claude/agents/` — nowhere else.
 
 ## Tiers (the balanced default)
 
@@ -22,17 +22,18 @@ file and the three agent files in `.claude/agents/` — nowhere else.
 
 ## Routing profiles (additive presets)
 
-`routing_profile` in `state.yaml` selects a **preset** for `build`/`scout` tiers. The `orchestrate`
-tier **always** uses Claude cloud for attested gate verdicts — this invariant holds in every profile.
+`routing_profile` in `state.yaml` selects a **preset** for the resolved `routing:` map. Legacy installs
+without the field still behave as `claude`; fresh installs default to `openai-mini`.
 
 | `routing_profile` | orchestrate | build | scout | Notes |
 |---|---|---|---|---|
-| `claude` (default) | Claude Opus | Claude Sonnet | Claude Haiku | Balanced default; use `cost_profile` for savings/quality |
-| `openai` | Claude Opus | `gpt-5.3-codex` | `gpt-5-mini` | Advisory on non-Claude tools; gate verdicts still Claude |
+| `claude` | Claude Opus | Claude Sonnet | Claude Haiku | Legacy Claude routing for existing installs; use `cost_profile` for savings/quality |
+| `openai-mini` (default for new installs) | `gpt-5.4-mini` | `gpt-5.4-mini` | `gpt-5.4-mini` | Portable mini profile; recommended efforts are `xhigh` / `high` / `medium` |
 | `local-hybrid` | Claude Opus | `local_model.id` | `local_model.id` | Requires `execution_mode: hybrid` + `local_model` block |
 
-Set `routing_profile: openai` only when OpenAI models are available in your host tool. On Cursor/Copilot,
-profiles collapse to prose intent in `AGENTS.md` — the schema records intent; enforcement is advisory.
+`openai` remains a legacy alias for `openai-mini` so older state files and notes still parse. On
+Cursor/Copilot, profiles collapse to prose intent in `AGENTS.md` — the schema records intent;
+enforcement is advisory.
 
 The active profile is recorded in `harness/state.yaml -> routing` (resolved model ids).
 
@@ -74,7 +75,8 @@ serving many concurrent users on data-center GPUs — not this use case.
 `.claude/agents/midas-scout.md` (`model: claude-haiku-4-5`).
 
 These always work on a clean install. The built-in `Explore` agent (Haiku, read-only) is a valid
-substitute for `midas-scout` on research tasks.
+substitute for `midas-scout` on research tasks. Portable skills for Codex/Cursor/Gemini live in
+`.agents/skills/` and are generated from the Claude source tree.
 
 ## Optional enrichment (only if installed)
 
@@ -95,4 +97,5 @@ thin agent if a vendor's pinned model disagrees with the desired tier.
 
 Cursor / Copilot / Windsurf lack per-subagent model tiering. There, the tiers collapse to **prose
 intent** in `AGENTS.md` ("use your fastest model for research, your strongest for architecture").
-Methodology and MCP are fully preserved; only automatic cost-routing is lost.
+Methodology and MCP are fully preserved; only automatic cost-routing is lost. Their skill discovery
+path is the portable `.agents/skills/` tree, not `.claude/skills/`.

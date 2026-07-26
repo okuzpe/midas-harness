@@ -24,8 +24,9 @@ literal model ids live in **`docs/agents-and-models.md`** (the single bump point
 
 ## Local & hybrid execution (where a tier runs)
 
-`routing_profile` in `state.yaml` (`claude` | `openai` | `local-hybrid`) selects preset model ids for
-`build`/`scout`. The `orchestrate` tier **always** uses Claude cloud for attested gate verdicts — see
+`routing_profile` in `state.yaml` (`claude` | `openai-mini` | `local-hybrid`, with legacy `openai`
+accepted) selects preset model ids for the resolved `routing:` map. The `orchestrate` tier **always**
+uses Claude cloud for attested gate verdicts on the legacy `claude` profile — see
 `docs/agents-and-models.md` for the preset table.
 
 The tier names above pick *which* model; **`state.yaml -> execution_mode`** (`cloud` | `hybrid` |
@@ -34,11 +35,11 @@ Claude tier a decision uses, only where build/scout may run. The mode→placemen
 consumer-hardware fit table (8/16/24 GB) live in `docs/agents-and-models.md`. One invariant binds
 every mode:
 
-- **`orchestrate` always runs on Claude cloud.** The ~6 irreversible decisions (Phase 1/3/4/8 gate
-  verdicts, code-review, security-review) are exactly where local open-weight models are weakest —
-  multi-step planning and audit — so they do **not** go local even under `hybrid`/`local`. `scout` and
-  `build` MAY run on a local model when `execution_mode` is `hybrid` or `local`; that local model id is
-  the provenance for what those legs produced.
+- **`orchestrate` always runs on Claude cloud for the legacy Claude profile.** The ~6 irreversible
+  decisions (Phase 1/3/4/8 gate verdicts, code-review, security-review) are exactly where local
+  open-weight models are weakest — multi-step planning and audit — so they do **not** go local even
+  under `hybrid`/`local`. `scout` and `build` MAY run on a local model when `execution_mode` is
+  `hybrid` or `local`; that local model id is the provenance for what those legs produced.
 - Under `execution_mode: local`, an orchestrate verdict produced without a Claude cloud model is
   recorded as **un-attested** — advisory only, never gate-advancing.
 
@@ -58,20 +59,21 @@ every mode:
 - **CHECK:** Each multi-tier phase delegates its produce/fetch legs to `midas-builder` / `midas-scout`
   in the SKILL body — `harness-tier` is the dispatch tier only, never the whole cost story.
   *(manual.)*
-- **CHECK:** `paths.state -> routing` ids are all known model ids and, under
-  `cost_profile: balanced`, **equal the pinned `model:` of the three first-party agents**. Run
-  `node <paths.scripts>/doctor.mjs <project>`; a `routing:*` warning is a fail. *(The engine enforces the same
-  reconciliation against the example state in `scripts/test.mjs`.)*
+- **CHECK:** `paths.state -> routing` ids are all known model ids and, under the legacy `claude`
+  profile with `cost_profile: balanced`, **equal the pinned `model:` of the three first-party agents**.
+  The `openai-mini` profile resolves all three tiers to `gpt-5.4-mini`. Run `node <paths.scripts>/doctor.mjs
+  <project>`; a `routing:*` warning is a fail. *(The engine enforces the same reconciliation against the
+  example state in `scripts/test.mjs`.)*
 
 ## Cost profiles — what is real vs. intent
 
 `cost_profile` (`balanced` | `max_savings` | `max_quality`) and the resolved `routing:` map are
-recorded in `state.yaml`. **Only `balanced` is executor-backed** — its ids are the agent pins the
-platform actually dispatches to. `max_savings` / `max_quality` are **routing *intent*** the
-orchestrating model self-applies; there is no engine that rewrites an agent's pinned model from the
-profile, so do **not** rely on selecting a non-balanced profile to change dispatch automatically. If a
-project needs a different default tier-to-model mapping, change it at the source (`docs/agents-and-models.md`
-+ the three agent files), then re-run `node <paths.scripts>/doctor.mjs` to confirm `routing:` reconciles.
+recorded in `state.yaml`. `routing_profile` chooses the preset that fills `routing:`. The legacy Claude
+profile is executor-backed through the first-party agent pins; `openai-mini` resolves all tiers to
+`gpt-5.4-mini`; `local-hybrid` keeps `orchestrate` on Claude and routes build/scout to the local model.
+If a project needs a different default tier-to-model mapping, change it at the source
+(`docs/agents-and-models.md` + the three agent files + `scripts/model-profiles.mjs`), then re-run
+`node <paths.scripts>/doctor.mjs` to confirm `routing:` reconciles.
 
 ## Token economy
 
@@ -92,4 +94,5 @@ same tokens:
 
 Cursor / Copilot / Windsurf lack per-subagent model tiering, so the tiers collapse to **prose intent**
 (fastest model for search/extract, strongest for architecture and audits). Methodology and MCP are
-fully preserved; only automatic cost-routing is lost. See `docs/agents-and-models.md` → "Non-Claude tools".
+fully preserved; only automatic cost-routing is lost. Their skills are discovered through the portable
+`.agents/skills/` tree. See `docs/agents-and-models.md` → "Non-Claude tools".
