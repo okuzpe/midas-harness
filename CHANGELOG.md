@@ -11,6 +11,17 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.0.0-rc.3] — 2026-07-29
+
+### Changed
+
+- Install and `--update` always report `.gitignore` merge status (written / upgraded / up to date).
+- `/midas-doctor` documents `gitignore:midas-block` and applies the snippet via `--fix`.
+- `/midas-update` exit gate requires `gitignore:midas-block` ok after upgrade.
+- `gitignore-merge.mjs` audit notes point at `doctor.mjs --fix`.
+
+---
+
 ## [2.0.0-rc.2] — 2026-07-29
 
 ### Added
@@ -1135,7 +1146,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.2...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.3...HEAD
+[2.0.0-rc.3]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.2...v2.0.0-rc.3
 [2.0.0-rc.2]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.1...v2.0.0-rc.2
 [2.0.0-rc.1]: https://github.com/okuzpe/midas-harness/compare/v1.1.4...v2.0.0-rc.1
 [1.1.4]: https://github.com/okuzpe/midas-harness/compare/v1.1.3...v1.1.4

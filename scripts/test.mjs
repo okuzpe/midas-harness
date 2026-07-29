@@ -865,6 +865,8 @@ check('doctor:gitignore-check', /gitignore:midas-block/.test(readFileSync(join(R
 }
 check('installer:ensure-gitignore', /async function ensureGitignore\(paths\)/.test(installer));
 check('installer:gitignore-merge', /gitignore-merge\.mjs/.test(installer));
+check('installer:gitignore-report-always', /reportGitignoreLine|gitignore: Midas block already up to date/.test(installer));
+check('installer:gitignore-after-engine', /After engine copy so the latest gitignore/.test(installer));
 check('installer:verify-after-update', /function verifyInstall\(paths\)/.test(installer) && /runDoctor\(TARGET, paths/.test(installer));
 check('installer:layout-flag', /installLayoutFlag !== 'harness'/.test(installer) && /--migrate/.test(installer));
 check('installer:hasMidasInstall-compact', /hasMidasInstall[\s\S]*\.midas/.test(installer));

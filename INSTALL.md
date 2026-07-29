@@ -189,13 +189,13 @@ Phase 8 (`/close-sprint`) grades `.harness/engine/rules/security.md`: `.gitignor
 
 | Situation | Terminal | Then in Cursor |
 |-----------|----------|----------------|
-| **Never installed Midas** | `npx github:okuzpe/midas-harness#v2.0.0-rc.2 --tools=cursor` | `/midas-init` |
+| **Never installed Midas** | `npx github:okuzpe/midas-harness#v2.0.0-rc.3 --tools=cursor` | `/midas-init` |
 | **`--update` said "no existing install"** | Same as above — **drop `--update`** | `/midas-init` |
 | Installed, first time in editor | — | `/midas-init` |
 | Installed, `setup_complete: true` | — | `/midas-status` |
 | Existing codebase, brownfield | install + | `/midas-init` (may route to `/midas-adopt`) |
-| Existing 1.x classic/compact/hub | `npx ...#v2.0.0-rc.2 --migrate` then add `--apply` | `/midas-status` |
-| Engine refresh on v2 | `npx ...#v2.0.0-rc.2 --update` | `/midas-update` (optional diff-confirm) |
+| Existing 1.x classic/compact/hub | `npx ...#v2.0.0-rc.3 --migrate` then add `--apply` | `/midas-status` |
+| Engine refresh on v2 | `npx ...#v2.0.0-rc.3 --update` | `/midas-update` (optional diff-confirm) |
 | **Not sure** | `npx github:okuzpe/midas-harness --diagnose` | `/midas-reconcile` |
 
 `--diagnose` and `/midas-reconcile` are **read-only** — they never write files.
@@ -207,7 +207,7 @@ markers. A modified `vendor` file aborts the update before any write. Adapters r
 already listed in state (`--tools` is not applied):
 
 ```bash
-npx github:okuzpe/midas-harness#v2.0.0-rc.2 --update
+npx github:okuzpe/midas-harness#v2.0.0-rc.3 --update
 ```
 
 Project rules belong in `.harness/rules/`; a matching slug overrides the immutable base rule.
@@ -217,8 +217,8 @@ Project rules belong in `.harness/rules/`; a matching slug overrides the immutab
 Migration is the only operation that moves legacy files. Preview first; it is byte-for-byte read-only:
 
 ```powershell
-npx github:okuzpe/midas-harness#v2.0.0-rc.2 --migrate
-npx github:okuzpe/midas-harness#v2.0.0-rc.2 --migrate --apply
+npx github:okuzpe/midas-harness#v2.0.0-rc.3 --migrate
+npx github:okuzpe/midas-harness#v2.0.0-rc.3 --migrate --apply
 node .harness/scripts/doctor.mjs --strict
 ```
 
@@ -260,7 +260,7 @@ npx github:okuzpe/midas-harness --uninstall
 - **Keeps your product work** (`.harness/product/`, rules, runs, state) unless you pass `--purge`.
 
 For exact removal of a pinned install, uninstall with the same release:
-`npx github:okuzpe/midas-harness#v2.0.0-rc.2 --uninstall`.
+`npx github:okuzpe/midas-harness#v2.0.0-rc.3 --uninstall`.
 
 > Prefer to do it by hand? Delete `.harness/`, generated host mirrors, the marked block in `AGENTS.md`,
 > `.claude/CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`,

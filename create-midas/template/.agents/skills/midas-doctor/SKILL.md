@@ -58,18 +58,26 @@ Findings are **mechanical** (adapter drift, version mismatch, MCP wiring, missin
 | `mcp:skill-required` | Every skill `mcp-required` id wired in `.mcp.json` |
 | `skills:frontmatter` | Each `<paths.engine>/skills/*/SKILL.md` has valid frontmatter |
 | `gate:records` | Frozen sprint `audit-*` / `verify-*` tallies match `state.yaml` sprint status |
+| `gate:phase-*` / `gate:sprint-continuity` | Passed phases have assumption or on-disk artifacts; active sprints have progress when stale |
+| `gitignore:midas-block` | Root `.gitignore` has the managed Midas block (secrets, deps, volatile paths) |
 
-Additional judgment checks (not all printed by the script):
+## Phase 3 — Apply fixes (`--fix`)
 
-- **`AGENTS.md` present** and contains its managed markers.
-- **`state.yaml` parses** as valid YAML and matches the schema in `<paths.engine>/state.schema.md`.
-- **Context7 reachable** (optional) — probe via Context7 MCP if wired; otherwise note the web-fetch
-  fallback per `<paths.engine>/rules/context7-usage.md`.
-- **Specialist model tiers** — warn if a vendor agent's pinned `model` disagrees with
-  `docs/agents-and-models.md` (do not edit vendor files).
+When the user confirms, run:
+
+```bash
+node <paths.scripts>/doctor.mjs --fix
+```
+
+That path **re-renders adapters** and **merges/upgrades `.gitignore`** from
+`<paths.engine>/templates/gitignore-midas.snippet` (idempotent; never deletes user patterns outside
+the Midas block). Equivalent standalone: `node <paths.scripts>/gitignore-merge.mjs`.
+
+After `--fix`, re-run without `--fix` and confirm `gitignore:midas-block` is `ok`.
 
 ## Output
 
 A compact health table — one row per check with `ok` / `warn` / `drift` and a one-line note — followed
-by the offered action (re-render drifted adapters) and any secret-setup command the user must run. Never
-write a key, never hand-edit a generated adapter outside the render script, never mutate vendor agent files.
+by the offered action (re-render + gitignore merge via `--fix`) and any secret-setup command the user
+must run. Never write a key, never hand-edit a generated adapter outside the render script, never
+mutate vendor agent files.

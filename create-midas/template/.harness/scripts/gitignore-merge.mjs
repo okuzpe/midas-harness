@@ -121,8 +121,8 @@ export function auditGitignore(root) {
     return {
       status: 'warn',
       note: missing.length
-        ? `no Midas block; missing patterns: ${missing.slice(0, 5).join(', ')}${missing.length > 5 ? '…' : ''} — run gitignore-merge.mjs`
-        : 'no Midas block — run gitignore-merge.mjs to append the managed block',
+        ? `no Midas block; missing patterns: ${missing.slice(0, 5).join(', ')}${missing.length > 5 ? '…' : ''} — run doctor.mjs --fix`
+        : 'no Midas block — run doctor.mjs --fix to append the managed block',
       missing,
       hasFile: true,
       hasBlock: false,
@@ -131,7 +131,7 @@ export function auditGitignore(root) {
   if (missing.length) {
     return {
       status: 'warn',
-      note: `missing patterns: ${missing.slice(0, 5).join(', ')}${missing.length > 5 ? '…' : ''} — run gitignore-merge.mjs or --update`,
+      note: `missing patterns: ${missing.slice(0, 5).join(', ')}${missing.length > 5 ? '…' : ''} — run doctor.mjs --fix or --update`,
       missing,
       hasFile: true,
       hasBlock: true,

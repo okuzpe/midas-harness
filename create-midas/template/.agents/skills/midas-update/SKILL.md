@@ -21,7 +21,7 @@ metadata:
 
 Bring an existing canonical v2 install up to the current engine, **safely**. Read `layout` + `paths`
 from **`paths.state`**. If the project is classic, compact, or hub 1.x, stop without writing and point
-to `npx github:okuzpe/midas-harness#v2.0.0-rc.2 --migrate`; applying requires the explicit `--apply`.
+to `npx github:okuzpe/midas-harness#v2.0.0-rc.3 --migrate`; applying requires the explicit `--apply`.
 
 ## Procedure
 1. **Read versions.** `from` = state `midas_version`; `to` = engine `VERSION` at `paths.version`. If `from == to`, report "already current" and stop.
@@ -33,15 +33,19 @@ to `npx github:okuzpe/midas-harness#v2.0.0-rc.2 --migrate`; applying requires th
 4. **Diff + confirm.** Show the diff per file and `AskUserQuestion` before writing. For files the user has
    edited outside `<!-- midas:begin -->` markers, preserve their content; only update managed regions.
    `--dry-run` prints the plan and writes nothing.
-5. **Apply + re-render.** Write the confirmed changes, then re-render the tool adapters via `/midas-doctor`
-   (the single render path).
+5. **Apply + re-render + gitignore.** Prefer
+   `npx github:okuzpe/midas-harness#v2.0.0-rc.3 --update` (refreshes engine, **merges `.gitignore`**
+   from the new snippet, re-renders adapters). Or write confirmed files then
+   `node <paths.scripts>/doctor.mjs --fix` (adapters **and** gitignore upgrade).
 6. **Bump the stamp.** Set state `midas_version = to` (read-modify-write the whole file at `paths.state`).
-7. **Report.** Summarize what migrated, what was preserved, and any manual follow-ups from the notes.
+7. **Report.** Summarize what migrated, what was preserved, **gitignore status** (written / upgraded /
+   already up to date), and any manual follow-ups from the notes.
 
 ## Exit gate
 - [ ] `paths.state → midas_version` equals engine `VERSION`.
 - [ ] No user-owned product, rule, run, MCP, state, or content outside generated markers changed.
 - [ ] Adapters re-rendered; `/midas-doctor` reports in sync.
+- [ ] `gitignore:midas-block` is `ok` (`node <paths.scripts>/doctor.mjs`).
 
 ## Tier & cost
 Reading versions/notes and applying mechanical refreshes → **build** (Sonnet); judgment about a

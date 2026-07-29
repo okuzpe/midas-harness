@@ -82,7 +82,7 @@ const TEST_FAIL_STEP = process.env.MIDAS_TEST_FAIL_STEP || '';
 
 if (diagnose) {
   const { runDiagnoseCli } = await import('./install-diagnose.mjs');
-  let bundledVersion = '2.0.0-rc.2';
+  let bundledVersion = '2.0.0-rc.3';
   try {
     bundledVersion = readFileSync(join(TEMPLATE, '.harness', 'engine', 'VERSION'), 'utf8').trim();
   } catch {
@@ -141,8 +141,8 @@ if (update && !hasMidasInstall(TARGET)) {
 }
 if (update && detectLegacyLayout(TARGET) && detectLegacyLayout(TARGET) !== 'harness') {
   console.error('create-midas: this is a Midas 1.x layout; --update never relocates files.');
-  console.error('  Preview: npx github:okuzpe/midas-harness#v2.0.0-rc.2 --migrate');
-  console.error('  Apply:   npx github:okuzpe/midas-harness#v2.0.0-rc.2 --migrate --apply');
+  console.error('  Preview: npx github:okuzpe/midas-harness#v2.0.0-rc.3 --migrate');
+  console.error('  Apply:   npx github:okuzpe/midas-harness#v2.0.0-rc.3 --migrate --apply');
   process.exit(1);
 }
 
@@ -191,6 +191,8 @@ let rendered = false;
 let verifyResult = null;
 let updatedTo = null;
 let installError = null;
+/** @type {{ wrote: boolean, upgraded: boolean } | null} */
+let gitignoreResult = null;
 try {
   mkdirSync(TARGET, { recursive: true });
   copyTree(TEMPLATE, TARGET);
@@ -246,7 +248,8 @@ try {
       if (r.synced && !written.includes('.cursor/mcp.json')) written.push('.cursor/mcp.json');
     }
   }
-  await ensureGitignore(paths);
+  // After engine copy so the latest gitignore-midas.snippet is on disk (new patterns on --update).
+  gitignoreResult = await ensureGitignore(paths);
 
   updatedTo = update || migrate ? bumpVersionStamp(paths) : null;
   const installedVersion = (readMaybe(join(TARGET, paths.version)) || '0.0.0').trim();
@@ -622,12 +625,14 @@ function askQuestion(rl, prompt) {
 
 
 // Merge Midas .gitignore block (secrets, deps, volatile paths). Idempotent; upgrades missing patterns on --update.
+// Runs after engine copy so the installed snippet (including new patterns) is the source of truth.
 async function ensureGitignore(paths) {
   const mergePath = join(TARGET, paths.scripts, 'gitignore-merge.mjs');
-  if (!existsSync(mergePath)) return;
+  if (!existsSync(mergePath)) return { wrote: false, upgraded: false };
   const { ensureMidasGitignore } = await import(pathToFileURL(mergePath).href);
-  const { wrote } = ensureMidasGitignore(TARGET);
-  if (wrote && !written.includes('.gitignore')) written.push('.gitignore');
+  const result = ensureMidasGitignore(TARGET);
+  if (result.wrote && !written.includes('.gitignore')) written.push('.gitignore');
+  return result;
 }
 
 /** Run midas-doctor on the target project; auto --fix once on adapter drift, then re-check. */
@@ -747,20 +752,35 @@ function bumpVersionStamp(paths) {
   return version;
 }
 
+function reportGitignoreLine() {
+  if (!gitignoreResult) {
+    console.log('     .gitignore: skipped (gitignore-merge.mjs not on disk yet).');
+    return;
+  }
+  if (gitignoreResult.wrote && gitignoreResult.upgraded) {
+    console.log('     .gitignore upgraded — new Midas patterns merged from engine snippet.');
+  } else if (gitignoreResult.wrote) {
+    console.log('     .gitignore written — Midas block (secrets, deps, volatile paths).');
+  } else {
+    console.log('     .gitignore: Midas block already up to date.');
+  }
+}
+
 async function report(tools, paths) {
   const doctorHint = `node ${paths.scripts}/doctor.mjs`;
   if (update || migrate) {
     console.log(`\n  ✨ Midas ${migrate ? 'migrated' : 'updated'} in ${TARGET}${updatedTo ? ` → v${updatedTo}` : ''}`);
     console.log(`     ${written.length} managed file(s) refreshed; ${paths.product}/, ${paths.rules}/, ${paths.runs}/, ${paths.state}, and .mcp.json are preserved.`);
     if (rendered) console.log(`     adapters re-rendered (per tools: in ${paths.state}).`);
-    if (written.includes('.gitignore')) console.log('     .gitignore updated (secrets, node_modules/deps, Midas volatile paths).');
+    reportGitignoreLine();
     if (verifyResult?.ok) {
       console.log('     verify: ok — adapters in sync (midas-doctor passed).');
     } else if (verifyResult && !verifyResult.missing) {
       console.log('     verify: FAILED — adapters still out of sync after auto-fix.');
       console.log(`     Run \`${doctorHint} --fix\` in the project and check the output above.`);
     }
-    console.log('\n  Project rules live in `.harness/rules/`; vendor engine files are protected by manifest hashes.\n');
+    console.log(`\n  If gitignore:midas-block warns later: \`${doctorHint} --fix\` re-applies the snippet.`);
+    console.log('  Project rules live in `.harness/rules/`; vendor engine files are protected by manifest hashes.\n');
     return;
   }
   const activeTools = tools || DEFAULT_TOOLS;
@@ -778,7 +798,7 @@ async function report(tools, paths) {
     }
   }
   if (stateMode) console.log(`     ${paths.state} created (mode: ${stateMode}, layout: ${paths.layout}, routing: ${installRoutingProfile}, tools: ${activeTools.join(', ')})`);
-  if (written.includes('.gitignore')) console.log('     .gitignore updated (secrets, node_modules/deps, Midas volatile paths).');
+  reportGitignoreLine();
   if (verifyResult?.ok) console.log('     verify: ok — adapters in sync (midas-doctor passed).');
 
   const profilesPath = join(TARGET, paths.scripts, 'tool-profiles.mjs');
@@ -1022,16 +1042,16 @@ function printHelp() {
 Install:
   npx github:okuzpe/midas-harness          into the current directory (from GitHub)
   npx github:okuzpe/midas-harness my-app   into ./my-app
-  npx github:okuzpe/midas-harness#v2.0.0-rc.2 --tools=cursor
+  npx github:okuzpe/midas-harness#v2.0.0-rc.3 --tools=cursor
   npx github:okuzpe/midas-harness --layout=harness   explicit no-op; v2 has one layout
 
 Migrate an existing v1 install (always explicit):
-  npx github:okuzpe/midas-harness#v2.0.0-rc.2 --migrate          preview only; writes nothing
-  npx github:okuzpe/midas-harness#v2.0.0-rc.2 --migrate --apply  migrate transactionally + verify
+  npx github:okuzpe/midas-harness#v2.0.0-rc.3 --migrate          preview only; writes nothing
+  npx github:okuzpe/midas-harness#v2.0.0-rc.3 --migrate --apply  migrate transactionally + verify
 
 Update an existing install (overwrites the engine, KEEPS your work, bumps the version stamp):
   npx github:okuzpe/midas-harness --update             refresh to the latest (main)
-  npx github:okuzpe/midas-harness#v2.0.0-rc.2 --update refresh to a pinned release
+  npx github:okuzpe/midas-harness#v2.0.0-rc.3 --update refresh to a pinned release
 
 Uninstall (surgical — removes only Midas's files, keeps your work):
   npx github:okuzpe/midas-harness --uninstall             remove owned engine files; keep product, rules, runs, state
@@ -1058,6 +1078,6 @@ Options:
 After install, open the project in your chosen tool and run /midas-init (one-time setup), then /midas-status.
 Not sure? Run: npx github:okuzpe/midas-harness --diagnose
 Cursor:           npx github:okuzpe/midas-harness --tools=cursor
-Migration preview: npx github:okuzpe/midas-harness#v2.0.0-rc.2 --migrate
+Migration preview: npx github:okuzpe/midas-harness#v2.0.0-rc.3 --migrate
 Docs: https://github.com/okuzpe/midas-harness`);
 }
