@@ -1,6 +1,6 @@
 {
   "name": "midas-harness",
-  "version": "2.0.0-rc.1",
+  "version": "2.0.0-rc.2",
   "private": true,
   "description": "Portable product-development harness for AI coding agents (not Intel MiDaS depth estimation). Install with `npx github:okuzpe/midas-harness`. Drives a product from idea to shipped code through 9 audited phases.",
   "bin": {

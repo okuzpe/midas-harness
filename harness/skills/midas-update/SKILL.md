@@ -21,7 +21,7 @@ argument-hint: "[--dry-run]"
 
 Bring an existing canonical v2 install up to the current engine, **safely**. Read `layout` + `paths`
 from **`paths.state`**. If the project is classic, compact, or hub 1.x, stop without writing and point
-to `npx github:okuzpe/midas-harness#v2.0.0-rc.1 --migrate`; applying requires the explicit `--apply`.
+to `npx github:okuzpe/midas-harness#v2.0.0-rc.2 --migrate`; applying requires the explicit `--apply`.
 
 ## Procedure
 1. **Read versions.** `from` = state `midas_version`; `to` = engine `VERSION` at `paths.version`. If `from == to`, report "already current" and stop.

@@ -31,6 +31,7 @@ nav:
   - Context & files: context-hierarchy.md
   - Repository Architecture: repository-architecture.md
   - "gstack comparison": gstack-comparison.md
+  - "muninn-harness comparison": muninn-comparison.md
   - Skills Reference: skills.md
   - Agents & Models: agents-and-models.md
   - FAQ: faq.md

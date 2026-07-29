@@ -26,7 +26,7 @@ irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | ie
 ```bash
 npx  github:okuzpe/midas-harness
 # compact layout (less root clutter):
-npx github:okuzpe/midas-harness#v2.0.0-rc.1 --tools=cursor
+npx github:okuzpe/midas-harness#v2.0.0-rc.2 --tools=cursor
 pnpm dlx github:okuzpe/midas-harness
 bunx github:okuzpe/midas-harness
 ```

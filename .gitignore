@@ -48,6 +48,11 @@ status.html
 
 # midas: amend — patterns added on install/update
 .harness/migrations/backups/
+
+# midas: amend — patterns added on install/update
+.harness/runs/explore/.active
+.harness/explore/.active
+.midas/explore/.active
 # midas:end
 
 # MkDocs build output (CI uses _site/; default `mkdocs build` writes site/ — both ignored)

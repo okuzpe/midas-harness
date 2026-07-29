@@ -11,6 +11,27 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.0.0-rc.2] — 2026-07-29
+
+### Added
+
+- `scripts/doctor.mjs` checks `gate:phase-*` / `gate:phase-artifacts` and `gate:sprint-continuity`
+  (assumption-or-artifacts evidence; active-sprint STM progress when `last_touched` is stale).
+- Rule `harness/rules/state-integrity.md` with machine CHECKs backed by doctor.
+- Skills `/midas-help` (interactive intent→command) and `/midas-explore` (ad-hoc notes under
+  `{runs}/explore/`, session pointer gitignored).
+- Explore templates `explore-meta.yaml` / `explore-notes.md`; fixtures for the new doctor gates.
+- Docs: `docs/muninn-comparison.md` (muninn-harness gap analysis) wired in MkDocs.
+
+### Changed
+
+- Conciseness pass on the longest operational skills (init, tribunal, verify, define-conventions,
+  sweep, choose-architecture, security-audit, qa) without changing gate contracts.
+- Gitignore snippet ignores explore session `.active` pointers; explore notes remain commit-able.
+- Version pins and install docs point at `v2.0.0-rc.2`.
+
+---
+
 ## [2.0.0-rc.1] — 2026-07-26
 
 ### Added
@@ -1114,7 +1135,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.1...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.2...HEAD
+[2.0.0-rc.2]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.1...v2.0.0-rc.2
 [2.0.0-rc.1]: https://github.com/okuzpe/midas-harness/compare/v1.1.4...v2.0.0-rc.1
 [1.1.4]: https://github.com/okuzpe/midas-harness/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/okuzpe/midas-harness/compare/v1.1.2...v1.1.3

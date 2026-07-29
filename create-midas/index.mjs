@@ -82,7 +82,7 @@ const TEST_FAIL_STEP = process.env.MIDAS_TEST_FAIL_STEP || '';
 
 if (diagnose) {
   const { runDiagnoseCli } = await import('./install-diagnose.mjs');
-  let bundledVersion = '2.0.0-rc.1';
+  let bundledVersion = '2.0.0-rc.2';
   try {
     bundledVersion = readFileSync(join(TEMPLATE, '.harness', 'engine', 'VERSION'), 'utf8').trim();
   } catch {
@@ -141,8 +141,8 @@ if (update && !hasMidasInstall(TARGET)) {
 }
 if (update && detectLegacyLayout(TARGET) && detectLegacyLayout(TARGET) !== 'harness') {
   console.error('create-midas: this is a Midas 1.x layout; --update never relocates files.');
-  console.error('  Preview: npx github:okuzpe/midas-harness#v2.0.0-rc.1 --migrate');
-  console.error('  Apply:   npx github:okuzpe/midas-harness#v2.0.0-rc.1 --migrate --apply');
+  console.error('  Preview: npx github:okuzpe/midas-harness#v2.0.0-rc.2 --migrate');
+  console.error('  Apply:   npx github:okuzpe/midas-harness#v2.0.0-rc.2 --migrate --apply');
   process.exit(1);
 }
 
@@ -1022,16 +1022,16 @@ function printHelp() {
 Install:
   npx github:okuzpe/midas-harness          into the current directory (from GitHub)
   npx github:okuzpe/midas-harness my-app   into ./my-app
-  npx github:okuzpe/midas-harness#v2.0.0-rc.1 --tools=cursor
+  npx github:okuzpe/midas-harness#v2.0.0-rc.2 --tools=cursor
   npx github:okuzpe/midas-harness --layout=harness   explicit no-op; v2 has one layout
 
 Migrate an existing v1 install (always explicit):
-  npx github:okuzpe/midas-harness#v2.0.0-rc.1 --migrate          preview only; writes nothing
-  npx github:okuzpe/midas-harness#v2.0.0-rc.1 --migrate --apply  migrate transactionally + verify
+  npx github:okuzpe/midas-harness#v2.0.0-rc.2 --migrate          preview only; writes nothing
+  npx github:okuzpe/midas-harness#v2.0.0-rc.2 --migrate --apply  migrate transactionally + verify
 
 Update an existing install (overwrites the engine, KEEPS your work, bumps the version stamp):
   npx github:okuzpe/midas-harness --update             refresh to the latest (main)
-  npx github:okuzpe/midas-harness#v2.0.0-rc.1 --update refresh to a pinned release
+  npx github:okuzpe/midas-harness#v2.0.0-rc.2 --update refresh to a pinned release
 
 Uninstall (surgical — removes only Midas's files, keeps your work):
   npx github:okuzpe/midas-harness --uninstall             remove owned engine files; keep product, rules, runs, state
@@ -1058,6 +1058,6 @@ Options:
 After install, open the project in your chosen tool and run /midas-init (one-time setup), then /midas-status.
 Not sure? Run: npx github:okuzpe/midas-harness --diagnose
 Cursor:           npx github:okuzpe/midas-harness --tools=cursor
-Migration preview: npx github:okuzpe/midas-harness#v2.0.0-rc.1 --migrate
+Migration preview: npx github:okuzpe/midas-harness#v2.0.0-rc.2 --migrate
 Docs: https://github.com/okuzpe/midas-harness`);
 }

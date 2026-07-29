@@ -29,6 +29,8 @@ completion — it reports the truth already on disk. Safe to run at any time, in
 | Quick branch/PR smoke test | `/midas-qa` |
 | Dead code / ledger drift | `/midas-sweep` |
 | Export/import project knowledge | `node <paths.scripts>/bundle.mjs` |
+| Unsure which command fits my intent | `/midas-help` |
+| Ad-hoc investigation outside the pipeline | `/midas-explore` |
 
 Audit roles (shared checklists: `<paths.engine>/templates/audit-checklists.md`):
 

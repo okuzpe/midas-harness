@@ -15,7 +15,7 @@ import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { computeAdapters, computeChecksIndex, computeGatesIndex, renderAdapters } from './render-adapters.mjs';
 import { evaluateMcpDeclaredVsWired, evaluateSkillMcpRequired, collectSkillMcpRequired } from './mcp-drift.mjs';
-import { parseSprints, parseEnforcement, parseRouting, parseToolsFromStateYaml } from './yaml-lite.mjs';
+import { parseSprints, parseSprintLastTouched, parsePhases, parseEnforcement, parseRouting, parseToolsFromStateYaml } from './yaml-lite.mjs';
 import { syncCursorMcp, wrapMcpServersForWindows } from './mcp-cursor-sync.mjs';
 import { auditGitignore, ensureMidasGitignore } from './gitignore-merge.mjs';
 import { resolvePaths, detectLayout, resolveProjectRootFromScript } from './paths.mjs';
@@ -508,6 +508,68 @@ if (!stateRaw) {
 
   if (scanned === 0) check('gate:records', 'skip', 'no parseable MIDAS_*_RESULT tally lines');
   else if (flagged === 0) check('gate:records', 'ok', `${scanned} record(s) consistent with state`);
+}
+
+// Phase gate evidence: a phase marked gate:passed must carry either a non-empty assumption
+// (engine dogfood / deferred phases) or on-disk artifacts: paths (product installs).
+if (!stateRaw) {
+  check('gate:phase-artifacts', 'skip', 'no state.yaml');
+} else {
+  const phases = parsePhases(stateRaw);
+  let scanned = 0;
+  let flagged = 0;
+  for (const [name, entry] of phases) {
+    if (entry.gate !== 'passed') continue;
+    scanned++;
+    if (entry.assumption && entry.assumption.length > 0) continue;
+    if (!entry.artifacts.length) {
+      flagged++;
+      check(`gate:phase-${name}`, 'warn', `gate=passed but no assumption: and no artifacts: listed`);
+      continue;
+    }
+    const missing = entry.artifacts.filter((rel) => !existsSync(join(ROOT, rel)));
+    if (missing.length) {
+      flagged++;
+      check(`gate:phase-${name}`, 'warn', `gate=passed but missing on disk: ${missing.join(', ')}`);
+    }
+  }
+  if (scanned === 0) check('gate:phase-artifacts', 'skip', 'no phases with gate=passed');
+  else if (flagged === 0) check('gate:phase-artifacts', 'ok', `${scanned} passed phase(s) have assumption or on-disk artifacts`);
+}
+
+// Active-sprint STM continuity: progress file required when last_touched is stale/absent.
+if (!stateRaw) {
+  check('gate:sprint-continuity', 'skip', 'no state.yaml');
+} else {
+  const sprintStatus = parseSprints(stateRaw);
+  const lastTouched = parseSprintLastTouched(stateRaw);
+  const active = [...sprintStatus.entries()].filter(([, st]) => st === 'active');
+  if (!active.length) {
+    check('gate:sprint-continuity', 'skip', 'no active sprint');
+  } else {
+    const STALE_MS = 7 * 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    let flagged = 0;
+    for (const [id] of active) {
+      const progressRel = join(paths.runsPath('sprints'), `${id}-progress.md`);
+      const progressAbs = join(ROOT, progressRel);
+      if (existsSync(progressAbs)) continue;
+      const lt = lastTouched.get(id);
+      const stale = !lt || Number.isNaN(Date.parse(lt)) || (now - Date.parse(lt) > STALE_MS);
+      if (stale) {
+        flagged++;
+        check(
+          'gate:sprint-continuity',
+          'warn',
+          `active sprint ${id} missing ${progressRel.replace(/\\/g, '/')}` +
+            (lt ? ` and last_touched=${lt} is stale/absent` : ' and last_touched is absent'),
+        );
+      }
+    }
+    if (flagged === 0) {
+      check('gate:sprint-continuity', 'ok', `${active.length} active sprint(s) have progress or fresh last_touched`);
+    }
+  }
 }
 
 // Structured gate registry: machine-readable phase gate index that mirrors the methodology table.

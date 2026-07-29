@@ -1,0 +1,8 @@
+# TEST FIXTURE. gate=passed listing a missing artifact — doctor must warn gate:phase-idea_intake.
+name: fixture-inconsistent-phase
+stage: contextualize
+phases:
+  idea_intake:
+    status: passed
+    gate: passed
+    artifacts: [product/DOES-NOT-EXIST.md]

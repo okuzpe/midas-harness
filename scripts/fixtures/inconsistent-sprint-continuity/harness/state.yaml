@@ -1,0 +1,8 @@
+# TEST FIXTURE. active sprint, no progress file, stale last_touched — must warn gate:sprint-continuity.
+name: fixture-inconsistent-sprint
+stage: sprint_execution
+sprints:
+  - id: "01"
+    title: "Fixture sprint"
+    status: active
+    last_touched: 2020-01-01

@@ -591,6 +591,50 @@ if (existsSync(join(ROOT, 'scripts', 'fixtures', 'inconsistent-audit'))) {
     '--strict --gates-only must exit 0 when gate records match state',
   );
 }
+if (existsSync(join(ROOT, 'scripts', 'fixtures', 'inconsistent-phase-evidence'))) {
+  const badPhase = doctorOutput('scripts/fixtures/inconsistent-phase-evidence');
+  check(
+    'behavioral:gate-phase-fires',
+    /warn\s+gate:phase-idea_intake/.test(badPhase),
+    'doctor did not warn gate:phase-idea_intake when artifacts are missing',
+  );
+  const goodPhase = doctorOutput('scripts/fixtures/consistent-phase-evidence');
+  check(
+    'behavioral:gate-phase-no-false-positive',
+    !/warn\s+gate:phase-/.test(goodPhase),
+    'doctor warned gate:phase-* on a consistent phase fixture',
+  );
+  check(
+    'behavioral:strict-exits-1-on-inconsistent-phase',
+    doctorExit('scripts/fixtures/inconsistent-phase-evidence', '--strict --gates-only') === 1,
+  );
+  check(
+    'behavioral:strict-exits-0-on-consistent-phase',
+    doctorExit('scripts/fixtures/consistent-phase-evidence', '--strict --gates-only') === 0,
+  );
+}
+if (existsSync(join(ROOT, 'scripts', 'fixtures', 'inconsistent-sprint-continuity'))) {
+  const badSprint = doctorOutput('scripts/fixtures/inconsistent-sprint-continuity');
+  check(
+    'behavioral:gate-sprint-continuity-fires',
+    /warn\s+gate:sprint-continuity/.test(badSprint),
+    'doctor did not warn gate:sprint-continuity on stale active sprint without progress',
+  );
+  const goodSprint = doctorOutput('scripts/fixtures/consistent-sprint-continuity');
+  check(
+    'behavioral:gate-sprint-continuity-no-false-positive',
+    !/warn\s+gate:sprint-continuity/.test(goodSprint),
+    'doctor warned gate:sprint-continuity when progress file exists',
+  );
+  check(
+    'behavioral:strict-exits-1-on-inconsistent-sprint',
+    doctorExit('scripts/fixtures/inconsistent-sprint-continuity', '--strict --gates-only') === 1,
+  );
+  check(
+    'behavioral:strict-exits-0-on-consistent-sprint',
+    doctorExit('scripts/fixtures/consistent-sprint-continuity', '--strict --gates-only') === 0,
+  );
+}
 if (existsSync(join(ROOT, 'examples', 'taskpilot'))) {
   check(
     'behavioral:taskpilot-strict-gates',

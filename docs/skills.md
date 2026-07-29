@@ -28,8 +28,10 @@ where supported. See the [tools matrix](https://github.com/okuzpe/midas-harness#
 |---|---|---|---|
 | `/midas-init` | Setup | Adaptive intake — scans the project, classifies maturity (E0–E3), pre-fills artifacts, places you at the right phase. Optional **`--monorepo`** wires nested `AGENTS.md` per package (Phase F). | orchestrate |
 | `/midas-status` | Navigation | Read-only router — phase, gate status, single next action; includes a when-to-use-which-command table. | scout |
+| `/midas-help` | Navigation | Interactive intent→command guide (AskQuestion); complements `/midas-status`, does not replace it. | scout |
 | `/midas-reconcile` | Navigation | Read-only — install/setup/version/cwd check; single next CLI or slash command. | scout |
 | `/midas-recall` | Navigation | Read-only context pack — ~15 priority paths + brief for resuming mid-phase/sprint. | scout |
+| `/midas-explore` | Navigation | Ad-hoc investigation session outside the pipeline — notes under `{runs}/explore/`; `--end` may propose `/midas-capture`. | scout |
 | `/midas-progress` | Phase 7 | Write STM — update `{runs}/sprints/NN-progress.md` after tasks (Done/Learned/Next). | build |
 | `/midas-adopt` | Brownfield | Adopt Midas into an existing project — inventory, reverse-engineer rules, baseline audit. | orchestrate |
 | `/midas-doctor` | Maintenance | Re-derive generated adapters from `harness/conventions.md`, diff against disk, re-render. | build |
@@ -55,7 +57,9 @@ skill fits:
 |---|---|
 | Install confusion (missing, wrong cwd, version behind) | `/midas-reconcile` |
 | Where am I in the pipeline? | `/midas-status` |
+| Unsure which command fits my intent | `/midas-help` |
 | Resuming after a break | `/midas-recall` |
+| Ad-hoc investigation outside the pipeline | `/midas-explore` |
 | One-time setup (+ optional monorepo) | `/midas-init` [`--monorepo`] |
 | Edited `harness/conventions.md` or rules | `/midas-doctor` |
 | Edited engine / installer / skills | `/midas-align` |

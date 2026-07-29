@@ -2,7 +2,7 @@
   "schema_version": 1,
   "updated": null,
   "source": "engine/rules",
-  "source_digest": "9259792fca77c5645603e2d58aaa1edd8c30c50b829593a75018371f3875a148",
+  "source_digest": "a4b6895356ef49ef1958ce21d6be0e1183fafce41c320a9a0cf34c58b267268f",
   "rules": [
     {
       "path": "engine/rules/acceptance-criteria.md",
@@ -1198,7 +1198,7 @@
       "checks": [
         {
           "kind": "manual",
-          "body": "`manual:` when `stage: sprint_execution` and a sprint is `active`, either (a) `{runs}/sprints/NN-progress.md` exists with at least one **Learned** row updated this sprint cycle, or (b) `sprints[].last_touched` for that sprint is ≤ **7 days** before audit date. Greenfield with no active sprint → `n/a`.",
+          "body": "`manual:` when `stage: sprint_execution` and a sprint is `active`, either (a) `{runs}/sprints/NN-progress.md` exists with at least one **Learned** row updated this sprint cycle, or (b) `sprints[].last_touched` for that sprint is ≤ **7 days** before audit date. Greenfield with no active sprint → `n/a`. Mechanical backstop: `gate:sprint-continuity` in `scripts/doctor.mjs` (see `state-integrity.md`).",
           "section": "Checklist > STM progress log",
           "phase": 8,
           "owner": "orchestrate",
@@ -1227,6 +1227,32 @@
           "phase": 8,
           "owner": "orchestrate",
           "severity": "medium"
+        }
+      ]
+    },
+    {
+      "path": "engine/rules/state-integrity.md",
+      "slug": "state-integrity",
+      "title": "Rule: State integrity (always-on)",
+      "owner": "orchestrate",
+      "phase": 8,
+      "check_count": 2,
+      "checks": [
+        {
+          "kind": "command",
+          "body": "`node <paths.scripts>/doctor.mjs --gates-only` reports `ok` for `gate:phase-artifacts` (or no `warn gate:phase-*`). A `gate=passed` phase with neither assumption nor on-disk artifacts is a fail.",
+          "section": "Checklist > Phase gate evidence",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "high"
+        },
+        {
+          "kind": "command",
+          "body": "`node <paths.scripts>/doctor.mjs --gates-only` reports `ok` (or `skip`) for `gate:sprint-continuity`. An active sprint with no progress file and absent/stale `last_touched` is a fail. See also `session-continuity.md` § STM progress log (manual twin).",
+          "section": "Checklist > Active-sprint STM continuity",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "high"
         }
       ]
     },

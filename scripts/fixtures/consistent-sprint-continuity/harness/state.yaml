@@ -1,0 +1,8 @@
+# TEST FIXTURE. active sprint with progress file present — gate:sprint-continuity must stay quiet.
+name: fixture-consistent-sprint
+stage: sprint_execution
+sprints:
+  - id: "01"
+    title: "Fixture sprint"
+    status: active
+    last_touched: 2020-01-01

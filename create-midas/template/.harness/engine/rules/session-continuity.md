@@ -13,7 +13,8 @@ These rules apply from Phase 7 (Sprint Execution) onward and support **native pr
       **CHECK:** `manual:` when `stage: sprint_execution` and a sprint is `active`, either (a)
       `{runs}/sprints/NN-progress.md` exists with at least one **Learned** row updated this sprint
       cycle, or (b) `sprints[].last_touched` for that sprint is ≤ **7 days** before audit date.
-      Greenfield with no active sprint → `n/a`.
+      Greenfield with no active sprint → `n/a`. Mechanical backstop: `gate:sprint-continuity` in
+      `scripts/doctor.mjs` (see `state-integrity.md`).
 - [ ] Completed tasks in the progress log name the **tool/MCP** that proved each item (git-visible
       traceability aligned with Phase 7 and `verification.md`).
       **CHECK:** `manual:` when the sprint diff checks off tasks in `{product}/sprints/NN-*.md`, read

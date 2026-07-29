@@ -292,10 +292,13 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `grep -rnE "http://(?!localhost|127\.0\.0\.1)" <src-root>/ config/` → empty.
   - **CHECK:** `manual:` if the spec requires encryption-at-rest, `{product}/architecture.md` records the mechanism and the code/infra applies it.
 - **Rule: Session continuity (always-on)** (`session-continuity.md`, base)
-  - **CHECK:** `manual:` when `stage: sprint_execution` and a sprint is `active`, either (a) `{runs}/sprints/NN-progress.md` exists with at least one **Learned** row updated this sprint cycle, or (b) `sprints[].last_touched` for that sprint is ≤ **7 days** before audit date. Greenfield with no active sprint → `n/a`.
+  - **CHECK:** `manual:` when `stage: sprint_execution` and a sprint is `active`, either (a) `{runs}/sprints/NN-progress.md` exists with at least one **Learned** row updated this sprint cycle, or (b) `sprints[].last_touched` for that sprint is ≤ **7 days** before audit date. Greenfield with no active sprint → `n/a`. Mechanical backstop: `gate:sprint-continuity` in `scripts/doctor.mjs` (see `state-integrity.md`).
   - **CHECK:** `manual:` when the sprint diff checks off tasks in `{product}/sprints/NN-*.md`, read `{runs}/sprints/NN-progress.md` § Done — each completed row carries a non-empty **Tool** value (e.g. `test-runner`, `context7`, `playwright-mcp`); a checked-off task with proof but no Tool is a fail. Sprints with zero tasks completed this cycle → `n/a`.
   - **CHECK:** `manual:` the capture log in `state.yaml` or the amended artifact's `## Amendment` notes `no conflicts` or documents the contradiction table outcome; a silent capture against an existing CHECK is a fail.
   - **CHECK:** `manual:` the sprint diff introduces no new `*.db`, `.engram/`, or vector-store config; continuity evidence is `NN-progress.md`, `{product}/*`, or `<paths.rules>/*` only.
+- **Rule: State integrity (always-on)** (`state-integrity.md`, base)
+  - **CHECK:** `node <paths.scripts>/doctor.mjs --gates-only` reports `ok` for `gate:phase-artifacts` (or no `warn gate:phase-*`). A `gate=passed` phase with neither assumption nor on-disk artifacts is a fail.
+  - **CHECK:** `node <paths.scripts>/doctor.mjs --gates-only` reports `ok` (or `skip`) for `gate:sprint-continuity`. An active sprint with no progress file and absent/stale `last_touched` is a fail. See also `session-continuity.md` § STM progress log (manual twin).
 - **Rule: Testing (always-on)** (`testing.md`, base)
   - **CHECK:** `manual:` the sprint diff pairs each behavioural change with a new/updated test in the same range; a behaviour change with no test delta is a fail.
   - **CHECK:** `manual:` tests assert public outputs/effects; a test reaching into private state/mocks-everything is a fail.
