@@ -818,7 +818,10 @@ check('installer:tool-onboarding', /printToolOnboarding/.test(installer) && /too
 check('installer:no-root-gemini-extension', !/function ensureGeminiExtension/.test(installer));
 check('installer:tools-presets', /parseToolsPreset/.test(readFileSync(join(ROOT, 'scripts', 'tool-profiles.mjs'), 'utf8')));
 check('installer:tty-fallback', /stdin\.isTTY/.test(installer));
-check('installer:update-ignores-tools', /update \|\| migrate \? null : await resolveSelectedTools/.test(installer));
+check('installer:update-honours-tools', /update && hasToolsFlag\(\)/.test(installer) && /rewriteStateTools/.test(installer));
+check('installer:sync-skill-mirrors', /async function syncSkillMirrors/.test(installer) && /\.cursor\/skills/.test(installer));
+check('installer:default-tools-cursor', /const DEFAULT_TOOLS = \['cursor'\]/.test(installer));
+check('installer:prune-orphan-adapters', /function pruneOrphanAdapters/.test(installer));
 const knownMatch = installer.match(/KNOWN_TOOLS\s*=\s*\[([^\]]+)\]/);
 if (knownMatch) {
   const known = knownMatch[1].split(',').map((t) => t.trim().replace(/['"]/g, ''));
@@ -922,6 +925,39 @@ check('installer:hasMidasInstall-compact', /hasMidasInstall[\s\S]*\.midas/.test(
     );
   } finally {
     rmSync(updateRoot, { recursive: true, force: true });
+  }
+}
+{
+  const pruneRoot = mkdtempSync(join(tmpdir(), 'midas-v2-update-tools-'));
+  try {
+    const install = spawnSync(
+      process.execPath,
+      [join(ROOT, 'create-midas', 'index.mjs'), '--tools=claude-code,cursor,windsurf,gemini', pruneRoot],
+      { cwd: ROOT, encoding: 'utf8' },
+    );
+    check('installer:update-tools-fixture-install', install.status === 0, install.stderr || install.stdout);
+    const updateResult = spawnSync(
+      process.execPath,
+      [join(ROOT, 'create-midas', 'index.mjs'), '--update', '--tools=cursor', pruneRoot],
+      { cwd: ROOT, encoding: 'utf8' },
+    );
+    const state = existsSync(join(pruneRoot, '.harness', 'state.yaml'))
+      ? readFileSync(join(pruneRoot, '.harness', 'state.yaml'), 'utf8')
+      : '';
+    check(
+      'installer:update-tools-rewrites-and-prunes',
+      updateResult.status === 0 &&
+        /tools:\s*\[cursor\]/.test(state) &&
+        existsSync(join(pruneRoot, '.cursor', 'skills')) &&
+        existsSync(join(pruneRoot, '.cursor', 'rules', '00-midas.mdc')) &&
+        !existsSync(join(pruneRoot, '.claude')) &&
+        !existsSync(join(pruneRoot, '.agents')) &&
+        !existsSync(join(pruneRoot, '.windsurf')) &&
+        !existsSync(join(pruneRoot, 'GEMINI.md')),
+      updateResult.stderr || updateResult.stdout,
+    );
+  } finally {
+    rmSync(pruneRoot, { recursive: true, force: true });
   }
 }
 {

@@ -1,0 +1,73 @@
+---
+name: define-conventions
+description: "Phase 5 keystone — freeze architecture into checkable rules, design system, playbooks, and enforcement tooling; re-render adapters. Use once after tech_architecture passes, before sprint work."
+metadata:
+  midas-disable-model-invocation: true
+  midas-harness-tier: orchestrate
+  midas-mcp-recommended: "[context7]"
+  midas-model: inherit
+  midas-recommended-model: claude-opus-4-8
+  midas-user-invocable: true
+---
+# define-conventions (Phase 5 — architecture-as-rules + design system)
+
+> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
+> Read **`paths.state`**. Precondition: `stage: tech_architecture` passed (or `architecture_rules` resuming). Missing `{product}/architecture.md` or ADRs → stop.
+
+> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
+
+## Does / Does not
+
+| Does | Does not |
+|---|---|
+| Encode arch into CHECKABLE `<paths.rules>/*` + design system | Self-advance `stage` (orchestrator audits gate) |
+| Scaffold enforcement + re-render adapters | Hand-edit generated `.cursor/rules/*`, `.windsurf/rules/*` |
+| Freeze gate verdict to `{runs}/audits/gate-05.md` on pass | Block on `/midas-tribunal` (optional pre-rules-freeze checkpoint) |
+
+**Keystone:** vague rules weaken every Phase-8 audit. Orchestrate decides; **build** writes files. Full pipeline steps + artifact table: **`<paths.engine>/pipeline/5-architecture-rules.md`**.
+
+**Inputs:** `paths.state`, `{product}/architecture.md`, `{product}/adr/ADR-*.md`, `<paths.engine>/conventions.md`, `<paths.engine>/rules/`, `<paths.rules>/`, token files.
+
+## Procedure (summary — detail in pipeline doc)
+
+### 1. CHECKABLE rules → `<paths.rules>/`
+- **`folder-structure.md`** (mandatory): canonical tree + import/boundary rules.
+- **Stack rules** — Context7-verified at pinned version per `<paths.engine>/rules/context7-usage.md`; shape from `<paths.engine>/templates/stack-rule.md`. Cover canonical idiom + lint set (not naming-only). Each carries `docs: <lib>@<version> via <tool>`. Each has a **CHECK** line. Name lint plugins that mechanize them.
+- **`{product}/conventions.md`** — prose overrides only; never restate base.
+
+### 2. Design direction → design system
+**Direction first** (`{product}/design-direction.md` from template): brand, **2–3 real references**, anti-references. **Ask human via `AskUserQuestion`** — do not invent taste. If human defers → propose ≥2 domain-appropriate references marked **`assumed (confirm)`**; concrete anchor mandatory.
+
+**Then `{product}/design-system.md`** — references `<paths.engine>/design-system/tokens.{json,css}`; token choices trace to direction. UI framework docs-verified. All UI uses tokens — never hardcoded values. Accessibility floor: `<paths.engine>/rules/accessibility.md` (starter `tokens.css` ships AA-verified pairs). Populate stale/missing token files from direction + arch.
+
+### 3. Playbooks (0–4)
+`{product}/playbooks/<verb-noun>.md` from `<paths.engine>/templates/playbook.md` — recurring tasks with a non-obvious right way. Each: use-when, **Trigger** (diff predicate), steps, rules/tokens by reference, Context7 fetch, done-when. **Anti-bloat:** ≥1 step no single rule states; 1:1-to-rules → cut. Not slash-commands.
+
+### 4. Precedence (single taxonomy)
+```
+stack-specific rules  >  {product}/conventions.md  >  {product}/design-system.md  >  base conventions
+```
+
+### 5. Enforcement scaffolding (recommend-don't-wall)
+Generate linter+formatter, git hooks + lint-staged, commit-msg lint, CI job — Context7-verify configs. Show configs → `AskUserQuestion` install yes/no. Record in **`paths.state` → `enforcement:`** per `<paths.engine>/rules/enforcement-state.md`. `node <paths.scripts>/doctor.mjs` warns on missing configs.
+
+### 6. Re-render adapters
+`node <paths.scripts>/render-adapters.mjs` or `/midas-doctor`. **Never** hand-edit generated adapters. Confirm no drift.
+
+### 7. Record state
+Update `paths.state`: list new rules + design-system + playbooks + tooling in `phases.architecture_rules.artifacts`; `stage_status: gate_pending`; record rendered `tools`. Do not self-advance.
+
+## Exit gate (orchestrate audits)
+
+Full checklist: **`<paths.engine>/pipeline/5-architecture-rules.md` § Exit gate checklist**. Key gates:
+
+- Folder-structure rule + every arch decision has a CHECKABLE rule file.
+- Stack rules Context7-verified; `docs:` provenance on every generated rule.
+- Enforcement scaffolded; decision in `paths.state → enforcement:`.
+- Design direction + design system + 0–4 playbooks present.
+- Adapters rendered (`/midas-doctor` reports no drift).
+
+On pass: freeze `{runs}/audits/gate-05.md`, set gate passed; next → `/plan-sprints`. On fail: report uncheckable rule or unrendered adapter.
+
+## Tier & cost
+Rule set + playbook selection → **orchestrate**. File writes → **build**. Context7 fetches → **scout**. UI: design specialist if installed; else `midas-builder`.

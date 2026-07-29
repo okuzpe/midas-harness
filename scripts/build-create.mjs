@@ -67,12 +67,17 @@ cpSync(join(ROOT, 'docs', 'agents-and-models.md'), join(engineTarget, 'docs', 'a
 cpSync(join(ROOT, '.mcp.json'), join(TEMPLATE, '.mcp.json'));
 
 // Host discovery mirrors. These are generated from the canonical engine sources and pruned by
-// `--tools` during installation.
+// `--tools` during installation (ADR-008: cursor-only keeps `.cursor/skills`; portable peers keep
+// `.agents/skills`).
 cpSync(join(ROOT, 'harness', 'skills'), join(TEMPLATE, '.claude', 'skills'), { recursive: true });
 cpSync(join(ROOT, 'harness', 'agents'), join(TEMPLATE, '.claude', 'agents'), { recursive: true });
 renderPortableSkillsTree(TEMPLATE, {
   sourceDir: '.harness/engine/skills',
   targetDir: '.agents/skills',
+});
+renderPortableSkillsTree(TEMPLATE, {
+  sourceDir: '.harness/engine/skills',
+  targetDir: '.cursor/skills',
 });
 
 // Render the PROJECT AGENTS.md from the template (strip the leading {{! author note }} block; keep the

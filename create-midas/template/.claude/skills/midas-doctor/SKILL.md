@@ -60,6 +60,7 @@ Findings are **mechanical** (adapter drift, version mismatch, MCP wiring, missin
 | `gate:records` | Frozen sprint `audit-*` / `verify-*` tallies match `state.yaml` sprint status |
 | `gate:phase-*` / `gate:sprint-continuity` | Passed phases have assumption or on-disk artifacts; active sprints have progress when stale |
 | `gitignore:midas-block` | Root `.gitignore` has the managed Midas block (secrets, deps, volatile paths) |
+| `layout:root-allowlist` | No orphan Midas host paths for deselected `tools` (ADR-008) |
 
 ## Phase 3 — Apply fixes (`--fix`)
 

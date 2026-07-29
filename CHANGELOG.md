@@ -11,6 +11,23 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.0.0-rc.4] — 2026-07-29
+
+### Added
+
+- ADR-008 thin-root allowlist: why skills cannot live only under `.harness/`; no junctions.
+- Doctor `layout:root-allowlist` and `mirror:cursor-skills` for cursor-only installs.
+- `--update --tools=…` rewrites `state.tools` and prunes orphan Midas host mirrors/adapters.
+
+### Changed
+
+- Default install tools are `[cursor]` (thin root). Preset `a` still selects all adapters.
+- Cursor-only skills mirror moves to `.cursor/skills/`; portable peers keep `.agents/skills/`
+  (anti-double matrix). Claude Code still uses `.claude/skills` + agents.
+- Install/update docs and version pins point at `v2.0.0-rc.4`.
+
+---
+
 ## [2.0.0-rc.3] — 2026-07-29
 
 ### Changed
@@ -1146,7 +1163,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.3...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.4...HEAD
+[2.0.0-rc.4]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.3...v2.0.0-rc.4
 [2.0.0-rc.3]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.2...v2.0.0-rc.3
 [2.0.0-rc.2]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.1...v2.0.0-rc.2
 [2.0.0-rc.1]: https://github.com/okuzpe/midas-harness/compare/v1.1.4...v2.0.0-rc.1

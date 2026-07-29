@@ -40,7 +40,7 @@ try {
 
   const expectedByHost = {
     'claude-code': ['.claude/CLAUDE.md', '.claude/skills', '.claude/agents'],
-    cursor: ['.cursor/rules/00-midas.mdc', '.agents/skills'],
+    cursor: ['.cursor/rules/00-midas.mdc', '.cursor/skills'],
     windsurf: ['.windsurf/rules/00-midas.md', '.agents/skills'],
     gemini: ['GEMINI.md', '.agents/skills'],
     codex: ['.agents/skills'],
@@ -51,6 +51,9 @@ try {
   }
   if (host !== 'claude-code' && existsSync(join(target, '.claude'))) {
     throw new Error(`host ${host} received an unnecessary .claude mirror`);
+  }
+  if (host === 'cursor' && existsSync(join(target, '.agents'))) {
+    throw new Error('cursor-only install must not keep .agents/skills (ADR-008)');
   }
 
   const doctor = run([join(target, '.harness', 'scripts', 'doctor.mjs'), '--strict']);

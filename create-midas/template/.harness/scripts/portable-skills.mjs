@@ -1,7 +1,7 @@
 // portable-skills.mjs — generate portable Agent Skills mirrors from `harness/skills`.
 //
-// `harness/skills` is the authored source. `.claude/skills` and `.agents/skills` are generated host
-// discovery trees and may contain only Midas-owned files.
+// `harness/skills` is the authored source. `.claude/skills`, `.agents/skills`, and `.cursor/skills`
+// are generated host discovery trees and may contain only Midas-owned files (ADR-008).
 
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -148,15 +148,15 @@ function copyRecursive(sourceDir, targetDir, sourceRoot) {
 }
 
 /**
- * Render `.agents/skills` from the canonical skill source.
+ * Render a portable skills tree (`.agents/skills` or `.cursor/skills`) from the canonical source.
  * Returns a list of written file paths relative to `root`.
  */
-export function renderPortableSkillsTree(root, { sourceDir = null, targetDir = '.agents/skills' } = {}) {
+export function renderPortableSkillsTree(root, { sourceDir = null, targetDir = '.agents/skills', merge = false } = {}) {
   sourceDir ||= join(resolvePaths(root).engine, 'skills');
   const sourceRoot = join(root, sourceDir);
   const targetRoot = join(root, targetDir);
   if (!existsSync(sourceRoot)) return { wrote: false, files: [] };
-  if (existsSync(targetRoot)) rmSync(targetRoot, { recursive: true, force: true });
+  if (existsSync(targetRoot) && !merge) rmSync(targetRoot, { recursive: true, force: true });
   mkdirSync(targetRoot, { recursive: true });
   const absFiles = copyRecursive(sourceRoot, targetRoot, sourceRoot);
   return {

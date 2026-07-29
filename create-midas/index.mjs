@@ -39,7 +39,9 @@ const TEMPLATE = join(HERE, 'template');
 
 /** Tools the installer accepts on `--tools`. codex/copilot have no generated adapter (AGENTS.md only). */
 export const KNOWN_TOOLS = ['claude-code', 'cursor', 'windsurf', 'gemini', 'codex', 'copilot'];
-const DEFAULT_TOOLS = ['claude-code', 'cursor', 'windsurf', 'gemini'];
+/** Default fresh install — thin root (ADR-008). Use `--tools=a` / all adapters when needed. */
+const DEFAULT_TOOLS = ['cursor'];
+const ALL_ADAPTER_TOOLS = ['claude-code', 'cursor', 'windsurf', 'gemini'];
 
 const args = process.argv.slice(2);
 if (args.includes('-h') || args.includes('--help')) {
@@ -82,7 +84,7 @@ const TEST_FAIL_STEP = process.env.MIDAS_TEST_FAIL_STEP || '';
 
 if (diagnose) {
   const { runDiagnoseCli } = await import('./install-diagnose.mjs');
-  let bundledVersion = '2.0.0-rc.3';
+  let bundledVersion = '2.0.0-rc.4';
   try {
     bundledVersion = readFileSync(join(TEMPLATE, '.harness', 'engine', 'VERSION'), 'utf8').trim();
   } catch {
@@ -141,8 +143,8 @@ if (update && !hasMidasInstall(TARGET)) {
 }
 if (update && detectLegacyLayout(TARGET) && detectLegacyLayout(TARGET) !== 'harness') {
   console.error('create-midas: this is a Midas 1.x layout; --update never relocates files.');
-  console.error('  Preview: npx github:okuzpe/midas-harness#v2.0.0-rc.3 --migrate');
-  console.error('  Apply:   npx github:okuzpe/midas-harness#v2.0.0-rc.3 --migrate --apply');
+  console.error('  Preview: npx github:okuzpe/midas-harness#v2.0.0-rc.4 --migrate');
+  console.error('  Apply:   npx github:okuzpe/midas-harness#v2.0.0-rc.4 --migrate --apply');
   process.exit(1);
 }
 
@@ -202,12 +204,22 @@ try {
 
   paths = await loadPaths(TARGET);
 
-  // Fresh installs honour --tools (or an interactive prompt). --update keeps the existing state.yaml tools.
-  selectedTools = update || migrate ? null : await resolveSelectedTools();
+  // Fresh install: --tools or TTY prompt. Update: honour --tools when passed; else keep state.tools.
+  if (update && hasToolsFlag()) {
+    selectedTools = await resolveSelectedTools();
+  } else if (update || migrate) {
+    selectedTools = null;
+  } else {
+    selectedTools = await resolveSelectedTools();
+  }
 
   stateMode = writeState(selectedTools, paths, installRoutingProfile);
   maybeFail('after-state');
-  pruneHostMirrors(selectedTools || readToolsFromState(paths) || DEFAULT_TOOLS);
+  if (update && selectedTools) {
+    rewriteStateTools(paths, selectedTools);
+  }
+  const activeTools = selectedTools || readToolsFromState(paths) || DEFAULT_TOOLS;
+  await syncSkillMirrors(activeTools, paths);
 
   // Generate tool adapters after state.yaml exists so render-adapters can read tools:.
   try {
@@ -221,6 +233,8 @@ try {
     console.error('create-midas: adapter render failed:', err.message || err);
   }
 
+  pruneOrphanAdapters(activeTools);
+
   fillAgents(selectedTools, paths);
   {
     const mcpSyncPath = join(TARGET, paths.scripts, 'mcp-cursor-sync.mjs');
@@ -230,7 +244,7 @@ try {
       if (existsSync(rootMcp) && written.includes('.mcp.json')) {
         if (fixMcpFileForWindows(rootMcp)) written.push('.mcp.json');
       }
-      const toolList = selectedTools || readToolsFromState(paths) || DEFAULT_TOOLS;
+      const toolList = activeTools;
       const priorManifest = readOwnershipManifest(TARGET);
       const priorCursorMcp = priorManifest?.files?.find((file) => file.path === '.cursor/mcp.json');
       const ownedCursorMcp = priorCursorMcp &&
@@ -509,8 +523,38 @@ function removeGeneratedMirror(templateRel) {
 }
 
 /** Keep only host discovery mirrors required by state.tools without deleting user-owned neighbors. */
-function pruneHostMirrors(tools) {
-  if (!tools.includes('claude-code')) {
+function hasToolsFlag() {
+  return args.some((a) => a === '--tools' || a.startsWith('--tools='));
+}
+
+function rewriteStateTools(paths, tools) {
+  const f = join(TARGET, paths.state);
+  const cur = readMaybe(f);
+  if (cur == null) return;
+  const toolList = tools.join(', ');
+  let next = cur;
+  if (/^tools:\s*\[/m.test(next)) {
+    next = next.replace(/^tools:\s*\[[^\]]*\]/m, `tools: [${toolList}]`);
+  } else {
+    next = `${next.replace(/\s*$/, '')}\n\ntools: [${toolList}]\n`;
+  }
+  if (next !== cur) writeFileSync(f, next, 'utf8');
+}
+
+function resolveSkillMirrorPlanLocal(tools) {
+  const portablePeers = ['windsurf', 'gemini', 'codex', 'copilot'];
+  const list = tools || [];
+  const hasPortablePeer = list.some((t) => portablePeers.includes(t));
+  return {
+    claude: list.includes('claude-code'),
+    agents: hasPortablePeer,
+    cursorSkills: list.includes('cursor') && !hasPortablePeer,
+  };
+}
+
+async function syncSkillMirrors(tools, paths) {
+  const plan = resolveSkillMirrorPlanLocal(tools);
+  if (!plan.claude) {
     removeGeneratedMirror('.claude/skills');
     removeGeneratedMirror('.claude/agents');
     try {
@@ -518,14 +562,82 @@ function pruneHostMirrors(tools) {
       if (existsSync(claudeDir) && readdirSync(claudeDir).length === 0) rmdirSync(claudeDir);
     } catch { /* user content remains */ }
   }
-  const portableHosts = ['cursor', 'windsurf', 'gemini', 'codex', 'copilot'];
-  if (!tools.some((tool) => portableHosts.includes(tool))) {
+
+  const portablePath = join(TARGET, paths.scripts, 'portable-skills.mjs');
+  let renderTree = null;
+  if (existsSync(portablePath)) {
+    try {
+      const mod = await import(pathToFileURL(portablePath).href);
+      renderTree = mod.renderPortableSkillsTree;
+    } catch { /* fall through to template prune only */ }
+  }
+
+  const engineSkillsRel = join(paths.engine, 'skills').replace(/\\/g, '/');
+
+  if (plan.agents && typeof renderTree === 'function') {
+    renderTree(TARGET, { sourceDir: engineSkillsRel, targetDir: '.agents/skills', merge: true });
+  } else if (!plan.agents) {
     removeGeneratedMirror('.agents/skills');
     try {
       const agentsDir = join(TARGET, '.agents');
       if (existsSync(agentsDir) && readdirSync(agentsDir).length === 0) rmdirSync(agentsDir);
     } catch { /* user content remains */ }
   }
+
+  if (plan.cursorSkills && typeof renderTree === 'function') {
+    renderTree(TARGET, { sourceDir: engineSkillsRel, targetDir: '.cursor/skills', merge: true });
+  } else if (!plan.cursorSkills) {
+    removeGeneratedMirror('.cursor/skills');
+  }
+}
+
+/** Remove Midas-generated adapters for tools not in the active set (after render-adapters). */
+function pruneOrphanAdapters(tools) {
+  const list = tools || [];
+  if (!list.includes('windsurf')) removeGeneratedFile('.windsurf/rules/00-midas.md');
+  if (!list.includes('gemini')) removeGeneratedFile('GEMINI.md');
+  if (!list.includes('cursor')) removeGeneratedFile('.cursor/rules/00-midas.mdc');
+  if (!list.includes('claude-code')) removeGeneratedFile('.claude/CLAUDE.md');
+}
+
+function removeGeneratedFile(rel) {
+  const target = join(TARGET, rel);
+  if (!existsSync(target)) return;
+  const source = join(TEMPLATE, rel);
+  if (existsSync(source)) {
+    if (sameBytes(source, target)) {
+      try { rmSync(target); } catch { /* keep */ }
+    }
+  } else {
+    // Adapter-only renders (not shipped in template): drop when clearly Midas-managed.
+    try {
+      const text = readFileSync(target, 'utf8');
+      if (/midas:begin|Generated by Midas/i.test(text)) rmSync(target);
+    } catch { /* keep */ }
+  }
+  try {
+    let dir = dirname(target);
+    while (dir && dir !== TARGET) {
+      const base = dir.slice(TARGET.length + 1).replace(/\\/g, '/');
+      if (!['.windsurf', '.windsurf/rules', '.claude'].includes(base)) break;
+      if (readdirSync(dir).length === 0) {
+        rmdirSync(dir);
+        dir = dirname(dir);
+      } else break;
+    }
+  } catch { /* user content remains */ }
+}
+
+/** @deprecated name kept for grep/tests — use syncSkillMirrors */
+function pruneHostMirrors(tools) {
+  // syncSkillMirrors is async; this sync stub remains only if something still calls it.
+  const plan = resolveSkillMirrorPlanLocal(tools);
+  if (!plan.claude) {
+    removeGeneratedMirror('.claude/skills');
+    removeGeneratedMirror('.claude/agents');
+  }
+  if (!plan.agents) removeGeneratedMirror('.agents/skills');
+  if (!plan.cursorSkills) removeGeneratedMirror('.cursor/skills');
 }
 
 /** Read `tools:` from existing state.yaml, or null. */
@@ -588,14 +700,15 @@ async function promptToolsInteractive() {
 
     const answer = await askQuestion(
       rl,
-      '\n  Numbers/names (comma-separated), preset (c|s|a), or Enter for all: ',
+      '\n  Numbers/names (comma-separated), preset (c|s|a), or Enter for cursor: ',
     );
     const trimmed = answer.trim();
     if (mod?.parseToolsPreset) {
       const preset = mod.parseToolsPreset(trimmed);
       if (preset) return preset;
     }
-    if (!trimmed || /^a(ll)?$/i.test(trimmed)) return [...DEFAULT_TOOLS];
+    if (!trimmed) return [...DEFAULT_TOOLS];
+    if (/^a(ll)?$/i.test(trimmed)) return [...ALL_ADAPTER_TOOLS];
 
     const selected = [];
     for (const part of trimmed.split(',').map((s) => s.trim()).filter(Boolean)) {
@@ -1042,16 +1155,16 @@ function printHelp() {
 Install:
   npx github:okuzpe/midas-harness          into the current directory (from GitHub)
   npx github:okuzpe/midas-harness my-app   into ./my-app
-  npx github:okuzpe/midas-harness#v2.0.0-rc.3 --tools=cursor
+  npx github:okuzpe/midas-harness#v2.0.0-rc.4 --tools=cursor
   npx github:okuzpe/midas-harness --layout=harness   explicit no-op; v2 has one layout
 
 Migrate an existing v1 install (always explicit):
-  npx github:okuzpe/midas-harness#v2.0.0-rc.3 --migrate          preview only; writes nothing
-  npx github:okuzpe/midas-harness#v2.0.0-rc.3 --migrate --apply  migrate transactionally + verify
+  npx github:okuzpe/midas-harness#v2.0.0-rc.4 --migrate          preview only; writes nothing
+  npx github:okuzpe/midas-harness#v2.0.0-rc.4 --migrate --apply  migrate transactionally + verify
 
 Update an existing install (overwrites the engine, KEEPS your work, bumps the version stamp):
   npx github:okuzpe/midas-harness --update             refresh to the latest (main)
-  npx github:okuzpe/midas-harness#v2.0.0-rc.3 --update refresh to a pinned release
+  npx github:okuzpe/midas-harness#v2.0.0-rc.4 --update refresh to a pinned release
 
 Uninstall (surgical — removes only Midas's files, keeps your work):
   npx github:okuzpe/midas-harness --uninstall             remove owned engine files; keep product, rules, runs, state
@@ -1061,14 +1174,15 @@ Uninstall (surgical — removes only Midas's files, keeps your work):
 Options:
   --layout     only harness is accepted; classic/compact/hub are read-only migration inputs
   --routing    (install) claude, openai-mini, or local-hybrid (legacy openai alias accepted)
-  --tools      (install) comma-separated AI tools (e.g. cursor or cursor,gemini,codex).
+  --tools      comma-separated AI tools (e.g. cursor or cursor,claude-code).
                Presets at interactive prompt: c=cursor · s=cursor,gemini,codex · a=all adapters.
-               Interactive prompt when stdin is a TTY; defaults to all adapter tools otherwise.
-               Ignored with --update (existing state.yaml tools: is preserved).
+               Interactive prompt when stdin is a TTY; defaults to cursor otherwise.
+               On --update, when passed, rewrites state.yaml tools: and prunes orphan mirrors.
   --force      (install) overwrite files that already exist
   --migrate    preview a v1 → v2 migration without writing
   --apply      apply the migration plan; valid with --migrate
   --update     refresh an existing v2 install; never relocates a v1 layout
+               Optional --tools=… to change the host set and prune unused adapters
   --uninstall  remove Midas instead of installing it
   --dry-run    (uninstall) print the plan without deleting anything
   --purge      (uninstall) also delete your product artifacts and audit trail
@@ -1078,6 +1192,6 @@ Options:
 After install, open the project in your chosen tool and run /midas-init (one-time setup), then /midas-status.
 Not sure? Run: npx github:okuzpe/midas-harness --diagnose
 Cursor:           npx github:okuzpe/midas-harness --tools=cursor
-Migration preview: npx github:okuzpe/midas-harness#v2.0.0-rc.3 --migrate
+Migration preview: npx github:okuzpe/midas-harness#v2.0.0-rc.4 --migrate
 Docs: https://github.com/okuzpe/midas-harness`);
 }

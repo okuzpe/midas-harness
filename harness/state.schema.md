@@ -29,7 +29,7 @@ transition after that.
 ## Schema
 
 ```yaml
-midas_version: 2.0.0-rc.3      # engine version that wrote this file (for /midas-update)
+midas_version: 2.0.0-rc.4      # engine version that wrote this file (for /midas-update)
 layout: harness                # the only writable v2 layout; v1 layouts are read/migrate-only
 paths:
   root: .harness

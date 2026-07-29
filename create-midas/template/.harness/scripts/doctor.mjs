@@ -24,6 +24,7 @@ import { computeDesignSystemCss, renderDesignSystemTokens } from './design-syste
 import { normalizeRoutingProfile, resolveRoutingModels, knownRoutingModelIds } from './model-profiles.mjs';
 import { readOwnershipManifest, findVendorConflicts, sha256File } from './ownership-manifest.mjs';
 import { renderPortableSkillText } from './portable-skills.mjs';
+import { orphanRootMidasPaths, resolveSkillMirrorPlan } from './tool-profiles.mjs';
 
 let pluginHelpers = null;
 if (existsSync(join(dirname(fileURLToPath(import.meta.url)), 'build-plugin.mjs'))) {
@@ -289,13 +290,14 @@ if (paths.layout === 'harness') {
   }
 
   const tools = stateRaw ? parseToolsFromStateYaml(stateRaw) || [] : [];
-  if (tools.includes('claude-code')) {
+  const skillPlan = resolveSkillMirrorPlan(tools);
+  if (skillPlan.claude) {
     const skillsMirror = compareMirror(join(paths.engine, 'skills'), '.claude/skills');
     check('mirror:claude-skills', skillsMirror.status, skillsMirror.note);
     const agentsMirror = compareMirror(join(paths.engine, 'agents'), '.claude/agents');
     check('mirror:claude-agents', agentsMirror.status, agentsMirror.note);
   }
-  if (tools.some((tool) => ['codex', 'cursor', 'windsurf', 'gemini', 'copilot'].includes(tool))) {
+  if (skillPlan.agents) {
     const portableMirror = compareMirror(
       join(paths.engine, 'skills'),
       '.agents/skills',
@@ -305,6 +307,41 @@ if (paths.layout === 'harness') {
     );
     check('mirror:agent-skills', portableMirror.status, portableMirror.note);
   }
+  if (skillPlan.cursorSkills) {
+    const cursorMirror = compareMirror(
+      join(paths.engine, 'skills'),
+      '.cursor/skills',
+      (file, raw) => file.endsWith('/SKILL.md') || file === 'SKILL.md'
+        ? renderPortableSkillText(raw, file)
+        : raw,
+    );
+    check('mirror:cursor-skills', cursorMirror.status, cursorMirror.note);
+  }
+
+  const orphans = orphanRootMidasPaths(tools).filter((rel) => {
+    const abs = join(ROOT, rel);
+    if (!existsSync(abs)) return false;
+    if (statSync(abs).isFile()) return true;
+    // Directories: only orphan if a Midas engine skill/agent name is still present (preserve user neighbors).
+    if (rel.includes('skills')) {
+      const engineSkills = join(ROOT, paths.engine, 'skills');
+      if (!existsSync(engineSkills)) return false;
+      return readdirSync(engineSkills).some((name) => existsSync(join(abs, name)));
+    }
+    if (rel.includes('agents')) {
+      const engineAgents = join(ROOT, paths.engine, 'agents');
+      if (!existsSync(engineAgents)) return false;
+      return readdirSync(engineAgents).some((name) => existsSync(join(abs, name)));
+    }
+    return readdirSync(abs).length > 0;
+  });
+  check(
+    'layout:root-allowlist',
+    orphans.length ? 'warn' : 'ok',
+    orphans.length
+      ? `orphan Midas host paths (not justified by tools=[${tools.join(', ')}]): ${orphans.join(', ')} — run create-midas --update --tools=…`
+      : `root host surfaces match tools=[${tools.join(', ') || 'none'}]`,
+  );
 
   const legacyMarkers = [
     ['harness/state.yaml', null],

@@ -36,7 +36,7 @@ export const TOOL_PROFILES = {
   cursor: {
     label: 'Cursor',
     agentsMd: 'native `AGENTS.md`',
-    skills: 'portable `.agents/skills/` + `.cursor/rules/`',
+    skills: 'cursor-only `.cursor/skills/`; else `.agents/skills/` + rules',
     adapter: '.cursor/rules/00-midas.mdc',
     mcp: '`.cursor/mcp.json` sync',
     routing: 'advisory',
@@ -136,7 +136,7 @@ export function printCompatibilityMatrix(selectedIds = TOOL_IDS) {
     console.log(`  ${tool}${agents}${skills}${adapter}${mcp}${p.routing}`);
   }
   console.log('  ───────────────────────────────────────────────────────────────────────────────');
-  console.log('  Presets: c = cursor only · s = cursor,gemini,codex · a = all adapter tools (default)');
+  console.log('  Presets: c = cursor only (default) · s = cursor,gemini,codex · a = all adapter tools');
 }
 
 /** Per-tool onboarding after install. */
@@ -170,8 +170,68 @@ export function printToolOnboarding(activeTools, projectRoot = '.') {
 /** Parse interactive preset shortcuts. */
 export function parseToolsPreset(raw) {
   const t = raw.trim().toLowerCase();
-  if (!t || t === 'a' || t === 'all') return null;
+  if (!t) return null;
+  if (t === 'a' || t === 'all') return ['claude-code', 'cursor', 'windsurf', 'gemini'];
   if (t === 'c' || t === 'cursor') return ['cursor'];
   if (t === 's' || t === 'stack' || t === 'cursor,gemini,codex') return ['cursor', 'gemini', 'codex'];
   return null;
+}
+
+/** Portable hosts that share `.agents/skills` (not Cursor-native `.cursor/skills`). */
+export const PORTABLE_PEER_TOOLS = ['windsurf', 'gemini', 'codex', 'copilot'];
+
+/**
+ * Anti-double skills mirror plan (ADR-008).
+ * @param {string[]} tools
+ * @returns {{ claude: boolean, agents: boolean, cursorSkills: boolean }}
+ */
+export function resolveSkillMirrorPlan(tools) {
+  const list = Array.isArray(tools) ? tools : [];
+  const hasClaude = list.includes('claude-code');
+  const hasCursor = list.includes('cursor');
+  const hasPortablePeer = list.some((t) => PORTABLE_PEER_TOOLS.includes(t));
+  return {
+    claude: hasClaude,
+    agents: hasPortablePeer,
+    cursorSkills: hasCursor && !hasPortablePeer,
+  };
+}
+
+/**
+ * Root Midas-owned discovery paths that should exist only when justified by `tools`.
+ * Used by doctor `layout:root-allowlist`.
+ * @param {string[]} tools
+ * @returns {string[]}
+ */
+export function expectedRootAllowlist(tools) {
+  const plan = resolveSkillMirrorPlan(tools);
+  const out = ['AGENTS.md', '.mcp.json'];
+  if (plan.claude) {
+    out.push('.claude/CLAUDE.md', '.claude/skills', '.claude/agents');
+  }
+  if (plan.agents) out.push('.agents/skills');
+  if (plan.cursorSkills) out.push('.cursor/skills');
+  if (tools.includes('cursor')) out.push('.cursor/rules/00-midas.mdc');
+  if (tools.includes('windsurf')) out.push('.windsurf/rules/00-midas.md');
+  if (tools.includes('gemini')) out.push('GEMINI.md');
+  return out;
+}
+
+/**
+ * Known Midas-generated root paths that are orphans when their tool is not selected.
+ * @param {string[]} tools
+ * @returns {string[]}
+ */
+export function orphanRootMidasPaths(tools) {
+  const plan = resolveSkillMirrorPlan(tools);
+  const orphans = [];
+  if (!plan.claude) {
+    orphans.push('.claude/CLAUDE.md', '.claude/skills', '.claude/agents');
+  }
+  if (!plan.agents) orphans.push('.agents/skills');
+  if (!plan.cursorSkills) orphans.push('.cursor/skills');
+  if (!tools.includes('cursor')) orphans.push('.cursor/rules/00-midas.mdc');
+  if (!tools.includes('windsurf')) orphans.push('.windsurf/rules/00-midas.md');
+  if (!tools.includes('gemini')) orphans.push('GEMINI.md');
+  return orphans;
 }

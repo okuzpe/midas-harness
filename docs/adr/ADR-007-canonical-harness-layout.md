@@ -44,3 +44,5 @@ failure. Unknown application files under legacy `product/` or `scripts/` remain 
 - `--update` never migrates a v1 installation.
 - v1 layouts remain detectable and migratable throughout v2.
 - Node.js 22 is the minimum supported runtime.
+- Root host surfaces are further constrained by ADR-008 (thin-root allowlist, default Cursor,
+  `--update --tools`).

@@ -7,7 +7,7 @@
 | Campo | Valor |
 |---|---|
 | **Fecha de revisión** | 2026-07-29 |
-| **Midas analizado** | `harness/VERSION` → **2.0.0-rc.3** |
+| **Midas analizado** | `harness/VERSION` → **2.0.0-rc.4** |
 | **muninn-harness analizado** | Código fuente completo del repositorio local `muninn-harness` (welocalize), tag más reciente **v0.4.9** (`eabaa5b`), auditado directamente (no solo README) |
 | **Tipo de documento** | Análisis comparativo — **no modifica el motor del harness** |
 | **Alcance** | Arquitectura, conceptos, mecanismos de utilización (hooks, skills, scripts, CLI), flujo end-to-end, y matriz de mejoras propuestas para Midas |

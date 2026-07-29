@@ -31,6 +31,7 @@ const GENERATED_PREFIXES = [
   '.claude/skills/',
   '.claude/agents/',
   '.agents/skills/',
+  '.cursor/skills/',
   '.cursor/rules/00-midas.mdc',
   '.cursor/mcp.json',
   '.windsurf/rules/00-midas.md',
@@ -84,7 +85,7 @@ export function computeOwnershipManifest(root, version) {
   ];
   for (const rel of walkFiles(engineSkills, engineSkills)) {
     const skillRel = rel.replace(/\\/g, '/');
-    for (const prefix of ['.claude/skills', '.agents/skills']) {
+    for (const prefix of ['.claude/skills', '.agents/skills', '.cursor/skills']) {
       const candidate = `${prefix}/${skillRel}`;
       if (existsSync(join(root, candidate))) candidates.push(candidate);
     }
