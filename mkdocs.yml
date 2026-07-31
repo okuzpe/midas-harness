@@ -33,6 +33,7 @@ nav:
   - "gstack comparison": gstack-comparison.md
   - "muninn-harness comparison": muninn-comparison.md
   - Skills Reference: skills.md
+  - Skill quality gate: skill-quality-gate.md
   - Agents & Models: agents-and-models.md
   - FAQ: faq.md
   - Decisions (ADR):

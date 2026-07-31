@@ -259,7 +259,7 @@ if (existsSync(tplRoot)) {
     JSON.stringify(dirNames(join(tplRoot, '.claude', 'skills'))) === JSON.stringify(dirNames(skillsDir)),
     're-run build-create.mjs',
   );
-  for (const f of ['AGENTS.md', '.mcp.json', '.harness/engine/methodology.md', '.harness/engine/conventions.md', '.harness/engine/gates.json', '.harness/engine/checks.json', '.harness/engine/stage-command-table.yaml', '.harness/scripts/render-adapters.mjs', '.harness/scripts/yaml-lite.mjs', '.harness/scripts/mcp-drift.mjs', '.harness/scripts/mcp-cursor-sync.mjs', '.harness/scripts/tool-profiles.mjs', '.harness/scripts/model-profiles.mjs', '.harness/scripts/portable-skills.mjs', '.harness/scripts/gitignore-merge.mjs', '.harness/scripts/paths.mjs', '.harness/scripts/migrate-layout.mjs', '.harness/scripts/stage-command-table.mjs', '.harness/scripts/design-system.mjs', '.harness/scripts/doctor.mjs', '.harness/scripts/status-page.mjs', '.harness/scripts/bundle.mjs', '.harness/scripts/ownership-manifest.mjs', '.harness/engine/docs/agents-and-models.md']) {
+  for (const f of ['AGENTS.md', '.mcp.json', '.harness/engine/methodology.md', '.harness/engine/conventions.md', '.harness/engine/gates.json', '.harness/engine/checks.json', '.harness/engine/stage-command-table.yaml', '.harness/scripts/render-adapters.mjs', '.harness/scripts/yaml-lite.mjs', '.harness/scripts/mcp-drift.mjs', '.harness/scripts/mcp-cursor-sync.mjs', '.harness/scripts/tool-profiles.mjs', '.harness/scripts/model-profiles.mjs', '.harness/scripts/portable-skills.mjs', '.harness/scripts/gitignore-merge.mjs', '.harness/scripts/paths.mjs', '.harness/scripts/migrate-layout.mjs', '.harness/scripts/stage-command-table.mjs', '.harness/scripts/design-system.mjs', '.harness/scripts/doctor.mjs', '.harness/scripts/status-page.mjs', '.harness/scripts/bundle.mjs', '.harness/scripts/ownership-manifest.mjs', '.harness/engine/docs/agents-and-models.md', '.harness/engine/docs/skill-quality-gate.md']) {
     check(`create-template:has:${f}`, existsSync(join(tplRoot, f)));
   }
   // The template must NOT carry repo-internal trees into a user project.
@@ -293,7 +293,10 @@ if (existsSync(buildCreate)) {
   if (existsSync(sourceHarness) && existsSync(templateHarness)) {
     const sourceFiles = walkRelativeFiles(sourceHarness).filter((rel) => rel !== 'state.yaml');
     const templateFiles = walkRelativeFiles(templateHarness)
-      .filter((rel) => rel.replace(/\\/g, '/') !== 'docs/agents-and-models.md');
+      .filter((rel) => {
+        const n = rel.replace(/\\/g, '/');
+        return n !== 'docs/agents-and-models.md' && n !== 'docs/skill-quality-gate.md';
+      });
     const sameShape = JSON.stringify(sourceFiles) === JSON.stringify(templateFiles);
     const sameContent = sameShape && sourceFiles.every(
       (rel) => readFileSync(join(sourceHarness, rel), 'utf8') === readFileSync(join(templateHarness, rel), 'utf8'),
@@ -1676,12 +1679,23 @@ check('create-midas:files-install-diagnose', /install-diagnose\.mjs/.test(readFi
   }
   {
     const sourceAgentsModels = join(ROOT, 'docs', 'agents-and-models.md');
-    const templateAgentsModels = join(ROOT, 'create-midas', 'template', 'docs', 'agents-and-models.md');
+    const templateAgentsModels = join(ROOT, 'create-midas', 'template', '.harness', 'engine', 'docs', 'agents-and-models.md');
     if (existsSync(sourceAgentsModels) && existsSync(templateAgentsModels)) {
       check(
         'create-template:agents-and-models:match',
         readFileSync(sourceAgentsModels, 'utf8') === readFileSync(templateAgentsModels, 'utf8'),
-        'create-midas/template/docs/agents-and-models.md drifted from docs/agents-and-models.md',
+        'create-midas/template/.harness/engine/docs/agents-and-models.md drifted from docs/agents-and-models.md',
+      );
+    }
+  }
+  {
+    const sourceSkillQuality = join(ROOT, 'docs', 'skill-quality-gate.md');
+    const templateSkillQuality = join(ROOT, 'create-midas', 'template', '.harness', 'engine', 'docs', 'skill-quality-gate.md');
+    if (existsSync(sourceSkillQuality) && existsSync(templateSkillQuality)) {
+      check(
+        'create-template:skill-quality-gate:match',
+        readFileSync(sourceSkillQuality, 'utf8') === readFileSync(templateSkillQuality, 'utf8'),
+        'create-midas/template/.harness/engine/docs/skill-quality-gate.md drifted from docs/skill-quality-gate.md',
       );
     }
   }

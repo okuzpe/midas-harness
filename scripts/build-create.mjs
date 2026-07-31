@@ -64,6 +64,7 @@ cpSync(
 );
 mkdirSync(join(engineTarget, 'docs'), { recursive: true });
 cpSync(join(ROOT, 'docs', 'agents-and-models.md'), join(engineTarget, 'docs', 'agents-and-models.md'));
+cpSync(join(ROOT, 'docs', 'skill-quality-gate.md'), join(engineTarget, 'docs', 'skill-quality-gate.md'));
 cpSync(join(ROOT, '.mcp.json'), join(TEMPLATE, '.mcp.json'));
 
 // Host discovery mirrors. These are generated from the canonical engine sources and pruned by

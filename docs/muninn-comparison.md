@@ -564,11 +564,13 @@ portabilidad multi-tool, sin store oculto). **Esfuerzo** = bajo / medio / alto.
 | *Fail-closed* explícito y documentado por hook | Reglas sin modo de fallo declarado | Alto | Alto (higiene de reglas) | Bajo | **Adoptar** — anotar `fail-open`/`fail-closed` en cada CHECK crítico de seguridad |
 | Guía interactiva de comandos (`/help`) | `/midas-help` (AskQuestion → un comando) | Alto | Medio | Bajo | **Hecho** — 2026-07-29 |
 | Investigación ad-hoc fuera del pipeline (`/explore`) | `/midas-explore` → `{runs}/explore/` (git-visible) | Alto | Medio | Bajo | **Hecho** — 2026-07-29 |
+| Gate de calidad de autoría de skills (`skill-quality-gate`, /40) | [`docs/skill-quality-gate.md`](skill-quality-gate.md) + `harness/rules/skill-quality.md` | Alto | Alto (calidad de procedimientos) | Bajo | **Hecho** — 2026-07-31 |
 
 ---
 
 ## 7. Recomendaciones priorizadas
 
+> Actualizado 2026-07-31: skill-quality-gate **adoptado** (docs + rule always-on).
 > Actualizado 2026-07-29: §7.3 / help / explore **hechos**; §7.4 **monitorizar**; §7.8 **ya cubierto**.
 > El resto sigue como propuesta.
 

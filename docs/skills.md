@@ -93,6 +93,15 @@ Each `SKILL.md` frontmatter declares:
 
 ---
 
+## Authoring quality
+
+After creating or materially changing a skill, score it with the
+[skill quality gate](skill-quality-gate.md) (10 dimensions /40; emit the required score block).
+Always-on rule: `harness/rules/skill-quality.md` (engine) or `<paths.engine>/rules/skill-quality.md`
+(install). Say `skill-quality <name>` (or Spanish equivalent) to score an existing skill without editing.
+
+---
+
 ## Notes
 
 - Skills with `disable-model-invocation: true` include a guard: if the skill was reached by

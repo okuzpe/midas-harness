@@ -2,7 +2,7 @@
   "schema_version": 1,
   "updated": null,
   "source": "engine/rules",
-  "source_digest": "a4b6895356ef49ef1958ce21d6be0e1183fafce41c320a9a0cf34c58b267268f",
+  "source_digest": "5463ddc95e8aa9f4d16f3d381c776e34d1e7c34807a8212a40b8da3d8fca1ec8",
   "rules": [
     {
       "path": "engine/rules/acceptance-criteria.md",
@@ -1224,6 +1224,72 @@
           "kind": "manual",
           "body": "`manual:` the sprint diff introduces no new `*.db`, `.engram/`, or vector-store config; continuity evidence is `NN-progress.md`, `{product}/*`, or `<paths.rules>/*` only.",
           "section": "Checklist > Recall vs hidden store",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        }
+      ]
+    },
+    {
+      "path": "engine/rules/skill-quality.md",
+      "slug": "skill-quality",
+      "title": "Rule: Skill authoring quality gate (always-on)",
+      "owner": "orchestrate",
+      "phase": 8,
+      "check_count": 7,
+      "checks": [
+        {
+          "kind": "manual",
+          "body": "`manual:` when the PR/sprint diff touches `harness/skills/*/SKILL.md`, `harness/agents/*.md`, `.claude/skills/*/SKILL.md`, `.claude/agents/midas-*.md`, or (install) `<paths.engine>/skills|agents` beyond typos/links, the session or PR notes include the required score block from `docs/skill-quality-gate.md` (engine) or `<paths.engine>/docs/skill-quality-gate.md` (install); missing block on a behavior change is a fail.",
+          "section": "Checklist > Score after material skill edits",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` score block shows `Hard fails: none`, or each fail is fixed in the same diff; any unresolved hard fail is a 🔴 Block / fail.",
+          "section": "Checklist > Score after material skill edits",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` score block `Core floors: ok` (or names the miss); claimed 🟢/🟡 that violates floors is a fail.",
+          "section": "Checklist > Score after material skill edits",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` `Evidence:` line cites Trigger/Structure/Completion/Safety at minimum; a dim listed without a section/path/“missing” cite is treated as ≤ 1 for the total.",
+          "section": "Checklist > Score after material skill edits",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` grep new/changed skill frontmatter; missing name/description, name≠dir, or side-effect skill without `disable-model-invocation: true` (and no documented exception) is a fail.",
+          "section": "Checklist > Frontmatter and catalog (user-facing)",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` engine-repo diff that adds/changes a user-facing invocable skill without a `docs/skills.md` update in the same change set is a fail; product installs without `docs/skills.md` → `n/a` (see also `change-propagation.md`).",
+          "section": "Checklist > Frontmatter and catalog (user-facing)",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` entry line count (`wc -l` / editor) ≤ 500, or the skill/PR names the L3 split files; mandatory happy-path depth &gt; SKILL + one support file is a fail.",
+          "section": "Checklist > Progressive disclosure",
           "phase": 8,
           "owner": "orchestrate",
           "severity": "medium"
