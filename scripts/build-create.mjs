@@ -29,6 +29,7 @@ const FILES = [
   'scripts/mcp-drift.mjs',
   'scripts/doctor.mjs',
   'scripts/status-page.mjs',
+  'scripts/skill-quality-check.mjs',
   'scripts/mcp-cursor-sync.mjs',
   'scripts/tool-profiles.mjs',
   'scripts/model-profiles.mjs',

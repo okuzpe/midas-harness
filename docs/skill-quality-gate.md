@@ -277,8 +277,9 @@ concrete. Trigger must stay WHAT+WHEN(+NOT) vs `/midas-status`, not a pasted cat
 | Catalog | `docs/skills.md` (engine repo) | User-facing inventory |
 | Propagation | `<paths.engine>/rules/change-propagation.md` | Mirrors, adapters, docs stay aligned |
 
-Optional later: `scripts/skill-quality-check.mjs` (line counts, frontmatter, happy-path link depth)
-— report-only first.
+Mechanical pre-check: `node scripts/skill-quality-check.mjs` (or `npm run skill-quality`) —
+line counts, frontmatter, description length, ritual guard, Steps-section link budget. Report-only;
+semantic dims still need manual scoring.
 
 ---
 

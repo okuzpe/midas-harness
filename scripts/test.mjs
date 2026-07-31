@@ -32,6 +32,7 @@ import {
   normalizeRoutingProfile,
   resolveRoutingModels,
 } from './model-profiles.mjs';
+import { collectReports, inspectArtifact, parseFrontmatter, stepsMarkdownLinkCount, summarizeReports } from './skill-quality-check.mjs';
 
 const SCRIPT_DIR = dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
 const ROOT = resolve(SCRIPT_DIR, '..');
@@ -99,6 +100,7 @@ function scriptBundleFiles() {
     'portable-skills.mjs',
     'paths.mjs',
     'render-adapters.mjs',
+    'skill-quality-check.mjs',
     'stage-command-table.mjs',
     'status-page.mjs',
     'tool-profiles.mjs',
@@ -185,6 +187,28 @@ for (const name of dirNames(skillsDir)) {
   }
 }
 
+// --- B2. skill-quality-check (mechanical hard fails) -------------------------------------------
+{
+  const sample = inspectArtifact({
+    kind: 'skill',
+    id: 'demo',
+    relPath: 'harness/skills/demo/SKILL.md',
+    text: `---
+name: demo
+description: Short demo skill for unit tests only.
+harness-tier: scout
+---
+# demo
+`,
+  });
+  check('skill-quality:parse-frontmatter', !!parseFrontmatter('---\nname: x\ndescription: y\n---\n'));
+  check('skill-quality:steps-link-count', stepsMarkdownLinkCount('## Steps\n1. [a](one.md)\n2. [b](two.md)\n3. [c](three.md)\n') === 3);
+  check('skill-quality:sample-no-fails', sample.fails.length === 0, sample.fails.join('; '));
+  const engineSummary = summarizeReports(collectReports(ROOT));
+  check('skill-quality:engine-zero-fails', engineSummary.fails === 0, `fails=${engineSummary.fails}`);
+  check('skill-quality:engine-skill-count', engineSummary.skills >= 28, `skills=${engineSummary.skills}`);
+}
+
 // --- C. agent frontmatter ----------------------------------------------------------------------
 const agentsDir = join(ROOT, 'harness', 'agents');
 for (const f of walk(agentsDir).filter((p) => extname(p) === '.md')) {
@@ -259,7 +283,7 @@ if (existsSync(tplRoot)) {
     JSON.stringify(dirNames(join(tplRoot, '.claude', 'skills'))) === JSON.stringify(dirNames(skillsDir)),
     're-run build-create.mjs',
   );
-  for (const f of ['AGENTS.md', '.mcp.json', '.harness/engine/methodology.md', '.harness/engine/conventions.md', '.harness/engine/gates.json', '.harness/engine/checks.json', '.harness/engine/stage-command-table.yaml', '.harness/scripts/render-adapters.mjs', '.harness/scripts/yaml-lite.mjs', '.harness/scripts/mcp-drift.mjs', '.harness/scripts/mcp-cursor-sync.mjs', '.harness/scripts/tool-profiles.mjs', '.harness/scripts/model-profiles.mjs', '.harness/scripts/portable-skills.mjs', '.harness/scripts/gitignore-merge.mjs', '.harness/scripts/paths.mjs', '.harness/scripts/migrate-layout.mjs', '.harness/scripts/stage-command-table.mjs', '.harness/scripts/design-system.mjs', '.harness/scripts/doctor.mjs', '.harness/scripts/status-page.mjs', '.harness/scripts/bundle.mjs', '.harness/scripts/ownership-manifest.mjs', '.harness/engine/docs/agents-and-models.md', '.harness/engine/docs/skill-quality-gate.md']) {
+  for (const f of ['AGENTS.md', '.mcp.json', '.harness/engine/methodology.md', '.harness/engine/conventions.md', '.harness/engine/gates.json', '.harness/engine/checks.json', '.harness/engine/stage-command-table.yaml', '.harness/scripts/render-adapters.mjs', '.harness/scripts/yaml-lite.mjs', '.harness/scripts/mcp-drift.mjs', '.harness/scripts/mcp-cursor-sync.mjs', '.harness/scripts/tool-profiles.mjs', '.harness/scripts/model-profiles.mjs', '.harness/scripts/portable-skills.mjs', '.harness/scripts/gitignore-merge.mjs', '.harness/scripts/paths.mjs', '.harness/scripts/migrate-layout.mjs', '.harness/scripts/stage-command-table.mjs', '.harness/scripts/design-system.mjs', '.harness/scripts/doctor.mjs', '.harness/scripts/status-page.mjs', '.harness/scripts/skill-quality-check.mjs', '.harness/scripts/bundle.mjs', '.harness/scripts/ownership-manifest.mjs', '.harness/engine/docs/agents-and-models.md', '.harness/engine/docs/skill-quality-gate.md']) {
     check(`create-template:has:${f}`, existsSync(join(tplRoot, f)));
   }
   // The template must NOT carry repo-internal trees into a user project.
@@ -1766,6 +1790,7 @@ check('mkdocs:adr-003', /ADR-003/.test(readFileSync(join(ROOT, 'mkdocs.yml'), 'u
 
 // --- status-page + yaml-lite smoke ----------------------------------------
 check('script:status-page:exists', existsSync(join(ROOT, 'scripts', 'status-page.mjs')));
+check('script:skill-quality-check:exists', existsSync(join(ROOT, 'scripts', 'skill-quality-check.mjs')));
 check('script:yaml-lite:exists', existsSync(join(ROOT, 'scripts', 'yaml-lite.mjs')));
 if (existsSync(join(ROOT, 'scripts', 'status-page.mjs'))) {
   const statusTmp = mkdtempSync(join(tmpdir(), 'midas-status-'));

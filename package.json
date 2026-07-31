@@ -41,6 +41,7 @@
     "align": "node scripts/render-adapters.mjs && npm run verify",
     "bundle": "node scripts/bundle.mjs",
     "docs:build": "mkdocs build --site-dir _site",
-    "status": "node scripts/status-page.mjs"
+    "status": "node scripts/status-page.mjs",
+    "skill-quality": "node scripts/skill-quality-check.mjs"
   }
 }
