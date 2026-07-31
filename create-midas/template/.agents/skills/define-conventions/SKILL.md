@@ -26,6 +26,13 @@ metadata:
 
 **Keystone:** vague rules weaken every Phase-8 audit. Orchestrate decides; **build** writes files. Full pipeline steps + artifact table: **`<paths.engine>/pipeline/5-architecture-rules.md`**.
 
+## When NOT
+- Architecture / ADRs missing → `/choose-architecture`.
+- Rules already frozen and you need a sprint plan → `/plan-sprints` (amend overlays via capture/ADR, not a silent re-freeze).
+- Adapter drift only → `/midas-doctor` (does not replace this keystone).
+
+**Anti-rationalization:** “we’ll add CHECKs later” is a **fail** — every new rule ships with a CHECK line in this phase.
+
 **Inputs:** `paths.state`, `{product}/architecture.md`, `{product}/adr/ADR-*.md`, `<paths.engine>/conventions.md`, `<paths.engine>/rules/`, `<paths.rules>/`, token files.
 
 ## Procedure (summary — detail in pipeline doc)
@@ -59,13 +66,13 @@ Update `paths.state`: list new rules + design-system + playbooks + tooling in `p
 
 ## Exit gate (orchestrate audits)
 
-Full checklist: **`<paths.engine>/pipeline/5-architecture-rules.md` § Exit gate checklist**. Key gates:
+Full checklist: **`<paths.engine>/pipeline/5-architecture-rules.md` § Exit gate checklist**. Local required:
 
-- Folder-structure rule + every arch decision has a CHECKABLE rule file.
-- Stack rules Context7-verified; `docs:` provenance on every generated rule.
-- Enforcement scaffolded; decision in `paths.state → enforcement:`.
-- Design direction + design system + 0–4 playbooks present.
-- Adapters rendered (`/midas-doctor` reports no drift).
+- [ ] `folder-structure.md` present; every arch decision has a CHECKABLE rule file.
+- [ ] Stack rules Context7-verified; each has `docs: <lib>@<version> via <tool>` + a **CHECK** line.
+- [ ] Enforcement scaffolded; decision recorded in `paths.state → enforcement:`.
+- [ ] Design direction + design system present; 0–4 playbooks (anti-bloat honored).
+- [ ] Adapters rendered (`node <paths.scripts>/doctor.mjs` / `/midas-doctor` reports no drift).
 
 On pass: freeze `{runs}/audits/gate-05.md`, set gate passed; next → `/plan-sprints`. On fail: report uncheckable rule or unrendered adapter.
 

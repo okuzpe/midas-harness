@@ -23,6 +23,22 @@ with the user **before** any market, business, or architecture work. Playbook:
 **Precondition:** **`paths.state`** at `stage: contextualize`, with `{product}/idea.md` from Phase 0.
 Read state first; write last.
 
+## Does / Does not
+
+| Does | Does not |
+|---|---|
+| Surface and resolve **blocking** unknowns with the user | Invent answers or silently assume blockers away |
+| Fold answers into `{product}/idea.md` + `{product}/open-questions.md` | Overwrite the Phase-0 verbatim raw-idea block |
+| Loop until zero blockers (or deferred + logged assumption) | Dump >4 questions per batch; start market/arch early |
+
+## When NOT
+- Phase 0 incomplete (no verbatim idea / pitch / mode) → `/idea-intake`.
+- Zero blocking opens already and gate passed → next is `/market-research`.
+- User wants status only → `/midas-status`.
+
+**Anti-rationalization:** “we’ll figure it out in build” is **not** a deferred assumption — deferrals
+need an explicit user-accepted written assumption in `{product}/open-questions.md`.
+
 ## The loop
 
 Repeat until there are **zero blocking** open questions:
@@ -47,19 +63,20 @@ Repeat until there are **zero blocking** open questions:
 
 ## Exit gate (Phase 1)
 
-The orchestrator advances to Phase 2 **iff**, with on-disk evidence:
+Advance to Phase 2 **iff** (on-disk evidence):
 
-- **0 blocking** open questions remain `open` in `{product}/open-questions.md` (deferred blockers carry an
-  explicit, user-accepted assumption);
-- **user, problem, success metric, and non-goals** are each defined in `{product}/idea.md` v2.
+- [ ] **0 blocking** questions remain `open` in `{product}/open-questions.md`.
+- [ ] Every deferred blocker has an explicit, user-accepted assumption (dated).
+- [ ] **user, problem, success metric, and non-goals** are each defined in `{product}/idea.md` v2.
+- [ ] Phase-0 raw-idea block is still intact (untouched).
 
-When satisfied, record both artifacts under `phases.contextualize.artifacts`, set
-`phases.contextualize` to `{ status: passed, gate: passed }`, advance `stage: market_research,
-stage_status: not_started`, refresh `updated`, and tell the user the next action is **`/market-research`**
-(optional host deep-research skill or web/Context7 when absent — not part of the Midas engine). If blockers remain, keep `stage_status: in_progress` and
-list the outstanding blocking questions. The producer never passes its own gate — the orchestrator renders it.
+On pass: record artifacts under `phases.contextualize.artifacts`, set
+`phases.contextualize` to `{ status: passed, gate: passed }`, advance
+`stage: market_research, stage_status: not_started`, next **`/market-research`**.
+On miss: keep `stage_status: in_progress` and list outstanding blockers.
+Producer never passes its own gate — the orchestrator renders it.
 
 ## Tier & delegation
-- **Dispatch + gate verdict:** `orchestrate` → delegate to `midas-orchestrator`.
-- **Write `{product}/idea.md`, `{product}/open-questions.md`, and `paths.state` updates:** `build` → delegate to `midas-builder`.
-- **Evidence extraction / file reads:** `scout` → delegate to `midas-scout` or `Explore`.
+- **Dispatch + gate verdict:** `orchestrate` → `midas-orchestrator`.
+- **Write `{product}/idea.md`, `{product}/open-questions.md`, and `paths.state`:** `build` → `midas-builder`.
+- **Evidence extraction / file reads:** `scout` → `midas-scout` or `Explore`.

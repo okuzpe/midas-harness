@@ -64,9 +64,10 @@ Never depend on or mutate vendor packs.
 ### 5. Emit the working plan and set the sprint active
 Write the ordered working plan: the sprint's tasks (incorporating any fix-the-code tasks from Step 3),
 which agent/tier owns each, the Context7 libraries to fetch first, and the acceptance criteria + DoD
-to satisfy. Update **`paths.state`** (read-modify-write): set the sprint `status: active`, `stage: sprint_execution`,
-`stage_status: in_progress`, refresh `last_touched`. Record any logged amendments in the sprint's
-`audit_notes`.
+to satisfy. Summarize the plan for the user, then update **`paths.state`** (read-modify-write) only after
+they confirm kickoff (or the slash-command itself is the confirmation): set the sprint `status: active`,
+`stage: sprint_execution`, `stage_status: in_progress`, refresh `last_touched`. Record any logged
+amendments in the sprint's `audit_notes`.
 
 ### 6. Hand off to implementation
 Implementation runs on the **build** tier. Print: *"👉 Optional: `/midas-recall sprint` for a context pack
@@ -82,9 +83,10 @@ tokens; the tokens are the materials, the direction is the look.** Honor the alw
 pass; **conformance to rules is verified in Phase 8** (`/close-sprint`).
 
 ## Exit (kickoff complete)
-The active sprint has a clear working plan, drift is either queued as fix-tasks or resolved via a
-logged rule amendment, agents are assigned, and `paths.state` shows the sprint `active`. The next ritual
-after the work lands is `/close-sprint`.
+- [ ] Working plan lists tasks, owners/tiers, Context7 libs, acceptance + DoD.
+- [ ] Pre-sprint drift is queued as fix-tasks **or** logged as a conscious rule amendment.
+- [ ] `paths.state` shows the sprint `status: active` and `stage: sprint_execution`.
+- [ ] User knows next close ritual is `/close-sprint` (after tests + `/midas-verify` when UI).
 
 ## Tier & cost
 Audit + adjustment decisions + agent selection → **orchestrate** (Opus). Implementation → **build**

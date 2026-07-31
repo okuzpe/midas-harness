@@ -1,6 +1,6 @@
 ---
 name: midas-capture
-description: Crystallize a recurring request or correction into the right project artifact — a project rule (<paths.rules>/*), a playbook ({product}/playbooks/*), or a convention ({product}/conventions.md) — via a decision rubric, so every later sprint and audit honors it automatically. The agent proposes this whenever it notices you asking for the same thing ~2-3 times (recommend-don't-wall — it asks first, never writes silently); you can also invoke it to capture a pattern on demand.
+description: Turn a recurring request or correction into a project rule (<paths.rules>/*), playbook ({product}/playbooks/*), or convention ({product}/conventions.md). Use when the user asks to capture a pattern, or after they confirm a propose-to-capture (~2–3 repeats). Never write silently.
 user-invocable: true
 disable-model-invocation: true
 model: inherit

@@ -15,71 +15,78 @@ metadata:
 
 > **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
 
-Sequence the **MVP only** into shippable sprints. This is an **orchestrate-tier** decision: the value
-is in correct decomposition and dependency ordering, not in prose volume. Each sprint must be a thin,
-demonstrable slice whose Definition of Done points back at the Phase-5 rules — that is what makes the
-Phase-8 audit possible.
+Sequence the **MVP only** into shippable sprints. Value is correct decomposition and dependency
+ordering, not prose volume. Each sprint is a thin, demonstrable slice whose Definition of Done points
+at Phase-5 rules — that is what makes the Phase-8 audit possible.
 
 > **Precondition.** Read **`paths.state`**. Run when `stage: architecture_rules` is `passed` (or
-> `sprint_planning` resuming). If the rules/design system are not frozen, stop and report — sprints
-> whose DoD references rules cannot exist before the rules do.
+> `sprint_planning` resuming). If the rules/design system are not frozen, stop and report.
+
+## Does / Does not
+
+| Does | Does not |
+|---|---|
+| Plan **MVP-only** roadmap + per-sprint files with EARS acceptance + rule-named DoD | Pull non-goals into scope or invent post-MVP work |
+| Keep sprint 1 independently shippable; prefer many thin sprints | Fat “kitchen-sink” sprints that absorb “just one more” feature |
+| Seed `{product}/features.json` (`status: failing`) + `sprints[]` planned | Self-advance `stage` or start implementation (`/start-sprint` does that) |
+
+## When NOT
+- Rules/design system not frozen → `/define-conventions` first.
+- Sprints already planned and you only need to kick off → `/start-sprint`.
+- Mid-sprint task tracking → `/midas-progress` (replan only if the human explicitly asks).
+
+**Anti-rationalization:** a sprint that keeps absorbing scope is a **fail** — split it. Do **not**
+merge extras into sprint 1 so it stops being independently shippable. Soft target: **≤ 5 concrete
+tasks** per sprint file unless the human accepts a written exception in the sprint’s non-scope notes.
 
 ## Inputs
 - **`paths.state`**, `{product}/business-plan.md` (MVP scope + non-goals + success metrics),
-  `{product}/architecture.md`, the effective rules from `<paths.engine>/rules/*` plus `<paths.rules>/*`,
+  `{product}/architecture.md`, effective rules (`<paths.engine>/rules/*` + `<paths.rules>/*`),
   `{product}/design-system.md`.
 
 ## Procedure
 
 ### 1. Extract the MVP backlog
-List the capabilities required to hit the business-case **success metrics** — and nothing more.
-Anything in non-goals stays out. Reconcile every backlog item to a metric or a hard dependency.
+Capabilities required to hit business-case **success metrics** — nothing more. Non-goals stay out.
+Every backlog item maps to a metric or a hard dependency.
 
 ### 2. Order by dependency, slice for shippability
-Build a dependency graph (e.g. data/auth before features that need them). Group items into sprints so
-that **sprint 1 is independently shippable** (a vertical slice that runs and demonstrates value), and
-each later sprint depends only on earlier ones. Keep sprints small; prefer more thin sprints over a
-few fat ones.
+Dependency graph (e.g. data/auth before features that need them). **Sprint 1** = independently
+shippable vertical slice; later sprints depend only on earlier ones.
 
 ### 3. Write `{product}/roadmap.md`
-The ordered sprint list with each sprint's one-line goal, the dependency order made explicit, and a
-mapping from sprints to the success metrics they advance. The roadmap covers **MVP only**.
+Ordered sprint list: one-line goal each, explicit dependency order, mapping to success metrics. **MVP only**.
 
 ### 4. Write each `{product}/sprints/NN-<slug>.md`
-Zero-padded, sequential. Each sprint file contains:
-- **Goal** — one sentence; the demonstrable outcome.
-- **Scope / non-scope** — what is in, what is explicitly deferred.
-- **Tasks** — ordered, concrete units of work.
-- **Acceptance criteria** — observable, testable conditions that prove the goal is met. Write them in
-  **EARS** form (`WHEN <trigger>, the system SHALL <response>`; see `<paths.engine>/conventions.md` §
-  Acceptance criteria), one behavior per line, so Phase 8 can map each to a passing test.
-- **Definition of Done** — references the **frozen rules** by name (folder-structure, conventions,
-  testing rule, design-system token rule, Context7 rule) plus "acceptance criteria met, tests pass".
-  The DoD is what Phase 8 audits, so it must point at checkable rules, not restate them.
+Zero-padded, sequential. Each file:
+- **Goal** — one sentence; demonstrable outcome.
+- **Scope / non-scope** — in vs explicitly deferred.
+- **Tasks** — ordered concrete units (soft cap ≤ 5 unless exception noted).
+- **Acceptance criteria** — **EARS** (`WHEN <trigger>, the system SHALL <response>`; see
+  `<paths.engine>/conventions.md` § Acceptance criteria), one behavior per line.
+- **Definition of Done** — names frozen rules (folder-structure, conventions, testing,
+  design-system token, Context7) + “acceptance met, tests pass”. Point at rules; do not restate them.
 
 ### 5. Seed `{product}/features.json`
-From MVP scope in `{product}/business-plan.md`, create one entry per MVP feature using
-`<paths.engine>/templates/features.json.tmpl`. Each feature starts with `status: failing`. Phase 7 updates
-only `status` and `evidence` as work lands.
+From MVP scope via `<paths.engine>/templates/features.json.tmpl`. Each feature `status: failing`.
+Phase 7 updates only `status` and `evidence`.
 
 ### 6. Record state
-Update **`paths.state`** (read-modify-write): append the planned sprints to `sprints[]` (each `{ id, title, status:
-planned, audit_notes: "", last_touched }`), list roadmap + sprint files + `{product}/features.json` in
-`phases.sprint_planning.artifacts`, set `stage_status: gate_pending`. Do not self-advance the stage.
+Read-modify-write **`paths.state`**: append `sprints[]` as `{ id, title, status: planned, audit_notes: "",
+last_touched }`; list roadmap + sprint files + `features.json` in `phases.sprint_planning.artifacts`;
+set `stage_status: gate_pending`. Do **not** self-advance the stage.
 
 ## Exit gate (orchestrate audits)
-- `{product}/roadmap.md` covers **MVP only** (every item traces to a metric/dependency; nothing from
-  non-goals).
-- Each sprint has **goal + scope + tasks + acceptance criteria + DoD**, and the **DoD references the
-  frozen rules**.
-- Sprints are **dependency-ordered** and **sprint 1 is shippable**.
-- `{product}/features.json` seeded from MVP scope (every feature `status: failing`).
-- `sprints[]` is set in `paths.state` (each `status: planned`).
+- [ ] `{product}/roadmap.md` is **MVP only** (every item → metric/dependency; nothing from non-goals).
+- [ ] Each sprint has goal + scope + tasks + EARS acceptance + DoD naming frozen rules.
+- [ ] Sprints are dependency-ordered; **sprint 1 is independently shippable**.
+- [ ] Soft task cap honored or exception noted in non-scope.
+- [ ] `{product}/features.json` seeded (every feature `status: failing`).
+- [ ] `sprints[]` in `paths.state` each `status: planned`.
 
-On pass: freeze the verdict in `{runs}/audits/gate-06.md`, set the gate passed; next action is `/start-sprint`
-(Phase 7) on sprint 1. On fail: report the under-specified sprint or broken ordering.
+On pass: freeze `{runs}/audits/gate-06.md`, set gate passed; next **`/start-sprint`** on sprint 1.
+On fail: name the under-specified sprint or broken ordering.
 
 ## Tier & cost
-Decomposition, ordering, and acceptance/DoD design → **orchestrate** (`midas-orchestrator`). Drafting the sprint
-markdown → **build** (`midas-builder`) once the orchestrator has fixed the plan. No Context7 needed
-here (no third-party code written yet).
+Decomposition / ordering / acceptance design → **orchestrate** (`midas-orchestrator`). Draft sprint
+markdown → **build** (`midas-builder`) after the plan is fixed. No Context7 (no third-party code yet).

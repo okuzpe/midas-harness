@@ -37,7 +37,7 @@ where supported. See the [tools matrix](https://github.com/okuzpe/midas-harness#
 | `/midas-doctor` | Maintenance | Re-derive generated adapters from `harness/conventions.md`, diff against disk, re-render. | build |
 | `/midas-align` | Maintenance | Full propagation pass — matrix + `npm run align` / doctor ladder + gap report (sources → bundles → versions → docs). | build |
 | `/midas-tribunal` | Audit | Whole-project adversarial debate — Defense vs Prosecution vs Catfish; Opus judges per claim. | orchestrate |
-| `/midas-monorepo` | Scale | **Deprecated** — use `/midas-init --monorepo`. Alias kept for backward compatibility. | orchestrate |
+| `/midas-monorepo` | Scale | **Deprecated** — use `/midas-init --monorepo`. Alias kept for backward compatibility. | build |
 | `/midas-verify` | Audit | Sprint UI verification — **agent-browser** CLI (preferred) or Playwright MCP; Chrome DevTools runtime health; **Maestro MCP** for native (`--scope web\|mobile\|all`); device profiles; single `verify-NN.md` record (no `e2e/` in product). | build |
 | `/midas-qa` | Phase 7 | Ad-hoc branch/PR QA — diff → routes; agent-browser / Maestro; optional `{runs}/qa/` record (non-gate). | build |
 | `/midas-security-audit` | Audit | Deep security audit — OWASP ASVS 5.0 + Top 10 + LLM/Agentic Top 10, STRIDE threat model, runs Semgrep/SCA/gitleaks (recommends if absent), freezes a ranked findings report. Non-advancing. | orchestrate |

@@ -130,6 +130,9 @@ Exit criteria that gated **1.0.0** (all met):
 1. Update `CHANGELOG.md` — move items from `[Unreleased]` to the new version section.
 2. Bump `harness/VERSION` (the single canonical engine version). `package.json`,
    `create-midas/package.json`, and `gemini-extension.json` mirror it; `scripts/test.mjs` asserts they all match.
-3. Tag: `git tag v0.X.Y && git push origin v0.X.Y`.
-4. If breaking: add `harness/migrations/v0.X.md` before tagging.
-5. Update the `[Unreleased]` diff link in `CHANGELOG.md`.
+3. Bump pinned `npx github:okuzpe/midas-harness#vX.Y.Z` tags in
+   `harness/skills/midas-update/SKILL.md` and `harness/skills/midas-reconcile/SKILL.md` (see
+   `harness/rules/change-propagation.md`).
+4. Tag: `git tag v0.X.Y && git push origin v0.X.Y`.
+5. If breaking: add `harness/migrations/v0.X.md` before tagging.
+6. Update the `[Unreleased]` diff link in `CHANGELOG.md`.

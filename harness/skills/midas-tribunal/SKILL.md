@@ -75,35 +75,19 @@ Rebut with new/re-read evidence only. **Catfish** on agreement to force counter-
 Shuffle order; mask authorship. Per claim: `upheld | rejected | unproven` + evidence + rationale. Score = severity (CRIT/HIGH/MED/LOW) × confidence; `speculative` ≠ CRIT. **"So what?" filter** (cap LOW nits, max 3). **Mandatory minority/dissent** — Catfish never silently dropped. Action per upheld: `fix · amend-rule · accept-with-rationale · defer`. **`criticals=0 highs=0` is valid** — do not invent severity.
 
 ### Freeze & bridge
-Write **`{runs}/debates/debate-NN.md`** (NN monotonic; immutable): tally line, ranked findings, dissent, action routing, transcript appendix. Propose bridge on user go-ahead:
+Write **`{runs}/debates/debate-NN.md`** from `<paths.engine>/templates/debate-record.md`
+(NN monotonic; immutable) — **do not invent a parallel shape**. Required machine line:
+
+```
+MIDAS_TRIBUNAL_RESULT: criticals=X highs=Y
+```
+
+Propose bridge on user go-ahead:
 - `fix` → task at next `/start-sprint`
 - `amend-rule` → `{product}/adr/ADR-00X` (thesis/antithesis/synthesis)
 - `defer` → `OQ-NN` in `{product}/open-questions.md`
 
 MAY set `last_tribunal: { n, criticals, at }` in `paths.state`. **Never advance `stage` or set `gate: passed`.**
-
-## Output format (`{runs}/debates/debate-NN.md`)
-
-```markdown
-# Tribunal debate-NN — scope: <scope> — depth: <depth>
-Convened: <YYYY-MM-DD> · Judge: midas-orchestrator (claude-opus-4-8) · cost_profile: <profile>
-
-## Verdict tally
-UPHELD: n (CRIT a · HIGH b · MED c)  ·  REJECTED: n  ·  UNPROVEN: n  ·  DISSENTS: n
-MIDAS_TRIBUNAL_RESULT: criticals=X highs=Y
-
-## Ranked findings  (severity × confidence)
-| ID | Lens | Severity | Conf | Claim | Evidence | Verdict | Action |
-
-## Minority / dissent
-- <claim id> (<seat>): <contested + ruling>
-
-## Recommended actions
-- <id> fix → /start-sprint  ·  amend → ADR-00X  ·  defer → OQ-NN
-
-## Full transcript (appendix)
-<rounds, struck claims, re-verification>
-```
 
 ## Safeguards
 1. **Evidence-or-struck** — path or `file:line`; no citation → struck.
@@ -120,6 +104,6 @@ Verdict + freeze → **orchestrate**. Debaters → **build**. Evidence + re-veri
 ## Exit gate (tribunal complete)
 - [ ] Every surviving claim cites on-disk evidence; uncited struck (logged).
 - [ ] Per-claim verdict; minority/dissent recorded; LOW nits capped.
-- [ ] `{runs}/debates/debate-NN.md` frozen with `MIDAS_TRIBUNAL_RESULT`.
+- [ ] `{runs}/debates/debate-NN.md` frozen from `debate-record.md` with `MIDAS_TRIBUNAL_RESULT`.
 - [ ] Each upheld finding has one action; bridge proposed to user.
 - [ ] `stage` NOT advanced; no gate marked passed.

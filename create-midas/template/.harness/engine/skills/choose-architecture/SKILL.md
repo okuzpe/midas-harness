@@ -26,6 +26,13 @@ Turn the signed-off business case into a **pinned, verifiable architecture**: ex
 | Write `{product}/architecture.md` + `{product}/adr/ADR-NNN-*.md` | Invent architecture for an unscoped product |
 | Record `phases.tech_architecture.artifacts`, `stage_status: gate_pending` | Bundle macro forks into one stack ADR |
 
+## When NOT
+- Business case / go/no-go not signed → `/business-plan`.
+- Architecture already frozen and you need rules → `/define-conventions`.
+- Stack tweak mid-sprint without a new ADR → stop; open an ADR or defer to tribunal.
+
+**Anti-rationalization:** pinning versions from memory is a **fail** — Context7 (or documented web fallback) required before every third-party pin.
+
 ## Inputs (read first, write last)
 
 - **`paths.state`** — stage, `routing`, `mcp`

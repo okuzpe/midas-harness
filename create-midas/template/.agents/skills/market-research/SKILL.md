@@ -24,6 +24,22 @@ Validate that the clarified idea addresses a real problem with a real audience, 
 competitive landscape **with citations**. The producer gathers and synthesizes; the orchestrator
 frames the questions and audits the gate — it does not rubber-stamp its own report.
 
+## Does / Does not
+
+| Does | Does not |
+|---|---|
+| Desk research with cited claims → `{product}/market.md` | Fabricate citations or leave material claims uncited |
+| Competitor matrix + differentiation + top 3 risks + demand verdict | Field interviews as a hard wall (that is Phase 3) |
+| Stop if Phase-1 blockers remain | Rubber-stamp the report as the gate auditor |
+
+## When NOT
+- Blocking open questions remain → `/contextualize`.
+- User wants go/no-go / monetization → `/business-plan` after this gate.
+- “No time to research” → still required; use scout fan-out + strike uncited claims rather than inventing.
+
+**Anti-rationalization:** a competitor list without a **demand verdict** (strong/mixed/weak + evidence)
+does **not** pass the exit gate.
+
 ## Steps
 1. **Derive research questions** from `{product}/idea.md`: market-size signals, direct competitors,
    substitutes/alternatives, pricing norms, distribution channels, regulatory/compliance constraints,

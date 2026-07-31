@@ -1,13 +1,19 @@
-# Tribunal debate debate-NN — scope: <whole|architecture|…>
-Ran: <YYYY-MM-DD> · Tier: orchestrate (claude-opus-4-8) · Depth: <quick|standard|tribunal>
+# Tribunal debate-NN — scope: <scope> — depth: <quick|standard|tribunal>
+Convened: <YYYY-MM-DD> · Judge: midas-orchestrator (claude-opus-4-8) · cost_profile: <profile>
 
 ## Verdict tally
-CRITICAL: n  ·  HIGH: n  ·  MED: n  ·  LOW: n
-MIDAS_DEBATE_RESULT: criticals=0 high=0 dissent=0
+UPHELD: n (CRIT a · HIGH b · MED c)  ·  REJECTED: n  ·  UNPROVEN: n  ·  DISSENTS: n
+MIDAS_TRIBUNAL_RESULT: criticals=X highs=Y
 
-## Ranked findings
-| # | Severity | Claim | Evidence | Verdict | Dissent |
-|---|----------|-------|----------|---------|---------|
+## Ranked findings  (severity × confidence)
+| ID | Lens | Severity | Conf | Claim | Evidence | Verdict | Action |
+|----|------|----------|------|-------|----------|---------|--------|
 
-## Dissent record
-…
+## Minority / dissent
+- <claim id> (<seat>): <contested + ruling>
+
+## Recommended actions
+- <id> fix → /start-sprint  ·  amend → ADR-00X  ·  defer → OQ-NN
+
+## Full transcript (appendix)
+<rounds, struck claims, re-verification>

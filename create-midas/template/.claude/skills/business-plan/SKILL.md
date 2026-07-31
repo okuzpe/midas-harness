@@ -24,6 +24,19 @@ recommended-model: claude-opus-4-8
 Turn the validated opportunity into a decision. The orchestrator owns the go/no-go judgment and the
 gate; the builder drafts the document.
 
+## Does / Does not
+
+| Does | Does not |
+|---|---|
+| Draft go/no-go case with MVP scope, metrics, monetization, validation status | Start engineering or self-advance past Phase 3 without human sign-off |
+| Require **human** go/no-go via `AskUserQuestion` (name + date recorded) | Invent a hard “interview N customers or no product” wall for resource-constrained founders |
+| Log deferred field validation as an explicit assumption | Rubber-stamp go/no-go without the human |
+
+## When NOT
+- Market research gate not passed / blockers remain → `/market-research` or `/contextualize`.
+- Human already signed no-go → stop; do not reopen without an explicit ask.
+- User only wants a decision debate → optional `/midas-tribunal` (never required).
+
 ## Steps
 1. **Value proposition** — for the target segment from `{product}/idea.md` + `{product}/market.md`.
 2. **MVP scope vs non-goals** — the minimum surface that validates the core hypothesis, and an

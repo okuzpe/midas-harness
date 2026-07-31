@@ -82,3 +82,10 @@ A compact health table — one row per check with `ok` / `warn` / `drift` and a 
 by the offered action (re-render + gitignore merge via `--fix`) and any secret-setup command the user
 must run. Never write a key, never hand-edit a generated adapter outside the render script, never
 mutate vendor agent files.
+
+## Exit gate (doctor complete)
+- [ ] Health table printed for every applicable check (`ok` / `warn` / `drift`).
+- [ ] Drift findings named with path; no silent skip.
+- [ ] Writes only after user go-ahead / `--fix`; re-run without `--fix` shows `ok` where fixed.
+- [ ] No secrets written; no hand-edits to generated adapters.
+- [ ] Next action named (`--fix`, secret setup, or “healthy”).

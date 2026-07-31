@@ -37,10 +37,10 @@ Each frozen record ends with a machine-readable summary for `/midas-doctor`:
 MIDAS_AUDIT_RESULT: rules_failed=X unresolved=Y amended=Z verdict=pass|blocked
 
 # midas-tribunal
-MIDAS_DEBATE_RESULT: upheld=X struck=Y dissent=Z verdict=proceed|revisit|blocked
+MIDAS_TRIBUNAL_RESULT: criticals=X highs=Y
 
 # midas-security-audit
-MIDAS_SECURITY_RESULT: critical=X high=Y medium=Z low=W verdict=pass|remediate|blocked
+MIDAS_SECURITY_RESULT: level=L2 critical=a high=b medium=c low=d verdict=pass|findings
 ```
 
 `unresolved=0` (audit) or equivalent open criticals (security) before treating a sprint gate as pass.

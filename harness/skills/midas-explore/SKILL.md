@@ -1,6 +1,6 @@
 ---
 name: midas-explore
-description: Ad-hoc investigation outside the 9-phase pipeline — multi-turn notes under {runs}/explore/<slug>/; close with --end and optionally propose /midas-capture. Use for debugging/scoping that is not a phase gate or sprint task.
+description: Ad-hoc investigation outside the 9-phase pipeline — notes under {runs}/explore/<slug>/. Use for debugging or scoping that is not a phase gate or sprint task; close with --end.
 user-invocable: true
 disable-model-invocation: true
 model: inherit

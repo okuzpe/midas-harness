@@ -76,7 +76,7 @@ Assert `--ds-*` usage; flag hardcoded values. Spot-check AA contrast + focus. Ge
 Each criterion: `pass | fail | blocked` with evidence. No silent passes.
 
 ### 6. Freeze (write last)
-One **`{runs}/verifications/verify-NN.md`** (NN = sprint id only). Template: `<paths.engine>/templates/verify-record.md`. Sections: `## Per-criterion results`, `## Device profiles`, `## Mobile (native)` (when in scope), `## Runtime health`, `## Design-token findings`, single **`MIDAS_VERIFY_RESULT`** tally. Screenshots under `{runs}/verifications/verify-NN/`. MAY set `last_verification` in `paths.state`. **Never advance `stage`.**
+One **`{runs}/verifications/verify-NN.md`** (NN = sprint id only). Template: `<paths.engine>/templates/verify-record.md`. Sections: `## Per-criterion results`, `## Device profiles`, `## Mobile (native)` (when in scope), `## Runtime health`, `## Design-token findings`, single **`MIDAS_VERIFY_RESULT`** tally. Screenshots under `{runs}/verifications/verify-NN/`. After a successful freeze, **always** set `last_verification: { n, at }` in `paths.state` (read-modify-write). **Never advance `stage`.**
 
 ### 7. Feed failures back
 Route each `fail` to `/close-sprint`.

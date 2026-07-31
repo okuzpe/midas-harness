@@ -1,11 +1,11 @@
 ---
 name: midas-monorepo
-description: "DEPRECATED — use /midas-init --monorepo instead. Wires nested AGENTS.md per package in a monorepo; kept as an alias for existing docs and scripts."
+description: "DEPRECATED — use /midas-init --monorepo instead. Alias that runs monorepo wiring (nested AGENTS.md per package). Use only when an old doc/script still invokes /midas-monorepo."
 user-invocable: true
 disable-model-invocation: true
 model: inherit
-harness-tier: orchestrate
-recommended-model: claude-opus-4-8
+harness-tier: build
+recommended-model: claude-sonnet-4-6
 argument-hint: "[--dry-run] [path/to/package ...]"
 ---
 
@@ -14,13 +14,14 @@ argument-hint: "[--dry-run] [path/to/package ...]"
 > **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
 
 > **This command is deprecated.** Prefer **`/midas-init --monorepo`** (works even when `setup_complete: true`
-> — it runs only Phase F monorepo wiring without repeating intake).
+> — it runs only Phase F monorepo wiring without repeating intake). Tier is **build** because this alias
+> only redirects to mechanical DETECT → INDEX → WRITE wiring (no orchestrate judgment).
 
 ## Redirect
 
 1. Tell the user: *"`/midas-monorepo` is deprecated — run `/midas-init --monorepo` instead."*
 2. Execute the procedure in **`<paths.engine>/pipeline/monorepo-wiring.md`** (same DETECT → INDEX → WRITE
-   flow as init Phase F).
+   flow as init Phase F). Respect brownfield dry-run / diff-confirm in that playbook.
 3. Honor `--dry-run` and any user-named package paths from the original command.
 
 ## Preconditions
@@ -28,6 +29,8 @@ argument-hint: "[--dry-run] [path/to/package ...]"
 - Root harness initialized (`paths.state` exists).
 - If no state file → `/midas-init` first.
 
-## Exit
+## Exit gate (alias complete)
 
-Same gate as `monorepo-wiring.md` § Exit gate. Next action: `/midas-status`.
+- [ ] User was told to prefer `/midas-init --monorepo`.
+- [ ] `monorepo-wiring.md` § Exit gate criteria are satisfied (or `--dry-run` showed the plan with no writes).
+- [ ] Next action named: `/midas-status`.
