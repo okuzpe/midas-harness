@@ -11,6 +11,25 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.0.0] — 2026-08-01
+
+First **stable** v2 release. Same engine contract as `2.0.0-rc.5` — canonical `.harness/` layout,
+1.x migration path, thin-root Cursor default, skill quality gate, and polished skills. Use
+`#v2.0.0` for installs and updates; release candidates remain tagged for history only.
+
+### Added (since v1.1.4)
+
+- Canonical `.harness/` install layout with ownership manifest and `--migrate` / `--update` flows.
+- Skill authoring quality gate and `npm run skill-quality` mechanical checker.
+- ADR-008 thin-root allowlist; `--update --tools` mirror pruning.
+
+### Changed
+
+- Default install tools: `[cursor]`; Claude Code retains `.claude/skills` + agents.
+- Install/update docs and version pins point at `v2.0.0`.
+
+---
+
 ## [2.0.0-rc.5] — 2026-08-01
 
 ### Added
@@ -1177,7 +1196,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.5...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.5...v2.0.0
 [2.0.0-rc.5]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.4...v2.0.0-rc.5
 [2.0.0-rc.4]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.3...v2.0.0-rc.4
 [2.0.0-rc.3]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.2...v2.0.0-rc.3

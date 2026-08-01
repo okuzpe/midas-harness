@@ -174,7 +174,7 @@ A runnable Sprint-1 vertical slice — auth, task CRUD, middleware, board stub +
 artifact on disk. See [`examples/taskpilot/`](./examples/taskpilot/).
 
 ## Status
-**v2.0.0-rc.5 — thin-root default (Cursor) + `--update --tools` prune.** Most complete on **Claude Code**
+**v2.0.0 — stable v2 harness.** Thin-root default (Cursor) + skill quality gate + `--update --tools` prune. Most complete on **Claude Code**
 (see [Honest scope](#supported-tools)). Details: [`CHANGELOG.md`](./CHANGELOG.md) ·
 [`VERSIONING.md`](./VERSIONING.md) · [docs site](https://okuzpe.github.io/midas-harness/).
 
