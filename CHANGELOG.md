@@ -11,6 +11,20 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.0.0-rc.5] — 2026-08-01
+
+### Added
+
+- Skill authoring quality gate (`docs/skill-quality-gate.md`, `harness/rules/skill-quality.md`).
+- Mechanical skill checker: `scripts/skill-quality-check.mjs` (`npm run skill-quality`).
+
+### Changed
+
+- All 28 engine skills polished to the Ship bar (Does/Does-not, When NOT, exit gates, tribunal SoT).
+- Install/update docs and version pins point at `v2.0.0-rc.5`.
+
+---
+
 ## [2.0.0-rc.4] — 2026-07-29
 
 ### Added
@@ -1163,7 +1177,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.4...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.5...HEAD
+[2.0.0-rc.5]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.4...v2.0.0-rc.5
 [2.0.0-rc.4]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.3...v2.0.0-rc.4
 [2.0.0-rc.3]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.2...v2.0.0-rc.3
 [2.0.0-rc.2]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.1...v2.0.0-rc.2
