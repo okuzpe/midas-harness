@@ -56,11 +56,11 @@ Stage → command map (mechanical): `<paths.engine>/stage-command-table.yaml`.
 | Command | One-line description | Tier |
 |---|---|---|
 | `/midas-progress` | Write STM — `{runs}/sprints/NN-progress.md` after tasks. | build |
-| `/midas-verify` | Sprint UI/API gate evidence → `verify-NN.md` (before close). | build |
+| `/midas-design` | Product-authentic redesign — 3 directions → pick → spec → one slice; `{runs}/design/`. | orchestrate |
+| `/midas-verify` | Sprint UI/API gate evidence → `verify-NN.md` (incl. authenticity; before close). | build |
 | `/midas-qa` | Ad-hoc branch/PR smoke (non-gate); does **not** replace verify. | build |
 | `/midas-explore` | Investigation outside the pipeline → `{runs}/explore/`. | scout |
 | `/midas-capture` | Recurring pattern → rule / playbook / convention (asks first). | build |
-| `/midas-design` | Product-authentic UI redesign (audit → directions → spec → optional slice). Not Phase 5 freeze. | orchestrate |
 
 ---
 
@@ -99,7 +99,6 @@ Use **`/midas-status`** for the single next lifecycle step. Use this table when 
 | Sprint UI proof (gate evidence) | `/midas-verify` |
 | Redesign / improve UI (think before JSX) | `/midas-design` |
 | Quick PR/branch smoke test | `/midas-qa` |
-| Redesign / improve product UI (think before JSX) | `/midas-design` |
 | Dead code / ledger drift | `/midas-sweep` |
 | Export/import knowledge | `/midas-bundle` or `node <paths.scripts>/bundle.mjs` |
 
