@@ -35,12 +35,19 @@ argument-hint: "[--monorepo] [--dry-run]"
 Follow **`<paths.engine>/pipeline/init-adaptive.md`** for the complete Phase A–F bodies
 (SCAN, CLASSIFY, TRACK, PRE-FILL, SHOW+ASK, GENERATE, MONOREPO).
 
----
+## When NOT
 
-## Exit
+- `setup_complete: true` without `--monorepo` → `/midas-status` (do not re-init).
+- Confused install/version/cwd → `/midas-reconcile` first.
+- Existing codebase needing brownfield inventory mid-pipeline → often `/midas-adopt` (init may route there).
+- Engine upgrade on an already-set-up project → `/midas-update`.
 
-Confirm files written, secret command if any, maturity chosen, **single next action** from table.
-Add: *"👉 Optional: `/midas-recall phase` to orient."* Then `/midas-status` from here on.
+## Exit gate
+- [ ] Files written / confirmed per init-adaptive; secrets never written to disk.
+- [ ] Maturity + placement stated; `setup_complete: true` after full intake (not on `--monorepo`-only).
+- [ ] Single next action named (usually `/midas-status`); optional `/midas-recall phase`.
+- [ ] `--monorepo` path: Phase F only; does not flip `setup_complete` when already true.
 
-## Tier & cost
-Scan → **scout**. Classification + adoption → **orchestrate**. Pre-fill drafts → **build**.
+## Tier & delegation
+Scan → **scout** (`midas-scout`). Classification + adoption → **orchestrate** (`midas-orchestrator`).
+Pre-fill drafts → **build** (`midas-builder`). Respect `cost_profile`.

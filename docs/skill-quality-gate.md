@@ -190,7 +190,8 @@ Non-trivial skills need When-NOT (or equivalent), and missing-state recovery if 
   model-routing tables or CHECK digests.
 - User-facing slash skills (**engine repo**): entry in `docs/skills.md`. Product installs → usually `n/a`.
 - Frontmatter carries `harness-tier` + `recommended-model` consistent with
-  `<paths.engine>/rules/model-routing.md`.
+  `<paths.engine>/rules/model-routing.md` — mechanically checked by
+  `scripts/skill-quality-check.mjs` against `CLAUDE_COST_PROFILE_ROUTING.balanced`.
 - After engine skill edits: edit `harness/skills/` (canonical), then `npm run build` (syncs mirrors)
   and `/midas-align` when substantive — see `<paths.engine>/rules/change-propagation.md`.
 
@@ -279,9 +280,11 @@ concrete. Trigger must stay WHAT+WHEN(+NOT) vs `/midas-status`, not a pasted cat
 | Catalog | `docs/skills.md` (engine repo) | User-facing inventory |
 | Propagation | `<paths.engine>/rules/change-propagation.md` | Mirrors, adapters, docs stay aligned |
 
-Mechanical pre-check: `node scripts/skill-quality-check.mjs` (or `npm run skill-quality`) —
-line counts, frontmatter, description length, ritual guard, Steps-section link budget. Report-only;
-semantic dims still need manual scoring.
+Mechanical pre-check: `node scripts/skill-quality-check.mjs` (or `npm run skill-quality`) — line
+counts, frontmatter, description length, ritual guard, Steps-section link budget,
+`recommended-model`/`harness-tier` drift, `## Tier & delegation` section presence, and skills-catalog
+(`docs/skills.md`) membership. Report-only; semantic dims (Clarity, Specificity, Trigger quality, …)
+still need manual scoring.
 
 ---
 

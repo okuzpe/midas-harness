@@ -1,6 +1,6 @@
 ---
 name: start-sprint
-description: Phase 7 kickoff — THE SIGNATURE LOOP that "applies the harness". Audit the living code against the frozen rules and scope, decide sprint adjustments (fix code OR consciously amend a rule, logged), select agents cost-aware, emit the working plan, and set the sprint active. Use to begin a planned sprint (stage sprint_planning → sprint_execution).
+description: Phase 7 kickoff — pre-sprint drift audit vs frozen rules, working plan, set sprint active. Use to begin a planned sprint (stage sprint_planning → sprint_execution). Do NOT use to close a sprint or grade conformance — that is /close-sprint after tasks, tests, and /midas-verify.
 user-invocable: true
 disable-model-invocation: true
 model: inherit
@@ -24,6 +24,22 @@ proceeds on the **build** tier with Context7.
 
 > **Precondition.** A sprint must be `planned` (or `active` being resumed) in `paths.state → sprints[]`,
 > and Phase 6's gate must be passed. If no sprint is selectable, stop and report.
+
+## Does / Does not
+
+| Does | Does not |
+|---|---|
+| Pre-sprint audit of living code vs frozen rules + MVP scope | Render the Phase-8 conformance verdict (`/close-sprint`) |
+| Queue fix-tasks or log conscious rule amendments | Silently ignore drift |
+| Emit working plan; set sprint `active` after confirm | Implement the sprint tasks here (that is build / Phase 7 body) |
+| Cost-aware agent/tier selection + Context7 library list | Replace `/plan-sprints` (no plan yet → plan first) |
+
+## When NOT
+
+- No sprint planned / Phase 6 not passed → `/plan-sprints` (or `/midas-status`).
+- Tasks already done and ready to grade → `/close-sprint` (after `/midas-verify` when UI).
+- Ad-hoc investigation outside the sprint → `/midas-explore`.
+- Only need orientation → `/midas-status` / `/midas-recall`.
 
 ## Procedure
 
@@ -83,12 +99,15 @@ refactor** visuals or a landing, surface **`/midas-design`** first (three direct
 one slice) — do not jump straight to full-page JSX. Tasks complete only when acceptance criteria are met and tests
 pass; **conformance to rules is verified in Phase 8** (`/close-sprint`).
 
-## Exit (kickoff complete)
+## Exit gate (kickoff complete)
 - [ ] Working plan lists tasks, owners/tiers, Context7 libs, acceptance + DoD.
-- [ ] Pre-sprint drift is queued as fix-tasks **or** logged as a conscious rule amendment.
-- [ ] `paths.state` shows the sprint `status: active` and `stage: sprint_execution`.
+- [ ] Pre-sprint drift is queued as fix-tasks **or** logged as a conscious rule amendment (evidence cited).
+- [ ] `paths.state` shows the sprint `status: active` and `stage: sprint_execution` (write last).
 - [ ] User knows next close ritual is `/close-sprint` (after tests + `/midas-verify` when UI).
+- [ ] No Phase-8 `MIDAS_AUDIT_RESULT` claimed here — kickoff only.
 
-## Tier & cost
-Audit + adjustment decisions + agent selection → **orchestrate** (Opus). Implementation → **build**
-(Sonnet, or a specialist). Context7 retrieval → **scout** (Haiku).
+## Tier & delegation
+Audit + adjustment decisions + agent selection → **orchestrate** (`midas-orchestrator`). Implementation →
+**build** (`midas-builder`, or a specialist). Context7 retrieval → **scout** (`midas-scout`).
+Respect `cost_profile`. Under `max_savings`, keep this kickoff audit on the orchestrate pin (escalate to
+Opus if drift judgment is high-stakes).

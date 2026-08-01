@@ -70,5 +70,13 @@ Do not invent a different command unless the script is missing (fallback below).
 | `/midas-adopt` | Brownfield inventory + rules (writes) |
 | `/midas-update` | Engine version migration (writes) |
 
-## Tier & cost
-Scout — mechanical detection only.
+## Exit gate
+- [ ] Diagnose script output presented (Status + Next terminal + Next editor), or fallback table used.
+- [ ] Exactly **one** next command named — no invented alternate install path.
+- [ ] Read-only: no writes to `paths.state`, adapters, or product files.
+- [ ] If `ready` → point at `/midas-status` (not another reconcile loop).
+
+## Tier & delegation
+- **Dispatch (read-only):** `scout` → `midas-scout`.
+- Mechanical detection only; never runs install/init/update itself.
+- Respect `cost_profile` as intent on non-Claude hosts.

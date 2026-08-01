@@ -500,23 +500,34 @@ export function renderAdapters(root = ROOT) {
   const hashRel = hashAbs.slice(p.projectRoot.length + 1).replace(/\\/g, '/');
   results.push({ path: hashRel, status: 'written' });
 
-  // Registries are versioned vendor artifacts in canonical installs. Only the engine source tree
-  // regenerates them; project overlays affect adapters but never mutate `.harness/engine`.
+  // Classic engine repo regenerates registries inline; harness-layout installs refresh via --update.
   if (p.layout !== 'harness') {
-    const gatesAbs = join(root, p.engine, 'gates.json');
-    ensureDir(gatesAbs);
-    writeFileSync(gatesAbs, `${JSON.stringify(gatesIndex, null, 2)}\n`, 'utf8');
-    const gatesRel = gatesAbs.slice(p.projectRoot.length + 1).replace(/\\/g, '/');
-    results.push({ path: gatesRel, status: 'written' });
-
-    const checksAbs = join(root, p.engine, 'checks.json');
-    ensureDir(checksAbs);
-    writeFileSync(checksAbs, `${JSON.stringify(checksIndex, null, 2)}\n`, 'utf8');
-    const checksRel = checksAbs.slice(p.projectRoot.length + 1).replace(/\\/g, '/');
-    results.push({ path: checksRel, status: 'written' });
+    const reg = writeEngineRegistries(root, p.engine, { gatesIndex, checksIndex });
+    results.push({ path: reg.gates, status: 'written' });
+    results.push({ path: reg.checks, status: 'written' });
   }
 
   return { hash, results };
+}
+
+/**
+ * Write gates.json + checks.json under the engine tree. Used by classic render and by --update
+ * on harness-layout installs so doctor strict passes without manual registry fixes.
+ */
+export function writeEngineRegistries(root, engineRel, { gatesIndex = null, checksIndex = null } = {}) {
+  const resolved = engineRel || resolvePaths(root).engine;
+  gatesIndex ||= computeGatesIndex(root, resolved);
+  checksIndex ||= computeChecksIndex(root, resolved);
+  const gatesAbs = join(root, resolved, 'gates.json');
+  const checksAbs = join(root, resolved, 'checks.json');
+  ensureDir(gatesAbs);
+  ensureDir(checksAbs);
+  writeFileSync(gatesAbs, `${JSON.stringify(gatesIndex, null, 2)}\n`, 'utf8');
+  writeFileSync(checksAbs, `${JSON.stringify(checksIndex, null, 2)}\n`, 'utf8');
+  return {
+    gates: gatesAbs.slice(root.length + 1).replace(/\\/g, '/'),
+    checks: checksAbs.slice(root.length + 1).replace(/\\/g, '/'),
+  };
 }
 
 // --- CLI entry point ---------------------------------------------------------------------------

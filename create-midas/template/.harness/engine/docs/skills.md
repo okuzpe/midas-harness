@@ -7,7 +7,7 @@ supported. See the [tools matrix](https://github.com/okuzpe/midas-harness#suppor
 > **Canonical router.** `/midas-status` and `/midas-help` **cite this file** — they do not maintain a
 > parallel situation→command table. Product installs: `<paths.engine>/docs/skills.md`.
 
-Catalog size: **28 active** + **1 deprecated alias** (`/midas-monorepo`, remove in **2.1.0**).
+Catalog size: **29 active** + **1 deprecated alias** (`/midas-monorepo`, remove in **2.1.0**).
 
 ---
 
@@ -17,7 +17,7 @@ Catalog size: **28 active** + **1 deprecated alias** (`/midas-monorepo`, remove 
 |---|---|---|
 | **Pipeline** | Audited phase gates 0→8 | `/idea-intake` … `/close-sprint` |
 | **Orient** | Where am I / what next / resume / install confusion | `/midas-status`, `/midas-help`, `/midas-recall`, `/midas-reconcile` |
-| **Sprint day** | Inner loop during Phase 7 | `/midas-progress`, `/midas-verify`, `/midas-qa`, `/midas-explore`, `/midas-capture`, `/midas-design` |
+| **Sprint day** | Inner loop during Phase 7 | `/midas-progress`, `/midas-verify`, `/midas-qa`, `/midas-explore`, `/midas-capture`, `/midas-lean-review`, `/midas-design` |
 | **Maintain + audit** | Sync, hygiene, optional deep audits, setup | `/midas-init`, `/midas-adopt`, `/midas-update`, `/midas-doctor`, `/midas-align`, `/midas-sweep`, `/midas-bundle`, `/midas-tribunal`, `/midas-security-audit` |
 
 ---
@@ -61,6 +61,7 @@ Stage → command map (mechanical): `<paths.engine>/stage-command-table.yaml`.
 | `/midas-qa` | Ad-hoc branch/PR smoke (non-gate); does **not** replace verify. | build |
 | `/midas-explore` | Investigation outside the pipeline → `{runs}/explore/`. | scout |
 | `/midas-capture` | Recurring pattern → rule / playbook / convention (asks first). | build |
+| `/midas-lean-review` | Over-engineering delete-list for the diff (stdlib/native/yagni/shrink). | build |
 
 ---
 
@@ -100,6 +101,7 @@ Use **`/midas-status`** for the single next lifecycle step. Use this table when 
 | Redesign / improve UI (think before JSX) | `/midas-design` |
 | Quick PR/branch smoke test | `/midas-qa` |
 | Dead code / ledger drift | `/midas-sweep` |
+| Over-engineered diff / what can we delete? | `/midas-lean-review` |
 | Export/import knowledge | `/midas-bundle` or `node <paths.scripts>/bundle.mjs` |
 
 **Audits** (shared fragments: `<paths.engine>/templates/audit-checklists.md`):
@@ -138,3 +140,6 @@ Rule: `harness/rules/skill-quality.md`. Mechanical: `npm run skill-quality`.
   `AGENTS.md` / adapters / source without dry-run diff + confirm.
 - After conventions/rules edits → `/midas-doctor`. After engine/skills/VERSION edits → `/midas-align`.
 - Naming: phase gates are unprefixed (`/idea-intake`); utilities are `/midas-*`. Intentional.
+- **Lean ladder** (`<paths.engine>/rules/lean-ladder.md` + `/midas-lean-review`) is Midas-native.
+  Optional: install [Ponytail](https://github.com/DietrichGebert/ponytail) for host hooks /
+  `lite|full|ultra` — prefer one always-on voice (see the rule's compose note).

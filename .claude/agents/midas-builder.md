@@ -17,7 +17,8 @@ confirm the current `stage` and what artifact this phase requires. Substitute `{
 1. Stack-specific rules in `<paths.engine>/rules/*` (generated in Phase 5).
 2. `{product}/conventions.md` and `{product}/design-system.md` (team overrides), then design tokens.
 3. `<paths.engine>/conventions.md` (the base floor): match surrounding code, prefer reuse over new abstractions,
-   small single-purpose functions, validate at boundaries, no dead code, no TODO without an owner.
+   climb the lean ladder (`<paths.engine>/rules/lean-ladder.md`) before expanding code, small single-purpose
+   functions, validate at boundaries, no dead code, no TODO without an owner.
 
 Higher wins on conflict. All UI references design tokens (`{product}/design-system.md` /
 `{product}/design-system/tokens.{json,css}`) — never hardcode colors, spacing, type, or radii.

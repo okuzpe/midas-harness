@@ -63,3 +63,14 @@ or `--end`, run **Carryover only** (below). Otherwise load this full skill on ex
 - Ticketed/sprint work → `/start-sprint` / Phase 7.
 - Need pipeline PC only → `/midas-status`.
 - Need a one-shot context pack → `/midas-recall`.
+
+## Exit gate
+- [ ] **Start:** `{runs}/explore/<slug>/` exists, `.active` points at slug, user knows `/midas-explore --end`.
+- [ ] **End:** `meta.yaml` `status: completed`, `.active` cleared; Actionable summary printed.
+- [ ] No `stage` / gate advances; durable patterns only **proposed** via `/midas-capture` (not written here).
+- [ ] Carryover turns append notes without re-dumping this skill.
+
+## Tier & delegation
+- **Dispatch:** `scout` → `midas-scout` for indexing; session may write explore notes under `{runs}/explore/` as build-tier file I/O when starting/ending a session.
+- Classification / capture proposals stay recommend-don't-wall — escalate durable writes to `/midas-capture` (`build`), never invent a gate verdict.
+- Respect `cost_profile`.

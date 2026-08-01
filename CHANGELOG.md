@@ -11,6 +11,27 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.2.0] — 2026-08-02
+
+### Added
+
+- `/midas-lean-review` — over-engineering delete-list for diffs (stdlib/native/yagni/shrink); complements
+  `/close-sprint` and `/midas-sweep`.
+- `lean-ladder.md` always-on rule + `{runs}/lean/` evidence subdir.
+- `skill-quality-check.mjs` mechanizes tier/model drift, `## Tier & delegation` presence, and
+  `docs/skills.md` catalog membership (previously manual CHECKs).
+- `cost_profile` overlays (`balanced` / `max_savings` / `max_quality`) on Claude routing; doctor
+  reconciles `state.routing` against `resolveCostAwareRouting`.
+
+### Changed
+
+- Skills/agents: `## Tier & delegation` on all lifecycle skills; orchestrator/builder agent pins
+  aligned to cost-aware routing.
+- `model-routing.md` + `skill-quality.md` CHECKs cite the mechanical script instead of manual-only review.
+- Installer (`create-midas/index.mjs`): richer `--update` / tool-profile handling.
+
+---
+
 ## [2.1.0] — 2026-08-01
 
 ### Added
@@ -1229,7 +1250,7 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.2.0...HEAD
 [2.1.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.5...v2.0.0
 [2.0.0-rc.5]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.4...v2.0.0-rc.5

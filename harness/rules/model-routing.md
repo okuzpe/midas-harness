@@ -59,21 +59,46 @@ every mode:
 - **CHECK:** Each multi-tier phase delegates its produce/fetch legs to `midas-builder` / `midas-scout`
   in the SKILL body — `harness-tier` is the dispatch tier only, never the whole cost story.
   *(manual.)*
-- **CHECK:** `paths.state -> routing` ids are all known model ids and, under the legacy `claude`
-  profile with `cost_profile: balanced`, **equal the pinned `model:` of the three first-party agents**.
-  The `openai-mini` profile resolves all three tiers to `gpt-5.4-mini`. Run `node <paths.scripts>/doctor.mjs
-  <project>`; a `routing:*` warning is a fail. *(The engine enforces the same reconciliation against the
-  example state in `scripts/test.mjs`.)*
+- **CHECK:** `paths.state -> routing` ids are all known model ids and, under the Claude
+  profile, **equal `resolveCostAwareRouting(routing_profile, cost_profile)`** (and the pinned
+  `model:` of the three first-party agents). The `openai-mini` profile resolves all three tiers to
+  `gpt-5.4-mini`. Run `node <paths.scripts>/doctor.mjs <project>`; a `routing:*` warning is a fail.
+  *(The engine enforces the same reconciliation against the example state in `scripts/test.mjs`.)*
 
-## Cost profiles — what is real vs. intent
+## Cost profiles — executable, not advisory
 
 `cost_profile` (`balanced` | `max_savings` | `max_quality`) and the resolved `routing:` map are
-recorded in `state.yaml`. `routing_profile` chooses the preset that fills `routing:`. The legacy Claude
-profile is executor-backed through the first-party agent pins; `openai-mini` resolves all tiers to
-`gpt-5.4-mini`; `local-hybrid` keeps `orchestrate` on Claude and routes build/scout to the local model.
-If a project needs a different default tier-to-model mapping, change it at the source
-(`docs/agents-and-models.md` + the three agent files + `scripts/model-profiles.mjs`), then re-run
-`node <paths.scripts>/doctor.mjs` to confirm `routing:` reconciles.
+recorded in `state.yaml`. `routing_profile` chooses the preset that fills `routing:`. Under the
+Claude profile, **`scripts/model-profiles.mjs` → `resolveCostAwareRouting`** is the single resolver:
+`max_savings` / `max_quality` rewrite the expected tier ids (not prose-only intent).
+
+- Doctor reconciles `state.routing` **and** the three first-party agent `model:` pins against that map.
+- Product installs (`layout: harness`): `node <paths.scripts>/doctor.mjs --fix` rewrites `routing:` and
+  syncs `.claude/agents` + `<paths.engine>/agents` pins to match.
+- Engine classic dogfood: `--fix` may rewrite `harness/state.yaml → routing:` but never the
+  published balanced pins under `harness/agents/`.
+- Under `max_savings`, Phase 4 (`tech_architecture`) and Phase 8 (`audit_adjust`) gate skills still
+  **escalate orchestrate to Opus** even when the default pin is Sonnet — see
+  `MAX_SAVINGS_ORCHESTRATE_ESCALATE_STAGES` in `scripts/model-profiles.mjs`.
+
+The legacy Claude profile is executor-backed through the first-party agent pins; `openai-mini`
+resolves all tiers to `gpt-5.4-mini` (`cost_profile` overlays do not apply); `local-hybrid` keeps
+`orchestrate` on Claude and routes build/scout to the local model. If a project needs a different
+default tier-to-model mapping, change it at the source (`docs/agents-and-models.md` + the three
+agent files + `scripts/model-profiles.mjs`), then re-run `node <paths.scripts>/doctor.mjs` to
+confirm `routing:` reconciles.
+
+- **CHECK:** `paths.state -> routing` ids equal `resolveCostAwareRouting(routing_profile, cost_profile)`
+  under the Claude profile (any `cost_profile`); agent pins match the same map. Run
+  `node <paths.scripts>/doctor.mjs <project>`; a `routing:*` warning is a fail.
+- **CHECK:** each phase / lifecycle skill body has a `## Tier & delegation` (or equivalent
+  `## Tier & cost`) section that names which legs go to `midas-orchestrator` / `midas-builder` /
+  `midas-scout` — `harness-tier` alone is not enough. Mechanized: `node <paths.scripts>/skill-quality-check.mjs`
+  warns `missing \`## Tier & delegation\`...` when the heading is absent; a warning on a touched skill is a fail.
+- **CHECK:** a skill's `recommended-model` frontmatter matches its `harness-tier` under the canonical
+  balanced-Claude map (`CLAUDE_COST_PROFILE_ROUTING.balanced` in `scripts/model-profiles.mjs`).
+  Mechanized: `node <paths.scripts>/skill-quality-check.mjs` warns on drift; a warning on a touched
+  skill is a fail.
 
 ## Token economy
 
@@ -96,3 +121,10 @@ Cursor / Copilot / Windsurf lack per-subagent model tiering, so the tiers collap
 (fastest model for search/extract, strongest for architecture and audits). Methodology and MCP are
 fully preserved; only automatic cost-routing is lost. Their skills are discovered through the portable
 `.agents/skills/` tree. See `docs/agents-and-models.md` → "Non-Claude tools".
+
+## Amendment
+
+- **2026-08-01** — `cost_profile` is executable under the Claude `routing_profile`:
+  `resolveCostAwareRouting` + doctor reconciliation of `state.routing` and agent pins; product
+  `--fix` syncs pins. Skills must declare `## Tier & delegation` (not only `harness-tier`).
+  `max_savings` escalates orchestrate to Opus on Phase 4/8 stages.

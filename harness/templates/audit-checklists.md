@@ -27,6 +27,7 @@ Before grading, load when present:
 3. `{product}/architecture.md`, `{product}/business-plan.md`, `{product}/idea.md`
 4. Active `{product}/sprints/NN-*.md` and latest `{runs}/verifications/verify-NN.md` (UI sprints)
 5. Latest `{runs}/sweeps/sweep-NN.md` when brownfield or hygiene applies
+6. Latest `{runs}/lean/lean-NN.md` when a lean-review was frozen this sprint (optional)
 
 ## Parseable tally lines
 
@@ -45,6 +46,9 @@ MIDAS_SECURITY_RESULT: level=L2 critical=a high=b medium=c low=d verdict=pass|fi
 
 # midas-sweep
 MIDAS_SWEEP_RESULT: dead_flows=N orphans=N ledger_drift=N stale_docs=N harness_drift=N hygiene=N verdict=clean|report|fixed
+
+# midas-lean-review
+MIDAS_LEAN_RESULT: findings=N high=N net_lines=-N verdict=report|clean
 
 # midas-verify (canonical shape — also in verify-record.md; doctor parses fails/criticals)
 MIDAS_VERIFY_RESULT: fails=X criticals=Y runtime_errors=Z
@@ -65,6 +69,10 @@ Recommended optional sweeps (surfaced by `/midas-status`, never forced):
 - Post-adopt, before wiring
 - Pre-`plan-sprints` (ledger vs reality)
 - Pre-`close-sprint` on large diffs
+
+Recommended optional lean review (same surfacing):
+
+- Pre-`close-sprint` on a fat feature/UI diff → `/midas-lean-review` [`--freeze`]
 
 ## Record templates
 

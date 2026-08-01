@@ -11,6 +11,37 @@ export const ROUTING_PROFILE_IDS = ['claude', 'openai-mini', 'local-hybrid'];
 
 export const DEFAULT_ROUTING_PROFILE = 'openai-mini';
 
+export const COST_PROFILE_IDS = ['balanced', 'max_savings', 'max_quality'];
+
+/**
+ * Claude-only overlays for `cost_profile`. Other `routing_profile` presets ignore these —
+ * they already collapse or relocate tiers. Under `max_savings`, Phase 4/8 gate skills still
+ * escalate orchestrate to Opus (see `docs/agents-and-models.md`).
+ */
+export const CLAUDE_COST_PROFILE_ROUTING = {
+  balanced: {
+    orchestrate: 'claude-opus-4-8',
+    build: 'claude-sonnet-4-6',
+    scout: 'claude-haiku-4-5',
+  },
+  max_savings: {
+    orchestrate: 'claude-sonnet-4-6',
+    build: 'claude-sonnet-4-6',
+    scout: 'claude-haiku-4-5',
+  },
+  max_quality: {
+    orchestrate: 'claude-opus-4-8',
+    build: 'claude-opus-4-8',
+    scout: 'claude-haiku-4-5',
+  },
+};
+
+/** Stages where `max_savings` still escalates orchestrate to Opus (Phase 4 + Phase 8). */
+export const MAX_SAVINGS_ORCHESTRATE_ESCALATE_STAGES = [
+  'tech_architecture',
+  'audit_adjust',
+];
+
 export const MODEL_PROFILES = {
   claude: {
     label: 'Claude',
@@ -83,6 +114,37 @@ export function resolveRoutingModels(profile, { localModelId = 'local_model.id' 
   return { ...selected.routing };
 }
 
+/** Normalize a cost_profile value; unknown values return null. */
+export function normalizeCostProfile(value) {
+  if (!value) return null;
+  const raw = String(value).trim();
+  return COST_PROFILE_IDS.includes(raw) ? raw : null;
+}
+
+/**
+ * Resolve the effective tier→model map from both axes.
+ * `cost_profile` overlays apply only when `routing_profile` is `claude` (or unset → treated as
+ * claude for legacy installs that never wrote `routing_profile`).
+ */
+export function resolveCostAwareRouting(
+  routingProfile,
+  costProfile,
+  { localModelId = 'local_model.id', defaultRoutingProfile = 'claude' } = {},
+) {
+  const normalizedRouting =
+    normalizeRoutingProfile(routingProfile) || defaultRoutingProfile || DEFAULT_ROUTING_PROFILE;
+  const base = resolveRoutingModels(normalizedRouting, { localModelId });
+  if (normalizedRouting !== 'claude') return base;
+  const normalizedCost = normalizeCostProfile(costProfile) || 'balanced';
+  const overlay = CLAUDE_COST_PROFILE_ROUTING[normalizedCost];
+  return overlay ? { ...overlay } : base;
+}
+
+/** Whether a cost profile is one of the supported ids. */
+export function isKnownCostProfile(profile) {
+  return COST_PROFILE_IDS.includes(normalizeCostProfile(profile));
+}
+
 /** Whether a routing profile is one of the supported ids. */
 export function isKnownRoutingProfile(profile) {
   return ROUTING_PROFILE_IDS.includes(normalizeRoutingProfile(profile));
@@ -93,6 +155,8 @@ export function knownRoutingModelIds() {
   return new Set([
     ...Object.values(MODEL_PROFILES.claude.routing),
     ...Object.values(MODEL_PROFILES['openai-mini'].routing),
+    ...Object.values(CLAUDE_COST_PROFILE_ROUTING.max_savings),
+    ...Object.values(CLAUDE_COST_PROFILE_ROUTING.max_quality),
     'local_model.id',
   ]);
 }

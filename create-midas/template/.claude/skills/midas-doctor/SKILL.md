@@ -72,7 +72,9 @@ node <paths.scripts>/doctor.mjs --fix
 
 That path **re-renders adapters** and **merges/upgrades `.gitignore`** from
 `<paths.engine>/templates/gitignore-midas.snippet` (idempotent; never deletes user patterns outside
-the Midas block). Equivalent standalone: `node <paths.scripts>/gitignore-merge.mjs`.
+the Midas block). On product installs (`layout: harness`) with `routing_profile: claude`, it also
+rewrites `paths.state → routing:` and syncs the three first-party agent `model:` pins to
+`resolveCostAwareRouting(cost_profile)`. Equivalent standalone: `node <paths.scripts>/gitignore-merge.mjs`.
 
 After `--fix`, re-run without `--fix` and confirm `gitignore:midas-block` is `ok`.
 
@@ -82,6 +84,19 @@ A compact health table — one row per check with `ok` / `warn` / `drift` and a 
 by the offered action (re-render + gitignore merge via `--fix`) and any secret-setup command the user
 must run. Never write a key, never hand-edit a generated adapter outside the render script, never
 mutate vendor agent files.
+
+## When NOT
+
+- Full engine propagation matrix / VERSION bump judgment → `/midas-align` (engine maintainers).
+- Install missing / wrong cwd / version behind → `/midas-reconcile` first.
+- Engine content migration across versions → `/midas-update`.
+- Pipeline orientation only → `/midas-status`.
+
+## Tier & delegation
+- **Dispatch + script runs / interpreting drift:** `build` → `midas-builder`.
+- **File/status extraction only:** `scout` → `midas-scout`.
+- Do **not** use orchestrate unless the user is deciding a non-trivial migration after doctor output.
+- Respect `cost_profile`.
 
 ## Exit gate (doctor complete)
 - [ ] Health table printed for every applicable check (`ok` / `warn` / `drift`).

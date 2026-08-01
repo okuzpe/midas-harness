@@ -55,9 +55,12 @@ Canonical source in the engine repo is `harness/skills` / `harness/agents` (mirr
       or side-effect skill without `disable-model-invocation: true` (and no documented exception) is a fail.
 - [ ] User-facing slash skills in the **engine repo** appear in `docs/skills.md` when added or when
       their one-line role changes. Product installs without a skills catalog → `n/a`.
-      **CHECK:** `manual:` engine-repo diff that adds/changes a user-facing invocable skill without a
-      `docs/skills.md` update in the same change set is a fail; product installs without
-      `docs/skills.md` → `n/a` (see also `change-propagation.md`).
+      **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` warns `not referenced in the skills
+      catalog` when a skill directory has no `/<name>` mention in `docs/skills.md` (or
+      `<paths.engine>/docs/skills.md` on installs) — mechanizes the presence half of this CHECK; a
+      warning on a touched skill is a fail. Still `manual:` whether a changed one-line role was
+      updated in the catalog text, not just that the slash-name is still present (see also
+      `change-propagation.md`).
 
 ### Progressive disclosure
 - [ ] Happy path does not require a mandatory A→B→C read chain; entry stays ≤ 500 lines or an

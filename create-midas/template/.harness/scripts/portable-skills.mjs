@@ -165,4 +165,40 @@ export function renderPortableSkillsTree(root, { sourceDir = null, targetDir = '
   };
 }
 
+/**
+ * Drop Midas skill dirs removed from the engine but still present in a host mirror.
+ * User-owned neighbours (not in `bundledMirrorRoot`) are preserved.
+ */
+export function pruneObsoleteMidasSkillMirrors(
+  root,
+  { sourceDir, targetDir, bundledMirrorRoot },
+) {
+  const sourceRoot = join(root, sourceDir);
+  const targetRoot = join(root, targetDir);
+  const bundledRoot = join(bundledMirrorRoot, targetDir);
+  if (!existsSync(targetRoot) || !existsSync(sourceRoot) || !existsSync(bundledRoot)) {
+    return [];
+  }
+  const engineNames = new Set(
+    readdirSync(sourceRoot, { withFileTypes: true })
+      .filter((e) => e.isDirectory())
+      .map((e) => e.name),
+  );
+  const bundledNames = new Set(
+    readdirSync(bundledRoot, { withFileTypes: true })
+      .filter((e) => e.isDirectory())
+      .map((e) => e.name),
+  );
+  const removed = [];
+  for (const entry of readdirSync(targetRoot, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    if (engineNames.has(entry.name)) continue;
+    if (!bundledNames.has(entry.name)) continue;
+    const abs = join(targetRoot, entry.name);
+    rmSync(abs, { recursive: true, force: true });
+    removed.push(join(targetDir, entry.name).replace(/\\/g, '/'));
+  }
+  return removed;
+}
+
 export { splitSkillDocument, parseFrontmatter, renderPortableFrontmatter };

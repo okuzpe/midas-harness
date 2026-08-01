@@ -17,8 +17,14 @@ file, `scripts/model-profiles.mjs`, and the three agent files in `.claude/agents
 | Profile | orchestrate | build | scout |
 |---|---|---|---|
 | `balanced` (default) | `claude-opus-4-8` | `claude-sonnet-4-6` | `claude-haiku-4-5` |
-| `max_savings` | `claude-sonnet-4-6` (only escalates to Opus on Phase 4/8 audits) | `claude-sonnet-4-6` | `claude-haiku-4-5` |
-| `max_quality` | `claude-opus-4-8` | `claude-opus-4-8` (Sonnet for bulk) | `claude-haiku-4-5` |
+| `max_savings` | `claude-sonnet-4-6` (escalates to Opus on Phase 4/8 audits) | `claude-sonnet-4-6` | `claude-haiku-4-5` |
+| `max_quality` | `claude-opus-4-8` | `claude-opus-4-8` (Sonnet for bulk writes is still allowed) | `claude-haiku-4-5` |
+
+**Executable:** under `routing_profile: claude`, `scripts/model-profiles.mjs` →
+`resolveCostAwareRouting(routing_profile, cost_profile)` owns the expected map. Doctor fails
+(`routing` warn) when `state.routing` or the three agent `model:` pins disagree. On product
+installs, `node <paths.scripts>/doctor.mjs --fix` rewrites `routing:` and syncs agent pins.
+`openai-mini` / `local-hybrid` ignore `cost_profile` overlays (preset already defines the map).
 
 ## Routing profiles (additive presets)
 

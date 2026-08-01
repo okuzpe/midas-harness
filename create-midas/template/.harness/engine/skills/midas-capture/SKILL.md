@@ -84,6 +84,14 @@ Tell the user in **one line** exactly what was written/changed and where, so the
 - **Genuine recurrence only** (≥2-3×, or an explicit "always do this") — don't capture a one-off.
 - **Prefer rule/playbook/convention over a new skill** — keep the engine surface small.
 
+## When NOT
+
+- One-off preference with no recurrence → skip (say so); do not invent a rule.
+- Dead flows / ledger drift → `/midas-sweep` (hygiene), not capture.
+- Over-engineering delete-list on a diff → `/midas-lean-review`.
+- Full knowledge pack move between repos → `/midas-bundle`.
+- User has not confirmed the proposal → do not write.
+
 ## Exit gate (capture complete)
 - [ ] The pattern is one sentence with the ≥2 instances that justify it (real recurrence).
 - [ ] Classified via the rubric; overlap → amend; contradiction → table resolved before write.
@@ -91,6 +99,6 @@ Tell the user in **one line** exactly what was written/changed and where, so the
 - [ ] If a rule changed, adapters were re-rendered; the capture is logged in `paths.state`.
 - [ ] The user was shown exactly what changed (reviewable in git) — nothing written without confirmation.
 
-## Tier & cost
-Classify + write the artifact → **build** (Sonnet). The detection/proposal happens inline in whatever tier
-is already driving the conversation. Re-rendering adapters is mechanical.
+## Tier & delegation
+Classify + write the artifact → **build** (`midas-builder`). The detection/proposal happens inline in whatever tier
+is already driving the conversation. Re-rendering adapters is mechanical. Respect `cost_profile`.

@@ -18,4 +18,9 @@ Tell the user verbatim: *"`/midas-monorepo` is deprecated and will be removed in
 Then follow **`<paths.engine>/pipeline/monorepo-wiring.md`** (DETECT → INDEX → WRITE).
 Honor `--dry-run` and any user-named package paths. Requires `paths.state` (`/midas-init` first if absent).
 
+## Tier & delegation
+- **Dispatch + nested AGENTS.md writes:** `build` → `midas-builder`.
+- Package/tree indexing → `scout` (`midas-scout`).
+- Prefer `/midas-init --monorepo` (same legs) over this alias.
+
 **Exit:** `monorepo-wiring.md` exit gate satisfied (or `--dry-run` plan shown). Next: `/midas-status`.

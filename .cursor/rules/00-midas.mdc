@@ -43,6 +43,10 @@ Engine source: `paths.engine` (`.harness/engine/`). Project rule overlays: `path
 - Prefer reuse over new abstractions. Search for an existing utility before writing one.
 - Functions do one thing; keep them small and named for their effect.
 - No dead code, no commented-out blocks, no TODO without an owner/condition.
+- **Lean ladder** before expanding code — need? → reuse → stdlib → native → installed dep → one
+  line → only then the minimum that works. Never cut trust-boundary validation, security, or
+  accessibility. Full rule: [`rules/lean-ladder.md`](./rules/lean-ladder.md); delete-list review:
+  `/midas-lean-review`.
 
 ## Naming
 - Files and directories: kebab-case. Types/classes: PascalCase. Functions/vars: per language idiom.
@@ -250,12 +254,21 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` for each feature id touched in the sprint diff, `status: passing` rows carry non-empty `evidence` (test path, route, or verify record); `failing` rows are not contradicted by shipped code in the same diff without a recorded deferral.
   - **CHECK:** `manual:` for each `{product}/playbooks/*.md` cited in the sprint or architecture, grep `<src-root>/` for the trigger predicate; a playbook with zero matches and no `## Retired` note in the sweep or audit is a warn (fail if the sprint added or edited that playbook without fixing the trigger).
   - **CHECK:** `manual:` rows in `{product}/open-questions.md` marked OPEN that are answered in `{product}/idea.md` are a fail; internal markdown links in changed `{product}/*` files that 404 on disk are a fail (grep `](` targets against the tree).
+- **Rule: Lean solution ladder (always-on)** (`lean-ladder.md`, base)
+  - **CHECK:** `manual:` for each substantial added module/abstraction in the diff, the PR/sprint notes or `/midas-lean-review` record name the rung used (or why rung 7 was required); unexplained scaffolding is a fail.
+  - **CHECK:** `manual:` lockfile additions this sprint — each has a note that rungs 3–5 were considered; an unexplained new dep for a thin wrapper is a fail (pairs with `code-quality.md` Dependencies).
+  - **CHECK:** `manual:` grep for the concept in `<src-root>/` (same as code-quality reuse CHECK); a second implementation of an existing pattern is a fail.
+  - **CHECK:** `manual:` cross-read the sprint diff against `security.md` / `accessibility.md` CHECKs that apply to touched surfaces; a "lean" removal of a required control is a fail.
+  - **CHECK:** `manual:` recommended (not hard-required): a `{runs}/lean/lean-NN.md` or progress note citing `/midas-lean-review` exists for UI/feature sprints with large diffs; absence alone is not a fail — unresolved **high** lean findings listed in the Phase-8 audit without fixed/deferred/accepted is a fail.
 - **Rule: Cost-aware model routing (always-on)** (`model-routing.md`, base)
   - **CHECK:** A high-stakes gate verdict or audit (Phase 1/3/4/8, code-review, security-review) is produced **via the `midas-orchestrator` sub-agent** — its pinned `model:` is the provenance. The model id written into an audit/verify/tribunal record header is **provenance-by-delegation, not self-report**; a record produced on the inherited session model must not claim a tier it did not run on.
   - **CHECK:** *(manual)* Under any `execution_mode`, a binding gate/audit/verify verdict header (Phase 1/3/4/8, code-review, security-review) names a **Claude `orchestrate`** model as provenance; a local model id in a binding verdict header is a fail — it may appear only on a record explicitly marked `un-attested`.
   - **CHECK:** Doc fetches and file/status extraction are delegated to `midas-scout` (or `Explore`), not run on the orchestrate tier. *(manual: a phase whose only work is fetch/extract names a scout delegation in its SKILL body.)*
   - **CHECK:** Each multi-tier phase delegates its produce/fetch legs to `midas-builder` / `midas-scout` in the SKILL body — `harness-tier` is the dispatch tier only, never the whole cost story. *(manual.)*
-  - **CHECK:** `paths.state -> routing` ids are all known model ids and, under the legacy `claude` profile with `cost_profile: balanced`, **equal the pinned `model:` of the three first-party agents**. The `openai-mini` profile resolves all three tiers to `gpt-5.4-mini`. Run `node <paths.scripts>/doctor.mjs <project>`; a `routing:*` warning is a fail. *(The engine enforces the same reconciliation against the example state in `scripts/test.mjs`.)*
+  - **CHECK:** `paths.state -> routing` ids are all known model ids and, under the Claude profile, **equal `resolveCostAwareRouting(routing_profile, cost_profile)`** (and the pinned `model:` of the three first-party agents). The `openai-mini` profile resolves all three tiers to `gpt-5.4-mini`. Run `node <paths.scripts>/doctor.mjs <project>`; a `routing:*` warning is a fail. *(The engine enforces the same reconciliation against the example state in `scripts/test.mjs`.)*
+  - **CHECK:** `paths.state -> routing` ids equal `resolveCostAwareRouting(routing_profile, cost_profile)` under the Claude profile (any `cost_profile`); agent pins match the same map. Run `node <paths.scripts>/doctor.mjs <project>`; a `routing:*` warning is a fail.
+  - **CHECK:** each phase / lifecycle skill body has a `## Tier & delegation` (or equivalent `## Tier & cost`) section that names which legs go to `midas-orchestrator` / `midas-builder` / `midas-scout` — `harness-tier` alone is not enough. Mechanized: `node <paths.scripts>/skill-quality-check.mjs` warns `missing \`## Tier & delegation\`...` when the heading is absent; a warning on a touched skill is a fail.
+  - **CHECK:** a skill's `recommended-model` frontmatter matches its `harness-tier` under the canonical balanced-Claude map (`CLAUDE_COST_PROFILE_ROUTING.balanced` in `scripts/model-profiles.mjs`). Mechanized: `node <paths.scripts>/skill-quality-check.mjs` warns on drift; a warning on a touched skill is a fail.
   - **CHECK:** *(manual)* a latency-tolerant fan-out of ≥3 same-shaped calls uses batching, not a serial loop.
 - **Rule: Naming (always-on)** (`naming.md`, base)
   - **CHECK:** `git diff --name-only <base>..HEAD` shows no path segment matching `[A-Z _]` (outside framework-mandated names like `README`, `Dockerfile`).
@@ -308,7 +321,7 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` score block `Core floors: ok` (or names the miss); claimed 🟢/🟡 that violates floors is a fail.
   - **CHECK:** `manual:` `Evidence:` line cites Trigger/Structure/Completion/Safety at minimum; a dim listed without a section/path/“missing” cite is treated as ≤ 1 for the total.
   - **CHECK:** `manual:` grep new/changed skill frontmatter; missing name/description, name≠dir, or side-effect skill without `disable-model-invocation: true` (and no documented exception) is a fail.
-  - **CHECK:** `manual:` engine-repo diff that adds/changes a user-facing invocable skill without a `docs/skills.md` update in the same change set is a fail; product installs without `docs/skills.md` → `n/a` (see also `change-propagation.md`).
+  - **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` warns `not referenced in the skills catalog` when a skill directory has no `/<name>` mention in `docs/skills.md` (or `<paths.engine>/docs/skills.md` on installs) — mechanizes the presence half of this CHECK; a warning on a touched skill is a fail. Still `manual:` whether a changed one-line role was updated in the catalog text, not just that the slash-name is still present (see also `change-propagation.md`).
   - **CHECK:** `manual:` entry line count (`wc -l` / editor) ≤ 500, or the skill/PR names the L3 split files; mandatory happy-path depth &gt; SKILL + one support file is a fail.
 - **Rule: State integrity (always-on)** (`state-integrity.md`, base)
   - **CHECK:** `node <paths.scripts>/doctor.mjs --gates-only` reports `ok` for `gate:phase-artifacts` (or no `warn gate:phase-*`). A `gate=passed` phase with neither assumption nor on-disk artifacts is a fail.

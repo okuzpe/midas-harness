@@ -76,6 +76,19 @@ import `--merge` (state stays from init) → `/midas-doctor --fix`.
 - Does **not** export lockfiles or generated adapters (`.claude/CLAUDE.md`, `.cursor/rules/*`).
 - JSON is transport only — imported files live in git like any other artifact.
 
+## When NOT
+
+- Sync adapters / gitignore only → `/midas-doctor`.
+- Engine version migration → `/midas-update`.
+- Crystallize one recurring pattern → `/midas-capture` (not a full export).
+- Pipeline phase work → the matching phase skill / `/midas-status`.
+
+## Tier & delegation
+- **Dispatch + export/import writes:** `build` → `midas-builder`.
+- Path listing / dry-run inventory → `scout` (`midas-scout`) when the work is extract-only.
+- Never advance gates here — no orchestrate verdict.
+- Respect `cost_profile`.
+
 ## Exit gate
 
 - [ ] Profile/`--only` matches the user's stated goal.

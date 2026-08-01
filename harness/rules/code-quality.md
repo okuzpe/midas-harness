@@ -3,7 +3,9 @@
 These rules apply from Phase 5 onward and are audited every sprint in Phase 8. They expand the
 brief code-quality section of `harness/conventions.md` into checkable audit items. Where a rule
 is stack-specific (e.g. linter config, max line length), `/define-conventions` generates an
-extension under `<paths.rules>/` that overrides or supplements the items here.
+extension under `<paths.rules>/` that overrides or supplements the items here. For the pre-write
+**lean ladder** (YAGNI → reuse → stdlib → native → …) see [`lean-ladder.md`](./lean-ladder.md) and
+`/midas-lean-review`.
 
 > **Every item carries a `**CHECK:**`** — the concrete condition the Phase-8 audit evaluates: a
 > grep/command where one exists, or a `manual:` observable when judgment is required (the auditor
@@ -46,7 +48,9 @@ extension under `<paths.rules>/` that overrides or supplements the items here.
 
 ### Abstractions
 - [ ] Before writing a new utility, grep the codebase for an existing one (document the search
-      result in the PR if a new utility is justified).
+      result in the PR if a new utility is justified). Climb the lean ladder
+      ([`lean-ladder.md`](./lean-ladder.md)) — need / reuse / stdlib / native / installed dep —
+      before inventing a helper.
       **CHECK:** `manual:` the PR/sprint notes record the search for an existing utility; an unexplained duplicate utility is a fail.
 - [ ] No premature abstraction: generalize only when a third distinct call site exists.
       **CHECK:** `manual:` a generic abstraction with fewer than 3 distinct call sites is a fail unless explicitly justified.
@@ -70,3 +74,8 @@ extension under `<paths.rules>/` that overrides or supplements the items here.
       **CHECK:** `manual:` inspect error/response paths; a message returning a raw secret or internal stack trace to a caller is a fail.
 - [ ] No silent error swallowing (`catch (_) {}` or bare `except: pass` with no log/rethrow).
       **CHECK:** `grep -rnE "catch\s*\([^)]*\)\s*\{\s*\}|except[^\n]*:\s*\n\s*pass"` → empty.
+
+## Amendment
+
+- **2026-08-01** — Cross-link to [`lean-ladder.md`](./lean-ladder.md); Abstractions item points at the lean
+  climb before inventing helpers.

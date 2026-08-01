@@ -82,13 +82,15 @@ See `harness/rules/context7-usage.md` for the full rule, the no-tool fallback, a
 | `build` | implement / write artifacts | `claude-sonnet-4-6` |
 | `scout` | search / extract / mechanical | `claude-haiku-4-5` |
 
-Active profile and resolved IDs: `harness/state.yaml → routing`.
+Active profile and resolved IDs: `harness/state.yaml → routing` (must match
+`resolveCostAwareRouting(routing_profile, cost_profile)` under Claude — doctor enforces).
 On tools without per-agent model selection, apply as intent: fastest for research, strongest for architecture and audits.
+Skills must name produce/fetch legs in `## Tier & delegation` — `harness-tier` alone is not enough.
 
 ## Safety
 
 - Side-effecting skills (`/midas-init`, `/define-conventions`, `/start-sprint`, `/close-sprint`, `/midas-doctor`,
- `/midas-adopt`, `/midas-update`, `/midas-verify`, `/midas-design`, `/midas-qa`, `/midas-reconcile`, `/midas-init --monorepo` (alias: `/midas-monorepo`), `/midas-tribunal`, `/midas-security-audit`, `/midas-sweep`, `/midas-capture`, `/midas-align`, `/midas-bundle`, `/midas-progress`, `/midas-explore`) are **user-typed slash commands**
+ `/midas-adopt`, `/midas-update`, `/midas-verify`, `/midas-design`, `/midas-qa`, `/midas-reconcile`, `/midas-init --monorepo` (alias: `/midas-monorepo`), `/midas-tribunal`, `/midas-security-audit`, `/midas-sweep`, `/midas-lean-review`, `/midas-capture`, `/midas-align`, `/midas-bundle`, `/midas-progress`, `/midas-explore`) are **user-typed slash commands**
  (`disable-model-invocation`). **Never call them via the Skill tool** (it errors) or auto-run them — when one
  is the next step, **surface the command for the user to type** ("👉 Run `/…`"). Each also guards this in its body.
 - **State ritual (shared):** skills read **`paths.state` first** and **write last** (read-modify-write). They

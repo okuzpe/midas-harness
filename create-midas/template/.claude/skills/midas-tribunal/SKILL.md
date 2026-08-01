@@ -98,6 +98,7 @@ MAY set `last_tribunal: { n, criticals, at }` in `paths.state`. **Never advance 
 
 ## Tier & cost
 Verdict + freeze → **orchestrate**. Debaters → **build**. Evidence + re-verify → **scout**. Security lenses: installed specialist if present; else `midas-builder` / `midas-scout`. Respect `cost_profile`.
+`max_savings` forbids `--depth tribunal` + jury; `max_quality` defaults to `tribunal`.
 
 ## Exit gate (tribunal complete)
 - [ ] Every surviving claim cites on-disk evidence; uncited struck (logged).

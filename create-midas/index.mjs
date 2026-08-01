@@ -159,19 +159,31 @@ if (update) {
     console.error('  Run --migrate for a v1 layout, or repair the manifest before updating.');
     process.exit(1);
   }
-  const conflicts = findVendorConflicts(TARGET, manifest);
-  if (conflicts.length) {
-    console.error('create-midas: vendor files were modified; update aborted before writing:');
-    for (const path of conflicts) console.error(`  - ${path}`);
-    console.error('  Move project rules to .harness/rules and restore the vendor files first.');
-    process.exit(1);
-  }
-  const mirrorConflicts = findGeneratedMirrorConflicts(TARGET, manifest);
-  if (mirrorConflicts.length) {
-    console.error('create-midas: generated Midas mirrors were modified; update aborted before writing:');
-    for (const path of mirrorConflicts) console.error(`  - ${path}`);
-    console.error('  Move custom skills to a separate name/path, then restore or regenerate the Midas mirror.');
-    process.exit(1);
+  const bundledVer = readBundledVersion();
+  const installedVer = manifest.midas_version || '0.0.0';
+  const isUpgrade = compareVersions(installedVer, bundledVer) < 0;
+  if (!isUpgrade) {
+    let conflicts = findVendorConflicts(TARGET, manifest);
+    if (conflicts.length && isStaleManifestDrift(conflicts)) {
+      console.warn(
+        `create-midas: manifest hash drift on ${conflicts.length} vendor file(s) — re-baselining before refresh`,
+      );
+      writeOwnershipManifest(TARGET, installedVer);
+      conflicts = findVendorConflicts(TARGET, readOwnershipManifest(TARGET));
+    }
+    if (conflicts.length) {
+      console.error('create-midas: vendor files were modified; update aborted before writing:');
+      for (const path of conflicts) console.error(`  - ${path}`);
+      console.error('  Move project rules to .harness/rules and restore the vendor files first.');
+      process.exit(1);
+    }
+    const mirrorConflicts = findGeneratedMirrorConflicts(TARGET, manifest);
+    if (mirrorConflicts.length) {
+      console.error('create-midas: generated Midas mirrors were modified; update aborted before writing:');
+      for (const path of mirrorConflicts) console.error(`  - ${path}`);
+      console.error('  Move custom skills to a separate name/path, then restore or regenerate the Midas mirror.');
+      process.exit(1);
+    }
   }
 }
 // Guard 2 — a fresh install inside a directory that is ALREADY under a Midas project creates a
@@ -203,6 +215,10 @@ try {
   mkdirSync(TARGET, { recursive: true });
   copyTree(TEMPLATE, TARGET);
   maybeFail('after-copy-tree');
+  if (update) {
+    pruneStaleVendorTree('.harness/engine', '.harness/engine');
+    pruneStaleVendorTree('.harness/scripts', '.harness/scripts');
+  }
 
   maybeFail('after-layout');
 
@@ -223,7 +239,7 @@ try {
     rewriteStateTools(paths, selectedTools);
   }
   const activeTools = selectedTools || readToolsFromState(paths) || DEFAULT_TOOLS;
-  await syncSkillMirrors(activeTools, paths);
+  await syncSkillMirrors(activeTools, paths, { merge: !update });
 
   // Generate tool adapters after state.yaml exists so render-adapters can read tools:.
   try {
@@ -233,11 +249,16 @@ try {
       mod.renderAdapters(TARGET);
       rendered = true;
     }
+    if (typeof mod.writeEngineRegistries === 'function') {
+      const reg = mod.writeEngineRegistries(TARGET, paths.engine);
+      written.push(reg.gates, reg.checks);
+    }
   } catch (err) {
-    console.error('create-midas: adapter render failed:', err.message || err);
+    throw new Error(`adapter render failed: ${err.message || err}`);
   }
 
   pruneOrphanAdapters(activeTools);
+  pruneLegacyRootArtifacts(activeTools);
 
   fillAgents(selectedTools, paths);
   {
@@ -272,7 +293,7 @@ try {
   updatedTo = update || migrate ? bumpVersionStamp(paths) : null;
   const installedVersion = (readMaybe(join(TARGET, paths.version)) || '0.0.0').trim();
   writeOwnershipManifest(TARGET, installedVersion);
-  verifyResult = rendered ? verifyInstall(paths) : null;
+  verifyResult = update || migrate || rendered ? verifyInstall(paths) : null;
   if (verifyResult && !verifyResult.ok) {
     throw new Error(
       verifyResult.missing
@@ -306,6 +327,29 @@ if (migrationOuterRollback) {
 if (verifyResult && !verifyResult.ok) process.exit(1);
 
 // --- helpers -----------------------------------------------------------------------------------
+
+/** Semver-ish compare including `-rc.N` pre-release tails. Returns <0 when a<b. */
+function compareVersions(a, b) {
+  const parse = (v) => {
+    const m = String(v).match(/^(\d+)\.(\d+)\.(\d+)(?:-rc\.(\d+))?/);
+    if (!m) return [0, 0, 0, 0];
+    return [Number(m[1]), Number(m[2]), Number(m[3]), m[4] ? Number(m[4]) : 9999];
+  };
+  const pa = parse(a);
+  const pb = parse(b);
+  for (let i = 0; i < 4; i++) {
+    if (pa[i] !== pb[i]) return pa[i] - pb[i];
+  }
+  return 0;
+}
+
+function isVendorManagedPath(rel) {
+  return rel.startsWith('.harness/engine/') || rel.startsWith('.harness/scripts/');
+}
+
+function isStaleManifestDrift(conflicts) {
+  return conflicts.length >= 5 && conflicts.every(isVendorManagedPath);
+}
 
 function copyTree(srcDir, dstDir) {
   for (const entry of readdirSync(srcDir, { withFileTypes: true })) {
@@ -347,6 +391,24 @@ function copyTree(srcDir, dstDir) {
 }
 
 function installRollbackPaths() {
+  if (update) {
+    return [
+      '.harness/engine',
+      '.harness/scripts',
+      '.harness/cache',
+      '.harness/manifest.json',
+      '.claude',
+      '.agents',
+      '.cursor',
+      '.windsurf',
+      'AGENTS.md',
+      'CLAUDE.md',
+      'GEMINI.md',
+      '.mcp.json',
+      'gemini-extension.json',
+      'docs/agents-and-models.md',
+    ];
+  }
   return ['.harness', '.claude', '.agents', '.cursor', '.windsurf', 'harness', 'scripts', '.midas', 'product', 'AGENTS.md', 'CLAUDE.md', 'GEMINI.md', '.mcp.json', '.gitignore', 'gemini-extension.json', 'docs/agents-and-models.md'];
 }
 
@@ -556,7 +618,7 @@ function resolveSkillMirrorPlanLocal(tools) {
   };
 }
 
-async function syncSkillMirrors(tools, paths) {
+async function syncSkillMirrors(tools, paths, { merge = true } = {}) {
   const plan = resolveSkillMirrorPlanLocal(tools);
   if (!plan.claude) {
     removeGeneratedMirror('.claude/skills');
@@ -569,17 +631,28 @@ async function syncSkillMirrors(tools, paths) {
 
   const portablePath = join(TARGET, paths.scripts, 'portable-skills.mjs');
   let renderTree = null;
+  let pruneObsolete = null;
   if (existsSync(portablePath)) {
     try {
       const mod = await import(pathToFileURL(portablePath).href);
       renderTree = mod.renderPortableSkillsTree;
+      pruneObsolete = mod.pruneObsoleteMidasSkillMirrors;
     } catch { /* fall through to template prune only */ }
   }
 
   const engineSkillsRel = join(paths.engine, 'skills').replace(/\\/g, '/');
 
   if (plan.agents && typeof renderTree === 'function') {
-    renderTree(TARGET, { sourceDir: engineSkillsRel, targetDir: '.agents/skills', merge: true });
+    if (typeof pruneObsolete === 'function') {
+      for (const rel of pruneObsolete(TARGET, {
+        sourceDir: engineSkillsRel,
+        targetDir: '.agents/skills',
+        bundledMirrorRoot: TEMPLATE,
+      })) {
+        written.push(`removed:${rel}`);
+      }
+    }
+    renderTree(TARGET, { sourceDir: engineSkillsRel, targetDir: '.agents/skills', merge });
   } else if (!plan.agents) {
     removeGeneratedMirror('.agents/skills');
     try {
@@ -589,9 +662,50 @@ async function syncSkillMirrors(tools, paths) {
   }
 
   if (plan.cursorSkills && typeof renderTree === 'function') {
-    renderTree(TARGET, { sourceDir: engineSkillsRel, targetDir: '.cursor/skills', merge: true });
+    if (typeof pruneObsolete === 'function') {
+      for (const rel of pruneObsolete(TARGET, {
+        sourceDir: engineSkillsRel,
+        targetDir: '.cursor/skills',
+        bundledMirrorRoot: TEMPLATE,
+      })) {
+        written.push(`removed:${rel}`);
+      }
+    }
+    renderTree(TARGET, { sourceDir: engineSkillsRel, targetDir: '.cursor/skills', merge });
   } else if (!plan.cursorSkills) {
     removeGeneratedMirror('.cursor/skills');
+  }
+}
+
+/** Remove vendor files dropped from the bundled engine since the last install. */
+function pruneStaleVendorTree(installedRel, templateRel) {
+  const installed = join(TARGET, installedRel);
+  const template = join(TEMPLATE, templateRel);
+  if (!existsSync(installed) || !existsSync(template)) return;
+  for (const entry of readdirSync(installed, { withFileTypes: true })) {
+    const childInstalled = join(installed, entry.name);
+    const childTemplate = join(template, entry.name);
+    const rel = join(installedRel, entry.name).replace(/\\/g, '/');
+    if (!existsSync(childTemplate)) {
+      rmSync(childInstalled, { recursive: true, force: true });
+      written.push(`removed:${rel}`);
+      continue;
+    }
+    if (entry.isDirectory()) pruneStaleVendorTree(rel, join(templateRel, entry.name).replace(/\\/g, '/'));
+  }
+}
+
+/** Drop legacy root artifacts superseded by harness-layout or pruned tools. */
+function pruneLegacyRootArtifacts(tools) {
+  if (!update) return;
+  const engineAgentsDoc = join(TARGET, '.harness', 'engine', 'docs', 'agents-and-models.md');
+  if (existsSync(engineAgentsDoc) && existsSync(join(TARGET, 'docs', 'agents-and-models.md'))) {
+    rmFile('docs/agents-and-models.md');
+    written.push('removed:docs/agents-and-models.md');
+  }
+  if (!tools.includes('gemini') && existsSync(join(TARGET, 'gemini-extension.json'))) {
+    rmFile('gemini-extension.json');
+    written.push('removed:gemini-extension.json');
   }
 }
 

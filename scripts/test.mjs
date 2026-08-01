@@ -29,10 +29,15 @@ import {
 } from '../create-midas/migrate-v2.mjs';
 import {
   isKnownRoutingProfile,
+  isKnownCostProfile,
   normalizeRoutingProfile,
+  normalizeCostProfile,
   resolveRoutingModels,
+  resolveCostAwareRouting,
+  MAX_SAVINGS_ORCHESTRATE_ESCALATE_STAGES,
 } from './model-profiles.mjs';
-import { collectReports, inspectArtifact, parseFrontmatter, stepsMarkdownLinkCount, summarizeReports } from './skill-quality-check.mjs';
+import { rewriteRoutingMap } from './yaml-lite.mjs';
+import { collectReports, inspectArtifact, parseFrontmatter, readCatalogText, stepsMarkdownLinkCount, summarizeReports } from './skill-quality-check.mjs';
 
 const SCRIPT_DIR = dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
 const ROOT = resolve(SCRIPT_DIR, '..');
@@ -86,6 +91,32 @@ check('routing-profile:openai-mini', Object.values(resolveRoutingModels('openai-
 check('routing-profile:local-hybrid', resolveRoutingModels('local-hybrid', { localModelId: 'ollama/qwen' }).build === 'ollama/qwen');
 check('routing-profile:legacy-alias', normalizeRoutingProfile('openai') === 'openai-mini');
 check('routing-profile:unknown-rejected', !isKnownRoutingProfile('invented'));
+check('cost-profile:known', isKnownCostProfile('max_savings') && normalizeCostProfile('max_quality') === 'max_quality');
+check('cost-profile:unknown-rejected', !isKnownCostProfile('cheap'));
+check(
+  'cost-aware:max_savings-claude',
+  resolveCostAwareRouting('claude', 'max_savings').orchestrate === 'claude-sonnet-4-6' &&
+    resolveCostAwareRouting('claude', 'max_savings').build === 'claude-sonnet-4-6',
+);
+check(
+  'cost-aware:max_quality-build-opus',
+  resolveCostAwareRouting('claude', 'max_quality').build === 'claude-opus-4-8',
+);
+check(
+  'cost-aware:openai-mini-ignores-cost',
+  resolveCostAwareRouting('openai-mini', 'max_quality').orchestrate === 'gpt-5.4-mini',
+);
+check(
+  'cost-aware:max_savings-escalate-stages',
+  MAX_SAVINGS_ORCHESTRATE_ESCALATE_STAGES.includes('tech_architecture') &&
+    MAX_SAVINGS_ORCHESTRATE_ESCALATE_STAGES.includes('audit_adjust'),
+);
+{
+  const sample = 'cost_profile: max_savings\nrouting:\n  orchestrate: claude-opus-4-8\n  build: claude-sonnet-4-6\n  scout: claude-haiku-4-5\n';
+  const expected = resolveCostAwareRouting('claude', 'max_savings');
+  const next = rewriteRoutingMap(sample, expected);
+  check('cost-aware:rewrite-routing-map', !!next && /orchestrate:\s*claude-sonnet-4-6/.test(next));
+}
 
 function scriptBundleFiles() {
   return [
@@ -183,6 +214,12 @@ for (const name of dirNames(skillsDir)) {
   check(`skill:${name}:name-matches-dir`, fm.name === name, `name=${fm.name}`);
   check(`skill:${name}:has-description`, !!fm.description && fm.description.length > 10);
   check(`skill:${name}:tier`, ['orchestrate', 'build', 'scout'].includes(fm['harness-tier']), `tier=${fm['harness-tier']}`);
+  check(
+    `skill:${name}:tier-delegation`,
+    /## Tier & (delegation|cost)\b/i.test(text) ||
+      (/\*\*orchestrate\*\*|\*\*scout\*\*|\*\*build\*\*/i.test(text) && /midas-(orchestrator|builder|scout)/.test(text)),
+    'missing ## Tier & delegation (or equivalent agent routing)',
+  );
   if (fm['disable-model-invocation'] === 'true') {
     const hasGuard = text.includes(RITUAL_GUARD) || text.includes(RITUAL_CITE);
     check(`skill:${name}:ritual-guard`, hasGuard, 'missing body guard or skill-state-ritual.md cite');
@@ -206,9 +243,53 @@ harness-tier: scout
   check('skill-quality:parse-frontmatter', !!parseFrontmatter('---\nname: x\ndescription: y\n---\n'));
   check('skill-quality:steps-link-count', stepsMarkdownLinkCount('## Steps\n1. [a](one.md)\n2. [b](two.md)\n3. [c](three.md)\n') === 3);
   check('skill-quality:sample-no-fails', sample.fails.length === 0, sample.fails.join('; '));
+
+  // Mechanized model-routing.md CHECKs (previously `manual:`): recommended-model/harness-tier
+  // drift and the `## Tier & delegation` section — see skill-quality-check.mjs header note.
+  const mismatched = inspectArtifact({
+    kind: 'skill',
+    id: 'demo',
+    relPath: 'harness/skills/demo/SKILL.md',
+    text: `---
+name: demo
+description: Short demo skill for unit tests only.
+harness-tier: scout
+recommended-model: claude-opus-4-8
+---
+# demo
+No tier section here.
+`,
+  });
+  check(
+    'skill-quality:tier-model-mismatch-warns',
+    mismatched.warns.some((w) => w.includes('does not match harness-tier')),
+    mismatched.warns.join('; '),
+  );
+  check(
+    'skill-quality:missing-tier-section-warns',
+    mismatched.warns.some((w) => w.includes('## Tier & delegation')),
+    mismatched.warns.join('; '),
+  );
+
   const engineSummary = summarizeReports(collectReports(ROOT));
   check('skill-quality:engine-zero-fails', engineSummary.fails === 0, `fails=${engineSummary.fails}`);
+  check('skill-quality:engine-zero-warns', engineSummary.warns === 0, `warns=${engineSummary.warns}`);
   check('skill-quality:engine-skill-count', engineSummary.skills >= 28, `skills=${engineSummary.skills}`);
+  check(
+    'skill-quality:warns-sum-not-last-report-only',
+    summarizeReports([
+      { kind: 'skill', id: 'a', path: 'a', lines: 1, fails: [], warns: ['w1'] },
+      { kind: 'skill', id: 'b', path: 'b', lines: 1, fails: [], warns: ['w2', 'w3'] },
+    ]).warns === 3,
+  );
+
+  // Catalog membership (docs/skills.md) — mechanized change-propagation.md / skill-quality.md CHECK.
+  const catalog = readCatalogText(ROOT, { engine: 'harness' });
+  check('skill-quality:catalog-found', !!catalog);
+  if (catalog) {
+    check('skill-quality:catalog-has-midas-status', /\/midas-status\b/.test(catalog));
+    check('skill-quality:catalog-rejects-unknown-id', !/\/definitely-not-a-real-skill\b/.test(catalog));
+  }
 }
 
 // --- C. agent frontmatter ----------------------------------------------------------------------
@@ -462,10 +543,8 @@ if (existsSync(stateFile)) {
   }
 }
 
-// --- F2. routing map (balanced) reconciles with the first-party agent pins ---------------------
-// The agent `model:` frontmatter is the only real runtime binding; under cost_profile: balanced the
-// resolved routing ids MUST equal the pins, or selecting a model is silently a no-op. Enforced here
-// for the engine; doctor.mjs runs the same reconciliation against a live project.
+// --- F2. routing map reconciles with cost-aware resolver + first-party agent pins --------------
+// Under the Claude profile, state.routing and agent pins must equal resolveCostAwareRouting(...).
 function agentModelT(name) {
   const p = join(agentsDir, name + '.md');
   if (!existsSync(p)) return null;
@@ -483,8 +562,10 @@ if (existsSync(stateFile)) {
     const m = lines[j].match(/^\s+(orchestrate|build|scout):\s*([^\s#]+)/);
     if (m) routing[m[1]] = m[2];
   }
-  if (profile === 'balanced') for (const t of ['orchestrate', 'build', 'scout']) {
-    check(`routing:example-matches-agent:${t}`, !!routing[t] && routing[t] === pins[t], `state ${routing[t]} != agent ${pins[t]}`);
+  const expected = resolveCostAwareRouting('claude', profile || 'balanced');
+  for (const t of ['orchestrate', 'build', 'scout']) {
+    check(`routing:example-matches-cost-aware:${t}`, !!routing[t] && routing[t] === expected[t], `state ${routing[t]} != expected ${expected[t]}`);
+    check(`routing:example-agent-pin:${t}`, !!pins[t] && pins[t] === expected[t], `agent ${pins[t]} != expected ${expected[t]}`);
   }
 }
 
@@ -987,6 +1068,39 @@ check('installer:hasMidasInstall-compact', /hasMidasInstall[\s\S]*\.midas/.test(
   }
 }
 {
+  const staleRoot = mkdtempSync(join(tmpdir(), 'midas-v2-update-stale-manifest-'));
+  try {
+    const install = spawnSync(process.execPath, [join(ROOT, 'create-midas', 'index.mjs'), '--tools=cursor', staleRoot], {
+      cwd: ROOT,
+      encoding: 'utf8',
+    });
+    check('installer:update-stale-manifest-install', install.status === 0, install.stderr || install.stdout);
+    const manifestPath = join(staleRoot, '.harness', 'manifest.json');
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+    for (const file of manifest.files) {
+      if (file.role === 'vendor' && file.sha256) file.sha256 = '0'.repeat(64);
+    }
+    writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+    const updateResult = spawnSync(process.execPath, [join(ROOT, 'create-midas', 'index.mjs'), '--update', staleRoot], {
+      cwd: ROOT,
+      encoding: 'utf8',
+    });
+    const doctor = spawnSync(process.execPath, [join(staleRoot, '.harness', 'scripts', 'doctor.mjs'), '--strict'], {
+      cwd: staleRoot,
+      encoding: 'utf8',
+    });
+    check(
+      'installer:update-stale-manifest-rebaseline',
+      updateResult.status === 0 &&
+        /re-baselining|refreshed/.test(`${updateResult.stdout}${updateResult.stderr}`) &&
+        doctor.status === 0,
+      updateResult.stderr || updateResult.stdout || doctor.stderr || doctor.stdout,
+    );
+  } finally {
+    rmSync(staleRoot, { recursive: true, force: true });
+  }
+}
+{
   const pruneRoot = mkdtempSync(join(tmpdir(), 'midas-v2-update-tools-'));
   try {
     const install = spawnSync(
@@ -1235,7 +1349,7 @@ check('paths:module-exists', existsSync(join(ROOT, 'scripts', 'paths.mjs')));
   check('paths:classic-engine', classic.engine === 'harness');
   check('paths:classic-state', classic.state === 'harness/state.yaml');
   check('paths:classic-runs', classic.runs === '.harness');
-  check('paths:runs-subdirs', RUNS_SUBDIRS.includes('sprints') && RUNS_SUBDIRS.includes('sweeps'));
+  check('paths:runs-subdirs', RUNS_SUBDIRS.includes('sprints') && RUNS_SUBDIRS.includes('sweeps') && RUNS_SUBDIRS.includes('lean'));
   check('paths:migration-map-sprints', MIGRATION_MAP.some((m) => m.from === '.harness/sprints'));
   check('paths:hub-product-move', MIGRATION_MAP_HUB.some((m) => m.from === 'product'));
   check('paths:hub-yaml-product', hubPathsYaml().product === '.midas/product');
@@ -1943,8 +2057,9 @@ if (existsSync(join(ROOT, 'harness', 'checks.json'))) {
     if (modelRouting) {
       check(
         'harness:checks-index:model-routing-continuations',
-        modelRouting.checks.filter((c) => c.kind === 'manual').length === 2 &&
-          modelRouting.checks.some((c) => /scout delegation/.test(c.body)),
+        modelRouting.checks.filter((c) => c.kind === 'manual').length >= 2 &&
+          modelRouting.checks.some((c) => /scout delegation/.test(c.body)) &&
+          modelRouting.checks.some((c) => /Tier & delegation/.test(c.body)),
         'model-routing manual markers or wrapped lines were not captured correctly',
       );
     }

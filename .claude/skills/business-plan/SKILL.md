@@ -59,9 +59,11 @@ gate; the builder drafts the document.
 8. **Write `{product}/business-plan.md`** from `<paths.engine>/templates/business-plan.md`; update
    **`paths.state`** (gate verdict by the orchestrator).
 
-## Cost / tiers
-Orchestrate (Opus) decides go/no-go and audits the gate — delegate to `midas-orchestrator`.
-Build (Sonnet) drafts the document — delegate to `midas-builder`.
+## Tier & delegation
+- **Dispatch + go/no-go / gate verdict:** `orchestrate` → `midas-orchestrator`.
+- **Draft `{product}/business-plan.md` + state writes:** `build` → `midas-builder`.
+- Evidence extraction from `{product}/market.md` → `scout` (`midas-scout`) when needed.
+- Respect `cost_profile`. Under `max_savings`, this Phase-3 gate still runs on the orchestrate pin (Sonnet); escalate to Opus only if the human asks for a deeper audit.
 
 ## Exit gate (Phase 3)
 - [ ] MVP scope defined with **explicit** non-goals.

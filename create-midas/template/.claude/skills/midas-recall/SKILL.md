@@ -97,3 +97,14 @@ Map to the single ritual for the stage (see `<paths.engine>/stage-command-table.
 - Read-only — no Edit, no `state.yaml` writes, no progress file creation (use Phase 7 / template for that).
 - Do not paste full file bodies — list paths + one-line why each matters.
 - If nothing exists yet (E0 empty), say so and point at `/idea-intake`.
+
+## Exit gate
+- [ ] Context pack listed (≤ ~15 paths) with one-line why each matters.
+- [ ] Brief emitted in the fixed format (Where am I / What matters / Open gaps).
+- [ ] Single next-command suggestion (or continue active sprint task).
+- [ ] No writes to `paths.state`, progress files, or product artifacts.
+
+## Tier & delegation
+- **Dispatch (read-only):** `scout` → `midas-scout` (or `Explore`).
+- Assembles the path pack + brief; never decides gates or writes artifacts.
+- Respect `cost_profile` as intent on non-Claude hosts (cheapest model).

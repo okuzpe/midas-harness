@@ -44,6 +44,14 @@ tag / engine `VERSION` you intend — see `INSTALL.md`); applying requires the e
 - [ ] Adapters re-rendered; `/midas-doctor` reports in sync.
 - [ ] `gitignore:midas-block` is `ok` (`node <paths.scripts>/doctor.mjs`).
 
-## Tier & cost
-Reading versions/notes and applying mechanical refreshes → **build** (Sonnet); judgment about a
-non-trivial migration → **orchestrate** (Opus); pure extraction → **scout** (Haiku).
+## When NOT
+
+- Already on current `midas_version` → stop; use `/midas-status` / `/midas-doctor` instead.
+- Adapter drift only (same version) → `/midas-doctor --fix`.
+- Fresh install / setup incomplete → `/midas-reconcile` or `/midas-init`.
+- Export/import knowledge packs → `/midas-bundle`.
+
+## Tier & delegation
+Reading versions/notes and applying mechanical refreshes → **build** (`midas-builder`); judgment about a
+non-trivial migration → **orchestrate** (`midas-orchestrator`); pure extraction → **scout** (`midas-scout`).
+Respect `cost_profile`.

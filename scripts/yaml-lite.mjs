@@ -203,6 +203,24 @@ export function parseRouting(yaml) {
   return { costProfile, routingProfile, profile: routingProfile || costProfile, routing };
 }
 
+/** Replace the `routing:` map body in state.yaml with expected tier ids. Returns next yaml or null. */
+export function rewriteRoutingMap(yaml, expected) {
+  if (!yaml || !expected) return null;
+  const lines = yaml.split(/\r?\n/);
+  const i = lines.findIndex((l) => /^routing:/.test(l));
+  if (i === -1) return null;
+  let end = i + 1;
+  while (end < lines.length && /^\s+\S/.test(lines[end])) end += 1;
+  const block = [
+    'routing:',
+    `  orchestrate: ${expected.orchestrate}`,
+    `  build:       ${expected.build}`,
+    `  scout:       ${expected.scout}`,
+  ];
+  const next = [...lines.slice(0, i), ...block, ...lines.slice(end)].join('\n');
+  return next === yaml ? null : next;
+}
+
 /** Read `midas_version` scalar from state.yaml. */
 export function parseMidasVersion(yaml) {
   const m = yaml.match(/^midas_version:\s*([0-9][^\s#]*)/m);

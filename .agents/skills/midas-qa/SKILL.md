@@ -103,6 +103,14 @@ Pages tested, pass/fail/skip, console errors, screenshot paths. Failures are fix
 | Record | Optional `{runs}/qa/` | Required `{runs}/verifications/verify-NN.md` |
 | Gate | No | Feeds Phase 8 |
 
-## Tier & cost
+## Exit gate
+- [ ] Changed routes/screens exercised (or explicitly skipped with reason).
+- [ ] Chat summary lists pass/fail/skip + console errors + screenshot paths (if any).
+- [ ] No `MIDAS_VERIFY_RESULT` / no stage advance; failures become fix tasks only.
+- [ ] Optional `{runs}/qa/` record written only if the user asked for on-disk evidence.
 
-Build tier. Prefer agent-browser over browser MCPs. Respect `state.yaml.cost_profile`.
+## Tier & delegation
+- **Dispatch + browser drive / QA notes:** `build` → `midas-builder`.
+- Criteria / diff extraction → `scout` (`midas-scout`).
+- Prefer agent-browser over browser MCPs. Respect `state.yaml.cost_profile`.
+- No gate verdict here — `/close-sprint` owns the audit.

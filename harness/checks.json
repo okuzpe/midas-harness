@@ -2,7 +2,7 @@
   "schema_version": 1,
   "updated": null,
   "source": "engine/rules",
-  "source_digest": "b257313c4a413d3f800741749edb0cbe66a227986c4623bc213f6c4b797e71ca",
+  "source_digest": "d722c2f16dd93612e72e0a304edb3acca1c4567af83ae10cff869d0914d6dd32",
   "rules": [
     {
       "path": "engine/rules/acceptance-criteria.md",
@@ -815,12 +815,62 @@
       ]
     },
     {
+      "path": "engine/rules/lean-ladder.md",
+      "slug": "lean-ladder",
+      "title": "Rule: Lean solution ladder (always-on)",
+      "owner": "orchestrate",
+      "phase": 8,
+      "check_count": 5,
+      "checks": [
+        {
+          "kind": "manual",
+          "body": "`manual:` for each substantial added module/abstraction in the diff, the PR/sprint notes or `/midas-lean-review` record name the rung used (or why rung 7 was required); unexplained scaffolding is a fail.",
+          "section": "Checklist",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` lockfile additions this sprint — each has a note that rungs 3–5 were considered; an unexplained new dep for a thin wrapper is a fail (pairs with `code-quality.md` Dependencies).",
+          "section": "Checklist",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` grep for the concept in `<src-root>/` (same as code-quality reuse CHECK); a second implementation of an existing pattern is a fail.",
+          "section": "Checklist",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` cross-read the sprint diff against `security.md` / `accessibility.md` CHECKs that apply to touched surfaces; a \"lean\" removal of a required control is a fail.",
+          "section": "Checklist",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` recommended (not hard-required): a `{runs}/lean/lean-NN.md` or progress note citing `/midas-lean-review` exists for UI/feature sprints with large diffs; absence alone is not a fail — unresolved **high** lean findings listed in the Phase-8 audit without fixed/deferred/accepted is a fail.",
+          "section": "Checklist",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        }
+      ]
+    },
+    {
       "path": "engine/rules/model-routing.md",
       "slug": "model-routing",
       "title": "Rule: Cost-aware model routing (always-on)",
       "owner": "orchestrate",
       "phase": 8,
-      "check_count": 6,
+      "check_count": 9,
       "checks": [
         {
           "kind": "command",
@@ -856,8 +906,32 @@
         },
         {
           "kind": "command",
-          "body": "`paths.state -> routing` ids are all known model ids and, under the legacy `claude` profile with `cost_profile: balanced`, **equal the pinned `model:` of the three first-party agents**. The `openai-mini` profile resolves all three tiers to `gpt-5.4-mini`. Run `node <paths.scripts>/doctor.mjs <project>`; a `routing:*` warning is a fail. *(The engine enforces the same reconciliation against the example state in `scripts/test.mjs`.)*",
+          "body": "`paths.state -> routing` ids are all known model ids and, under the Claude profile, **equal `resolveCostAwareRouting(routing_profile, cost_profile)`** (and the pinned `model:` of the three first-party agents). The `openai-mini` profile resolves all three tiers to `gpt-5.4-mini`. Run `node <paths.scripts>/doctor.mjs <project>`; a `routing:*` warning is a fail. *(The engine enforces the same reconciliation against the example state in `scripts/test.mjs`.)*",
           "section": "CHECKs",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "high"
+        },
+        {
+          "kind": "command",
+          "body": "`paths.state -> routing` ids equal `resolveCostAwareRouting(routing_profile, cost_profile)` under the Claude profile (any `cost_profile`); agent pins match the same map. Run `node <paths.scripts>/doctor.mjs <project>`; a `routing:*` warning is a fail.",
+          "section": "Cost profiles — executable, not advisory",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "high"
+        },
+        {
+          "kind": "command",
+          "body": "each phase / lifecycle skill body has a `## Tier & delegation` (or equivalent `## Tier & cost`) section that names which legs go to `midas-orchestrator` / `midas-builder` / `midas-scout` — `harness-tier` alone is not enough. Mechanized: `node <paths.scripts>/skill-quality-check.mjs` warns `missing \\`## Tier & delegation\\`...` when the heading is absent; a warning on a touched skill is a fail.",
+          "section": "Cost profiles — executable, not advisory",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "high"
+        },
+        {
+          "kind": "command",
+          "body": "a skill's `recommended-model` frontmatter matches its `harness-tier` under the canonical balanced-Claude map (`CLAUDE_COST_PROFILE_ROUTING.balanced` in `scripts/model-profiles.mjs`). Mechanized: `node <paths.scripts>/skill-quality-check.mjs` warns on drift; a warning on a touched skill is a fail.",
+          "section": "Cost profiles — executable, not advisory",
           "phase": 8,
           "owner": "orchestrate",
           "severity": "high"
@@ -1287,12 +1361,12 @@
           "severity": "medium"
         },
         {
-          "kind": "manual",
-          "body": "`manual:` engine-repo diff that adds/changes a user-facing invocable skill without a `docs/skills.md` update in the same change set is a fail; product installs without `docs/skills.md` → `n/a` (see also `change-propagation.md`).",
+          "kind": "command",
+          "body": "`node <paths.scripts>/skill-quality-check.mjs` warns `not referenced in the skills catalog` when a skill directory has no `/<name>` mention in `docs/skills.md` (or `<paths.engine>/docs/skills.md` on installs) — mechanizes the presence half of this CHECK; a warning on a touched skill is a fail. Still `manual:` whether a changed one-line role was updated in the catalog text, not just that the slash-name is still present (see also `change-propagation.md`).",
           "section": "Checklist > Frontmatter and catalog (user-facing)",
           "phase": 8,
           "owner": "orchestrate",
-          "severity": "medium"
+          "severity": "high"
         },
         {
           "kind": "manual",

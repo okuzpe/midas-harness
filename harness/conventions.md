@@ -32,6 +32,10 @@ Engine source: `paths.engine` (`.harness/engine/`). Project rule overlays: `path
 - Prefer reuse over new abstractions. Search for an existing utility before writing one.
 - Functions do one thing; keep them small and named for their effect.
 - No dead code, no commented-out blocks, no TODO without an owner/condition.
+- **Lean ladder** before expanding code — need? → reuse → stdlib → native → installed dep → one
+  line → only then the minimum that works. Never cut trust-boundary validation, security, or
+  accessibility. Full rule: [`rules/lean-ladder.md`](./rules/lean-ladder.md); delete-list review:
+  `/midas-lean-review`.
 
 ## Naming
 - Files and directories: kebab-case. Types/classes: PascalCase. Functions/vars: per language idiom.

@@ -47,7 +47,15 @@ Step outline (Steps 0–6):
 - [ ] `paths.state` records `mode: brownfield`, `entry_stage`, and assumptions for skipped gates.
 - [ ] Next action printed: `/define-conventions` for an E2 (partial) repo, `/plan-sprints` for an E3 (mature) repo.
 
-## Tier & cost
-Inventory + evidence → **scout** (Haiku). Architecture inference, rule derivation, baseline audit, and
-every diff/confirm decision → **orchestrate** (Opus). Drafting docs → **build** (Sonnet). Context7 verifies
-the existing stack's versions before any rule mentions an API.
+## When NOT
+
+- Fresh empty repo / no real codebase yet → `/midas-init` (greenfield track).
+- Install/version/cwd confusion → `/midas-reconcile` first.
+- Already adopted (`mode: brownfield` + inventory present) and only need hygiene → `/midas-sweep`.
+- Engine upgrade on an installed project → `/midas-update`.
+
+## Tier & delegation
+Inventory + evidence → **scout** (`midas-scout`). Architecture inference, rule derivation, baseline audit, and
+every diff/confirm decision → **orchestrate** (`midas-orchestrator`). Drafting docs → **build** (`midas-builder`).
+Context7 verifies the existing stack's versions before any rule mentions an API. Respect `cost_profile`.
+

@@ -10,18 +10,24 @@
 // Adapter drift is always authoritative. Under --strict, deterministic health invariants also block;
 // project-dependent recommendations remain advisory. Shares render logic with render-adapters.mjs.
 
-import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { computeAdapters, computeChecksIndex, computeGatesIndex, renderAdapters } from './render-adapters.mjs';
 import { evaluateMcpDeclaredVsWired, evaluateSkillMcpRequired, collectSkillMcpRequired } from './mcp-drift.mjs';
-import { parseSprints, parseSprintLastTouched, parsePhases, parseEnforcement, parseRouting, parseToolsFromStateYaml } from './yaml-lite.mjs';
+import { parseSprints, parseSprintLastTouched, parsePhases, parseEnforcement, parseRouting, parseToolsFromStateYaml, rewriteRoutingMap } from './yaml-lite.mjs';
 import { syncCursorMcp, wrapMcpServersForWindows } from './mcp-cursor-sync.mjs';
 import { auditGitignore, ensureMidasGitignore } from './gitignore-merge.mjs';
 import { resolvePaths, detectLayout, resolveProjectRootFromScript } from './paths.mjs';
 import { computeStageCommandTableYaml, renderStageCommandTable } from './stage-command-table.mjs';
 import { computeDesignSystemCss, renderDesignSystemTokens } from './design-system.mjs';
-import { normalizeRoutingProfile, resolveRoutingModels, knownRoutingModelIds } from './model-profiles.mjs';
+import {
+  normalizeRoutingProfile,
+  normalizeCostProfile,
+  resolveRoutingModels,
+  resolveCostAwareRouting,
+  knownRoutingModelIds,
+} from './model-profiles.mjs';
 import { readOwnershipManifest, findVendorConflicts, sha256File } from './ownership-manifest.mjs';
 import { renderPortableSkillText } from './portable-skills.mjs';
 import { orphanRootMidasPaths, resolveSkillMirrorPlan } from './tool-profiles.mjs';
@@ -68,12 +74,52 @@ function tallyNum(line, key) {
   return m ? Number(m[1]) : 0;
 }
 
+/** Prefer host discovery agents (`.claude/agents`) — that is the runtime binding — then engine source. */
+function agentPath(name) {
+  const host = join('.claude', 'agents', name + '.md');
+  const engine = join(paths.engine, 'agents', name + '.md');
+  if (existsSync(join(ROOT, host))) return host;
+  if (existsSync(join(ROOT, engine))) return engine;
+  return null;
+}
+
 /** Read the pinned `model:` of a first-party agent (the real runtime binding), or null. */
 function agentModel(name) {
-  const t = read(join(paths.engine, 'agents', name + '.md')) ||
-    read(join('.claude', 'agents', name + '.md'));
+  const rel = agentPath(name);
+  const t = rel && read(rel);
   const m = t && t.match(/^model:\s*([^\s#]+)/m);
   return m ? m[1] : null;
+}
+
+/**
+ * Rewrite first-party agent `model:` pins to match a resolved routing map.
+ * Product installs: `.claude/agents`. Engine repo: also updates `harness/agents` only when the
+ * caller asks (engine dogfood stays on balanced pins by default).
+ */
+function syncAgentPins(expected, { alsoEngine = false } = {}) {
+  const wrote = [];
+  const targets = [
+    ['orchestrate', 'midas-orchestrator'],
+    ['build', 'midas-builder'],
+    ['scout', 'midas-scout'],
+  ];
+  for (const [tier, name] of targets) {
+    const want = expected[tier];
+    if (!want) continue;
+    const rels = [join('.claude', 'agents', name + '.md')];
+    if (alsoEngine) rels.push(join(paths.engine, 'agents', name + '.md'));
+    for (const rel of rels) {
+      const abs = join(ROOT, rel);
+      if (!existsSync(abs)) continue;
+      const raw = readFileSync(abs, 'utf8');
+      if (!/^model:\s*[^\s#]+/m.test(raw)) continue;
+      const next = raw.replace(/^model:\s*[^\s#]+/m, `model: ${want}`);
+      if (next === raw) continue;
+      writeFileSync(abs, next, 'utf8');
+      wrote.push(`${rel} → ${want}`);
+    }
+  }
+  return wrote;
 }
 
 function walkRelativeFiles(base) {
@@ -146,6 +192,35 @@ if (FIX) {
   if (gi.wrote) {
     console.log(gi.upgraded ? '  upgraded .gitignore (missing Midas patterns)' : '  wrote    .gitignore (Midas block)');
   }
+  // Sync state.routing + first-party agent pins to cost_profile-resolved map.
+  // Product installs (layout: harness): rewrite `.claude/agents` and engine agent copies together.
+  // Engine classic dogfood: rewrite state.routing when mismatched; never rewrite harness/agents
+  // (balanced pins are the published defaults).
+  {
+    const stateForPins = read(paths.state) || '';
+    if (stateForPins) {
+      const { costProfile, routingProfile } = parseRouting(stateForPins);
+      const activeProfile = normalizeRoutingProfile(routingProfile) || 'claude';
+      const localModel = (stateForPins.match(/^local_model:\s*\n(?:[^\n]*\n)*?\s*id:\s*([^\s#]+)/m) || [])[1] || 'local_model.id';
+      const expectedPins = resolveCostAwareRouting(activeProfile, costProfile, {
+        localModelId: localModel,
+        defaultRoutingProfile: 'claude',
+      });
+      const normalizedCost = normalizeCostProfile(costProfile) || 'balanced';
+      if (activeProfile === 'claude') {
+        const nextState = rewriteRoutingMap(stateForPins, expectedPins);
+        if (nextState) {
+          writeFileSync(join(ROOT, paths.state), nextState, 'utf8');
+          console.log(`  wrote    ${paths.state} routing: (cost_profile=${normalizedCost})`);
+        }
+        if (paths.layout === 'harness') {
+          for (const line of syncAgentPins(expectedPins, { alsoEngine: true })) {
+            console.log(`  wrote    ${line} (cost_profile=${normalizedCost})`);
+          }
+        }
+      }
+    }
+  }
   // Re-check drift after fix
   let stillDrift = false;
   for (const f of computeAdapters(ROOT).files) {
@@ -188,9 +263,9 @@ if (!stateRaw) {
     if (!new RegExp(`(^|\\n)${k}:`).test(stateRaw)) check(`state:${k}`, 'warn', 'missing required key');
   }
 
-  // routing: turn the cost_profile/routing block from inert data into a checked invariant. The only
-  // real runtime binding is the three agents' pinned `model:`, so validate the resolved ids against
-  // them and — under the executor-backed `balanced` profile — require an exact reconciliation.
+  // routing: cost_profile + routing_profile resolve an expected map; agent `model:` pins are the
+  // runtime binding. Under the Claude profile, state.routing AND pins must match the cost-aware map
+  // (max_savings / max_quality are no longer advisory-only).
   const pinned = {
     orchestrate: agentModel('midas-orchestrator'),
     build: agentModel('midas-builder'),
@@ -203,16 +278,26 @@ if (!stateRaw) {
     const tiers = ['orchestrate', 'build', 'scout'];
     const { costProfile, routingProfile, routing } = parseRouting(stateRaw);
     const activeProfile = normalizeRoutingProfile(routingProfile) || 'claude';
+    const normalizedCost = normalizeCostProfile(costProfile);
+    const localModel = (stateRaw.match(/^local_model:\s*\n(?:[^\n]*\n)*?\s*id:\s*([^\s#]+)/m) || [])[1] || 'local_model.id';
     const unknown = tiers.filter((t) => routing[t] && !allow.has(routing[t]));
-    if (unknown.length) {
+    if (costProfile && !normalizedCost) {
+      check('routing', 'warn', `unknown cost_profile ${costProfile} — expected balanced|max_savings|max_quality`);
+    } else if (unknown.length) {
       check('routing', 'warn', `${unknown.map((t) => `${t}=${routing[t]}`).join(', ')} not a known model id — see docs/agents-and-models.md`);
     } else if (activeProfile === 'claude') {
-      if (costProfile === 'balanced') {
-        const mism = tiers.filter((t) => routing[t] && pinned[t] && routing[t] !== pinned[t]);
-        check('routing', mism.length ? 'warn' : 'ok',
-          mism.length ? mism.map((t) => `${t}: state ${routing[t]} != agent ${pinned[t]}`).join('; ') : 'matches agent pins');
+      const expected = resolveCostAwareRouting('claude', normalizedCost || 'balanced');
+      const stateMism = tiers.filter((t) => routing[t] && routing[t] !== expected[t]);
+      const pinMism = tiers.filter((t) => pinned[t] && pinned[t] !== expected[t]);
+      if (stateMism.length) {
+        check('routing', 'warn',
+          `cost_profile ${normalizedCost || 'balanced'}: ${stateMism.map((t) => `${t}: state ${routing[t]} != expected ${expected[t]}`).join('; ')} — update routing: or run doctor --fix`);
+      } else if (pinMism.length) {
+        check('routing', 'warn',
+          `cost_profile ${normalizedCost || 'balanced'}: ${pinMism.map((t) => `${t}: agent ${pinned[t]} != expected ${expected[t]}`).join('; ')} — run \`${doctorCmd} --fix\` to sync agent pins`);
       } else {
-        check('routing', 'ok', `profile ${costProfile || '(unset)'} - ids valid (legacy claude routing is advisory intent)`);
+        check('routing', 'ok',
+          `cost_profile ${normalizedCost || 'balanced'} matches state.routing + agent pins`);
       }
     } else if (activeProfile === 'openai-mini') {
       const expected = resolveRoutingModels('openai-mini');
@@ -220,7 +305,6 @@ if (!stateRaw) {
       check('routing', mism.length ? 'warn' : 'ok',
         mism.length ? mism.map((t) => `${t}: state ${routing[t]} != profile ${expected[t]}`).join('; ') : 'openai-mini profile resolves to gpt-5.4-mini');
     } else if (activeProfile === 'local-hybrid') {
-      const localModel = (stateRaw.match(/^local_model:\s*\n(?:[^\n]*\n)*?\s*id:\s*([^\s#]+)/m) || [])[1] || 'local_model.id';
       const expected = resolveRoutingModels('local-hybrid', { localModelId: localModel });
       const mism = tiers.filter((t) => routing[t] && routing[t] !== expected[t]);
       check('routing', mism.length ? 'warn' : 'ok',

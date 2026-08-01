@@ -33,7 +33,7 @@ homework** — this is an independent orchestrate-tier audit.
 Full procedure: **`<paths.engine>/pipeline/8-audit-adjust.md`**.
 
 Step outline (Steps 0–6):
-- **Step 0 — Hygiene pass:** sweep record required for brownfield; greenfield recommended on large diffs; document any skip.
+- **Step 0 — Hygiene pass:** sweep record required for brownfield; greenfield recommended on large diffs; document any skip. On a fat feature/UI diff, recommend `/midas-lean-review` (optional `--freeze`) before the conformance pass — does not block the gate alone.
 - **Step 1 — Read state + frozen rules:** `paths.state`, active sprint, all effective rules, architecture + idea docs, design system.
 - **Step 2 — Conformance audit:** every rule, pass/fail with on-disk evidence; confirm Context7 doc coverage; trigger every matching playbook.
 - **Step 3 — Scope audit:** delivered scope vs plan and business-case success metrics; no scope creep, no silent drops.
@@ -52,3 +52,5 @@ Step outline (Steps 0–6):
 ## Tier & cost
 The audit, drift decisions, and ship/continue call → **orchestrate** (Opus). Mechanical diff
 extraction → **scout** (Haiku). Any fix work routes to **build** (Sonnet) under the next `/start-sprint`.
+Under `cost_profile: max_savings`, **escalate this Phase-8 audit to Opus** even if the default
+orchestrate pin is Sonnet.

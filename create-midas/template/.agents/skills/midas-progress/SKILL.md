@@ -45,3 +45,22 @@ Phase-8 audits see git-visible evidence of what was proved and how.
 - No silent creation without an active sprint.
 - No vector store / hidden memory (ADR-003).
 - Prefer small, frequent updates over one giant dump at sprint end.
+
+## When NOT
+
+- No active sprint / wrong stage → `/midas-status` or `/start-sprint`.
+- Need a read-only context pack only → `/midas-recall` (does not write STM).
+- Closing / grading the sprint → `/close-sprint`.
+- Ad-hoc UI smoke without STM intent → `/midas-qa`.
+
+## Exit gate
+- [ ] `{runs}/sprints/NN-progress.md` updated (Done and/or Observations and/or Next as applicable).
+- [ ] Every new **Done** row has non-empty **Proof** and **Tool**.
+- [ ] `stage` / sprint status unchanged (no gate advance).
+- [ ] Chat shows `STM updated → {runs}/sprints/NN-progress.md`.
+
+## Tier & delegation
+- **Dispatch + progress file writes:** `build` → `midas-builder`.
+- Diff/status extraction → `scout` (`midas-scout`) when helpful.
+- No gate verdict — orchestrate stays out.
+- Respect `cost_profile`.

@@ -6,18 +6,26 @@
 //   node scripts/skill-quality-check.mjs --help
 //
 // Covers hard fails #1–#3 from docs/skill-quality-gate.md (frontmatter, description length, line cap)
-// plus ritual-guard for disable-model-invocation skills. Semantic dims still require manual scoring.
+// plus ritual-guard for disable-model-invocation skills, `recommended-model`/`harness-tier` drift,
+// the `## Tier & delegation` section, and skills-catalog (docs/skills.md) membership. These four
+// were `manual:` CHECKs in skill-quality.md / model-routing.md — mechanized here to cut review load
+// without adding new scored rubric dimensions (see harness/rules/skill-quality.md). Remaining
+// semantic dims (Clarity, Specificity, Trigger quality, …) still require manual scoring.
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolvePaths, resolveProjectRootFromScript } from './paths.mjs';
+import { CLAUDE_COST_PROFILE_ROUTING } from './model-profiles.mjs';
 
 const MAX_LINES = 500;
 const MAX_DESCRIPTION = 1024;
 const TIERS = new Set(['orchestrate', 'build', 'scout']);
 const RITUAL_GUARD = 'Run only when the user explicitly invokes';
 const RITUAL_CITE = 'skill-state-ritual.md';
+/** Canonical tier→model map every skill's `recommended-model` is authored against (docs/skills.md § Skill properties). */
+const CANONICAL_TIER_MODEL = CLAUDE_COST_PROFILE_ROUTING.balanced;
+const TIER_SECTION_RE = /^##\s+Tier\b/m;
 
 const HELP = `skill-quality-check — mechanical skill quality report (report-only)
 
@@ -88,9 +96,22 @@ export function inspectArtifact({ kind, id, relPath, text }) {
   if (kind === 'skill') {
     if (!fm['harness-tier']) warns.push('missing `harness-tier`');
     else if (!TIERS.has(fm['harness-tier'])) warns.push(`unknown harness-tier "${fm['harness-tier']}"`);
+    else if (!fm['recommended-model']) {
+      warns.push('missing `recommended-model`');
+    } else {
+      const expected = CANONICAL_TIER_MODEL[fm['harness-tier']];
+      if (fm['recommended-model'] !== expected) {
+        warns.push(
+          `recommended-model "${fm['recommended-model']}" does not match harness-tier "${fm['harness-tier']}" (expected "${expected}")`,
+        );
+      }
+    }
     if (fm['disable-model-invocation'] === 'true') {
       const hasGuard = text.includes(RITUAL_GUARD) || text.includes(RITUAL_CITE);
       if (!hasGuard) fails.push('disable-model-invocation skill missing ritual guard or skill-state-ritual.md cite');
+    }
+    if (!TIER_SECTION_RE.test(body)) {
+      warns.push('missing `## Tier & delegation` (or `## Tier & cost`) section (see rules/model-routing.md)');
     }
   }
 
@@ -100,6 +121,20 @@ export function inspectArtifact({ kind, id, relPath, text }) {
   }
 
   return { kind, id, path: relPath, lines, fails, warns };
+}
+
+/**
+ * Locate the user-facing skills catalog: engine repo keeps it at the project root; installs keep
+ * it under `<paths.engine>/docs/skills.md` (see docs/skills.md header). Missing catalog → `null`
+ * (product installs without a catalog are `n/a`, per skill-quality.md).
+ * @param {string} root
+ * @param {ReturnType<typeof resolvePaths>} paths
+ */
+export function readCatalogText(root, paths) {
+  for (const candidate of [join(root, 'docs', 'skills.md'), join(root, paths.engine, 'docs', 'skills.md')]) {
+    if (existsSync(candidate)) return readFileSync(candidate, 'utf8');
+  }
+  return null;
 }
 
 /**
@@ -150,6 +185,15 @@ export function collectReports(root) {
     }
   }
 
+  const catalog = readCatalogText(root, paths);
+  if (catalog) {
+    for (const r of reports) {
+      if (r.kind !== 'skill') continue;
+      const mentioned = new RegExp(`/${r.id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\w-])`).test(catalog);
+      if (!mentioned) r.warns.push(`not referenced in the skills catalog (docs/skills.md) as \`/${r.id}\``);
+    }
+  }
+
   return reports;
 }
 
@@ -160,7 +204,7 @@ export function summarizeReports(reports) {
   const skills = reports.filter((r) => r.kind === 'skill').length;
   const agents = reports.filter((r) => r.kind === 'agent').length;
   const fails = reports.reduce((n, r) => n + r.fails.length, 0);
-  const warns = reports.reduce((n, r) => r.warns.length, 0);
+  const warns = reports.reduce((n, r) => n + r.warns.length, 0);
   const blocked = reports.filter((r) => r.fails.length > 0).map((r) => r.id);
   return { skills, agents, fails, warns, blocked, reports };
 }

@@ -26,7 +26,7 @@ recommended-model: claude-haiku-4-5
    - **Verify UI / ad-hoc QA** (`/midas-verify` / `/midas-qa`)
    - **Redesign product UI** (`/midas-design`)
    - **Security or adversarial review** (`/midas-security-audit` / `/midas-tribunal`)
-   - **Capture a pattern or sweep hygiene** (`/midas-capture` / `/midas-sweep`)
+   - **Capture a pattern or sweep hygiene** (`/midas-capture` / `/midas-sweep` / `/midas-lean-review`)
    - **Install / version / adapter health** (`/midas-reconcile` / `/midas-doctor` / `/midas-update`)
    - **Investigate something outside the pipeline** (`/midas-explore`)
    - **I'm not sure — show a short summary table**
@@ -90,11 +90,11 @@ recommended-model: claude-haiku-4-5
 - Next: fix findings; then `/close-sprint` when ready.
 
 **Capture a pattern or sweep hygiene**
-- What: crystallize a rule/playbook, or find dead flows.
-- Command: `/midas-capture` · `/midas-sweep` [`--fix` only after confirm]
-- Happens: capture proposes an artifact (asks first); sweep freezes `{runs}/sweeps/sweep-NN.md`.
-- NOT for one-off preferences with no CHECK → say so and skip.
-- Next: `/midas-doctor` if a rule changed.
+- What: crystallize a rule/playbook, find dead flows, or cut over-engineering.
+- Command: `/midas-capture` · `/midas-sweep` [`--fix` only after confirm] · `/midas-lean-review` [`--freeze`]
+- Happens: capture proposes an artifact (asks first); sweep freezes `{runs}/sweeps/sweep-NN.md`; lean-review prints a delete-list (optional `{runs}/lean/lean-NN.md`).
+- NOT for one-off preferences with no CHECK → say so and skip. Lean-review is not a security audit.
+- Next: `/midas-doctor` if a rule changed; apply lean cuts only after user OK.
 
 **Install / version / adapter health**
 - What: orientation, adapter drift, or engine upgrade.
@@ -120,3 +120,8 @@ Print the **canonical router** from `docs/skills.md` § Which command when (inst
 - One `AskQuestion` only — do not chain.
 - Do not paste the full midas-status stage table unless the user needs a phase gate name.
 - If the chosen option needs a prerequisite (e.g. verify needs a UI sprint), say so in When NOT.
+
+## Tier & delegation
+- **Dispatch (read-only):** `scout` → `midas-scout` (or fastest session model).
+- Never writes state or artifacts; never renders a gate verdict.
+- Respect `cost_profile` as intent on non-Claude hosts.

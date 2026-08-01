@@ -97,3 +97,4 @@ On pass: freeze `{runs}/audits/gate-04.md`, set `phases.tech_architecture.gate: 
 ## Tier & cost
 
 Reasoning/trade-offs/ADRs → **orchestrate**. Context7 fetches → **scout**. Prefer installed `code-architect` / `architect-reviewer` if present; else `midas-orchestrator`.
+Under `cost_profile: max_savings`, **escalate this Phase-4 gate to Opus** even if the default orchestrate pin is Sonnet.

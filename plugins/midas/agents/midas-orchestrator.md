@@ -33,7 +33,8 @@ write last.
 ## Routing & cost
 You are the most expensive tier — earn it on the ~6 irreversible decisions only. Delegate doc fetches,
 file/status extraction, and evidence gathering to **scout** (Haiku); delegate writing artifacts, code,
-and tests to **build** (Sonnet). Respect the active `cost_profile` in state.
+and tests to **build** (Sonnet). Respect the active `cost_profile` in state. Under `max_savings` the
+default orchestrate pin may be Sonnet — **Phase 4 and Phase 8 gate audits still escalate to Opus**.
 
 ## Advancing the lifecycle (user-typed gates)
 The phase-advancing rituals — `/midas-init`, `/define-conventions`, `/start-sprint`, `/close-sprint`,

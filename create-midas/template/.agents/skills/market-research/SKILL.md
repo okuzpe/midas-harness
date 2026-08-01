@@ -57,6 +57,12 @@ does **not** pass the exit gate.
 Orchestrate (Opus) frames the questions and audits the gate. Scout (Haiku) does the bulk
 search/extraction. Build (Sonnet) writes the synthesis.
 
+## Tier & delegation
+- **Dispatch + gate verdict:** `orchestrate` → `midas-orchestrator`.
+- **Fan-out search / citation harvest:** `scout` → `midas-scout` (or host deep-research if installed).
+- **Draft `{product}/market.md`:** `build` → `midas-builder`.
+- Respect `paths.state → cost_profile`. On non-Claude hosts, apply as intent (fastest for search, strongest for the gate).
+
 ## Exit gate (Phase 2)
 - [ ] ≥ 3 competitors/alternatives analyzed (or a justified "no direct competitor" finding).
 - [ ] A differentiation thesis is stated explicitly.

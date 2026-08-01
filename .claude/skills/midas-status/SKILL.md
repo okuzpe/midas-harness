@@ -56,6 +56,7 @@ completion — it reports the truth already on disk. Safe to run at any time, in
 5. **Surface optional prompts (never force).** At a high-leverage decision point, add **one** line if relevant:
    - **Tribunal** — see tribunal table below
    - **Sweep** — at `sprint_planning`: *"💡 Before seeding `features.json`, consider `/midas-sweep docs` (optional) — reconcile the ledger with what exists."*; at `sprint_execution` when the active sprint's tasks look done: *"💡 Before `/close-sprint`, consider `/midas-sweep` (optional) on large diffs."*; after brownfield (`mode: brownfield` in state): *"💡 Post-adopt `/midas-sweep all` (optional) helps drop dead flows before the next gate."*
+   - **Lean review** — at `sprint_execution` when the active sprint's tasks look done and the diff looks large: *"💡 Before `/close-sprint`, consider `/midas-lean-review` (optional) — delete-list for over-engineering."*
    - **Recall** — when `stage_status: in_progress`, or an active sprint's `last_touched` is **> 7 days** ago, or `{runs}/sprints/NN-progress.md` is missing for an active sprint: *"💡 Resuming? Run `/midas-recall` (optional) for a context pack — distinct from this status line."*
    Skipping is fine; do not block.
 
@@ -84,6 +85,13 @@ If `stage_status` is `in_progress`, add one line naming what is left before the 
 At a **tribunal checkpoint** (step 5), add the recommended-`/midas-tribunal` line (optional, your call).
 At a **sweep checkpoint** (`sprint_planning`, end of `sprint_execution`, or `mode: brownfield`), add the
 recommended-`/midas-sweep` line from step 5 when relevant.
+At a **lean checkpoint** (end of `sprint_execution` with a large diff), add the recommended-`/midas-lean-review`
+line from step 5 when relevant.
 At a **recall checkpoint** (`stage_status: in_progress`, stale `last_touched` > 7 days, or missing progress
 file for active sprint), add the recommended-`/midas-recall` line from step 5 when relevant.
 Mention `/midas-doctor` only if you observed adapter or config drift while reading.
+
+## Tier & delegation
+- **Dispatch (read-only):** `scout` → `midas-scout` (or run inline on the fastest session model).
+- Do **not** escalate to orchestrate/build — this skill never writes or renders a gate verdict.
+- Respect `cost_profile` as intent on non-Claude hosts (use the cheapest model).

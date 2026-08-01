@@ -33,7 +33,7 @@ transition after that.
 ## Schema
 
 ```yaml
-midas_version: 2.1.0      # engine version that wrote this file (for /midas-update)
+midas_version: 2.2.0      # engine version that wrote this file (for /midas-update)
 layout: harness                # the only writable v2 layout; v1 layouts are read/migrate-only
 paths:
   root: .harness
@@ -59,6 +59,7 @@ stage_status: in_progress    # not_started | in_progress | gate_pending | passed
 entry_stage: idea_intake     # where this project entered (honesty for skipped gates)
 
 cost_profile: balanced       # balanced | max_savings | max_quality — WHICH Claude model per tier
+                             # (executable under routing_profile: claude via resolveCostAwareRouting; doctor enforces)
 routing:                     # resolved model ids for this profile (see docs/agents-and-models.md)
   orchestrate: claude-opus-4-8
   build:       claude-sonnet-4-6
