@@ -13,7 +13,7 @@ metadata:
 # midas-init — adaptive intake (one-time setup)
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
-> Read **`paths.state`** first. Wrong precondition → report and stop.
+> **Precondition:** `setup_complete` must not already be `true` (except `--monorepo`). Wrong state → stop.
 
 ## Does / Does not
 

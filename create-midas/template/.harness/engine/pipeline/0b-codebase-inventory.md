@@ -39,5 +39,5 @@ the project's written intent** — `README*`, `docs/`, briefs/specs/`NOTES`, the
 - [ ] Nothing written outside `{product}/inventory.md` yet.
 
 ## Recommended agents
-`midas-scout` (Haiku) extracts; `midas-orchestrator` (Opus) infers. Then continue with `/midas-adopt`
-Step 2 (architecture) and Step 3 (rules derived from the real code).
+`midas-scout` (Haiku) extracts; `midas-orchestrator` (Opus) infers. Then continue with
+`<paths.engine>/pipeline/adopt-brownfield.md` Step 2 (architecture) and Step 3 (rules from real code).
