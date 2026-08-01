@@ -11,26 +11,11 @@ metadata:
 ---
 # midas-monorepo — deprecated alias
 
-> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md`.
+> Prefer **`/midas-init --monorepo`** — works on both fresh and `setup_complete: true` projects.
 
-> **This command is deprecated.** Prefer **`/midas-init --monorepo`** (works even when `setup_complete: true`
-> — it runs only Phase F monorepo wiring without repeating intake). Tier is **build** because this alias
-> only redirects to mechanical DETECT → INDEX → WRITE wiring (no orchestrate judgment).
+Tell the user: *"`/midas-monorepo` is deprecated — run `/midas-init --monorepo` instead."*
+Then follow **`<paths.engine>/pipeline/monorepo-wiring.md`** (DETECT → INDEX → WRITE).
+Honor `--dry-run` and any user-named package paths. Requires `paths.state` to exist (`/midas-init` first if absent).
 
-## Redirect
-
-1. Tell the user: *"`/midas-monorepo` is deprecated — run `/midas-init --monorepo` instead."*
-2. Execute the procedure in **`<paths.engine>/pipeline/monorepo-wiring.md`** (same DETECT → INDEX → WRITE
-   flow as init Phase F). Respect brownfield dry-run / diff-confirm in that playbook.
-3. Honor `--dry-run` and any user-named package paths from the original command.
-
-## Preconditions
-
-- Root harness initialized (`paths.state` exists).
-- If no state file → `/midas-init` first.
-
-## Exit gate (alias complete)
-
-- [ ] User was told to prefer `/midas-init --monorepo`.
-- [ ] `monorepo-wiring.md` § Exit gate criteria are satisfied (or `--dry-run` showed the plan with no writes).
-- [ ] Next action named: `/midas-status`.
+**Exit:** `monorepo-wiring.md` exit gate satisfied (or `--dry-run` plan shown with no writes). Next: `/midas-status`.
