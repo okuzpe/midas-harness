@@ -9,6 +9,12 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+### Changed
+
+- Architecture hygiene (audit quick wins): `VERSIONING.md` rewritten for post-2.0 SemVer; ADR-001 and
+  ADR-006 stamped **historical** (superseded by ADR-007/008); engine `harness/state.yaml` declares
+  `layout: classic` + `paths` explicitly; CI primary installer smoke asserts cursor-only thin root.
+
 ### Added
 
 - `/midas-design` — product-authentic redesign ritual (audit → 3 art directions → human pick →
