@@ -12,8 +12,9 @@ metadata:
 
 > **Paths / state:** `<paths.engine>/templates/skill-state-ritual.md` (read-only) + `AGENTS.md` § Path resolution.
 
-> **Read-only.** Never writes, never advances gates. Complements `/midas-status` (pipeline PC) and
-> `docs/skills.md` (static catalog) — this skill is **AskQuestion → one answer**, not a pasted table.
+> **Read-only.** Never writes, never advances gates. Complements `/midas-status` (pipeline PC).
+> **Canonical catalog + router:** `docs/skills.md` (install: `<paths.engine>/docs/skills.md`) — cite it;
+> do not paste the full situation→command table unless the user picks "I'm not sure".
 
 ## Steps
 
@@ -23,6 +24,7 @@ metadata:
    - **Run the next phase gate** (phase skills 0–8)
    - **Start or close a sprint** (`/start-sprint` / `/close-sprint`)
    - **Verify UI / ad-hoc QA** (`/midas-verify` / `/midas-qa`)
+   - **Redesign product UI** (`/midas-design`)
    - **Security or adversarial review** (`/midas-security-audit` / `/midas-tribunal`)
    - **Capture a pattern or sweep hygiene** (`/midas-capture` / `/midas-sweep`)
    - **Install / version / adapter health** (`/midas-reconcile` / `/midas-doctor` / `/midas-update`)
@@ -54,7 +56,7 @@ metadata:
 
 **Run the next phase gate**
 - What: advance one audited phase (0–8).
-- Command: `/midas-status` names it; or `/idea-intake` … `/close-sprint` from `docs/skills.md`.
+- Command: `/midas-status` names it; catalog in `docs/skills.md` § Pipeline.
 - Happens: skill writes its artifact, updates `paths.state`, waits for human gate confirmation.
 - NOT for ad-hoc investigation outside the pipeline → `/midas-explore`.
 - Next: `/midas-status` again after the gate.
@@ -72,6 +74,13 @@ metadata:
 - Happens: drives flows, freezes `{runs}/verifications/verify-NN.md` or optional `{runs}/qa/`.
 - NOT for non-UI sprints (verify hard-skips).
 - Next: `/close-sprint` when verify is green.
+
+**Redesign product UI**
+- What: authentic redesign with directions + human pick before implementation.
+- Command: `/midas-design` [`--mode audit|directions|spec|implement`]
+- Happens: audits current UI, proposes art directions, freezes a design record; optional one-slice implement.
+- NOT Phase 5 freeze → `/define-conventions`; NOT gate proof → `/midas-verify`.
+- Next: `/midas-verify` on the touched surface when implementing.
 
 **Security or adversarial review**
 - What: deep security scan or whole-project debate — neither advances gates.
@@ -103,19 +112,11 @@ metadata:
 
 **I'm not sure — short summary**
 
-| Need | Command |
-|---|---|
-| Where am I? | `/midas-status` |
-| Resume context | `/midas-recall` |
-| Setup / adopt | `/midas-init` · `/midas-adopt` |
-| Install confusion | `/midas-reconcile` |
-| Ad-hoc investigate | `/midas-explore` |
-| This guide | `/midas-help` |
-
-Full catalog: `docs/skills.md`. Pipeline PC: `/midas-status`.
+Print the **canonical router** from `docs/skills.md` § Which command when (install:
+`<paths.engine>/docs/skills.md`) — do not invent rows. End with: Pipeline PC = `/midas-status`.
 
 ## Rules
 
 - One `AskQuestion` only — do not chain.
-- Do not paste the full midas-status router table unless the user picked "I'm not sure".
+- Do not paste the full midas-status stage table unless the user needs a phase gate name.
 - If the chosen option needs a prerequisite (e.g. verify needs a UI sprint), say so in When NOT.

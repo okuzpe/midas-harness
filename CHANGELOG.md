@@ -9,11 +9,31 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+### Added
+
+- `/midas-design` — product-authentic redesign ritual (audit → 3 art directions → human pick →
+  spec → optional one-slice implement); freezes `{runs}/design/design-NN.md`.
+- `visual-design.md` **Product authenticity** CHECKs (anti–SaaS-template, logo-swap test, product
+  evidence above the fold) + richer `design-direction.md` template (metaphor, first viewport).
+- `/midas-verify` records a **Product authenticity** section; verification rule requires it on
+  marketing/landing UI.
+
 ### Changed
 
 - Version bumps are single-command: `npm run bump -- <X.Y.Z>`. Skills/docs use `#v{VERSION}`
   placeholders; only `INSTALL.md` keeps copy-paste `#v…` pins.
 - Docs/CONTRIBUTING/`/midas-align` point maintainers at `npm run bump` (no scattered hand-edits).
+- `change-propagation.md` CHECK: engine version publishes must name `npm run bump` (hand-scattered
+  pins are a fail).
+- `docs/skills.md` is the **canonical** skill catalog + situation→command router (4 buckets).
+  `/midas-status` and `/midas-help` cite it instead of maintaining parallel tables. Shipped to
+  installs as `<paths.engine>/docs/skills.md`.
+- `/define-conventions`, `/start-sprint`, and catalog/router entries route redesign work through
+  `/midas-design`.
+
+### Deprecated
+
+- `/midas-monorepo` — use `/midas-init --monorepo`. **Removal targeted for 2.1.0** (alias kept until then).
 
 ---
 

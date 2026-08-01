@@ -4,7 +4,7 @@ Shared procedure for multi-package / polyglot repos. Invoked by:
 
 - **`/midas-init --monorepo`** (preferred) — optional Phase F at the end of one-time setup
 - **`/midas-init`** when the scan detects workspace markers and the user confirms in Phase D
-- **`/midas-monorepo`** (deprecated alias) — redirects here
+- **`/midas-monorepo`** (deprecated alias — **removed in 2.1.0**) — redirects here
 
 Bring Midas to a repository that holds **many packages** so each package gets agent guidance tuned to
 **its own stack** while inheriting the **one** root harness. Mechanism: **nested files +

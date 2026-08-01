@@ -110,8 +110,8 @@ Optional tokens (e.g. `GITHUB_TOKEN`): print OS command (`setx` Windows / `expor
 
 When: `--monorepo`, Phase D confirmed, or detected markers + user opted in. Follow
 `<paths.engine>/pipeline/monorepo-wiring.md` (DETECT → INDEX → WRITE); respect `--dry-run`.
-Populates `packages[]` + nested `AGENTS.md`. `/midas-monorepo` redirects here; re-run on
-`setup_complete: true` projects without repeating intake.
+Populates `packages[]` + nested `AGENTS.md`. `/midas-monorepo` redirects here (**deprecated;
+remove in 2.1.0**); re-run on `setup_complete: true` projects without repeating intake.
 
 ## Exit
 
