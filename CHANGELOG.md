@@ -13,6 +13,7 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 - Version bumps are single-command: `npm run bump -- <X.Y.Z>`. Skills/docs use `#v{VERSION}`
   placeholders; only `INSTALL.md` keeps copy-paste `#v…` pins.
+- Docs/CONTRIBUTING/`/midas-align` point maintainers at `npm run bump` (no scattered hand-edits).
 
 ---
 

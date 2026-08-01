@@ -38,9 +38,9 @@ per-subagent model routing — the tiers collapse to prose intent in `AGENTS.md`
 **Q: Where does Midas live in v2?**
 
 Everything Midas-owned lives under `.harness/` except selected-host discovery adapters. Classic,
-compact, and hub 1.x installs remain detectable but are not updated in place. Preview with
-`npx github:okuzpe/midas-harness#v{VERSION} --migrate` (pin from [INSTALL.md](../INSTALL.md)), then
-repeat with `--apply`; verify with `node .harness/scripts/doctor.mjs --strict`. See
+compact, and hub 1.x installs remain detectable but are not updated in place. Preview migrate with
+the pinned command in [INSTALL.md](../INSTALL.md), then repeat with `--apply`; verify with
+`node .harness/scripts/doctor.mjs --strict`. See
 [ADR-007](adr/ADR-007-canonical-harness-layout.md).
 
 ---

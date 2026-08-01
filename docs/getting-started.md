@@ -25,13 +25,12 @@ irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | ie
 **Any platform, no shell script**
 ```bash
 npx  github:okuzpe/midas-harness
-# pin a release (copy-paste from INSTALL.md):
-npx github:okuzpe/midas-harness#v{VERSION} --tools=cursor
 pnpm dlx github:okuzpe/midas-harness
 bunx github:okuzpe/midas-harness
 ```
 
-Full install/update/migrate commands: [INSTALL.md](../INSTALL.md).
+To **pin a release**, copy the exact `#v…` command from [INSTALL.md](../INSTALL.md)
+(matches `harness/VERSION` — do not invent the tag).
 
 **Not sure which command to run?** (install vs update vs init)
 

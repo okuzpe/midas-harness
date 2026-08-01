@@ -39,9 +39,8 @@ This is *pipe-to-shell* — you run code you haven't read. Treat it like any `cu
 - **Prefer the `npx` form**, which runs the same dependency-free installer without a shell pipe:
   `npx github:okuzpe/midas-harness`.
 - **Pin a release for a reproducible, reviewable install.** The shims and `npx` resolve from the
-  mutable `main` branch (not a signed tag), so for supply-chain assurance install a tagged version:
-  `npx github:okuzpe/midas-harness#v{VERSION}` — pin from [`INSTALL.md`](./INSTALL.md) / the GitHub
-  release matching `harness/VERSION`.
+  mutable `main` branch (not a signed tag), so for supply-chain assurance install a tagged version —
+  copy the pinned `npx …#v…` command from [`INSTALL.md`](./INSTALL.md) (matches `harness/VERSION`).
 - Fresh install and update preserve user-owned paths. Explicit `--migrate --apply` uses staging,
   verified hashes, and rollback before removing proven Midas-owned legacy sources.
 
@@ -59,7 +58,7 @@ The engine repository keeps its release and CI surface intentionally small. The 
   reviewed version used for the published docs build.
 - **Installer docs show convenience first, but security-sensitive installs should pin a release.**
   Keep the one-line `main` installers for onboarding, and point reproducible or audited installs at
-  the pinned tag in [`INSTALL.md`](./INSTALL.md) (`#v{VERSION}` matching `harness/VERSION`).
+  the pinned tag in [`INSTALL.md`](./INSTALL.md) (must match `harness/VERSION`).
 
 `scripts/test.mjs` enforces the CI-facing pieces of this policy. `/midas-doctor` stays advisory for
 project-health warnings that depend on local platform or tool configuration.

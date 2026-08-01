@@ -1813,6 +1813,23 @@ check('mkdocs:adr-003', /ADR-003/.test(readFileSync(join(ROOT, 'mkdocs.yml'), 'u
 check('script:status-page:exists', existsSync(join(ROOT, 'scripts', 'status-page.mjs')));
 check('script:skill-quality-check:exists', existsSync(join(ROOT, 'scripts', 'skill-quality-check.mjs')));
 check('script:bump-version:exists', existsSync(join(ROOT, 'scripts', 'bump-version.mjs')));
+check('template:skill-state-ritual:exists', existsSync(join(ROOT, 'harness', 'templates', 'skill-state-ritual.md')));
+if (existsSync(join(ROOT, 'scripts', 'bump-version.mjs'))) {
+  try {
+    const out = execSync(`node "${join(ROOT, 'scripts', 'bump-version.mjs')}" 9.9.9 --dry-run`, {
+      cwd: ROOT,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    check(
+      'behavioral:bump-version-dry-run',
+      /bump-version: .+ → 9\.9\.9 \(dry-run\)/.test(out) && /INSTALL\.md/.test(out),
+      'dry-run should list INSTALL.md and not write',
+    );
+  } catch (e) {
+    check('behavioral:bump-version-dry-run', false, String(e.stderr || e.message));
+  }
+}
 check('script:yaml-lite:exists', existsSync(join(ROOT, 'scripts', 'yaml-lite.mjs')));
 if (existsSync(join(ROOT, 'scripts', 'status-page.mjs'))) {
   const statusTmp = mkdtempSync(join(tmpdir(), 'midas-status-'));

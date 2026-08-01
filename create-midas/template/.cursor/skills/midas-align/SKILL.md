@@ -56,14 +56,16 @@ If `--fix` and adapters drifted: `node scripts/render-adapters.mjs` then re-run 
 4. If `harness/VERSION` or `midas_version` semantics changed → `/midas-update` (not in-place hand edits)
 
 ### 3. Version cascade (when `harness/VERSION` or release is in scope)
-Per `VERSIONING.md` § Release checklist, confirm mirrors match `<paths.engine>/VERSION`:
+Engine repo: prefer **`npm run bump -- <X.Y.Z>`** (writes VERSION, packages, state stamps,
+`INSTALL.md` pins, rebuild). Then confirm:
 
-- `package.json`, `create-midas/package.json`, `gemini-extension.json`
-- `CHANGELOG.md` entry (not `[Unreleased]` only)
-- Docs pins (`README.md`, `INSTALL.md`, `VERSIONING.md`, `create-midas/README.md` as applicable)
-- `harness/state.schema.md` example `midas_version` line
+- `package.json`, `create-midas/package.json`, `gemini-extension.json` match `harness/VERSION`
+- `INSTALL.md` is the only `#v…` copy-paste surface (skills/docs use `#v{VERSION}` or runtime reads)
+- `CHANGELOG.md` has a dated section for the release (not `[Unreleased]` only)
+- `harness/state.schema.md` example `midas_version` matches
 
-`node scripts/test.mjs` version:* checks are authoritative on the engine repo.
+`node scripts/test.mjs` `version:*` / `version-pin:*` checks are authoritative on the engine repo.
+Product installs: `/midas-update` (not in-place hand edits of engine VERSION).
 
 ### 4. Docs and flow sanity (manual, quick)
 When the diff touches skills, installer, layout, or pipeline:

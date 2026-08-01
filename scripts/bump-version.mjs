@@ -51,7 +51,12 @@ if (prev === next) {
 /** @type {{ path: string, before: string, after: string }[]} */
 const edits = [];
 
-function plan(rel, transform) {
+/**
+ * @param {string} rel
+ * @param {(text: string) => string} transform
+ * @param {{ allowNoop?: boolean }} [opts]
+ */
+function plan(rel, transform, opts = {}) {
   const abs = join(ROOT, rel);
   if (!existsSync(abs)) {
     console.error(`bump-version: missing ${rel}`);
@@ -60,6 +65,10 @@ function plan(rel, transform) {
   const before = readFileSync(abs, 'utf8');
   const after = transform(before);
   if (after === before) {
+    if (opts.allowNoop) {
+      console.log(`  · ${rel} (already current)`);
+      return;
+    }
     console.error(`bump-version: no change produced in ${rel} (prev=${prev})`);
     process.exit(1);
   }
@@ -95,7 +104,7 @@ plan('CHANGELOG.md', (t) => {
     throw new Error('CHANGELOG.md [Unreleased] compare link not found');
   }
   return out;
-});
+}, { allowNoop: true });
 
 console.log(`bump-version: ${prev} → ${next}${DRY ? ' (dry-run)' : ''}`);
 for (const e of edits) console.log(`  · ${e.path}`);

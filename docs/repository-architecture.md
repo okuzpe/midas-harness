@@ -69,7 +69,7 @@ flowchart TD
 | Installable project template | `harness/*`, `.mcp.json`, selected `docs/*`, selected `scripts/*` | `create-midas/template/*` |
 | Plugin package | `harness/skills`, `harness/agents`, `.mcp.json`, metadata in `scripts/build-plugin.mjs` | `plugins/midas/*`, `.claude-plugin/marketplace.json` |
 | Documentation site | `docs/*.md`, `mkdocs.yml` | `mkdocs build --site-dir _site` locally; GitHub Pages artifact from `.github/workflows/docs.yml` |
-| Version stamp | `harness/VERSION` | `package.json`, `create-midas/package.json`, `gemini-extension.json`, docs version pins |
+| Version stamp | `harness/VERSION` | `npm run bump -- <ver>` → packages, state stamps, `INSTALL.md` `#v…` pins, rebuild |
 
 Generated trees are intentionally committed because users install from the repository and plugin
 marketplace paths. They are not hand-edited; CI rebuilds them and fails if they drift.
