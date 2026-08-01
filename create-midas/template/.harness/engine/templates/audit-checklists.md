@@ -46,8 +46,8 @@ MIDAS_SECURITY_RESULT: level=L2 critical=a high=b medium=c low=d verdict=pass|fi
 # midas-sweep
 MIDAS_SWEEP_RESULT: dead_flows=N orphans=N ledger_drift=N stale_docs=N harness_drift=N hygiene=N verdict=clean|report|fixed
 
-# midas-verify
-MIDAS_VERIFY_RESULT: criteria=N pass=A fail=B blocked=C verdict=pass|fail|blocked
+# midas-verify (canonical shape — also in verify-record.md; doctor parses fails/criticals)
+MIDAS_VERIFY_RESULT: fails=X criticals=Y runtime_errors=Z
 
 # midas-align
 MIDAS_ALIGN_RESULT: gaps=N verdict=aligned|gaps
