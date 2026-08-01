@@ -15,30 +15,9 @@ recommended-model: claude-haiku-4-5
 A cheap, **read-only** status check. It never writes, never advances state, and never runs a gate to
 completion — it reports the truth already on disk. Safe to run at any time, including mid-phase.
 
-## Command router (when the user is lost)
-
-| Situation | Command |
-|---|---|
-| Not installed / wrong cwd / version behind | `/midas-reconcile` |
-| Where am I in the pipeline? | `/midas-status` (this skill) |
-| Resuming after a break (>7 days or mid-phase) | `/midas-recall` |
-| Edited `conventions.md` or rules | `/midas-doctor` |
-| Edited engine skills / installer / VERSION | `/midas-align` |
-| Monorepo needs nested `AGENTS.md` | `/midas-init --monorepo` |
-| Sprint UI proof before close | `/midas-verify` |
-| Quick branch/PR smoke test | `/midas-qa` |
-| Dead code / ledger drift | `/midas-sweep` |
-| Export/import project knowledge | `node <paths.scripts>/bundle.mjs` |
-| Unsure which command fits my intent | `/midas-help` |
-| Ad-hoc investigation outside the pipeline | `/midas-explore` |
-
-Audit roles (shared checklists: `<paths.engine>/templates/audit-checklists.md`):
-
-| Need | Command | Gate? |
-|---|---|---|
-| Sprint conformance | `/close-sprint` | **Yes** |
-| Were decisions right? | `/midas-tribunal` | No |
-| Deep security scan | `/midas-security-audit` | No |
+> **Lost on *which* skill?** Do not invent a second router — use
+> `docs/skills.md` § Which command when (install: `<paths.engine>/docs/skills.md`) or `/midas-help`.
+> Audit roles: same file § Audits (+ `<paths.engine>/templates/audit-checklists.md`).
 
 ## Steps
 
