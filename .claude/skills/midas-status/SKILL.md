@@ -50,7 +50,7 @@ completion — it reports the truth already on disk. Safe to run at any time, in
    | `tech_architecture` | `/choose-architecture` |
    | `architecture_rules` | `/define-conventions` |
    | `sprint_planning` | `/plan-sprints` |
-   | `sprint_execution` | `/start-sprint` while tasks remain; `/midas-verify` for UI acceptance journeys before close; `/close-sprint` when done + tests green |
+   | `sprint_execution` | `/start-sprint` while tasks remain; `/midas-design` before redesign JSX; `/midas-verify` for UI acceptance journeys before close; `/close-sprint` when done + tests green |
    | `shipped` | none — MVP complete |
 
 5. **Surface optional prompts (never force).** At a high-leverage decision point, add **one** line if relevant:
