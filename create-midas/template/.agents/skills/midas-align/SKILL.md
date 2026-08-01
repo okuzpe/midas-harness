@@ -56,8 +56,8 @@ If `--fix` and adapters drifted: `node scripts/render-adapters.mjs` then re-run 
 4. If `harness/VERSION` or `midas_version` semantics changed → `/midas-update` (not in-place hand edits)
 
 ### 3. Version cascade (when `harness/VERSION` or release is in scope)
-Engine repo: prefer **`npm run bump -- <X.Y.Z>`** (writes VERSION, packages, state stamps,
-`INSTALL.md` pins, rebuild). Then confirm:
+Engine repo: **must** run **`npm run bump -- <X.Y.Z>`** (`change-propagation.md` — never hand-scatter
+pins). That writes VERSION, packages, state stamps, `INSTALL.md` pins, and rebuilds. Then confirm:
 
 - `package.json`, `create-midas/package.json`, `gemini-extension.json` match `harness/VERSION`
 - `INSTALL.md` is the only `#v…` copy-paste surface (skills/docs use `#v{VERSION}` or runtime reads)
