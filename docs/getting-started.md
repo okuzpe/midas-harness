@@ -25,13 +25,13 @@ irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | ie
 **Any platform, no shell script**
 ```bash
 npx  github:okuzpe/midas-harness
-# compact layout (less root clutter):
-npx github:okuzpe/midas-harness#v2.0.0 --tools=cursor
+# pin a release (copy-paste from INSTALL.md):
+npx github:okuzpe/midas-harness#v{VERSION} --tools=cursor
 pnpm dlx github:okuzpe/midas-harness
 bunx github:okuzpe/midas-harness
 ```
 
-All three forms run the same dependency-free Node installer.
+Full install/update/migrate commands: [INSTALL.md](../INSTALL.md).
 
 **Not sure which command to run?** (install vs update vs init)
 

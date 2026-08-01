@@ -17,6 +17,7 @@ const MAX_LINES = 500;
 const MAX_DESCRIPTION = 1024;
 const TIERS = new Set(['orchestrate', 'build', 'scout']);
 const RITUAL_GUARD = 'Run only when the user explicitly invokes';
+const RITUAL_CITE = 'skill-state-ritual.md';
 
 const HELP = `skill-quality-check — mechanical skill quality report (report-only)
 
@@ -87,8 +88,9 @@ export function inspectArtifact({ kind, id, relPath, text }) {
   if (kind === 'skill') {
     if (!fm['harness-tier']) warns.push('missing `harness-tier`');
     else if (!TIERS.has(fm['harness-tier'])) warns.push(`unknown harness-tier "${fm['harness-tier']}"`);
-    if (fm['disable-model-invocation'] === 'true' && !text.includes(RITUAL_GUARD)) {
-      fails.push('disable-model-invocation skill missing ritual guard in body');
+    if (fm['disable-model-invocation'] === 'true') {
+      const hasGuard = text.includes(RITUAL_GUARD) || text.includes(RITUAL_CITE);
+      if (!hasGuard) fails.push('disable-model-invocation skill missing ritual guard or skill-state-ritual.md cite');
     }
   }
 

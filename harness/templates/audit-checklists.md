@@ -30,7 +30,8 @@ Before grading, load when present:
 
 ## Parseable tally lines
 
-Each frozen record ends with a machine-readable summary for `/midas-doctor`:
+Each frozen record ends with a machine-readable summary for `/midas-doctor`. Skills **cite this
+section** — they do not redefine the shape locally.
 
 ```
 # close-sprint
@@ -41,6 +42,15 @@ MIDAS_TRIBUNAL_RESULT: criticals=X highs=Y
 
 # midas-security-audit
 MIDAS_SECURITY_RESULT: level=L2 critical=a high=b medium=c low=d verdict=pass|findings
+
+# midas-sweep
+MIDAS_SWEEP_RESULT: dead_flows=N orphans=N ledger_drift=N stale_docs=N harness_drift=N hygiene=N verdict=clean|report|fixed
+
+# midas-verify
+MIDAS_VERIFY_RESULT: criteria=N pass=A fail=B blocked=C verdict=pass|fail|blocked
+
+# midas-align
+MIDAS_ALIGN_RESULT: gaps=N verdict=aligned|gaps
 ```
 
 `unresolved=0` (audit) or equivalent open criticals (security) before treating a sprint gate as pass.

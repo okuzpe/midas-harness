@@ -11,7 +11,7 @@ metadata:
 ---
 # midas-explore — investigation outside the pipeline
 
-> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
+> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
 > Read **`paths.state`** first when checking sprint conflicts.
 
 > **Paths:** `{runs}/` → `paths.runs`. Sessions live at `{runs}/explore/<slug>/` (optional dir, like

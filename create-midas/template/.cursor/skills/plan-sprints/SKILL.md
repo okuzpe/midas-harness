@@ -10,10 +10,7 @@ metadata:
 ---
 # plan-sprints (Phase 6 — Sprint Planning)
 
-> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read the state file at **`paths.state`** (`layout` + `paths` block, or infer from disk). If the precondition stage is wrong, report and stop.
-
-> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
+> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
 
 Sequence the **MVP only** into shippable sprints. Value is correct decomposition and dependency
 ordering, not prose volume. Each sprint is a thin, demonstrable slice whose Definition of Done points

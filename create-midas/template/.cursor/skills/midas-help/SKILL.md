@@ -10,6 +10,8 @@ metadata:
 ---
 # midas-help — intent → one command
 
+> **Paths / state:** `<paths.engine>/templates/skill-state-ritual.md` (read-only) + `AGENTS.md` § Path resolution.
+
 > **Read-only.** Never writes, never advances gates. Complements `/midas-status` (pipeline PC) and
 > `docs/skills.md` (static catalog) — this skill is **AskQuestion → one answer**, not a pasted table.
 

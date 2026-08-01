@@ -11,6 +11,8 @@ metadata:
 ---
 # midas-reconcile — which command should I run next?
 
+> **Paths / state:** `<paths.engine>/templates/skill-state-ritual.md` (read-only) + `AGENTS.md` § Path resolution.
+
 > **Read-only.** Never installs, never updates, never advances `stage`. Prints the **one** next step.
 
 Use when:
@@ -51,8 +53,8 @@ Do not invent a different command unless the script is missing (fallback below).
 
 | Observation | Next step |
 |-------------|-------------|
-| No `.harness/engine/VERSION`, `harness/VERSION`, or `.midas/engine/VERSION` | `npx github:okuzpe/midas-harness#v2.0.0 --tools=cursor` then `/midas-init` |
-| `harness/VERSION` or `.midas/engine/VERSION` exists but canonical engine does not | Preview `npx ...#v2.0.0 --migrate`; after review add `--apply` |
+| No `.harness/engine/VERSION`, `harness/VERSION`, or `.midas/engine/VERSION` | `npx github:okuzpe/midas-harness#v{VERSION} --tools=cursor` (pin from `INSTALL.md` / release tag) then `/midas-init` |
+| `harness/VERSION` or `.midas/engine/VERSION` exists but canonical engine does not | Preview `npx ...#v{VERSION} --migrate`; after review add `--apply` |
 | Engine present, `setup_complete: false` in `paths.state` | `/midas-init` (brownfield → often `/midas-adopt`) |
 | v2 `midas_version` < engine `VERSION` | `npx ... --update` or `/midas-update` |
 | Parent dir has Midas, this folder does not | `cd` to parent; `/midas-status` |

@@ -11,11 +11,8 @@ metadata:
 ---
 # midas-adopt — brownfield adoption (existing projects)
 
-> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read the state file at **`paths.state`**; this skill is for **brownfield** projects (existing code). If the repo
-
-> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
-> is empty/greenfield, stop and point at `/idea-intake`.
+> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Precondition:** brownfield (existing code). Empty/greenfield repo → `/idea-intake`.
 
 This is the **E2/E3 (partial / mature) branch of the adaptive intake**: `/midas-init` runs it
 automatically when its scan finds real code, or you can invoke it directly on an existing repo.

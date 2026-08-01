@@ -12,10 +12,8 @@ argument-hint: "[whole|architecture|scope|idea|market|design|unit-economics|secu
 
 # midas-tribunal — whole-project adversarial debate
 
-> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
+> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
 > Read **`paths.state`**. No artifacts on disk → report nothing to try and stop.
-
-> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
 
 ## Does / Does not
 

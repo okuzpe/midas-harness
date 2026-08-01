@@ -11,11 +11,8 @@ metadata:
 ---
 # midas-align — keep sources, bundles, docs, and versions aligned
 
-> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read the state file at **`paths.state`** (`layout` + `paths` block, or infer from disk).
-
-> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`.
-> Full matrix: `<paths.engine>/rules/change-propagation.md`.
+> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> Full matrix: `<paths.engine>/rules/change-propagation.md`. Tally: `<paths.engine>/templates/audit-checklists.md`.
 
 Runs the **propagation alignment pass** so a change does not leave generated adapters, distribution
 bundles, version stamps, or user-facing docs behind. `/midas-doctor` covers adapter drift and install

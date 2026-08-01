@@ -11,8 +11,8 @@ mcp-recommended: [context7]
 
 # midas-doctor — the only sync engine
 
-> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read the state file at **`paths.state`**. No stage precondition — doctor may run at any lifecycle stage.
+> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> No stage precondition — doctor may run at any lifecycle stage.
 
 > **Paths:** Run `node <paths.scripts>/doctor.mjs`. Adapters render from `<paths.engine>/conventions.md` + rules. Substitute `{runs}/` and `{product}/` per `AGENTS.md` § Path resolution.
 

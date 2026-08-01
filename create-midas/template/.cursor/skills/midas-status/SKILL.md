@@ -10,7 +10,7 @@ metadata:
 ---
 # midas-status — where am I, what's next
 
-> **Paths (layout-aware):** Read `layout` + `paths` from **`paths.state`**. Substitute `{runs}/` → `paths.runs`, `{product}/` → `paths.product`. Engine at `paths.engine`. See `AGENTS.md` § Path resolution.
+> **Paths / state:** `<paths.engine>/templates/skill-state-ritual.md` (read-only) + `AGENTS.md` § Path resolution.
 
 A cheap, **read-only** status check. It never writes, never advances state, and never runs a gate to
 completion — it reports the truth already on disk. Safe to run at any time, including mid-phase.

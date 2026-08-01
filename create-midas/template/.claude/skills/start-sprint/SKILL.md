@@ -11,10 +11,7 @@ mcp-recommended: [context7]
 
 # start-sprint (Phase 7 — Sprint Execution kickoff)
 
-> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read the state file at **`paths.state`** (`layout` + `paths` block, or infer from disk). If the precondition stage is wrong, report and stop.
-
-> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
+> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
 
 This is **"applying the harness"** — the signature loop. Before any code is written for a sprint, the
 orchestrator re-audits the **living code** against the **rules frozen in Phase 5** and the **scope in

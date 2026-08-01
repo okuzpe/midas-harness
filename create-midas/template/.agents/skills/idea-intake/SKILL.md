@@ -10,17 +10,13 @@ metadata:
 ---
 # idea-intake — Phase 0: capture the idea
 
-> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read the state file at **`paths.state`** (`layout` + `paths` block, or infer from disk). If the precondition stage is wrong, report and stop.
-
-> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
+> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
 
 Phase 0 turns a raw, possibly messy idea into a normalized, preserved artifact so the rest of the
 pipeline has a stable starting point. **Preservation is sacred:** never rewrite the user's words away —
 capture them verbatim, then add a normalized layer beside them. Playbook: `<paths.engine>/pipeline/0-idea-intake.md`.
 
-**Precondition:** **`paths.state`** exists at `stage: idea_intake` (set by `/midas-init`). Read it
-first; if Midas is not initialized, direct the user to `/midas-init`. Read first, write last.
+**Precondition:** **`paths.state`** exists at `stage: idea_intake` (set by `/midas-init`). Read it; if Midas is not initialized, direct the user to `/midas-init`.
 
 ## Does / Does not
 

@@ -37,6 +37,15 @@ import {
 const HERE = dirname(fileURLToPath(import.meta.url));
 const TEMPLATE = join(HERE, 'template');
 
+/** Engine version from the bundled template (falls back only when the template is missing). */
+function readBundledVersion() {
+  try {
+    return readFileSync(join(TEMPLATE, '.harness', 'engine', 'VERSION'), 'utf8').trim();
+  } catch {
+    return '0.0.0';
+  }
+}
+
 /** Tools the installer accepts on `--tools`. codex/copilot have no generated adapter (AGENTS.md only). */
 export const KNOWN_TOOLS = ['claude-code', 'cursor', 'windsurf', 'gemini', 'codex', 'copilot'];
 /** Default fresh install — thin root (ADR-008). Use `--tools=a` / all adapters when needed. */
@@ -84,13 +93,7 @@ const TEST_FAIL_STEP = process.env.MIDAS_TEST_FAIL_STEP || '';
 
 if (diagnose) {
   const { runDiagnoseCli } = await import('./install-diagnose.mjs');
-  let bundledVersion = '2.0.0';
-  try {
-    bundledVersion = readFileSync(join(TEMPLATE, '.harness', 'engine', 'VERSION'), 'utf8').trim();
-  } catch {
-    /* template VERSION optional during dev */
-  }
-  const installCmd = `npx github:okuzpe/midas-harness#v${bundledVersion} --tools=cursor`;
+  const installCmd = `npx github:okuzpe/midas-harness#v${readBundledVersion()} --tools=cursor`;
   process.exit(runDiagnoseCli(TARGET, { installCmd }));
 }
 
@@ -142,9 +145,10 @@ if (update && !hasMidasInstall(TARGET)) {
   process.exit(1);
 }
 if (update && detectLegacyLayout(TARGET) && detectLegacyLayout(TARGET) !== 'harness') {
+  const pin = `v${readBundledVersion()}`;
   console.error('create-midas: this is a Midas 1.x layout; --update never relocates files.');
-  console.error('  Preview: npx github:okuzpe/midas-harness#v2.0.0 --migrate');
-  console.error('  Apply:   npx github:okuzpe/midas-harness#v2.0.0 --migrate --apply');
+  console.error(`  Preview: npx github:okuzpe/midas-harness#${pin} --migrate`);
+  console.error(`  Apply:   npx github:okuzpe/midas-harness#${pin} --migrate --apply`);
   process.exit(1);
 }
 
@@ -1150,21 +1154,22 @@ function reportUninstall({ removed, keptModified, keptUser, purged, layout }) {
 }
 
 function printHelp() {
+  const pin = `v${readBundledVersion()}`;
   console.log(`create-midas — install (or uninstall) the Midas harness in a project
 
 Install:
   npx github:okuzpe/midas-harness          into the current directory (from GitHub)
   npx github:okuzpe/midas-harness my-app   into ./my-app
-  npx github:okuzpe/midas-harness#v2.0.0 --tools=cursor
+  npx github:okuzpe/midas-harness#${pin} --tools=cursor
   npx github:okuzpe/midas-harness --layout=harness   explicit no-op; v2 has one layout
 
 Migrate an existing v1 install (always explicit):
-  npx github:okuzpe/midas-harness#v2.0.0 --migrate          preview only; writes nothing
-  npx github:okuzpe/midas-harness#v2.0.0 --migrate --apply  migrate transactionally + verify
+  npx github:okuzpe/midas-harness#${pin} --migrate          preview only; writes nothing
+  npx github:okuzpe/midas-harness#${pin} --migrate --apply  migrate transactionally + verify
 
 Update an existing install (overwrites the engine, KEEPS your work, bumps the version stamp):
   npx github:okuzpe/midas-harness --update             refresh to the latest (main)
-  npx github:okuzpe/midas-harness#v2.0.0 --update refresh to a pinned release
+  npx github:okuzpe/midas-harness#${pin} --update refresh to a pinned release
 
 Uninstall (surgical — removes only Midas's files, keeps your work):
   npx github:okuzpe/midas-harness --uninstall             remove owned engine files; keep product, rules, runs, state
@@ -1192,6 +1197,6 @@ Options:
 After install, open the project in your chosen tool and run /midas-init (one-time setup), then /midas-status.
 Not sure? Run: npx github:okuzpe/midas-harness --diagnose
 Cursor:           npx github:okuzpe/midas-harness --tools=cursor
-Migration preview: npx github:okuzpe/midas-harness#v2.0.0 --migrate
+Migration preview: npx github:okuzpe/midas-harness#${pin} --migrate
 Docs: https://github.com/okuzpe/midas-harness`);
 }

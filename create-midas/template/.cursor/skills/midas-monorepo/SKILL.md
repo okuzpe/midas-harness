@@ -11,7 +11,7 @@ metadata:
 ---
 # midas-monorepo — deprecated alias
 
-> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
+> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
 
 > **This command is deprecated.** Prefer **`/midas-init --monorepo`** (works even when `setup_complete: true`
 > — it runs only Phase F monorepo wiring without repeating intake). Tier is **build** because this alias

@@ -11,10 +11,8 @@ mcp-recommended: [context7]
 
 # define-conventions (Phase 5 — architecture-as-rules + design system)
 
-> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
+> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
 > Read **`paths.state`**. Precondition: `stage: tech_architecture` passed (or `architecture_rules` resuming). Missing `{product}/architecture.md` or ADRs → stop.
-
-> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
 
 ## Does / Does not
 

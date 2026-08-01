@@ -9,6 +9,11 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+### Changed
+
+- Version bumps are single-command: `npm run bump -- <X.Y.Z>`. Skills/docs use `#v{VERSION}`
+  placeholders; only `INSTALL.md` keeps copy-paste `#v…` pins.
+
 ---
 
 ## [2.0.0] — 2026-08-01

@@ -11,17 +11,13 @@ metadata:
 ---
 # midas-update — migrate an install to the current engine
 
-> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read the state file at **`paths.state`**; if there is none, this project isn't initialized — point at `/midas-init`.
-
-> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
-
-> **Wrong command?** If install vs update vs init is unclear, run `npx github:okuzpe/midas-harness --diagnose`
-> (terminal, works even before Midas is installed) or `/midas-reconcile` after install — both are read-only.
+> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Precondition:** `paths.state` exists. Missing → `/midas-init`. Unsure install vs update → `/midas-reconcile` or `npx github:okuzpe/midas-harness --diagnose`.
 
 Bring an existing canonical v2 install up to the current engine, **safely**. Read `layout` + `paths`
 from **`paths.state`**. If the project is classic, compact, or hub 1.x, stop without writing and point
-to `npx github:okuzpe/midas-harness#v2.0.0 --migrate`; applying requires the explicit `--apply`.
+to `npx github:okuzpe/midas-harness#v{VERSION} --migrate` (substitute `{VERSION}` from the release
+tag / engine `VERSION` you intend — see `INSTALL.md`); applying requires the explicit `--apply`.
 
 ## Procedure
 1. **Read versions.** `from` = state `midas_version`; `to` = engine `VERSION` at `paths.version`. If `from == to`, report "already current" and stop.
@@ -34,10 +30,10 @@ to `npx github:okuzpe/midas-harness#v2.0.0 --migrate`; applying requires the exp
    edited outside `<!-- midas:begin -->` markers, preserve their content; only update managed regions.
    `--dry-run` prints the plan and writes nothing.
 5. **Apply + re-render + gitignore.** Prefer
-   `npx github:okuzpe/midas-harness#v2.0.0 --update` (refreshes engine, **merges `.gitignore`**
-   from the new snippet, re-renders adapters). Pass `--tools=cursor` (or your subset) to rewrite
-   `state.tools` and prune orphan host mirrors. Or write confirmed files then
-   `node <paths.scripts>/doctor.mjs --fix` (adapters **and** gitignore upgrade).
+   `npx github:okuzpe/midas-harness#v{VERSION} --update` with `{VERSION}` = target engine version
+   (refreshes engine, **merges `.gitignore`** from the new snippet, re-renders adapters). Pass
+   `--tools=cursor` (or your subset) to rewrite `state.tools` and prune orphan host mirrors. Or write
+   confirmed files then `node <paths.scripts>/doctor.mjs --fix` (adapters **and** gitignore upgrade).
 6. **Bump the stamp.** Set state `midas_version = to` (read-modify-write the whole file at `paths.state`).
 7. **Report.** Summarize what migrated, what was preserved, **gitignore status** (written / upgraded /
    already up to date), and any manual follow-ups from the notes.

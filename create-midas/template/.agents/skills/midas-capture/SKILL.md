@@ -11,6 +11,8 @@ metadata:
 ---
 # midas-capture — Crystallize a recurring pattern into a rule / playbook / convention
 
+> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+
 > **Run only when the user explicitly invokes this command, or right after they confirm a captured-pattern
 > proposal.** Never write a rule/playbook/convention silently — the user says yes first.
 

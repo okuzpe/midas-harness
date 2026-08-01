@@ -42,6 +42,7 @@
     "bundle": "node scripts/bundle.mjs",
     "docs:build": "mkdocs build --site-dir _site",
     "status": "node scripts/status-page.mjs",
-    "skill-quality": "node scripts/skill-quality-check.mjs"
+    "skill-quality": "node scripts/skill-quality-check.mjs",
+    "bump": "node scripts/bump-version.mjs"
   }
 }

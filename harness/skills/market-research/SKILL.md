@@ -11,14 +11,8 @@ mcp-recommended: [context7]
 
 # market-research — Phase 2
 
-> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read the state file at **`paths.state`** (`layout` + `paths` block, or infer from disk). If the precondition stage is wrong, report and stop.
-
-> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
-
-> First read **`paths.state`**. Precondition: stage `contextualize` passed (the idea is clear, with
-> user/problem/metric/non-goals defined). If the idea still has BLOCKING open questions, stop and point
-> at `/contextualize`. Read first, write last.
+> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Precondition:** `contextualize` passed (user/problem/metric/non-goals clear). Blocking opens → `/contextualize`.
 
 Validate that the clarified idea addresses a real problem with a real audience, and map the
 competitive landscape **with citations**. The producer gathers and synthesizes; the orchestrator

@@ -4,6 +4,10 @@
 lifecycle. Every Midas skill **reads it first and writes it last**. There is exactly one state
 file, one path, one format (YAML). Do not introduce a second state model.
 
+Skill bodies cite the shared protocol in `harness/templates/skill-state-ritual.md` (installed:
+`<paths.engine>/templates/skill-state-ritual.md`) — they do **not** restate this schema or the
+read/write order.
+
 It is committed to the project's git (reproducible memory). Volatile caches/hashes are gitignored.
 
 ## Stage enum (maps 1:1 to the 9 phases)

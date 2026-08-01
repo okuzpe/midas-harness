@@ -11,7 +11,7 @@ argument-hint: "[phase|sprint|task] [--focus \"<query>\"]"
 
 # midas-recall — Context Pack (read-only resume)
 
-> **Paths (layout-aware):** Read `layout` + `paths` from **`paths.state`**. Motor = `paths.engine`; `{runs}/` = `paths.runs` + subdir. See `AGENTS.md` § Path resolution.
+> **Paths / state:** `<paths.engine>/templates/skill-state-ritual.md` (read-only) + `AGENTS.md` § Path resolution.
 
 Cheap **read-only** recovery. Assembles the smallest set of on-disk artifacts an agent needs to resume
 mid-phase or mid-sprint — without dumping all of `{product}/` into context. **Never writes** and never

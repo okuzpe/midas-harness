@@ -2,6 +2,9 @@
 
 > **Canonical install reference.** Flags, layouts, update flows, and troubleshooting live here.
 > [README.md](README.md) and [docs/getting-started.md](docs/getting-started.md) summarize and link to this file.
+>
+> **Version pins:** this file is the *only* user-facing copy-paste surface for `#vX.Y.Z`. Maintainers
+> bump it with `npm run bump -- <version>` (do not scatter pins across skills/docs).
 
 Midas installs **into any project** (new or existing). Every method runs the same dependency-free Node
 installer, which installs the managed engine under `.harness/`, generates only the selected host

@@ -88,6 +88,9 @@ On tools without per-agent model selection, apply as intent: fastest for researc
   `/midas-adopt`, `/midas-update`, `/midas-verify`, `/midas-monorepo`, `/midas-tribunal`, `/midas-security-audit`, `/midas-sweep`, `/midas-capture`, `/midas-align`, `/midas-bundle`, `/midas-progress`, `/midas-explore`) are **user-typed slash commands**
   (`disable-model-invocation`). **Never call them via the Skill tool** (it errors) or auto-run them — when one
   is the next step, **surface the command for the user to type** ("👉 Run `/…`"). Each also guards this in its body.
+- **State ritual (shared):** skills read **`paths.state` first** and **write last** (read-modify-write). Cite
+  `<paths.engine>/templates/skill-state-ritual.md` instead of restating stage enums or path substitution.
+  Schema: `<paths.engine>/state.schema.md`.
 - Secrets only via `${ENV_VAR}`; never write a key to disk or commit one.
 - Generated adapters (`.claude/CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `GEMINI.md`) must not be
   hand-edited; they are re-rendered by `/midas-doctor`.

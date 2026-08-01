@@ -12,7 +12,7 @@ argument-hint: "[PR number | branch name | current] [--port PORT]"
 
 # midas-qa — Ad-hoc branch QA
 
-> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
+> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
 
 Quick QA on **what changed** — not the formal sprint gate. **`/midas-verify`** remains required before **`/close-sprint`** for UI sprints.
 

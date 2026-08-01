@@ -12,7 +12,7 @@ metadata:
 ---
 # midas-security-audit — Deep Security Audit
 
-> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
+> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
 > Read **`paths.state`** first. Advanced, non-advancing audit — never auto-run.
 
 > **Paths:** Read `layout` + `paths` from **`paths.state`**. Substitute `{runs}/` → `paths.runs`, `{product}/` → `paths.product`. See `AGENTS.md` § Path resolution.

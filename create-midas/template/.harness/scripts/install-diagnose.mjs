@@ -5,7 +5,18 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const DEFAULT_INSTALL_CMD = 'npx github:okuzpe/midas-harness#v2.0.0-rc.1 --tools=cursor';
+/** Fallback when caller does not pass installCmd (prefer reading bundled VERSION in create-midas). */
+const DEFAULT_INSTALL_CMD = 'npx github:okuzpe/midas-harness --tools=cursor';
+
+/**
+ * @param {string} installCmd
+ * @param {'migrate' | 'update'} mode
+ */
+function relatedCli(installCmd, mode) {
+  const base = installCmd.replace(/\s+--tools=\S+/g, '').trim();
+  if (mode === 'migrate') return `${base} --migrate`;
+  return `${base} --update`;
+}
 
 function stripYamlComment(value) {
   let inSingle = false;
@@ -138,7 +149,7 @@ export function diagnoseProject(targetDir, opts = {}) {
       status: 'legacy_layout',
       dir,
       summary: 'A Midas 1.x classic/compact/hub layout was detected; update will not move it.',
-      nextCli: 'npx github:okuzpe/midas-harness#v2.0.0-rc.1 --migrate',
+      nextCli: relatedCli(installCmd, 'migrate'),
       nextSlash: '/midas-reconcile',
       detail: 'Review the read-only plan, then repeat with --migrate --apply to migrate transactionally.',
     };

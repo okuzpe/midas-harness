@@ -39,6 +39,7 @@ const ROOT = resolve(SCRIPT_DIR, '..');
 
 const MODELS = ['claude-opus-4-8', 'claude-sonnet-4-6', 'claude-haiku-4-5', 'inherit'];
 const RITUAL_GUARD = 'Run only when the user explicitly invokes';
+const RITUAL_CITE = 'skill-state-ritual.md';
 
 let passed = 0;
 const failures = [];
@@ -183,7 +184,8 @@ for (const name of dirNames(skillsDir)) {
   check(`skill:${name}:has-description`, !!fm.description && fm.description.length > 10);
   check(`skill:${name}:tier`, ['orchestrate', 'build', 'scout'].includes(fm['harness-tier']), `tier=${fm['harness-tier']}`);
   if (fm['disable-model-invocation'] === 'true') {
-    check(`skill:${name}:ritual-guard`, text.includes(RITUAL_GUARD), 'missing body guard');
+    const hasGuard = text.includes(RITUAL_GUARD) || text.includes(RITUAL_CITE);
+    check(`skill:${name}:ritual-guard`, hasGuard, 'missing body guard or skill-state-ritual.md cite');
   }
 }
 
@@ -677,14 +679,33 @@ if (existsSync(join(ROOT, 'examples', 'taskpilot'))) {
   check('installer:no-bare-readToolsFromState', !/readToolsFromState\(\)/.test(installer));
 }
 
-// --- L. prose version pins (#vX.Y.Z) match harness/VERSION (CHANGELOG history excluded) ---------
+// --- L. INSTALL.md is the only user-facing #vX.Y.Z pin surface (must match harness/VERSION) -------
+// Skills / installer help / SECURITY / FAQ use #v{VERSION} placeholders or read VERSION at runtime.
 if (engineVersion) {
-  for (const f of ['INSTALL.md', 'SECURITY.md', 'README.md', 'create-midas/index.mjs']) {
+  const install = join(ROOT, 'INSTALL.md');
+  if (existsSync(install)) {
+    const pins = readFileSync(install, 'utf8').match(/#v(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)/g) || [];
+    check('version-pin:INSTALL.md:has-pins', pins.length > 0, 'expected at least one #v… pin');
+    for (const pin of pins) {
+      check(`version-pin:INSTALL.md:${pin}`, pin.slice(2) === engineVersion, `${pin} != ${engineVersion}`);
+    }
+  }
+  for (const f of [
+    'harness/skills/midas-update/SKILL.md',
+    'harness/skills/midas-reconcile/SKILL.md',
+    'SECURITY.md',
+    'README.md',
+    'create-midas/index.mjs',
+  ]) {
     const p = join(ROOT, f);
     if (!existsSync(p)) continue;
-    for (const pin of readFileSync(p, 'utf8').match(/#v(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)/g) || []) {
-      check(`version-pin:${f}:${pin}`, pin.slice(2) === engineVersion, `${pin} != ${engineVersion}`);
-    }
+    const hardcoded = (readFileSync(p, 'utf8').match(/#v\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?/g) || [])
+      .filter((pin) => pin.slice(2) !== '{VERSION}');
+    check(
+      `version-pin:${f}:no-hardcoded`,
+      hardcoded.length === 0,
+      `unexpected literal pins: ${hardcoded.join(', ')} — use #v{VERSION} or read harness/VERSION`,
+    );
   }
 }
 
@@ -1791,6 +1812,7 @@ check('mkdocs:adr-003', /ADR-003/.test(readFileSync(join(ROOT, 'mkdocs.yml'), 'u
 // --- status-page + yaml-lite smoke ----------------------------------------
 check('script:status-page:exists', existsSync(join(ROOT, 'scripts', 'status-page.mjs')));
 check('script:skill-quality-check:exists', existsSync(join(ROOT, 'scripts', 'skill-quality-check.mjs')));
+check('script:bump-version:exists', existsSync(join(ROOT, 'scripts', 'bump-version.mjs')));
 check('script:yaml-lite:exists', existsSync(join(ROOT, 'scripts', 'yaml-lite.mjs')));
 if (existsSync(join(ROOT, 'scripts', 'status-page.mjs'))) {
   const statusTmp = mkdtempSync(join(tmpdir(), 'midas-status-'));

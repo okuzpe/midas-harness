@@ -184,6 +184,8 @@ Non-trivial skills need When-NOT (or equivalent), and missing-state recovery if 
 
 - English body; resolve paths via `paths.state` tokens — no hardcoded classic-only layouts as the
   sole read path.
+- Cite `<paths.engine>/templates/skill-state-ritual.md` for invocation + read-first/write-last;
+  cite `state.schema.md` for enums — do *not* restate those blocks in the skill body.
 - Link owning rules/templates (`harness/rules/*`, `harness/templates/*`); do *not* restate
   model-routing tables or CHECK digests.
 - User-facing slash skills (**engine repo**): entry in `docs/skills.md`. Product installs → usually `n/a`.

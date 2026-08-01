@@ -11,10 +11,8 @@ mcp-recommended: [context7]
 
 # choose-architecture (Phase 4 — Tech & Architecture)
 
-> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
+> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
 > Read **`paths.state`** first. Precondition: `stage: business_case` `passed`, or `tech_architecture` in progress. If business case gate has not passed, stop and report missing Phase-3 items.
-
-> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
 
 Turn the signed-off business case into a **pinned, verifiable architecture**: exact versions, system diagram, ADR per irreversible decision. **Orchestrate-tier** — Opus reasons; scout does Context7 retrieval.
 

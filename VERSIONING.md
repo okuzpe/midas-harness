@@ -127,12 +127,14 @@ Exit criteria that gated **1.0.0** (all met):
 
 ## Release checklist (maintainers)
 
-1. Update `CHANGELOG.md` — move items from `[Unreleased]` to the new version section.
-2. Bump `harness/VERSION` (the single canonical engine version). `package.json`,
-   `create-midas/package.json`, and `gemini-extension.json` mirror it; `scripts/test.mjs` asserts they all match.
-3. Bump pinned `npx github:okuzpe/midas-harness#vX.Y.Z` tags in
-   `harness/skills/midas-update/SKILL.md` and `harness/skills/midas-reconcile/SKILL.md` (see
-   `harness/rules/change-propagation.md`).
-4. Tag: `git tag v0.X.Y && git push origin v0.X.Y`.
-5. If breaking: add `harness/migrations/v0.X.md` before tagging.
-6. Update the `[Unreleased]` diff link in `CHANGELOG.md`.
+1. Update `CHANGELOG.md` — move items from `[Unreleased]` to the new version section (can draft first).
+2. Run **`npm run bump -- <X.Y.Z>`** — single command that writes `harness/VERSION`, package mirrors
+   (`package.json`, `create-midas/package.json`, `gemini-extension.json`), state example stamps,
+   `INSTALL.md` `#v…` pins, the Unreleased compare link, and `npm run build`.
+3. Finish the CHANGELOG section + compare link row for the new version if not already done.
+4. `npm test`, then `git tag vX.Y.Z && git push origin main vX.Y.Z`.
+5. If breaking: add `harness/migrations/vX.Y.md` before tagging.
+
+**Do not** hand-edit `#v…` pins in skills, SECURITY, FAQ, or installer help — those use `#v{VERSION}`
+placeholders or read the bundled `VERSION` at runtime. The only user-facing copy-paste pin is
+`INSTALL.md` (maintained by the bump script).

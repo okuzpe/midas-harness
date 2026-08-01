@@ -11,7 +11,7 @@ argument-hint: "export|import [--profile full|memory|knowledge|...] [-o file.jso
 
 # midas-bundle — export/import portable project knowledge (JSON)
 
-> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
+> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
 
 > **Paths:** Read `layout` + `paths` from **`paths.state`**. Scripts = `<paths.scripts>/bundle.mjs`.
 > Full memory model: `<paths.engine>/research/memory-model.md`.

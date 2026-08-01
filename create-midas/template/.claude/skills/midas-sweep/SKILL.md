@@ -11,10 +11,9 @@ argument-hint: "[code|docs|harness|all] [--depth quick|standard] [--fix]"
 
 # midas-sweep — Hygiene, cleanup & dead-flow detection
 
-> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> Read **`paths.state`** first. No precondition stage — runs anytime. If no `{product}/` tree and no app source, limit to harness/docs consistency.
-
-> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
+> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> No stage precondition — runs anytime. No `{product}/` + no app source → limit to harness/docs consistency.
+> Tally shape: `<paths.engine>/templates/audit-checklists.md` § Parseable tally lines.
 
 Standing **hygiene pass** (not a phase gate): find dead weight and drift, report ranked by severity, apply **safe** cleanups only with explicit user confirmation. Unlike `/midas-doctor` (adapters) or `/midas-tribunal` (decisions), sweep asks *what on disk is unused, unreachable, or lying?*
 

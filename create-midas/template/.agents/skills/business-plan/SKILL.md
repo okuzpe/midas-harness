@@ -10,16 +10,9 @@ metadata:
 ---
 # business-plan — Phase 3
 
-> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> First read the state file at **`paths.state`** (`layout` + `paths` block, or infer from disk). If the precondition stage is wrong, report and stop.
-
-> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
-
-> Precondition: stage `market_research` passed (read **`paths.state`** first). Read first, write last.
-> This phase has a **hard human checkpoint** — no engineering begins until the human signs off the
-> go/no-go. If you arrived here by inference rather than the user moving to Phase 3, confirm first.
-> **Recommended optional checkpoint:** a `/midas-tribunal` (the *pre-go/no-go* audit) before sign-off —
-> high-leverage but the human's call; never block on it.
+> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Precondition:** `market_research` passed. **Hard human checkpoint** — no engineering until go/no-go sign-off.
+> Optional: `/midas-tribunal` (pre-go/no-go) — high-leverage, never forced.
 
 Turn the validated opportunity into a decision. The orchestrator owns the go/no-go judgment and the
 gate; the builder drafts the document.

@@ -12,10 +12,8 @@ metadata:
 ---
 # midas-init — adaptive intake (one-time setup)
 
-> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
+> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
 > Read **`paths.state`** first. Wrong precondition → report and stop.
-
-> **Paths:** Engine = `paths.engine`; scripts = `paths.scripts`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
 
 ## Does / Does not
 

@@ -12,10 +12,9 @@ metadata:
 ---
 # midas-verify — end-to-end / UI verification
 
-> **Run only when the user explicitly invokes this command.** If you arrived here by inference, STOP.
-> Read **`paths.state`**. Need a landed sprint that touches UI (or `--scope mobile` for native). Else report and stop.
-
-> **Paths:** Engine = `<paths.engine>/`; scripts = `<paths.scripts>/`; `{runs}/` = `paths.runs`. See `AGENTS.md` § Path resolution.
+> **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Precondition:** landed sprint that touches UI (or `--scope mobile` for native). Else report and stop.
+> Tally shape: `<paths.engine>/templates/audit-checklists.md` § Parseable tally lines.
 
 ## Does / Does not
 
