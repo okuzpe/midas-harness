@@ -64,6 +64,10 @@ Load browser MCPs **only** when agent-browser is absent and a rendered page is r
 - [ ] No horizontal overflow at narrow viewport; UI references design tokens per `{product}/design-system.md`.
       **CHECK:** `manual:` no horizontal overflow on key screens (see `accessibility.md` § layout overflow);
       `/midas-verify` automates where wired.
+- [ ] Marketing/landing UI passes **Product authenticity** (not a logo-swappable SaaS template).
+      **CHECK:** verify record **`## Product authenticity`** filled for UI marketing surfaces; logo-swap
+      "still generic" = fail (see `visual-design.md` § Product authenticity). Missing section on a
+      landing/marketing sprint is a fail.
 - [ ] Each criterion names the **tool** that proved it (canonical values in `<paths.engine>/templates/sprint-progress.md`
       § Tool column: `agent-browser`, `agent-browser-ios`, `playwright-mcp`, `chrome-devtools-mcp`,
       `maestro-mcp`, `test-runner`, `@playwright/cli`). A UI sprint may use **agent-browser without any
@@ -96,3 +100,8 @@ acceptance criteria demand are green, with the proof recorded in its `evidence`.
   evidence genuinely requires it. Respect `state.yaml.cost_profile`.
 - A claim with **no runnable evidence is `blocked`, never a silent pass**; equally, "all rungs pass"
   is a valid, honest verdict — do not invent failures.
+
+## Amendments
+
+- **2026-08-01** — Verify ladder requires Product authenticity on marketing/landing UI
+  (`visual-design.md` + `/midas-verify` § Product authenticity; redesign via `/midas-design`).

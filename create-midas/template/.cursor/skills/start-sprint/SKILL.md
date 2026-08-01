@@ -74,9 +74,13 @@ Before writing any third-party code, follow
 `<paths.engine>/rules/context7-usage.md` (`resolve-library-id` → `get-library-docs` at the pinned version).
 **If a task matches a `{product}/playbooks/*` recipe** (one of the project's repeated procedures), the
 build agent follows that playbook — its steps and done-when check. **For any UI work, build *to*
-`{product}/design-direction.md` — its named references, mood, and anti-references — not just to the
+`{product}/design-direction.md` — its named references, mood, metaphor, first-viewport evidence, and
+anti-references — not just to the
 tokens; the tokens are the materials, the direction is the look.** Honor the always-on
-`<paths.engine>/rules/accessibility.md` floor. Tasks complete only when acceptance criteria are met and tests
+`<paths.engine>/rules/accessibility.md` floor and **Product authenticity** in
+`<paths.engine>/rules/visual-design.md`. If the sprint (or user) asks to **redesign / improve /
+refactor** visuals or a landing, surface **`/midas-design`** first (three directions → pick → spec →
+one slice) — do not jump straight to full-page JSX. Tasks complete only when acceptance criteria are met and tests
 pass; **conformance to rules is verified in Phase 8** (`/close-sprint`).
 
 ## Exit (kickoff complete)

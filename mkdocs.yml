@@ -37,12 +37,12 @@ nav:
   - Agents & Models: agents-and-models.md
   - FAQ: faq.md
   - Decisions (ADR):
-    - "ADR-001 — Install layout": adr/ADR-001-install-layout.md
+    - "ADR-001 — Install layout (historical)": adr/ADR-001-install-layout.md
     - "ADR-002 — Code-intelligence MCP": adr/ADR-002-code-intelligence-mcp.md
     - "ADR-003 — Project memory model": adr/ADR-003-project-memory-model.md
     - "ADR-004 — Audit skill surface": adr/ADR-004-audit-skill-surface.md
     - "ADR-005 — AGENTS.md generation": adr/ADR-005-agents-md-generation.md
-    - "ADR-006 — Hub layout": adr/ADR-006-hub-layout.md
+    - "ADR-006 — Hub layout (historical)": adr/ADR-006-hub-layout.md
     - "ADR-007 — Canonical .harness layout": adr/ADR-007-canonical-harness-layout.md
     - "ADR-008 — Thin root allowlist": adr/ADR-008-thin-root-allowlist.md
 

@@ -338,6 +338,7 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` for mobile-client sprints, `## Mobile (native)` section exists or every native criterion is proven another way; silent skip is a fail.
   - **CHECK:** runtime-health table in verify record; Chrome DevTools, agent-browser, or Playwright fallback documented per row.
   - **CHECK:** `manual:` no horizontal overflow on key screens (see `accessibility.md` § layout overflow); `/midas-verify` automates where wired.
+  - **CHECK:** verify record **`## Product authenticity`** filled for UI marketing surfaces; logo-swap "still generic" = fail (see `visual-design.md` § Product authenticity). Missing section on a landing/marketing sprint is a fail.
   - **CHECK:** `manual:` every acceptance-criterion row has a non-empty Tool value; undocumented fallback is a fail.
   - **CHECK:** the sprint's `{runs}/audits/audit-NN.md` exists and was produced by the auditor tier, not the producer; its `MIDAS_AUDIT_RESULT` tally shows `unresolved=0 verdict=pass`.
   - **CHECK:** in `{product}/features.json`, a `status: "passing"` with empty `evidence`, or a shipped behaviour with no feature entry, is a fail; Phase 8 grades the file against the verification records.
@@ -351,7 +352,13 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` related controls share `--ds-space-2`/`--ds-space-4` gaps; unrelated sections are separated by ≥ `--ds-space-6`; arbitrary px gaps in component CSS are a fail (see `components.md` cross-cutting rule 6).
   - **CHECK:** `manual:` the primary CTA uses `--ds-action-*`; status badges/toasts use intent tokens; a decorative rainbow of accent colours on one screen is a fail. Hardcoded colour values are graded under `accessibility.md` (do not re-audit here).
   - **CHECK:** `manual:` primary vs secondary/ghost variants are distinguishable without relying on colour alone (weight, fill vs outline, or position).
+  - **CHECK:** `manual:` name the first-viewport composition; if it matches the default SaaS stack above with no written justification in design-direction, fail (severity MED+).
+  - **CHECK:** `manual:` auditor answers "Could this page belong to an unrelated product after a logo and text swap?" — Yes = fail; No = pass (cite what makes it product-specific).
+  - **CHECK:** `manual:` first viewport shows product evidence named in `{product}/design-direction.md` First viewport section; a hero that is only headline + subtitle + two buttons + stock mockup is a fail unless that section marks an explicit exception.
+  - **CHECK:** `manual:` each major marketing section either advances a user job or shows the product; a section that only repeats icon+title+blurb with no product tie-in is a fail.
+  - **CHECK:** `manual:` palette/type/iconography on key screens cite design-direction rows; unexplained purple-on-white / stock-gradient / decoration-only icon grids are a fail.
   - **CHECK:** `manual:` a first-time reviewer can name the primary action within 5 seconds on each key screen; buried or ambiguous primary action is a fail.
   - **CHECK:** `manual:` on landing/marketing pages, headline + primary CTA appear in the first viewport; on app views, the page title and primary action precede dense secondary content.
   - **CHECK:** `manual:` each data-dependent view has identifiable empty/loading/error UI (component name or route cited in the audit); a spinner-only forever or empty white box is a fail.
+  - **CHECK:** `manual:` list each landing section's purpose; duplicate benefit-card bands or repeated primary CTAs without a new user job are a fail.
 <!-- midas:end -->

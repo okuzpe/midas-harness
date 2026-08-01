@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // Cross-platform clean-install smoke used by the OS × host CI matrix.
+// Primary user shape is --tools=cursor (ADR-008 thin root). Other hosts remain matrix coverage.
 
 import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';

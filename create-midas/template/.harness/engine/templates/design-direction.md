@@ -1,7 +1,9 @@
 <!-- Phase 5 artifact, captured by /define-conventions BEFORE the design system. This is the aesthetic
      INTENT — a human input (your taste), not something the AI invents. It exists to stop generic,
-     "Tailwind-default" UI: a concrete reference is the single biggest lever on design quality.
-     The design system (tokens) and every UI component are built TO this direction. Placeholder: {{PROJECT_NAME}}. -->
+     "Tailwind-default" / interchangeable SaaS UI: a concrete reference + product metaphor is the
+     single biggest lever on design quality. The design system (tokens) and every UI component are
+     built TO this direction. Placeholder: {{PROJECT_NAME}}.
+     Mid-project redesigns: run /midas-design (do not invent a new direction silently in JSX). -->
 
 # Design direction — {{PROJECT_NAME}}
 
@@ -13,10 +15,30 @@
 - **Adjectives:** …
 - **Vibe:** …
 
+## How it should feel (metaphor)
+
+<!-- TODO: one concrete product metaphor — not a trend label. Examples: "opening a door onto a
+     neighbourhood", "standing at a bodega counter during a rush", "a trading desk at 9:01".
+     Every major visual decision should serve this feeling. -->
+
+- **Metaphor:** …
+- **In one sentence:** the interface should feel like …
+
+## First viewport — product evidence
+
+<!-- TODO: what of the *real product* must be visible above the fold (workflow demo, domain imagery,
+     live data shape, primary search/action). Ban: headline + two buttons + stock dashboard mockup
+     unless you explicitly justify it here. -->
+
+- **Must show:** …
+- **Primary action:** …
+- **Must not lead with:** generic SaaS hero stack (centered headline + gradient + floating mockup card
+  + three benefit icons) unless justified below.
+
 ## References to emulate (2–3 real products)
 
 <!-- TODO: name real, well-designed products and WHAT to borrow from each (density, motion, type, colour
-     restraint, spacing). This is the anchor that makes the output good instead of generic. -->
+     restraint, spacing). Extract principles — never copy a whole page. -->
 
 > **Source** — mark each row `human` (your taste) or `assumed` (the agent proposed it because no
 > reference was given — **confirm or replace before the rules freeze**). At least 2 rows; never left
@@ -42,8 +64,13 @@
 ## Anti-references (what to avoid)
 
 <!-- TODO: name what this must NOT look like — the fastest way to dodge generic slop.
-     e.g. "not generic Bootstrap/Tailwind default, no stock gradients, no emoji-as-icons, no rounded-everything." -->
+     Always include the interchangeable AI-SaaS landing if it does not fit this product. -->
 
+- Not the default SaaS landing: centered hero, purple/blue gradient, floating dashboard mockup,
+  three equal benefit cards, Lucide decoration row, final CTA band — unless this product truly is
+  that archetype and you say why.
+- Not generic Bootstrap/Tailwind default; no stock-photo skyscrapers; no emoji-as-icons;
+  no rounded-everything / glow / blur-orb filler.
 - …
 
 ## Accessibility floor
@@ -54,5 +81,6 @@
 
 ---
 
-*This direction anchors `{product}/design-system.md` (tokens) and every UI component. The Phase-8 audit and
-`/midas-verify` check that the built UI matches it — distinctive and on-direction, not generic.*
+*This direction anchors `{product}/design-system.md` (tokens) and every UI component. The Phase-8 audit,
+`/midas-verify` (product-authenticity section), and `/midas-design` check that built UI matches it —
+distinctive and on-direction, not generic. Logo-swap test: see `<paths.engine>/rules/visual-design.md`.*

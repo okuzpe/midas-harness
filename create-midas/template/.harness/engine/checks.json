@@ -2,7 +2,7 @@
   "schema_version": 1,
   "updated": null,
   "source": "engine/rules",
-  "source_digest": "7ee5756287272a471f9ce26d581bc34f5adb5b6d31e70ead8a605752fa5ccfed",
+  "source_digest": "b257313c4a413d3f800741749edb0cbe66a227986c4623bc213f6c4b797e71ca",
   "rules": [
     {
       "path": "engine/rules/acceptance-criteria.md",
@@ -1490,7 +1490,7 @@
       "title": "Rule: Verification (always-on)",
       "owner": "build",
       "phase": 8,
-      "check_count": 11,
+      "check_count": 12,
       "checks": [
         {
           "kind": "command",
@@ -1557,6 +1557,14 @@
           "severity": "medium"
         },
         {
+          "kind": "command",
+          "body": "verify record **`## Product authenticity`** filled for UI marketing surfaces; logo-swap \"still generic\" = fail (see `visual-design.md` § Product authenticity). Missing section on a landing/marketing sprint is a fail.",
+          "section": "The ladder — cheapest tool that proves the claim, first > 4. Browser / mobile verification — UI-touching changes only (drive + inspect)",
+          "phase": 8,
+          "owner": "build",
+          "severity": "high"
+        },
+        {
           "kind": "manual",
           "body": "`manual:` every acceptance-criterion row has a non-empty Tool value; undocumented fallback is a fail.",
           "section": "The ladder — cheapest tool that proves the claim, first > 4. Browser / mobile verification — UI-touching changes only (drive + inspect)",
@@ -1588,7 +1596,7 @@
       "title": "Rule: Visual design fundamentals (always-on)",
       "owner": "build",
       "phase": 8,
-      "check_count": 12,
+      "check_count": 18,
       "checks": [
         {
           "kind": "manual",
@@ -1664,6 +1672,46 @@
         },
         {
           "kind": "manual",
+          "body": "`manual:` name the first-viewport composition; if it matches the default SaaS stack above with no written justification in design-direction, fail (severity MED+).",
+          "section": "Checklist > Product authenticity (not a generic SaaS template)",
+          "phase": 8,
+          "owner": "build",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` auditor answers \"Could this page belong to an unrelated product after a logo and text swap?\" — Yes = fail; No = pass (cite what makes it product-specific).",
+          "section": "Checklist > Product authenticity (not a generic SaaS template)",
+          "phase": 8,
+          "owner": "build",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` first viewport shows product evidence named in `{product}/design-direction.md` First viewport section; a hero that is only headline + subtitle + two buttons + stock mockup is a fail unless that section marks an explicit exception.",
+          "section": "Checklist > Product authenticity (not a generic SaaS template)",
+          "phase": 8,
+          "owner": "build",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` each major marketing section either advances a user job or shows the product; a section that only repeats icon+title+blurb with no product tie-in is a fail.",
+          "section": "Checklist > Product authenticity (not a generic SaaS template)",
+          "phase": 8,
+          "owner": "build",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` palette/type/iconography on key screens cite design-direction rows; unexplained purple-on-white / stock-gradient / decoration-only icon grids are a fail.",
+          "section": "Checklist > Product authenticity (not a generic SaaS template)",
+          "phase": 8,
+          "owner": "build",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
           "body": "`manual:` a first-time reviewer can name the primary action within 5 seconds on each key screen; buried or ambiguous primary action is a fail.",
           "section": "Checklist > Lightweight UX (clarity, not research)",
           "phase": 8,
@@ -1681,6 +1729,14 @@
         {
           "kind": "manual",
           "body": "`manual:` each data-dependent view has identifiable empty/loading/error UI (component name or route cited in the audit); a spinner-only forever or empty white box is a fail.",
+          "section": "Checklist > Lightweight UX (clarity, not research)",
+          "phase": 8,
+          "owner": "build",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` list each landing section's purpose; duplicate benefit-card bands or repeated primary CTAs without a new user job are a fail.",
           "section": "Checklist > Lightweight UX (clarity, not research)",
           "phase": 8,
           "owner": "build",

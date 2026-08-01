@@ -35,19 +35,25 @@ stages:
     command: /define-conventions
     recall:
       - "{product}/architecture.md"
+      - "{product}/design-direction.md"
+      - "{product}/design-system.md"
   sprint_planning:
     command: /plan-sprints
     recall:
       - "{product}/roadmap.md"
       - "{product}/business-plan.md"
+      - "{product}/design-direction.md"
   sprint_execution:
     command: /start-sprint
     command_when_done: /close-sprint
     verify_ui: /midas-verify
+    redesign_ui: /midas-design
     qa_adhoc: /midas-qa
     recall:
       - "{product}/features.json"
+      - "{product}/design-direction.md"
       - "{runs}/verifications"
+      - "{runs}/design"
       - "{runs}/sprints"
   shipped:
     command: null

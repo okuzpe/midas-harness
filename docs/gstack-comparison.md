@@ -45,7 +45,7 @@ contrato `**CHECK:**` en reglas, separación explícita productor/auditor, routi
 | **Reglas verificables** | **Midas** | Contrato `**CHECK:**` por ítem en `harness/rules/`; digest en adapters |
 | **Testing / QA** | **gstack** (amplitud) / **Midas** (disciplina) | gstack: auto-fix + regresión + benchmark + canary; Midas: escalera 5 peldaños + ledger `features.json` |
 | **Seguridad** | **Empate** | gstack `/cso` (OWASP+STRIDE); Midas `/midas-security-audit` (ASVS L1–L3 + LLM/Agentic) |
-| **Diseño visual** | **gstack** | design-shotgun, design-html, design-consultation; Midas: tokens + reglas + verify UI |
+| **Diseño visual** | **ambos** | gstack: design-shotgun/html; Midas: `/midas-design` + authenticity CHECKs + tokens + verify |
 | **Memoria / continuidad** | **Distinto** | gstack GBrain (vector/store); Midas git-visible + ADR-003 (sin store oculto) |
 | **Portabilidad multi-tool** | **Empate** | gstack ~10 hosts; Midas 6 hosts con adapters generados |
 | **Deploy / operate** | **gstack** | land-and-deploy, canary; Midas termina en `shipped` + audit |
@@ -133,7 +133,8 @@ contrato `**CHECK:**` en reglas, separación explícita productor/auditor, routi
 | `/office-hours` | `/contextualize` + `/idea-intake` | Parcial — Midas no “reformula el producto” con el mismo tono CEO |
 | `/plan-ceo-review` | `/business-plan`, `/midas-tribunal` (lens scope) | Parcial |
 | `/plan-eng-review` | `/choose-architecture`, Fase 4 playbook | Parcial |
-| `/plan-design-review` | `/define-conventions` + reglas visual-design | Parcial — sin skill interactivo 0–10 |
+| `/plan-design-review` | `/define-conventions` + `visual-design` authenticity + `/midas-design` | Cubierto (sin score 0–10 gstack) |
+| `/design-consultation` | `/midas-design` + `design-direction.md` | Cubierto |
 | `/plan-devex-review` | — | **No** |
 | `/review` | Fase 8 + reglas code-quality | Parcial — sin auto-fix dedicado |
 | `/investigate` | verify→fix en Fase 7 | **No** (sin metodología explícita) |
@@ -309,10 +310,10 @@ medio / alto. Fuente gstack = README salvo indicación.
 | `/office-hours` | `/contextualize`, `/idea-intake` | Medio | Medio | — | Ya cubierto en parte; opcional tono “CEO pushback” en contextualize |
 | `/plan-ceo-review` | `/business-plan`, tribunal | Medio | Medio | — | Parcial |
 | `/plan-eng-review` | Fase 4 | Alto | — | — | Cubierto |
-| `/plan-design-review` | reglas + Fase 5 | Medio | Medio | Medio | Skill interactivo opcional |
+| `/plan-design-review` | reglas + `/midas-design` + authenticity CHECKs | Alto | — | — | Cubierto |
 | `/plan-devex-review` | — | Alto | Alto (API/CLI) | Medio | **Adoptar** skill + playbook |
 | `/devex-review` | — | Alto | Alto | Medio | Par de plan-devex |
-| `/design-consultation` | Fase 5 design-direction | Medio | Medio | Alto | Evaluar |
+| `/design-consultation` | `/midas-design` + Fase 5 design-direction | Alto | — | — | Cubierto |
 | `/design-shotgun` | — | Bajo | Alto visual | Alto | Aplazar — acoplado a generación IA imágenes |
 | `/design-html` | tokens + componentes | Bajo | Medio | Alto | Aplazar |
 | `/review` auto-fix | Fase 8 | Medio | Alto | Medio | Inner-loop fix sí; veredicto en Fase 8 |

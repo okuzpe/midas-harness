@@ -1,9 +1,20 @@
-midas_version: 2.0.0
+midas_version: 2.1.0
+# Engine repository dogfoods classic layout by design (authored source in harness/ + scripts/).
+# Product installs use layout: harness — see ADR-007 / ADR-008.
+layout: classic
+paths:
+  engine: harness
+  scripts: scripts
+  state: harness/state.yaml
+  version: harness/VERSION
+  runs: .harness
+  product: product
+  agentsDoc: docs/agents-and-models.md
 name: harness
 mode: brownfield
 language: en
 created: 2026-06-29
-updated: 2026-07-03
+updated: 2026-08-01
 setup_complete: true        # engine repo — installer complete; dogfoods the harness on itself
 
 # Engine-as-dogfood profile: phases 0–4 satisfied by README + docs/ + harness/ itself.
@@ -19,6 +30,7 @@ routing:
 
 execution_mode: cloud
 
+# Multi-host dogfood for adapter coverage. Product default install is tools: [cursor] (ADR-008).
 tools: [claude-code, cursor, windsurf, gemini]
 mcp:   [sequential-thinking]
 

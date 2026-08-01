@@ -37,7 +37,7 @@ Activate per scope; one persona + provocation + on-disk target each:
 | Economist | "Does the model close?" | `{product}/business-plan.md` |
 | Competitor | "Why won't an incumbent crush this?" | `{product}/market.md` |
 | User | "Would a real user switch?" | idea + `{product}/design-system.md` |
-| Design Critic | "Distinctive or generic slop?" | `{product}/design-direction.md` + design-system + UI `src/*` |
+| Design Critic | "Distinctive or generic slop? Logo-swap pass?" | `{product}/design-direction.md` + design-system + `<paths.engine>/rules/visual-design.md` § Product authenticity + UI `src/*` (+ `{runs}/design/` if any) |
 | ATAM | "Risks, sensitivity, tradeoffs?" | `{product}/architecture.md` + `adr/*` |
 | Maintainer | "Will the next dev curse this?" | `{product}/adr/*` |
 | Security (STRIDE) | "Where do I get in?" | `<paths.engine>/rules/security.md` + `src/*` |
@@ -46,7 +46,7 @@ Activate per scope; one persona + provocation + on-disk target each:
 
 ## Scope & depth
 
-**Scope** (default `whole`): `whole` · `architecture` · `scope` · `idea` · `market` · `unit-economics` · `security` · `rules` — activates matching lenses.
+**Scope** (default `whole`): `whole` · `architecture` · `scope` · `idea` · `market` · `design` · `unit-economics` · `security` · `rules` — activates matching lenses (`design` → Design Critic + User).
 
 **Depth** (`--depth`, default `standard`, clamped by `cost_profile`):
 
@@ -81,7 +81,7 @@ MIDAS_TRIBUNAL_RESULT: criticals=X highs=Y
 ```
 
 Propose bridge on user go-ahead:
-- `fix` → task at next `/start-sprint`
+- `fix` → task at next `/start-sprint` (UI authenticity / generic-landing findings → prefer `/midas-design` before more JSX)
 - `amend-rule` → `{product}/adr/ADR-00X` (thesis/antithesis/synthesis)
 - `defer` → `OQ-NN` in `{product}/open-questions.md`
 

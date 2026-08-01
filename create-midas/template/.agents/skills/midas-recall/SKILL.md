@@ -60,9 +60,9 @@ Then add by `stage` / `mode` from the YAML table (stop at ~15 total):
 | `market_research` | `{product}/idea.md`, `{product}/market.md` (if exists) |
 | `business_case` | `{product}/market.md`, `{product}/business-plan.md` |
 | `tech_architecture` | `{product}/business-plan.md`, `{product}/architecture.md`, `{product}/adr/*` |
-| `architecture_rules` | `{product}/architecture.md`, `<paths.engine>/rules/*`, `<paths.rules>/*` (list names only if many) |
-| `sprint_planning` | `{product}/roadmap.md`, `{product}/business-plan.md` MVP section |
-| `sprint_execution` | `{product}/features.json`, `{runs}/verifications/*`, effective rules cited in sprint DoD, `{product}/playbooks/*` referenced in sprint tasks |
+| `architecture_rules` | `{product}/architecture.md`, `{product}/design-direction.md`, `{product}/design-system.md`, `<paths.engine>/rules/*`, `<paths.rules>/*` (list names only if many) |
+| `sprint_planning` | `{product}/roadmap.md`, `{product}/business-plan.md` MVP section, `{product}/design-direction.md` |
+| `sprint_execution` | `{product}/features.json`, `{product}/design-direction.md`, `{runs}/verifications/*`, `{runs}/design/*`, effective rules cited in sprint DoD, `{product}/playbooks/*` referenced in sprint tasks |
 
 **Brownfield** (`mode: brownfield`): also `{product}/inventory.md`, `{product}/debt.md`, latest
 `{runs}/sweeps/sweep-NN.md` if any.

@@ -2,10 +2,13 @@
 
 | Field | Value |
 |---|---|
-| **Status** | accepted |
+| **Status** | **historical** — superseded for new installs by [ADR-007](./ADR-007-canonical-harness-layout.md). Hub remains a **v1 migrate input** only. |
 | **Date** | 2026-07-06 |
-| **Supersedes** | ADR-001 rollout step 3 (default flip) — default is now `hub`, not `compact` |
+| **Supersedes** | ADR-001 rollout step 3 (default flip) — default was `hub`, not `compact` (1.x era) |
+| **Superseded by** | ADR-007 (canonical `.harness/`), ADR-008 (thin-root allowlist) |
 | **Related** | ADR-001 (compact), ADR-003 (memory model) |
+
+> **Archaeology only.** New product installs do not use `layout: hub`. Detect + `--migrate` only.
 
 ## Context
 

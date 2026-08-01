@@ -1701,6 +1701,8 @@ if (existsSync(join(taskpilotRoot, 'harness', 'state.yaml'))) {
 
 check('skill:midas-progress', existsSync(join(ROOT, '.claude', 'skills', 'midas-progress', 'SKILL.md')));
 check('skill:midas-qa', existsSync(join(ROOT, '.claude', 'skills', 'midas-qa', 'SKILL.md')));
+check('skill:midas-design', existsSync(join(ROOT, 'harness', 'skills', 'midas-design', 'SKILL.md')));
+check('skill:midas-design-claude-mirror', existsSync(join(ROOT, '.claude', 'skills', 'midas-design', 'SKILL.md')));
 check('skill:midas-reconcile', existsSync(join(ROOT, '.claude', 'skills', 'midas-reconcile', 'SKILL.md')));
 check('installer:diagnose-flag', /--diagnose/.test(installer) && /install-diagnose\.mjs/.test(installer));
 check('build-create:install-diagnose', existsSync(join(ROOT, 'create-midas', 'install-diagnose.mjs')));

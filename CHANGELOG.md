@@ -9,11 +9,9 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
-### Changed
+---
 
-- Architecture hygiene (audit quick wins): `VERSIONING.md` rewritten for post-2.0 SemVer; ADR-001 and
-  ADR-006 stamped **historical** (superseded by ADR-007/008); engine `harness/state.yaml` declares
-  `layout: classic` + `paths` explicitly; CI primary installer smoke asserts cursor-only thin root.
+## [2.1.0] — 2026-08-01
 
 ### Added
 
@@ -26,6 +24,9 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ### Changed
 
+- Architecture hygiene (audit quick wins): `VERSIONING.md` rewritten for post-2.0 SemVer; ADR-001 and
+  ADR-006 stamped **historical** (superseded by ADR-007/008); engine `harness/state.yaml` declares
+  `layout: classic` + `paths` explicitly; CI primary installer smoke asserts cursor-only thin root.
 - Version bumps are single-command: `npm run bump -- <X.Y.Z>`. Skills/docs use `#v{VERSION}`
   placeholders; only `INSTALL.md` keeps copy-paste `#v…` pins.
 - Docs/CONTRIBUTING/`/midas-align` point maintainers at `npm run bump` (no scattered hand-edits).
@@ -1228,7 +1229,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.5...v2.0.0
 [2.0.0-rc.5]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.4...v2.0.0-rc.5
 [2.0.0-rc.4]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.3...v2.0.0-rc.4

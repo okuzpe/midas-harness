@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| **Status** | accepted — **default install is now `hub`** (ADR-006). `compact` and `classic` remain opt-in. Migration via `scripts/migrate-layout.mjs --target=hub|compact`. |
+| **Status** | **historical** — superseded for new installs by [ADR-007](./ADR-007-canonical-harness-layout.md) (canonical `.harness/`). Hub default was ADR-006; classic/compact/hub remain **read/migrate-only** in v2. |
 | **Date** | 2026-06-29 |
 | **Deciders** | maintainer + orchestrate tier |
 | **Context7 verified** | n/a (no third-party library decision) |
@@ -10,6 +10,10 @@
 > This is the first **engine-level** ADR (decisions about the Midas repository itself, not about a
 > product built with Midas). Product ADRs live in a project's `product/adr/`; engine ADRs live here in
 > `docs/adr/`.
+
+> **Archaeology only.** Do not treat hub/compact as the current default. New installs: ADR-007 +
+> thin-root ADR-008. Intra-v1 moves may still use `scripts/migrate-layout.mjs`; v1→v2 uses
+> `npx … --migrate`.
 
 ## Context
 

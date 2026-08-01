@@ -42,7 +42,7 @@ Browser/native automation is expensive. **Do not pay blindly.**
 ## Procedure
 
 ### 1. Read state + criteria
-Load `paths.state`, sprint file, `{product}/design-system.md`, `{product}/architecture.md`, token files. Resolve sprint id, `--scope`, `--profile`. Determine run/preview command + URL.
+Load `paths.state`, sprint file, `{product}/design-system.md`, **`{product}/design-direction.md`**, `{product}/architecture.md`, token files. Resolve sprint id, `--scope`, `--profile`. Determine run/preview command + URL.
 
 ### 2. Bring up the app
 Start dev/preview in background; confirm serving. Ephemeral/test profile only — never production.
@@ -68,14 +68,15 @@ When architecture declares `react-native`, `flutter`, `capacitor`, or `hybrid`:
 3. Per criterion: `inspect_screen` → inline YAML → `run` → `take_screenshot`. **No YAML in `{product}/`**; optional promotion to `{runs}/verifications/verify-NN/mobile-flows/`.
 4. Hybrid: native via Maestro; WebView via agent-browser. Column **Surface:** `native | webview`.
 
-### 4. Design tokens + direction
+### 4. Design tokens + direction + authenticity
 Assert `--ds-*` usage; flag hardcoded values. Spot-check AA contrast + focus. Generic UI vs `{product}/design-direction.md` = MED finding.
+Run **Product authenticity** CHECKs from `<paths.engine>/rules/visual-design.md` on each key marketing/landing screen (SaaS-stack smell, logo-swap test, product evidence above the fold, one job per section). Failures → record under **`## Product authenticity`** with severity; logo-swap **Yes** (still generic) is at least MED. If authenticity fails hard and no `{runs}/design/design-NN.md` exists for this surface, note: *consider `/midas-design` before more UI churn*.
 
 ### 5. Per-claim VERDICT
 Each criterion: `pass | fail | blocked` with evidence. No silent passes.
 
 ### 6. Freeze (write last)
-One **`{runs}/verifications/verify-NN.md`** (NN = sprint id only). Template: `<paths.engine>/templates/verify-record.md`. Sections: `## Per-criterion results`, `## Device profiles`, `## Mobile (native)` (when in scope), `## Runtime health`, `## Design-token findings`, single **`MIDAS_VERIFY_RESULT`** tally. Screenshots under `{runs}/verifications/verify-NN/`. After a successful freeze, **always** set `last_verification: { n, at }` in `paths.state` (read-modify-write). **Never advance `stage`.**
+One **`{runs}/verifications/verify-NN.md`** (NN = sprint id only). Template: `<paths.engine>/templates/verify-record.md`. Sections: `## Per-criterion results`, `## Device profiles`, `## Mobile (native)` (when in scope), `## Runtime health`, `## Design-token findings`, `## Product authenticity` (marketing/landing), single **`MIDAS_VERIFY_RESULT`** tally. Screenshots under `{runs}/verifications/verify-NN/`. After a successful freeze, **always** set `last_verification: { n, at }` in `paths.state` (read-modify-write). **Never advance `stage`.**
 
 ### 7. Feed failures back
 Route each `fail` to `/close-sprint`.

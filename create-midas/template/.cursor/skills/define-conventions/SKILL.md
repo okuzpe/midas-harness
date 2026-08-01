@@ -41,7 +41,7 @@ metadata:
 - **`{product}/conventions.md`** — prose overrides only; never restate base.
 
 ### 2. Design direction → design system
-**Direction first** (`{product}/design-direction.md` from template): brand, **2–3 real references**, anti-references. **Ask human via `AskUserQuestion`** — do not invent taste. If human defers → propose ≥2 domain-appropriate references marked **`assumed (confirm)`**; concrete anchor mandatory.
+**Direction first** (`{product}/design-direction.md` from template): brand, **metaphor / how it should feel**, **first-viewport product evidence**, **2–3 real references**, anti-references (include the default SaaS landing stack unless this product is that archetype). **Ask human via `AskUserQuestion`** — do not invent taste. If human defers → propose ≥2 domain-appropriate references marked **`assumed (confirm)`**; concrete anchor mandatory. Mid-project redesigns later use `/midas-design` — do not skip direction here.
 
 **Then `{product}/design-system.md`** — references `<paths.engine>/design-system/tokens.{json,css}`; token choices trace to direction. UI framework docs-verified. All UI uses tokens — never hardcoded values. Accessibility floor: `<paths.engine>/rules/accessibility.md` (starter `tokens.css` ships AA-verified pairs). Populate stale/missing token files from direction + arch.
 

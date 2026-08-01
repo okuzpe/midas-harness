@@ -26,10 +26,13 @@ the Phase 8 audit references exactly these files.
 3. **Write `{product}/conventions.md`.** Project-level overrides of `<paths.engine>/conventions.md`
    (naming, error handling, test patterns specific to the chosen stack).
 4. **Set the design direction, then write the design system.**
-   - `{product}/design-direction.md` — the aesthetic **intent**: brand personality, **2–3 real products to
-     emulate** (+ what to borrow), mood keywords, **anti-references**. **Capture it from the human** (their
-     taste is the input) — a concrete reference is what stops generic, default-looking UI. Prefer a design
-     specialist (`voltagent-core-dev:ui-designer` / `design-bridge`) if installed.
+   - `{product}/design-direction.md` — the aesthetic **intent**: brand personality, **metaphor / how it
+     should feel**, **first-viewport product evidence**, **2–3 real products to
+     emulate** (+ what to borrow), mood keywords, **anti-references** (include the default SaaS landing
+     stack unless justified). **Capture it from the human** (their
+     taste is the input) — a concrete reference + metaphor is what stops generic, default-looking UI. Prefer a design
+     specialist (`voltagent-core-dev:ui-designer` / `design-bridge`) if installed. Mid-project redesigns use
+     `/midas-design` against this file.
    - `{product}/design-system.md` — human-readable reference: color palette, spacing scale, typography,
      component vocabulary, do/don't examples — **built to the direction** (each choice traces to a reference).
    - `{product}/design-system/tokens.json` — project-owned machine-readable token map, seeded from the base.
@@ -77,7 +80,8 @@ the Phase 8 audit references exactly these files.
 - [ ] Stack rules cover the framework's canonical idiom + lint set (not just naming/format)
 - [ ] Floor CHECKs re-targeted for the stack (`security`, `code-quality`, `testing`, `naming`) or
       recorded as confirmed-applicable; inert floor greps for the chosen stack → fail
-- [ ] `{product}/design-direction.md` captures aesthetic intent (brand + ≥2 real references + anti-references)
+- [ ] `{product}/design-direction.md` captures aesthetic intent (brand + metaphor + first-viewport
+      product evidence + ≥2 real references + anti-references)
 - [ ] `{product}/design-system.md` defines colors, spacing, type, and components; accessibility floor
       satisfiable or recorded **N/A (headless, no UI)**
 - [ ] `{product}/playbooks/` holds 0–4 recipes; each has ≥1 step no single rule states

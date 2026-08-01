@@ -183,12 +183,14 @@ Decisions about the repository itself (not about a product built with Midas) are
 
 Do not confuse `npm run build` (distribution) with `node scripts/bundle.mjs export` (portable knowledge).
 
-## Install layouts (classic, compact, hub)
+## Install layouts
 
-New product installs use one canonical `.harness/` tree. Classic, compact, and hub are read-only
-migration inputs; `--update` never relocates them. Path resolution is in `scripts/paths.mjs`; skills
-read `layout` + `paths` from state and substitute `{runs}/` and `{product}/` tokens. See
-[ADR-007](adr/ADR-007-canonical-harness-layout.md) and
-[INSTALL.md](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md).
+New **product** installs use one canonical `.harness/` tree with a **thin root** (ADR-007 + ADR-008).
+Default `--tools=cursor` → skills under `.cursor/skills/` only. Classic, compact, and hub are
+read-only migration inputs; `--update` never relocates them. Path resolution is in
+`scripts/paths.mjs`; skills read `layout` + `paths` from state and substitute `{runs}/` and
+`{product}/` tokens. See [INSTALL.md](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md).
 
-The **engine repository** (this repo) dogfoods **classic** layout by design.
+The **engine repository** (this repo) dogfoods **classic** layout by design (`layout: classic` in
+`harness/state.yaml`, authored source in `harness/` + `scripts/`). That is intentional contributor
+ergonomics — not the shape users get from `npx … create-midas`.

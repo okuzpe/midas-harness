@@ -40,5 +40,12 @@ Use Maestro MCP with inline `{ yaml }` — no files in `{product}/`. Optional st
 |--------|----------|----------------|----------------|---------|
 - Hardcoded-value violations, AA-contrast spot checks, focus-ring + dark-mode notes.
 
+## Product authenticity
+| Screen | SaaS-stack smell? | Logo-swap still generic? | Product evidence above fold? | One job / section? | Verdict | Evidence |
+|--------|-------------------|--------------------------|------------------------------|--------------------|---------|----------|
+| | yes/no (+ note) | yes=fail / no=pass | yes/no | yes/no | pass\|fail | screenshot / note |
+
+Checks: `<paths.engine>/rules/visual-design.md` § Product authenticity. Direction: `{product}/design-direction.md`. Redesign ritual: `/midas-design`.
+
 ## Failures → /close-sprint (drift)
 - <criterion> (<severity>): <what failed> → fix-task for the next sprint

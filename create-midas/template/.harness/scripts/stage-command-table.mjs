@@ -8,7 +8,7 @@ import { resolvePaths, resolveProjectRootFromScript } from './paths.mjs';
 
 const ROOT = resolveProjectRootFromScript(import.meta.url);
 
-/** @typedef {{ command: string|null, commandWhenDone?: string|null, verifyUi?: string|null, qaAdhoc?: string|null, note?: string, recall: string[] }} StageEntry */
+/** @typedef {{ command: string|null, commandWhenDone?: string|null, verifyUi?: string|null, redesignUi?: string|null, qaAdhoc?: string|null, note?: string, recall: string[] }} StageEntry */
 
 const STAGE_ROWS = [
   {
@@ -41,20 +41,27 @@ const STAGE_ROWS = [
   {
     name: 'architecture_rules',
     command: '/define-conventions',
-    recall: ['{product}/architecture.md'],
+    recall: ['{product}/architecture.md', '{product}/design-direction.md', '{product}/design-system.md'],
   },
   {
     name: 'sprint_planning',
     command: '/plan-sprints',
-    recall: ['{product}/roadmap.md', '{product}/business-plan.md'],
+    recall: ['{product}/roadmap.md', '{product}/business-plan.md', '{product}/design-direction.md'],
   },
   {
     name: 'sprint_execution',
     command: '/start-sprint',
     commandWhenDone: '/close-sprint',
     verifyUi: '/midas-verify',
+    redesignUi: '/midas-design',
     qaAdhoc: '/midas-qa',
-    recall: ['{product}/features.json', '{runs}/verifications', '{runs}/sprints'],
+    recall: [
+      '{product}/features.json',
+      '{product}/design-direction.md',
+      '{runs}/verifications',
+      '{runs}/design',
+      '{runs}/sprints',
+    ],
   },
   {
     name: 'shipped',
@@ -87,6 +94,7 @@ export function computeStageCommandTableYaml() {
     lines.push(`    command: ${yamlScalar(stage.command)}`);
     if (stage.commandWhenDone !== undefined) lines.push(`    command_when_done: ${yamlScalar(stage.commandWhenDone)}`);
     if (stage.verifyUi !== undefined) lines.push(`    verify_ui: ${yamlScalar(stage.verifyUi)}`);
+    if (stage.redesignUi !== undefined) lines.push(`    redesign_ui: ${yamlScalar(stage.redesignUi)}`);
     if (stage.qaAdhoc !== undefined) lines.push(`    qa_adhoc: ${yamlScalar(stage.qaAdhoc)}`);
     if (stage.note !== undefined) lines.push(`    note: ${stage.note}`);
     lines.push('    recall:');
@@ -136,6 +144,12 @@ function parseStageTableYaml(text) {
     const verify = line.match(/^    verify_ui: (.+)$/);
     if (verify) {
       stages[current].verifyUi = unquote(verify[1]);
+      inRecall = false;
+      continue;
+    }
+    const redesign = line.match(/^    redesign_ui: (.+)$/);
+    if (redesign) {
+      stages[current].redesignUi = unquote(redesign[1]);
       inRecall = false;
       continue;
     }
