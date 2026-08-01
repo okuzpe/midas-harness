@@ -27,6 +27,8 @@ All rules in `harness/conventions.md` apply unconditionally. Key points:
 - **Testing** — every behaviour change ships with a test; test behaviour, not implementation.
 - **Dependencies** — justify before adding; pin versions; fetch current docs (Context7 or your own tool) before any third-party code.
 - **Git** — Conventional Commits (`feat:` `fix:` `docs:` `refactor:` `test:` `chore:`); small reviewable commits.
+- **Engine releases (this repo)** — publish / bump versions only with `npm run bump -- <X.Y.Z>`
+  (`harness/rules/change-propagation.md` + `VERSIONING.md`). Do not hand-edit version pins across the tree.
 - **Security** — secrets only in `${ENV_VAR}`; never commit them; least-privilege MCP scopes.
 - **Design system** — all UI uses `{product}/design-system.md` tokens; never hardcode colour/spacing/type.
 - **Skills portability** — `.claude/skills` is the editable source; `.agents/skills` is the generated
@@ -86,7 +88,7 @@ On tools without per-agent model selection, apply as intent: fastest for researc
 ## Safety
 
 - Side-effecting skills (`/midas-init`, `/define-conventions`, `/start-sprint`, `/close-sprint`, `/midas-doctor`,
- `/midas-adopt`, `/midas-update`, `/midas-verify`, `/midas-qa`, `/midas-reconcile`, `/midas-init --monorepo` (alias: `/midas-monorepo`), `/midas-tribunal`, `/midas-security-audit`, `/midas-sweep`, `/midas-capture`, `/midas-align`, `/midas-bundle`, `/midas-progress`, `/midas-explore`) are **user-typed slash commands**
+ `/midas-adopt`, `/midas-update`, `/midas-verify`, `/midas-design`, `/midas-qa`, `/midas-reconcile`, `/midas-init --monorepo` (alias: `/midas-monorepo`), `/midas-tribunal`, `/midas-security-audit`, `/midas-sweep`, `/midas-capture`, `/midas-align`, `/midas-bundle`, `/midas-progress`, `/midas-explore`) are **user-typed slash commands**
  (`disable-model-invocation`). **Never call them via the Skill tool** (it errors) or auto-run them — when one
  is the next step, **surface the command for the user to type** ("👉 Run `/…`"). Each also guards this in its body.
 - **State ritual (shared):** skills read **`paths.state` first** and **write last** (read-modify-write). They

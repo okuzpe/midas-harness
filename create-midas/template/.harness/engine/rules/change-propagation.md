@@ -15,7 +15,7 @@ file and leaving generated trees, version stamps, or docs stale is a **gap** —
 | `.claude/skills/*`, `.agents/skills/*`, or `.claude/agents/*` | **Engine repo:** `npm run build` (syncs `plugins/midas/` + `create-midas/template/`). **Product:** adapters only if conventions changed |
 | `<paths.engine>/pipeline/*`, templates, methodology, state schema | Matching docs (`docs/*`, `INSTALL.md`, `README.md` when user-facing); rebuild template if engine repo |
 | Behaviour in product code | Tests per `testing.md`; docs per `docs.md`; `{product}/features.json` if tracked |
-| `harness/VERSION` (engine repo) | Run `npm run bump -- <X.Y.Z>` (or `node scripts/bump-version.mjs <X.Y.Z>`). It rewrites package mirrors, state example stamps, `INSTALL.md` `#v…` pins, and rebuilds. Skills/docs use `#v{VERSION}` placeholders or read VERSION at runtime — do **not** hand-edit version strings across the tree. Then add the CHANGELOG section + git tag. |
+| `harness/VERSION` (engine repo) | **Mandatory:** `npm run bump -- <X.Y.Z>` (or `node scripts/bump-version.mjs <X.Y.Z>`). Never hand-scatter version strings. The script rewrites package mirrors, state example stamps, `INSTALL.md` `#v…` pins, and rebuilds. Skills/docs use `#v{VERSION}` placeholders or read VERSION at runtime. Then add the CHANGELOG section + git tag. See `VERSIONING.md` § Release checklist. |
 | Installer (`create-midas/index.mjs`) | `scripts/test.mjs`; smoke both layouts if layout paths touched |
 | `.mcp.json` or skill `mcp-required` | `state.yaml → mcp:` list; `node <paths.scripts>/mcp-drift.mjs` / doctor `mcp:*` checks |
 | Sprint behaviour / acceptance criteria | Tests; `{runs}/verifications/` if UI; `{runs}/audits/` at `/close-sprint` |
@@ -46,8 +46,19 @@ code-quality.md` § …) — do not add a parallel `_fragments/` layer (see `con
       or managed adapter regions without a corresponding `.claude/`, `harness/`, or `scripts/` source change.
 
 ### Version and docs (engine releases)
-- [ ] `harness/VERSION` bump cascades to all mirrors listed in `VERSIONING.md` § Release checklist.
-      **CHECK:** `node scripts/test.mjs` version:* checks pass when `harness/VERSION` is in the diff.
+- [ ] **Engine version publishes use `npm run bump` — never hand-scatter version strings.**
+      To cut a release (or any intentional `harness/VERSION` change) run
+      `npm run bump -- <X.Y.Z>` (or `node scripts/bump-version.mjs <X.Y.Z>`). That is the **only**
+      allowed writer for VERSION + package mirrors + state example stamps + `INSTALL.md` `#v…` pins.
+      Do **not** hand-edit `package.json` / `create-midas/package.json` / `gemini-extension.json` /
+      `INSTALL.md` pins / skill `#v…` tags for a version bump. Then finish CHANGELOG + `git tag`.
+      Full checklist: `VERSIONING.md` § Release checklist.
+      **CHECK:** `manual:` when `harness/VERSION` is in the PR/sprint diff, the session or PR notes
+      name `npm run bump -- <ver>` (or `scripts/bump-version.mjs`); a VERSION bump done by editing
+      mirrors/pins by hand without that command is a fail.
+      **CHECK:** `node scripts/test.mjs` `version:*` and `version-pin:*` checks pass when
+      `harness/VERSION` is in the diff (`INSTALL.md` pins match; skills/SECURITY/README/installer
+      have no hardcoded `#vX.Y.Z`).
 - [ ] User-facing behaviour or install flow change updates `INSTALL.md`, `docs/getting-started.md`, or
       `docs/index.md` in the same change set.
       **CHECK:** `manual:` a diff touching installer flags, layout, or skill commands also touches at least
@@ -68,3 +79,9 @@ code-quality.md` § …) — do not add a parallel `_fragments/` layer (see `con
 | `/midas-doctor` | Adapter drift + install health (subset of align) |
 | `/midas-sweep` | Dead flows and stale docs vs reality (brownfield hygiene) |
 | `/close-sprint` | Phase-8 rule audit for a shipped sprint |
+| `npm run bump -- <ver>` | **Engine repo only** — mandatory path to publish / bump `harness/VERSION` |
+
+## Amendment
+
+- **2026-08-01** — Engine version publishes must use `npm run bump -- <X.Y.Z>` (no hand-scattered
+  pins). Added CHECK + command table row; `INSTALL.md` remains the sole copy-paste `#v…` surface.

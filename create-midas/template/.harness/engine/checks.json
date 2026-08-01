@@ -2,7 +2,7 @@
   "schema_version": 1,
   "updated": null,
   "source": "engine/rules",
-  "source_digest": "555f5f72b84d0068a082921b2d1c75f498caa106a5776bd22e5405f85572e3fc",
+  "source_digest": "7ee5756287272a471f9ce26d581bc34f5adb5b6d31e70ead8a605752fa5ccfed",
   "rules": [
     {
       "path": "engine/rules/acceptance-criteria.md",
@@ -174,7 +174,7 @@
       "title": "Rule: Change propagation — keep sources, bundles, docs, and versions aligned (always-on)",
       "owner": "orchestrate",
       "phase": 8,
-      "check_count": 7,
+      "check_count": 8,
       "checks": [
         {
           "kind": "manual",
@@ -201,8 +201,16 @@
           "severity": "high"
         },
         {
+          "kind": "manual",
+          "body": "`manual:` when `harness/VERSION` is in the PR/sprint diff, the session or PR notes name `npm run bump -- <ver>` (or `scripts/bump-version.mjs`); a VERSION bump done by editing mirrors/pins by hand without that command is a fail.",
+          "section": "Checklist > Version and docs (engine releases)",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
           "kind": "command",
-          "body": "`node scripts/test.mjs` version:* checks pass when `harness/VERSION` is in the diff.",
+          "body": "`node scripts/test.mjs` `version:*` and `version-pin:*` checks pass when `harness/VERSION` is in the diff (`INSTALL.md` pins match; skills/SECURITY/README/installer have no hardcoded `#vX.Y.Z`).",
           "section": "Checklist > Version and docs (engine releases)",
           "phase": 8,
           "owner": "orchestrate",

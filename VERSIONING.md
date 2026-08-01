@@ -7,129 +7,115 @@ Midas's harness ENGINE follows [Semantic Versioning 2.0.0](https://semver.org/).
 ## What is the "engine"?
 
 The engine is the **harness itself** — the skill contracts, phase taxonomy, adapter-generation
-contract, state schema, and command namespace — not any product built with the harness.  
+contract, state schema, and command namespace — not any product built with the harness.
 Products built with Midas maintain their own version numbers independently.
 
 ---
 
 ## Version scheme: `MAJOR.MINOR.PATCH`
 
-### Pre-1.0 (current)
-
-Pre-1.0 treats **MINOR as the breaking lever**:
+**Current line: 2.x** (stable public engine contract since `2.0.0`). Standard SemVer applies:
 
 | Increment | Meaning |
 |---|---|
-| `0.MINOR` bump | Breaking change to the engine contract (see below). Installs must migrate. |
-| `0.x.PATCH` bump | Additive or wording-only change. Safe to absorb without migration. |
-
-Once 1.0.0 is declared (stable public API), the standard SemVer semantics below apply.
-
-### Post-1.0
-
-| Increment | Meaning |
-|---|---|
-| `MAJOR` | Breaking change to the engine contract. |
+| `MAJOR` | Breaking change to the engine contract (see below). Installs need migration. |
 | `MINOR` | Additive, backward-compatible change. |
 | `PATCH` | Backward-compatible wording, typo, or clarification — no behavioral change. |
 
+### Pre-1.0 (historical)
+
+Before `1.0.0`, **MINOR** was the breaking lever (`0.MINOR` = break, `0.x.PATCH` = safe). That
+policy ended at 1.0. Do not use it for new releases.
+
+### 1.x (historical)
+
+`1.0.0` froze the hub-default install (ADR-006). `2.0.0` replaced that with the canonical
+`.harness/` layout (ADR-007). Classic / compact / hub remain **read/migrate-only** inputs.
+
 ---
 
-## What counts as a BREAKING change (MAJOR post-1.0 / MINOR pre-1.0)?
+## What counts as a BREAKING change (MAJOR)?
 
 A change is breaking if an existing install would need a migration step to stay functional:
 
-- **Renamed or removed skill / command** — e.g. `/start-sprint` renamed to `/sprint-start`; any
-  invocation in docs, habits, or CI scripts breaks.
+- **Renamed or removed skill / command** — e.g. `/start-sprint` renamed to `/sprint-start`.
 - **Phase taxonomy change** — adding, removing, reordering, or renaming a stage enum value in
-  `.harness/state.yaml`; existing state files reference the old names.
+  `paths.state`; existing state files reference the old names.
 - **Adapter-generation contract change** — changes to the sections that `render-adapters.mjs` writes
-  into `.claude/CLAUDE.md`, `.cursor/rules/`, or `.windsurf/rules/` that break the downstream tool's parsing.
-- **State schema incompatibility** — removing or renaming a required field in `.harness/state.yaml`;
-  existing state files would fail validation.
+  into managed adapters that break the downstream tool's parsing.
+- **State schema incompatibility** — removing or renaming a required field in `paths.state`.
 - **Frontmatter contract change** — changing required SKILL.md or agent frontmatter keys such that
   existing skill files become invalid.
-- **Convention rule removal or semantic inversion** — removing a named rule that existing `product/`
+- **Convention rule removal or semantic inversion** — removing a named rule that existing product
   artifacts reference, or inverting its meaning.
+- **Writable install layout change** — replacing `.harness/` as the only writable layout (ADR-007).
 
 ### What does NOT count as breaking?
 
 - Adding a new optional SKILL.md frontmatter key with a documented default.
-- Adding a new phase-N pipeline playbook file (`harness/pipeline/0N-*.md`) when the stage enum is
-  unchanged and the new phase is opt-in.
+- Adding a new phase-N pipeline playbook file when the stage enum is unchanged and the phase is opt-in.
 - Wording improvements to methodology, conventions, or docs that do not change checkable behavior.
 - New example files under `examples/`.
 - New `harness/rules/*.md` files that are additive (existing audits pass without the new rule).
+- Thin-root host-mirror pruning / default `--tools=cursor` (ADR-008) when existing multi-tool
+  installs keep their `state.tools` until `--update --tools=…`.
 
 ---
 
-## Version stamp in `.harness/state.yaml`
+## Version stamp in `paths.state`
 
-Every `.harness/state.yaml` carries:
+Every install state file carries:
 
 ```yaml
-midas_version: 0.5.30   # engine version that wrote or last migrated this file
+midas_version: 2.0.0   # engine version that wrote or last migrated this file
 ```
 
-`/midas-init` writes `midas_version` on first install.  
+`/midas-init` writes `midas_version` on first install.
 `/midas-doctor` checks whether `midas_version` matches the installed engine and warns if they diverge.
 
 ---
 
-## Migration: `/midas-update`
+## Migration: `/midas-update` and `--migrate`
 
-When upgrading across a breaking version boundary:
+- **Already on v2 (`.harness/`)** — `npx github:okuzpe/midas-harness#v2.0.0 --update` (optional
+  `--tools=…` to prune hosts). Skill `/midas-update` for diff-confirm workflows.
+- **Still on v1 classic/compact/hub** — `npx … --migrate` (preview) then `--migrate --apply`.
+  `--update` never relocates a v1 tree (ADR-007).
 
-1. Run `/midas-update` — it reads `midas_version` from `.harness/state.yaml`, diffs it against the
-   target version's migration notes, and proposes the minimal set of file edits required.
-2. Review the diff. Confirm before any writes.
-3. `/midas-update` bumps `midas_version` in `state.yaml` on success.
-
-Migration notes for each breaking version live in `harness/migrations/vX.Y.md` (created when the
-version is cut). For pre-1.0 minor bumps, migration notes live in the relevant `CHANGELOG.md` entry
-under a `### Migration` subsection.
+Migration notes for breaking versions live in `harness/migrations/vX.Y.md` when cut.
 
 ---
 
-## 1.0.0 — shipped 2026-07-06
-
-**Hub layout** is the default install: engine, state, runs, and product methodology artifacts under
-`.midas/` (`layout: hub`, `paths.product`). Classic and compact remain via `--layout=`. Portable
-bundles keep classic canonical coordinates; import remaps per target layout (ADR-006).
-
-This section is historical. In v2, ADR-007 supersedes these install-layout guarantees: new installs
-use `.harness/`; classic, compact, and hub remain supported only as explicit migration inputs.
-
-Surfaces frozen at 1.0:
+## Surfaces frozen at 2.0
 
 | Surface | Freeze criterion |
 |---------|------------------|
-| `harness/state.yaml` schema | Required keys + stage enum stable; additive optional fields only in MINOR |
-| Skill / command names | No renames without migration + major bump post-1.0 |
-| Product artifact paths | Resolved via `paths.product` / `{product}/` token (hub: `.midas/product/`) |
-| Install layouts | `hub` (default), `compact`, `classic` — no removal before 2.0 |
+| Writable install layout | `layout: harness` only (`.harness/`); v1 layouts = migrate inputs |
+| Thin-root allowlist | ADR-008 — host discovery at root; engine under `.harness/` |
+| Ownership roles | `vendor` / `generated` / `user` in `.harness/manifest.json` |
+| `paths.state` schema | Required keys + stage enum stable; additive optional fields only in MINOR |
+| Skill / command names | No renames without migration + MAJOR |
+| Product / runs paths | Resolved via `paths.*` / `{product}/` / `{runs}/` tokens |
 | Adapter managed regions | `<!-- midas:begin/end -->` contract unchanged |
-| `MIDAS_*_RESULT` tally lines | Parseable gate format stable for doctor.mjs |
+| `MIDAS_*_RESULT` tally lines | Parseable gate format stable for `doctor.mjs` |
 
 ---
 
-## Pre-1.0 roadmap (historical)
+## 1.0.0 — shipped 2026-07-06 (historical)
 
-Exit criteria that gated **1.0.0** (all met):
-
-1. `examples/taskpilot` completes at least one full sprint loop with CI-green gates.
-2. Installer paths tested on Linux + Windows (`install.sh`, `install.ps1`, `--update`).
-3. Layout migration (`migrate-layout.mjs --target=hub`) exercised on TaskPilot.
-4. Docs site published and linked from README.
-5. No open HIGH-severity items in engine self-audit.
+Hub layout was the default install under `.midas/` (ADR-006). Superseded for **new** installs by
+ADR-007 / `2.0.0`. Kept here for archaeology of 1.x installs.
 
 ---
 
 ## Release checklist (maintainers)
 
+> **Rule (engine repo):** publishing or bumping the engine version **must** use
+> `npm run bump -- <X.Y.Z>`. Hand-editing version strings across packages / INSTALL / skills is a
+> fail under `harness/rules/change-propagation.md`.
+
 1. Update `CHANGELOG.md` — move items from `[Unreleased]` to the new version section (can draft first).
-2. Run **`npm run bump -- <X.Y.Z>`** — single command that writes `harness/VERSION`, package mirrors
-   (`package.json`, `create-midas/package.json`, `gemini-extension.json`), state example stamps,
+2. Run **`npm run bump -- <X.Y.Z>`** — writes `harness/VERSION`, package mirrors, state example stamps,
    `INSTALL.md` `#v…` pins, the Unreleased compare link, and `npm run build`.
 3. Finish the CHANGELOG section + compare link row for the new version if not already done.
 4. `npm test`, then `git tag vX.Y.Z && git push origin main vX.Y.Z`.

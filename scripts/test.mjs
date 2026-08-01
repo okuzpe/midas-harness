@@ -321,7 +321,7 @@ if (existsSync(buildCreate)) {
     const templateFiles = walkRelativeFiles(templateHarness)
       .filter((rel) => {
         const n = rel.replace(/\\/g, '/');
-        return n !== 'docs/agents-and-models.md' && n !== 'docs/skill-quality-gate.md';
+        return n !== 'docs/agents-and-models.md' && n !== 'docs/skill-quality-gate.md' && n !== 'docs/skills.md';
       });
     const sameShape = JSON.stringify(sourceFiles) === JSON.stringify(templateFiles);
     const sameContent = sameShape && sourceFiles.every(
@@ -870,6 +870,17 @@ check('installer:update-honours-tools', /update && hasToolsFlag\(\)/.test(instal
 check('installer:sync-skill-mirrors', /async function syncSkillMirrors/.test(installer) && /\.cursor\/skills/.test(installer));
 check('installer:default-tools-cursor', /const DEFAULT_TOOLS = \['cursor'\]/.test(installer));
 check('installer:prune-orphan-adapters', /function pruneOrphanAdapters/.test(installer));
+check(
+  'engine-state:classic-layout-declared',
+  /^layout:\s*classic$/m.test(readFileSync(join(ROOT, 'harness', 'state.yaml'), 'utf8')),
+  'engine harness/state.yaml must declare layout: classic (dogfood honesty)',
+);
+check(
+  'ci:user-shape-cursor-smoke',
+  /Installer smoke test \(user shape — cursor-only thin root\)/.test(
+    readFileSync(join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8'),
+  ),
+);
 const knownMatch = installer.match(/KNOWN_TOOLS\s*=\s*\[([^\]]+)\]/);
 if (knownMatch) {
   const known = knownMatch[1].split(',').map((t) => t.trim().replace(/['"]/g, ''));
@@ -1546,7 +1557,12 @@ if (existsSync(initSkill)) {
 }
 const statusSkill = join(skillsDir, 'midas-status', 'SKILL.md');
 if (existsSync(statusSkill)) {
-  check('skill:midas-status:router', readFileSync(statusSkill, 'utf8').includes('Command router'));
+  const statusBody = readFileSync(statusSkill, 'utf8');
+  check(
+    'skill:midas-status:router',
+    statusBody.includes('docs/skills.md') || statusBody.includes('Command router'),
+    'status must cite docs/skills.md (or legacy Command router)',
+  );
 }
 
 // --- M. midas-bundle export/import (examples/taskpilot) ---------------------------------------
