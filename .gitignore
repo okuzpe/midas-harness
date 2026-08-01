@@ -61,3 +61,6 @@ _site/
 
 # npm pack / local publish artifacts
 *.tgz
+
+# Engine repo: cursor-only mirror noise (multi-host dogfood uses .claude/skills + .agents/skills)
+/.cursor/skills/
