@@ -878,9 +878,14 @@ function runDoctor(target, paths, fix = false) {
 
 function verifyInstall(paths) {
   let result = runDoctor(TARGET, paths);
-  if (!result.ok && !result.missing && /OUT OF SYNC|MISSING|DRIFT/.test(result.out)) {
-    runDoctor(TARGET, paths, true);
-    result = runDoctor(TARGET, paths);
+  if (!result.ok && !result.missing) {
+    const autoFixable =
+      /OUT OF SYNC|MISSING|DRIFT/.test(result.out) ||
+      /STRICT:.*\b(routing|version)\b/.test(result.out);
+    if (autoFixable) {
+      runDoctor(TARGET, paths, true);
+      result = runDoctor(TARGET, paths);
+    }
   }
   return result;
 }
@@ -1006,6 +1011,8 @@ async function report(tools, paths) {
     reportGitignoreLine();
     if (verifyResult?.ok) {
       console.log('     verify: ok — adapters in sync (midas-doctor passed).');
+      console.log('     Update complete — no need to run /midas-update. Next: /midas-status in your editor.');
+      console.log('     Reload Cursor if new slash commands do not appear.');
     } else if (verifyResult && !verifyResult.missing) {
       console.log('     verify: FAILED — adapters still out of sync after auto-fix.');
       console.log(`     Run \`${doctorHint} --fix\` in the project and check the output above.`);

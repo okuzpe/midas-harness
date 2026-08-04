@@ -257,7 +257,13 @@ if (!stateRaw) {
   const m = stateRaw.match(/^midas_version:\s*([0-9][^\s#]*)/m);
   const sv = m ? m[1] : null;
   if (!sv) check('version', 'warn', 'state.yaml has no midas_version');
-  else if (VERSION && sv !== VERSION) check('version', 'warn', `state ${sv} != engine ${VERSION} — run /midas-update`);
+  else if (VERSION && sv !== VERSION) {
+    check(
+      'version',
+      'warn',
+      `state ${sv} != engine ${VERSION} — run npx github:okuzpe/midas-harness#v${VERSION} --update (or /midas-update for diff-confirm)`,
+    );
+  }
   else check('version', 'ok', sv || '');
   for (const k of ['stage', 'cost_profile', 'routing']) {
     if (!new RegExp(`(^|\\n)${k}:`).test(stateRaw)) check(`state:${k}`, 'warn', 'missing required key');

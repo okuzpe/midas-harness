@@ -19,6 +19,12 @@ from **`paths.state`**. If the project is classic, compact, or hub 1.x, stop wit
 to `npx github:okuzpe/midas-harness#v{VERSION} --migrate` (substitute `{VERSION}` from the release
 tag / engine `VERSION` you intend — see `INSTALL.md`); applying requires the explicit `--apply`.
 
+## When NOT
+
+- `npx github:okuzpe/midas-harness#v{VERSION} --update` already exited with **`verify: ok`** — the
+  install is current; use `/midas-status` instead.
+- `midas_version` already equals engine `VERSION` (step 1) — report already current and stop.
+
 ## Procedure
 1. **Read versions.** `from` = state `midas_version`; `to` = engine `VERSION` at `paths.version`. If `from == to`, report "already current" and stop.
 2. **Gather migration notes.** For each version between `from` and `to`, read `paths.engine/migrations/vX.Y.md`

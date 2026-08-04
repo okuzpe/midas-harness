@@ -78,7 +78,8 @@ midas_version: 2.0.0   # engine version that wrote or last migrated this file
 ## Migration: `/midas-update` and `--migrate`
 
 - **Already on v2 (`.harness/`)** — `npx github:okuzpe/midas-harness#v2.0.0 --update` (optional
-  `--tools=…` to prune hosts). Skill `/midas-update` for diff-confirm workflows.
+  `--tools=…` to prune hosts) **or** skill `/midas-update` for diff-confirm (pick one — not both).
+  CLI update is complete when it prints `verify: ok`.
 - **Still on v1 classic/compact/hub** — `npx … --migrate` (preview) then `--migrate --apply`.
   `--update` never relocates a v1 tree (ADR-007).
 

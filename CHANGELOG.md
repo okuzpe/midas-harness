@@ -11,6 +11,23 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.2.1] — 2026-08-05
+
+### Fixed
+
+- `--update` auto-fixes strict doctor failures for stale `routing` / `version` (via `doctor --fix`)
+  before rollback — common after cost-profile routing releases.
+- Post-update message clarifies CLI update is complete when `verify: ok`; `/midas-update` is not
+  required afterward.
+
+### Changed
+
+- `INSTALL.md`, `VERSIONING.md`, `/midas-reconcile`, `/midas-update`: `--update` and
+  `/midas-update` documented as **alternatives** (pick one), not a sequence.
+- Doctor version mismatch hint cites both `npx … --update` and `/midas-update`.
+
+---
+
 ## [2.2.0] — 2026-08-02
 
 ### Added
@@ -1250,7 +1267,7 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.2.1...HEAD
 [2.1.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.5...v2.0.0
 [2.0.0-rc.5]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.4...v2.0.0-rc.5

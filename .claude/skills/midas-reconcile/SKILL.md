@@ -56,7 +56,7 @@ Do not invent a different command unless the script is missing (fallback below).
 | No `.harness/engine/VERSION`, `harness/VERSION`, or `.midas/engine/VERSION` | `npx github:okuzpe/midas-harness#v{VERSION} --tools=cursor` (pin from `INSTALL.md` / release tag) then `/midas-init` |
 | `harness/VERSION` or `.midas/engine/VERSION` exists but canonical engine does not | Preview `npx ...#v{VERSION} --migrate`; after review add `--apply` |
 | Engine present, `setup_complete: false` in `paths.state` | `/midas-init` (brownfield → often `/midas-adopt`) |
-| v2 `midas_version` < engine `VERSION` | `npx ... --update` or `/midas-update` |
+| v2 `midas_version` < engine `VERSION` | `npx ...#v{VERSION} --update` **or** `/midas-update` (pick one — not both) |
 | Parent dir has Midas, this folder does not | `cd` to parent; `/midas-status` |
 | Otherwise | `/midas-status` |
 
@@ -68,7 +68,7 @@ Do not invent a different command unless the script is missing (fallback below).
 | `/midas-status` | **Which phase next?** (after setup is complete) |
 | `/midas-init` | One-time setup (writes) |
 | `/midas-adopt` | Brownfield inventory + rules (writes) |
-| `/midas-update` | Engine version migration (writes) |
+| `/midas-update` | Engine version migration with diff-confirm (**alternative** to `npx ... --update`) |
 
 ## Exit gate
 - [ ] Diagnose script output presented (Status + Next terminal + Next editor), or fallback table used.

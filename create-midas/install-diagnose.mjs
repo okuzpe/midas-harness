@@ -192,7 +192,8 @@ export function diagnoseProject(targetDir, opts = {}) {
       summary: `Engine on disk is ${engineVersion} but state.yaml records midas_version ${midasVersion}.`,
       nextCli: `npx github:okuzpe/midas-harness${pin} --update`,
       nextSlash: '/midas-update',
-      detail: 'Refresh the engine (--update) or run /midas-update for a diff-confirmed migration.',
+      detail:
+        'Pick one (not both): `npx ... --update` (full refresh — done when verify ok) or `/midas-update` (interactive confirm that runs the same refresh).',
     };
   }
 
