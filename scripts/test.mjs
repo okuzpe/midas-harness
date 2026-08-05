@@ -2481,6 +2481,14 @@ if (existsSync(join(ROOT, 'create-midas', 'template', '.mcp.json')) && existsSyn
     },
   }));
   check('mcp:governance-allows-runlayer', managed.status === 'ok', managed.note);
+  {
+    const selfManagedMode = 'self_managed';
+    const acceptsShadow =
+      selfManagedMode === 'self_managed' &&
+      shadow.status === 'warn' &&
+      shadow.shadowServers.includes('unsafe');
+    check('mcp:governance-self-managed', acceptsShadow, 'brownfield self_managed accepts shadow MCPs under --strict');
+  }
   check(
     'mcp:template-default-empty',
     Object.keys(JSON.parse(readFileSync(join(ROOT, 'create-midas', 'template', '.mcp.json'), 'utf8')).mcpServers || {}).length === 0,

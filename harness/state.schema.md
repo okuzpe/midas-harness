@@ -33,7 +33,7 @@ transition after that.
 ## Schema
 
 ```yaml
-midas_version: 2.3.0      # engine version that wrote this file (for /midas-update)
+midas_version: 2.3.1      # engine version that wrote this file (for /midas-update)
 layout: harness                # the only writable v2 layout; v1 layouts are read/migrate-only
 paths:
   root: .harness
@@ -77,6 +77,9 @@ local_model:                 # present only when execution_mode != cloud — pro
 
 tools: [claude-code, cursor]        # which tools adapters were generated for
 mcp:   []                           # approved MCP servers the project intends to use (none by default)
+mcp_governance: runlayer            # runlayer (default) | self_managed — brownfield projects with
+                             # pre-wired direct MCP servers set self_managed; doctor still warns on
+                             # unpinned packages but does not block --strict on shadow MCPs.
                              # Must match what is actually wired in `.mcp.json` — doctor warns on drift
                              # and blocks shadow/unpinned servers under --strict.
                              # Browser MCPs (playwright, chrome-devtools) are optional; wire them when the

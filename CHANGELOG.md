@@ -11,6 +11,15 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.3.1] — 2026-08-05
+
+### Added
+
+- `mcp_governance: self_managed` in `state.yaml` for brownfield installs with pre-wired direct MCP
+  servers; `midas-doctor --strict` reports `ok` for shadow MCPs (unpinned package versions still warn).
+
+---
+
 ## [2.3.0] — 2026-08-05
 
 ### Added
@@ -1297,7 +1306,7 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.3.0...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.3.1...HEAD
 [2.1.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.5...v2.0.0
 [2.0.0-rc.5]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.4...v2.0.0-rc.5

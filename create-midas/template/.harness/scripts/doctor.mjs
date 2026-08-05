@@ -474,7 +474,14 @@ if (mcp === null) {
   if (/\b(sk-[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{16,})\b/.test(mcp)) leak = true;
   check('mcp:secret-free', leak ? 'warn' : 'ok', leak ? 'a literal secret may be present — use ${ENV_VAR}' : '');
   const governance = evaluateMcpGovernance(mcp);
-  check('mcp:governance', governance.status, governance.note);
+  const mcpGovernance = (stateRaw?.match(/^mcp_governance:\s*(\S+)/m) || [])[1]?.replace(/['"]/g, '') || 'runlayer';
+  let govStatus = governance.status;
+  let govNote = governance.note;
+  if (mcpGovernance === 'self_managed' && governance.status === 'warn' && governance.shadowServers?.length) {
+    govStatus = 'ok';
+    govNote = `self_managed — ${governance.note}`;
+  }
+  check('mcp:governance', govStatus, govNote);
   // Windows: an MCP server launched with bare `npx` cannot be spawned (npx is a .cmd) and fails with
   // "Connection closed". It must be wrapped in `cmd /c`. Fresh installs are fixed by the installer.
   if (process.platform === 'win32') {
