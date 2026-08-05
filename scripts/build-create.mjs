@@ -11,6 +11,7 @@ import { cpSync, rmSync, existsSync, mkdirSync, readFileSync, writeFileSync } fr
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { renderPortableSkillsTree } from './portable-skills.mjs';
+import { HARNESS_ENGINE_ONLY_RELS, stripEngineOnlySkills } from './engine-only.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..');
@@ -22,7 +23,10 @@ const TEMPLATE = join(ROOT, 'create-midas', 'template');
 // harness/templates/AGENTS.md.tmpl below (the installer fills {{PROJECT_NAME}}/{{STACK}}/{{TOOLS}}).
 // Engine-repo-only paths under harness/ — never ship these in the distributable template.
 // Fresh projects get .harness/state.yaml from create-midas/index.mjs.
-const HARNESS_EXCLUDE = ['state.yaml'];
+// autonomy/ is an optional capability — shipped under template/.optional/autonomy and
+// installed to .harness/autonomy only when create-midas receives --autonomy (ADR-009).
+// Engine-only skills (e.g. midas-precommit) stay in harness/skills for contributors but are stripped.
+const HARNESS_EXCLUDE = [...HARNESS_ENGINE_ONLY_RELS];
 const FILES = [
   'scripts/render-adapters.mjs', // needed by /midas-doctor in the installed project
   'scripts/yaml-lite.mjs',
@@ -52,8 +56,13 @@ mkdirSync(engineTarget, { recursive: true });
 cpSync(join(ROOT, 'harness'), engineTarget, { recursive: true });
 for (const rel of HARNESS_EXCLUDE) {
   const excluded = join(engineTarget, rel);
-  if (existsSync(excluded)) rmSync(excluded, { force: true });
+  if (existsSync(excluded)) rmSync(excluded, { recursive: true, force: true });
 }
+
+// Optional autonomy capability (not part of the default engine tree).
+const optionalAutonomy = join(TEMPLATE, '.optional', 'autonomy');
+mkdirSync(dirname(optionalAutonomy), { recursive: true });
+cpSync(join(ROOT, 'harness', 'autonomy'), optionalAutonomy, { recursive: true });
 for (const f of FILES) {
   const dst = join(scriptsTarget, f.replace(/^scripts\//, ''));
   mkdirSync(dirname(dst), { recursive: true });
@@ -63,9 +72,14 @@ cpSync(
   join(ROOT, 'create-midas', 'install-diagnose.mjs'),
   join(scriptsTarget, 'install-diagnose.mjs'),
 );
+cpSync(
+  join(ROOT, 'create-midas', 'lib', 'core', 'context.mjs'),
+  join(scriptsTarget, 'install-context.mjs'),
+);
 mkdirSync(join(engineTarget, 'docs'), { recursive: true });
 cpSync(join(ROOT, 'docs', 'agents-and-models.md'), join(engineTarget, 'docs', 'agents-and-models.md'));
 cpSync(join(ROOT, 'docs', 'skill-quality-gate.md'), join(engineTarget, 'docs', 'skill-quality-gate.md'));
+cpSync(join(ROOT, 'docs', 'skill-flows.md'), join(engineTarget, 'docs', 'skill-flows.md'));
 cpSync(join(ROOT, 'docs', 'skills.md'), join(engineTarget, 'docs', 'skills.md'));
 cpSync(join(ROOT, '.mcp.json'), join(TEMPLATE, '.mcp.json'));
 
@@ -74,6 +88,7 @@ cpSync(join(ROOT, '.mcp.json'), join(TEMPLATE, '.mcp.json'));
 // `.agents/skills`).
 cpSync(join(ROOT, 'harness', 'skills'), join(TEMPLATE, '.claude', 'skills'), { recursive: true });
 cpSync(join(ROOT, 'harness', 'agents'), join(TEMPLATE, '.claude', 'agents'), { recursive: true });
+stripEngineOnlySkills(join(TEMPLATE, '.claude', 'skills'), { existsSync, rmSync }, { join });
 renderPortableSkillsTree(TEMPLATE, {
   sourceDir: '.harness/engine/skills',
   targetDir: '.agents/skills',
@@ -82,6 +97,8 @@ renderPortableSkillsTree(TEMPLATE, {
   sourceDir: '.harness/engine/skills',
   targetDir: '.cursor/skills',
 });
+stripEngineOnlySkills(join(TEMPLATE, '.agents', 'skills'), { existsSync, rmSync }, { join });
+stripEngineOnlySkills(join(TEMPLATE, '.cursor', 'skills'), { existsSync, rmSync }, { join });
 
 // Render the PROJECT AGENTS.md from the template (strip the leading {{! author note }} block; keep the
 // {{PROJECT_NAME}}/{{STACK}}/{{TOOLS}} placeholders for the installer to fill).

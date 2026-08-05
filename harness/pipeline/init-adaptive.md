@@ -76,8 +76,8 @@ Show maturity + entry phase + pre-fills (flag **DISPUTED**). One `AskUserQuestio
 1. **Maturity** — confirm E-level and **gates it skips**.
 2. **Gaps** — E0/E1: operational only (product gaps → `/contextualize`); E2/E3: capture product gaps
    here. Skip answered questions.
-3. **Operational:** tools · `cost_profile` · MCP (`context7` always; `sequential-thinking` default) ·
-   language. Context7 = free tier — never ask for a key.
+3. **Operational:** tools · `cost_profile` · approved MCPs (none by default) · language. Prefer
+   Runlayer-managed integrations; Context7 remains an optional free docs source — never ask for a key.
 4. Monorepo detected → wire now (Phase F) or defer to `/midas-init --monorepo` before `/plan-sprints`.
 
 ## Phase E — GENERATE (write last)

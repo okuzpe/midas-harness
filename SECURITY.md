@@ -25,7 +25,7 @@ We aim to acknowledge reports within 3 business days and to publish a patch or a
 
 ## Installing Midas securely
 
-Midas's recommended one-line installers **execute a remote script with your user's privileges**:
+Midas's one-line installers **execute a remote script with your user's privileges**:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash
@@ -36,11 +36,10 @@ This is *pipe-to-shell* — you run code you haven't read. Treat it like any `cu
 
 - **Read it first** if that's a concern: [`install.sh`](./install.sh) / [`install.ps1`](./install.ps1)
   are thin shims that only check Node and delegate to `npx`.
-- **Prefer the `npx` form**, which runs the same dependency-free installer without a shell pipe:
-  `npx github:okuzpe/midas-harness`.
-- **Pin a release for a reproducible, reviewable install.** The shims and `npx` resolve from the
-  mutable `main` branch (not a signed tag), so for supply-chain assurance install a tagged version —
-  copy the pinned `npx …#v…` command from [`INSTALL.md`](./INSTALL.md) (matches `harness/VERSION`).
+- **Default pin:** the shims resolve `github:okuzpe/midas-harness#v{VERSION}` (rewritten by
+  `npm run bump`). Override with `MIDAS_INSTALL_REF` or opt into mutable main via
+  `MIDAS_BLEEDING_EDGE=1`.
+- **Prefer the pinned `npx` form** from [`INSTALL.md`](./INSTALL.md) for reproducible installs.
 - Fresh install and update preserve user-owned paths. Explicit `--migrate --apply` uses staging,
   verified hashes, and rollback before removing proven Midas-owned legacy sources.
 
@@ -56,9 +55,9 @@ The engine repository keeps its release and CI surface intentionally small. The 
   and `id-token: write` only on the GitHub Pages deploy job.
 - **CI-installed packages are exact-pinned.** The docs workflow pins `mkdocs-material` to the
   reviewed version used for the published docs build.
-- **Installer docs show convenience first, but security-sensitive installs should pin a release.**
-  Keep the one-line `main` installers for onboarding, and point reproducible or audited installs at
-  the pinned tag in [`INSTALL.md`](./INSTALL.md) (must match `harness/VERSION`).
+- **Installer docs and shims default to a pinned release** matching `harness/VERSION`. Mutable
+  `main` requires an explicit `MIDAS_BLEEDING_EDGE=1` (or unpinned `npx github:…` without `#v…`).
+  Copy-paste pins in [`INSTALL.md`](./INSTALL.md) must match `harness/VERSION`.
 
 `scripts/test.mjs` enforces the CI-facing pieces of this policy. `/midas-doctor` stays advisory for
 project-health warnings that depend on local platform or tool configuration.
@@ -67,26 +66,21 @@ project-health warnings that depend on local platform or tool configuration.
 
 ## MCP least-privilege guidance
 
-Midas ships a secret-free [`.mcp.json`](./.mcp.json) that wires **one** server by default
-(`sequential-thinking`); Context7 and the others below are **optional** (wire them if you want):
+Midas ships a secret-free, empty [`.mcp.json`](./.mcp.json). No server is enabled by default.
+Adding or enabling an MCP server requires explicit human approval; prefer a Runlayer-managed server so
+organizational policy, audit logging, and access controls remain effective.
 
 | Server | Type | What it does |
 |---|---|---|
-| `context7` *(optional)* | Remote HTTP | Fetches current library docs — wire it if you want, or use your own doc tool |
-| `sequential-thinking` | Local npx | Structured reasoning; no file or network access |
+| Runlayer-managed Context7 *(optional)* | Managed | Fetches current library docs after approval |
+| Other Runlayer-managed integrations *(optional)* | Managed | Enable only the minimum capability and scope needed |
 
-### Default MCP exception and governance stance
+### Governance stance
 
-The committed engine `.mcp.json` deliberately keeps `sequential-thinking` as a local `npx` server:
-it has no filesystem, git, browser, network, or credential scope beyond downloading and launching the
-package. In organizations that require Runlayer-managed MCP servers, treat this as an explicit
-exception to approve or replace before use; do not add new unmanaged MCP servers without the same
-review.
-
-On Windows, raw `command: "npx"` cannot be spawned by Node-based MCP clients. Fresh Midas installs are
-rewritten by `create-midas/index.mjs` to `cmd /c npx ...`; existing user-owned `.mcp.json` files are
-never overwritten, so `/midas-doctor` reports this as an advisory `mcp:win-npx` warning when it sees a
-bare `npx` on Windows.
+`/midas-doctor --strict` blocks active servers that are not addressed through `runlayer.com` or
+`runlayer run <UUID>`. It also rejects mixed literal/placeholder credentials and unpinned npm-based
+server packages. Existing user-owned `.mcp.json` files remain preserved during updates, so reconcile
+any warning explicitly rather than letting the installer overwrite local configuration.
 
 The following guidance applies when you extend `.mcp.json` with optional servers.
 
@@ -188,8 +182,8 @@ The following findings were recorded during the 2026 security audit of the v0.1 
 
 | ID | Finding | Disposition |
 |---|---|---|
-| SEC-001 | `sequential-thinking` server pinned via `-y` without version lock; low risk (no file/exec scope) | Accepted; monitor for supply-chain advisories; pin if scope expands |
+| SEC-001 | A default unpinned `sequential-thinking` server bypassed MCP governance | Fixed: no server ships enabled; doctor blocks shadow/unpinned servers |
 | SEC-002 | `context7` remote endpoint receives library-ID queries; no auth required (only when you opt to wire it) | Accepted; optional since v0.5.0; documented in guidance §4 above |
 | SEC-003 | No version pin guidance in the default `.mcp.json` for optional servers | Mitigated: guidance added in this document (§1) |
 | SEC-004 | `${ENV_VAR}` pattern not enforced by tooling; relies on author discipline | Mitigated: documented in `harness/conventions.md`; Phase-8 audit checklist item |
-| SEC-005 | `curl\|bash` / `irm\|iex` installers pipe a remote script from the mutable `main` branch | Documented (§Installing Midas securely); `npx` and pinned-tag (`#v{VERSION}` via INSTALL.md) alternatives provided |
+| SEC-005 | `curl\|bash` / `irm\|iex` fetch shim from `main`, but shim defaults to pinned `#v{VERSION}` | Mitigated: `install.sh` / `install.ps1` pin via bump; `MIDAS_BLEEDING_EDGE=1` for mutable main; INSTALL.md documents pin-first |

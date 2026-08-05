@@ -5,7 +5,7 @@ metadata:
   midas-argument-hint: "[whole|architecture|scope|idea|market|design|unit-economics|security|rules] [--depth quick|standard|tribunal]"
   midas-disable-model-invocation: true
   midas-harness-tier: orchestrate
-  midas-mcp-recommended: "[sequential-thinking]"
+  midas-mcp-recommended: "[]"
   midas-model: inherit
   midas-recommended-model: claude-opus-4-8
   midas-user-invocable: true

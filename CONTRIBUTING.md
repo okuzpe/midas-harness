@@ -16,10 +16,11 @@ structure changes, and what the bar is for a contribution to land.
 - **Supply-chain changes are explicit.** GitHub Actions use immutable SHA pins with the major tag
   kept in a comment; workflow permissions start at `contents: read`; CI-installed packages are
   exact-pinned. MCP defaults and exceptions are documented in `SECURITY.md`.
-- **Edit the source; never hand-edit generated files.** `CLAUDE.md`, `.cursor/rules/00-midas.mdc`,
-  `.windsurf/rules/00-midas.md`, `GEMINI.md`, `plugins/midas/**`, and `create-midas/template/**` are
-  rendered from sources by `npm run render` and `npm run build`. Edit `.claude/`, `harness/`, or
-  `harness/conventions.md`, then run `npm run verify`. PRs that touch generated trees directly will
+- **Edit the source; never hand-edit generated files.** Canonical skills/agents live under
+  `harness/skills/` and `harness/agents/`. `CLAUDE.md`, `.cursor/rules/00-midas.mdc`,
+  `.windsurf/rules/00-midas.md`, `GEMINI.md`, `.claude/`, `.agents/`, `.cursor/skills/`,
+  `plugins/midas/**`, and `create-midas/template/**` are rendered by `npm run render` / `npm run build`.
+  Edit `harness/` or `scripts/`, then run `npm run verify`. PRs that touch generated trees directly will
   be asked to revert those edits.
 - **One concern per PR.** Small, reviewable diffs merge faster.
 
@@ -34,17 +35,19 @@ For the full source/generated-file map, install flow, and change-path guide, see
 
 | Layer | Paths | Edit? |
 |---|---|---|
-| **1. Sources** | `.claude/skills/`, `.claude/agents/`, `harness/`, `scripts/`, `docs/`, root `AGENTS.md` | **Yes** |
-| **2. Generated adapters** | `CLAUDE.md`, `.cursor/rules/`, `.windsurf/rules/`, `GEMINI.md` | No — run `npm run render` |
-| **3. Distribution bundles** | `plugins/midas/`, `create-midas/template/`, `.claude-plugin/` | No — run `npm run build` |
+| **1. Sources** | `harness/skills/`, `harness/agents/`, `harness/` (rules, pipeline, …), `scripts/`, `docs/`, root `AGENTS.md` | **Yes** |
+| **2. Host discovery mirrors** | `.claude/skills/`, `.claude/agents/`, `.agents/skills/`, `.cursor/skills/` | No — `npm run build` |
+| **3. Generated adapters** | `CLAUDE.md`, `.cursor/rules/`, `.windsurf/rules/`, `GEMINI.md` | No — `npm run render` |
+| **4. Distribution bundles** | `plugins/midas/`, `create-midas/template/`, `.claude-plugin/` | No — `npm run build` |
 
-The engine repo **commits** layers 2 and 3 so `npx` installs and the Claude plugin work offline. CI
+The engine repo **commits** layers 2–4 so `npx` installs and the Claude plugin work offline. CI
 rebuilds them and fails on drift — never hand-edit a generated copy.
 
 ```
-harness/              ← conventions, rules, pipeline, templates, VERSION, state.schema
-.claude/skills/       ← one dir per skill (Agent Skills standard)
-.claude/agents/       ← midas-orchestrator, midas-builder, midas-scout
+harness/              ← conventions, rules, pipeline, templates, VERSION, skills, agents
+harness/skills/       ← **canonical skill source** (edit here)
+.claude/skills/       ← generated Claude discovery mirror (do not edit)
+.agents/skills/       ← generated portable discovery mirror
 scripts/              ← render, doctor, test, build-* (dependency-free Node ESM)
 docs/                 ← MkDocs source (build to _site/, never commit)
 examples/taskpilot/   ← reference greenfield + CI gate fixture
@@ -58,12 +61,17 @@ AGENTS.md             ← engine project law (distinct from install template AGE
 
 ```bash
 npm run align     # render adapters + test + build bundles + doctor — run before every PR
+npm run precommit # mechanical floor for /midas-precommit (engine only)
 # or step by step:
 npm test          # structural invariants
 npm run render    # if harness/conventions.md or rules digest changed
 npm run build     # sync plugins/midas + create-midas/template
 npm run doctor    # adapter drift + health warnings
 ```
+
+**Engine commit bar:** before committing on midas-harness, run `/midas-precommit` (or ask the
+agent to). Overall score must be **≥ 80** (`docs/precommit-gate.md`). This skill is **engine-only**
+— it is stripped from `create-midas/template` and `plugins/midas`.
 
 **Docs preview:** `mkdocs build --site-dir _site` (matches CI). Do not commit `site/` or `_site/`.
 
@@ -163,6 +171,7 @@ Before opening a PR, confirm:
 
 - [ ] Edited source files only (not `plugins/midas/`, `create-midas/template/`, or generated adapters).
 - [ ] Ran `npm run align` (or `npm run verify`) — all green.
+- [ ] Ran `/midas-precommit` (or `npm run precommit` + agent scorecard) — overall ≥ 80.
 - [ ] Any new skill includes the ritual guard if side-effecting.
 - [ ] Any new rule is checkable; evidence format is documented.
 - [ ] Breaking change? Migration note added; `CHANGELOG.md` updated.

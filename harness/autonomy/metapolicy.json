@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "invariants": [
+    "budget_envelopes",
+    "capability_broker",
+    "branch_and_egress_allowlists",
+    "traceable_evidence",
+    "producer_ne_auditor",
+    "agent_inaccessible_metapolicy"
+  ],
+  "never_auto_approve": [
+    "go_no_go",
+    "rule_amendment",
+    "scope_drift_accept",
+    "shipped",
+    "merge_default_branch",
+    "deploy_production",
+    "policy_change",
+    "credential_change",
+    "auditor_config_change"
+  ],
+  "modes": {
+    "disabled": { "effects": false },
+    "bounded": {
+      "approvals_required": [
+        "merge",
+        "deploy",
+        "rule_amendment",
+        "go_no_go",
+        "shipped",
+        "commit_push"
+      ],
+      "cannot_disable_last_approval_silently": true
+    },
+    "custom": { "requires_explicit_transition": true, "deferred_to": "P1" },
+    "full": { "requires_explicit_transition": true, "deferred_to": "P1", "requires_methodology_amendment_adr": true }
+  }
+}

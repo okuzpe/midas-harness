@@ -1,5 +1,9 @@
 # TaskPilot — Midas worked example
 
+> **Layout note:** this example still uses the legacy **hub** tree (`.midas/`). Fresh installs from
+> `create-midas` use v2 **`.harness/`**. Full map: [V2-PATH-MAP.md](./V2-PATH-MAP.md).
+> CI still gates this fixture via `node scripts/doctor.mjs --strict --gates-only examples/taskpilot`.
+
 TaskPilot is a **minimal team task manager** used as a complete, fictional greenfield example to
 show every Midas phase artifact populated with real, consistent content.
 

@@ -1,6 +1,6 @@
 ---
 name: midas-reconcile
-description: "Read-only install/orientation check — detects whether Midas is missing, setup is pending, version is behind, or cwd is wrong, and prints the single next CLI or slash command. Use when npx --update failed, you are unsure between install/init/adopt/update, or before /midas-status on a confused project."
+description: "Read-only install/orientation check — thin guide to the deterministic diagnose CLI. Detects missing install, setup pending, version behind, or wrong cwd, and prints the single next CLI or slash command. Use when npx --update failed, you are unsure between install/init/adopt/update, or before /midas-status on a confused project."
 metadata:
   midas-argument-hint: "[project-root]"
   midas-disable-model-invocation: false
@@ -13,7 +13,7 @@ metadata:
 
 > **Paths / state:** `<paths.engine>/templates/skill-state-ritual.md` (read-only) + `AGENTS.md` § Path resolution.
 
-> **Read-only.** Never installs, never updates, never advances `stage`. Prints the **one** next step.
+> **Read-only.** Never installs, never updates, never advances `stage`. Prints the **one** next step from the diagnose CLI — do not re-implement detection in the model.
 
 Use when:
 - `npx ... --update` failed with "no existing Midas install"
@@ -22,30 +22,29 @@ Use when:
 
 ## Procedure
 
-### 1. Run the diagnose script (preferred)
+### 1. Run diagnose (source of truth)
 
-**If `paths.scripts` exists** (Midas already copied onto disk):
+**If `paths.scripts` exists:**
 
 ```bash
 node <paths.scripts>/install-diagnose.mjs
+# or machine-readable:
+npx github:okuzpe/midas-harness --diagnose --json
 ```
 
-Canonical v2 layout: `node .harness/scripts/install-diagnose.mjs`
+Canonical v2: `node .harness/scripts/install-diagnose.mjs`
 
-**If Midas is not installed yet** (no `paths.scripts`):
+**If Midas is not installed yet:**
 
 ```bash
 npx github:okuzpe/midas-harness --diagnose
 ```
 
-Run from the **project root** you care about (or pass the path as the script's first argument).
+Run from the **project root** (or pass the path as the first argument).
 
 ### 2. Present the output verbatim
 
-The script prints:
-- **Status** (`not_installed` | `legacy_layout` | `setup_pending` | `version_behind` | `nested_or_wrong_cwd` | `ready`)
-- **Next (terminal)** — e.g. fresh `npx ...` install or `--update`
-- **Next (editor)** — e.g. `/midas-init`, `/midas-status`, `/midas-update`
+Statuses: `not_installed` | `legacy_layout` | `setup_pending` | `version_behind` | `nested_or_wrong_cwd` | `ready`
 
 Do not invent a different command unless the script is missing (fallback below).
 
@@ -53,10 +52,10 @@ Do not invent a different command unless the script is missing (fallback below).
 
 | Observation | Next step |
 |-------------|-------------|
-| No `.harness/engine/VERSION`, `harness/VERSION`, or `.midas/engine/VERSION` | `npx github:okuzpe/midas-harness#v{VERSION} --tools=cursor` (pin from `INSTALL.md` / release tag) then `/midas-init` |
-| `harness/VERSION` or `.midas/engine/VERSION` exists but canonical engine does not | Preview `npx ...#v{VERSION} --migrate`; after review add `--apply` |
-| Engine present, `setup_complete: false` in `paths.state` | `/midas-init` (brownfield → often `/midas-adopt`) |
-| v2 `midas_version` < engine `VERSION` | `npx ...#v{VERSION} --update` **or** `/midas-update` (pick one — not both) |
+| No `.harness/engine/VERSION`, `harness/VERSION`, or `.midas/engine/VERSION` | `npx github:okuzpe/midas-harness#v{VERSION} --tools=cursor` then `/midas-init` |
+| `harness/VERSION` or `.midas/engine/VERSION` exists but canonical engine does not | Preview `npx …#v{VERSION} --migrate`; after review `--migrate --apply` |
+| Engine present, `setup_complete: false` | `/midas-init` |
+| v2 `midas_version` ≠ engine `VERSION` | `npx …#v{VERSION} --update` (preferred) or `/midas-update` as a thin guide — pick one |
 | Parent dir has Midas, this folder does not | `cd` to parent; `/midas-status` |
 | Otherwise | `/midas-status` |
 
@@ -66,17 +65,15 @@ Do not invent a different command unless the script is missing (fallback below).
 |---------|------|
 | `/midas-reconcile` | **Which command next?** (install/setup/version/cwd) |
 | `/midas-status` | **Which phase next?** (after setup is complete) |
-| `/midas-init` | One-time setup (writes) |
-| `/midas-adopt` | Brownfield inventory + rules (writes) |
-| `/midas-update` | Engine version migration with diff-confirm (**alternative** to `npx ... --update`) |
+| `/midas-update` | Thin guide to `npx … --update` |
+| Install CLI | Source of truth for install / update / migrate / uninstall / diagnose |
 
 ## Exit gate
-- [ ] Diagnose script output presented (Status + Next terminal + Next editor), or fallback table used.
-- [ ] Exactly **one** next command named — no invented alternate install path.
+- [ ] Diagnose CLI output presented (Status + Next), or fallback table used.
+- [ ] Exactly **one** next command named.
 - [ ] Read-only: no writes to `paths.state`, adapters, or product files.
-- [ ] If `ready` → point at `/midas-status` (not another reconcile loop).
 
 ## Tier & delegation
 - **Dispatch (read-only):** `scout` → `midas-scout`.
-- Mechanical detection only; never runs install/init/update itself.
+- Never runs install/init/update itself — only points at the CLI or slash command.
 - Respect `cost_profile` as intent on non-Claude hosts.

@@ -29,6 +29,82 @@ export function mcpServerKeys(jsonText) {
   }
 }
 
+function isRunlayerManaged(server) {
+  if (typeof server?.url === 'string') {
+    try {
+      const host = new URL(server.url).hostname.toLowerCase();
+      if (host === 'runlayer.com' || host.endsWith('.runlayer.com')) return true;
+    } catch {
+      return false;
+    }
+  }
+
+  const invocation = [server?.command, ...(Array.isArray(server?.args) ? server.args : [])]
+    .filter((part) => typeof part === 'string')
+    .map((part) => part.toLowerCase());
+  const runlayer = invocation.findIndex((part) => part === 'runlayer' || /(?:^|[\\/])runlayer(?:\.cmd|\.exe)?$/.test(part));
+  return runlayer !== -1 &&
+    invocation[runlayer + 1] === 'run' &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(invocation[runlayer + 2] || '');
+}
+
+function npmPackageSpec(server) {
+  const command = String(server?.command || '').toLowerCase();
+  const args = Array.isArray(server?.args) ? server.args.map(String) : [];
+  let start = -1;
+  if (command === 'npx' || command.endsWith('npx.cmd')) start = 0;
+  if (command === 'npm' || command.endsWith('npm.cmd')) {
+    const exec = args.findIndex((arg) => arg === 'exec' || arg === 'x');
+    if (exec !== -1) start = exec + 1;
+  }
+  if (start === -1) return null;
+  return args.slice(start).find((arg) => !arg.startsWith('-')) || null;
+}
+
+function isExactPackageVersion(spec) {
+  if (!spec) return true;
+  const versionAt = spec.startsWith('@') ? spec.lastIndexOf('@') : spec.indexOf('@');
+  if (versionAt <= 0) return false;
+  const version = spec.slice(versionAt + 1);
+  return /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(version);
+}
+
+/**
+ * Enforce organization MCP governance for active servers.
+ * Runlayer-managed servers pass; direct servers are shadow MCPs even when version-pinned.
+ */
+export function evaluateMcpGovernance(jsonText) {
+  if (!jsonText) return { status: 'skip', shadowServers: [], unpinnedServers: [], note: 'no .mcp.json' };
+  let parsed;
+  try {
+    parsed = JSON.parse(jsonText);
+  } catch {
+    return { status: 'warn', shadowServers: [], unpinnedServers: [], note: 'invalid .mcp.json' };
+  }
+
+  const servers = Object.entries(parsed.mcpServers || {}).filter(([id]) => !id.startsWith('{{!'));
+  const shadowServers = [];
+  const unpinnedServers = [];
+  for (const [id, server] of servers) {
+    if (!isRunlayerManaged(server)) shadowServers.push(id);
+    const spec = npmPackageSpec(server);
+    if (spec && !isExactPackageVersion(spec)) unpinnedServers.push(id);
+  }
+
+  if (!shadowServers.length && !unpinnedServers.length) {
+    return {
+      status: 'ok',
+      shadowServers,
+      unpinnedServers,
+      note: servers.length ? 'all active MCP servers are Runlayer-managed' : 'no active MCP servers',
+    };
+  }
+  const notes = [];
+  if (shadowServers.length) notes.push(`shadow MCPs: ${shadowServers.join(', ')}`);
+  if (unpinnedServers.length) notes.push(`unpinned MCP packages: ${unpinnedServers.join(', ')}`);
+  return { status: 'warn', shadowServers, unpinnedServers, note: notes.join('; ') };
+}
+
 /**
  * Advisory drift check — returns { status: 'ok'|'warn'|'skip', note }.
  * @param {string|null|undefined} stateYaml

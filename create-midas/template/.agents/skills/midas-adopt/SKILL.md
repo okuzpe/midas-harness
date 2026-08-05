@@ -4,7 +4,7 @@ description: "Adopt Midas into an EXISTING (brownfield) project. Inventory the c
 metadata:
   midas-disable-model-invocation: true
   midas-harness-tier: orchestrate
-  midas-mcp-recommended: "[context7, sequential-thinking]"
+  midas-mcp-recommended: "[context7]"
   midas-model: inherit
   midas-recommended-model: claude-opus-4-8
   midas-user-invocable: true

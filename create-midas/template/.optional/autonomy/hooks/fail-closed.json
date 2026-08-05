@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "description": "Fail-closed hook policy for Midas autonomy (P0). Wire into Cursor Cloud / agent hooks.",
+  "builder": {
+    "allow_git_push_prefixes": ["autonomy/"],
+    "deny_default_branch_push": true,
+    "deny_effects": ["git.merge", "deploy.production", "policy.mutate", "audit.mutate_verdict"],
+    "shell_allowlist_prefixes": [
+      "npm test",
+      "npm run test",
+      "node scripts/test.mjs",
+      "git status",
+      "git rev-parse",
+      "git checkout -b",
+      "git add",
+      "git commit",
+      "git push -u origin"
+    ],
+    "deny_path_globs": [
+      ".harness/autonomy/policy.yaml",
+      ".harness/autonomy/metapolicy.json",
+      ".harness/runs/autonomy/audits/**",
+      "**/.env",
+      "**/*.pem"
+    ],
+    "deny_env_inheritance": [
+      "MIDAS_AUTONOMY_JOURNAL_KEY",
+      "MERGE_TOKEN",
+      "DEPLOY_TOKEN",
+      "GITHUB_TOKEN"
+    ]
+  },
+  "auditor": {
+    "read_only": true,
+    "deny_filesystem_write": true,
+    "deny_shell_mutating": true,
+    "deny_git_write": true,
+    "allowed_shell_prefixes": ["git status", "git rev-parse", "git show", "git diff"],
+    "scm_token_env": ["GITHUB_TOKEN_READONLY", "CURSOR_API_KEY_READONLY"],
+    "forbid_scm_token_env": ["GITHUB_TOKEN", "GH_TOKEN", "MERGE_TOKEN"]
+  },
+  "network": {
+    "default": "deny",
+    "note": "Project must document allowlisted hosts before enabling cursor-cloud egress"
+  }
+}

@@ -27,6 +27,7 @@ Updates:
   package.json, create-midas/package.json, gemini-extension.json
   harness/state.yaml + harness/state.schema.md example stamps
   INSTALL.md npx #v… pins (the only user-facing copy-paste pin)
+  install.sh / install.ps1 default MIDAS_REF pins
   CHANGELOG.md [Unreleased] compare link
 
 Then runs npm run build (unless --dry-run).
@@ -89,6 +90,26 @@ plan('INSTALL.md', (t) => {
   const out = t.replaceAll(`#v${prev}`, `#v${next}`);
   if (!out.includes(`#v${next}`)) {
     throw new Error(`INSTALL.md had no #v${prev} pins to rewrite`);
+  }
+  return out;
+});
+plan('install.sh', (t) => {
+  const out = t.replace(
+    /MIDAS_REF="\$\{MIDAS_INSTALL_REF:-v[^}]+\}"/,
+    `MIDAS_REF="\${MIDAS_INSTALL_REF:-v${next}}"`,
+  );
+  if (!out.includes(`MIDAS_INSTALL_REF:-v${next}`)) {
+    throw new Error(`install.sh missing MIDAS_INSTALL_REF default for v${next}`);
+  }
+  return out;
+});
+plan('install.ps1', (t) => {
+  const out = t.replace(
+    /else \{ "v[^"]+" \}/,
+    `else { "v${next}" }`,
+  );
+  if (!out.includes(`else { "v${next}" }`)) {
+    throw new Error(`install.ps1 missing default pin v${next}`);
   }
   return out;
 });

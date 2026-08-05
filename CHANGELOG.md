@@ -11,6 +11,36 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.3.0] — 2026-08-05
+
+### Added
+
+- `/midas-precommit` — engine-only precommit quality gate (overall ≥ 80); `scripts/precommit-eval.mjs`,
+  `docs/precommit-gate.md`, `scripts/engine-only.mjs` (skill stripped from template/plugin).
+- Engine dogfood artifacts: `product/{idea,architecture,conventions}.md`, `docs/dogfood.md`,
+  `docs/contributing-quickstart.md`.
+- TaskPilot `examples/taskpilot/V2-PATH-MAP.md` (legacy `.midas/` → v2 `.harness/` map).
+- Installer modularization under `create-midas/lib/` (workflow engine, runtime execute, plan/transaction).
+
+### Changed
+
+- `install.sh` / `install.ps1` default to pinned `github:okuzpe/midas-harness#v{VERSION}`; opt into
+  mutable `main` via `MIDAS_BLEEDING_EDGE=1` or `MIDAS_INSTALL_REF`.
+- `INSTALL.md`, `SECURITY.md`: pin-first install docs; SEC-005 mitigated.
+- Autonomy commit/push authz **schema v2**: HMAC via `MIDAS_AUTONOMY_AUTHZ_KEY` (unsigned/v1 grants fail closed).
+- `release-prep.yml` extracts CHANGELOG section from `harness/VERSION`.
+- CONTRIBUTING / `docs/skills.md`: `harness/skills/` as canonical skill source.
+- Portable skill mirrors ship a generated `README.md` marker.
+
+### Fixed
+
+- Autonomy: block synthetic task when sprint file missing; hardened lease acquire/release; consistent
+  `journal_path` in tick reconcile paths.
+- Installer execute path throws instead of `process.exit` inside `installAutonomyCapability` / tool parsing.
+- Doc pin drift (`VERSIONING.md`, `create-midas/README.md`, FAQ update section).
+
+---
+
 ## [2.2.1] — 2026-08-05
 
 ### Fixed
@@ -1267,7 +1297,7 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.2.1...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.3.0...HEAD
 [2.1.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.5...v2.0.0
 [2.0.0-rc.5]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.4...v2.0.0-rc.5

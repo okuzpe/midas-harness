@@ -33,7 +33,7 @@ transition after that.
 ## Schema
 
 ```yaml
-midas_version: 2.2.1      # engine version that wrote this file (for /midas-update)
+midas_version: 2.3.0      # engine version that wrote this file (for /midas-update)
 layout: harness                # the only writable v2 layout; v1 layouts are read/migrate-only
 paths:
   root: .harness
@@ -76,8 +76,9 @@ local_model:                 # present only when execution_mode != cloud — pro
   vram_gb: 24                # host VRAM / unified-memory ceiling
 
 tools: [claude-code, cursor]        # which tools adapters were generated for
-mcp:   [context7, sequential-thinking]   # MCP servers the project intends to use (declared intent)
-                             # Must match what is actually wired in `.mcp.json` — doctor warns on drift.
+mcp:   []                           # approved MCP servers the project intends to use (none by default)
+                             # Must match what is actually wired in `.mcp.json` — doctor warns on drift
+                             # and blocks shadow/unpinned servers under --strict.
                              # Browser MCPs (playwright, chrome-devtools) are optional; wire them when the
                              # MVP has UI (see /midas-verify and .harness/engine/templates/mcp.json.tmpl).
 
@@ -121,6 +122,20 @@ captures:
     target: .harness/rules/naming.md
     reason: "Team prefers is/has prefix for all booleans"
 last_capture: { at: 2026-06-15, kind: rule, target: .harness/rules/naming.md }
+
+# Optional autonomy control-plane pointers (absent ≡ disabled). See
+# harness/autonomy/state-pointers.md and ADR-009. Long-form policy/ledger/journal
+# live under .harness/autonomy/ and {runs}/autonomy/ — not here.
+# autonomy:
+#   enabled: false
+#   mode: disabled
+#   status: idle
+#   policy_digest: ""
+#   active_agent_id: null
+#   active_run_id: null
+#   active_sha: null
+#   journal_path: .harness/runs/autonomy/journal.jsonl
+#   next_attempt_at: null
 ```
 
 ## Rules for consumers

@@ -146,10 +146,12 @@ For the contributor-facing source/generated-file map, see
 > **without conversion**, not identical feature parity.
 
 ### MCP / current docs
-Midas ships a secret-free [`.mcp.json`](./.mcp.json) wiring **sequential-thinking**. The
+Midas ships a secret-free, empty [`.mcp.json`](./.mcp.json): no MCP server is enabled without explicit
+approval. Prefer a Runlayer-managed server when adding one; direct stdio servers are reported as shadow
+MCPs by `/midas-doctor`. The
 **fetch-current-docs** rule (`harness/rules/context7-usage.md`) is **tool-agnostic** — Midas mandates the
 *habit* (fetch version-accurate docs before third-party code), not a vendor. Wire whichever doc tool you
-like: **[Context7](https://context7.com)** is the recommended free option (free anonymous tier — no API
+approve: **[Context7](https://context7.com)** is the recommended free option (free anonymous tier — no API
 key), or use a web-fetch MCP / your editor's docs. Other optional servers:
 git/GitHub, fetch, filesystem, Playwright (UI fallback), Maestro (native mobile). See [`SECURITY.md`](./SECURITY.md) for
 least-privilege guidance.

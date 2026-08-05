@@ -1,9 +1,25 @@
 // install-diagnose.mjs — read-only: what Midas install state is this directory in, and the single next step.
 // Used by: create-midas --diagnose (pre/post install) and template/scripts/install-diagnose.mjs in projects.
+//
+// Context helpers live in create-midas/lib/core/context.mjs (installer package) and are mirrored to
+// .harness/scripts/install-context.mjs on product installs (see scripts/build-create.mjs).
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+const contextPath = existsSync(join(HERE, 'lib', 'core', 'context.mjs'))
+  ? join(HERE, 'lib', 'core', 'context.mjs')
+  : join(HERE, 'install-context.mjs');
+const {
+  detectContext,
+  hasMidasInstall,
+  findAncestorMidasRoot,
+  yamlScalar,
+} = await import(pathToFileURL(contextPath).href);
+
+export { hasMidasInstall, findAncestorMidasRoot, yamlScalar };
 
 /** Fallback when caller does not pass installCmd (prefer reading bundled VERSION in create-midas). */
 const DEFAULT_INSTALL_CMD = 'npx github:okuzpe/midas-harness --tools=cursor';
@@ -18,107 +34,18 @@ function relatedCli(installCmd, mode) {
   return `${base} --update`;
 }
 
-function stripYamlComment(value) {
-  let inSingle = false;
-  let inDouble = false;
-  for (let i = 0; i < value.length; i++) {
-    const ch = value[i];
-    if (ch === "'" && !inDouble) {
-      inSingle = !inSingle;
-      continue;
-    }
-    if (ch === '"' && !inSingle) {
-      inDouble = !inDouble;
-      continue;
-    }
-    if (ch === '#' && !inSingle && !inDouble) {
-      const prev = i === 0 ? ' ' : value[i - 1];
-      if (/\s/.test(prev)) return value.slice(0, i).trim();
-    }
-  }
-  return value.trim();
-}
-
-/** @param {string|null|undefined} raw @param {string} key */
-export function yamlScalar(raw, key) {
-  if (!raw) return null;
-  const m = raw.match(new RegExp(`^${key}:\\s*(.+)$`, 'm'));
-  if (!m) return null;
-  return stripYamlComment(m[1]).replace(/^["']|["']$/g, '');
-}
-
-/** @param {string} dir */
-export function hasMidasInstall(dir) {
-  return (
-    existsSync(join(dir, '.harness', 'engine', 'VERSION')) ||
-    existsSync(join(dir, '.harness', 'state.yaml')) ||
-    existsSync(join(dir, 'harness', 'VERSION')) ||
-    existsSync(join(dir, 'harness', 'state.yaml')) ||
-    existsSync(join(dir, '.midas', 'engine', 'VERSION')) ||
-    existsSync(join(dir, '.midas', 'state.yaml'))
-  );
-}
-
-/** @param {string} startDir */
-export function findAncestorMidasRoot(startDir) {
-  let dir = dirname(startDir);
-  for (;;) {
-    if (hasMidasInstall(dir)) return dir;
-    const parent = dirname(dir);
-    if (parent === dir) return null;
-    dir = parent;
-  }
-}
-
-function readMaybe(p) {
-  try {
-    return readFileSync(p, 'utf8');
-  } catch {
-    return null;
-  }
-}
-
-/** @param {string} dir */
-function resolveStatePath(dir) {
-  const canonical = join(dir, '.harness', 'state.yaml');
-  if (existsSync(canonical)) return canonical;
-  const hub = join(dir, '.midas', 'state.yaml');
-  if (existsSync(hub)) return hub;
-  const classic = join(dir, 'harness', 'state.yaml');
-  if (existsSync(classic)) return classic;
-  return null;
-}
-
-/** @param {string} dir */
-function resolveEngineVersionPath(dir) {
-  const canonical = join(dir, '.harness', 'engine', 'VERSION');
-  if (existsSync(canonical)) return canonical;
-  const hub = join(dir, '.midas', 'engine', 'VERSION');
-  if (existsSync(hub)) return hub;
-  const classic = join(dir, 'harness', 'VERSION');
-  if (existsSync(classic)) return classic;
-  return null;
-}
-
-/** @param {string} dir */
-function resolveScriptsDir(dir) {
-  if (existsSync(join(dir, '.harness', 'scripts', 'paths.mjs'))) return '.harness/scripts';
-  if (existsSync(join(dir, '.midas', 'scripts', 'paths.mjs'))) return '.midas/scripts';
-  if (existsSync(join(dir, 'scripts', 'paths.mjs'))) return 'scripts';
-  return null;
-}
-
 /**
  * @param {string} targetDir
  * @param {{ bundledVersion?: string, installCmd?: string }} [opts]
  */
 export function diagnoseProject(targetDir, opts = {}) {
-  const dir = resolve(targetDir);
+  const ctx = detectContext(targetDir);
+  const dir = ctx.dir;
   const installCmd = opts.installCmd || DEFAULT_INSTALL_CMD;
-  const ancestor = findAncestorMidasRoot(dir);
+  const ancestor = ctx.ancestorRoot;
 
-  if (!hasMidasInstall(dir)) {
-    if (ancestor && ancestor !== dir) {
+  if (!ctx.installed) {
+    if (ancestor) {
       return {
         status: 'nested_or_wrong_cwd',
         dir,
@@ -134,7 +61,7 @@ export function diagnoseProject(targetDir, opts = {}) {
     return {
       status: 'not_installed',
       dir,
-        summary: 'No Midas install detected.',
+      summary: 'No Midas install detected.',
       nextCli: installCmd,
       nextSlash: '/midas-init',
       detail:
@@ -142,9 +69,7 @@ export function diagnoseProject(targetDir, opts = {}) {
     };
   }
 
-  const canonical = existsSync(join(dir, '.harness', 'state.yaml')) ||
-    existsSync(join(dir, '.harness', 'engine', 'VERSION'));
-  if (!canonical) {
+  if (ctx.layout !== 'harness') {
     return {
       status: 'legacy_layout',
       dir,
@@ -155,15 +80,11 @@ export function diagnoseProject(targetDir, opts = {}) {
     };
   }
 
-  const statePath = resolveStatePath(dir);
-  const stateRaw = statePath ? readMaybe(statePath) : null;
-  const setupComplete = yamlScalar(stateRaw, 'setup_complete') === 'true';
-  const midasVersion = yamlScalar(stateRaw, 'midas_version');
-  const mode = yamlScalar(stateRaw, 'mode') || 'greenfield';
-
-  const versionPath = resolveEngineVersionPath(dir);
-  const engineVersion = (versionPath ? readMaybe(versionPath) : null)?.trim() || null;
-  const scriptsDir = resolveScriptsDir(dir);
+  const setupComplete = ctx.setupComplete;
+  const midasVersion = ctx.midasVersion;
+  const mode = ctx.mode || 'greenfield';
+  const engineVersion = ctx.engineVersion;
+  const scriptsDir = ctx.scriptsDir;
 
   if (!setupComplete) {
     return {

@@ -1,0 +1,52 @@
+name: autonomy-tick
+# Reference single-writer scheduler for midas-autopilot (P0).
+# Copy into the consuming repo's .github/workflows/ when enabling --autonomy.
+# Concurrency 1; durable control CAS lives in .harness/autonomy/control.json.
+
+on:
+  schedule:
+    - cron: '*/30 * * * *' # adjust per project
+  workflow_dispatch:
+
+concurrency:
+  group: midas-autonomy-tick
+  cancel-in-progress: false
+
+permissions:
+  contents: write   # work-branch push only; protect default branch separately
+  pull-requests: read
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout work branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ vars.MIDAS_AUTONOMY_WORK_REF || 'autonomy/control' }}
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13'
+
+      - name: Autonomy status
+        run: node .harness/autonomy/bin/midas-autopilot.mjs status
+
+      - name: Autonomy tick
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          MIDAS_AUTONOMY_JOURNAL_KEY: ${{ secrets.MIDAS_AUTONOMY_JOURNAL_KEY }}
+          MIDAS_AUTONOMY_RUNNER: ${{ vars.MIDAS_AUTONOMY_RUNNER || 'fake' }}
+        run: node .harness/autonomy/bin/midas-autopilot.mjs tick --runner=${{ vars.MIDAS_AUTONOMY_RUNNER || 'fake' }}
+
+      - name: Persist control ref
+        if: always()
+        run: |
+          git config user.name "midas-autopilot"
+          git config user.email "midas-autopilot@users.noreply.github.com"
+          git add .harness/autonomy/control.json .harness/autonomy/budget-ledger.json .harness/autonomy/journal-anchor.json .harness/state.yaml .harness/runs/autonomy || true
+          git diff --cached --quiet || git commit -m "chore(autonomy): tick checkpoint"
+          git push origin HEAD:${{ vars.MIDAS_AUTONOMY_WORK_REF || 'autonomy/control' }}

@@ -6,7 +6,7 @@ disable-model-invocation: true
 model: inherit
 harness-tier: orchestrate
 recommended-model: claude-opus-4-8
-mcp-recommended: [context7, sequential-thinking]
+mcp-recommended: [context7]
 ---
 
 # midas-adopt — brownfield adoption (existing projects)

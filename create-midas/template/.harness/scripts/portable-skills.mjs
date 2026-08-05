@@ -159,6 +159,17 @@ export function renderPortableSkillsTree(root, { sourceDir = null, targetDir = '
   if (existsSync(targetRoot) && !merge) rmSync(targetRoot, { recursive: true, force: true });
   mkdirSync(targetRoot, { recursive: true });
   const absFiles = copyRecursive(sourceRoot, targetRoot, sourceRoot);
+  writeFileSync(
+    join(targetRoot, 'README.md'),
+    [
+      '# Generated skill mirror',
+      '',
+      '> **GENERATED — do not hand-edit.** Source: `harness/skills/` (or `<paths.engine>/skills/`).',
+      '> Rebuild with `npm run build` (engine) or the installer sync path (product).',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
   return {
     wrote: true,
     files: absFiles.map((abs) => abs.slice(root.length + 1).replace(/\\/g, '/')).sort(),

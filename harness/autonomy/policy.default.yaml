@@ -1,0 +1,32 @@
+# Default autonomy policy (disabled)
+
+mode: disabled
+enabled: false
+version: 1
+
+action_allowlist:
+  - execute-next-sprint-task
+
+branch:
+  prefix: autonomy/
+  forbid_default_push: true
+
+budget:
+  max_concurrent_runs: 1
+  max_runs_per_day: 20
+  max_cost_cents_reserve: 500
+  run_timeout_ms: 1800000
+
+commit_push_authz:
+  required: true
+
+runner:
+  default: fake
+  orchestrate_model_required: true
+
+approvals:
+  merge: required
+  deploy: required
+  rule_amendment: required
+  go_no_go: required
+  shipped: required

@@ -11,13 +11,15 @@ import {
 } from 'node:crypto';
 import {
   existsSync,
+  lstatSync,
   mkdirSync,
   readFileSync,
   readdirSync,
+  rmSync,
   statSync,
   writeFileSync,
 } from 'node:fs';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MIGRATION_MAP, resolvePaths } from './paths.mjs';
 import {
@@ -31,7 +33,7 @@ export const MIDAS_BUNDLE_VERSION = '1';
 
 import { loadEngineBaseRules, stageRecallPaths } from './stage-command-table.mjs';
 
-/** Always-on engine rules — derived from create-midas/template harness/rules/. */
+/** Always-on engine rules — from `<paths.engine>/rules/` via `loadEngineBaseRules()` (engine: `harness/rules/`). */
 export const ENGINE_BASE_RULES = loadEngineBaseRules();
 
 const LOCKFILES = new Set([
@@ -92,6 +94,42 @@ function posix(p) {
 
 function sha256(text) {
   return createHash('sha256').update(text, 'utf8').digest('hex');
+}
+
+function validateBundlePath(canonical) {
+  if (typeof canonical !== 'string') {
+    throw new Error('unsafe bundle path: expected a relative string');
+  }
+  const path = posix(canonical);
+  const segments = path.split('/');
+  if (
+    !path ||
+    path.includes('\0') ||
+    path.startsWith('/') ||
+    /^[A-Za-z]:\//.test(path) ||
+    segments.some((segment) => !segment || segment === '.' || segment === '..')
+  ) {
+    throw new Error(`unsafe bundle path outside project: ${canonical}`);
+  }
+  return path;
+}
+
+function resolveImportTarget(root, rel) {
+  const rootAbs = resolve(root);
+  const target = resolve(rootAbs, rel);
+  const fromRoot = relative(rootAbs, target);
+  if (!fromRoot || fromRoot === '..' || fromRoot.startsWith(`..${sep}`) || isAbsolute(fromRoot)) {
+    throw new Error(`unsafe import path outside project: ${rel}`);
+  }
+
+  let current = rootAbs;
+  for (const segment of fromRoot.split(sep)) {
+    current = join(current, segment);
+    if (existsSync(current) && lstatSync(current).isSymbolicLink()) {
+      throw new Error(`unsafe import path crosses a symbolic link: ${rel}`);
+    }
+  }
+  return target;
 }
 
 /** @param {string} rel repo-relative */
@@ -450,6 +488,7 @@ export function exportBundle(root, opts = {}) {
     const content = readFileSync(abs, 'utf8');
     if (canon !== '.mcp.json' && CONTENT_SECRET_RE.test(content)) {
       contentWarnings.push({ path: canon, reason: 'possible secret pattern in content' });
+      throw new Error(`export blocked: possible secret pattern in ${canon}`);
     }
     bundleFiles.push({ path: canon, sha256: sha256(content), content });
   }
@@ -497,6 +536,7 @@ export function planImport(root, bundle, opts = {}) {
 
   if (bundle.state_yaml && replaceState) {
     const destState = fromCanonical('harness/state.yaml', layout);
+    resolveImportTarget(root, destState);
     const exists = existsSync(join(root, destState));
     const action = exists ? 'replace' : 'create';
     actions.push({ path: destState, canonical: 'harness/state.yaml', action, kind: 'state' });
@@ -504,16 +544,22 @@ export function planImport(root, bundle, opts = {}) {
     warnings.push('state_yaml present but --replace-state not set — state unchanged');
   }
 
+  const seenDestinations = new Set(actions.map((action) => action.path));
   for (const entry of bundle.files || []) {
-    if (entry.path === 'harness/state.yaml') continue;
-    const dest = fromCanonical(entry.path, layout);
-    const abs = join(root, dest);
+    const canonical = validateBundlePath(entry?.path);
+    if (canonical === 'harness/state.yaml') continue;
+    const dest = fromCanonical(canonical, layout);
+    const abs = resolveImportTarget(root, dest);
+    if (seenDestinations.has(dest)) {
+      throw new Error(`duplicate bundle destination: ${canonical}`);
+    }
+    seenDestinations.add(dest);
     const exists = existsSync(abs);
     let action = 'create';
     if (exists && merge) action = 'skip';
     if (exists && replace) action = 'replace';
     if (exists && !merge && !replace) action = 'conflict';
-    actions.push({ path: dest, canonical: entry.path, action, kind: 'file', entry });
+    actions.push({ path: dest, canonical, action, kind: 'file', entry });
   }
 
   return { paths, layout, actions, warnings, dryRun };
@@ -535,6 +581,7 @@ export function applyImport(root, bundle, opts = {}) {
   const skipped = [];
 
   if (!opts.dryRun) {
+    const pending = [];
     for (const act of plan.actions) {
       if (act.action === 'skip') {
         skipped.push(act.path);
@@ -547,16 +594,51 @@ export function applyImport(root, bundle, opts = {}) {
       let content;
       if (act.kind === 'state') {
         content = bundle.state_yaml;
+        const stateEntry = (bundle.files || []).find((entry) => entry.path === 'harness/state.yaml');
+        if (!stateEntry?.sha256 || sha256(content) !== stateEntry.sha256) {
+          throw new Error('checksum mismatch for harness/state.yaml — bundle may be corrupt or tampered');
+        }
       } else {
         content = act.entry.content;
-        if (act.entry.sha256 && sha256(content) !== act.entry.sha256) {
+        if (!act.entry.sha256 || sha256(content) !== act.entry.sha256) {
           throw new Error(`checksum mismatch for ${act.canonical} — bundle may be corrupt or tampered`);
         }
       }
-      const abs = join(root, act.path);
-      mkdirSync(dirname(abs), { recursive: true });
-      writeFileSync(abs, content, 'utf8');
-      written.push(act.path);
+      if (typeof content !== 'string') {
+        throw new Error(`invalid content for ${act.canonical} — expected a string`);
+      }
+      const abs = resolveImportTarget(root, act.path);
+      pending.push({
+        ...act,
+        abs,
+        content,
+        existed: existsSync(abs),
+        previous: existsSync(abs) ? readFileSync(abs) : null,
+      });
+    }
+
+    try {
+      for (const act of pending) {
+        resolveImportTarget(root, act.path);
+        mkdirSync(dirname(act.abs), { recursive: true });
+        writeFileSync(act.abs, act.content, 'utf8');
+        written.push(act.path);
+      }
+    } catch (error) {
+      const rollbackFailures = [];
+      for (const act of [...pending].reverse()) {
+        try {
+          if (act.existed) writeFileSync(act.abs, act.previous);
+          else rmSync(act.abs, { force: true });
+        } catch (rollbackError) {
+          rollbackFailures.push(`${act.path}: ${rollbackError.message}`);
+        }
+      }
+      written.length = 0;
+      const rollbackStatus = rollbackFailures.length
+        ? `; rollback incomplete (${rollbackFailures.join('; ')})`
+        : '; rolled back';
+      throw new Error(`import failed${rollbackStatus}: ${error.message}`);
     }
   }
 

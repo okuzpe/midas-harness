@@ -1,0 +1,40 @@
+{
+  "id": "execute-next-sprint-task",
+  "version": 1,
+  "playbook": "pipeline/7-sprint-execution.md",
+  "role": "build",
+  "risk_class": "bounded_write",
+  "preconditions": [
+    "stage_eq_sprint_execution",
+    "active_sprint_has_open_task",
+    "policy_enabled_bounded",
+    "commit_push_authz_valid",
+    "budget_reserve_ok",
+    "lease_acquired"
+  ],
+  "inputs": {
+    "sprint_id": "string",
+    "task_id": "string",
+    "branch": "string",
+    "policy_digest": "sha256-hex",
+    "authz_digest": "sha256-hex"
+  },
+  "outputs": {
+    "commit_sha": "git-sha",
+    "evidence_paths": ["string"],
+    "task_status": "done|blocked|approval_pending",
+    "usage": {
+      "input_tokens": "number?",
+      "output_tokens": "number?",
+      "charged_cents": "number?"
+    }
+  },
+  "forbidden": [
+    "merge",
+    "deploy",
+    "default_branch_push",
+    "rule_amendment",
+    "go_no_go",
+    "shipped"
+  ]
+}

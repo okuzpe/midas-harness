@@ -17,6 +17,8 @@
 import { cpSync, writeFileSync, existsSync, mkdirSync, rmSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { stripEngineOnlySkills } from './engine-only.mjs';
+import { renderPortableSkillsTree } from './portable-skills.mjs';
 
 const SCRIPT_DIR = dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
 const ROOT = resolve(SCRIPT_DIR, '..');
@@ -90,6 +92,8 @@ export function renderPluginTree() {
 
   cpSync(join(ROOT, 'harness', 'skills'), join(PLUGIN_DIR, 'skills'), { recursive: true });
   cpSync(join(ROOT, 'harness', 'agents'), join(PLUGIN_DIR, 'agents'), { recursive: true });
+  // Engine-only skills stay in harness/ + .claude for contributors; never ship via marketplace plugin.
+  stripEngineOnlySkills(join(PLUGIN_DIR, 'skills'), { existsSync, rmSync }, { join });
   if (existsSync(join(ROOT, '.mcp.json'))) {
     cpSync(join(ROOT, '.mcp.json'), join(PLUGIN_DIR, '.mcp.json'));
   }
@@ -109,6 +113,15 @@ export function renderClaudeMirrors() {
     if (existsSync(target)) rmSync(target, { recursive: true, force: true });
     cpSync(source, target, { recursive: true });
   }
+  // Keep engine portable mirrors in sync (includes engine-only skills for local Cursor/Codex).
+  renderPortableSkillsTree(ROOT, {
+    sourceDir: 'harness/skills',
+    targetDir: '.agents/skills',
+  });
+  renderPortableSkillsTree(ROOT, {
+    sourceDir: 'harness/skills',
+    targetDir: '.cursor/skills',
+  });
 }
 
 if (IS_MAIN) {

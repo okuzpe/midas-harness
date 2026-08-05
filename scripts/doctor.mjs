@@ -14,7 +14,7 @@ import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from '
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { computeAdapters, computeChecksIndex, computeGatesIndex, renderAdapters } from './render-adapters.mjs';
-import { evaluateMcpDeclaredVsWired, evaluateSkillMcpRequired, collectSkillMcpRequired } from './mcp-drift.mjs';
+import { evaluateMcpDeclaredVsWired, evaluateMcpGovernance, evaluateSkillMcpRequired, collectSkillMcpRequired } from './mcp-drift.mjs';
 import { parseSprints, parseSprintLastTouched, parsePhases, parseEnforcement, parseRouting, parseToolsFromStateYaml, rewriteRoutingMap } from './yaml-lite.mjs';
 import { syncCursorMcp, wrapMcpServersForWindows } from './mcp-cursor-sync.mjs';
 import { auditGitignore, ensureMidasGitignore } from './gitignore-merge.mjs';
@@ -470,9 +470,11 @@ if (mcp === null) {
   let leak = false;
   const re = /(authorization|token|api[_-]?key|secret|password)"\s*:\s*"([^"]+)"/gi;
   let mm;
-  while ((mm = re.exec(mcp))) if (!mm[2].includes('${')) leak = true;
+  while ((mm = re.exec(mcp))) if (!/^\$\{[A-Z0-9_]+\}$/.test(mm[2])) leak = true;
   if (/\b(sk-[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{16,})\b/.test(mcp)) leak = true;
   check('mcp:secret-free', leak ? 'warn' : 'ok', leak ? 'a literal secret may be present — use ${ENV_VAR}' : '');
+  const governance = evaluateMcpGovernance(mcp);
+  check('mcp:governance', governance.status, governance.note);
   // Windows: an MCP server launched with bare `npx` cannot be spawned (npx is a .cmd) and fails with
   // "Connection closed". It must be wrapped in `cmd /c`. Fresh installs are fixed by the installer.
   if (process.platform === 'win32') {
@@ -861,6 +863,7 @@ const strictBlocking = health.filter((h) => h.status === 'warn' && (
   h.name === 'skills:frontmatter' ||
   h.name === 'gitignore:midas-block' ||
   h.name === 'mcp:secret-free' ||
+  h.name === 'mcp:governance' ||
   h.name === 'mcp:declared-vs-wired' ||
   h.name === 'mcp:skill-required' ||
   h.name === 'mcp:cursor-sync' ||

@@ -67,13 +67,14 @@ touching anything. On decline it prints the block for manual paste. Nothing is e
 
 **Q: How do I update Midas to a newer version?**
 
-Re-run the install command in the project root:
+Prefer a **pinned** update (see `harness/VERSION` / [INSTALL.md](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md)):
 ```bash
-curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash
+npx github:okuzpe/midas-harness#v2.2.1 --update
 ```
-It skips files you have edited (non-destructive by default). Pass `--force` to refresh the engine
-files — note `--force` **overwrites** engine files you changed (e.g. a Phase-8-amended rule). After
-updating, run `/midas-doctor` to re-sync the generated tool adapters with the new conventions.
+`--update` refreshes the vendor engine and keeps your product/rules/runs. It is **not** the same as
+install-time `--force` (which overwrites conflicting files on a fresh install). After updating, run
+`/midas-doctor` to re-sync generated adapters. Unpinned `main` / pipe-to-shell installs are
+documented in SECURITY.md as higher risk.
 
 ---
 

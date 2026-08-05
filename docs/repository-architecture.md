@@ -67,6 +67,7 @@ flowchart TD
 | Base conventions and rules | `harness/conventions.md`, `harness/rules/*` | `.claude/CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `GEMINI.md` |
 | Skills and agents | `harness/skills/*/SKILL.md`, `harness/agents/*.md` | `.claude/*`, `.agents/skills`, plugins, installer template |
 | Installable project template | `harness/*`, `.mcp.json`, selected `docs/*`, selected `scripts/*` | `create-midas/template/*` |
+| Installer CLI (zero-dep) | `create-midas/index.mjs`, `create-midas/lib/**` | `npx` / `create-midas` bin; lifecycle: requirements → checks → plan → confirm → execute → verify |
 | Plugin package | `harness/skills`, `harness/agents`, `.mcp.json`, metadata in `scripts/build-plugin.mjs` | `plugins/midas/*`, `.claude-plugin/marketplace.json` |
 | Documentation site | `docs/*.md`, `mkdocs.yml` | `mkdocs build --site-dir _site` locally; GitHub Pages artifact from `.github/workflows/docs.yml` |
 | Version stamp | `harness/VERSION` | `npm run bump -- <ver>` → packages, state stamps, `INSTALL.md` `#v…` pins, rebuild |
@@ -154,9 +155,9 @@ The distinction is intentional:
 - Generated adapters are marked with `<!-- midas:begin -->` / `<!-- midas:end -->` blocks.
 - `create-midas/template/` and `plugins/midas/` are generated bundles; edit their sources instead.
 - The root `.mcp.json` is user-owned configuration for the engine repo and is copied into generated
-  bundles as a **minimal default** (typically `sequential-thinking` only). The full optional catalog
-  lives in `harness/templates/mcp.json.tmpl`; `/midas-init` merges chosen servers into the project
-  `.mcp.json` — the template file is reference, not what `build-create.mjs` ships byte-for-byte.
+  bundles as an **empty default**. The optional Runlayer guidance lives in
+  `harness/templates/mcp.json.tmpl`; `/midas-init` records only explicitly approved servers in the
+  project `.mcp.json` — the template file is reference, not what `build-create.mjs` ships byte-for-byte.
   Fresh Windows installs are patched by the installer without overwriting a user's existing `.mcp.json`.
 
 ## Engine decisions (ADR)
@@ -190,6 +191,10 @@ Default `--tools=cursor` → skills under `.cursor/skills/` only. Classic, compa
 read-only migration inputs; `--update` never relocates them. Path resolution is in
 `scripts/paths.mjs`; skills read `layout` + `paths` from state and substitute `{runs}/` and
 `{product}/` tokens. See [INSTALL.md](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md).
+
+**Optional autonomy** (ADR-009): `create-midas --autonomy` copies `harness/autonomy/` →
+`.harness/autonomy/` (bounded control plane + `midas-autopilot`). Absent the flag, installs get
+no autonomy tree and no `@cursor/sdk`. Policy/ledger/journal stay outside the lifecycle FSM.
 
 The **engine repository** (this repo) dogfoods **classic** layout by design (`layout: classic` in
 `harness/state.yaml`, authored source in `harness/` + `scripts/`). That is intentional contributor

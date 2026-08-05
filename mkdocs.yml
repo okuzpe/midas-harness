@@ -33,7 +33,11 @@ nav:
   - "gstack comparison": gstack-comparison.md
   - "muninn-harness comparison": muninn-comparison.md
   - Skills Reference: skills.md
+  - Skill Flows: skill-flows.md
   - Skill quality gate: skill-quality-gate.md
+  - Precommit gate (engine): precommit-gate.md
+  - Contributor quickstart: contributing-quickstart.md
+  - Engine dogfood: dogfood.md
   - Agents & Models: agents-and-models.md
   - FAQ: faq.md
   - Decisions (ADR):
@@ -45,6 +49,7 @@ nav:
     - "ADR-006 — Hub layout (historical)": adr/ADR-006-hub-layout.md
     - "ADR-007 — Canonical .harness layout": adr/ADR-007-canonical-harness-layout.md
     - "ADR-008 — Thin root allowlist": adr/ADR-008-thin-root-allowlist.md
+    - "ADR-009 — Optional autonomy control plane": adr/ADR-009-optional-autonomy-control-plane.md
 
 markdown_extensions:
   - pymdownx.superfences:

@@ -32,9 +32,15 @@ jobs:
         run: |
           node - <<'NODE'
           const fs = require('fs');
+          const version = fs.readFileSync('harness/VERSION', 'utf8').trim();
           const text = fs.readFileSync('CHANGELOG.md', 'utf8');
-          const match = text.match(/^## \[1\.1\.3\][\s\S]*?(?=\n## \[|\n\[Unreleased\]:)/m);
-          fs.writeFileSync(process.env.GITHUB_WORKSPACE + '/release-notes.md', match ? match[0] : text);
+          const escaped = version.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const re = new RegExp(`^## \\[${escaped}\\][\\s\\S]*?(?=\\n## \\[|\\n\\[Unreleased\\]:)`, 'm');
+          const match = text.match(re);
+          const notes = match
+            ? match[0]
+            : `# ${version}\n\n(No CHANGELOG section found for ${version}; see CHANGELOG.md.)\n`;
+          fs.writeFileSync(process.env.GITHUB_WORKSPACE + '/release-notes.md', notes);
           NODE
 
       - name: Pack tarball

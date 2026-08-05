@@ -1,4 +1,4 @@
-midas_version: 2.2.1
+midas_version: 2.3.0
 # Engine repository dogfoods classic layout by design (authored source in harness/ + scripts/).
 # Product installs use layout: harness — see ADR-007 / ADR-008.
 layout: classic
@@ -14,12 +14,13 @@ name: harness
 mode: brownfield
 language: en
 created: 2026-06-29
-updated: 2026-08-01
+updated: 2026-08-05
 setup_complete: true        # engine repo — installer complete; dogfoods the harness on itself
 
 # Engine-as-dogfood profile: phases 0–4 satisfied by README + docs/ + harness/ itself.
-stage: architecture_rules
-stage_status: in_progress
+# Phase 5 closed with product/* artifacts (see docs/dogfood.md).
+stage: plan_sprints
+stage_status: pending
 entry_stage: architecture_rules
 
 cost_profile: balanced
@@ -32,7 +33,7 @@ execution_mode: cloud
 
 # Multi-host dogfood for adapter coverage. Product default install is tools: [cursor] (ADR-008).
 tools: [claude-code, cursor, windsurf, gemini]
-mcp:   [sequential-thinking]
+mcp:   []
 
 phases:
   idea_intake:        { status: passed, gate: passed, assumption: "Engine README + docs/index.md" }
@@ -40,6 +41,7 @@ phases:
   market_research:    { status: passed, gate: passed, assumption: "N/A — harness engine, not a commercial product" }
   business_case:      { status: passed, gate: passed, assumption: "N/A — harness engine" }
   tech_architecture:  { status: passed, gate: passed, assumption: "Stack in docs/repository-architecture.md" }
-  architecture_rules: { status: in_progress, gate: pending }
+  architecture_rules: { status: passed, gate: passed, artifacts: ["product/idea.md", "product/architecture.md", "product/conventions.md"] }
+  plan_sprints:       { status: pending, gate: pending }
 
 sprints: []

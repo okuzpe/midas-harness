@@ -6,7 +6,7 @@ disable-model-invocation: true
 model: inherit
 harness-tier: orchestrate
 recommended-model: claude-opus-4-8
-mcp-recommended: [sequential-thinking]
+mcp-recommended: []
 argument-hint: "[whole|architecture|scope|idea|market|design|unit-economics|security|rules] [--depth quick|standard|tribunal]"
 ---
 

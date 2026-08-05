@@ -22,9 +22,15 @@ bunx create-midas
 Then open the project in **Claude Code** (or Cursor) and run `/midas-init` to configure the harness,
 followed by `/midas-status`.
 
+## Lifecycle
+
+Deterministic CLI (no AI required):
+
+`requirements → checks → plan → confirm → execute → verify → result/rollback`
+
 ## What it does
-- Copies the harness (`.claude/` skills + agents, `harness/` methodology + rules + templates,
-  `AGENTS.md`, `.mcp.json`, the `render-adapters`/`doctor` scripts) into your project.
+- Installs the v2 harness under **`.harness/`** (engine + scripts + product/rules/runs layout), plus
+  host discovery mirrors (`.claude/skills`, `.cursor/skills`, or `.agents/skills` per `--tools`).
 - **Non-destructive:** files that already exist are skipped (use `--force` to overwrite). It only
   adds files — it never deletes yours.
 - Generates selected-host mirrors/adapters from canonical `.harness/engine/skills` and rules.
@@ -37,10 +43,13 @@ them.
 - `--force` — overwrite files that already exist.
 - `--migrate` — preview a v1 classic/compact/hub migration; add `--apply` to execute transactionally.
 - `--update` — refresh a v2 engine; preserves state, product, rules, runs, and user-owned config.
-- `--uninstall` — remove Midas-installed files (with confirmation).
+- `--uninstall` — remove Midas-installed files (with confirmation on TTY).
 - `--tools=<list>` — e.g. `cursor`, `cursor,gemini,codex`, or `claude-code,cursor,windsurf,gemini`.
-- `--dry-run` — show what would be copied without writing.
-- `--purge` — with `--uninstall`, also remove generated adapters and `.harness/` caches.
+- `--dry-run` — plan only for install / update / migrate / uninstall — write nothing.
+- `--json` — machine-readable diagnose / plan / result envelope on stdout.
+- `--yes` / `-y` — skip TTY confirmation for update / migrate --apply / uninstall.
+- `--purge` — with `--uninstall`, also remove product artifacts and audit trail.
+- `--diagnose` — read-only install status + single next command.
 - `-h`, `--help` — show usage.
 
 Pin a release with `#v{VERSION}` — copy the exact pin from [`INSTALL.md`](../INSTALL.md)

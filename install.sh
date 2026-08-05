@@ -4,18 +4,21 @@
 # bash/PowerShell install logic to drift.
 #
 # One-line install (run INSIDE the project you want to add Midas to).
-# v2 installs one canonical `.harness/` layout. Legacy layouts use explicit `--migrate`.
+# Default pin matches harness/VERSION (rewritten by `npm run bump`).
 #   curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash
-#   curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash -s -- --force
-#
-# Uninstall (surgical — removes only Midas's files, keeps your work; --purge to remove everything):
-#   curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash -s -- --uninstall
+# Bleeding edge (mutable main):
+#   MIDAS_BLEEDING_EDGE=1 curl -fsSL …/install.sh | bash
 #
 # From a local clone:
 #   bash install.sh [target-dir] [--force | --uninstall [--dry-run|--purge]]
 
 set -euo pipefail
 REPO="okuzpe/midas-harness"
+# midas-install-ref: bumped by scripts/bump-version.mjs — keep in sync with harness/VERSION
+MIDAS_REF="${MIDAS_INSTALL_REF:-v2.3.0}"
+if [ "${MIDAS_BLEEDING_EDGE:-}" = "1" ]; then
+  MIDAS_REF="main"
+fi
 
 if ! command -v node >/dev/null 2>&1; then
   echo "midas: Node.js (>=22) is required. Install from https://nodejs.org (macOS: brew install node)." >&2
@@ -34,9 +37,9 @@ if [ -n "$here" ] && [ -f "$here/create-midas/index.mjs" ]; then
   exec node "$here/create-midas/index.mjs" "$@"
 fi
 
-# Curl-pipe path: delegate to npx, which clones the repo from GitHub and runs the bin.
+# Curl-pipe path: delegate to npx on a pinned tag (or main when MIDAS_BLEEDING_EDGE=1).
 if ! command -v npx >/dev/null 2>&1; then
   echo "midas: npx is required (it ships with Node >=22). Reinstall Node.js." >&2
   exit 1
 fi
-exec npx -y "github:$REPO" "$@"
+exec npx -y "github:$REPO#$MIDAS_REF" "$@"

@@ -20,6 +20,11 @@ export const USER_PATHS = [
   '.harness/runs',
   '.harness/migrations/receipts',
   '.harness/migrations/backups',
+  '.harness/autonomy/policy.yaml',
+  '.harness/autonomy/authz',
+  '.harness/autonomy/control.json',
+  '.harness/autonomy/budget-ledger.json',
+  '.harness/autonomy/journal-anchor.json',
   '.mcp.json',
   '.gitignore',
 ];
@@ -58,8 +63,18 @@ function walkFiles(root, dir, out = []) {
 export function roleForPath(rel) {
   const normalized = rel.replace(/\\/g, '/');
   if (
+    normalized === '.harness/autonomy/policy.yaml' ||
+    normalized.startsWith('.harness/autonomy/authz/') ||
+    normalized === '.harness/autonomy/control.json' ||
+    normalized === '.harness/autonomy/budget-ledger.json' ||
+    normalized === '.harness/autonomy/journal-anchor.json'
+  ) {
+    return 'user';
+  }
+  if (
     normalized.startsWith('.harness/engine/') ||
-    normalized.startsWith('.harness/scripts/')
+    normalized.startsWith('.harness/scripts/') ||
+    normalized.startsWith('.harness/autonomy/')
   ) {
     return 'vendor';
   }
@@ -81,6 +96,7 @@ export function computeOwnershipManifest(root, version) {
   const candidates = [
     ...walkFiles(root, join(root, '.harness', 'engine')),
     ...walkFiles(root, join(root, '.harness', 'scripts')),
+    ...walkFiles(root, join(root, '.harness', 'autonomy')),
     ...GENERATED_PREFIXES.filter((p) => !p.endsWith('/') && existsSync(join(root, p))),
   ];
   for (const rel of walkFiles(engineSkills, engineSkills)) {
