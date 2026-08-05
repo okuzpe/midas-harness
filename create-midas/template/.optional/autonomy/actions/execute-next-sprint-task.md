@@ -6,7 +6,7 @@
 ## Preconditions
 
 - `paths.state` stage is `sprint_execution`
-- An active sprint exists with unchecked tasks
+- An active or planned sprint exists with unchecked tasks
 - Autonomy policy `enabled: true` and `mode: bounded`
 - Valid commit/push preauthorization for the branch prefix
 - Budget reserve available; no other lease held

@@ -56,6 +56,7 @@ export function parsePolicyYaml(text) {
       if (key === 'mode') out.mode = rest.trim();
       else if (key === 'enabled') out.enabled = /^(true|yes|1)$/i.test(rest.trim());
       else if (key === 'version') out.version = Number(rest.trim()) || 1;
+      else if (key === 'repo') out.repo = rest.trim().replace(/^["']|["']$/g, '');
       else if (key === 'action_allowlist') {
         if (rest.trim().startsWith('[')) {
           out.action_allowlist = rest

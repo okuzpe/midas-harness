@@ -14,6 +14,7 @@ Then authorize commit/push for the work branch prefix and run:
 
 ```bash
 node .harness/autonomy/bin/midas-autopilot.mjs status
+node .harness/autonomy/bin/midas-autopilot.mjs setup --actor=pilot --hours=24   # needs MIDAS_AUTONOMY_AUTHZ_KEY
 node .harness/autonomy/bin/midas-autopilot.mjs dry-run
 node .harness/autonomy/bin/midas-autopilot.mjs tick --runner=fake
 ```
@@ -39,6 +40,8 @@ start `execute-next-sprint-task` — never an ordinary chat Skill invocation.
 - Mode: `bounded` only
 - Action: `execute-next-sprint-task`
 - Concurrency: 1
+- Sprint pick: `active` first, else latest `planned` in `state.yaml`
+- Sprint files: `{product}/sprints/NN-*.md` (greenfield) or `{product}/planning/sprint-NN-*.md` (brownfield)
 - No merge, deploy, rule amendment, go/no-go, or `shipped`
 - Fake runner for tests; Cursor Cloud runner optional (`--runner=cursor-cloud`)
 

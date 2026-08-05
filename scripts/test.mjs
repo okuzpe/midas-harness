@@ -1642,6 +1642,18 @@ check('installer:bind-applies', existsSync(join(ROOT, 'create-midas', 'lib', 'st
     writeFileSync(join(diagTmp, '.harness', 'state.yaml'), 'midas_version: 2.2.1\nlayout: harness\nsetup_complete: true\n', 'utf8');
     check('diagnose:matrix-ready', diagnoseProject(diagTmp).status === 'ready');
 
+    writeFileSync(
+      join(diagTmp, '.harness', 'state.yaml'),
+      'midas_version: 2.2.1\nlayout: harness\nsetup_complete: true\nstage: sprint_execution\n',
+      'utf8',
+    );
+    const sprintExec = diagnoseProject(diagTmp);
+    check(
+      'diagnose:autonomy-hint-sprint-execution',
+      sprintExec.status === 'ready' && /Autonomy:/.test(sprintExec.detail || ''),
+      sprintExec.detail,
+    );
+
     const jsonDiag = spawnSync(
       process.execPath,
       [join(ROOT, 'create-midas', 'index.mjs'), '--diagnose', '--json', diagTmp],
@@ -2717,10 +2729,17 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
       /installAutonomyCapability/.test(readFileSync(join(ROOT, 'create-midas', 'lib', 'runtime', 'execute.mjs'), 'utf8')),
   );
   check('autonomy:not-in-engine-by-default', !existsSync(join(ROOT, 'create-midas', 'template', '.harness', 'engine', 'autonomy')));
+  check('autonomy:optional-bundle', existsSync(join(ROOT, 'create-midas', 'template', '.optional', 'autonomy', 'bin', 'midas-autopilot.mjs')));
+  check('autonomy:bundle-setup', existsSync(join(autoRoot, 'lib', 'setup.mjs')));
+  check('autonomy:bundle-sprint-resolve', existsSync(join(autoRoot, 'lib', 'sprint-resolve.mjs')));
+  check('autonomy:bundle-repo-resolve', existsSync(join(autoRoot, 'lib', 'repo-resolve.mjs')));
   check(
-    'autonomy:optional-bundle',
-    existsSync(join(ROOT, 'create-midas', 'template', '.optional', 'autonomy', 'bin', 'midas-autopilot.mjs')),
-    'run npm run build to assemble .optional/autonomy',
+    'autonomy:skill-catalog',
+    /\/midas-autopilot/.test(readFileSync(join(ROOT, 'docs', 'skills.md'), 'utf8')),
+  );
+  check(
+    'autonomy:skill-source',
+    existsSync(join(ROOT, 'harness', 'skills', 'midas-autopilot', 'SKILL.md')),
   );
 
   const tmp = mkdtempSync(join(tmpdir(), 'midas-autonomy-'));
@@ -3191,6 +3210,54 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
         /disable-model-invocation/.test(readFileSync(join(autoRoot, 'README.md'), 'utf8')),
     );
     check('autonomy:hooks-file', existsSync(join(autoRoot, 'hooks', 'fail-closed.json')));
+
+    // Brownfield: planning/sprint-*.md + planned sprint + paths.product
+    {
+      const { resolveSprintMarkdown, findRunnableSprint, findNextTask } = await import(
+        pathToFileURL(join(autoRoot, 'lib', 'sprint-resolve.mjs')).href
+      );
+      const bf = mkdtempSync(join(tmpdir(), 'midas-autonomy-bf-'));
+      mkdirSync(join(bf, '.harness', 'product', 'planning'), { recursive: true });
+      writeFileSync(
+        join(bf, '.harness', 'state.yaml'),
+        [
+          'layout: harness',
+          'paths:',
+          '  product: .harness/product',
+          'stage: sprint_execution',
+          'sprints:',
+          '  - id: s65-release-runbook',
+          '    title: Sprint 65',
+          '    status: planned',
+          '',
+        ].join('\n'),
+        'utf8',
+      );
+      writeFileSync(
+        join(bf, '.harness', 'product', 'planning', 'sprint-65-release-runbook.md'),
+        '# Sprint 65\n\n- [x] done item\n- [ ] Publish draft release\n',
+        'utf8',
+      );
+      const yaml = readFileSync(join(bf, '.harness', 'state.yaml'), 'utf8');
+      check('autonomy:bf-planned-sprint', findRunnableSprint(yaml)?.id === 's65-release-runbook');
+      const md = resolveSprintMarkdown(bf, 's65-release-runbook', '.harness/product');
+      check('autonomy:bf-planning-path', md && md.includes('sprint-65-release-runbook.md'));
+      const task = findNextTask(bf, 's65-release-runbook', '.harness/product');
+      check('autonomy:bf-next-task', task && task.title === 'Publish draft release' && !task.done);
+    }
+
+    // setup subcommand
+    {
+      const { runSetup } = await import(pathToFileURL(join(autoRoot, 'lib', 'setup.mjs')).href);
+      const missing = runSetup(join(tmp, 'nope'));
+      check('autonomy:setup-not-installed', missing.status === 'not_installed');
+      const setup = runSetup(tmp, { actor: 'tester', hours: 2, repo: 'local/project' });
+      check('autonomy:setup-ready', setup.ok && setup.status === 'ready', JSON.stringify(setup));
+      check('autonomy:setup-policy', setup.steps.some((s) => s.step === 'policy_enable' && s.ok));
+      check('autonomy:setup-dry-run', setup.steps.some((s) => s.step === 'dry_run' && s.ok));
+      out = runCli(['setup', '--repo=local/project'], { MIDAS_AUTONOMY_AUTHZ_KEY: 'test-authz-key' });
+      check('autonomy:setup-cli', out.status === 0 && /"status": "ready"/.test(out.stdout), out.stdout);
+    }
 
     // Installer: --autonomy copies capability; without flag it does not
     const installRoot = mkdtempSync(join(tmpdir(), 'midas-auto-install-'));

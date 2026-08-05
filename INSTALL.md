@@ -29,20 +29,20 @@ Only host-required discovery surfaces stay at the repo root.
 **macOS / Linux**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash
-# shim defaults to github:okuzpe/midas-harness#v2.3.1
+# shim defaults to github:okuzpe/midas-harness#v2.3.2
 ```
 
 **Windows (PowerShell)**
 ```powershell
 irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | iex
-# shim defaults to #v2.3.1
+# shim defaults to #v2.3.2
 ```
 
 **Any platform, no shell script** (works with every package manager):
 ```bash
-npx  github:okuzpe/midas-harness#v2.3.1   # recommended — pinned
-pnpm dlx github:okuzpe/midas-harness#v2.3.1
-bunx github:okuzpe/midas-harness#v2.3.1
+npx  github:okuzpe/midas-harness#v2.3.2   # recommended — pinned
+pnpm dlx github:okuzpe/midas-harness#v2.3.2
+bunx github:okuzpe/midas-harness#v2.3.2
 ```
 
 Bleeding-edge (mutable `main`, not for production):
@@ -59,6 +59,7 @@ or `MIDAS_INSTALL_REF` overrides the tag.
 - `--tools` — comma-separated AI tools (e.g. `cursor`, `cursor,gemini,codex`, or `claude-code,cursor`).
 - `--autonomy` — optional bounded control plane (ADR-009). Copies capability to `.harness/autonomy/`
   and exposes `midas-autopilot`. Off by default; does not add `@cursor/sdk` to the base package.
+  After install: `node .harness/autonomy/bin/midas-autopilot.mjs setup` (or `/midas-autopilot` in the editor).
   On a TTY the installer shows a **compatibility matrix** and accepts presets: **`c`** = cursor only
   (default), **`s`** = cursor + gemini + codex, **`a`** = all adapter tools. Non-interactive installs
   default to **cursor**. On **`--update`**, when passed, rewrites `state.yaml` `tools:` and prunes
@@ -83,7 +84,7 @@ Post-install doctor: `node .harness/scripts/doctor.mjs --strict`.
 Examples:
 ```bash
 npx github:okuzpe/midas-harness --tools=cursor --dry-run --json   # plan only
-npx github:okuzpe/midas-harness#v2.3.1 --update --yes             # refresh in CI
+npx github:okuzpe/midas-harness#v2.3.2 --update --yes             # refresh in CI
 npx github:okuzpe/midas-harness --diagnose --json                 # status envelope
 ```
 
@@ -220,13 +221,13 @@ Phase 8 (`/close-sprint`) grades `.harness/engine/rules/security.md`: `.gitignor
 
 | Situation | Terminal | Then in Cursor |
 |-----------|----------|----------------|
-| **Never installed Midas** | `npx github:okuzpe/midas-harness#v2.3.1 --tools=cursor` | `/midas-init` |
+| **Never installed Midas** | `npx github:okuzpe/midas-harness#v2.3.2 --tools=cursor` | `/midas-init` |
 | **`--update` said "no existing install"** | Same as above — **drop `--update`** | `/midas-init` |
 | Installed, first time in editor | — | `/midas-init` |
 | Installed, `setup_complete: true` | — | `/midas-status` |
 | Existing codebase, brownfield | install + | `/midas-init` (may route to `/midas-adopt`) |
-| Existing 1.x classic/compact/hub | `npx ...#v2.3.1 --migrate` then add `--apply` | `/midas-status` |
-| Engine refresh on v2 | `npx ...#v2.3.1 --update` **or** `/midas-update` (pick one) | `/midas-status` when CLI prints `verify: ok` |
+| Existing 1.x classic/compact/hub | `npx ...#v2.3.2 --migrate` then add `--apply` | `/midas-status` |
+| Engine refresh on v2 | `npx ...#v2.3.2 --update` **or** `/midas-update` (pick one) | `/midas-status` when CLI prints `verify: ok` |
 | **Not sure** | `npx github:okuzpe/midas-harness --diagnose` | `/midas-reconcile` |
 
 `--diagnose` and `/midas-reconcile` are **read-only** — they never write files.
@@ -244,8 +245,8 @@ markers. A modified `vendor` file aborts same-version updates before any write (
 refresh the engine wholesale). Pass **`--tools=…`** to change the host set and prune unused adapters:
 
 ```bash
-npx github:okuzpe/midas-harness#v2.3.1 --update
-npx github:okuzpe/midas-harness#v2.3.1 --update --tools=cursor
+npx github:okuzpe/midas-harness#v2.3.2 --update
+npx github:okuzpe/midas-harness#v2.3.2 --update --tools=cursor
 ```
 
 Project rules belong in `.harness/rules/`; a matching slug overrides the immutable base rule.
@@ -255,8 +256,8 @@ Project rules belong in `.harness/rules/`; a matching slug overrides the immutab
 Migration is the only operation that moves legacy files. Preview first; it is byte-for-byte read-only:
 
 ```powershell
-npx github:okuzpe/midas-harness#v2.3.1 --migrate
-npx github:okuzpe/midas-harness#v2.3.1 --migrate --apply
+npx github:okuzpe/midas-harness#v2.3.2 --migrate
+npx github:okuzpe/midas-harness#v2.3.2 --migrate --apply
 node .harness/scripts/doctor.mjs --strict
 ```
 
@@ -298,7 +299,7 @@ npx github:okuzpe/midas-harness --uninstall
 - **Keeps your product work** (`.harness/product/`, rules, runs, state) unless you pass `--purge`.
 
 For exact removal of a pinned install, uninstall with the same release:
-`npx github:okuzpe/midas-harness#v2.3.1 --uninstall`.
+`npx github:okuzpe/midas-harness#v2.3.2 --uninstall`.
 
 > Prefer to do it by hand? Delete `.harness/`, generated host mirrors, the marked block in `AGENTS.md`,
 > `.claude/CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`,

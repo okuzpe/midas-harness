@@ -11,6 +11,24 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.3.2] — 2026-08-05
+
+### Added
+
+- `/midas-autopilot` skill — thin guide to bounded autonomy (`setup`, `status`, `dry-run`, human-confirmed `tick`).
+- `midas-autopilot setup` — enable bounded policy, grant authz, and `dry-run` in one CLI step.
+- Brownfield sprint resolution for autopilot: `{product}/planning/sprint-*.md`, sprint `planned`, `paths.product`.
+- Auto repo id for authz from `git remote origin` (`lib/repo-resolve.mjs`).
+- `install-diagnose` autonomy hint when `stage: sprint_execution`; `doctor` `autonomy:capability` advisory.
+- `.harness/autonomy/authz/` in gitignore snippet (local grants stay out of git).
+
+### Changed
+
+- `--update --autonomy` appends disabled `autonomy:` pointers to existing `state.yaml` when missing.
+- `docs/skills.md`, `docs/skill-flows.md`, `/midas-help`, `pilot.md`, and `start-sprint` reference autopilot.
+
+---
+
 ## [2.3.1] — 2026-08-05
 
 ### Added
@@ -1306,7 +1324,7 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.3.1...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.3.2...HEAD
 [2.1.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.5...v2.0.0
 [2.0.0-rc.5]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.4...v2.0.0-rc.5

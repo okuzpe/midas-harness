@@ -708,6 +708,45 @@ if (!stateRaw) {
   }
 }
 
+// Optional bounded autonomy (ADR-009): advisory when Phase 7 but capability missing or policy disabled.
+if (!stateRaw) {
+  check('autonomy:capability', 'skip', 'no state.yaml');
+} else {
+  const stageM = stateRaw.match(/^stage:\s*(\S+)/m);
+  const stage = stageM ? stageM[1] : null;
+  const capability = join(ROOT, '.harness', 'autonomy', 'bin', 'midas-autopilot.mjs');
+  if (stage !== 'sprint_execution') {
+    check('autonomy:capability', 'skip', `stage=${stage ?? 'unknown'}`);
+  } else if (!existsSync(capability)) {
+    check(
+      'autonomy:capability',
+      'ok',
+      'not installed — optional: npx … --update --autonomy then /midas-autopilot setup',
+    );
+  } else {
+    const policyPath = join(ROOT, '.harness', 'autonomy', 'policy.yaml');
+    if (!existsSync(policyPath)) {
+      check('autonomy:capability', 'warn', 'policy.yaml missing under .harness/autonomy/');
+    } else {
+      const policyRaw = readFileSync(policyPath, 'utf8');
+      const disabled = /^enabled:\s*false/m.test(policyRaw) || /^mode:\s*disabled/m.test(policyRaw);
+      const sprintStatus = parseSprints(stateRaw);
+      const runnable = [...sprintStatus.values()].some((st) => st === 'active' || st === 'planned');
+      if (disabled && runnable) {
+        check(
+          'autonomy:capability',
+          'warn',
+          'installed but disabled while a sprint is active/planned — run midas-autopilot setup',
+        );
+      } else if (disabled) {
+        check('autonomy:capability', 'ok', 'installed; enable with midas-autopilot setup when needed');
+      } else {
+        check('autonomy:capability', 'ok', 'bounded policy enabled');
+      }
+    }
+  }
+}
+
 // Structured gate registry: machine-readable phase gate index that mirrors the methodology table.
 const gatesRegistryRaw = read(join(paths.engine, 'gates.json'));
 if (gatesRegistryRaw === null) {

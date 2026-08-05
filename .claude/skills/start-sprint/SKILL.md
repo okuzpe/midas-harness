@@ -86,6 +86,9 @@ amendments in the sprint's `audit_notes`.
 Implementation runs on the **build** tier. Print: *"👉 Optional: `/midas-recall sprint` for a context pack
 before coding (scout tier; read-only)."* — do **not** re-load the full rule set here; recall delegates to scout.
 During long sprints, remind: *"👉 `/midas-progress` after significant tasks (STM in `{runs}/sprints/NN-progress.md`)."*
+**Optional bounded autopilot:** if the user wants one code task per scheduled tick (ADR-009), point to
+`/midas-autopilot` after kickoff — requires `npx … --autonomy` install; the skill guides `setup` /
+`dry-run`; only the human or CI runs `midas-autopilot tick` (never auto-invoked from chat).
 Before writing any third-party code, follow
 `<paths.engine>/rules/context7-usage.md` (`resolve-library-id` → `get-library-docs` at the pinned version).
 **If a task matches a `{product}/playbooks/*` recipe** (one of the project's repeated procedures), the

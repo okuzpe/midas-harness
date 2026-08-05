@@ -114,6 +114,18 @@ not pass a phase gate.
 | `/midas-capture` | A recurring, user-approved pattern | Classify as rule, playbook, or convention; amend or create | Project-owned durable guidance | Doctor after rule changes |
 | `/midas-lean-review` | Diff or named paths | Rank delete, stdlib, native, YAGNI, and shrink findings | Optional `lean-NN.md` | Apply only after approval |
 | `/midas-design` | UI that needs a stronger product identity | Audit, present three directions, obtain a choice, specify one | `design-NN.md`; optional one-slice implementation | Implement or verify; stage unchanged |
+| `/midas-autopilot` | Optional `--autonomy` install + Phase 7 code tasks | Guide `setup` / `dry-run`; human runs `tick` CLI only | Journal + audit records under `{runs}/autonomy/` | One task per tick; never auto-invoked from chat |
+
+Optional bounded loop (ADR-009) beside the manual sprint cycle:
+
+```mermaid
+flowchart LR
+  Setup["midas-autopilot setup"] --> Dry["dry-run ready"]
+  Dry --> Tick["tick --runner=fake|cursor-cloud"]
+  Tick --> Dry
+```
+
+Requires `.harness/autonomy/` (`npx … --autonomy`). See `/midas-autopilot` and `.harness/autonomy/README.md`.
 
 ## Maintenance, setup, and standing audits
 

@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 /**
  * midas-autopilot — optional bounded autonomy controller CLI.
- * Commands: dry-run | tick | status | resume | authz-grant
+ * Commands: setup | dry-run | tick | status | resume | authz-grant
  */
 import { resolve, dirname, join } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { createCommitPushAuthz, writeAuthz } from '../lib/authz.mjs';
 import { loadProjectPolicy } from '../lib/policy.mjs';
 import { dryRun, resume, statusReport, tick } from '../lib/tick.mjs';
+import { resolveAutonomyRepo } from '../lib/repo-resolve.mjs';
+import { runSetup } from '../lib/setup.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PACKAGE_ROOT = resolve(HERE, '..');
@@ -29,11 +31,14 @@ function printHelp() {
   console.log(`midas-autopilot — Midas bounded autonomy (optional)
 
 Usage:
+  midas-autopilot setup [--root=.] [--actor=NAME] [--hours=24] [--skip-authz]
   midas-autopilot status [--root=.]
   midas-autopilot dry-run [--root=.]
   midas-autopilot tick [--root=.] [--runner=fake|cursor-cloud]
   midas-autopilot resume [--root=.] [--runner=fake|cursor-cloud]
   midas-autopilot authz-grant --actor=NAME --hours=24 [--root=.]
+
+  setup — enable bounded policy, grant authz (needs MIDAS_AUTONOMY_AUTHZ_KEY), dry-run
 
 Environment:
   CURSOR_API_KEY                 required for cursor-cloud runner
@@ -55,6 +60,16 @@ async function main() {
   if (cmd === 'status') {
     console.log(JSON.stringify(statusReport(root), null, 2));
     return;
+  }
+  if (cmd === 'setup') {
+    const result = runSetup(root, {
+      actor: flags.actor,
+      hours: flags.hours,
+      repo: flags.repo,
+      grantAuthz: !flags['skip-authz'],
+    });
+    console.log(JSON.stringify(result, null, 2));
+    process.exit(result.ok ? 0 : 1);
   }
   if (cmd === 'dry-run') {
     console.log(JSON.stringify(dryRun(root, { repo: flags.repo }), null, 2));
@@ -87,9 +102,10 @@ async function main() {
       console.error(JSON.stringify({ ok: false, errors: policy.errors }, null, 2));
       process.exit(1);
     }
+    const repo = resolveAutonomyRepo(root, { repo: flags.repo }, policy.policy);
     const hours = Number(flags.hours || 24);
     const record = createCommitPushAuthz({
-      repo: flags.repo || 'local/project',
+      repo,
       branchPrefix: policy.policy.branch.prefix,
       actionId: 'execute-next-sprint-task',
       policyDigest: policy.digest,

@@ -32,6 +32,9 @@ runner:
   default: fake          # fake | cursor-cloud
   orchestrate_model_required: true   # gate pauses if attested orchestrate model unavailable
 
+# Optional: owner/repo for commit-push authz (else git remote origin, else local/project)
+# repo: okuzpe/BodegaSuite
+
 approvals:               # bounded always requires these; cannot silently empty
   merge: required
   deploy: required

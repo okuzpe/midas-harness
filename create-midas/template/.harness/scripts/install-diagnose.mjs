@@ -4,7 +4,7 @@
 // Context helpers live in create-midas/lib/core/context.mjs (installer package) and are mirrored to
 // .harness/scripts/install-context.mjs on product installs (see scripts/build-create.mjs).
 
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -20,6 +20,31 @@ const {
 } = await import(pathToFileURL(contextPath).href);
 
 export { hasMidasInstall, findAncestorMidasRoot, yamlScalar };
+
+/**
+ * Optional autopilot hint when the project is in Phase 7 without a ready capability.
+ * @param {string} dir
+ * @param {string|null} stateRaw
+ */
+export function autonomyDiagnoseHint(dir, stateRaw) {
+  const stage = yamlScalar(stateRaw, 'stage');
+  if (stage !== 'sprint_execution') return null;
+  const capability = join(dir, '.harness', 'autonomy', 'bin', 'midas-autopilot.mjs');
+  if (!existsSync(capability)) {
+    return 'Optional bounded autopilot: reinstall with --autonomy, then /midas-autopilot (or `midas-autopilot setup`).';
+  }
+  const policyPath = join(dir, '.harness', 'autonomy', 'policy.yaml');
+  if (!existsSync(policyPath)) return null;
+  try {
+    const policy = readFileSync(policyPath, 'utf8');
+    if (/^enabled:\s*false/m.test(policy) || /^mode:\s*disabled/m.test(policy)) {
+      return 'Autonomy installed but disabled — run `node .harness/autonomy/bin/midas-autopilot.mjs setup` or `/midas-autopilot`.';
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
 
 /** Fallback when caller does not pass installCmd (prefer reading bundled VERSION in create-midas). */
 const DEFAULT_INSTALL_CMD = 'npx github:okuzpe/midas-harness --tools=cursor';
@@ -127,7 +152,12 @@ export function diagnoseProject(targetDir, opts = {}) {
     summary: 'Midas is installed and setup_complete.',
     nextCli: scriptsDir ? `node ${scriptsDir}/doctor.mjs --strict` : null,
     nextSlash: '/midas-status',
-    detail: 'Use /midas-status for phase and next ritual. /midas-reconcile re-runs this check anytime.',
+    detail:
+      'Use /midas-status for phase and next ritual. /midas-reconcile re-runs this check anytime.' +
+      (() => {
+        const hint = autonomyDiagnoseHint(dir, ctx.stateRaw);
+        return hint ? `\n\nAutonomy: ${hint}` : '';
+      })(),
   };
 }
 

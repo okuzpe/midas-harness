@@ -15,7 +15,7 @@
 set -euo pipefail
 REPO="okuzpe/midas-harness"
 # midas-install-ref: bumped by scripts/bump-version.mjs — keep in sync with harness/VERSION
-MIDAS_REF="${MIDAS_INSTALL_REF:-v2.3.1}"
+MIDAS_REF="${MIDAS_INSTALL_REF:-v2.3.2}"
 if [ "${MIDAS_BLEEDING_EDGE:-}" = "1" ]; then
   MIDAS_REF="main"
 fi

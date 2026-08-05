@@ -9,6 +9,7 @@ product sprints into a fresh v2 install created with `--autonomy`, or point
 ## Seed checklist
 
 - [ ] Baseline manual timing recorded
+- [ ] `midas-autopilot setup` + `dry-run` green
 - [ ] Three fake-runner ticks completed
 - [ ] One optional cloud run within reserve
 - [ ] Value-gate table filled (pass/fail)

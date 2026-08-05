@@ -43,6 +43,8 @@ loop that re-audits the living code against those frozen rules.
 - **Cost-aware by default.** Opus runs only the ~6 irreversible decisions (idea framing, stack choice,
   the audits); Sonnet builds, Haiku scouts. Current library docs are fetched before any third-party code
   ([Context7](#mcp--context7) recommended, or your own tool), so it's written against real APIs, not memory.
+- **Optional bounded autopilot (ADR-009).** Install with `--autonomy` for one-task-per-tick sprint execution
+  (`/midas-autopilot` → `midas-autopilot setup`); off by default, fail-closed policy + authz.
 
 ## When to use Midas — and when not to
 **Use it** when you want an agent to respect architecture, conventions, and tests instead of improvising —

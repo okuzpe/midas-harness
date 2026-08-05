@@ -14,15 +14,17 @@ Pilot target: `examples/taskpilot/` (content fixture; hub/v1 layout).
    ```bash
    npx github:okuzpe/midas-harness --tools=cursor --autonomy /tmp/taskpilot-auto
    ```
-2. Set `stage: sprint_execution`, add an active sprint + open task checklist.
-3. Enable bounded policy (edit `.harness/autonomy/policy.yaml`: `enabled: true`, `mode: bounded`).
-4. Grant commit/push authz:
+2. Set `stage: sprint_execution`, add an active or planned sprint with open `- [ ]` tasks
+   (greenfield: `{product}/sprints/`; brownfield: `{product}/planning/sprint-*.md`).
+3. One-shot setup (needs `MIDAS_AUTONOMY_AUTHZ_KEY` in the shell):
    ```bash
-   node .harness/autonomy/bin/midas-autopilot.mjs authz-grant --actor=pilot --hours=8
+   node .harness/autonomy/bin/midas-autopilot.mjs setup --actor=pilot --hours=8
    ```
-5. `dry-run` → must show `would_effect: true`.
-6. Run **three** ticks with `--runner=fake` (no cloud tokens).
-7. Optionally one bounded `--runner=cursor-cloud` run with a hard cost reserve.
+4. `dry-run` → must show `would_effect: true` (or read the `setup` JSON).
+5. Run **three** ticks with `--runner=fake` (no cloud tokens).
+6. Optionally one bounded `--runner=cursor-cloud` run with a hard cost reserve.
+
+Editor guide: `/midas-autopilot` (does not auto-run `tick` from chat).
 
 ## Value gate (open P1 only if all hold)
 

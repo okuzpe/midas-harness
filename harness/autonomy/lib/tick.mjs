@@ -1,4 +1,4 @@
-import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
@@ -21,8 +21,17 @@ import { runCursorCloud } from './runners/cursor-cloud.mjs';
 import { runAuditor } from './audit.mjs';
 import { evaluateHook, loadFailClosedHooks } from './hooks.mjs';
 import { detectCredentialLeak, injectRoleEnv, redactForJournal } from './credentials.mjs';
+import {
+  findRunnableSprint,
+  findNextTask,
+  parsePathsProduct,
+  resolveSprintContext,
+} from './sprint-resolve.mjs';
+import { resolveAutonomyRepo } from './repo-resolve.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
+
+export { findRunnableSprint, findNextTask, parsePathsProduct, resolveSprintContext };
 
 export function loadActionContract(id = 'execute-next-sprint-task') {
   const path = join(PACKAGE_ROOT, 'actions', `${id}.json`);
@@ -32,65 +41,6 @@ export function loadActionContract(id = 'execute-next-sprint-task') {
 function parseStage(yaml) {
   const m = yaml.match(/^stage:\s*(\S+)/m);
   return m ? m[1] : null;
-}
-
-function findActiveSprint(yaml) {
-  const sprints = [];
-  let inSprints = false;
-  let cur = null;
-  for (const line of yaml.split(/\r?\n/)) {
-    if (/^[A-Za-z_][\w-]*:/.test(line) && !/^\s/.test(line)) {
-      if (cur) sprints.push(cur);
-      inSprints = /^sprints:/.test(line);
-      cur = null;
-      continue;
-    }
-    if (!inSprints) continue;
-    const idM = line.match(/^\s*-\s*id:\s*"?([\w.-]+)"?/);
-    if (idM) {
-      if (cur) sprints.push(cur);
-      cur = { id: idM[1], status: '', title: '' };
-      continue;
-    }
-    if (!cur) continue;
-    const st = line.match(/^\s+status:\s*"?(\w+)"?/);
-    if (st) cur.status = st[1];
-    const title = line.match(/^\s+title:\s*"?([^"]+)"?/);
-    if (title) cur.title = title[1];
-  }
-  if (cur) sprints.push(cur);
-  return sprints.find((s) => s.status === 'active') || null;
-}
-
-function findNextTask(projectRoot, sprintId, productRel = '.harness/product') {
-  const sprintDir = join(projectRoot, productRel, 'sprints');
-  if (!existsSync(sprintDir)) return null;
-  const files = readdirSync(sprintDir).filter((f) => f.startsWith(`${sprintId}-`) && f.endsWith('.md'));
-  if (!files.length) {
-    // Also accept any NN-*.md when id matches prefix
-    const alt = readdirSync(sprintDir).filter((f) => f.endsWith('.md'));
-    for (const f of alt) {
-      if (f.startsWith(sprintId)) files.push(f);
-    }
-  }
-  // Never invent work — missing sprint markdown blocks the tick (callers treat null as no_open_task).
-  if (!files.length) return null;
-  const file = join(sprintDir, files[0]);
-  const body = readFileSync(file, 'utf8');
-  // Prefer unchecked markdown tasks
-  const unchecked = body.match(/^\s*-\s*\[\s*\]\s+(.+)$/m);
-  if (unchecked) {
-    return { id: slugTask(unchecked[1]), title: unchecked[1].trim(), file };
-  }
-  return { id: 'task-complete', title: 'no open tasks', file, done: true };
-}
-
-function slugTask(title) {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-    .slice(0, 48) || 'task';
 }
 
 function resolveJournalPath(autonomy) {
@@ -125,6 +75,7 @@ export function dryRun(projectRoot, opts = {}) {
   const action = loadActionContract();
   const { yaml, autonomy } = readStateYaml(projectRoot);
   const policyLoad = loadProjectPolicy(projectRoot);
+  const productRel = opts.productRel || (yaml ? parsePathsProduct(yaml) : '.harness/product');
   const plan = {
     would_effect: false,
     action: action.id,
@@ -139,16 +90,16 @@ export function dryRun(projectRoot, opts = {}) {
   if (!yaml) plan.blockers.push('missing_state');
   else if (parseStage(yaml) !== 'sprint_execution') plan.blockers.push(`stage_not_sprint_execution:${parseStage(yaml)}`);
 
-  const sprint = yaml ? findActiveSprint(yaml) : null;
-  if (!sprint) plan.blockers.push('no_active_sprint');
+  const sprint = yaml ? findRunnableSprint(yaml) : null;
+  if (!sprint) plan.blockers.push('no_runnable_sprint');
   else {
-    const task = findNextTask(projectRoot, sprint.id, opts.productRel);
+    const task = findNextTask(projectRoot, sprint.id, productRel);
     if (!task || task.done) plan.blockers.push('no_open_task');
     else plan.next = { sprint, task, branch: `${policyLoad.policy.branch.prefix}${sprint.id}-${task.id}` };
   }
 
   const authz = validateCommitPushAuthz(projectRoot, {
-    repo: opts.repo || 'local/project',
+    repo: resolveAutonomyRepo(projectRoot, opts, policyLoad.policy),
     branchPrefix: policyLoad.policy.branch.prefix,
     actionId: action.id,
     policyDigest: policyLoad.digest,
@@ -234,18 +185,19 @@ export async function tick(projectRoot, opts = {}) {
       return await reconcileInFlight(projectRoot, lease, policyLoad, existingControl, opts);
     }
 
-    const sprint = findActiveSprint(yaml);
+    const productRel = opts.productRel || parsePathsProduct(yaml);
+    const sprint = findRunnableSprint(yaml);
     if (!sprint) {
-      return await abort(projectRoot, lease, policyLoad, { status: 'blocked', reason: 'no_active_sprint' });
+      return await abort(projectRoot, lease, policyLoad, { status: 'blocked', reason: 'no_runnable_sprint' });
     }
-    const task = findNextTask(projectRoot, sprint.id, opts.productRel);
+    const task = findNextTask(projectRoot, sprint.id, productRel);
     if (!task || task.done) {
       return await completeIdle(projectRoot, lease, policyLoad, { reason: 'no_open_task' });
     }
 
     const branch = `${policyLoad.policy.branch.prefix}${sprint.id}-${task.id}`;
     const authz = validateCommitPushAuthz(projectRoot, {
-      repo: opts.repo || 'local/project',
+      repo: resolveAutonomyRepo(projectRoot, opts, policyLoad.policy),
       branchPrefix: policyLoad.policy.branch.prefix,
       actionId: action.id,
       policyDigest: policyLoad.digest,

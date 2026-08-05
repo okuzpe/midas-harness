@@ -241,6 +241,7 @@ async function executeInstallerCommand(cmd, hooks) {
 
       async applyAutonomy() {
         installAutonomyCapability();
+        ensureAutonomyStatePointers();
         if (update) pruneStaleAutonomyVendor();
       },
 
@@ -707,6 +708,31 @@ function installAutonomyCapability() {
   }
 }
 
+/** Append disabled autonomy pointers to an existing state.yaml when --autonomy is first enabled. */
+function ensureAutonomyStatePointers() {
+  const stateFile = join(TARGET, '.harness', 'state.yaml');
+  if (!existsSync(stateFile)) return;
+  const cur = readMaybe(stateFile);
+  if (cur == null || /^autonomy:\s*$/m.test(cur)) return;
+  const block = [
+    '',
+    '# Optional autonomy pointers (ADR-009) — disabled until policy enabled',
+    'autonomy:',
+    '  enabled: false',
+    '  mode: disabled',
+    '  status: idle',
+    '  policy_digest: ""',
+    '  active_agent_id: null',
+    '  active_run_id: null',
+    '  active_sha: null',
+    '  journal_path: .harness/runs/autonomy/journal.jsonl',
+    '  next_attempt_at: null',
+    '',
+  ].join('\n');
+  writeFileSync(stateFile, cur.endsWith('\n') ? `${cur}${block}` : `${cur}\n${block}`);
+  written.push('.harness/state.yaml (autonomy pointers)');
+}
+
 function copyAutonomyTree(srcDir, dstDir, relBase) {
   for (const entry of readdirSync(srcDir, { withFileTypes: true })) {
     const src = join(srcDir, entry.name);
@@ -1091,7 +1117,7 @@ async function report(tools, paths) {
   }
   if (stateMode) console.log(`     ${paths.state} created (mode: ${stateMode}, layout: ${paths.layout}, routing: ${installRoutingProfile}, tools: ${activeTools.join(', ')})`);
   if (installAutonomy || existsSync(join(TARGET, '.harness', 'autonomy', 'bin', 'midas-autopilot.mjs'))) {
-    console.log('     autonomy: .harness/autonomy installed (disabled until policy enabled) — node .harness/autonomy/bin/midas-autopilot.mjs status');
+    console.log('     autonomy: .harness/autonomy installed — run: node .harness/autonomy/bin/midas-autopilot.mjs setup');
   }
   reportGitignoreLine();
   if (verifyResult?.ok) console.log('     verify: ok — adapters in sync (midas-doctor passed).');
