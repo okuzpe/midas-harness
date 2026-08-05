@@ -6,6 +6,8 @@
 *.key
 *secret*
 *credential*
+!harness/autonomy/lib/credentials.mjs
+!create-midas/template/.optional/autonomy/lib/credentials.mjs
 .claude/settings.local.json
 
 # Node

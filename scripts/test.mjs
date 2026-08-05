@@ -2733,6 +2733,11 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
   check('autonomy:bundle-setup', existsSync(join(autoRoot, 'lib', 'setup.mjs')));
   check('autonomy:bundle-sprint-resolve', existsSync(join(autoRoot, 'lib', 'sprint-resolve.mjs')));
   check('autonomy:bundle-repo-resolve', existsSync(join(autoRoot, 'lib', 'repo-resolve.mjs')));
+  check('autonomy:bundle-credentials', existsSync(join(autoRoot, 'lib', 'credentials.mjs')));
+  check(
+    'autonomy:template-credentials',
+    existsSync(join(ROOT, 'create-midas', 'template', '.optional', 'autonomy', 'lib', 'credentials.mjs')),
+  );
   check(
     'autonomy:skill-catalog',
     /\/midas-autopilot/.test(readFileSync(join(ROOT, 'docs', 'skills.md'), 'utf8')),
