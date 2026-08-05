@@ -11,7 +11,14 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
-## [2.3.3] — 2026-08-05
+## [2.3.4] — 2026-08-05
+
+### Fixed
+
+- Midas gitignore snippet: allow `.harness/autonomy/lib/credentials.mjs` through the `*credential*`
+  security pattern so autonomy installs can be committed after `--autonomy`.
+
+---
 
 ### Fixed
 
@@ -1333,7 +1340,7 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.3.3...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.3.4...HEAD
 [2.1.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.5...v2.0.0
 [2.0.0-rc.5]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.4...v2.0.0-rc.5
