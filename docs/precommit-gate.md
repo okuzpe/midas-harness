@@ -5,7 +5,21 @@ Product installs must **not** run this gate — use `/midas-align` + `/midas-doc
 
 **Skill:** `/midas-precommit`  
 **Mechanical floor:** `node scripts/precommit-eval.mjs`  
+**Skill linter (canonical):** `node scripts/skill-quality-check.mjs` — mechanical checks on `harness/skills/` and `harness/agents/` (not ESLint). Precommit uses `--staged --strict-warns` only; full-engine scan (0 warns) runs in CI via `scripts/test.mjs`.  
 **Pass bar:** overall weighted score **≥ 80**. Below 80 → `verdict=fail` → **do not commit**.
+
+---
+
+## Contributor ladder
+
+| When | Command |
+|------|---------|
+| Before commit (fast) | `npm run precommit` |
+| Staged skills/agents only | `node scripts/skill-quality-check.mjs --staged --strict-warns` |
+| Before PR / release | `npm run verify` (`test` + `build` + `doctor`) |
+| Qualitative bar ≥ 80 | `/midas-precommit` (agent scorecard + mechanical floor) |
+
+Optional git hook: see [CONTRIBUTING.md](../CONTRIBUTING.md) § Git hooks.
 
 ---
 

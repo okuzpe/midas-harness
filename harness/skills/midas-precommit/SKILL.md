@@ -12,10 +12,12 @@ argument-hint: "[--quick|--full] [--freeze]"
 # midas-precommit — engine quality bar (≥ 80)
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
-> **Engine-only.** Rubric: `docs/precommit-gate.md`. Mechanical floor: `node scripts/precommit-eval.mjs`.
+> **Engine-only.** Rubric: `docs/precommit-gate.md`. Mechanical floor: `node scripts/precommit-eval.mjs` (staged skill linter + doctor).
 
 Standing **pre-commit gate for the midas-harness engine repo**. Scores the same harness-fitness
 dimensions used in full audits. **Overall must be ≥ 80** or the verdict is fail — do not commit.
+
+**Skill linter:** `scripts/skill-quality-check.mjs` is the mechanical linter for `harness/skills/` and `harness/agents/` (not ESLint). Precommit runs it with `--staged --strict-warns` only — warnings on touched skills fail per `harness/rules/skill-quality.md`. Full-engine 0-warn scan stays in CI (`npm test`).
 
 ## Does / Does not
 
@@ -40,6 +42,8 @@ node scripts/precommit-eval.mjs --json
 ```
 
 If exit ≠ 0 or `mechanical_ok` is false → `verdict=fail`, list `hard_fails`, **STOP** (fix before re-scoring).
+
+Mechanical floor includes `skill-quality-staged` (`node scripts/skill-quality-check.mjs --staged --strict-warns`) — only canonical `harness/skills/` and `harness/agents/` in the git index. Run `npm run verify` before PR even when precommit passes.
 
 ### 2. Score dimensions
 
@@ -79,7 +83,7 @@ MIDAS_PRECOMMIT_RESULT: overall=N threshold=80 verdict=pass|fail mechanical=ok|f
 - …
 
 ## Next
-- pass → safe to commit (still run `npm run align` when mirrors/rules changed)
+- pass → safe to commit (still run `npm run align` when mirrors/rules changed; `npm run verify` before PR)
 - fail → fix blockers; re-run `/midas-precommit`
 ```
 

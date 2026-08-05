@@ -41,7 +41,16 @@ import {
   MAX_SAVINGS_ORCHESTRATE_ESCALATE_STAGES,
 } from './model-profiles.mjs';
 import { rewriteRoutingMap } from './yaml-lite.mjs';
-import { collectReports, inspectArtifact, parseFrontmatter, readCatalogText, stepsMarkdownLinkCount, summarizeReports } from './skill-quality-check.mjs';
+import {
+  applyStrictWarns,
+  collectReports,
+  inspectArtifact,
+  parseCanonicalArtifactPath,
+  parseFrontmatter,
+  readCatalogText,
+  stepsMarkdownLinkCount,
+  summarizeReports,
+} from './skill-quality-check.mjs';
 
 const SCRIPT_DIR = dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
 const ROOT = resolve(SCRIPT_DIR, '..');
@@ -294,6 +303,25 @@ No tier section here.
     check('skill-quality:catalog-has-midas-status', /\/midas-status\b/.test(catalog));
     check('skill-quality:catalog-rejects-unknown-id', !/\/definitely-not-a-real-skill\b/.test(catalog));
   }
+
+  check(
+    'skill-quality:parse-canonical-skill',
+    parseCanonicalArtifactPath('harness/skills/midas-status/SKILL.md')?.id === 'midas-status',
+  );
+  check(
+    'skill-quality:parse-canonical-agent',
+    parseCanonicalArtifactPath('harness/agents/midas-scout.md')?.id === 'midas-scout',
+  );
+  check('skill-quality:ignores-mirror-path', parseCanonicalArtifactPath('.cursor/skills/midas-status/SKILL.md') === null);
+
+  const strictSample = applyStrictWarns(
+    [{ kind: 'skill', id: 'x', path: 'p', lines: 1, fails: [], warns: ['tier drift'] }],
+    { strictWarns: true },
+  );
+  check('skill-quality:strict-warns-promotes', strictSample[0].fails.length === 1 && strictSample[0].warns.length === 0);
+
+  const filtered = collectReports(ROOT, { onlyArtifacts: [{ kind: 'skill', id: 'midas-status' }] });
+  check('skill-quality:filter-single-skill', filtered.length === 1 && filtered[0].id === 'midas-status');
 }
 
 // --- C. agent frontmatter ----------------------------------------------------------------------
@@ -2518,6 +2546,21 @@ check('mkdocs:adr-003', /ADR-003/.test(readFileSync(join(ROOT, 'mkdocs.yml'), 'u
 // --- status-page + yaml-lite smoke ----------------------------------------
 check('script:status-page:exists', existsSync(join(ROOT, 'scripts', 'status-page.mjs')));
 check('script:skill-quality-check:exists', existsSync(join(ROOT, 'scripts', 'skill-quality-check.mjs')));
+if (existsSync(join(ROOT, 'scripts', 'precommit-eval.mjs'))) {
+  try {
+    const out = execSync(`node "${join(ROOT, 'scripts', 'precommit-eval.mjs')}" --json`, {
+      cwd: ROOT,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    const envelope = JSON.parse(out);
+    check('precommit:floor-mechanical-ok', envelope.mechanical_ok === true, envelope.hard_fails?.join('; '));
+    check('precommit:floor-uses-staged-skill-quality', !envelope.checks?.some((c) => c.id === 'skill-quality'));
+    check('precommit:floor-has-staged-check', envelope.checks?.some((c) => c.id === 'skill-quality-staged'));
+  } catch (e) {
+    check('precommit:floor-mechanical-ok', false, e.message || String(e));
+  }
+}
 check('script:bump-version:exists', existsSync(join(ROOT, 'scripts', 'bump-version.mjs')));
 check('template:skill-state-ritual:exists', existsSync(join(ROOT, 'harness', 'templates', 'skill-state-ritual.md')));
 if (existsSync(join(ROOT, 'scripts', 'bump-version.mjs'))) {

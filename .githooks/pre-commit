@@ -1,0 +1,3 @@
+#!/bin/sh
+# Optional git hook — enable: git config core.hooksPath .githooks
+node scripts/precommit-eval.mjs

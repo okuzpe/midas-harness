@@ -1,0 +1,6 @@
+# Optional local pre-commit hook — install lefthook globally, then: lefthook install
+# See CONTRIBUTING.md § Git hooks (engine). No npm dependency in package.json.
+pre-commit:
+  commands:
+    midas-precommit-floor:
+      run: node scripts/precommit-eval.mjs

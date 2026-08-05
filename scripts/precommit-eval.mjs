@@ -7,7 +7,7 @@
 //
 // Does NOT compute the full 1–100 dimension scores (those are agent-judged per
 // docs/precommit-gate.md). It fails closed on: wrong cwd, doctor drift, skill-quality
-// hard fails, and missing align prerequisites. Pass threshold for the agent scorecard
+// hard fails, and missing align prerequisites. Skill quality uses --staged --strict-warns only
 // is overall >= 80 (see skill).
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
@@ -82,15 +82,19 @@ add(
   doctor.status === 0 ? 'adapters + health exit 0' : summarizeSpawn(doctor),
 );
 
-const skillQ = spawnSync(process.execPath, [join(ROOT, 'scripts', 'skill-quality-check.mjs')], {
+const skillQ = spawnSync(process.execPath, [
+  join(ROOT, 'scripts', 'skill-quality-check.mjs'),
+  '--staged',
+  '--strict-warns',
+], {
   cwd: ROOT,
   encoding: 'utf8',
   stdio: ['ignore', 'pipe', 'pipe'],
 });
 add(
-  'skill-quality',
+  'skill-quality-staged',
   skillQ.status === 0,
-  skillQ.status === 0 ? '0 hard fails' : summarizeSpawn(skillQ),
+  skillQ.status === 0 ? 'staged canonical artifacts ok (or n/a)' : summarizeSpawn(skillQ),
 );
 
 const dirty = spawnSync('git', ['status', '--porcelain'], {

@@ -62,6 +62,8 @@ AGENTS.md             ← engine project law (distinct from install template AGE
 ```bash
 npm run align     # render adapters + test + build bundles + doctor — run before every PR
 npm run precommit # mechanical floor for /midas-precommit (engine only)
+# skill linter on staged canonical files only:
+node scripts/skill-quality-check.mjs --staged --strict-warns
 # or step by step:
 npm test          # structural invariants
 npm run render    # if harness/conventions.md or rules digest changed
@@ -72,6 +74,28 @@ npm run doctor    # adapter drift + health warnings
 **Engine commit bar:** before committing on midas-harness, run `/midas-precommit` (or ask the
 agent to). Overall score must be **≥ 80** (`docs/precommit-gate.md`). This skill is **engine-only**
 — it is stripped from `create-midas/template` and `plugins/midas`.
+
+### Git hooks (engine, optional)
+
+`npm run precommit` is the mechanical floor (`doctor` + staged `skill-quality-check`). Wire it locally — **no** lefthook/husky dependency in `package.json` (dependency-free scripts rule).
+
+**Windows / macOS / Linux (recommended):** install [lefthook](https://github.com/evilmartians/lefthook) globally, then from the repo root:
+
+```bash
+lefthook install
+```
+
+Uses [`lefthook.yml`](lefthook.yml) → `node scripts/precommit-eval.mjs`.
+
+**Git native (all platforms with Git Bash):**
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Uses [`.githooks/pre-commit`](.githooks/pre-commit) (same command). Reset with `git config --unset core.hooksPath`.
+
+Hooks run the **fast** floor only. Run `npm run verify` before opening a PR even when the hook passes.
 
 **Docs preview:** `mkdocs build --site-dir _site` (matches CI). Do not commit `site/` or `_site/`.
 

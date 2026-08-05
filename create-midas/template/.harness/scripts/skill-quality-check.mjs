@@ -2,6 +2,8 @@
 // skill-quality-check.mjs — report-only mechanical checks for skill-quality hard fails.
 //
 //   node scripts/skill-quality-check.mjs [dir]     scan canonical skills + agents (exit 1 on hard fail)
+//   node scripts/skill-quality-check.mjs --staged  only staged harness/skills + harness/agents (strict-warns default)
+//   node scripts/skill-quality-check.mjs --changed  working tree + staged canonical artifacts
 //   node scripts/skill-quality-check.mjs --json     machine-readable report
 //   node scripts/skill-quality-check.mjs --help
 //
@@ -13,8 +15,9 @@
 // semantic dims (Clarity, Specificity, Trigger quality, …) still require manual scoring.
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { basename, dirname, join, resolve } from 'node:path';
+import { basename, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
 import { resolvePaths, resolveProjectRootFromScript } from './paths.mjs';
 import { CLAUDE_COST_PROFILE_ROUTING } from './model-profiles.mjs';
 
@@ -30,11 +33,73 @@ const TIER_SECTION_RE = /^##\s+Tier\b/m;
 const HELP = `skill-quality-check — mechanical skill quality report (report-only)
 
 Usage:
-  node scripts/skill-quality-check.mjs [dir]   scan skills + agents (default: engine repo)
-  node scripts/skill-quality-check.mjs --json  JSON output
-  node scripts/skill-quality-check.mjs --help  show this help`;
+  node scripts/skill-quality-check.mjs [dir]       scan all canonical skills + agents
+  node scripts/skill-quality-check.mjs --staged      staged harness/skills + harness/agents only
+  node scripts/skill-quality-check.mjs --changed     changed canonical artifacts (HEAD + index)
+  node scripts/skill-quality-check.mjs --json      JSON output
+  node scripts/skill-quality-check.mjs --help        show this help
 
+--staged implies --strict-warns (warnings on touched artifacts fail). Full-engine scan stays in CI.`;
+
+const CANONICAL_SKILL_RE = /^harness\/skills\/([^/]+)\/SKILL\.md$/;
+const CANONICAL_AGENT_RE = /^harness\/agents\/([^/]+)\.md$/;
+
+/** @typedef {{ kind: 'skill' | 'agent', id: string }} ArtifactRef */
 /** @typedef {{ kind: 'skill' | 'agent', id: string, path: string, lines: number, fails: string[], warns: string[] }} ArtifactReport */
+
+/**
+ * @param {string} relPath
+ * @returns {ArtifactRef | null}
+ */
+export function parseCanonicalArtifactPath(relPath) {
+  const norm = relPath.replace(/\\/g, '/');
+  let m = norm.match(CANONICAL_SKILL_RE);
+  if (m) return { kind: 'skill', id: m[1] };
+  m = norm.match(CANONICAL_AGENT_RE);
+  if (m) return { kind: 'agent', id: m[1] };
+  return null;
+}
+
+/**
+ * @param {string} root
+ * @param {'staged' | 'changed'} mode
+ * @returns {string[]}
+ */
+export function listGitChangedPaths(root, mode) {
+  const args = mode === 'staged'
+    ? ['diff', '--cached', '--name-only', '--diff-filter=ACMR']
+    : ['diff', 'HEAD', '--name-only', '--diff-filter=ACMR'];
+  const r = spawnSync('git', args, { cwd: root, encoding: 'utf8' });
+  if (r.status !== 0) return [];
+  return (r.stdout || '').trim().split(/\r?\n/).filter(Boolean);
+}
+
+/**
+ * @param {string} root
+ * @param {'staged' | 'changed'} mode
+ * @returns {ArtifactRef[]}
+ */
+export function listTouchedArtifacts(root, mode) {
+  const seen = new Map();
+  for (const rel of listGitChangedPaths(root, mode)) {
+    const art = parseCanonicalArtifactPath(rel);
+    if (art) seen.set(`${art.kind}:${art.id}`, art);
+  }
+  return [...seen.values()];
+}
+
+/**
+ * @param {ArtifactReport[]} reports
+ * @param {{ strictWarns?: boolean }} [opts]
+ */
+export function applyStrictWarns(reports, opts = {}) {
+  if (!opts.strictWarns) return reports;
+  for (const r of reports) {
+    for (const w of r.warns) r.fails.push(w);
+    r.warns = [];
+  }
+  return reports;
+}
 
 /**
  * @param {string} text
@@ -139,16 +204,23 @@ export function readCatalogText(root, paths) {
 
 /**
  * @param {string} root project root
+ * @param {{ onlyArtifacts?: ArtifactRef[] }} [opts]
  * @returns {ArtifactReport[]}
  */
-export function collectReports(root) {
+export function collectReports(root, opts = {}) {
   const paths = resolvePaths(root);
   const skillsDir = join(root, paths.engine, 'skills');
   const agentsDir = join(root, paths.engine, 'agents');
   const reports = [];
+  const only = opts.onlyArtifacts?.length
+    ? new Set(opts.onlyArtifacts.map((a) => `${a.kind}:${a.id}`))
+    : null;
+
+  const include = (kind, id) => !only || only.has(`${kind}:${id}`);
 
   if (existsSync(skillsDir)) {
     for (const name of readdirSync(skillsDir, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name).sort()) {
+      if (!include('skill', name)) continue;
       const rel = join(paths.engine, 'skills', name, 'SKILL.md');
       const abs = join(root, rel);
       if (!existsSync(abs)) {
@@ -174,6 +246,7 @@ export function collectReports(root) {
   if (existsSync(agentsDir)) {
     for (const file of readdirSync(agentsDir).filter((f) => f.endsWith('.md')).sort()) {
       const id = basename(file, '.md');
+      if (!include('agent', id)) continue;
       const rel = join(paths.engine, 'agents', file).replace(/\\/g, '/');
       const abs = join(root, rel);
       reports.push(inspectArtifact({
@@ -199,36 +272,66 @@ export function collectReports(root) {
 
 /**
  * @param {ArtifactReport[]} reports
+ * @param {{ strictWarns?: boolean }} [opts]
  */
-export function summarizeReports(reports) {
-  const skills = reports.filter((r) => r.kind === 'skill').length;
-  const agents = reports.filter((r) => r.kind === 'agent').length;
-  const fails = reports.reduce((n, r) => n + r.fails.length, 0);
-  const warns = reports.reduce((n, r) => n + r.warns.length, 0);
-  const blocked = reports.filter((r) => r.fails.length > 0).map((r) => r.id);
-  return { skills, agents, fails, warns, blocked, reports };
+export function summarizeReports(reports, opts = {}) {
+  const scoped = opts.strictWarns ? applyStrictWarns(reports.map((r) => ({ ...r, fails: [...r.fails], warns: [...r.warns] })), opts) : reports;
+  const skills = scoped.filter((r) => r.kind === 'skill').length;
+  const agents = scoped.filter((r) => r.kind === 'agent').length;
+  const fails = scoped.reduce((n, r) => n + r.fails.length, 0);
+  const warns = scoped.reduce((n, r) => n + r.warns.length, 0);
+  const blocked = scoped.filter((r) => r.fails.length > 0).map((r) => r.id);
+  return { skills, agents, fails, warns, blocked, reports: scoped, scope: opts.scope || 'all' };
 }
 
 /**
  * @param {string} root
- * @param {{ json?: boolean }} [opts]
+ * @param {{ json?: boolean, staged?: boolean, changed?: boolean, strictWarns?: boolean }} [opts]
  */
 export function runSkillQualityCheck(root, opts = {}) {
-  const reports = collectReports(root);
-  const summary = summarizeReports(reports);
+  const staged = !!opts.staged;
+  const changed = !!opts.changed;
+  const strictWarns = opts.strictWarns ?? staged;
+  let scope = 'all';
+  /** @type {ArtifactRef[] | undefined} */
+  let onlyArtifacts;
+
+  if (staged) {
+    onlyArtifacts = listTouchedArtifacts(root, 'staged');
+    scope = 'staged';
+  } else if (changed) {
+    onlyArtifacts = listTouchedArtifacts(root, 'changed');
+    scope = 'changed';
+  }
+
+  if (onlyArtifacts && onlyArtifacts.length === 0) {
+    const empty = { skills: 0, agents: 0, fails: 0, warns: 0, blocked: [], reports: [], scope, skipped: true };
+    if (opts.json) {
+      console.log(JSON.stringify(empty, null, 2));
+    } else {
+      console.log(`skill-quality-check — ${scope}: n/a (no canonical harness/skills or harness/agents in diff)`);
+      console.log('MIDAS_SKILL_QUALITY_RESULT: skills=0 agents=0 fails=0 warns=0 scope=n/a');
+    }
+    return empty;
+  }
+
+  const reports = collectReports(root, { onlyArtifacts });
+  applyStrictWarns(reports, { strictWarns });
+  const summary = summarizeReports(reports, { scope });
 
   if (opts.json) {
     console.log(JSON.stringify(summary, null, 2));
   } else {
-    console.log(`skill-quality-check — ${summary.skills} skills, ${summary.agents} agents`);
+    const label = scope === 'all' ? `${summary.skills} skills, ${summary.agents} agents` : `${scope}: ${summary.skills + summary.agents} artifact(s)`;
+    console.log(`skill-quality-check — ${label}`);
     console.log(`Hard fails: ${summary.fails}`);
     console.log(`Warnings: ${summary.warns}`);
-    for (const r of reports) {
+    for (const r of summary.reports) {
       for (const f of r.fails) console.log(`  FAIL ${r.kind}:${r.id}: ${f}`);
       for (const w of r.warns) console.log(`  WARN ${r.kind}:${r.id}: ${w}`);
     }
     console.log(
-      `MIDAS_SKILL_QUALITY_RESULT: skills=${summary.skills} agents=${summary.agents} fails=${summary.fails} warns=${summary.warns}`,
+      `MIDAS_SKILL_QUALITY_RESULT: skills=${summary.skills} agents=${summary.agents} fails=${summary.fails} warns=${summary.warns} scope=${scope}`,
     );
   }
 
@@ -248,8 +351,11 @@ if (isMain()) {
   }
 
   const json = process.argv.includes('--json');
+  const staged = process.argv.includes('--staged');
+  const changed = process.argv.includes('--changed');
+  const strictWarns = process.argv.includes('--strict-warns') || staged;
   const rootArg = process.argv.slice(2).find((a) => !a.startsWith('-'));
   const root = rootArg ? resolve(process.cwd(), rootArg) : resolveProjectRootFromScript(import.meta.url);
-  const summary = runSkillQualityCheck(root, { json });
+  const summary = runSkillQualityCheck(root, { json, staged, changed, strictWarns });
   process.exit(summary.fails > 0 ? 1 : 0);
 }
