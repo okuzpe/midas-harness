@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "features": [
+    {
+      "id": "F-001",
+      "title": "Autonomy fake-runner CI smoke",
+      "description": "Structural test proves a scratch --autonomy install can run midas-autopilot tick with --runner=fake without cloud credentials.",
+      "sprint": "01",
+      "acceptance_criteria": [
+        "WHEN npm test runs on CI, the autonomy smoke test SHALL pass without network tokens.",
+        "WHEN the smoke fixture completes, MIDAS_AUTOPILOT tick output SHALL show a reconciled no-op or fake effect."
+      ],
+      "status": "failing",
+      "evidence": ""
+    },
+    {
+      "id": "F-002",
+      "title": "Ship /midas-retro skill",
+      "description": "Read-only retrospective skill listed in docs/skills.md and passing skill-quality-check.",
+      "sprint": "02",
+      "acceptance_criteria": [
+        "WHEN a user invokes /midas-retro after a sprint, the skill SHALL produce a frozen note under {runs}/ without mutating paths.state stage.",
+        "WHEN skill-quality-check runs, midas-retro SHALL have no hard fails."
+      ],
+      "status": "failing",
+      "evidence": ""
+    },
+    {
+      "id": "F-003",
+      "title": "Document installer update rebaseline",
+      "description": "INSTALL.md names the update flow and cites the structural test that guards ownership-manifest rebaseline.",
+      "sprint": "03",
+      "acceptance_criteria": [
+        "WHEN a reader follows INSTALL.md update section, they SHALL find steps for create-midas --update and rebaseline behavior.",
+        "WHEN npm test runs, the cited installer:update or rebaseline test id SHALL exist and pass."
+      ],
+      "status": "failing",
+      "evidence": ""
+    }
+  ]
+}

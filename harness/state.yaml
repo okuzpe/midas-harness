@@ -19,8 +19,8 @@ setup_complete: true        # engine repo — installer complete; dogfoods the h
 
 # Engine-as-dogfood profile: phases 0–4 satisfied by README + docs/ + harness/ itself.
 # Phase 5 closed with product/* artifacts (see docs/dogfood.md).
-stage: plan_sprints
-stage_status: pending
+stage: sprint_execution
+stage_status: not_started
 entry_stage: architecture_rules
 
 cost_profile: balanced
@@ -42,6 +42,21 @@ phases:
   business_case:      { status: passed, gate: passed, assumption: "N/A — harness engine" }
   tech_architecture:  { status: passed, gate: passed, assumption: "Stack in docs/repository-architecture.md" }
   architecture_rules: { status: passed, gate: passed, artifacts: ["product/idea.md", "product/architecture.md", "product/conventions.md"] }
-  plan_sprints:       { status: pending, gate: pending }
+  sprint_planning:    { status: passed, gate: passed, artifacts: ["product/business-plan.md", "product/roadmap.md", "product/features.json", "product/sprints/01-autonomy-ci-smoke.md", "product/sprints/02-midas-retro-skill.md", "product/sprints/03-installer-update-docs.md"] }
 
-sprints: []
+sprints:
+  - id: "01"
+    title: autonomy-ci-smoke
+    status: planned
+    audit_notes: ""
+    last_touched: 2026-08-07
+  - id: "02"
+    title: midas-retro-skill
+    status: planned
+    audit_notes: ""
+    last_touched: 2026-08-07
+  - id: "03"
+    title: installer-update-docs
+    status: planned
+    audit_notes: ""
+    last_touched: 2026-08-07
