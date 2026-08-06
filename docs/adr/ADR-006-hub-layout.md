@@ -52,7 +52,7 @@ want `.midas/` without moving markdown artifacts. Deprecation target: v2.0 (docu
 
 ### Monorepo
 
-`/midas-monorepo` indexes packages under `apps/*`; only the **root** Midas `product/` tree moves.
+`/midas-init --monorepo` indexes packages under `apps/*`; only the **root** Midas `product/` tree moves.
 Nested packages keep their own manifests — no per-package `product/` unless the team adds one.
 
 ### ADR-003 memory model

@@ -2746,7 +2746,7 @@ if (existsSync(templateChecksIndex) && existsSync(join(ROOT, 'harness', 'checks.
   check('skill-registry:close-sprint-orchestrator-only', !!close && close.delegator === 'orchestrator-only');
   const yesRows = rows.filter((r) => r.delegator === 'yes');
   check('skill-registry:yes-floor', yesRows.length >= 10, `yes=${yesRows.length}`);
-  for (const name of ['midas-progress', 'midas-verify', 'midas-qa', 'midas-lean-review', 'midas-explore', 'midas-capture']) {
+  for (const name of ['midas-progress', 'midas-verify', 'midas-qa', 'midas-lean-review', 'midas-explore', 'midas-capture', 'midas-automate', 'midas-autopilot']) {
     const row = rows.find((r) => r.name === name);
     check(`skill-registry:yes:${name}`, !!row && row.delegator === 'yes', row ? row.delegator : 'missing');
   }
@@ -2814,6 +2814,38 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
   check(
     'autonomy:skill-source',
     existsSync(join(ROOT, 'harness', 'skills', 'midas-autopilot', 'SKILL.md')),
+  );
+
+  // /midas-automate — Cursor improve-cycle draft (complementary to ADR-009)
+  check(
+    'automate:skill-source',
+    existsSync(join(ROOT, 'harness', 'skills', 'midas-automate', 'SKILL.md')),
+  );
+  check(
+    'automate:skill-catalog',
+    /\/midas-automate/.test(readFileSync(join(ROOT, 'docs', 'skills.md'), 'utf8')),
+  );
+  const automateTmpl = join(ROOT, 'harness', 'templates', 'cursor-automation-improve.md.tmpl');
+  check('automate:template', existsSync(automateTmpl));
+  check(
+    'automate:template-caps',
+    /midas-improve\//.test(readFileSync(automateTmpl, 'utf8')) &&
+      /Never merge/.test(readFileSync(automateTmpl, 'utf8')) &&
+      /Phase-8/.test(readFileSync(automateTmpl, 'utf8')),
+  );
+  check(
+    'automate:journal-template',
+    existsSync(join(ROOT, 'harness', 'templates', 'automate-journal.md')),
+  );
+  check(
+    'automate:playbook-template',
+    existsSync(join(ROOT, 'harness', 'templates', 'playbooks', 'improve-cycle.md')),
+  );
+  check(
+    'automate:skill-disambiguates-cursor',
+    /Cursor.*\/automate|\/automate.*Agents Window/i.test(
+      readFileSync(join(ROOT, 'harness', 'skills', 'midas-automate', 'SKILL.md'), 'utf8'),
+    ),
   );
 
   const tmp = mkdtempSync(join(tmpdir(), 'midas-autonomy-'));

@@ -20,7 +20,7 @@ param(
 $ErrorActionPreference = "Stop"
 $Repo = "okuzpe/midas-harness"
 # midas-install-ref: bumped by scripts/bump-version.mjs — keep in sync with harness/VERSION
-$MidasRef = if ($env:MIDAS_INSTALL_REF) { $env:MIDAS_INSTALL_REF } else { "v2.4.0" }
+$MidasRef = if ($env:MIDAS_INSTALL_REF) { $env:MIDAS_INSTALL_REF } else { "v2.5.0" }
 if ($env:MIDAS_BLEEDING_EDGE -eq "1") { $MidasRef = "main" }
 
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) {

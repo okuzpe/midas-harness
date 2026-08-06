@@ -120,7 +120,7 @@ contrato `**CHECK:**` en reglas, separación explícita productor/auditor, routi
 | `/midas-tribunal` | Debate adversarial |
 | `/midas-security-audit` | OWASP ASVS + STRIDE |
 | `/midas-capture` | Patrones → regla/playbook |
-| `/midas-init --monorepo` | Monorepo (nested `AGENTS.md`; `/midas-monorepo` is a deprecated alias) |
+| `/midas-init --monorepo` | Monorepo (nested `AGENTS.md`) |
 
 **3 agentes tier:** `midas-orchestrator` (Opus), `midas-builder` (Sonnet), `midas-scout` (Haiku) — ver [agents-and-models.md](agents-and-models.md).
 

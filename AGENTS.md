@@ -90,7 +90,7 @@ Skills must name produce/fetch legs in `## Tier & delegation` — `harness-tier`
 ## Safety
 
 - Side-effecting skills (`/midas-init`, `/define-conventions`, `/start-sprint`, `/close-sprint`, `/midas-doctor`,
- `/midas-adopt`, `/midas-update`, `/midas-verify`, `/midas-design`, `/midas-qa`, `/midas-reconcile`, `/midas-init --monorepo` (alias: `/midas-monorepo`), `/midas-tribunal`, `/midas-security-audit`, `/midas-sweep`, `/midas-lean-review`, `/midas-capture`, `/midas-align`, `/midas-precommit`, `/midas-bundle`, `/midas-progress`, `/midas-explore`, `/midas-autopilot`) are **user-typed slash commands**
+ `/midas-adopt`, `/midas-update`, `/midas-verify`, `/midas-design`, `/midas-qa`, `/midas-reconcile`, `/midas-init --monorepo`, `/midas-tribunal`, `/midas-security-audit`, `/midas-sweep`, `/midas-lean-review`, `/midas-capture`, `/midas-align`, `/midas-precommit`, `/midas-bundle`, `/midas-progress`, `/midas-explore`, `/midas-autopilot`, `/midas-automate`) are **user-typed slash commands**
  (`disable-model-invocation`). **Never call them via the Skill tool** (it errors) or auto-run them — when one
  is the next step, **surface the command for the user to type** ("👉 Run `/…`"). Each also guards this in its body.
 - **State ritual (shared):** skills read **`paths.state` first** and **write last** (read-modify-write). They

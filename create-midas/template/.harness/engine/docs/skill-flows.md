@@ -115,6 +115,7 @@ not pass a phase gate.
 | `/midas-lean-review` | Diff or named paths | Rank delete, stdlib, native, YAGNI, and shrink findings | Optional `lean-NN.md` | Apply only after approval |
 | `/midas-design` | UI that needs a stronger product identity | Audit, present three directions, obtain a choice, specify one | `design-NN.md`; optional one-slice implementation | Implement or verify; stage unchanged |
 | `/midas-autopilot` | Optional `--autonomy` install + Phase 7 code tasks | Guide `setup` / `dry-run`; human runs `tick` CLI only | Journal + audit records under `{runs}/autonomy/` | One task per tick; never auto-invoked from chat |
+| `/midas-automate` | Any install with product context | Validate state + product artifacts; emit Cursor Automation draft | Draft in chat; optional `{runs}/automate/journal.md` after runs | Next: Cursor `/automate` (Agents Window); not ADR-009 policy plane |
 
 Optional bounded loop (ADR-009) beside the manual sprint cycle:
 
@@ -126,6 +127,18 @@ flowchart LR
 ```
 
 Requires `.harness/autonomy/` (`npx … --autonomy`). See `/midas-autopilot` and `.harness/autonomy/README.md`.
+
+Complementary Cursor improve cycle (no `--autonomy` required):
+
+```mermaid
+flowchart LR
+  Draft["/midas-automate"] --> CursorAuto["Cursor /automate"]
+  CursorAuto --> OneFix["one improve + verify + PR"]
+  OneFix --> Journal["{runs}/automate/journal.md"]
+  Journal --> Close["/close-sprint when ready"]
+```
+
+See `/midas-automate` and `<paths.engine>/templates/cursor-automation-improve.md.tmpl`.
 
 ## Maintenance, setup, and standing audits
 
@@ -143,7 +156,6 @@ Except for intake/adoption placement, they do not advance lifecycle gates.
 | `/midas-bundle` | Portable knowledge needed | Select profile, export/import, verify checksums, preview conflicts | Knowledge JSON or confirmed imported files | Stage unchanged by default |
 | `/midas-tribunal` | A decision needs adversarial challenge | Argue opposing cases across evidence; independent judge rules | `debate-NN.md` | Informational; bridge actions back to work |
 | `/midas-security-audit` | Code and architecture available | Threat-model, scan, rank, and route security findings | `security-NN.md` | Sets optional pointer; never passes a gate |
-| `/midas-monorepo` | Legacy command | Redirect to the supported monorepo intake path | Same wiring as init when followed | Deprecated: use `/midas-init --monorepo` |
 
 ## Design seams worth reviewing
 

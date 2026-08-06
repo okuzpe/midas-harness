@@ -23,6 +23,7 @@ metadata:
    - **Resume after a break** (`/midas-status` + `/midas-recall`)
    - **Run the next phase gate** (phase skills 0–8)
    - **Start or close a sprint** (`/start-sprint` / `/close-sprint` / `/midas-autopilot`)
+   - **Continuous Cursor improve** (`/midas-automate`)
    - **Verify UI / ad-hoc QA** (`/midas-verify` / `/midas-qa`)
    - **Redesign product UI** (`/midas-design`)
    - **Security or adversarial review** (`/midas-security-audit` / `/midas-tribunal`)
@@ -65,8 +66,15 @@ metadata:
 - What: Phase 7 kickoff, Phase 8 audit, or bounded autopilot (one task per tick).
 - Command: `/start-sprint` · `/close-sprint` · `/midas-autopilot` → `node .harness/autonomy/bin/midas-autopilot.mjs setup`
 - Happens: start activates sprint; close audits rules; autopilot runs setup/dry-run/tick CLI (requires `--autonomy` install).
-- NOT for operator-only sprint tasks (release/merge) — autopilot targets code checklist items.
+- NOT for operator-only sprint tasks (release/merge) — autopilot targets code checklist items. NOT for inventing continuous improve without a checklist → `/midas-automate`.
 - Next: after start → implement + `/midas-progress`; autopilot ready → human runs `tick`; after close → next sprint.
+
+**Continuous Cursor improve**
+- What: validate product context and emit a Cursor Automation draft (one improvement per scheduled run → PR).
+- Command: `/midas-automate` then Agents Window **Cursor** `/automate` (paste draft) — distinct names.
+- Happens: checks `paths.state` + product artifacts; fills `cursor-automation-improve.md.tmpl`; optional journal under `{runs}/automate/`.
+- NOT the ADR-009 policy plane (`/midas-autopilot`); NOT Phase-8 (`/close-sprint`).
+- Next: create the Automation; review PRs; `/close-sprint` when a sprint’s worth lands.
 
 **Verify UI / ad-hoc QA**
 - What: gate evidence vs inner-loop smoke.

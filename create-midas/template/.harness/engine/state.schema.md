@@ -33,7 +33,7 @@ transition after that.
 ## Schema
 
 ```yaml
-midas_version: 2.4.0      # engine version that wrote this file (for /midas-update)
+midas_version: 2.5.0      # engine version that wrote this file (for /midas-update)
 layout: harness                # the only writable v2 layout; v1 layouts are read/migrate-only
 paths:
   root: .harness
@@ -111,7 +111,7 @@ last_tribunal: { n: "01", criticals: 0, at: 2026-06-15 }      # optional ÔÇö 
 last_verification: { n: "01", fails: 0, at: 2026-06-15 }      # optional ÔÇö written by /midas-verify (informational only; never advances a gate)
 last_security: { n: "01", critical: 0, high: 0, at: 2026-06-15 } # optional ÔÇö written by /midas-security-audit (informational only; never advances a gate)
 
-# Monorepo mode (optional ÔÇö written by /midas-init --monorepo or deprecated /midas-monorepo)
+# Monorepo mode (optional — written by /midas-init --monorepo)
 packages:
   - path: apps/web
     name: web

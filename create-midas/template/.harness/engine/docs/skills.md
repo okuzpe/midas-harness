@@ -30,7 +30,7 @@ Human catalog (this file) uses slash-names. Agents that **delegate** use the gen
 For the compact entry → decision → state → handoff view of every command, see
 [Skill flows](skill-flows.md). It explains the system shape without duplicating each skill's procedure.
 
-Catalog size: **30 shipped active** + **1 engine-only** (`/midas-precommit`, not in installs) + **1 deprecated alias** (`/midas-monorepo`, remove in **2.1.0**).
+Catalog size: **31 shipped active** + **1 engine-only** (`/midas-precommit`, not in installs).
 
 ---
 
@@ -40,7 +40,7 @@ Catalog size: **30 shipped active** + **1 engine-only** (`/midas-precommit`, not
 |---|---|---|
 | **Pipeline** | Audited phase gates 0→8 | `/idea-intake` … `/close-sprint` |
 | **Orient** | Where am I / what next / resume / install confusion | `/midas-status`, `/midas-help`, `/midas-recall`, `/midas-reconcile` |
-| **Sprint day** | Inner loop during Phase 7 | `/midas-progress`, `/midas-verify`, `/midas-qa`, `/midas-explore`, `/midas-capture`, `/midas-lean-review`, `/midas-design`, `/midas-autopilot` |
+| **Sprint day** | Inner loop during Phase 7 | `/midas-progress`, `/midas-verify`, `/midas-qa`, `/midas-explore`, `/midas-capture`, `/midas-lean-review`, `/midas-design`, `/midas-autopilot`, `/midas-automate` |
 | **Maintain + audit** | Sync, hygiene, optional deep audits, setup | `/midas-init`, `/midas-adopt`, `/midas-update`, `/midas-doctor`, `/midas-align`, `/midas-precommit` *(engine only)*, `/midas-sweep`, `/midas-bundle`, `/midas-tribunal`, `/midas-security-audit` |
 
 ---
@@ -86,6 +86,7 @@ Stage → command map (mechanical): `<paths.engine>/stage-command-table.yaml`.
 | `/midas-capture` | Recurring pattern → rule / playbook / convention (asks first). | build |
 | `/midas-lean-review` | Over-engineering delete-list for the diff (stdlib/native/yagni/shrink). | build |
 | `/midas-autopilot` | Bounded sprint autopilot guide — `setup` / `dry-run` / `tick` CLI (ADR-009; optional `--autonomy` install). | build |
+| `/midas-automate` | Prepare Cursor Automation draft for continuous product-aligned improve cycles (validate + emit; scheduler = Cursor `/automate`). | build |
 
 ---
 
@@ -103,7 +104,6 @@ Stage → command map (mechanical): `<paths.engine>/stage-command-table.yaml`.
 | `/midas-bundle` | Portability | Export/import knowledge JSON via `bundle.mjs`. | build |
 | `/midas-tribunal` | Audit | Adversarial debate — decisions right? (non-advancing). | orchestrate |
 | `/midas-security-audit` | Audit | OWASP/STRIDE deep scan (non-advancing). | orchestrate |
-| `/midas-monorepo` | **Deprecated** | Alias → `/midas-init --monorepo`. **Removed in 2.1.0.** | build |
 
 ---
 
@@ -129,6 +129,7 @@ Use **`/midas-status`** for the single next lifecycle step. Use this table when 
 | Dead code / ledger drift | `/midas-sweep` |
 | Over-engineered diff / what can we delete? | `/midas-lean-review` |
 | Bounded autopilot (one sprint task per tick) | `/midas-autopilot` → `node .harness/autonomy/bin/midas-autopilot.mjs setup` |
+| Cursor continuous improve (discover → one fix → PR) | `/midas-automate` → Agents Window Cursor `/automate` (paste draft) |
 | Export/import knowledge | `/midas-bundle` or `node <paths.scripts>/bundle.mjs` |
 
 **Audits** (shared fragments: `<paths.engine>/templates/audit-checklists.md`):

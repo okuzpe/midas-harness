@@ -110,7 +110,7 @@ output as named subdirectories).
 
 - **Two layouts to support** during the deprecation window. Every path reference (skills, pipeline,
   rules, `doctor.mjs`, `render-adapters.mjs`, `build-create.mjs`, `test.mjs`, `AGENTS.md`, uninstall,
-  `/midas-monorepo`) must resolve the engine root from a single helper rather than a hardcoded
+  `/midas-init --monorepo`) must resolve the engine root from a single helper rather than a hardcoded
   `harness/` string. This is the bulk of the work.
 - **Migration is multi-sprint**, not an installer tweak — see the count of `harness/` references in
   `docs/repository-architecture.md` (skills, pipeline, rules, tests).
@@ -121,7 +121,7 @@ output as named subdirectories).
 - **`--update` on a classic install must not half-migrate.** Mitigation: `--update` detects the
   installed layout from disk and refreshes **in place**; relocation only happens via an explicit
   `--migrate-layout` step (dry-run + diff-confirm, like `/midas-update`), never silently.
-- **Monorepos** (`/midas-monorepo`) assume `harness/state.yaml` per package. Mitigation: the layout
+- **Monorepos** (`/midas-init --monorepo`) assume `harness/state.yaml` per package. Mitigation: the layout
   resolver is applied per package; the migration step is required before monorepo indexing under compact.
 - **Drift between the two layouts in tests.** Mitigation: add a `scripts/test.mjs` matrix that asserts
   both layouts render identical adapter content from the same source.

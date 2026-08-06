@@ -11,6 +11,25 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.5.0] — 2026-08-06
+
+### Added
+
+- `/midas-automate` — validate harness + product context and emit a portable Cursor Automation
+  draft for continuous improve cycles (discover → one fix/create → verify → PR). Scheduler is
+  Cursor’s native `/automate` (Agents Window); complementary to ADR-009 `/midas-autopilot`.
+- Templates: `cursor-automation-improve.md.tmpl`, `automate-journal.md`,
+  `playbooks/improve-cycle.md` (branch prefix `midas-improve/`; producer ≠ Phase-8 auditor).
+
+### Removed
+
+- `/midas-monorepo` deprecated alias (promised for 2.1.0; overdue). Use `/midas-init --monorepo` only.
+- Legacy adapter templates `harness/templates/cursor-rule.mdc.tmpl`,
+  `windsurf-rule.md.tmpl`, and `README-legacy-adapters.md` (unused since
+  `render-adapters.mjs` owns `00-midas.*` output).
+
+---
+
 ## [2.4.0] — 2026-08-06
 
 ### Added
@@ -1420,7 +1439,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.4.0...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.5.0...HEAD
+[2.5.0]: https://github.com/okuzpe/midas-harness/compare/v2.4.0...v2.5.0
 [2.4.0]: https://github.com/okuzpe/midas-harness/compare/v2.3.9...v2.4.0
 [2.3.9]: https://github.com/okuzpe/midas-harness/compare/v2.3.8...v2.3.9
 [2.3.8]: https://github.com/okuzpe/midas-harness/compare/v2.3.7...v2.3.8

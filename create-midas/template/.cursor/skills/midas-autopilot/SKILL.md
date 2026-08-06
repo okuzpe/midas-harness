@@ -27,7 +27,8 @@ metadata:
 
 - No `.harness/autonomy/` → installer: `npx … --update --autonomy` (see `/midas-update`).
 - `stage` ≠ `sprint_execution` → finish phase gates or `/start-sprint` first.
-- Blocker `no_code_task` → open items are operator/manual. Activate a **code** sprint.
+- Blocker `no_code_task` → open items are operator/manual. Activate a **code** sprint, **or** discover improvements via `/midas-automate` (Cursor Automation draft) then return here for policy-gated `tick`s.
+- User wants continuous product-aligned improve without a code checklist yet → `/midas-automate` (scheduler = Cursor `/automate`; not this CLI).
 - User wants a chat-only loop → Cursor `/loop`; not a substitute for this control plane.
 
 ## Procedure
