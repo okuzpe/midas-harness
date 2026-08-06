@@ -15,6 +15,9 @@ metadata:
 > **Read-only.** Never writes, never advances gates. Complements `/midas-status` (pipeline PC).
 > **Canonical catalog + router:** `docs/skills.md` (install: `<paths.engine>/docs/skills.md`) — cite it;
 > do not paste the full situation→command table unless the user picks "I'm not sure".
+> **Flow shape (handoffs, not commands):** `docs/skill-flows.md` (install:
+> `<paths.engine>/docs/skill-flows.md`) — cite when the user asks how skills connect; commands still
+> come from `docs/skills.md` or `/midas-status`.
 
 ## Steps
 

@@ -11,6 +11,19 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.5.3] — 2026-08-06
+
+### Added
+
+- Mechanical tests: `midas-status` / `midas-recall` must cite `stage-command-table.yaml` (no inlined
+  stage tables); lifecycle stage coverage on the canonical stage-command table.
+
+### Changed
+
+- `/midas-help` cites `skill-flows.md` for flow-shape questions (commands still from `skills.md`).
+
+---
+
 ## [2.5.2] — 2026-08-06
 
 ### Fixed
@@ -1461,7 +1474,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.5.2...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.5.3...HEAD
+[2.5.3]: https://github.com/okuzpe/midas-harness/compare/v2.5.2...v2.5.3
 [2.5.2]: https://github.com/okuzpe/midas-harness/compare/v2.5.1...v2.5.2
 [2.5.1]: https://github.com/okuzpe/midas-harness/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/okuzpe/midas-harness/compare/v2.4.0...v2.5.0

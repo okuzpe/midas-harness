@@ -2175,6 +2175,39 @@ if (existsSync(statusSkill)) {
     statusBody.includes('docs/skills.md') || statusBody.includes('Command router'),
     'status must cite docs/skills.md (or legacy Command router)',
   );
+  check(
+    'skill:midas-status:stage-table-yaml',
+    /stage-command-table\.yaml/.test(statusBody) && /Do not duplicate/i.test(statusBody),
+    'status must read stage-command-table.yaml instead of inlining the stage table',
+  );
+  check(
+    'skill:midas-status:no-inlined-stage-table',
+    !/\|\s*`?idea_intake`?\s*\|/.test(statusBody),
+    'status must not embed a duplicated markdown stage→command table',
+  );
+}
+const recallSkill = join(skillsDir, 'midas-recall', 'SKILL.md');
+if (existsSync(recallSkill)) {
+  const recallBody = readFileSync(recallSkill, 'utf8');
+  check(
+    'skill:midas-recall:stage-table-yaml',
+    /stage-command-table\.yaml/.test(recallBody) && /Do not duplicate/i.test(recallBody),
+    'recall must read stage-command-table.yaml instead of inlining recall paths per stage',
+  );
+  check(
+    'skill:midas-recall:no-inlined-recall-table',
+    !/\|\s*`?idea_intake`?\s*\|/.test(recallBody),
+    'recall must not embed a duplicated markdown recall-path table',
+  );
+}
+const helpSkill = join(skillsDir, 'midas-help', 'SKILL.md');
+if (existsSync(helpSkill)) {
+  const helpBody = readFileSync(helpSkill, 'utf8');
+  check(
+    'skill:midas-help:skill-flows',
+    /skill-flows\.md/.test(helpBody),
+    'help should cite skill-flows.md for flow-shape questions',
+  );
 }
 
 // --- M. midas-bundle export/import (examples/taskpilot) ---------------------------------------
@@ -2341,8 +2374,26 @@ if (existsSync(statusSkill)) {
 // --- N. stage-command-table + rules-match + migrate-layout smoke ----------------------------
 {
   const { stages } = loadStageCommandTable();
+  const lifecycleStages = [
+    'idea_intake',
+    'contextualize',
+    'market_research',
+    'business_case',
+    'tech_architecture',
+    'architecture_rules',
+    'sprint_planning',
+    'sprint_execution',
+    'shipped',
+  ];
+  for (const name of lifecycleStages) {
+    check(`stage-table:has:${name}`, Object.prototype.hasOwnProperty.call(stages, name));
+  }
   check('stage-table:sprint-execution-verify', stages.sprint_execution?.verifyUi === '/midas-verify');
+  check('stage-table:sprint-execution-close', stages.sprint_execution?.commandWhenDone === '/close-sprint');
   check('stage-table:recall-paths', stageRecallPaths('contextualize').includes('product/open-questions.md'));
+  check('stage-table:idea-intake-command', stages.idea_intake?.command === '/idea-intake');
+  check('stage-table:shipped-null-command', stages.shipped?.command === null);
+  check('stage-table:idea-intake-recall', stageRecallPaths('idea_intake').includes('product/idea.md'));
   const derived = loadEngineBaseRules();
   check('engine-base-rules:has-acceptance', derived.has('acceptance-criteria.md'));
   check('engine-base-rules:matches-template', (() => {
