@@ -41,9 +41,11 @@ Run the tests; report the actual result, not an assumption.
 Before coding a task cluster, pick the route in `<paths.engine>/rules/organic-routing.md`
 (`inline` / `delegated` / `plan-first`). When the parent asks you to load skills, read the **exact**
 `SKILL.md` paths they pass from `<paths.engine>/skill-registry.md` (resolve as
-`<paths.engine>/<Path>`) — prefer `Delegator: yes` rows; never invent or auto-run `orchestrator-only`
-slash skills. Do not rely on compact digests that replace the skill body. Record `Route:` on
-`{runs}/sprints/NN-progress.md` Done rows when the cluster spans ≥4 files.
+`<paths.engine>/<Path>`). Prefer `Delegator: yes` rows (e.g. `midas-progress`, `midas-verify`,
+`midas-qa`, `midas-lean-review`, `midas-explore` when those jobs apply). **Reading a path is not
+Skill-tool invocation** — still never auto-run `disable-model-invocation` slash skills; never
+free-pick `orchestrator-only` rows. Do not rely on compact digests that replace the skill body.
+Record `Route:` on `{runs}/sprints/NN-progress.md` Done rows when the cluster spans ≥4 files.
 
 ## When writing prose artifacts (market, business, architecture, rules, sprints)
 - Write to the exact path the phase names; match the existing house style — concise, concrete, no filler.

@@ -23,6 +23,12 @@ read things, fetch docs, and report exactly what is there. You do **not** decide
 - **Recall indexing** — for `/midas-recall`, list the stage-appropriate paths from `state.yaml` and
   note which exist on disk; optional `--focus` grep hits. Return the path list only — the brief is scout work.
 
+## Skill paths when delegated
+If the parent passes exact `SKILL.md` paths from `<paths.engine>/skill-registry.md`, **read those files**
+(resolve as `<paths.engine>/<Path>`) before extracting or fetching. Prefer `Delegator: yes` rows.
+Path-pass is read-only guidance — never Skill-tool invoke `disable-model-invocation` skills and never
+free-pick `orchestrator-only` rows. Do not invent a compact digest that replaces the skill body.
+
 ## How you report
 - Lead with the answer. Give **file path + line number** (or source **URL**) for every claim — citations,
   not summaries from memory.

@@ -19,9 +19,13 @@ Human catalog (this file) uses slash-names. Agents that **delegate** use the gen
 
 - **Refresh:** `node <paths.scripts>/skill-registry.mjs` or `npm run align` / `doctor --fix` (recompute-and-compare; no cache sidecar).
 - **Columns:** Skill · Trigger/description · Scope · **Delegator** (`yes` \| `orchestrator-only`) · Path.
-- **Contract:** pass a **matched subset** of exact paths to sub-agents as `<paths.engine>/<Path>` — never dump the whole table; never auto-invoke `orchestrator-only` (user-typed slash / stage table).
+- **Delegator contract:**
+  - `yes` — parent may pass `<paths.engine>/<Path>` so a builder/scout **reads** the skill body. Does **not** bypass `disable-model-invocation` (still no Skill-tool / auto slash).
+  - `orchestrator-only` — phase gates, install/sync, high-stakes audits; human slash / stage table only — never free-picked.
+- **Never** dump the whole registry into a prompt — pass a matched subset only.
 - **v1 scope:** Midas-owned engine skills only (no project/user overlays yet).
 - Implementation size/ambiguity routing: `<paths.engine>/rules/organic-routing.md` (complements model-routing).
+- Phase-7 tip: for delegated work, path-pass matching `yes` procedures such as `midas-progress`, `midas-verify`, `midas-qa`, `midas-lean-review`, `midas-explore` when those jobs apply.
 
 For the compact entry → decision → state → handoff view of every command, see
 [Skill flows](skill-flows.md). It explains the system shape without duplicating each skill's procedure.

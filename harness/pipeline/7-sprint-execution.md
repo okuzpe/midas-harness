@@ -30,23 +30,29 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
    most when a local `build` model with a short usable context is driving (`<paths.engine>/rules/model-routing.md`).
    Keep a running `{runs}/sprints/NN-progress.md` (use the **What / Why / Where / Learned** rows in
    `<paths.engine>/templates/sprint-progress.md`) so a fresh session resumes without re-reading everything. For each task:
-   a. Before writing code against any third-party library, call `resolve-library-id`
+   a. **Pick the implementation route** before coding (`<paths.engine>/rules/organic-routing.md`):
+      *inline* (1–3 files / mechanical), *delegated* (4+ files or 2+ non-trivial writes — one scout
+      and/or builder with matched `SKILL.md` paths from `<paths.engine>/skill-registry.md`), or
+      *plan-first* only after explicit user OK (task-split / ADR / Learned / `/midas-explore` — never
+      silent `/plan-sprints`). Then apply model-routing for tier. Record `Route:` on Done rows when
+      the cluster spans ≥4 files.
+   b. Before writing code against any third-party library, call `resolve-library-id`
       then `get-library-docs` at the pinned version via Context7 (scout tier).
       Use the web fallback if Context7 is unavailable; never generate from memory.
-   b. Write code that matches the conventions in `<paths.engine>/conventions.md` and
+   c. Write code that matches the conventions in `<paths.engine>/conventions.md` and
       `{product}/conventions.md`. Match surrounding style; prefer reuse over new abstractions.
-   c. Write tests alongside the feature (not after). Test behavior, not implementation.
-   d. **Verify the task before checking it off (the inner verify→fix loop).** Run the
+   d. Write tests alongside the feature (not after). Test behavior, not implementation.
+   e. **Verify the task before checking it off (the inner verify→fix loop).** Run the
       [`verification.md`](../rules/verification.md) ladder for what you just changed — rungs 1–3
       always (static gate → behavioural tests → runtime smoke), plus rung 4 (drive + inspect via
       `/midas-verify` or ad-hoc `/midas-qa` on the diff) when the task is UI-touching. **Observe the actual output,
       fix any failure, and re-run until green** — bounded at ~3 self-fix rounds, after which you stop
       and surface the blocker to the human (recommend-don't-wall). You self-check the cheap rungs
       here; the *independent* verdict (rung 5) is rendered at Phase 8, never by you.
-   e. Check the task off `## Tasks` in the sprint file **only after it passes verification**, noting
+   f. Check the task off `## Tasks` in the sprint file **only after it passes verification**, noting
       the proof (command output, test name, or screenshot reference) **and the tool/MCP that proved it**
       (e.g. `test-runner`, `context7`, `agent-browser`, `playwright-mcp`, `@playwright/cli`). Mirror the same in
-      `{runs}/sprints/NN-progress.md` § Done (Task · Proof · Tool). If the task completes a feature in
+      `{runs}/sprints/NN-progress.md` § Done (Task · Proof · Tool · **Route** when ≥4 files). If the task completes a feature in
       `{product}/features.json`, flip that feature's `status` to `passing` and fill its `evidence` —
       editing **only** `status`/`evidence`, never the spec fields.
 3. **Verify acceptance criteria.** After all tasks are checked, run or demonstrate

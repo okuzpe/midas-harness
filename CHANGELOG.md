@@ -11,6 +11,30 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.4.0] — 2026-08-06
+
+### Added
+
+- Commit generated `harness/skill-registry.md` (and template copies) so installs resolve
+  `<paths.engine>/skill-registry.md`; sync `skill-registry.mjs` into the create-midas template.
+
+### Changed
+
+- **Delegator** means path-readability, not Skill-tool invocation: Phase-7 procedures
+  (`midas-progress`, `midas-verify`, `midas-qa`, `midas-lean-review`, `midas-explore`, …) are
+  `Delegator: yes` so parents may path-pass their `SKILL.md` for workers to **read**.
+  `disable-model-invocation` still blocks auto slash / Skill-tool invoke. `orchestrator-only`
+  stays phase gates, install/sync, and high-stakes audits (~13 yes / ~19 orchestrator-only).
+- Docs + `midas-{orchestrator,builder,scout}` contracts spell out path-pass ≠ Skill invoke.
+
+### Fixed
+
+- Operator heuristics: catch `Publish draft release`, `Deploy staging`, push/create git tag,
+  and smoke-test installer without reintroducing code-task false positives.
+- Fail-closed hook coverage for `MIDAS_AUTONOMY_AUTHZ_KEY` env deny.
+
+---
+
 ## [2.3.9] — 2026-08-06
 
 ### Fixed
@@ -1396,7 +1420,17 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.3.9...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.4.0...HEAD
+[2.4.0]: https://github.com/okuzpe/midas-harness/compare/v2.3.9...v2.4.0
+[2.3.9]: https://github.com/okuzpe/midas-harness/compare/v2.3.8...v2.3.9
+[2.3.8]: https://github.com/okuzpe/midas-harness/compare/v2.3.7...v2.3.8
+[2.3.7]: https://github.com/okuzpe/midas-harness/compare/v2.3.6...v2.3.7
+[2.3.6]: https://github.com/okuzpe/midas-harness/compare/v2.3.5...v2.3.6
+[2.3.5]: https://github.com/okuzpe/midas-harness/compare/v2.3.4...v2.3.5
+[2.3.4]: https://github.com/okuzpe/midas-harness/compare/v2.3.2...v2.3.4
+[2.3.2]: https://github.com/okuzpe/midas-harness/compare/v2.3.1...v2.3.2
+[2.3.1]: https://github.com/okuzpe/midas-harness/compare/v2.3.0...v2.3.1
+[2.3.0]: https://github.com/okuzpe/midas-harness/compare/v2.1.0...v2.3.0
 [2.1.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.5...v2.0.0
 [2.0.0-rc.5]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.4...v2.0.0-rc.5

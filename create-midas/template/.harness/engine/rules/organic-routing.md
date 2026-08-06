@@ -12,7 +12,7 @@ size/ambiguity of the *current action*, not Spec-Driven Development and not a ri
 | Route | When | Action |
 |---|---|---|
 | **Direct inline** | Understanding needs **1–3 files**, or one mechanical, already-understood change | Stay on the current build session; no extra sub-agent |
-| **Delegated** | Understanding needs **4+ files**, reading prepares a write, broad research is needed, or a writer must change **2+ non-trivial files** | One focused `midas-scout` (explore/extract) and/or one `midas-builder` (write); pass a **matched subset** of exact `SKILL.md` paths from `<paths.engine>/skill-registry.md` |
+| **Delegated** | Understanding needs **4+ files**, reading prepares a write, broad research is needed, or a writer must change **2+ non-trivial files** | One focused `midas-scout` (explore/extract) and/or one `midas-builder` (write); pass a **matched subset** of `Delegator: yes` `SKILL.md` paths from `<paths.engine>/skill-registry.md` for the worker to **read** (path-pass ≠ Skill-tool invoke) |
 | **Plan first** | Substantial ambiguity; durable proposal/spec/task artifacts would materially reduce uncertainty | After **explicit user OK** only: split tasks in the sprint file, write an ADR, add a progress **Learned** row, and/or run `/midas-explore` — **never** silent mid-sprint `/plan-sprints` or Phase-6 re-enrollment |
 
 Declining plan-first leads to a safely reduced scope, a justified inline/delegated route, or a clear

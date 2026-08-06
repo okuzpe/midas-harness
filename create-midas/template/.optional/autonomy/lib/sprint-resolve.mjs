@@ -139,7 +139,8 @@ const OPERATOR_MARKERS = /\[(manual|operator|human|ops|no-auto)\]/i;
 const OPERATOR_HEURISTICS = [
   /\bwait for actions\b/i,
   /\bwait for (the )?ci\b/i,
-  /\bpublish\b[\s\S]{0,40}\bthe draft\b/i,
+  // "Publish the draft release" / "Publish draft release" — not "Implement draft publish endpoint"
+  /\bpublish\b[\s\S]{0,40}\b(the )?draft\b/i,
   /\b\*\*publish\*\*\b[\s\S]{0,40}\bdraft\b/i,
   /\bon an older install\b/i,
   /\bconfirm\b[\s\S]{0,30}%appdata%/i,
@@ -151,7 +152,10 @@ const OPERATOR_HEURISTICS = [
   /\brelease runbook\b/i,
   /\bmerge (the )?pr\b/i,
   /\bmanually deploy\b/i,
-  /\bdeploy to (staging|prod|production)\b/i,
+  /\bdeploy (to )?(staging|prod|production)\b/i,
+  // Tag/push release ops — not "Document git tag conventions"
+  /\b(create and )?push (the )?(git )?tag\b/i,
+  /\bsmoke[- ]?test(ing)? (the )?installer\b/i,
 ];
 
 /**

@@ -26,7 +26,8 @@ read things, fetch docs, and report exactly what is there. You do **not** decide
 ## Skill paths when delegated
 If the parent passes exact `SKILL.md` paths from `<paths.engine>/skill-registry.md`, **read those files**
 (resolve as `<paths.engine>/<Path>`) before extracting or fetching. Prefer `Delegator: yes` rows.
-Never auto-invoke `orchestrator-only` skills. Do not invent a compact digest that replaces the skill body.
+Path-pass is read-only guidance — never Skill-tool invoke `disable-model-invocation` skills and never
+free-pick `orchestrator-only` rows. Do not invent a compact digest that replaces the skill body.
 
 ## How you report
 - Lead with the answer. Give **file path + line number** (or source **URL**) for every claim — citations,

@@ -31,8 +31,11 @@ Phase-8 audits see git-visible evidence of what was proved and how.
 ## Procedure
 
 1. **Identify the delta** from args or the current session:
-   - Completed task → append a **Done** row (`Task | Proof | Tool`).
-   - Significant decision → append an **Observations** subsection (What / Why / Where / Learned).
+   - Completed task → append a **Done** row (`Task | Proof | Tool | Route`). Include **Route**
+     (`inline` / `delegated` / `plan-first`) when the task cluster spans ≥4 files
+     (`<paths.engine>/rules/organic-routing.md`).
+   - Significant decision → append an **Observations** subsection (What / Why / Where / Learned);
+     note plan-first user acceptance in Learned when applicable.
    - Update **Next** to the single following task or blocker.
    - Refresh **Last updated** (ISO date).
 2. **Tool column** — use canonical values from the template (`test-runner`, `context7`, `playwright-mcp`, …).
@@ -55,7 +58,7 @@ Phase-8 audits see git-visible evidence of what was proved and how.
 
 ## Exit gate
 - [ ] `{runs}/sprints/NN-progress.md` updated (Done and/or Observations and/or Next as applicable).
-- [ ] Every new **Done** row has non-empty **Proof** and **Tool**.
+- [ ] Every new **Done** row has non-empty **Proof** and **Tool** (and **Route** when ≥4-file cluster).
 - [ ] `stage` / sprint status unchanged (no gate advance).
 - [ ] Chat shows `STM updated → {runs}/sprints/NN-progress.md`.
 

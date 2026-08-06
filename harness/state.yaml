@@ -1,4 +1,4 @@
-midas_version: 2.3.9
+midas_version: 2.4.0
 # Engine repository dogfoods classic layout by design (authored source in harness/ + scripts/).
 # Product installs use layout: harness — see ADR-007 / ADR-008.
 layout: classic

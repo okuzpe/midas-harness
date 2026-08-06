@@ -17,6 +17,12 @@ import { dirname, join, resolve, extname, basename } from 'node:path';
 import { execSync, spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { computeAdapters, computeChecksIndex, computeGatesIndex, DEFAULT_ADAPTER_TOOLS, resolveAdapterTools } from './render-adapters.mjs';
+import {
+  checkSkillRegistry,
+  collectSkillRegistryRows,
+  computeSkillRegistryMarkdown,
+  writeSkillRegistry,
+} from './skill-registry.mjs';
 import { evaluateMcpDeclaredVsWired, evaluateMcpGovernance, evaluateSkillMcpRequired, OPTIONAL_MCP_IDS } from './mcp-drift.mjs';
 import { ensureMidasGitignore, GITIGNORE_BEGIN, GITIGNORE_END, auditGitignore } from './gitignore-merge.mjs';
 import { detectLayout, resolvePaths, MIGRATION_MAP, MIGRATION_MAP_HUB, RUNS_SUBDIRS, hubPathsYaml, resolveProjectRootFromScript } from './paths.mjs';
@@ -146,6 +152,7 @@ function scriptBundleFiles() {
     'paths.mjs',
     'render-adapters.mjs',
     'skill-quality-check.mjs',
+    'skill-registry.mjs',
     'stage-command-table.mjs',
     'status-page.mjs',
     'tool-profiles.mjs',
@@ -401,7 +408,7 @@ if (existsSync(tplRoot)) {
       JSON.stringify(dirNames(skillsDir).filter((n) => n !== 'midas-precommit')),
     're-run build-create.mjs',
   );
-  for (const f of ['AGENTS.md', '.mcp.json', '.harness/engine/methodology.md', '.harness/engine/conventions.md', '.harness/engine/gates.json', '.harness/engine/checks.json', '.harness/engine/stage-command-table.yaml', '.harness/scripts/render-adapters.mjs', '.harness/scripts/yaml-lite.mjs', '.harness/scripts/mcp-drift.mjs', '.harness/scripts/mcp-cursor-sync.mjs', '.harness/scripts/tool-profiles.mjs', '.harness/scripts/model-profiles.mjs', '.harness/scripts/portable-skills.mjs', '.harness/scripts/gitignore-merge.mjs', '.harness/scripts/paths.mjs', '.harness/scripts/migrate-layout.mjs', '.harness/scripts/stage-command-table.mjs', '.harness/scripts/design-system.mjs', '.harness/scripts/doctor.mjs', '.harness/scripts/status-page.mjs', '.harness/scripts/skill-quality-check.mjs', '.harness/scripts/bundle.mjs', '.harness/scripts/ownership-manifest.mjs', '.harness/engine/docs/agents-and-models.md', '.harness/engine/docs/skill-quality-gate.md', '.harness/engine/docs/skill-flows.md', '.harness/engine/docs/skills.md']) {
+  for (const f of ['AGENTS.md', '.mcp.json', '.harness/engine/methodology.md', '.harness/engine/conventions.md', '.harness/engine/gates.json', '.harness/engine/checks.json', '.harness/engine/skill-registry.md', '.harness/engine/stage-command-table.yaml', '.harness/scripts/render-adapters.mjs', '.harness/scripts/yaml-lite.mjs', '.harness/scripts/mcp-drift.mjs', '.harness/scripts/mcp-cursor-sync.mjs', '.harness/scripts/tool-profiles.mjs', '.harness/scripts/model-profiles.mjs', '.harness/scripts/portable-skills.mjs', '.harness/scripts/gitignore-merge.mjs', '.harness/scripts/paths.mjs', '.harness/scripts/migrate-layout.mjs', '.harness/scripts/stage-command-table.mjs', '.harness/scripts/design-system.mjs', '.harness/scripts/doctor.mjs', '.harness/scripts/status-page.mjs', '.harness/scripts/skill-quality-check.mjs', '.harness/scripts/skill-registry.mjs', '.harness/scripts/bundle.mjs', '.harness/scripts/ownership-manifest.mjs', '.harness/engine/docs/agents-and-models.md', '.harness/engine/docs/skill-quality-gate.md', '.harness/engine/docs/skill-flows.md', '.harness/engine/docs/skills.md']) {
     check(`create-template:has:${f}`, existsSync(join(tplRoot, f)));
   }
   // The template must NOT carry repo-internal trees into a user project.
@@ -2558,6 +2565,7 @@ check('mkdocs:adr-003', /ADR-003/.test(readFileSync(join(ROOT, 'mkdocs.yml'), 'u
 // --- status-page + yaml-lite smoke ----------------------------------------
 check('script:status-page:exists', existsSync(join(ROOT, 'scripts', 'status-page.mjs')));
 check('script:skill-quality-check:exists', existsSync(join(ROOT, 'scripts', 'skill-quality-check.mjs')));
+check('script:skill-registry:exists', existsSync(join(ROOT, 'scripts', 'skill-registry.mjs')));
 if (existsSync(join(ROOT, 'scripts', 'precommit-eval.mjs'))) {
   try {
     const out = execSync(`node "${join(ROOT, 'scripts', 'precommit-eval.mjs')}" --json`, {
@@ -2712,6 +2720,67 @@ if (existsSync(templateChecksIndex) && existsSync(join(ROOT, 'harness', 'checks.
     );
   }
 }
+
+// --- Organic routing + skill registry (Gentle-AI A+B) ------------------------------------------
+{
+  const organicRule = join(ROOT, 'harness', 'rules', 'organic-routing.md');
+  check('harness:organic-routing:exists', existsSync(organicRule));
+  if (existsSync(organicRule)) {
+    const raw = readFileSync(organicRule, 'utf8');
+    check('harness:organic-routing:has-check', /\*\*CHECK:\*\*/.test(raw));
+    check('harness:organic-routing:has-amendment', /## Amendment/.test(raw) && /2026-08-06/.test(raw));
+  }
+  const progressTmpl = readFileSync(join(ROOT, 'harness', 'templates', 'sprint-progress.md'), 'utf8');
+  check('harness:sprint-progress:route-column', /\|\s*Route\s*\|/.test(progressTmpl));
+
+  writeSkillRegistry(ROOT);
+  const rows = collectSkillRegistryRows(ROOT);
+  check('skill-registry:row-count', rows.length >= 28, `rows=${rows.length}`);
+  const status = rows.find((r) => r.name === 'midas-status');
+  check(
+    'skill-registry:midas-status-path',
+    !!status && status.path.replace(/\\/g, '/') === 'skills/midas-status/SKILL.md' && status.delegator === 'yes',
+    status ? `${status.path} delegator=${status.delegator}` : 'missing',
+  );
+  const close = rows.find((r) => r.name === 'close-sprint');
+  check('skill-registry:close-sprint-orchestrator-only', !!close && close.delegator === 'orchestrator-only');
+  const yesRows = rows.filter((r) => r.delegator === 'yes');
+  check('skill-registry:yes-floor', yesRows.length >= 10, `yes=${yesRows.length}`);
+  for (const name of ['midas-progress', 'midas-verify', 'midas-qa', 'midas-lean-review', 'midas-explore', 'midas-capture']) {
+    const row = rows.find((r) => r.name === name);
+    check(`skill-registry:yes:${name}`, !!row && row.delegator === 'yes', row ? row.delegator : 'missing');
+  }
+  check('skill-registry:fresh', checkSkillRegistry(ROOT).ok === true);
+  check(
+    'skill-registry:generator-sync',
+    readFileSync(join(ROOT, 'harness', 'skill-registry.md'), 'utf8') === computeSkillRegistryMarkdown(ROOT),
+  );
+
+  const staleDir = mkdtempSync(join(tmpdir(), 'midas-skill-registry-'));
+  try {
+    mkdirSync(join(staleDir, 'harness', 'skills', 'midas-status'), { recursive: true });
+    writeFileSync(
+      join(staleDir, 'harness', 'skills', 'midas-status', 'SKILL.md'),
+      '---\nname: midas-status\ndescription: Read-only lifecycle status for tests of the skill registry path index.\ndisable-model-invocation: false\nharness-tier: scout\nrecommended-model: claude-haiku-4-5\n---\n# midas-status\n',
+      'utf8',
+    );
+    writeFileSync(join(staleDir, 'harness', 'skill-registry.md'), '# stale\n', 'utf8');
+    const stale = checkSkillRegistry(staleDir, { engine: 'harness' });
+    check('skill-registry:detects-drift', stale.ok === false && stale.reason === 'drift');
+  } finally {
+    rmSync(staleDir, { recursive: true, force: true });
+  }
+
+  const templateRegistry = join(ROOT, 'create-midas', 'template', '.harness', 'engine', 'skill-registry.md');
+  if (existsSync(templateRegistry) && existsSync(join(ROOT, 'harness', 'skill-registry.md'))) {
+    check(
+      'create-template:skill-registry:match',
+      readFileSync(templateRegistry, 'utf8') === readFileSync(join(ROOT, 'harness', 'skill-registry.md'), 'utf8'),
+      'template skill-registry.md drifted from source — re-run build-create',
+    );
+  }
+}
+
 check('pipeline:lite', existsSync(join(ROOT, 'harness', 'pipeline', 'lite.md')));
 check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'README.md')));
 
@@ -3265,6 +3334,7 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
       const md = resolveSprintMarkdown(bf, 's65-release-runbook', '.harness/product');
       check('autonomy:bf-planning-path', md && md.includes('sprint-65-release-runbook.md'));
       check('autonomy:operator-heuristic-publish', isOperatorTask('Publish the draft release'));
+      check('autonomy:operator-heuristic-publish-short', isOperatorTask('Publish draft release'));
       check('autonomy:operator-heuristic-actions', isOperatorTask('Wait for Actions Release → draft has Setup.exe'));
       check(
         'autonomy:operator-heuristic-appdata',
@@ -3273,6 +3343,10 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
       check('autonomy:operator-marker', isOperatorTask('[operator] Merge the PR on GitHub'));
       check('autonomy:operator-merge-pr', isOperatorTask('Merge the PR after review'));
       check('autonomy:operator-deploy', isOperatorTask('Deploy to staging'));
+      check('autonomy:operator-deploy-short', isOperatorTask('Deploy staging'));
+      check('autonomy:operator-push-tag', isOperatorTask('Push the tag'));
+      check('autonomy:operator-create-push-tag', isOperatorTask('Create and push git tag v1.2.3'));
+      check('autonomy:operator-smoke-installer', isOperatorTask('Smoke-test the installer on a clean VM'));
       check('autonomy:code-task-not-operator', !isOperatorTask('Add login form validation'));
       check('autonomy:code-not-smoke-fp', !isOperatorTask('Write smoke-test for checkout flow'));
       check('autonomy:code-not-draft-api-fp', !isOperatorTask('Implement draft publish endpoint'));
@@ -3410,6 +3484,14 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
         !evaluateHook(
           'builder',
           { effect: 'fs.write', path: '.harness/autonomy/authz/commit-push.json' },
+          hooks,
+        ).allow,
+      );
+      check(
+        'autonomy:hook-authz-env-denied',
+        !evaluateHook(
+          'builder',
+          { effect: 'shell.exec', command: 'npm test', env: { MIDAS_AUTONOMY_AUTHZ_KEY: 'x' } },
           hooks,
         ).allow,
       );

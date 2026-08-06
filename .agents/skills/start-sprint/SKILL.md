@@ -76,8 +76,12 @@ Never depend on or mutate vendor packs.
 
 ### 5. Emit the working plan and set the sprint active
 Write the ordered working plan: the sprint's tasks (incorporating any fix-the-code tasks from Step 3),
-which agent/tier owns each, the Context7 libraries to fetch first, and the acceptance criteria + DoD
-to satisfy. Summarize the plan for the user, then update **`paths.state`** (read-modify-write) only after
+which agent/tier owns each, the **expected implementation route** per task cluster
+(`inline` / `delegated` / `plan-first` per `<paths.engine>/rules/organic-routing.md` — plan-first only
+with explicit user OK later; never silent `/plan-sprints`), the Context7 libraries to fetch first,
+and the acceptance criteria + DoD to satisfy. For `delegated` clusters, note that builders/scouts
+should pass matched exact `SKILL.md` paths from `<paths.engine>/skill-registry.md`. Summarize the
+plan for the user, then update **`paths.state`** (read-modify-write) only after
 they confirm kickoff (or the slash-command itself is the confirmation): set the sprint `status: active`,
 `stage: sprint_execution`, `stage_status: in_progress`, refresh `last_touched`. Record any logged
 amendments in the sprint's `audit_notes`.
@@ -103,7 +107,7 @@ one slice) — do not jump straight to full-page JSX. Tasks complete only when a
 pass; **conformance to rules is verified in Phase 8** (`/close-sprint`).
 
 ## Exit gate (kickoff complete)
-- [ ] Working plan lists tasks, owners/tiers, Context7 libs, acceptance + DoD.
+- [ ] Working plan lists tasks, owners/tiers, expected implementation routes, Context7 libs, acceptance + DoD.
 - [ ] Pre-sprint drift is queued as fix-tasks **or** logged as a conscious rule amendment (evidence cited).
 - [ ] `paths.state` shows the sprint `status: active` and `stage: sprint_execution` (write last).
 - [ ] User knows next close ritual is `/close-sprint` (after tests + `/midas-verify` when UI).

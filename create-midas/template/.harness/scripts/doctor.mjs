@@ -14,6 +14,7 @@ import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from '
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { computeAdapters, computeChecksIndex, computeGatesIndex, renderAdapters } from './render-adapters.mjs';
+import { checkSkillRegistry } from './skill-registry.mjs';
 import { evaluateMcpDeclaredVsWired, evaluateMcpGovernance, evaluateSkillMcpRequired, collectSkillMcpRequired } from './mcp-drift.mjs';
 import { parseSprints, parseSprintLastTouched, parsePhases, parseEnforcement, parseRouting, parseToolsFromStateYaml, rewriteRoutingMap } from './yaml-lite.mjs';
 import { syncCursorMcp, wrapMcpServersForWindows } from './mcp-cursor-sync.mjs';
@@ -856,6 +857,23 @@ if (checksIndexRaw === null) {
   }
 }
 
+// Skill registry: exact SKILL.md path index (recompute-and-compare; no cache sidecar).
+{
+  const skillsDir = join(ROOT, paths.engine, 'skills');
+  if (!existsSync(skillsDir)) {
+    check('skills:registry', 'skip', `no ${paths.engine}/skills`);
+  } else {
+    const result = checkSkillRegistry(ROOT, paths);
+    if (!result.ok && result.reason === 'missing') {
+      check('skills:registry', 'warn', `${result.path} missing — run \`node ${paths.scripts}/skill-registry.mjs\` or \`${doctorCmd} --fix\``);
+    } else if (!result.ok) {
+      check('skills:registry', 'warn', `${result.path} drifted from recomputed index — run \`node ${paths.scripts}/skill-registry.mjs\` or \`${doctorCmd} --fix\``);
+    } else {
+      check('skills:registry', 'ok', `${result.path} matches recomputed index`);
+    }
+  }
+}
+
 // Project rules are user-owned overlays. Their content is not written into the vendor registry, but
 // it must remain structurally checkable and is folded into adapter drift via computeAdapters().
 {
@@ -905,6 +923,7 @@ const strictBlocking = health.filter((h) => h.status === 'warn' && (
   h.name === 'stage-table' ||
   h.name === 'design-system:tokens' ||
   h.name === 'checks:index' ||
+  h.name === 'skills:registry' ||
   h.name === 'rules:combined' ||
   h.name === 'skills:frontmatter' ||
   h.name === 'gitignore:midas-block' ||

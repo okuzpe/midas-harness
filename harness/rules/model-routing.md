@@ -12,6 +12,10 @@ literal model ids live in **`docs/agents-and-models.md`** (the single bump point
 > SKILL body, to the matching agent, or they silently run on the inherited session model and the
 > routing is lost.
 
+> **Implementation route ≠ model tier.** [`organic-routing.md`](./organic-routing.md) chooses *how
+> much context* a Phase-7 action needs (inline / delegated / plan-first). This rule chooses *which
+> tier* runs each leg after that route is set.
+
 ## The routing
 
 - **orchestrate** — think / plan / audit / decide. Reserved for the irreversible calls: Phase 1 gap
@@ -124,6 +128,9 @@ fully preserved; only automatic cost-routing is lost. Their skills are discovere
 
 ## Amendment
 
+- **2026-08-06** — Cross-link to [`organic-routing.md`](./organic-routing.md): organic chooses how
+  much context; this rule chooses which tier. Delegated Phase-7 legs pass matched `SKILL.md` paths
+  from `<paths.engine>/skill-registry.md`.
 - **2026-08-01** — `cost_profile` is executable under the Claude `routing_profile`:
   `resolveCostAwareRouting` + doctor reconciliation of `state.routing` and agent pins; product
   `--fix` syncs pins. Skills must declare `## Tier & delegation` (not only `harness-tier`).
