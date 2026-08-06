@@ -70,6 +70,74 @@ export function statusReport(projectRoot) {
   };
 }
 
+const AUTOPILOT_CLI = 'node .harness/autonomy/bin/midas-autopilot.mjs';
+
+/**
+ * One next command per blocker — keeps /midas-autopilot from dumping option walls.
+ * @param {string[]} blockers
+ * @param {{ operator_pending?: string[] }} [extra]
+ */
+export function guidanceForBlockers(blockers, extra = {}) {
+  const steps = [];
+  const seen = new Set();
+  for (const b of blockers) {
+    let step = null;
+    if (b === 'autonomy_disabled') {
+      step = {
+        blocker: b,
+        command: `${AUTOPILOT_CLI} setup --actor=<you> --hours=24`,
+        why: 'Enable bounded policy (set MIDAS_AUTONOMY_AUTHZ_KEY first).',
+      };
+    } else if (b.startsWith('authz:')) {
+      step = {
+        blocker: b,
+        command: `MIDAS_AUTONOMY_AUTHZ_KEY=<local-secret> ${AUTOPILOT_CLI} setup --actor=<you> --hours=24`,
+        why:
+          b === 'authz:already_used'
+            ? 'Single-use grant was consumed — setup issues a fresh time-boxed grant.'
+            : 'Commit/push authz missing or invalid — setup renews it.',
+      };
+    } else if (b === 'no_code_task') {
+      step = {
+        blocker: b,
+        command: '/start-sprint',
+        why:
+          'Open checklist items are operator/manual (release, publish, smoke). Activate a code sprint, or tag code lines without [operator]/[manual].',
+        operator_pending: extra.operator_pending || [],
+      };
+    } else if (b === 'no_open_task' || b === 'no_runnable_sprint') {
+      step = {
+        blocker: b,
+        command: '/start-sprint',
+        why: 'Need an active/planned sprint with unchecked - [ ] code tasks.',
+      };
+    } else if (b.startsWith('stage_not_sprint_execution')) {
+      step = {
+        blocker: b,
+        command: '/midas-status',
+        why: 'Finish phase gates until stage is sprint_execution.',
+      };
+    } else if (b.startsWith('budget:')) {
+      step = {
+        blocker: b,
+        command: 'Inspect .harness/autonomy/budget-ledger.json / raise policy.budget reserves',
+        why: 'Budget envelope exhausted.',
+      };
+    } else if (b.startsWith('policy:')) {
+      step = {
+        blocker: b,
+        command: 'Fix .harness/autonomy/policy.yaml',
+        why: 'Policy validation failed.',
+      };
+    }
+    if (step && !seen.has(step.blocker)) {
+      seen.add(step.blocker);
+      steps.push(step);
+    }
+  }
+  return steps;
+}
+
 export function dryRun(projectRoot, opts = {}) {
   const report = statusReport(projectRoot);
   const action = loadActionContract();
@@ -81,6 +149,9 @@ export function dryRun(projectRoot, opts = {}) {
     action: action.id,
     blockers: [],
     next: null,
+    operator_pending: [],
+    next_steps: [],
+    recommendation: null,
   };
 
   if (policyLoad.missing || !policyLoad.policy.enabled || policyLoad.policy.mode === 'disabled') {
@@ -95,7 +166,22 @@ export function dryRun(projectRoot, opts = {}) {
   else {
     const task = findNextTask(projectRoot, sprint.id, productRel);
     if (!task || task.done) plan.blockers.push('no_open_task');
-    else plan.next = { sprint, task, branch: `${policyLoad.policy.branch.prefix}${sprint.id}-${task.id}` };
+    else if (task.operator_only) {
+      plan.blockers.push('no_code_task');
+      plan.operator_pending = task.operator_pending || [];
+      plan.next = {
+        sprint,
+        task: null,
+        operator_only: true,
+        file: task.file,
+      };
+    } else {
+      plan.next = {
+        sprint,
+        task,
+        branch: `${policyLoad.policy.branch.prefix}${sprint.id}-${task.id}`,
+      };
+    }
   }
 
   const authz = validateCommitPushAuthz(projectRoot, {
@@ -113,6 +199,23 @@ export function dryRun(projectRoot, opts = {}) {
   plan.would_effect = plan.blockers.length === 0;
   plan.policy_digest = policyLoad.digest;
   plan.status = autonomy.status;
+  plan.next_steps = guidanceForBlockers(plan.blockers, {
+    operator_pending: plan.operator_pending,
+  });
+  // Prefer product blockers over authz when both present — renewing authz
+  // for an operator-only sprint still cannot tick usefully.
+  const preferred =
+    plan.next_steps.find((s) => s.blocker === 'no_code_task') ||
+    plan.next_steps.find((s) => s.blocker === 'no_open_task' || s.blocker === 'no_runnable_sprint') ||
+    plan.next_steps[0] ||
+    null;
+  plan.recommendation = preferred
+    ? preferred
+    : {
+        blocker: null,
+        command: `${AUTOPILOT_CLI} tick --runner=fake`,
+        why: 'Dry-run clear — human confirms tick (fake pilot or cursor-cloud).',
+      };
   return plan;
 }
 
@@ -193,6 +296,17 @@ export async function tick(projectRoot, opts = {}) {
     const task = findNextTask(projectRoot, sprint.id, productRel);
     if (!task || task.done) {
       return await completeIdle(projectRoot, lease, policyLoad, { reason: 'no_open_task' });
+    }
+    if (task.operator_only) {
+      return await abort(projectRoot, lease, policyLoad, {
+        status: 'idle',
+        ok: false,
+        reason: 'no_code_task',
+        operator_pending: task.operator_pending,
+        recommendation: guidanceForBlockers(['no_code_task'], {
+          operator_pending: task.operator_pending,
+        })[0],
+      });
     }
 
     const branch = `${policyLoad.policy.branch.prefix}${sprint.id}-${task.id}`;

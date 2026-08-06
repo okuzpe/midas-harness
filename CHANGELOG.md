@@ -11,6 +11,19 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.3.5] — 2026-08-06
+
+### Fixed
+
+- Autopilot no longer queues operator/release checklist items as the next code task
+  (markers `[operator]`/`[manual]`/… plus release-runbook heuristics).
+- `dry-run` / `setup` return a single `recommendation` (command + why) instead of leaving
+  clients to invent A/B/C option walls.
+- `setup` grants **time-boxed multi-use** authz by default so pilot tick loops do not hit
+  `authz:already_used` after every fake run (`--single-use` still available).
+
+---
+
 ## [2.3.4] — 2026-08-05
 
 ### Fixed
@@ -1340,7 +1353,7 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.3.4...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.3.5...HEAD
 [2.1.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.5...v2.0.0
 [2.0.0-rc.5]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.4...v2.0.0-rc.5

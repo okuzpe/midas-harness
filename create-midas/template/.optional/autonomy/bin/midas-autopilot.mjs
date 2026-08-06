@@ -31,14 +31,15 @@ function printHelp() {
   console.log(`midas-autopilot — Midas bounded autonomy (optional)
 
 Usage:
-  midas-autopilot setup [--root=.] [--actor=NAME] [--hours=24] [--skip-authz]
+  midas-autopilot setup [--root=.] [--actor=NAME] [--hours=24] [--skip-authz] [--single-use]
   midas-autopilot status [--root=.]
   midas-autopilot dry-run [--root=.]
   midas-autopilot tick [--root=.] [--runner=fake|cursor-cloud]
   midas-autopilot resume [--root=.] [--runner=fake|cursor-cloud]
-  midas-autopilot authz-grant --actor=NAME --hours=24 [--root=.]
+  midas-autopilot authz-grant --actor=NAME --hours=24 [--root=.] [--multi-use]
 
-  setup — enable bounded policy, grant authz (needs MIDAS_AUTONOMY_AUTHZ_KEY), dry-run
+  setup — enable bounded policy, grant time-boxed authz (needs MIDAS_AUTONOMY_AUTHZ_KEY), dry-run
+          default grant is multi-use until --hours expires; pass --single-use for one tick only
 
 Environment:
   CURSOR_API_KEY                 required for cursor-cloud runner
@@ -67,6 +68,7 @@ async function main() {
       hours: flags.hours,
       repo: flags.repo,
       grantAuthz: !flags['skip-authz'],
+      singleUse: !!flags['single-use'],
     });
     console.log(JSON.stringify(result, null, 2));
     process.exit(result.ok ? 0 : 1);

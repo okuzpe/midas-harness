@@ -12,7 +12,7 @@
 //
 // Run: `node scripts/test.mjs`  (exit 0 = all pass, 1 = at least one failure). No npm dependencies.
 
-import { readFileSync, readdirSync, existsSync, statSync, mkdirSync, mkdtempSync, rmSync, writeFileSync, cpSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync, statSync, mkdirSync, mkdtempSync, rmSync, writeFileSync, cpSync, unlinkSync } from 'node:fs';
 import { dirname, join, resolve, extname, basename } from 'node:path';
 import { execSync, spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
@@ -2865,6 +2865,7 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
 
     out = runCli(['dry-run', '--repo=local/project']);
     check('autonomy:dry-run-ready', out.status === 0 && /"would_effect": true/.test(out.stdout), out.stdout);
+    check('autonomy:dry-run-recommendation', /"recommendation"/.test(out.stdout) && /tick --runner=/.test(out.stdout));
 
     out = runCli(['tick', '--runner=fake', '--repo=local/project']);
     check('autonomy:tick-success', out.status === 0 && /"commit_sha":/.test(out.stdout), out.stdout + out.stderr);
@@ -3218,7 +3219,7 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
 
     // Brownfield: planning/sprint-*.md + planned sprint + paths.product
     {
-      const { resolveSprintMarkdown, findRunnableSprint, findNextTask } = await import(
+      const { resolveSprintMarkdown, findRunnableSprint, findNextTask, isOperatorTask } = await import(
         pathToFileURL(join(autoRoot, 'lib', 'sprint-resolve.mjs')).href
       );
       const bf = mkdtempSync(join(tmpdir(), 'midas-autonomy-bf-'));
@@ -3240,15 +3241,43 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
       );
       writeFileSync(
         join(bf, '.harness', 'product', 'planning', 'sprint-65-release-runbook.md'),
-        '# Sprint 65\n\n- [x] done item\n- [ ] Publish draft release\n',
+        [
+          '# Sprint 65',
+          '',
+          '- [x] done item',
+          '- [ ] Publish the draft release',
+          '- [ ] Wait for Actions Release → draft has Setup.exe',
+          '- [ ] Add login form validation',
+          '',
+        ].join('\n'),
         'utf8',
       );
       const yaml = readFileSync(join(bf, '.harness', 'state.yaml'), 'utf8');
       check('autonomy:bf-planned-sprint', findRunnableSprint(yaml)?.id === 's65-release-runbook');
       const md = resolveSprintMarkdown(bf, 's65-release-runbook', '.harness/product');
       check('autonomy:bf-planning-path', md && md.includes('sprint-65-release-runbook.md'));
+      check('autonomy:operator-heuristic-publish', isOperatorTask('Publish the draft release'));
+      check('autonomy:operator-heuristic-actions', isOperatorTask('Wait for Actions Release → draft has Setup.exe'));
+      check('autonomy:operator-marker', isOperatorTask('[operator] Merge the PR on GitHub'));
+      check('autonomy:code-task-not-operator', !isOperatorTask('Add login form validation'));
       const task = findNextTask(bf, 's65-release-runbook', '.harness/product');
-      check('autonomy:bf-next-task', task && task.title === 'Publish draft release' && !task.done);
+      check(
+        'autonomy:bf-next-task-skips-operator',
+        task && task.title === 'Add login form validation' && !task.done && !task.operator_only,
+        JSON.stringify(task),
+      );
+
+      writeFileSync(
+        join(bf, '.harness', 'product', 'planning', 'sprint-65-release-runbook.md'),
+        '# Sprint 65\n\n- [ ] Publish the draft release\n- [ ] Wait for Actions Release\n',
+        'utf8',
+      );
+      const opsOnly = findNextTask(bf, 's65-release-runbook', '.harness/product');
+      check(
+        'autonomy:bf-operator-only',
+        opsOnly && opsOnly.operator_only === true && Array.isArray(opsOnly.operator_pending),
+        JSON.stringify(opsOnly),
+      );
     }
 
     // setup subcommand
@@ -3256,12 +3285,69 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
       const { runSetup } = await import(pathToFileURL(join(autoRoot, 'lib', 'setup.mjs')).href);
       const missing = runSetup(join(tmp, 'nope'));
       check('autonomy:setup-not-installed', missing.status === 'not_installed');
-      const setup = runSetup(tmp, { actor: 'tester', hours: 2, repo: 'local/project' });
+      const prevAuthzKey = process.env.MIDAS_AUTONOMY_AUTHZ_KEY;
+      process.env.MIDAS_AUTONOMY_AUTHZ_KEY = 'test-authz-key';
+      let setup;
+      try {
+        // Force a fresh grant so we assert multi-use default (not a skipped valid grant).
+        const authzFile = join(tmp, '.harness', 'autonomy', 'authz', 'commit-push.json');
+        if (existsSync(authzFile)) unlinkSync(authzFile);
+        setup = runSetup(tmp, { actor: 'tester', hours: 2, repo: 'local/project' });
+      } finally {
+        if (prevAuthzKey === undefined) delete process.env.MIDAS_AUTONOMY_AUTHZ_KEY;
+        else process.env.MIDAS_AUTONOMY_AUTHZ_KEY = prevAuthzKey;
+      }
       check('autonomy:setup-ready', setup.ok && setup.status === 'ready', JSON.stringify(setup));
       check('autonomy:setup-policy', setup.steps.some((s) => s.step === 'policy_enable' && s.ok));
       check('autonomy:setup-dry-run', setup.steps.some((s) => s.step === 'dry_run' && s.ok));
+      check(
+        'autonomy:setup-multi-use-default',
+        setup.steps.some((s) => s.step === 'authz_grant' && s.ok && s.single_use === false),
+        JSON.stringify(setup.steps),
+      );
       out = runCli(['setup', '--repo=local/project'], { MIDAS_AUTONOMY_AUTHZ_KEY: 'test-authz-key' });
       check('autonomy:setup-cli', out.status === 0 && /"status": "ready"/.test(out.stdout), out.stdout);
+
+      // Operator-only sprint → dry-run recommends /start-sprint, not tick
+      const opsRoot = mkdtempSync(join(tmpdir(), 'midas-autonomy-ops-'));
+      mkdirSync(join(opsRoot, '.harness', 'product', 'sprints'), { recursive: true });
+      mkdirSync(join(opsRoot, '.harness', 'runs'), { recursive: true });
+      writeFileSync(
+        join(opsRoot, '.harness', 'state.yaml'),
+        [
+          'layout: harness',
+          'stage: sprint_execution',
+          'sprints:',
+          '  - id: "01"',
+          '    title: "Ops"',
+          '    status: active',
+          '',
+        ].join('\n'),
+        'utf8',
+      );
+      writeFileSync(
+        join(opsRoot, '.harness', 'product', 'sprints', '01-ops.md'),
+        '# Sprint\n\n- [ ] Publish the draft release\n- [ ] Wait for Actions Release\n',
+        'utf8',
+      );
+      cpSync(autoRoot, join(opsRoot, '.harness', 'autonomy'), { recursive: true });
+      writeFileSync(join(opsRoot, '.harness', 'autonomy', 'policy.yaml'), enabledPolicy, 'utf8');
+      const opsCli = join(opsRoot, '.harness', 'autonomy', 'bin', 'midas-autopilot.mjs');
+      const opsOut = spawnSync(
+        process.execPath,
+        [opsCli, 'setup', `--root=${opsRoot}`, '--actor=tester', '--hours=2', '--repo=local/project'],
+        {
+          encoding: 'utf8',
+          env: { ...process.env, MIDAS_AUTONOMY_AUTHZ_KEY: 'test-authz-key' },
+        },
+      );
+      check(
+        'autonomy:setup-no-code-task',
+        opsOut.status !== 0 &&
+          /no_code_task/.test(opsOut.stdout) &&
+          /\/start-sprint/.test(opsOut.stdout),
+        opsOut.stdout,
+      );
     }
 
     // Installer: --autonomy copies capability; without flag it does not

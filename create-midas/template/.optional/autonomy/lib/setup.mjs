@@ -15,8 +15,13 @@ const AUTOPILOT_REL = '.harness/autonomy/bin/midas-autopilot.mjs';
 /**
  * One-shot bounded-autonomy setup: ensure policy enabled, optional authz grant, dry-run verdict.
  * Does not run tick — human or scheduler invokes tick separately.
+ *
+ * Authz default for setup is **time-boxed multi-use** (expires with `--hours`) so a pilot
+ * loop of several ticks does not require re-setup after every fake run. Use `--single-use`
+ * for a stricter one-tick grant.
+ *
  * @param {string} projectRoot
- * @param {{ actor?: string, hours?: number, repo?: string, grantAuthz?: boolean }} opts
+ * @param {{ actor?: string, hours?: number, repo?: string, grantAuthz?: boolean, singleUse?: boolean }} opts
  */
 export function runSetup(projectRoot, opts = {}) {
   const steps = [];
@@ -67,6 +72,8 @@ export function runSetup(projectRoot, opts = {}) {
   policyDigest = reload.digest;
 
   const shouldGrant = opts.grantAuthz !== false;
+  // Setup defaults to multi-use within the hours window (opt-in single-use).
+  const singleUse = opts.singleUse === true;
   let authz = validateCommitPushAuthz(projectRoot, {
     repo,
     branchPrefix: reload.policy.branch.prefix,
@@ -74,7 +81,9 @@ export function runSetup(projectRoot, opts = {}) {
     policyDigest,
   });
 
-  if (shouldGrant && !authz.valid) {
+  // Renew when missing/invalid OR when caller wants a fresh grant (already_used / expired).
+  const needsRenew = shouldGrant && !authz.valid;
+  if (needsRenew) {
     if (!process.env.MIDAS_AUTONOMY_AUTHZ_KEY) {
       steps.push({
         step: 'authz_grant',
@@ -91,7 +100,7 @@ export function runSetup(projectRoot, opts = {}) {
         policyDigest,
         actor: opts.actor || 'human',
         expiresAt: new Date(Date.now() + hours * 3600_000).toISOString(),
-        singleUse: true,
+        singleUse,
       });
       writeAuthz(projectRoot, record);
       authz = validateCommitPushAuthz(projectRoot, {
@@ -100,7 +109,13 @@ export function runSetup(projectRoot, opts = {}) {
         actionId: 'execute-next-sprint-task',
         policyDigest,
       });
-      steps.push({ step: 'authz_grant', ok: authz.valid, repo, hours });
+      steps.push({
+        step: 'authz_grant',
+        ok: authz.valid,
+        repo,
+        hours,
+        single_use: singleUse,
+      });
     }
   } else if (authz.valid) {
     steps.push({ step: 'authz_grant', ok: true, skipped: true });
@@ -112,10 +127,21 @@ export function runSetup(projectRoot, opts = {}) {
     ok: plan.would_effect,
     blockers: plan.blockers,
     next: plan.next,
+    recommendation: plan.recommendation,
   });
 
   const ready = plan.would_effect;
   const tickRunner = reload.policy.runner?.default || 'fake';
+  const nextCommands = ready
+    ? [
+        `node ${AUTOPILOT_REL} tick --runner=${tickRunner}`,
+        'Optional loop: copy .harness/autonomy/workflows/autonomy-tick.yml → .github/workflows/',
+      ]
+    : [
+        ...(plan.recommendation?.command ? [plan.recommendation.command] : []),
+        `node ${AUTOPILOT_REL} dry-run`,
+      ];
+
   return {
     ok: ready,
     status: ready ? 'ready' : 'blocked',
@@ -123,22 +149,10 @@ export function runSetup(projectRoot, opts = {}) {
     policy_digest: policyDigest,
     repo,
     dry_run: plan,
-    next_commands: ready
-      ? [
-          `node ${AUTOPILOT_REL} tick --runner=${tickRunner}`,
-          'Optional loop: copy .harness/autonomy/workflows/autonomy-tick.yml → .github/workflows/',
-        ]
-      : [
-          ...(plan.blockers.includes('authz:missing') || plan.blockers.some((b) => b.startsWith('authz:'))
-            ? ['Set MIDAS_AUTONOMY_AUTHZ_KEY and re-run: node .harness/autonomy/bin/midas-autopilot.mjs setup']
-            : []),
-          ...(plan.blockers.includes('no_runnable_sprint')
-            ? ['/start-sprint or set a sprint to active/planned with unchecked - [ ] tasks']
-            : []),
-          `node ${AUTOPILOT_REL} dry-run`,
-        ],
+    recommendation: plan.recommendation,
+    next_commands: nextCommands,
     message: ready
       ? 'Autonomy is configured. Run tick manually or via CI — not from chat.'
-      : 'Setup ran but dry-run is not ready. Resolve blockers above.',
+      : plan.recommendation?.why || 'Setup ran but dry-run is not ready. Resolve blockers above.',
   };
 }

@@ -20,11 +20,12 @@ Pilot target: `examples/taskpilot/` (content fixture; hub/v1 layout).
    ```bash
    node .harness/autonomy/bin/midas-autopilot.mjs setup --actor=pilot --hours=8
    ```
-4. `dry-run` → must show `would_effect: true` (or read the `setup` JSON).
+   Setup grants a time-boxed multi-use authz (enough for several fake ticks).
+4. `dry-run` → must show `would_effect: true` (or read the `setup` JSON / `recommendation`).
 5. Run **three** ticks with `--runner=fake` (no cloud tokens).
 6. Optionally one bounded `--runner=cursor-cloud` run with a hard cost reserve.
 
-Editor guide: `/midas-autopilot` (does not auto-run `tick` from chat).
+Editor guide: `/midas-autopilot` (does not auto-run `tick` from chat). Quote `recommendation` only.
 
 ## Value gate (open P1 only if all hold)
 

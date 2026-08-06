@@ -17,27 +17,34 @@ metadata:
 
 **Do not run `tick` or `cursor-cloud` from chat without explicit human confirmation.** This skill orients, runs read-only checks, and shells `setup` when the user asks.
 
+## Response shape (always)
+
+Keep the reply short. Prefer this structure:
+
+1. **Verdict** — one line (`ready` / `blocked` + why)
+2. **Next** — quote `dry_run.recommendation` (or `next_steps[0]`) — **one** command, not an options wall
+3. **Queued task** — only if `next.task` is a code task (`would_effect` path)
+
+Never invent Option A/B/C lists when `recommendation.command` already exists.
+
 ## When NOT
 
 - No `.harness/autonomy/` → installer first: `npx … --update --autonomy` (see `/midas-update`).
 - `stage` ≠ `sprint_execution` → finish phase gates or `/start-sprint` first.
-- Sprint tasks are operator-only (release, merge, deploy) → autopilot targets **code** checklist items.
+- Blocker `no_code_task` → open items are operator/manual (release, publish, smoke). Autopilot skips them; finish ops by hand or activate a **code** sprint.
 - User wants a chat loop only → Cursor `/loop` or manual Phase 7 loop; not a substitute for this control plane.
 
 ## Procedure
 
-### A. First-time setup (default)
-
-Ask the user to set a local HMAC key (never commit):
+### A. First-time / renew authz
 
 ```bash
 export MIDAS_AUTONOMY_AUTHZ_KEY="<local-secret>"
 node .harness/autonomy/bin/midas-autopilot.mjs setup --actor=<you> --hours=24
 ```
 
-`setup` will: enable `mode: bounded` in policy (if needed) → grant commit/push authz → `dry-run`.
-
-If capability is missing, `setup` prints the `npx … --autonomy` command.
+`setup` enables `mode: bounded`, grants a **time-boxed multi-use** authz (until `--hours`), then `dry-run`.
+Pass `--single-use` only when you want one tick per grant.
 
 ### B. Check blockers (read-only)
 
@@ -46,27 +53,28 @@ node .harness/autonomy/bin/midas-autopilot.mjs status
 node .harness/autonomy/bin/midas-autopilot.mjs dry-run
 ```
 
-Summarize `would_effect`, `blockers`, and `next` (sprint, task, branch) in plain language.
+Summarize `would_effect`, `blockers`, and **`recommendation`** (single next command). If `operator_pending` is set, list those titles as human work — do not propose ticking them.
 
 ### C. One task (human-confirmed only)
 
-After `dry-run` shows `would_effect: true`, the **human** runs:
+Only when `would_effect: true` and `next.task` is present:
 
 ```bash
-# Pilot / CI without tokens:
 node .harness/autonomy/bin/midas-autopilot.mjs tick --runner=fake
-
-# Production (requires CURSOR_API_KEY):
-node .harness/autonomy/bin/midas-autopilot.mjs tick --runner=cursor-cloud
+# or: --runner=cursor-cloud   # needs CURSOR_API_KEY
 ```
-
-Repeat tick or schedule `.harness/autonomy/workflows/autonomy-tick.yml` in GitHub Actions.
 
 ### D. Resume after pause
 
 ```bash
 node .harness/autonomy/bin/midas-autopilot.mjs resume --runner=fake
 ```
+
+## Task selection
+
+- Autopilot takes the first unchecked `- [ ]` **code** line.
+- Skips lines marked `[manual]` / `[operator]` / `[human]` / `[ops]` / `[no-auto]`, plus common release-runbook heuristics (`Wait for Actions`, `Publish` draft, smoke on install, …).
+- Tag intentional human work with `[operator]` when heuristics might miss.
 
 ## Brownfield notes
 
@@ -77,8 +85,8 @@ node .harness/autonomy/bin/midas-autopilot.mjs resume --runner=fake
 ## Exit gate
 
 - [ ] User ran (or confirmed) the CLI; model did not invent parallel autonomy logic.
-- [ ] `tick` / `cursor-cloud` only named after explicit human OK.
-- [ ] Blockers explained with the **next single command** (setup, authz, `/start-sprint`, or tick).
+- [ ] Reply named **one** next command from `recommendation` (no A/B/C option walls).
+- [ ] `tick` / `cursor-cloud` only named after explicit human OK and `would_effect: true`.
 
 ## Tier & delegation
 

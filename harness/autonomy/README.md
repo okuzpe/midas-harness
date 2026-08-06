@@ -19,6 +19,10 @@ node .harness/autonomy/bin/midas-autopilot.mjs dry-run
 node .harness/autonomy/bin/midas-autopilot.mjs tick --runner=fake
 ```
 
+`setup` grants a **time-boxed multi-use** authz (until `--hours`). Pass `--single-use` for one tick only.
+`dry-run` returns `recommendation` — the single next command when blocked.
+Autopilot **skips** operator/manual checklist lines (`[operator]`, release/publish/smoke heuristics).
+
 ## Layout
 
 | Path | Owner | Role |

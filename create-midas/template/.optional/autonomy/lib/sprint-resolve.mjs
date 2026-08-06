@@ -128,8 +128,57 @@ function slugTask(title) {
     .slice(0, 48) || 'task';
 }
 
+/** Explicit opt-out markers in the checklist line. */
+const OPERATOR_MARKERS = /\[(manual|operator|human|ops|no-auto)\]/i;
+
 /**
- * First unchecked markdown task in the sprint file.
+ * Heuristics for release/ops checklist lines that a code agent cannot execute.
+ * Prefer explicit markers; heuristics catch common brownfield runbook wording.
+ */
+const OPERATOR_HEURISTICS = [
+  /\bwait for actions\b/i,
+  /\bpublish\b[\s\S]{0,40}\bdraft\b/i,
+  /\bdraft\b[\s\S]{0,40}\bpublish\b/i,
+  /\bon an older install\b/i,
+  /\bconfirm\s+%appdata%/i,
+  /\bafter nsis\b/i,
+  /\bsmoke[- ]test\b/i,
+  /\bmonitor (the )?actions\b/i,
+  /\bcheck for updates\b/i,
+  /\bgit tag\b/i,
+  /\bpush (the )?tag\b/i,
+  /\bworkflow_dispatch\b/i,
+];
+
+/**
+ * True when the checklist line is human/operator work, not autopilot code work.
+ * @param {string} title
+ */
+export function isOperatorTask(title) {
+  const t = String(title || '').trim();
+  if (!t) return false;
+  if (OPERATOR_MARKERS.test(t)) return true;
+  return OPERATOR_HEURISTICS.some((re) => re.test(t));
+}
+
+/**
+ * All unchecked markdown checklist lines in a sprint body.
+ * @param {string} body
+ * @returns {{ title: string, operator: boolean }[]}
+ */
+export function listUncheckedTasks(body) {
+  const out = [];
+  for (const line of String(body || '').split(/\r?\n/)) {
+    const m = line.match(/^\s*-\s*\[\s*\]\s+(.+)$/);
+    if (!m) continue;
+    const title = m[1].trim();
+    out.push({ title, operator: isOperatorTask(title) });
+  }
+  return out;
+}
+
+/**
+ * First unchecked **code** task in the sprint file (skips operator/manual lines).
  * @param {string} projectRoot
  * @param {string} sprintId
  * @param {string} [productRel]
@@ -138,11 +187,22 @@ export function findNextTask(projectRoot, sprintId, productRel = '.harness/produ
   const file = resolveSprintMarkdown(projectRoot, sprintId, productRel);
   if (!file) return null;
   const body = readFileSync(file, 'utf8');
-  const unchecked = body.match(/^\s*-\s*\[\s*\]\s+(.+)$/m);
-  if (unchecked) {
-    return { id: slugTask(unchecked[1]), title: unchecked[1].trim(), file };
+  const open = listUncheckedTasks(body);
+  if (!open.length) {
+    return { id: 'task-complete', title: 'no open tasks', file, done: true };
   }
-  return { id: 'task-complete', title: 'no open tasks', file, done: true };
+  const code = open.find((t) => !t.operator);
+  if (code) {
+    return { id: slugTask(code.title), title: code.title, file };
+  }
+  return {
+    id: 'operator-only',
+    title: 'operator checklist remaining',
+    file,
+    done: false,
+    operator_only: true,
+    operator_pending: open.map((t) => t.title),
+  };
 }
 
 /**
