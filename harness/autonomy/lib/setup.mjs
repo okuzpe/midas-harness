@@ -136,6 +136,23 @@ export function runSetup(projectRoot, opts = {}) {
   });
 
   const ready = plan.would_effect;
+  const productBlockers = new Set(['no_code_task', 'no_open_task', 'no_runnable_sprint']);
+  const onlyProductBlocked =
+    !ready &&
+    plan.blockers.length > 0 &&
+    plan.blockers.every(
+      (b) => productBlockers.has(b) || b.startsWith('stage_not_sprint_execution'),
+    );
+  const authzConfigured =
+    !plan.blockers.some((b) => b.startsWith('authz:') || b === 'autonomy_disabled') &&
+    steps.some((s) => s.step === 'authz_key' && s.ok) &&
+    steps.some((s) => s.step === 'authz_grant' && s.ok);
+  // Authz/policy may succeed while the sprint has only operator work — that is
+  // configured, not a setup failure (exit 0; next step is /start-sprint).
+  const configured = authzConfigured && onlyProductBlocked;
+  const ok = ready || configured;
+  const status = ready ? 'ready' : configured ? 'configured' : 'blocked';
+
   const tickRunner = reload.policy.runner?.default || 'fake';
   const nextCommands = ready
     ? [
@@ -148,8 +165,8 @@ export function runSetup(projectRoot, opts = {}) {
       ];
 
   return {
-    ok: ready,
-    status: ready ? 'ready' : 'blocked',
+    ok,
+    status,
     steps,
     policy_digest: policyDigest,
     repo,
@@ -158,6 +175,9 @@ export function runSetup(projectRoot, opts = {}) {
     next_commands: nextCommands,
     message: ready
       ? 'Autonomy is configured. Run tick manually or via CI — not from chat.'
-      : plan.recommendation?.why || 'Setup ran but dry-run is not ready. Resolve blockers above.',
+      : configured
+        ? plan.recommendation?.why ||
+          'Authz/policy OK — sprint has no runnable code tasks. Activate a code sprint.'
+        : plan.recommendation?.why || 'Setup ran but dry-run is not ready. Resolve blockers above.',
   };
 }

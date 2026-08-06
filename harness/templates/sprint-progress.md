@@ -9,11 +9,11 @@
 
 ## Done
 
-| Task | Proof | Tool |
-|---|---|---|
-| <!-- task id or title --> | <!-- test name / command / screenshot ref --> | <!-- context7 \| test-runner \| agent-browser \| agent-browser-ios \| playwright-mcp \| chrome-devtools-mcp \| maestro-mcp \| @playwright/cli \| smoke --> |
+| Task | Proof | Tool | Route |
+|---|---|---|---|
+| <!-- task id or title --> | <!-- test name / command / screenshot ref --> | <!-- context7 \| test-runner \| agent-browser \| agent-browser-ios \| playwright-mcp \| chrome-devtools-mcp \| maestro-mcp \| @playwright/cli \| smoke --> | <!-- inline \| delegated \| plan-first — required when the task cluster spans ≥4 files; see organic-routing.md --> |
 
-<!-- One row per completed task this cycle. Tool = which MCP or runner proved the work (git-visible traceability). -->
+<!-- One row per completed task this cycle. Tool = which MCP or runner proved the work (git-visible traceability). Route = implementation route from `<paths.engine>/rules/organic-routing.md`. -->
 
 ### Tool column — canonical values
 

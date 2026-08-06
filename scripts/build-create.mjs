@@ -45,6 +45,7 @@ const FILES = [
   'scripts/design-system.mjs',
   'scripts/bundle.mjs',
   'scripts/ownership-manifest.mjs',
+  'scripts/skill-registry.mjs',
 ];
 
 if (existsSync(TEMPLATE)) rmSync(TEMPLATE, { recursive: true, force: true });

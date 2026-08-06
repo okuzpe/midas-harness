@@ -37,6 +37,14 @@ Every behavior change ships with a test that asserts the **behavior, not the imp
 is not done until its acceptance criteria are met and the tests pass — that is what the Phase-8 audit checks.
 Run the tests; report the actual result, not an assumption.
 
+## Implementation route + skill paths (Phase 7)
+Before coding a task cluster, pick the route in `<paths.engine>/rules/organic-routing.md`
+(`inline` / `delegated` / `plan-first`). When the parent asks you to load skills, read the **exact**
+`SKILL.md` paths they pass from `<paths.engine>/skill-registry.md` (resolve as
+`<paths.engine>/<Path>`) — prefer `Delegator: yes` rows; never invent or auto-run `orchestrator-only`
+slash skills. Do not rely on compact digests that replace the skill body. Record `Route:` on
+`{runs}/sprints/NN-progress.md` Done rows when the cluster spans ≥4 files.
+
 ## When writing prose artifacts (market, business, architecture, rules, sprints)
 - Write to the exact path the phase names; match the existing house style — concise, concrete, no filler.
 - Cite external claims with sources. Make every rule you draft mechanically **CHECKABLE**.

@@ -286,6 +286,11 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` grep the synonyms for one entity (`grep -rinE "user|account|member" <src-root>/`); two names for the same concept is a fail.
   - **CHECK:** `manual:` each domain noun in code matches a glossary term from `{product}/idea.md` / `{product}/architecture.md`.
   - **CHECK:** `manual:` a rename touches all occurrences in one commit; a partial rename leaving the old name is a fail.
+- **Rule: Organic implementation routing (always-on)** (`organic-routing.md`, base)
+  - **CHECK:** `harness/rules/organic-routing.md` (or `<paths.engine>/rules/organic-routing.md`) contains at least one `**CHECK:**` and a dated `## Amendment` section.
+  - **CHECK:** `manual:` when a Phase-7 task cluster spans ≥4 files, `{runs}/sprints/NN-progress.md` § Done (**Route** column) or § Observations names `Route: inline|delegated|plan-first`.
+  - **CHECK:** `manual:` no mid-sprint `/plan-sprints` or silent planning without user acceptance noted in progress (Accepted plan-first → evidence in Learned / sprint file / ADR).
+  - **CHECK:** `manual:` cost-aware tier (orchestrate/build/scout) is still applied after the route is chosen — see [`model-routing.md`](./model-routing.md).
 - **Rule: Security (always-on)** (`security.md`, base)
   - **CHECK:** `git grep -nE "(sk-[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{16,}|-----BEGIN [A-Z ]*PRIVATE KEY)"` → empty; a secret-scanner (gitleaks/trufflehog) on the diff finds nothing.
   - **CHECK:** `manual:` every credential the code consumes resolves from `process.env`/env equivalent or a gitignored local file; a hardcoded credential is a fail.

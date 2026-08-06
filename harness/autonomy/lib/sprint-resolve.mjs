@@ -132,29 +132,31 @@ function slugTask(title) {
 const OPERATOR_MARKERS = /\[(manual|operator|human|ops|no-auto)\]/i;
 
 /**
- * Heuristics for release/ops checklist lines that a code agent cannot execute.
- * Prefer explicit markers; heuristics catch common brownfield runbook wording.
+ * Conservative heuristics for release/ops checklist lines.
+ * Prefer explicit markers for ambiguous titles — keep patterns narrow to avoid
+ * false-positives on real code tasks (smoke-test, draft publish API, git tag docs).
  */
 const OPERATOR_HEURISTICS = [
   /\bwait for actions\b/i,
-  /\bpublish\b[\s\S]{0,40}\bdraft\b/i,
-  /\bdraft\b[\s\S]{0,40}\bpublish\b/i,
+  /\bwait for (the )?ci\b/i,
+  /\bpublish\b[\s\S]{0,40}\bthe draft\b/i,
+  /\b\*\*publish\*\*\b[\s\S]{0,40}\bdraft\b/i,
   /\bon an older install\b/i,
   /\bconfirm\b[\s\S]{0,30}%appdata%/i,
   /\bconfirm\b[\s\S]{0,60}\b(backups?|pre-update)/i,
   /\bafter nsis\b/i,
-  /\bsmoke[- ]test\b/i,
   /\bmonitor (the )?actions\b/i,
-  /\bcheck for updates\b/i,
-  /\bgit tag\b/i,
-  /\bpush (the )?tag\b/i,
   /\bworkflow_dispatch\b/i,
-  /\boptional:\s*settings\b/i,
+  /\boptional:\s*settings\s*→/i,
   /\brelease runbook\b/i,
+  /\bmerge (the )?pr\b/i,
+  /\bmanually deploy\b/i,
+  /\bdeploy to (staging|prod|production)\b/i,
 ];
 
 /**
  * True when the checklist line is human/operator work, not autopilot code work.
+ * Prefer `[operator]` / `[manual]` markers when wording is ambiguous.
  * @param {string} title
  */
 export function isOperatorTask(title) {

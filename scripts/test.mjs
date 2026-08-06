@@ -3271,7 +3271,14 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
         isOperatorTask('Confirm `%APPDATA%\\BodegaSuite\\backups\\pre-update-*.db` was created'),
       );
       check('autonomy:operator-marker', isOperatorTask('[operator] Merge the PR on GitHub'));
+      check('autonomy:operator-merge-pr', isOperatorTask('Merge the PR after review'));
+      check('autonomy:operator-deploy', isOperatorTask('Deploy to staging'));
       check('autonomy:code-task-not-operator', !isOperatorTask('Add login form validation'));
+      check('autonomy:code-not-smoke-fp', !isOperatorTask('Write smoke-test for checkout flow'));
+      check('autonomy:code-not-draft-api-fp', !isOperatorTask('Implement draft publish endpoint'));
+      check('autonomy:code-not-git-tag-fp', !isOperatorTask('Document git tag conventions in CONTRIBUTING'));
+      check('autonomy:code-not-check-updates-fp', !isOperatorTask('Check for updates in package.json deps'));
+      check('autonomy:code-not-optional-settings-fp', !isOperatorTask('Optional: settings page for theme'));
       const task = findNextTask(bf, 's65-release-runbook', '.harness/product');
       check(
         'autonomy:bf-next-task-skips-operator',
@@ -3363,10 +3370,48 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
       );
       check(
         'autonomy:setup-no-code-task',
-        opsOut.status !== 0 &&
+        opsOut.status === 0 &&
+          /"status": "configured"/.test(opsOut.stdout) &&
           /no_code_task/.test(opsOut.stdout) &&
           /\/start-sprint/.test(opsOut.stdout),
         opsOut.stdout,
+      );
+    }
+
+    // help must parse (no nested-backtick ReferenceError)
+    {
+      const helpOut = spawnSync(process.execPath, [cli, 'help', `--root=${tmp}`], {
+        encoding: 'utf8',
+        env: { ...process.env, MIDAS_AUTONOMY_AUTHZ_KEY: 'test-authz-key' },
+      });
+      check(
+        'autonomy:help-ok',
+        helpOut.status === 0 && /midas-autopilot/.test(helpOut.stdout) && !/ReferenceError/.test(helpOut.stderr),
+        helpOut.stderr + helpOut.stdout,
+      );
+    }
+
+    // fail-closed hooks deny authz hmac path
+    {
+      const { loadFailClosedHooks, evaluateHook } = await import(
+        pathToFileURL(join(autoRoot, 'lib', 'hooks.mjs')).href
+      );
+      const hooks = loadFailClosedHooks(autoRoot);
+      check(
+        'autonomy:hook-authz-hmac-denied',
+        !evaluateHook(
+          'builder',
+          { effect: 'fs.write', path: '.harness/autonomy/authz/hmac' },
+          hooks,
+        ).allow,
+      );
+      check(
+        'autonomy:hook-authz-dir-denied',
+        !evaluateHook(
+          'builder',
+          { effect: 'fs.write', path: '.harness/autonomy/authz/commit-push.json' },
+          hooks,
+        ).allow,
       );
     }
 

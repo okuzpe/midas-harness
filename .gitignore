@@ -55,6 +55,10 @@ status.html
 .harness/runs/explore/.active
 .harness/explore/.active
 .midas/explore/.active
+
+# midas: amend — patterns added on install/update
+!**/.harness/autonomy/lib/credentials.mjs
+.harness/autonomy/authz/
 # midas:end
 
 # MkDocs build output (CI uses _site/; default `mkdocs build` writes site/ — both ignored)

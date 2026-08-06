@@ -21,6 +21,7 @@ import { createHash } from 'node:crypto';
 import { dirname, join, resolve } from 'node:path';
 import { parseToolsFromStateYaml } from './yaml-lite.mjs';
 import { resolvePaths } from './paths.mjs';
+import { writeSkillRegistry } from './skill-registry.mjs';
 
 export { parseToolsFromStateYaml };
 
@@ -501,18 +502,24 @@ export function renderAdapters(root = ROOT) {
   results.push({ path: hashRel, status: 'written' });
 
   // Classic engine repo regenerates registries inline; harness-layout installs refresh via --update.
+  // skill-registry.md is always regenerated (cheap; doctor compares it on both layouts).
   if (p.layout !== 'harness') {
     const reg = writeEngineRegistries(root, p.engine, { gatesIndex, checksIndex });
     results.push({ path: reg.gates, status: 'written' });
     results.push({ path: reg.checks, status: 'written' });
+    results.push({ path: reg.skillRegistry, status: 'written' });
+  } else {
+    const skillRegistry = writeSkillRegistry(root, { engine: p.engine });
+    results.push({ path: skillRegistry, status: 'written' });
   }
 
   return { hash, results };
 }
 
 /**
- * Write gates.json + checks.json under the engine tree. Used by classic render and by --update
- * on harness-layout installs so doctor strict passes without manual registry fixes.
+ * Write gates.json + checks.json + skill-registry.md under the engine tree. Used by classic
+ * render and by --update on harness-layout installs so doctor strict passes without manual
+ * registry fixes.
  */
 export function writeEngineRegistries(root, engineRel, { gatesIndex = null, checksIndex = null } = {}) {
   const resolved = engineRel || resolvePaths(root).engine;
@@ -524,9 +531,11 @@ export function writeEngineRegistries(root, engineRel, { gatesIndex = null, chec
   ensureDir(checksAbs);
   writeFileSync(gatesAbs, `${JSON.stringify(gatesIndex, null, 2)}\n`, 'utf8');
   writeFileSync(checksAbs, `${JSON.stringify(checksIndex, null, 2)}\n`, 'utf8');
+  const skillRegistry = writeSkillRegistry(root, { engine: resolved });
   return {
     gates: gatesAbs.slice(root.length + 1).replace(/\\/g, '/'),
     checks: checksAbs.slice(root.length + 1).replace(/\\/g, '/'),
+    skillRegistry,
   };
 }
 

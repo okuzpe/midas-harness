@@ -11,6 +11,21 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.3.8] — 2026-08-06
+
+### Fixed
+
+- `midas-autopilot help` no longer throws `ReferenceError` (nested backticks in help text).
+- Fail-closed hooks deny `.harness/autonomy/authz/**` and `MIDAS_AUTONOMY_AUTHZ_KEY` inheritance.
+- Operator-task heuristics narrowed (fewer false positives on code tasks); added merge/deploy/CI waits.
+- `setup` exits 0 with `status: configured` when authz is OK but the sprint is operator-only.
+
+### Changed
+
+- Docs/skill: “no env export” (not “zero secrets”); prefer `[operator]` markers for ambiguous lines.
+
+---
+
 ## [2.3.7] — 2026-08-06
 
 ### Changed
@@ -1372,7 +1387,7 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.3.7...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.3.8...HEAD
 [2.1.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.5...v2.0.0
 [2.0.0-rc.5]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.4...v2.0.0-rc.5

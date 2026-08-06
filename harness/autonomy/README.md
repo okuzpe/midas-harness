@@ -10,7 +10,7 @@ npx github:okuzpe/midas-harness --autonomy
 npx github:okuzpe/midas-harness --update --autonomy
 ```
 
-Then run (no env keys required locally — setup auto-creates `.harness/autonomy/authz/hmac`):
+Then run (no env export required locally — setup auto-creates `.harness/autonomy/authz/hmac`, a gitignored local secret):
 
 ```bash
 node .harness/autonomy/bin/midas-autopilot.mjs status
@@ -20,8 +20,10 @@ node .harness/autonomy/bin/midas-autopilot.mjs tick --runner=fake
 ```
 
 `setup` grants a **time-boxed multi-use** authz (until `--hours`). Pass `--single-use` for one tick only.
+When the sprint is operator-only, setup exits **0** with `status: configured` and recommends `/start-sprint`.
 `dry-run` returns `recommendation` — the single next command when blocked.
-Autopilot **skips** operator/manual checklist lines (`[operator]`, release/publish/smoke heuristics).
+Autopilot **skips** operator/manual checklist lines (`[operator]`, narrow release-runbook heuristics).
+Prefer tagging ambiguous human work with `[operator]` / `[manual]`.
 
 ## Layout
 

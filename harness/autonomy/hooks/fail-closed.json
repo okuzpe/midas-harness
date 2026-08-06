@@ -19,12 +19,15 @@
     "deny_path_globs": [
       ".harness/autonomy/policy.yaml",
       ".harness/autonomy/metapolicy.json",
+      ".harness/autonomy/authz/**",
+      ".harness/autonomy/authz/hmac",
       ".harness/runs/autonomy/audits/**",
       "**/.env",
       "**/*.pem"
     ],
     "deny_env_inheritance": [
       "MIDAS_AUTONOMY_JOURNAL_KEY",
+      "MIDAS_AUTONOMY_AUTHZ_KEY",
       "MERGE_TOKEN",
       "DEPLOY_TOKEN",
       "GITHUB_TOKEN"

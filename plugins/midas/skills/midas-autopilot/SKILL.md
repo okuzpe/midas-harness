@@ -32,7 +32,7 @@ argument-hint: "[setup|status|dry-run]"
 
 ## Procedure
 
-### A. Setup (default — zero keys)
+### A. Setup (default — no env export)
 
 In the project terminal (or ask the agent to run it):
 
@@ -40,9 +40,9 @@ In the project terminal (or ask the agent to run it):
 node .harness/autonomy/bin/midas-autopilot.mjs setup --actor=<you> --hours=24
 ```
 
-That alone: enables `bounded` policy → creates `.harness/autonomy/authz/hmac` if needed (gitignored) → grants time-boxed multi-use authz → `dry-run`.
+That alone: enables `bounded` policy → creates `.harness/autonomy/authz/hmac` if needed (gitignored; still a **local secret file**, not “no secrets”) → grants time-boxed multi-use authz → `dry-run`.
 
-**Do not** ask the user to set `MIDAS_AUTONOMY_AUTHZ_KEY` for local use. Env override is optional (CI).
+Do **not** ask the user to export `MIDAS_AUTONOMY_AUTHZ_KEY` for everyday local use. Env override remains valid for CI. Exit `0` with `status: configured` means authz is fine but the sprint has no code tasks — next step is `/start-sprint`, not re-setup.
 
 ### B. Check blockers
 
@@ -76,7 +76,8 @@ node .harness/autonomy/bin/midas-autopilot.mjs resume --runner=fake
 
 - [ ] User ran (or confirmed) the CLI; no invented parallel autonomy.
 - [ ] Reply named **one** next command from `recommendation`.
-- [ ] Never told the user to export `MIDAS_AUTONOMY_AUTHZ_KEY` for local setup.
+- [ ] Never required the user to export `MIDAS_AUTONOMY_AUTHZ_KEY` for local setup (local hmac file is fine).
+- [ ] Did not claim “no secrets” — hmac file or cloud `CURSOR_API_KEY` may still apply.
 - [ ] `tick` only after explicit human OK and `would_effect: true`.
 
 ## Tier & delegation

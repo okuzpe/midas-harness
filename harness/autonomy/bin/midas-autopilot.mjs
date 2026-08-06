@@ -38,12 +38,12 @@ Usage:
   midas-autopilot resume [--root=.] [--runner=fake|cursor-cloud]
   midas-autopilot authz-grant --actor=NAME --hours=24 [--root=.] [--multi-use]
 
-  setup — enable bounded policy, auto-create local authz key, grant, dry-run
+  setup — enable bounded policy, auto-create local authz hmac file, grant, dry-run
           default grant is multi-use until --hours expires; pass --single-use for one tick only
 
 Environment:
   CURSOR_API_KEY                 optional — only for --runner=cursor-cloud
-  MIDAS_AUTONOMY_AUTHZ_KEY       optional override; else `.harness/autonomy/authz/hmac` (auto)
+  MIDAS_AUTONOMY_AUTHZ_KEY       optional override; else .harness/autonomy/authz/hmac (auto)
   MIDAS_AUTONOMY_FAKE_SCENARIO   success|crash_before_effect|crash_after_effect|
                                  rate_limit_unknown|budget|quota|needs_merge
   MIDAS_AUTONOMY_JOURNAL_KEY     optional MAC key for journal batches

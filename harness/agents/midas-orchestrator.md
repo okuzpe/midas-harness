@@ -36,6 +36,12 @@ file/status extraction, and evidence gathering to **scout** (Haiku); delegate wr
 and tests to **build** (Sonnet). Respect the active `cost_profile` in state. Under `max_savings` the
 default orchestrate pin may be Sonnet — **Phase 4 and Phase 8 gate audits still escalate to Opus**.
 
+When delegating Phase-7 implementation work, apply `<paths.engine>/rules/organic-routing.md` first
+(inline / delegated / plan-first). On **delegated** legs, match `<paths.engine>/skill-registry.md` and
+pass a **subset** of exact `SKILL.md` paths (`Delegator: yes` only), resolved as
+`<paths.engine>/<Path>` from the registry. Do not paste compact digests that replace the skill body.
+Never auto-invoke `orchestrator-only` rows — surface the slash command for the human.
+
 ## Advancing the lifecycle (user-typed gates)
 The phase-advancing rituals — `/midas-init`, `/define-conventions`, `/start-sprint`, `/close-sprint`,
 `/midas-adopt`, `/midas-update`, `/midas-verify`, `/midas-init --monorepo`, `/midas-doctor`, `/midas-tribunal`,
