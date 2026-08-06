@@ -1,5 +1,5 @@
-import { createHmac } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, unlinkSync } from 'node:fs';
+import { createHmac, randomBytes } from 'node:crypto';
+import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { digestText, newToken } from './digest.mjs';
 import { atomicWrite } from './state.mjs';
@@ -9,9 +9,11 @@ import { atomicWrite } from './state.mjs';
  * bound to repo, branch prefix, action id, and policy digest.
  * Does NOT authorize merge, default-branch push, or other actions.
  *
- * schema_version 2: HMAC-SHA256 (`mac`) over the canonical payload using
- * MIDAS_AUTONOMY_AUTHZ_KEY (controller-only). Plain SHA-256 digests of public
- * fields are not attestation.
+ * schema_version 2: HMAC-SHA256 (`mac`) over the canonical payload.
+ * Signing key resolution (controller-only, never to agents):
+ *   1. MIDAS_AUTONOMY_AUTHZ_KEY env (optional override / CI)
+ *   2. `.harness/autonomy/authz/hmac` local file (gitignored)
+ *   3. `ensureLocalAuthzKey` auto-generates (2) — used by `setup`
  */
 
 export const AUTHZ_KEY_ENV = 'MIDAS_AUTONOMY_AUTHZ_KEY';
@@ -20,10 +22,51 @@ export function authzPath(projectRoot) {
   return join(projectRoot, '.harness', 'autonomy', 'authz', 'commit-push.json');
 }
 
-/** @param {NodeJS.ProcessEnv} [env] */
+/** Local HMAC material — never commit (parent `authz/` is gitignored). */
+export function localAuthzKeyPath(projectRoot) {
+  return join(projectRoot, '.harness', 'autonomy', 'authz', 'hmac');
+}
+
+/**
+ * Resolve signing key without creating one.
+ * @param {string|null|undefined} projectRoot
+ * @param {NodeJS.ProcessEnv} [env]
+ * @returns {{ key: string, source: 'env'|'file'|'missing' }}
+ */
+export function resolveAuthzSigningKey(projectRoot, env = process.env) {
+  const fromEnv = env[AUTHZ_KEY_ENV];
+  if (fromEnv && String(fromEnv).length > 0) {
+    return { key: String(fromEnv), source: 'env' };
+  }
+  if (projectRoot) {
+    const path = localAuthzKeyPath(projectRoot);
+    if (existsSync(path)) {
+      const key = readFileSync(path, 'utf8').trim();
+      if (key) return { key, source: 'file' };
+    }
+  }
+  return { key: '', source: 'missing' };
+}
+
+/**
+ * Ensure a controller HMAC key exists (env or local file). Auto-creates the
+ * local file when neither is set — so `setup` needs no manual env dance.
+ * @param {string} projectRoot
+ * @param {NodeJS.ProcessEnv} [env]
+ */
+export function ensureLocalAuthzKey(projectRoot, env = process.env) {
+  const resolved = resolveAuthzSigningKey(projectRoot, env);
+  if (resolved.key) return resolved;
+  const path = localAuthzKeyPath(projectRoot);
+  mkdirSync(dirname(path), { recursive: true });
+  const key = randomBytes(32).toString('hex');
+  writeFileSync(path, `${key}\n`, { encoding: 'utf8', mode: 0o600 });
+  return { key, source: 'generated' };
+}
+
+/** @deprecated prefer resolveAuthzSigningKey — kept for credential leak tests */
 export function authzSigningKey(env = process.env) {
-  const key = env[AUTHZ_KEY_ENV];
-  return key && String(key).length > 0 ? String(key) : '';
+  return resolveAuthzSigningKey(null, env).key;
 }
 
 function canonicalAuthzBody(record) {
@@ -52,15 +95,18 @@ export function createCommitPushAuthz({
   actor,
   expiresAt,
   singleUse = true,
+  projectRoot = null,
   env = process.env,
 }) {
   if (!repo || !branchPrefix || !policyDigest || !actor || !expiresAt) {
     throw new Error('authz requires repo, branchPrefix, policyDigest, actor, expiresAt');
   }
-  const key = authzSigningKey(env);
-  if (!key) {
+  const resolved = projectRoot
+    ? ensureLocalAuthzKey(projectRoot, env)
+    : resolveAuthzSigningKey(null, env);
+  if (!resolved.key) {
     throw new Error(
-      `${AUTHZ_KEY_ENV} is required to grant commit/push authz (controller-only HMAC key)`,
+      `${AUTHZ_KEY_ENV} missing and no projectRoot to auto-create local authz/hmac — run setup`,
     );
   }
   const nonce = newToken('authz');
@@ -80,7 +126,7 @@ export function createCommitPushAuthz({
   };
   const canonical = canonicalAuthzBody(record);
   record.content_digest = digestText(canonical);
-  record.mac = macAuthzBody(canonical, key);
+  record.mac = macAuthzBody(canonical, resolved.key);
   return record;
 }
 
@@ -111,7 +157,7 @@ export function validateCommitPushAuthz(
   if (record.action_id !== actionId) return { valid: false, reason: 'action_mismatch', record };
   if (record.policy_digest !== policyDigest) return { valid: false, reason: 'policy_digest_stale', record };
 
-  const key = authzSigningKey(env);
+  const { key } = resolveAuthzSigningKey(projectRoot, env);
   if (!key) return { valid: false, reason: 'missing_authz_key', record };
 
   const schema = Number(record.schema_version) || 1;

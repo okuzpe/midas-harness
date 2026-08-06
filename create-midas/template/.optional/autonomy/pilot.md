@@ -16,7 +16,7 @@ Pilot target: `examples/taskpilot/` (content fixture; hub/v1 layout).
    ```
 2. Set `stage: sprint_execution`, add an active or planned sprint with open `- [ ]` tasks
    (greenfield: `{product}/sprints/`; brownfield: `{product}/planning/sprint-*.md`).
-3. One-shot setup (needs `MIDAS_AUTONOMY_AUTHZ_KEY` in the shell):
+3. One-shot setup (no env key required locally — auto-creates `authz/hmac`):
    ```bash
    node .harness/autonomy/bin/midas-autopilot.mjs setup --actor=pilot --hours=8
    ```

@@ -2823,7 +2823,15 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
     out = runCli(['authz-grant', '--actor=tester', '--hours=2', '--repo=local/project'], {
       MIDAS_AUTONOMY_AUTHZ_KEY: '',
     });
-    check('autonomy:authz-grant-requires-key', out.status !== 0);
+    check(
+      'autonomy:authz-grant-local-hmac',
+      out.status === 0 && existsSync(join(tmp, '.harness', 'autonomy', 'authz', 'hmac')),
+      out.stdout + out.stderr,
+    );
+    // Restore env-keyed grant for the rest of the suite (env overrides file).
+    unlinkSync(join(tmp, '.harness', 'autonomy', 'authz', 'hmac'));
+    out = runCli(['authz-grant', '--actor=tester', '--hours=2', '--repo=local/project']);
+    check('autonomy:authz-grant-restore', out.status === 0, out.stderr);
 
     // Forged file with public digest only (v1 / no mac) must fail closed
     {
@@ -3290,12 +3298,14 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
       const missing = runSetup(join(tmp, 'nope'));
       check('autonomy:setup-not-installed', missing.status === 'not_installed');
       const prevAuthzKey = process.env.MIDAS_AUTONOMY_AUTHZ_KEY;
-      process.env.MIDAS_AUTONOMY_AUTHZ_KEY = 'test-authz-key';
+      delete process.env.MIDAS_AUTONOMY_AUTHZ_KEY;
       let setup;
       try {
-        // Force a fresh grant so we assert multi-use default (not a skipped valid grant).
+        // Force a fresh grant; no env key — must auto-create authz/hmac.
         const authzFile = join(tmp, '.harness', 'autonomy', 'authz', 'commit-push.json');
+        const hmacFile = join(tmp, '.harness', 'autonomy', 'authz', 'hmac');
         if (existsSync(authzFile)) unlinkSync(authzFile);
+        if (existsSync(hmacFile)) unlinkSync(hmacFile);
         setup = runSetup(tmp, { actor: 'tester', hours: 2, repo: 'local/project' });
       } finally {
         if (prevAuthzKey === undefined) delete process.env.MIDAS_AUTONOMY_AUTHZ_KEY;
@@ -3309,7 +3319,13 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
         setup.steps.some((s) => s.step === 'authz_grant' && s.ok && s.single_use === false),
         JSON.stringify(setup.steps),
       );
-      out = runCli(['setup', '--repo=local/project'], { MIDAS_AUTONOMY_AUTHZ_KEY: 'test-authz-key' });
+      check(
+        'autonomy:setup-local-hmac',
+        setup.steps.some((s) => s.step === 'authz_key' && s.source === 'generated') &&
+          existsSync(join(tmp, '.harness', 'autonomy', 'authz', 'hmac')),
+        JSON.stringify(setup.steps),
+      );
+      out = runCli(['setup', '--repo=local/project'], { MIDAS_AUTONOMY_AUTHZ_KEY: '' });
       check('autonomy:setup-cli', out.status === 0 && /"status": "ready"/.test(out.stdout), out.stdout);
 
       // Operator-only sprint → dry-run recommends /start-sprint, not tick

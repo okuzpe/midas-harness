@@ -15,7 +15,7 @@ evaluated by [`lib/hooks.mjs`](./lib/hooks.mjs) before every builder/auditor eff
 | Network allowlist | Documented per project; deny by default in cloud hooks |
 | Filesystem mutators in auditor | Blocked — auditor is read-only detached SHA |
 | Secret inheritance | Inject only via `lib/credentials.mjs` role env; never to child agents |
-| Authz HMAC | `MIDAS_AUTONOMY_AUTHZ_KEY` signs commit/push grants (`schema_version: 2`); unsigned/v1 grants fail closed |
+| Authz HMAC | Local `.harness/autonomy/authz/hmac` (auto via `setup`) or optional `MIDAS_AUTONOMY_AUTHZ_KEY`; `schema_version: 2`; unsigned/v1 grants fail closed |
 | Log redaction | Allowlist fields only (`redactForJournal`); no raw prompts/tool output |
 | Policy / metapolicy | Agent-inaccessible; human out-of-band to change |
 | Broker mediation | Every Cloud run receives only `authorizeBuilderEffects` allowlist |

@@ -1,6 +1,11 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { createCommitPushAuthz, validateCommitPushAuthz, writeAuthz } from './authz.mjs';
+import {
+  createCommitPushAuthz,
+  ensureLocalAuthzKey,
+  validateCommitPushAuthz,
+  writeAuthz,
+} from './authz.mjs';
 import {
   loadProjectPolicy,
   parsePolicyYaml,
@@ -11,13 +16,15 @@ import { resolveAutonomyRepo } from './repo-resolve.mjs';
 import { dryRun } from './tick.mjs';
 
 const AUTOPILOT_REL = '.harness/autonomy/bin/midas-autopilot.mjs';
+const AUTHZ_KEY_ENV_LABEL = 'MIDAS_AUTONOMY_AUTHZ_KEY';
 
 /**
  * One-shot bounded-autonomy setup: ensure policy enabled, optional authz grant, dry-run verdict.
  * Does not run tick — human or scheduler invokes tick separately.
  *
- * Authz default for setup is **time-boxed multi-use** (expires with `--hours`) so a pilot
- * loop of several ticks does not require re-setup after every fake run. Use `--single-use`
+ * Authz HMAC key: auto-created at `.harness/autonomy/authz/hmac` (gitignored) when
+ * MIDAS_AUTONOMY_AUTHZ_KEY is unset — no manual env dance for local/Cursor use.
+ * Default grant is **time-boxed multi-use** (expires with `--hours`). Use `--single-use`
  * for a stricter one-tick grant.
  *
  * @param {string} projectRoot
@@ -71,8 +78,15 @@ export function runSetup(projectRoot, opts = {}) {
   const reload = loadProjectPolicy(projectRoot);
   policyDigest = reload.digest;
 
+  const keyInfo = ensureLocalAuthzKey(projectRoot);
+  steps.push({
+    step: 'authz_key',
+    ok: true,
+    source: keyInfo.source,
+    path: keyInfo.source === 'env' ? AUTHZ_KEY_ENV_LABEL : '.harness/autonomy/authz/hmac',
+  });
+
   const shouldGrant = opts.grantAuthz !== false;
-  // Setup defaults to multi-use within the hours window (opt-in single-use).
   const singleUse = opts.singleUse === true;
   let authz = validateCommitPushAuthz(projectRoot, {
     repo,
@@ -81,42 +95,33 @@ export function runSetup(projectRoot, opts = {}) {
     policyDigest,
   });
 
-  // Renew when missing/invalid OR when caller wants a fresh grant (already_used / expired).
   const needsRenew = shouldGrant && !authz.valid;
   if (needsRenew) {
-    if (!process.env.MIDAS_AUTONOMY_AUTHZ_KEY) {
-      steps.push({
-        step: 'authz_grant',
-        ok: false,
-        reason: 'missing_authz_key',
-        hint: 'Set MIDAS_AUTONOMY_AUTHZ_KEY in the shell, then re-run setup.',
-      });
-    } else {
-      const hours = Number(opts.hours || 24);
-      const record = createCommitPushAuthz({
-        repo,
-        branchPrefix: reload.policy.branch.prefix,
-        actionId: 'execute-next-sprint-task',
-        policyDigest,
-        actor: opts.actor || 'human',
-        expiresAt: new Date(Date.now() + hours * 3600_000).toISOString(),
-        singleUse,
-      });
-      writeAuthz(projectRoot, record);
-      authz = validateCommitPushAuthz(projectRoot, {
-        repo,
-        branchPrefix: reload.policy.branch.prefix,
-        actionId: 'execute-next-sprint-task',
-        policyDigest,
-      });
-      steps.push({
-        step: 'authz_grant',
-        ok: authz.valid,
-        repo,
-        hours,
-        single_use: singleUse,
-      });
-    }
+    const hours = Number(opts.hours || 24);
+    const record = createCommitPushAuthz({
+      repo,
+      branchPrefix: reload.policy.branch.prefix,
+      actionId: 'execute-next-sprint-task',
+      policyDigest,
+      actor: opts.actor || 'human',
+      expiresAt: new Date(Date.now() + hours * 3600_000).toISOString(),
+      singleUse,
+      projectRoot,
+    });
+    writeAuthz(projectRoot, record);
+    authz = validateCommitPushAuthz(projectRoot, {
+      repo,
+      branchPrefix: reload.policy.branch.prefix,
+      actionId: 'execute-next-sprint-task',
+      policyDigest,
+    });
+    steps.push({
+      step: 'authz_grant',
+      ok: authz.valid,
+      repo,
+      hours,
+      single_use: singleUse,
+    });
   } else if (authz.valid) {
     steps.push({ step: 'authz_grant', ok: true, skipped: true });
   }

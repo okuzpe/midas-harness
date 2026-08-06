@@ -15,56 +15,53 @@ argument-hint: "[setup|status|dry-run]"
 > **ADR-009:** `.harness/autonomy/README.md` + `security.md` (optional capability).
 > **Runtime:** `.harness/autonomy/bin/midas-autopilot.mjs` — **only** this CLI may start `execute-next-sprint-task`.
 
-**Do not run `tick` or `cursor-cloud` from chat without explicit human confirmation.** This skill orients, runs read-only checks, and shells `setup` when the user asks.
+**Do not run `tick` or `cursor-cloud` from chat without explicit human confirmation.** This skill orients and shells `setup` / read-only checks when the user asks.
 
 ## Response shape (always)
 
-Keep the reply short. Prefer this structure:
-
 1. **Verdict** — one line (`ready` / `blocked` + why)
-2. **Next** — quote `dry_run.recommendation` (or `next_steps[0]`) — **one** command, not an options wall
-3. **Queued task** — only if `next.task` is a code task (`would_effect` path)
-
-Never invent Option A/B/C lists when `recommendation.command` already exists.
+2. **Next** — quote `recommendation` — **one** command (no A/B/C walls)
+3. **Queued task** — only if `next.task` is a code task
 
 ## When NOT
 
-- No `.harness/autonomy/` → installer first: `npx … --update --autonomy` (see `/midas-update`).
+- No `.harness/autonomy/` → installer: `npx … --update --autonomy` (see `/midas-update`).
 - `stage` ≠ `sprint_execution` → finish phase gates or `/start-sprint` first.
-- Blocker `no_code_task` → open items are operator/manual (release, publish, smoke). Autopilot skips them; finish ops by hand or activate a **code** sprint.
-- User wants a chat loop only → Cursor `/loop` or manual Phase 7 loop; not a substitute for this control plane.
+- Blocker `no_code_task` → open items are operator/manual. Activate a **code** sprint.
+- User wants a chat-only loop → Cursor `/loop`; not a substitute for this control plane.
 
 ## Procedure
 
-### A. First-time / renew authz
+### A. Setup (default — zero keys)
+
+In the project terminal (or ask the agent to run it):
 
 ```bash
-export MIDAS_AUTONOMY_AUTHZ_KEY="<local-secret>"
 node .harness/autonomy/bin/midas-autopilot.mjs setup --actor=<you> --hours=24
 ```
 
-`setup` enables `mode: bounded`, grants a **time-boxed multi-use** authz (until `--hours`), then `dry-run`.
-Pass `--single-use` only when you want one tick per grant.
+That alone: enables `bounded` policy → creates `.harness/autonomy/authz/hmac` if needed (gitignored) → grants time-boxed multi-use authz → `dry-run`.
 
-### B. Check blockers (read-only)
+**Do not** ask the user to set `MIDAS_AUTONOMY_AUTHZ_KEY` for local use. Env override is optional (CI).
+
+### B. Check blockers
 
 ```bash
 node .harness/autonomy/bin/midas-autopilot.mjs status
 node .harness/autonomy/bin/midas-autopilot.mjs dry-run
 ```
 
-Summarize `would_effect`, `blockers`, and **`recommendation`** (single next command). If `operator_pending` is set, list those titles as human work — do not propose ticking them.
-
 ### C. One task (human-confirmed only)
 
-Only when `would_effect: true` and `next.task` is present:
+Only when `would_effect: true`:
 
 ```bash
 node .harness/autonomy/bin/midas-autopilot.mjs tick --runner=fake
-# or: --runner=cursor-cloud   # needs CURSOR_API_KEY
 ```
 
-### D. Resume after pause
+`--runner=cursor-cloud` needs `CURSOR_API_KEY` (Cloud Agents). Local overnight without that key = `fake` pilot or Cursor `/loop` on a code sprint — not this CLI cloud path.
+
+### D. Resume
 
 ```bash
 node .harness/autonomy/bin/midas-autopilot.mjs resume --runner=fake
@@ -72,24 +69,17 @@ node .harness/autonomy/bin/midas-autopilot.mjs resume --runner=fake
 
 ## Task selection
 
-- Autopilot takes the first unchecked `- [ ]` **code** line.
-- Skips lines marked `[manual]` / `[operator]` / `[human]` / `[ops]` / `[no-auto]`, plus common release-runbook heuristics (`Wait for Actions`, `Publish` draft, smoke on install, …).
-- Tag intentional human work with `[operator]` when heuristics might miss.
-
-## Brownfield notes
-
-- Sprint file: `{product}/sprints/NN-*.md` **or** `{product}/planning/sprint-NN-*.md`
-- Runnable sprint: `status: active` or latest `planned` in `state.yaml`
-- Repo for authz: `git remote origin` when not passed explicitly
+- First unchecked `- [ ]` **code** line.
+- Skips `[manual]` / `[operator]` / `[human]` / `[ops]` / `[no-auto]` and release-runbook heuristics.
 
 ## Exit gate
 
-- [ ] User ran (or confirmed) the CLI; model did not invent parallel autonomy logic.
-- [ ] Reply named **one** next command from `recommendation` (no A/B/C option walls).
-- [ ] `tick` / `cursor-cloud` only named after explicit human OK and `would_effect: true`.
+- [ ] User ran (or confirmed) the CLI; no invented parallel autonomy.
+- [ ] Reply named **one** next command from `recommendation`.
+- [ ] Never told the user to export `MIDAS_AUTONOMY_AUTHZ_KEY` for local setup.
+- [ ] `tick` only after explicit human OK and `would_effect: true`.
 
 ## Tier & delegation
 
-- **Dispatch:** narrate + shell `setup`/`status`/`dry-run` → **build** (`midas-builder`).
-- **Never** delegate `tick` to chat auto-invocation; scheduler or human runs the CLI.
-- Policy/authz/journal changes outside `setup` remain human-owned files.
+- **Dispatch:** narrate + shell `setup`/`status`/`dry-run` → **build**.
+- **Never** auto-invoke `tick` from chat.

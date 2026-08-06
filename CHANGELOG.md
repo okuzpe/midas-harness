@@ -11,6 +11,15 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.3.7] — 2026-08-06
+
+### Changed
+
+- `midas-autopilot setup` auto-creates `.harness/autonomy/authz/hmac` when no env key is set —
+  no more `MIDAS_AUTONOMY_AUTHZ_KEY=...` dance for local/Cursor use. Env remains an optional override.
+
+---
+
 ## [2.3.6] — 2026-08-06
 
 ### Fixed
@@ -1363,7 +1372,7 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.3.6...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.3.7...HEAD
 [2.1.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.5...v2.0.0
 [2.0.0-rc.5]: https://github.com/okuzpe/midas-harness/compare/v2.0.0-rc.4...v2.0.0-rc.5

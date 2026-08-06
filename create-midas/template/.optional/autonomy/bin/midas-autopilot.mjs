@@ -38,12 +38,12 @@ Usage:
   midas-autopilot resume [--root=.] [--runner=fake|cursor-cloud]
   midas-autopilot authz-grant --actor=NAME --hours=24 [--root=.] [--multi-use]
 
-  setup — enable bounded policy, grant time-boxed authz (needs MIDAS_AUTONOMY_AUTHZ_KEY), dry-run
+  setup — enable bounded policy, auto-create local authz key, grant, dry-run
           default grant is multi-use until --hours expires; pass --single-use for one tick only
 
 Environment:
-  CURSOR_API_KEY                 required for cursor-cloud runner
-  MIDAS_AUTONOMY_AUTHZ_KEY       required to grant/validate commit-push authz (HMAC)
+  CURSOR_API_KEY                 optional — only for --runner=cursor-cloud
+  MIDAS_AUTONOMY_AUTHZ_KEY       optional override; else `.harness/autonomy/authz/hmac` (auto)
   MIDAS_AUTONOMY_FAKE_SCENARIO   success|crash_before_effect|crash_after_effect|
                                  rate_limit_unknown|budget|quota|needs_merge
   MIDAS_AUTONOMY_JOURNAL_KEY     optional MAC key for journal batches
@@ -114,6 +114,7 @@ async function main() {
       actor: flags.actor || 'human',
       expiresAt: new Date(Date.now() + hours * 3600_000).toISOString(),
       singleUse: flags['multi-use'] ? false : true,
+      projectRoot: root,
     });
     writeAuthz(root, record);
     console.log(JSON.stringify({

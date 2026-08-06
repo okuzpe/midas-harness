@@ -86,16 +86,16 @@ export function guidanceForBlockers(blockers, extra = {}) {
       step = {
         blocker: b,
         command: `${AUTOPILOT_CLI} setup --actor=<you> --hours=24`,
-        why: 'Enable bounded policy (set MIDAS_AUTONOMY_AUTHZ_KEY first).',
+        why: 'Enable bounded policy (setup auto-creates a local authz key).',
       };
     } else if (b.startsWith('authz:')) {
       step = {
         blocker: b,
-        command: `MIDAS_AUTONOMY_AUTHZ_KEY=<local-secret> ${AUTOPILOT_CLI} setup --actor=<you> --hours=24`,
+        command: `${AUTOPILOT_CLI} setup --actor=<you> --hours=24`,
         why:
           b === 'authz:already_used'
-            ? 'Single-use grant was consumed — setup issues a fresh time-boxed grant.'
-            : 'Commit/push authz missing or invalid — setup renews it.',
+            ? 'Grant was consumed — setup renews a fresh time-boxed grant (no env key needed).'
+            : 'Commit/push authz missing or invalid — setup renews it (local hmac auto-created).',
       };
     } else if (b === 'no_code_task') {
       step = {

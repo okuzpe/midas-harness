@@ -10,11 +10,11 @@ npx github:okuzpe/midas-harness --autonomy
 npx github:okuzpe/midas-harness --update --autonomy
 ```
 
-Then authorize commit/push for the work branch prefix and run:
+Then run (no env keys required locally — setup auto-creates `.harness/autonomy/authz/hmac`):
 
 ```bash
 node .harness/autonomy/bin/midas-autopilot.mjs status
-node .harness/autonomy/bin/midas-autopilot.mjs setup --actor=pilot --hours=24   # needs MIDAS_AUTONOMY_AUTHZ_KEY
+node .harness/autonomy/bin/midas-autopilot.mjs setup --actor=pilot --hours=24
 node .harness/autonomy/bin/midas-autopilot.mjs dry-run
 node .harness/autonomy/bin/midas-autopilot.mjs tick --runner=fake
 ```
