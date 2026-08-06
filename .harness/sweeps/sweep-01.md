@@ -44,3 +44,6 @@ MIDAS_SWEEP_RESULT: dead_flows=0 orphans=0 ledger_drift=0 stale_docs=0 harness_d
 ## Disposition
 
 fixed — all actionable rows closed; #7 accepted.
+
+**Amended 2026-08-07:** sweep-02 confirms post-audit hygiene (`verdict=clean`); see
+`.harness/audits/repo-audit-02.md` for audit-cycle closure.
