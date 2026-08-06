@@ -43,7 +43,10 @@ This is the **complementary** improve loop (product context → one improvement 
 Hard-block (`blocked`) only when:
 
 1. `paths.state` missing or unreadable, or layout is not harness-writable.
-2. None of these exist under `paths.product`: `idea.md`, `architecture.md`, `features.json`.
+2. **No product context** under `paths.product` (and common brownfield aliases). Accept **any one** of:
+   - `idea.md`, `architecture.md`, `features.json` (greenfield / classic Midas)
+   - `features.md`, `project-brief.md`, `project-state.md` (E2/E3 brownfield ledgers)
+   - `open-questions.md` **plus** at least one of the above is still preferred; alone is not enough
 
 Warn (`ready_with_warnings`) when:
 

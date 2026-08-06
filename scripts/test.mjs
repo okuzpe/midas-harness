@@ -2847,6 +2847,16 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
       readFileSync(join(ROOT, 'harness', 'skills', 'midas-automate', 'SKILL.md'), 'utf8'),
     ),
   );
+  check(
+    'automate:skill-brownfield-context',
+    /project-brief\.md/.test(readFileSync(join(ROOT, 'harness', 'skills', 'midas-automate', 'SKILL.md'), 'utf8')) &&
+      /features\.md/.test(readFileSync(join(ROOT, 'harness', 'skills', 'midas-automate', 'SKILL.md'), 'utf8')),
+  );
+  check(
+    'automate:template-brownfield-context',
+    /project-brief\.md/.test(readFileSync(automateTmpl, 'utf8')) &&
+      /features\.md/.test(readFileSync(automateTmpl, 'utf8')),
+  );
 
   const tmp = mkdtempSync(join(tmpdir(), 'midas-autonomy-'));
   try {
