@@ -20,7 +20,7 @@ setup_complete: true        # engine repo — installer complete; dogfoods the h
 # Engine-as-dogfood profile: phases 0–4 satisfied by README + docs/ + harness/ itself.
 # Phase 5 closed with product/* artifacts (see docs/dogfood.md).
 stage: sprint_execution
-stage_status: not_started
+stage_status: in_progress
 entry_stage: architecture_rules
 
 cost_profile: balanced
@@ -47,8 +47,8 @@ phases:
 sprints:
   - id: "01"
     title: autonomy-ci-smoke
-    status: planned
-    audit_notes: ""
+    status: active
+    audit_notes: "Kickoff 2026-08-07 — no pre-sprint drift; engine repo baseline clean post audit cycle."
     last_touched: 2026-08-07
   - id: "02"
     title: midas-retro-skill

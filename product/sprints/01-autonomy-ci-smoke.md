@@ -3,8 +3,8 @@
 | Field | Value |
 |---|---|
 | **Sprint number** | 01 |
-| **Status** | planned |
-| **Started** | — |
+| **Status** | active |
+| **Started** | 2026-08-07 |
 | **Target close** | — |
 | **Depends on** | none |
 
@@ -22,9 +22,9 @@ Add a structural test that installs Midas with `--autonomy` into a temp director
 
 ## Acceptance criteria
 
-- [ ] WHEN `node scripts/test.mjs` runs, an autonomy install + fake tick test SHALL pass.
-- [ ] WHEN the test uses `--runner=fake`, it SHALL NOT require `CURSOR_API_KEY` or cloud credentials.
-- [ ] WHEN the fixture completes, `{product}/features.json` feature F-001 MAY flip to `passing` with test path evidence.
+- [x] WHEN `node scripts/test.mjs` runs, an autonomy install + fake tick test SHALL pass.
+- [x] WHEN the test uses `--runner=fake`, it SHALL NOT require `CURSOR_API_KEY` or cloud credentials.
+- [x] WHEN the fixture completes, `{product}/features.json` feature F-001 MAY flip to `passing` with test path evidence.
 
 ## Definition of Done (DoD)
 
@@ -39,10 +39,10 @@ Add a structural test that installs Midas with `--autonomy` into a temp director
 
 | # | Task | Tier | Status | Notes |
 |---|------|------|--------|-------|
-| 1 | Add temp-dir install fixture with `--autonomy` flag | build | todo | reuse create-midas patterns |
-| 2 | Run `midas-autopilot.mjs setup` + one `--runner=fake` tick | build | todo | playbook: `harness/autonomy/pilot.md` |
-| 3 | Wire test id into `scripts/test.mjs` with clear failure message | build | todo | |
-| 4 | Cross-reference test id in `harness/autonomy/pilot.md` | build | todo | |
+| 1 | Add temp-dir install fixture with `--autonomy` flag | build | done | `autonomy:install-smoke-exit` |
+| 2 | Run `midas-autopilot.mjs setup` + one `--runner=fake` tick | build | done | `autonomy:install-fake-tick-smoke` |
+| 3 | Wire test id into `scripts/test.mjs` with clear failure message | build | done | |
+| 4 | Cross-reference test id in `harness/autonomy/pilot.md` | build | done | |
 
 ## Blockers
 

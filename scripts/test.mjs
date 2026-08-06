@@ -3627,6 +3627,65 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
       'autonomy:install-hooks-present',
       existsSync(join(`${installRoot}-b`, '.harness', 'autonomy', 'hooks', 'fail-closed.json')),
     );
+
+    // Installer E2E: --autonomy → setup → fake tick (Sprint 01 / ADR-009 P0 CI smoke; no cloud tokens)
+    const smokeRoot = `${installRoot}-smoke`;
+    const smokeInstall = spawnSync(
+      process.execPath,
+      [join(ROOT, 'create-midas', 'index.mjs'), '--tools=cursor', '--autonomy', smokeRoot],
+      { encoding: 'utf8' },
+    );
+    check(
+      'autonomy:install-smoke-exit',
+      smokeInstall.status === 0,
+      smokeInstall.stderr || smokeInstall.stdout,
+    );
+    if (smokeInstall.status === 0) {
+      mkdirSync(join(smokeRoot, '.harness', 'product', 'sprints'), { recursive: true });
+      writeFileSync(
+        join(smokeRoot, '.harness', 'product', 'sprints', '01-smoke.md'),
+        '# Sprint 01\n\n- [ ] CI smoke task\n',
+        'utf8',
+      );
+      writeFileSync(
+        join(smokeRoot, '.harness', 'state.yaml'),
+        [
+          'midas_version: 2.5.5',
+          'layout: harness',
+          'name: smoke',
+          'stage: sprint_execution',
+          'stage_status: in_progress',
+          'sprints:',
+          '  - id: "01"',
+          '    title: smoke',
+          '    status: active',
+          '',
+        ].join('\n'),
+        'utf8',
+      );
+      const smokeCli = join(smokeRoot, '.harness', 'autonomy', 'bin', 'midas-autopilot.mjs');
+      const smokeEnv = { ...process.env, CURSOR_API_KEY: '', MIDAS_AUTONOMY_AUTHZ_KEY: '' };
+      const setupOut = spawnSync(process.execPath, [smokeCli, 'setup', `--root=${smokeRoot}`, '--actor=ci', '--hours=1'], {
+        encoding: 'utf8',
+        env: smokeEnv,
+      });
+      const tickOut = spawnSync(
+        process.execPath,
+        [smokeCli, 'tick', `--root=${smokeRoot}`, '--runner=fake', '--repo=local/project'],
+        { encoding: 'utf8',
+          env: smokeEnv,
+        },
+      );
+      check(
+        'autonomy:install-fake-tick-smoke',
+        setupOut.status === 0 &&
+          tickOut.status === 0 &&
+          /"verdict": "pass"/.test(tickOut.stdout),
+        [setupOut.stdout, setupOut.stderr, tickOut.stdout, tickOut.stderr].filter(Boolean).join('\n'),
+      );
+      rmSync(smokeRoot, { recursive: true, force: true });
+    }
+
     rmSync(installRoot, { recursive: true, force: true });
     rmSync(`${installRoot}-b`, { recursive: true, force: true });
   } finally {

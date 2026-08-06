@@ -10,8 +10,8 @@
         "WHEN npm test runs on CI, the autonomy smoke test SHALL pass without network tokens.",
         "WHEN the smoke fixture completes, MIDAS_AUTOPILOT tick output SHALL show a reconciled no-op or fake effect."
       ],
-      "status": "failing",
-      "evidence": ""
+      "status": "passing",
+      "evidence": "scripts/test.mjs autonomy:install-fake-tick-smoke"
     },
     {
       "id": "F-002",
