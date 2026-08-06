@@ -11,6 +11,18 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.5.5] — 2026-08-07
+
+### Added
+
+- Test `create-template:schema:no-mojibake` guards install template `state.schema.md`.
+
+### Fixed
+
+- CHANGELOG compare links for `v2.5.4`.
+
+---
+
 ## [2.5.4] — 2026-08-07
 
 ### Fixed
@@ -1486,8 +1498,9 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.5.4...HEAD
-[2.5.3]: https://github.com/okuzpe/midas-harness/compare/v2.5.2...v2.5.3
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.5.5...HEAD
+[2.5.5]: https://github.com/okuzpe/midas-harness/compare/v2.5.4...v2.5.5
+[2.5.4]: https://github.com/okuzpe/midas-harness/compare/v2.5.3...v2.5.4
 [2.5.2]: https://github.com/okuzpe/midas-harness/compare/v2.5.1...v2.5.2
 [2.5.1]: https://github.com/okuzpe/midas-harness/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/okuzpe/midas-harness/compare/v2.4.0...v2.5.0

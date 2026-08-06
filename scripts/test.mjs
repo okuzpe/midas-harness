@@ -417,6 +417,11 @@ if (existsSync(tplRoot)) {
   }
   // Engine dev state must never ship in the distributable bundle (create-midas/index.mjs writes fresh state).
   check('create-template:excludes:harness/state.yaml', !existsSync(join(tplRoot, '.harness', 'engine', 'state.yaml')));
+  check(
+    'create-template:schema:no-mojibake',
+    !/[ÔÃâ€™]/.test(readFileSync(join(tplRoot, '.harness', 'engine', 'state.schema.md'), 'utf8')),
+    'template state.schema.md has UTF-8 mojibake',
+  );
 }
 
 // --- E2b. build-create strips engine-only harness files (dynamic, not static tree check) -------
