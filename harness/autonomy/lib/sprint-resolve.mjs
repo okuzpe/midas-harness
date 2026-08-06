@@ -140,7 +140,8 @@ const OPERATOR_HEURISTICS = [
   /\bpublish\b[\s\S]{0,40}\bdraft\b/i,
   /\bdraft\b[\s\S]{0,40}\bpublish\b/i,
   /\bon an older install\b/i,
-  /\bconfirm\s+%appdata%/i,
+  /\bconfirm\b[\s\S]{0,30}%appdata%/i,
+  /\bconfirm\b[\s\S]{0,60}\b(backups?|pre-update)/i,
   /\bafter nsis\b/i,
   /\bsmoke[- ]test\b/i,
   /\bmonitor (the )?actions\b/i,
@@ -148,6 +149,8 @@ const OPERATOR_HEURISTICS = [
   /\bgit tag\b/i,
   /\bpush (the )?tag\b/i,
   /\bworkflow_dispatch\b/i,
+  /\boptional:\s*settings\b/i,
+  /\brelease runbook\b/i,
 ];
 
 /**

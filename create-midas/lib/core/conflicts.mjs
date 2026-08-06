@@ -7,7 +7,18 @@ import {
 } from '../../template/.harness/scripts/ownership-manifest.mjs';
 
 function isVendorManagedPath(rel) {
-  return rel.startsWith('.harness/engine/') || rel.startsWith('.harness/scripts/');
+  return (
+    rel.startsWith('.harness/engine/') ||
+    rel.startsWith('.harness/scripts/') ||
+    // Optional autonomy capability is vendor-owned except user runtime files
+    // (policy.yaml, control.json, …) which are never hash-checked.
+    (rel.startsWith('.harness/autonomy/') &&
+      !rel.startsWith('.harness/autonomy/authz/') &&
+      !rel.endsWith('/policy.yaml') &&
+      !rel.endsWith('/control.json') &&
+      !rel.endsWith('/budget-ledger.json') &&
+      !rel.endsWith('/journal-anchor.json'))
+  );
 }
 
 /** True when many vendor hashes drifted (typical after engine bump without manifest rewrite). */

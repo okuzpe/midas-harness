@@ -3258,6 +3258,10 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
       check('autonomy:bf-planning-path', md && md.includes('sprint-65-release-runbook.md'));
       check('autonomy:operator-heuristic-publish', isOperatorTask('Publish the draft release'));
       check('autonomy:operator-heuristic-actions', isOperatorTask('Wait for Actions Release → draft has Setup.exe'));
+      check(
+        'autonomy:operator-heuristic-appdata',
+        isOperatorTask('Confirm `%APPDATA%\\BodegaSuite\\backups\\pre-update-*.db` was created'),
+      );
       check('autonomy:operator-marker', isOperatorTask('[operator] Merge the PR on GitHub'));
       check('autonomy:code-task-not-operator', !isOperatorTask('Add login form validation'));
       const task = findNextTask(bf, 's65-release-runbook', '.harness/product');
