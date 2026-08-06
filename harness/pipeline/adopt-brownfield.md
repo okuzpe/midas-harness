@@ -58,11 +58,12 @@ source cited. Follow **infer → SHOW → confirm**. Conflicts between docs and 
 **DISPUTED** and confirm. Unknown fields stay blank for the gap loop. Skipped/backfilled gates carry
 a **recorded assumption** in `paths.state` and an honest `entry_stage`.
 
-## Step 4b — Dead-flow sweep (inline)
+## Step 4b — Dead-flow hygiene
 
-Run the same **indexing checks** as hygiene (`<paths.engine>/rules/hygiene.md`) inline — orphan
-routes, duplicate utilities, `open-questions.md` drift — **do not** invoke `/midas-sweep` by name.
-Record findings in adoption notes; reconcile obvious drift before the baseline audit.
+Recommend **`/midas-sweep --depth quick`** (optional; user may skip) before the baseline audit —
+canonical indexed pass per `<paths.engine>/rules/hygiene.md`. If skipped, run a **light inline index**
+(orphan routes, duplicate utilities, `open-questions.md` drift), record findings in adoption notes,
+and reconcile obvious drift before Step 5.
 
 ## Step 5 — Baseline audit
 

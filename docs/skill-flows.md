@@ -135,7 +135,7 @@ flowchart LR
   Draft["/midas-automate"] --> CursorAuto["Cursor /automate"]
   CursorAuto --> OneFix["one improve + verify + PR"]
   OneFix --> Journal["{runs}/automate/journal.md"]
-  Journal --> Close["/close-sprint when ready"]
+  Journal --> Close["/close-sprint when sprint ready (manual)"]
 ```
 
 See `/midas-automate` and `<paths.engine>/templates/cursor-automation-improve.md.tmpl`.
@@ -149,7 +149,7 @@ Except for intake/adoption placement, they do not advance lifecycle gates.
 |---|---|---|---|---|
 | `/midas-init` | Installed but not initialized project | Scan → classify E0–E3 → prefill → confirm → generate | Writable `.harness/` layout and initial state | Sets `setup_complete`; routes by maturity |
 | `/midas-adopt` | E2/E3 codebase | Inventory reality, infer architecture/rules, baseline audit, confirm wiring | Inventory, as-built architecture, debt, rules, baseline audit | Places E2 at rules; E3 at sprint planning |
-| `/midas-update` | Installed engine version behind | Compare versions, preview migration, confirm, refresh engine | Updated engine/adapters and version stamp | Then doctor or status |
+| `/midas-update` | Installed engine version behind | Compare versions, preview migration, confirm, refresh engine | Updated engine/adapters and version stamp | Then `/midas-doctor` or `/midas-status`; engine repo → `/midas-align` |
 | `/midas-doctor` | Any installation | Check layout, routing, enforcement, gates, and adapter drift | Health report; optional regenerated managed files | Stage unchanged |
 | `/midas-align` | Substantive engine/product change | Map diff to propagation surfaces, run the alignment ladder | Alignment or gap report; regenerated mirrors as needed | Stage unchanged |
 | `/midas-sweep` | Any project, especially brownfield | Find dead flows, orphans, stale docs, and ledger drift | `sweep-NN.md`; optional approved safe fixes | Stage unchanged |

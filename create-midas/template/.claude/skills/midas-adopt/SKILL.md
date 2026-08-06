@@ -35,7 +35,10 @@ Step outline (Steps 0–6):
 - **Step 2 — Infer de-facto architecture** (orchestrate): write `{product}/architecture.md` (as-built) + ADRs.
 - **Step 3 — Reverse-engineer rules** (brownfield keystone): derive `<paths.rules>/*` + `{product}/conventions.md` from real code; log violations as debt.
 - **Step 4 — Backfill product context:** write `{product}/idea.md` (document-existing mode); infer → SHOW → confirm; tag conflicts **DISPUTED**.
-- **Step 4b — Dead-flow sweep** (inline): orphan routes, duplicate utilities, `open-questions.md` drift; no explicit `/midas-sweep` call.
+- **Step 4b — Dead-flow hygiene:** recommend **`/midas-sweep --depth quick`** (optional; user may skip)
+  before the baseline audit — canonical indexed pass per `<paths.engine>/rules/hygiene.md`. If skipped,
+  run a light inline index (orphan routes, duplicate utilities, `open-questions.md` drift) and record
+  findings in adoption notes; reconcile obvious drift before Step 5.
 - **Step 5 — Baseline audit:** lightweight conformance pass; freeze to `{runs}/audits/audit-baseline-NN.md`.
 - **Step 6 — Wire the harness** (dry-run + diff-confirm): write new files; show diff + confirm for pre-existing `AGENTS.md`/`.claude/CLAUDE.md`; set `paths.state`.
 

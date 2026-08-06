@@ -36,22 +36,23 @@ completion — it reports the truth already on disk. Safe to run at any time, in
    *user* to type.** The phase rituals are gated (`disable-model-invocation`); **never call the Skill tool on
    them** (it errors) — present the command (e.g. *"👉 Run `/define-conventions`"*), don't invoke it.
 
-   **Canonical table:** `<paths.engine>/stage-command-table.yaml` (also parsed by `<paths.scripts>/stage-command-table.mjs`).
-   Summary:
+   **Canonical table:** read `<paths.engine>/stage-command-table.yaml` on disk (parsed by
+   `<paths.scripts>/stage-command-table.mjs`). **Do not duplicate the YAML in this skill** — resolve each
+   run from the file:
 
-   | stage | next action |
-   |---|---|
-   | (no state file) | `/midas-init` |
-   | `setup_complete: false` | `/midas-init` (finish one-time setup) |
-   | `idea_intake` | `/idea-intake` |
-   | `contextualize` | `/contextualize` |
-   | `market_research` | `/market-research` (optional host deep-research or web/Context7 — not shipped in engine) |
-   | `business_case` | `/business-plan` (needs human sign-off) |
-   | `tech_architecture` | `/choose-architecture` |
-   | `architecture_rules` | `/define-conventions` |
-   | `sprint_planning` | `/plan-sprints` |
-   | `sprint_execution` | `/start-sprint` while tasks remain; `/midas-design` before redesign JSX; `/midas-verify` for UI acceptance journeys before close; `/close-sprint` when done + tests green |
-   | `shipped` | none — MVP complete |
+   - `(no state file)` → `/midas-init` (or diagnose per step 1)
+   - `setup_complete: false` → `/midas-init` (finish one-time setup), regardless of `stage`
+   - Otherwise use the row for `paths.state → stage`:
+     - default next ritual → that row's `command`
+     - honor each row's `note` when present (e.g. human sign-off on `business_case`)
+     - `sprint_execution` → pick **one** command from sprint reality:
+       - sprint not yet `active` → `command` (`/start-sprint`)
+       - sprint `active`, tasks remain → continue per `<paths.engine>/pipeline/7-sprint-execution.md`
+       - UI journeys not frozen → `verify_ui` (`/midas-verify`) when the sprint is UI-touching
+       - visual redesign before JSX → `redesign_ui` (`/midas-design`)
+       - tasks done + tests green → `command_when_done` (`/close-sprint`)
+       - ad-hoc branch smoke only → `qa_adhoc` (`/midas-qa`) — never replaces verify before close
+     - `shipped` → `command: null` (MVP complete; no next ritual)
 
 5. **Surface optional prompts (never force).** At a high-leverage decision point, add **one** line if relevant:
    - **Tribunal** — see tribunal table below

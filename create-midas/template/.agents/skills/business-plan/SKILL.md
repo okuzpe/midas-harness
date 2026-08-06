@@ -13,6 +13,7 @@ metadata:
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
 > **Precondition:** `market_research` passed. **Hard human checkpoint** — no engineering until go/no-go sign-off.
 > Optional: `/midas-tribunal` (pre-go/no-go) — high-leverage, never forced.
+> **Playbook:** `<paths.engine>/pipeline/3-business-case.md`
 
 Turn the validated opportunity into a decision. The orchestrator owns the go/no-go judgment and the
 gate; the builder drafts the document.

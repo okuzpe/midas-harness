@@ -11,6 +11,7 @@ metadata:
 # plan-sprints (Phase 6 — Sprint Planning)
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Playbook:** `<paths.engine>/pipeline/6-sprint-planning.md`
 
 Sequence the **MVP only** into shippable sprints. Value is correct decomposition and dependency
 ordering, not prose volume. Each sprint is a thin, demonstrable slice whose Definition of Done points

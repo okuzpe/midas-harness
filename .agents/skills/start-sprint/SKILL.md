@@ -24,6 +24,9 @@ proceeds on the **build** tier with Context7.
 
 > **Precondition.** A sprint must be `planned` (or `active` being resumed) in `paths.state → sprints[]`,
 > and Phase 6's gate must be passed. If no sprint is selectable, stop and report.
+>
+> **Kickoff only.** Full Phase-7 implementation (task loop, inner verify→fix, acceptance) lives in
+> **`<paths.engine>/pipeline/7-sprint-execution.md`** — follow it after this skill sets the sprint `active`.
 
 ## Does / Does not
 
@@ -87,7 +90,7 @@ they confirm kickoff (or the slash-command itself is the confirmation): set the 
 amendments in the sprint's `audit_notes`.
 
 ### 6. Hand off to implementation
-Implementation runs on the **build** tier. Print: *"👉 Optional: `/midas-recall sprint` for a context pack
+Implementation runs on the **build** tier per **`<paths.engine>/pipeline/7-sprint-execution.md`**. Print: *"👉 Optional: `/midas-recall sprint` for a context pack
 before coding (scout tier; read-only)."* — do **not** re-load the full rule set here; recall delegates to scout.
 During long sprints, remind: *"👉 `/midas-progress` after significant tasks (STM in `{runs}/sprints/NN-progress.md`)."*
 **Optional bounded autopilot:** if the user wants one code task per scheduled tick (ADR-009), point to

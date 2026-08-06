@@ -51,6 +51,8 @@ Step outline (Steps 0–6):
 
 ## Tier & cost
 The audit, drift decisions, and ship/continue call → **orchestrate** (Opus). Mechanical diff
-extraction → **scout** (Haiku). Any fix work routes to **build** (Sonnet) under the next `/start-sprint`.
+extraction → **scout** (Haiku). Step-4 conformance fixes → **build** (Sonnet); then **re-run
+`/close-sprint`** until `MIDAS_AUDIT_RESULT` shows `unresolved=0`. Only after Step 6 marks the
+sprint `done` does the next code sprint begin with **`/start-sprint`**.
 Under `cost_profile: max_savings`, **escalate this Phase-8 audit to Opus** even if the default
 orchestrate pin is Sonnet.

@@ -11,6 +11,18 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.5.2] — 2026-08-06
+
+### Fixed
+
+- Flow-audit handoffs: pipeline skills cite playbooks (phases 2–3, 6–7); `start-sprint` points at
+  `7-sprint-execution.md`; Phase-8 fixes re-run `/close-sprint` (not deferred to next `/start-sprint`).
+- `midas-status` / `midas-recall` read `stage-command-table.yaml` instead of duplicating stage tables.
+- Brownfield adopt recommends optional `/midas-sweep --depth quick`; `skill-flows.md` clarifies automate
+  does not auto-invoke `/close-sprint`.
+
+---
+
 ## [2.5.1] — 2026-08-06
 
 ### Fixed
@@ -1449,7 +1461,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.5.1...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.5.2...HEAD
+[2.5.2]: https://github.com/okuzpe/midas-harness/compare/v2.5.1...v2.5.2
 [2.5.1]: https://github.com/okuzpe/midas-harness/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/okuzpe/midas-harness/compare/v2.4.0...v2.5.0
 [2.4.0]: https://github.com/okuzpe/midas-harness/compare/v2.3.9...v2.4.0

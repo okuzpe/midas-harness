@@ -107,5 +107,6 @@ reconcile remaining `sprints[]`. Then **select next**:
 
 - **Audit + decide:** `orchestrate` (`midas-orchestrator`) — irreversible gate; do not downgrade
 - **Mechanical diff extraction:** `scout`
-- **Conformance fixes:** `build` under the next `/start-sprint`
+- **Conformance fixes:** `build` tier, then re-run `/close-sprint` until `unresolved=0`; next sprint
+  kickoff is `/start-sprint` only after Step 6 marks the current sprint `done`
 - Prefer an installed code-review/security specialist if present; otherwise `midas-orchestrator`

@@ -13,6 +13,7 @@ metadata:
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
 > **Precondition:** `contextualize` passed (user/problem/metric/non-goals clear). Blocking opens → `/contextualize`.
+> **Playbook:** `<paths.engine>/pipeline/2-market-research.md`
 
 Validate that the clarified idea addresses a real problem with a real audience, and map the
 competitive landscape **with citations**. The producer gathers and synthesizes; the orchestrator
