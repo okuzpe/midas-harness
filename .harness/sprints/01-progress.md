@@ -12,7 +12,7 @@
 
 ## Next
 
-Run `/close-sprint` after gate audit (Phase 8).
+Sprint closed — see `.harness/audits/audit-01.md`. Next: `/start-sprint 02`.
 
 ## Observations
 

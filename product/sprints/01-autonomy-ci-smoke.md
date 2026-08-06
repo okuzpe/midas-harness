@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | **Sprint number** | 01 |
-| **Status** | active |
+| **Status** | done |
 | **Started** | 2026-08-07 |
-| **Target close** | — |
+| **Target close** | 2026-08-07 |
 | **Depends on** | none |
 
 ## Goal
@@ -28,12 +28,12 @@ Add a structural test that installs Midas with `--autonomy` into a temp director
 
 ## Definition of Done (DoD)
 
-- [ ] All acceptance criteria above are met.
-- [ ] New/changed behaviour has a passing automated test (`harness/rules/testing.md`).
-- [ ] No structural invariant regressions (`harness/rules/change-propagation.md` — run `npm run align`).
-- [ ] No secrets committed (`harness/rules/security.md`).
-- [ ] `product/features.json` F-001 updated (`status`, `evidence`) if criteria met.
-- [ ] `{runs}/sprints/01-progress.md` started on `/start-sprint` (Phase 7).
+- [x] All acceptance criteria above are met.
+- [x] New/changed behaviour has a passing automated test (`harness/rules/testing.md`).
+- [x] No structural invariant regressions (`harness/rules/change-propagation.md` — run `npm run align`).
+- [x] No secrets committed (`harness/rules/security.md`).
+- [x] `product/features.json` F-001 updated (`status`, `evidence`) if criteria met.
+- [x] `{runs}/sprints/01-progress.md` started on `/start-sprint` (Phase 7).
 
 ## Tasks
 
@@ -50,5 +50,6 @@ Add a structural test that installs Midas with `--autonomy` into a temp director
 
 ## Phase 8 audit notes
 
-- **Audit file:** `{runs}/audits/audit-01.md`
-- **Verdict:** pending
+- **Audit file:** `.harness/audits/audit-01.md`
+- **Verdict:** pass
+- **Next action:** `/start-sprint 02`

@@ -10,7 +10,7 @@
 
 | Sprint | Title | Goal | Depends on | Status |
 |--------|-------|------|------------|--------|
-| 01 | autonomy-ci-smoke | Prove optional autonomy installs and fake-runner tick in structural tests | — | planned |
+| 01 | autonomy-ci-smoke | Prove optional autonomy installs and fake-runner tick in structural tests | — | done |
 | 02 | midas-retro-skill | Ship read-only `/midas-retro` skill with catalog + quality gate | — | planned |
 | 03 | installer-update-docs | Document update/rebaseline contract in INSTALL.md with test anchor | — | planned |
 
