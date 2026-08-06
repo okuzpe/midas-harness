@@ -1,4 +1,4 @@
-midas_version: 2.5.3
+midas_version: 2.5.4
 # Engine repository dogfoods classic layout by design (authored source in harness/ + scripts/).
 # Product installs use layout: harness — see ADR-007 / ADR-008.
 layout: classic
@@ -14,7 +14,7 @@ name: harness
 mode: brownfield
 language: en
 created: 2026-06-29
-updated: 2026-08-05
+updated: 2026-08-07
 setup_complete: true        # engine repo — installer complete; dogfoods the harness on itself
 
 # Engine-as-dogfood profile: phases 0–4 satisfied by README + docs/ + harness/ itself.

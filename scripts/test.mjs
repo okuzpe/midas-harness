@@ -2102,6 +2102,11 @@ for (const legacyLayout of ['compact', 'hub']) {
 }
 check('schema:layout-field', /layout:\s*harness/.test(readFileSync(join(ROOT, 'harness', 'state.schema.md'), 'utf8')));
 check('schema:paths-product', /product:\s*\.harness\/product/.test(readFileSync(join(ROOT, 'harness', 'state.schema.md'), 'utf8')));
+check(
+  'schema:no-mojibake',
+  !/[ÔÃâ€™]/.test(readFileSync(join(ROOT, 'harness', 'state.schema.md'), 'utf8')),
+  'state.schema.md has UTF-8 mojibake — use —, –, ≥, →',
+);
 check('pipeline:runs-token', readFileSync(join(ROOT, 'harness', 'pipeline', '7-sprint-execution.md'), 'utf8').includes('{runs}/sprints'));
 check('agents:path-resolution', /Path resolution/.test(readFileSync(join(ROOT, 'AGENTS.md'), 'utf8')));
 check('gitignore:snippet:midas-cache', /\.harness\/cache\//.test(readFileSync(snippetPath, 'utf8')));
