@@ -14,7 +14,7 @@ as the canonical memory overview.
 | Layer | Analogy | Where | Who writes |
 |---|---|---|---|
 | **PC** | program counter | `paths.state` | phase skills (read first, write last) |
-| **STM** | working memory this stretch | `{runs}/sprints/NN-progress.md`, active sprint file | build tier during Phase 7 |
+| **STM** | working memory this stretch | `{runs}/sprints/NN-progress.md`, `{runs}/improve-loop/journal.md`, active sprint file | build tier during Phase 7 or `/midas-improve-loop` |
 | **LTM** | durable truth | `{product}/*`, `<paths.rules>/*`, `{runs}/*` frozen records | phase skills + `/midas-capture` |
 
 **Context window ≠ memory.** A larger context window is not LTM; it is expensive STM that resets when the
@@ -29,6 +29,8 @@ session ends. Midas points agents at the right LTM files instead of replaying ch
 | `/midas-capture` | build | Crystallize recurring patterns → rule / playbook / convention (user-approved) |
 | `/midas-bundle` | build | Export/import portable JSON — product knowledge, rules, evidence, config (no secrets) |
 | `/midas-sweep` | build | Hygiene — dead flows, ledger drift (orthogonal to recall) |
+| `/midas-improve-loop` | build | Continuous improve STM — `{runs}/improve-loop/journal.md`; arms Cursor `/loop`; not ADR-009 policy plane |
+| `/midas-autopilot` | build | Optional ADR-009 policy plane — `{runs}/autonomy/` journal when `--autonomy` installed |
 
 `/midas-status` **suggests** `/midas-recall` when `stage_status: in_progress` or an active sprint's
 `last_touched` is older than **7 days** — optional, never blocking.

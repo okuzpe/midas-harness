@@ -352,7 +352,7 @@ medio / alto. Fuente gstack = README salvo indicación.
 
 | Propuesta | Taxonomía Midas futura | Rationale |
 |---|---|---|
-| **`/midas-retro`** *(PROPOSED — not shipped)* | `.claude/skills/midas-retro/SKILL.md`; salida `.harness/retros/retro-NN.md`; non-advancing | gstack tiene `/retro`; Midas solo audita conformidad en close-sprint |
+| **`/midas-retro`** *(planned — sprint 02)* | `.claude/skills/midas-retro/SKILL.md`; salida `{runs}/retros/retro-NN.md`; non-advancing | gstack tiene `/retro`; Midas solo audita conformidad en close-sprint hasta que sprint 02 cierre |
 | **`/midas-investigate`** | Skill build-tier; playbook `product/playbooks/debug-root-cause.md`; refuerzo `verification.md` | Ley de Hierro + 3 strikes reduce “fixes al azar” |
 | **Salvaguardas careful/freeze/guard** | `harness/rules/safety-guardrails.md` + hook lefthook/pre-tool; skills opcionales `/midas-freeze` | Alineado con `security.md`; bajo esfuerzo |
 | **`/midas-doc`** *(PROPOSED — not shipped)* | Skill build-tier; Diataxis map en PR body o `.harness/docs/doc-NN.md` | Cierra gap document-release/generate |
