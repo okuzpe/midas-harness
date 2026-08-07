@@ -236,7 +236,7 @@ Phase 8 (`/close-sprint`) grades `.harness/engine/rules/security.md`: `.gitignor
 
 `--diagnose` and `/midas-reconcile` are **read-only** — they never write files.
 
-## Updating
+## Updating an existing install
 
 **`--update` and `/midas-update` are alternatives, not a sequence.** The CLI path is complete when it
 prints `verify: ok — adapters in sync`. Use `/midas-update` only when you want an interactive
@@ -245,15 +245,31 @@ dry-run and confirm before the same refresh runs.
 On a v2 install, **`--update`** refreshes manifest-owned engine/generated files, re-renders adapters
 and skill mirrors, prunes orphan host trees, and runs strict doctor before it finishes. It preserves
 `.harness/product`, `.harness/rules`, `.harness/runs`, state, MCP, and content outside generated
-markers. A modified `vendor` file aborts same-version updates before any write (version upgrades
-refresh the engine wholesale). Pass **`--tools=…`** to change the host set and prune unused adapters:
+markers. Pass **`--tools=…`** to change the host set and prune unused adapters:
 
 ```bash
 npx github:okuzpe/midas-harness#v2.6.1 --update
 npx github:okuzpe/midas-harness#v2.6.1 --update --tools=cursor
+npx github:okuzpe/midas-harness#v2.6.1 --update --dry-run   # plan only — no writes
 ```
 
 Project rules belong in `.harness/rules/`; a matching slug overrides the immutable base rule.
+
+### Ownership manifest, conflicts, and rebaseline
+
+Update decisions come from `.harness/manifest.json` (written at install). Roles matter:
+
+| Situation | What `--update` does | Structural guard |
+|---|---|---|
+| **Vendor conflict** — a `vendor` file on disk no longer matches its recorded SHA (you edited engine source outside an overlay) | **Aborts before any write** on same-version refresh; restore the file or move the change into `.harness/rules/` / product overlays | `installer:update-vendor-conflict-prewrite` in `scripts/test.mjs` |
+| **Stale manifest** — hashes in the manifest drifted but files still match the engine package (corrupt/outdated manifest bookkeeping) | After confirm (never on `--dry-run`), **re-baselines** the ownership manifest, then refreshes; prints `manifest hash drift — re-baselining` | `installer:update-stale-manifest-rebaseline` |
+| **Version upgrade** | Refreshes the engine tree wholesale per the new pin; still preserves product/rules/runs/state | same update path + `installer:update-*` suite |
+
+`--dry-run` reports vendor conflicts without writing (`installer:update-dry-run-reports-vendor-conflict`).
+Do not hand-edit `.harness/manifest.json` — let `--update` rebaseline it.
+
+Related checks (all in `scripts/test.mjs`): `installer:update-honours-tools`,
+`installer:update-tools-rewrites-and-prunes`, `installer:update-complete-hint`.
 
 ## Migrating an existing 1.x install
 

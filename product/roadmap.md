@@ -12,7 +12,7 @@
 |--------|-------|------|------------|--------|
 | 01 | autonomy-ci-smoke | Prove optional autonomy installs and fake-runner tick in structural tests | — | done |
 | 02 | midas-retro-skill | Ship read-only `/midas-retro` skill with catalog + quality gate | — | done |
-| 03 | installer-update-docs | Document update/rebaseline contract in INSTALL.md with test anchor | — | planned |
+| 03 | installer-update-docs | Document update/rebaseline contract in INSTALL.md with test anchor | — | done |
 
 Sprints are **parallelizable** after planning; ordering is pedagogical (autonomy first per ADR-009).
 

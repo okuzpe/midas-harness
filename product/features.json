@@ -34,8 +34,8 @@
         "WHEN a reader follows INSTALL.md update section, they SHALL find steps for create-midas --update and rebaseline behavior.",
         "WHEN npm test runs, the cited installer:update or rebaseline test id SHALL exist and pass."
       ],
-      "status": "failing",
-      "evidence": ""
+      "status": "passing",
+      "evidence": "INSTALL.md § Updating an existing install; scripts/test.mjs installer:update-stale-manifest-rebaseline"
     }
   ]
 }

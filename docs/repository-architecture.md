@@ -190,7 +190,9 @@ New **product** installs use one canonical `.harness/` tree with a **thin root**
 Default `--tools=cursor` → skills under `.cursor/skills/` only. Classic, compact, and hub are
 read-only migration inputs; `--update` never relocates them. Path resolution is in
 `scripts/paths.mjs`; skills read `layout` + `paths` from state and substitute `{runs}/` and
-`{product}/` tokens. See [INSTALL.md](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md).
+`{product}/` tokens. Update / conflict / ownership-manifest **rebaseline** contract:
+[INSTALL.md § Updating an existing install](../INSTALL.md#updating-an-existing-install)
+(guards: `installer:update-stale-manifest-rebaseline`, `installer:update-vendor-conflict-prewrite`).
 
 **Optional autonomy** (ADR-009): `create-midas --autonomy` copies `harness/autonomy/` →
 `.harness/autonomy/` (bounded control plane + `midas-autopilot`). Absent the flag, installs get

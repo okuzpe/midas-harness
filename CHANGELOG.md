@@ -14,6 +14,11 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 - `/midas-retro` — read-only sprint retrospective freeze to `{runs}/retros/retro-NN.md` (non-advancing).
 - `harness/templates/retro-record.md`; `RUNS_SUBDIRS` / bundle freeze include `retros/`.
 
+### Changed
+
+- `INSTALL.md` § **Updating an existing install** — ownership-manifest conflicts + rebaseline contract
+  with structural test anchors (`installer:update-stale-manifest-rebaseline`, vendor-conflict).
+
 ---
 
 ## [2.6.1] — 2026-08-07

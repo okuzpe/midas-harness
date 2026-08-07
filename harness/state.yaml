@@ -65,6 +65,6 @@ sprints:
     last_touched: 2026-08-07
   - id: "03"
     title: installer-update-docs
-    status: planned
-    audit_notes: ""
+    status: done
+    audit_notes: "F-003 passing — INSTALL.md rebaseline docs; Phase-8 audit-03 still pending"
     last_touched: 2026-08-07
