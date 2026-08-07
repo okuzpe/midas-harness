@@ -1,0 +1,16 @@
+# Improve-loop journal
+
+> Append-only log for `/midas-improve-loop` cycles (local `/loop` or Cursor Automations).
+> Path: `{runs}/improve-loop/journal.md`
+> **Not** a Phase-8 audit. Producer evidence only.
+> Human override this session: `/loop` every 10m with explicit push to `main`.
+
+| When (ISO) | Branch / PR | Improvement (one line) | Verify command | Result | Notes |
+|---|---|---|---|---|---|
+| 2026-08-07T18:20:00Z | main `3c95a36` | Ship `/midas-retro` (F-002) | `node scripts/test.mjs` (873 pass) | pass | sweep-04 |
+| 2026-08-07T18:30:00Z | main `dba5116` | INSTALL rebaseline docs (F-003) | cited installer:* ids exist | pass | sweep-05 |
+| 2026-08-07T18:40:00Z | main `a5eb6de` | skill-flows + SM metrics + retro-01 | doctor ok | pass | sweep-06 |
+| 2026-08-07T18:50:00Z | main `e17621e` | muninn/README/INSTALL inventories | doctor ok | pass | sweep-07 |
+| 2026-08-07T19:00:00Z | main `5e053c0` | un-attested audit-02/03 + gstack §8.3 | doctor gate:records 3 | pass | sweep-08; not binding |
+| 2026-08-07T19:10:00Z | main `ee3f49f` | TaskPilot `.midas/` links + dogfood.md | path Test-Path | pass | sweep-09 |
+| 2026-08-07T19:20:00Z | main (pending) | Seed improve-loop + bundle lean + gstack CHANGELOG ptr | doctor + test paths | pass | sweep-10 |

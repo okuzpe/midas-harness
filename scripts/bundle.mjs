@@ -64,7 +64,7 @@ const KNOWLEDGE_FILES = [
 ];
 
 
-const FROZEN_RUNS = ['audits', 'verifications', 'debates', 'sprints', 'sweeps', 'retros'];
+const FROZEN_RUNS = ['audits', 'verifications', 'debates', 'sprints', 'sweeps', 'lean', 'retros'];
 
 const TEST_GLOB_RE = /\.(test|spec)\.(tsx?|jsx?|mjs|cjs|vue|svelte)$/;
 const TEST_CONFIG_RE = /^(vitest|jest|playwright)\.config\.(tsx?|js|mjs|cjs)$/;

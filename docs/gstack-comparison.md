@@ -470,7 +470,7 @@ stack automatizado Midas es **web browser**; gstack `/ios-qa` no tiene equivalen
 
 **Ya implementado (2026-06-30):** el plan de verificación/MCP de la sección 8.2.1 — trazabilidad Tool,
 CHECK en `verification.md`, onboarding UI, y check advisory en `doctor.mjs`. Ver `CHANGELOG.md` §
-[Unreleased].
+[0.5.21] — Verification / MCP governance.
 
 **Pendiente (adopciones gstack, sección 6.1):** `/midas-retro` **ya shipped** (sprint 02 / F-002).
 Siguen abiertos si el equipo aprueba: `/midas-investigate`, salvaguardas careful/freeze/guard,
