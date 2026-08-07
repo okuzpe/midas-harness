@@ -18,6 +18,8 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 - `INSTALL.md` § **Updating an existing install** — ownership-manifest conflicts + rebaseline contract
   with structural test anchors (`installer:update-stale-manifest-rebaseline`, vendor-conflict).
+- `docs/dogfood.md` — engine now dogfoods MVP sprints 01–03 (not TaskPilot-only for Phase 7–8).
+- `README.md` — TaskPilot audit/debate links corrected to legacy `.midas/` paths.
 
 ---
 

@@ -37,8 +37,9 @@ loop that re-audits the living code against those frozen rules.
   unresolved critical findings. CI enforces this on the worked example via
   `doctor.mjs --strict --gates-only`. *The first gate check that lives outside the model.*
 - **It closes the loop on disk.** [`examples/taskpilot`](./examples/taskpilot/) drives Sprint 1 to
-  `done` — build → [`audit-01.md`](./examples/taskpilot/.harness/audits/audit-01.md) (verdict **PASS**,
-  one rule consciously amended and tracked forward to Sprint 3) → Sprint 2 queued. The signature
+  `done` — build → [`audit-01.md`](./examples/taskpilot/.midas/audits/audit-01.md) (verdict **PASS**,
+  one rule consciously amended and tracked forward to Sprint 3) → Sprint 2 queued. Legacy **hub**
+  layout (`.midas/`); see [`V2-PATH-MAP.md`](./examples/taskpilot/V2-PATH-MAP.md). The signature
   execute ⇄ audit loop (phases 7 and 8), demonstrated.
 - **Cost-aware by default.** Opus runs only the ~6 irreversible decisions (idea framing, stack choice,
   the audits); Sonnet builds, Haiku scouts. Current library docs are fetched before any third-party code
@@ -171,7 +172,8 @@ business model, architecture, scope, rules, and code. Cheaper tiers debate; the 
 **per claim** and every claim must cite on-disk evidence or it's struck. It complements `/close-sprint`
 (which checks a sprint against the frozen rules) by asking the prior question — *were those decisions
 right?* Output is a ranked findings report frozen to `.harness/debates/debate-NN.md`. See a worked run
-in [`examples/taskpilot/.harness/debates/debate-01.md`](./examples/taskpilot/.harness/debates/debate-01.md).
+in [`examples/taskpilot/.midas/debates/debate-01.md`](./examples/taskpilot/.midas/debates/debate-01.md)
+(legacy hub paths — [`V2-PATH-MAP.md`](./examples/taskpilot/V2-PATH-MAP.md)).
 
 ### Worked example
 A runnable Sprint-1 vertical slice — auth, task CRUD, middleware, board stub + tests — plus every phase
