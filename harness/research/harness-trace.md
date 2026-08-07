@@ -1,15 +1,15 @@
-# Harness Trace — research note (V1 Observe)
+# Harness Trace — research note (Observe)
 
-Actionable summary for engine dogfood. Full brainstorm history: `Untitled-1.md` (optional).
-Binding decision: `docs/adr/ADR-010-harness-trace-observe.md` (engine repo; not shipped in create-midas).
+Actionable summary. Binding decisions: `docs/adr/ADR-010-harness-trace-observe.md`,
+`docs/adr/ADR-011-harness-trace-installs.md` (this research file stays engine-only; not shipped).
 
 ## Goal
 
 Open a run and answer: what ran, how long, what state changed, which tools fired, what looks wrong.
 
-## Not V1
+## Not in scope (yet)
 
-MCP · Langfuse · Grafana · breakpoints · `.nd` · OTel · template ship · mirrored SKILL emits ·
+MCP · Langfuse · Grafana · breakpoints · `.nd` · OTel · mirrored SKILL emits ·
 `context_utilization` · LLM `confidence`.
 
 ## Layout
@@ -21,34 +21,39 @@ MCP · Langfuse · Grafana · breakpoints · `.nd` · OTel · template ship · m
     run-<id>.jsonl      # one envelope per line
 ```
 
-## Envelope
-
-`ts`, `session_id`, `run_id`, `type`, `name`, `attrs`
-
-Types: `run.started` | `run.finished` | `span.started` | `span.finished` | `event` |
-`state.snapshot` | `artifact`
-
 ## CLI
+
+**Engine dogfood**
 
 ```bash
 npm run trace:write -- start-run
-npm run trace:write -- snapshot
+npm run trace:inspect -- list
 npm run trace:inspect -- <run-id>
-# or: node scripts/trace-inspect.mjs <run-id>
 ```
 
-## Hooks (Cursor, engine only)
+**Product install (≥2.8.0)**
 
-`.cursor/hooks.json` → `node scripts/trace-hook.mjs` (fail-open, redacted attrs).
+```bash
+node .harness/scripts/trace-inspect.mjs list
+node .harness/scripts/trace-inspect.mjs <run-id>
+```
+
+## Hooks
+
+| Host | Command |
+|---|---|
+| Engine | `.cursor/hooks.json` → `node scripts/trace-hook.mjs <event>` |
+| Install (`tools` includes `cursor`) | merge → `node .harness/scripts/trace-hook.mjs <event>` |
+
+Fail-open; redacted attrs. Marker for merge/uninstall: `trace-hook.mjs` in `command`.
 
 ## PROBLEMS heuristics
 
 - span duration ≥ 60s
 - same span `name` ≥ 3 times in a run
-- any `event` with name/attrs marking error
+- any `event` type/name marking error
 - same `stage` in `state.snapshot` ≥ 3 times in a run
 
-## V2 (deferred)
+## Later
 
-Semantic `skill.<name>` emits only when `trace-write` exists on disk or via an engine-only skill;
-never as a hard step in skills mirrored to product installs without the binary.
+Semantic `skill.<name>` emits, context inspector, MCP query, compare runs.

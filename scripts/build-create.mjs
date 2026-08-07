@@ -46,6 +46,11 @@ const FILES = [
   'scripts/bundle.mjs',
   'scripts/ownership-manifest.mjs',
   'scripts/skill-registry.mjs',
+  'scripts/trace-write.mjs',
+  'scripts/trace-inspect.mjs',
+  'scripts/trace-hook.mjs',
+  'scripts/lib/trace-models.mjs',
+  'scripts/lib/trace-store.mjs',
 ];
 
 if (existsSync(TEMPLATE)) rmSync(TEMPLATE, { recursive: true, force: true });

@@ -31,20 +31,20 @@ Only host-required discovery surfaces stay at the repo root.
 **macOS / Linux**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash
-# shim defaults to github:okuzpe/midas-harness#v2.7.0
+# shim defaults to github:okuzpe/midas-harness#v2.8.0
 ```
 
 **Windows (PowerShell)**
 ```powershell
 irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | iex
-# shim defaults to #v2.7.0
+# shim defaults to #v2.8.0
 ```
 
 **Any platform, no shell script** (works with every package manager):
 ```bash
-npx  github:okuzpe/midas-harness#v2.7.0   # recommended — pinned
-pnpm dlx github:okuzpe/midas-harness#v2.7.0
-bunx github:okuzpe/midas-harness#v2.7.0
+npx  github:okuzpe/midas-harness#v2.8.0   # recommended — pinned
+pnpm dlx github:okuzpe/midas-harness#v2.8.0
+bunx github:okuzpe/midas-harness#v2.8.0
 ```
 
 Bleeding-edge (mutable `main`, not for production):
@@ -86,7 +86,7 @@ Post-install doctor: `node .harness/scripts/doctor.mjs --strict`.
 Examples:
 ```bash
 npx github:okuzpe/midas-harness --tools=cursor --dry-run --json   # plan only
-npx github:okuzpe/midas-harness#v2.7.0 --update --yes             # refresh in CI
+npx github:okuzpe/midas-harness#v2.8.0 --update --yes             # refresh in CI
 npx github:okuzpe/midas-harness --diagnose --json                 # status envelope
 ```
 
@@ -227,13 +227,13 @@ Phase 8 (`/close-sprint`) grades `.harness/engine/rules/security.md`: `.gitignor
 
 | Situation | Terminal | Then in Cursor |
 |-----------|----------|----------------|
-| **Never installed Midas** | `npx github:okuzpe/midas-harness#v2.7.0 --tools=cursor` | `/midas-init` |
+| **Never installed Midas** | `npx github:okuzpe/midas-harness#v2.8.0 --tools=cursor` | `/midas-init` |
 | **`--update` said "no existing install"** | Same as above — **drop `--update`** | `/midas-init` |
 | Installed, first time in editor | — | `/midas-init` |
 | Installed, `setup_complete: true` | — | `/midas-status` |
 | Existing codebase, brownfield | install + | `/midas-init` (may route to `/midas-adopt`) |
-| Existing 1.x classic/compact/hub | `npx ...#v2.7.0 --migrate` then add `--apply` | `/midas-status` |
-| Engine refresh on v2 | `npx ...#v2.7.0 --update` **or** `/midas-update` (pick one) | `/midas-status` when CLI prints `verify: ok` |
+| Existing 1.x classic/compact/hub | `npx ...#v2.8.0 --migrate` then add `--apply` | `/midas-status` |
+| Engine refresh on v2 | `npx ...#v2.8.0 --update` **or** `/midas-update` (pick one) | `/midas-status` when CLI prints `verify: ok` |
 | **Not sure** | `npx github:okuzpe/midas-harness --diagnose` | `/midas-reconcile` |
 
 `--diagnose` and `/midas-reconcile` are **read-only** — they never write files.
@@ -247,15 +247,32 @@ dry-run and confirm before the same refresh runs.
 On a v2 install, **`--update`** refreshes manifest-owned engine/generated files, re-renders adapters
 and skill mirrors, prunes orphan host trees, and runs strict doctor before it finishes. It preserves
 `.harness/product`, `.harness/rules`, `.harness/runs`, state, MCP, and content outside generated
-markers. Pass **`--tools=…`** to change the host set and prune unused adapters:
+markers. Pass **`--tools=…`** to change the host set and prune unused adapters.
+
+**Windows / npm 11+:** the package has two bins (`midas`, `midas-autopilot`). Use an explicit bin:
 
 ```bash
-npx github:okuzpe/midas-harness#v2.7.0 --update
-npx github:okuzpe/midas-harness#v2.7.0 --update --tools=cursor
-npx github:okuzpe/midas-harness#v2.7.0 --update --dry-run   # plan only — no writes
+npx -y --package=github:okuzpe/midas-harness#v2.8.0 midas --update --tools=cursor
+npx -y --package=github:okuzpe/midas-harness#v2.8.0 midas --update --dry-run
 ```
 
+(`npx github:okuzpe/midas-harness#v2.8.0 --update` alone may fail with `could not determine executable to run`.)
+
 Project rules belong in `.harness/rules/`; a matching slug overrides the immutable base rule.
+
+### Harness Trace (observe agent runs)
+
+After install/update (≥2.8.0) with `tools` including `cursor`, Midas seeds/merges
+`.cursor/hooks.json` → `.harness/scripts/trace-hook.mjs` (fail-open; see ADR-011).
+
+```bash
+# After a Cursor Agent turn that used tools:
+node .harness/scripts/trace-inspect.mjs list
+node .harness/scripts/trace-inspect.mjs <run-id>
+```
+
+Traces live under `.harness/cache/traces/` (gitignored). Disable by removing Midas entries
+from `.cursor/hooks.json` (commands containing `trace-hook.mjs`) or deleting that file.
 
 ### Ownership manifest, conflicts, and rebaseline
 
@@ -278,8 +295,8 @@ Related checks (all in `scripts/test.mjs`): `installer:update-honours-tools`,
 Migration is the only operation that moves legacy files. Preview first; it is byte-for-byte read-only:
 
 ```powershell
-npx github:okuzpe/midas-harness#v2.7.0 --migrate
-npx github:okuzpe/midas-harness#v2.7.0 --migrate --apply
+npx github:okuzpe/midas-harness#v2.8.0 --migrate
+npx github:okuzpe/midas-harness#v2.8.0 --migrate --apply
 node .harness/scripts/doctor.mjs --strict
 ```
 
@@ -321,7 +338,7 @@ npx github:okuzpe/midas-harness --uninstall
 - **Keeps your product work** (`.harness/product/`, rules, runs, state) unless you pass `--purge`.
 
 For exact removal of a pinned install, uninstall with the same release:
-`npx github:okuzpe/midas-harness#v2.7.0 --uninstall`.
+`npx github:okuzpe/midas-harness#v2.8.0 --uninstall`.
 
 > Prefer to do it by hand? Delete `.harness/`, generated host mirrors, the marked block in `AGENTS.md`,
 > `.claude/CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`,

@@ -45,3 +45,11 @@ Default install also selected four adapter tools, which maximized root noise.
 - Existing multi-tool installs stay noisy until the user runs
   `npx … --update --tools=cursor` (or the subset they actually use).
 - Template may ship both `.agents/skills` and `.cursor/skills`; install/update prune leaves one.
+
+## Amendment — 2026-08-08 (Trace hooks)
+
+When `state.tools` includes `cursor`, Midas may seed/merge **user-owned**
+`.cursor/hooks.json` for Harness Trace (ADR-011). Commands point at
+`.harness/scripts/trace-hook.mjs`. The file is not vendor-hashed; uninstall strips only
+entries whose `command` contains `trace-hook.mjs`. It is an allowed root surface for
+cursor installs (not an orphan under `layout:root-allowlist`).

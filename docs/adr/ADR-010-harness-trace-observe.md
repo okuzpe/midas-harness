@@ -52,3 +52,10 @@ product-wide install surface. Trace data must not become a second LTM that contr
 - `research/harness-trace.md` and `research/Untitled-1.md` are `HARNESS_ENGINE_ONLY_RELS` (not
   copied into `create-midas/template`).
 - Event `message` attrs are kept (redacted/truncated) instead of blanket `[omitted]`.
+
+## Amendment — 2026-08-08 (install ship)
+
+- Superseded for **install packaging** by [ADR-011](./ADR-011-harness-trace-installs.md):
+  scripts ship under `.harness/scripts/`; Cursor hooks are seeded/merged on install/update.
+  Engine dogfood hooks remain root `.cursor/hooks.json` → `scripts/trace-hook.mjs`.
+  Decision points 4 and Consequences “product installs unaffected” no longer apply after 2.8.0.

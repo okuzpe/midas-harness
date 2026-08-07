@@ -105,6 +105,10 @@ full propagation pass so generated trees, version pins, and docs stay aligned:
 
 Engine repo contributors can use `npm run align` instead. See `harness/rules/change-propagation.md`.
 
+**Observe a Cursor Agent turn** (installs ≥2.8.0 with `tools: [cursor]`): after the agent uses tools,
+run `node .harness/scripts/trace-inspect.mjs list` then `… <run-id>` (ADR-011). Engine dogfood:
+`npm run trace:inspect -- list`.
+
 ---
 
 ## The lifecycle

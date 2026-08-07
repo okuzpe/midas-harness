@@ -40,6 +40,7 @@ import {
 import { assessUpdateConflicts } from '../core/conflicts.mjs';
 import { runPlanOps } from '../core/runner.mjs';
 import { bindExecutableOps } from '../steps/bind-applies.mjs';
+import { mergeTraceHooks, stripTraceHooks } from '../steps/trace-hooks.mjs';
 
 /**
  * @param {{
@@ -310,6 +311,12 @@ async function executeInstallerCommand(cmd, hooks) {
               );
             }
             if (r.synced && !written.includes('.cursor/mcp.json')) written.push('.cursor/mcp.json');
+          }
+        }
+        if (activeTools.includes('cursor')) {
+          const hookResult = mergeTraceHooks(TARGET);
+          if (hookResult.wrote && !written.includes('.cursor/hooks.json')) {
+            written.push('.cursor/hooks.json');
           }
         }
         gitignoreResult = await ensureGitignore(paths);
@@ -1302,6 +1309,20 @@ function runCanonicalUninstall({ removed, keptModified, keptUser, purged }) {
       else rmSync(abs, { force: true });
     }
     removed.push(`${rel} (Midas managed block)`);
+  }
+
+  // Trace hooks are user-owned JSON; strip only Midas-marked entries (ADR-011).
+  if (existsSync(join(TARGET, '.cursor', 'hooks.json'))) {
+    if (!dryRun) {
+      const strip = stripTraceHooks(TARGET);
+      if (strip.wrote) {
+        removed.push(strip.removed
+          ? '.cursor/hooks.json (Midas trace hooks; file removed)'
+          : '.cursor/hooks.json (Midas trace hook entries stripped)');
+      }
+    } else {
+      removed.push('.cursor/hooks.json (Midas trace hook entries would be stripped)');
+    }
   }
 
   const userPaths = [

@@ -11,6 +11,24 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.8.0] — 2026-08-08
+
+### Added
+
+- **Harness Trace V2 (ADR-011)** — ship `trace-write` / `trace-inspect` / `trace-hook` (+ lib) to
+  `.harness/scripts/` on product installs; Cursor hooks seed/merge to
+  `node .harness/scripts/trace-hook.mjs <event>` when `tools` includes `cursor`.
+- `create-midas/lib/steps/trace-hooks.mjs` — `mergeTraceHooks` / `stripTraceHooks` (uninstall).
+- INSTALL + getting-started Trace how-to; inspect via `node .harness/scripts/trace-inspect.mjs list`.
+
+### Changed
+
+- Trace CLIs use `resolveProjectRootFromScript` (engine `scripts/` and install `.harness/scripts/`).
+- INSTALL update examples use `npx -y --package=… midas` (npm multi-bin / Windows).
+- ADR-008 / ADR-010 amended for install hooks allowlist and ship path.
+
+---
+
 ## [2.7.0] — 2026-08-08
 
 ### Added
@@ -1567,7 +1585,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.7.0...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.8.0...HEAD
+[2.8.0]: https://github.com/okuzpe/midas-harness/compare/v2.7.0...v2.8.0
 [2.7.0]: https://github.com/okuzpe/midas-harness/compare/v2.6.1...v2.7.0
 [2.6.1]: https://github.com/okuzpe/midas-harness/compare/v2.6.0...v2.6.1
 [2.6.0]: https://github.com/okuzpe/midas-harness/compare/v2.5.5...v2.6.0

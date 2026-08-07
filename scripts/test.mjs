@@ -150,6 +150,8 @@ function scriptBundleFiles() {
     'design-system.mjs',
     'doctor.mjs',
     'gitignore-merge.mjs',
+    'lib/trace-models.mjs',
+    'lib/trace-store.mjs',
     'mcp-cursor-sync.mjs',
     'mcp-drift.mjs',
     'migrate-layout.mjs',
@@ -163,6 +165,9 @@ function scriptBundleFiles() {
     'stage-command-table.mjs',
     'status-page.mjs',
     'tool-profiles.mjs',
+    'trace-hook.mjs',
+    'trace-inspect.mjs',
+    'trace-write.mjs',
     'yaml-lite.mjs',
   ].sort();
 }
@@ -415,7 +420,7 @@ if (existsSync(tplRoot)) {
       JSON.stringify(dirNames(skillsDir).filter((n) => n !== 'midas-precommit')),
     're-run build-create.mjs',
   );
-  for (const f of ['AGENTS.md', '.mcp.json', '.harness/engine/methodology.md', '.harness/engine/conventions.md', '.harness/engine/gates.json', '.harness/engine/checks.json', '.harness/engine/skill-registry.md', '.harness/engine/stage-command-table.yaml', '.harness/scripts/render-adapters.mjs', '.harness/scripts/yaml-lite.mjs', '.harness/scripts/mcp-drift.mjs', '.harness/scripts/mcp-cursor-sync.mjs', '.harness/scripts/tool-profiles.mjs', '.harness/scripts/model-profiles.mjs', '.harness/scripts/portable-skills.mjs', '.harness/scripts/gitignore-merge.mjs', '.harness/scripts/paths.mjs', '.harness/scripts/migrate-layout.mjs', '.harness/scripts/stage-command-table.mjs', '.harness/scripts/design-system.mjs', '.harness/scripts/doctor.mjs', '.harness/scripts/status-page.mjs', '.harness/scripts/skill-quality-check.mjs', '.harness/scripts/skill-registry.mjs', '.harness/scripts/bundle.mjs', '.harness/scripts/ownership-manifest.mjs', '.harness/engine/docs/agents-and-models.md', '.harness/engine/docs/skill-quality-gate.md', '.harness/engine/docs/skill-flows.md', '.harness/engine/docs/skills.md']) {
+  for (const f of ['AGENTS.md', '.mcp.json', '.harness/engine/methodology.md', '.harness/engine/conventions.md', '.harness/engine/gates.json', '.harness/engine/checks.json', '.harness/engine/skill-registry.md', '.harness/engine/stage-command-table.yaml', '.harness/scripts/render-adapters.mjs', '.harness/scripts/yaml-lite.mjs', '.harness/scripts/mcp-drift.mjs', '.harness/scripts/mcp-cursor-sync.mjs', '.harness/scripts/tool-profiles.mjs', '.harness/scripts/model-profiles.mjs', '.harness/scripts/portable-skills.mjs', '.harness/scripts/gitignore-merge.mjs', '.harness/scripts/paths.mjs', '.harness/scripts/migrate-layout.mjs', '.harness/scripts/stage-command-table.mjs', '.harness/scripts/design-system.mjs', '.harness/scripts/doctor.mjs', '.harness/scripts/status-page.mjs', '.harness/scripts/skill-quality-check.mjs', '.harness/scripts/skill-registry.mjs', '.harness/scripts/bundle.mjs', '.harness/scripts/ownership-manifest.mjs', '.harness/scripts/trace-write.mjs', '.harness/scripts/trace-inspect.mjs', '.harness/scripts/trace-hook.mjs', '.harness/scripts/lib/trace-models.mjs', '.harness/scripts/lib/trace-store.mjs', '.harness/engine/docs/agents-and-models.md', '.harness/engine/docs/skill-quality-gate.md', '.harness/engine/docs/skill-flows.md', '.harness/engine/docs/skills.md']) {
     check(`create-template:has:${f}`, existsSync(join(tplRoot, f)));
   }
   // The template must NOT carry repo-internal trees into a user project.
@@ -587,7 +592,9 @@ if (existsSync(buildCreate)) {
   const templateScripts = join(ROOT, 'create-midas', 'template', '.harness', 'scripts');
   const expectedScripts = scriptBundleFiles();
   if (existsSync(templateScripts)) {
-    const templateScriptFiles = walkRelativeFiles(templateScripts).sort();
+    const templateScriptFiles = walkRelativeFiles(templateScripts)
+      .map((rel) => rel.replace(/\\/g, '/'))
+      .sort();
     const extraScripts = ['install-diagnose.mjs', 'install-context.mjs'];
     const sameShape = JSON.stringify(templateScriptFiles) === JSON.stringify([...expectedScripts, ...extraScripts].sort());
     const sameContent = sameShape && expectedScripts.every(
@@ -4058,6 +4065,126 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }
+}
+
+// --- Harness Trace V2 (ADR-011) — install layout + hook merge ---------------------------------
+{
+  const { resolveProjectRootFromScript } = await import('./paths.mjs');
+  const { pathToFileURL: toUrl } = await import('node:url');
+  const { mergeTraceHooks, stripTraceHooks, installTraceHookCommand } = await import(
+    '../create-midas/lib/steps/trace-hooks.mjs'
+  );
+  const { runTraceWrite } = await import('./trace-write.mjs');
+  const { resolveTracesRoot, readRun, readCurrent } = await import('./lib/trace-store.mjs');
+  const { handleHookPayload } = await import('./trace-hook.mjs');
+
+  // install-layout root: script under .harness/scripts → project root
+  const installTmp = mkdtempSync(join(tmpdir(), 'midas-trace-install-'));
+  try {
+    const scriptsDir = join(installTmp, '.harness', 'scripts');
+    mkdirSync(scriptsDir, { recursive: true });
+    const fakeMeta = toUrl(join(scriptsDir, 'trace-write.mjs')).href;
+    const resolved = resolveProjectRootFromScript(fakeMeta);
+    check(
+      'trace:v2-root-from-harness-scripts',
+      resolve(resolved) === resolve(installTmp),
+      `got ${resolved}`,
+    );
+
+    // CLI write with projectRoot = install root stores under .harness/cache/traces
+    const sink = { write() {} };
+    runTraceWrite(['start-run'], { projectRoot: installTmp, stdout: sink, stderr: sink });
+    runTraceWrite(['span-end', JSON.stringify({ name: 'tool.Read', duration_ms: 9 })], {
+      projectRoot: installTmp,
+      stdout: sink,
+      stderr: sink,
+    });
+    const tr = resolveTracesRoot(installTmp);
+    const cur = readCurrent(tr);
+    const run = readRun(tr, cur.run_id);
+    check('trace:v2-install-path-jsonl', Boolean(run?.events.some((e) => e.name === 'tool.Read')));
+    check(
+      'trace:v2-cache-under-project',
+      existsSync(join(installTmp, '.harness', 'cache', 'traces', 'current.json')),
+    );
+
+    handleHookPayload(
+      { tool_name: 'Shell', duration_ms: 4 },
+      { projectRoot: installTmp, hookEvent: 'postToolUse' },
+    );
+    const after = readCurrent(tr);
+    const hookRun = readRun(tr, after.run_id);
+    check(
+      'trace:v2-hook-install-root',
+      Boolean(hookRun?.events.some((e) => e.name === 'tool.Shell')),
+    );
+  } finally {
+    rmSync(installTmp, { recursive: true, force: true });
+  }
+
+  // mergeTraceHooks seed / preserve / idempotent / strip
+  const hookTmp = mkdtempSync(join(tmpdir(), 'midas-trace-merge-'));
+  try {
+    const seed = mergeTraceHooks(hookTmp);
+    check('trace:v2-hooks-seed', seed.action === 'seed' && seed.wrote);
+    const raw1 = JSON.parse(readFileSync(join(hookTmp, '.cursor', 'hooks.json'), 'utf8'));
+    check(
+      'trace:v2-hooks-install-cmd',
+      raw1.hooks.postToolUse?.[0]?.command === installTraceHookCommand('postToolUse'),
+    );
+
+    // alien hook preserved
+    raw1.hooks.beforeShellExecution = [{ command: 'echo alien', timeout: 5 }];
+    writeFileSync(join(hookTmp, '.cursor', 'hooks.json'), `${JSON.stringify(raw1, null, 2)}\n`);
+    const merged = mergeTraceHooks(hookTmp);
+    check('trace:v2-hooks-merge-noop-or-merge', merged.action === 'noop' || merged.action === 'merge');
+    const raw2 = JSON.parse(readFileSync(join(hookTmp, '.cursor', 'hooks.json'), 'utf8'));
+    check(
+      'trace:v2-hooks-preserve-alien',
+      raw2.hooks.beforeShellExecution?.[0]?.command === 'echo alien',
+    );
+    const again = mergeTraceHooks(hookTmp);
+    check('trace:v2-hooks-idempotent', again.action === 'noop' && again.wrote === false);
+
+    // upgrade old command path
+    raw2.hooks.postToolUse = [{ command: 'node scripts/trace-hook.mjs postToolUse', timeout: 10 }];
+    writeFileSync(join(hookTmp, '.cursor', 'hooks.json'), `${JSON.stringify(raw2, null, 2)}\n`);
+    const upgraded = mergeTraceHooks(hookTmp);
+    const raw3 = JSON.parse(readFileSync(join(hookTmp, '.cursor', 'hooks.json'), 'utf8'));
+    check('trace:v2-hooks-upgrade-path', upgraded.wrote === true);
+    check(
+      'trace:v2-hooks-upgraded-cmd',
+      raw3.hooks.postToolUse.some((h) => h.command === installTraceHookCommand('postToolUse')),
+    );
+    check(
+      'trace:v2-hooks-alien-still',
+      raw3.hooks.beforeShellExecution?.[0]?.command === 'echo alien',
+    );
+
+    const stripped = stripTraceHooks(hookTmp);
+    const afterStrip = JSON.parse(readFileSync(join(hookTmp, '.cursor', 'hooks.json'), 'utf8'));
+    check('trace:v2-hooks-strip-wrote', stripped.wrote === true && stripped.removed === false);
+    check(
+      'trace:v2-hooks-strip-keeps-alien',
+      afterStrip.hooks.beforeShellExecution?.[0]?.command === 'echo alien' &&
+        !JSON.stringify(afterStrip).includes('trace-hook.mjs'),
+    );
+
+    // strip until empty → file removed
+    writeFileSync(
+      join(hookTmp, '.cursor', 'hooks.json'),
+      `${JSON.stringify({
+        version: 1,
+        hooks: { stop: [{ command: installTraceHookCommand('stop'), timeout: 10 }] },
+      }, null, 2)}\n`,
+    );
+    const gone = stripTraceHooks(hookTmp);
+    check('trace:v2-hooks-strip-removes-file', gone.removed === true && !existsSync(join(hookTmp, '.cursor', 'hooks.json')));
+  } finally {
+    rmSync(hookTmp, { recursive: true, force: true });
+  }
+
+  check('trace:adr-011', existsSync(join(ROOT, 'docs', 'adr', 'ADR-011-harness-trace-installs.md')));
 }
 
 console.log(`midas test: ${passed} passed, ${failures.length} failed`);
