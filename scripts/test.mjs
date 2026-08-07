@@ -841,6 +841,22 @@ if (engineVersion) {
     for (const pin of pins) {
       check(`version-pin:INSTALL.md:${pin}`, pin.slice(2) === engineVersion, `${pin} != ${engineVersion}`);
     }
+    const installBody = readFileSync(install, 'utf8');
+    check(
+      'install:update-docs:rebaseline-section',
+      /Updating an existing install/i.test(installBody) && /re-?baselin/i.test(installBody),
+      'INSTALL.md must document --update rebaseline',
+    );
+    check(
+      'install:update-docs:cites-rebaseline-test',
+      installBody.includes('installer:update-stale-manifest-rebaseline'),
+      'INSTALL.md must cite installer:update-stale-manifest-rebaseline',
+    );
+    check(
+      'install:update-docs:cites-vendor-conflict-test',
+      installBody.includes('installer:update-vendor-conflict-prewrite'),
+      'INSTALL.md must cite installer:update-vendor-conflict-prewrite',
+    );
   }
   for (const f of [
     'harness/skills/midas-update/SKILL.md',
@@ -874,6 +890,30 @@ if (engineVersion) {
       'install.ps1 must default MidasRef to harness/VERSION',
     );
     check('install-shim:bleeding-edge-escape', /MIDAS_BLEEDING_EDGE/.test(sh) && /MIDAS_BLEEDING_EDGE/.test(ps));
+  }
+}
+
+{
+  // Engine MVP dogfood locks (sprints 02–03 / F-002–F-003) — keep catalog + docs honest.
+  check(
+    'dogfood:midas-retro:skill-on-disk',
+    existsSync(join(ROOT, 'harness', 'skills', 'midas-retro', 'SKILL.md')),
+  );
+  const skillsCatalog = existsSync(join(ROOT, 'docs', 'skills.md'))
+    ? readFileSync(join(ROOT, 'docs', 'skills.md'), 'utf8')
+    : '';
+  check('dogfood:midas-retro:catalog', /\/midas-retro\b/.test(skillsCatalog));
+  const featuresPath = join(ROOT, 'product', 'features.json');
+  if (existsSync(featuresPath)) {
+    const features = JSON.parse(readFileSync(featuresPath, 'utf8')).features || [];
+    for (const id of ['F-002', 'F-003']) {
+      const row = features.find((f) => f.id === id);
+      check(
+        `dogfood:features:${id}:passing`,
+        !!row && row.status === 'passing' && String(row.evidence || '').trim().length > 0,
+        row ? `${row.status} evidence=${row.evidence || '(empty)'}` : 'missing',
+      );
+    }
   }
 }
 

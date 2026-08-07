@@ -12,7 +12,8 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 ### Added
 
 - `/midas-retro` — read-only sprint retrospective freeze to `{runs}/retros/retro-NN.md` (non-advancing).
-- `harness/templates/retro-record.md`; `RUNS_SUBDIRS` / bundle freeze include `retros/`.
+- `harness/templates/retro-record.md`; `RUNS_SUBDIRS` / bundle freeze include `retros/` (+ `lean/` in bundle freeze).
+- Structural dogfood locks: `install:update-docs:*`, `dogfood:midas-retro:*`, `dogfood:features:F-002|F-003:passing`.
 
 ### Changed
 
