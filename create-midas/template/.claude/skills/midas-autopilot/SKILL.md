@@ -1,6 +1,6 @@
 ---
 name: midas-autopilot
-description: Bounded sprint autopilot — thin guide to midas-autopilot setup/status/dry-run/tick. Use when enabling ADR-009 autonomy, checking blockers, or scheduling one task per tick. Does not auto-run tick or cursor-cloud from chat. For continuous local improve without a checklist, use /midas-auto-pilot.
+description: Bounded sprint autopilot — thin guide to midas-autopilot setup/status/dry-run/tick. Use when enabling ADR-009 autonomy, checking blockers, or scheduling one task per tick. Does not auto-run tick or cursor-cloud from chat. For continuous improve without a checklist, use /midas-improve-loop.
 user-invocable: true
 disable-model-invocation: true
 model: inherit
@@ -9,9 +9,7 @@ recommended-model: claude-sonnet-4-6
 argument-hint: "[setup|status|dry-run]"
 ---
 
-# midas-autopilot — bounded autonomy (guide only)
-
-> **Disambiguation:** This is the ADR-009 **CLI** (`midas-autopilot.mjs` / `tick`). Continuous product improve without a code checklist is **`/midas-auto-pilot`** (local `/loop`). Do not confuse the two names.
+# midas-autopilot — sprint checklist actuator (ADR-009 CLI)
 
 > **Guard:** `<paths.engine>/templates/skill-state-ritual.md` + `AGENTS.md` § Safety.
 > **ADR-009:** `.harness/autonomy/README.md` + `security.md` (optional capability).
@@ -29,9 +27,9 @@ argument-hint: "[setup|status|dry-run]"
 
 - No `.harness/autonomy/` → installer: `npx … --update --autonomy` (see `/midas-update`).
 - `stage` ≠ `sprint_execution` → finish phase gates or `/start-sprint` first.
-- Blocker `no_code_task` → open items are operator/manual. Activate a **code** sprint, **or** discover improvements via `/midas-auto-pilot` (local continuous mode) then return here for policy-gated `tick`s.
-- User wants continuous product-aligned improve without a code checklist yet → `/midas-auto-pilot` (default local `/loop`; optional `cloud` for Cursor Automations).
-- User wants a raw chat-only loop without Midas caps → Cursor `/loop`; prefer `/midas-auto-pilot` when product context should drive picks.
+- Blocker `no_code_task` → open items are operator/manual. Activate a **code** sprint, **or** discover improvements via `/midas-improve-loop` then return here for policy-gated `tick`s.
+- User wants continuous product-aligned improve without a code checklist yet → `/midas-improve-loop`.
+- User wants a raw chat-only loop without Midas caps → Cursor `/loop`; prefer `/midas-improve-loop` when product context should drive picks.
 
 ## Procedure
 
@@ -45,7 +43,7 @@ node .harness/autonomy/bin/midas-autopilot.mjs setup --actor=<you> --hours=24
 
 That alone: enables `bounded` policy → creates `.harness/autonomy/authz/hmac` if needed (gitignored; still a **local secret file**, not “no secrets”) → grants time-boxed multi-use authz → `dry-run`.
 
-Do **not** ask the user to export `MIDAS_AUTONOMY_AUTHZ_KEY` for everyday local use. Env override remains valid for CI. Exit `0` with `status: configured` means authz is fine but the sprint has no code tasks — next step is `/start-sprint` or `/midas-auto-pilot`, not re-setup.
+Do **not** ask the user to export `MIDAS_AUTONOMY_AUTHZ_KEY` for everyday local use. Env override remains valid for CI. Exit `0` with `status: configured` means authz is fine but the sprint has no code tasks — next step is `/start-sprint` or `/midas-improve-loop`, not re-setup.
 
 ### B. Check blockers
 
@@ -62,7 +60,7 @@ Only when `would_effect: true`:
 node .harness/autonomy/bin/midas-autopilot.mjs tick --runner=fake
 ```
 
-`--runner=cursor-cloud` needs `CURSOR_API_KEY` (Cloud Agents). Local overnight without that key = `fake` pilot or `/midas-auto-pilot` — not this CLI cloud path.
+`--runner=cursor-cloud` needs `CURSOR_API_KEY` (Cloud Agents). Local overnight without that key = `fake` pilot or `/midas-improve-loop` — not this CLI cloud path.
 
 ### D. Resume
 

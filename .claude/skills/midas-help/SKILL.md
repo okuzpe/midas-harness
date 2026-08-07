@@ -26,7 +26,7 @@ recommended-model: claude-haiku-4-5
    - **Resume after a break** (`/midas-status` + `/midas-recall`)
    - **Run the next phase gate** (phase skills 0–8)
    - **Start or close a sprint** (`/start-sprint` / `/close-sprint` / `/midas-autopilot`)
-   - **Continuous local auto-pilot** (`/midas-auto-pilot`)
+   - **Continuous improve loop** (`/midas-improve-loop`)
    - **Verify UI / ad-hoc QA** (`/midas-verify` / `/midas-qa`)
    - **Redesign product UI** (`/midas-design`)
    - **Security or adversarial review** (`/midas-security-audit` / `/midas-tribunal`)
@@ -69,15 +69,15 @@ recommended-model: claude-haiku-4-5
 - What: Phase 7 kickoff, Phase 8 audit, or bounded autopilot (one task per tick).
 - Command: `/start-sprint` · `/close-sprint` · `/midas-autopilot` → `node .harness/autonomy/bin/midas-autopilot.mjs setup`
 - Happens: start activates sprint; close audits rules; autopilot runs setup/dry-run/tick CLI (requires `--autonomy` install).
-- NOT for operator-only sprint tasks (release/merge) — ADR-009 autopilot targets code checklist items. NOT for inventing continuous improve without a checklist → `/midas-auto-pilot`.
+- NOT for operator-only sprint tasks (release/merge) — ADR-009 autopilot targets code checklist items. NOT for inventing continuous improve without a checklist → `/midas-improve-loop`.
 - Next: after start → implement + `/midas-progress`; autopilot ready → human runs `tick`; after close → next sprint.
 
-**Continuous local auto-pilot**
+**Continuous improve loop**
 - What: one slash starts continuous product-aligned improve (discover → one fix → verify → PR) via local Cursor `/loop`.
-- Command: `/midas-auto-pilot` (default local) · `/midas-auto-pilot cloud` for Cursor Automations · `/midas-auto-pilot stop` to halt.
-- Happens: validates context; writes `{runs}/auto-pilot/runbook.md`; runs tick #1; arms `/loop` (default 30m). Distinct from `/midas-autopilot` (ADR-009 CLI).
+- Command: `/midas-improve-loop` (default local) · `/midas-improve-loop cloud` for Cursor Automations · `/midas-improve-loop stop` to halt.
+- Happens: validates context; writes `{runs}/improve-loop/runbook.md`; runs tick #1; arms `/loop` (default 30m).
 - NOT the ADR-009 policy plane (`/midas-autopilot`); NOT Phase-8 (`/close-sprint`). Laptop sleep → use `cloud` mode.
-- Next: leave Cursor open; review PRs; `/close-sprint` when a sprint’s worth lands.
+- Next: leave Cursor open; review PRs; `/close-sprint` when a sprint’s worth lands. Command map: `docs/skills.md` § Autonomy commands.
 
 **Verify UI / ad-hoc QA**
 - What: gate evidence vs inner-loop smoke.

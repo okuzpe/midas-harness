@@ -2807,7 +2807,7 @@ if (existsSync(templateChecksIndex) && existsSync(join(ROOT, 'harness', 'checks.
   check('skill-registry:close-sprint-orchestrator-only', !!close && close.delegator === 'orchestrator-only');
   const yesRows = rows.filter((r) => r.delegator === 'yes');
   check('skill-registry:yes-floor', yesRows.length >= 10, `yes=${yesRows.length}`);
-  for (const name of ['midas-progress', 'midas-verify', 'midas-qa', 'midas-lean-review', 'midas-explore', 'midas-capture', 'midas-auto-pilot', 'midas-autopilot']) {
+  for (const name of ['midas-progress', 'midas-verify', 'midas-qa', 'midas-lean-review', 'midas-explore', 'midas-capture', 'midas-improve-loop', 'midas-autopilot']) {
     const row = rows.find((r) => r.name === name);
     check(`skill-registry:yes:${name}`, !!row && row.delegator === 'yes', row ? row.delegator : 'missing');
   }
@@ -2877,55 +2877,56 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
     existsSync(join(ROOT, 'harness', 'skills', 'midas-autopilot', 'SKILL.md')),
   );
 
-  // /midas-auto-pilot — continuous local improve (complementary to ADR-009)
+  // /midas-improve-loop — continuous local improve (complementary to ADR-009)
   check(
-    'auto-pilot:skill-source',
-    existsSync(join(ROOT, 'harness', 'skills', 'midas-auto-pilot', 'SKILL.md')),
+    'improve-loop:skill-source',
+    existsSync(join(ROOT, 'harness', 'skills', 'midas-improve-loop', 'SKILL.md')),
   );
   check(
-    'auto-pilot:skill-catalog',
-    /\/midas-auto-pilot/.test(readFileSync(join(ROOT, 'docs', 'skills.md'), 'utf8')),
+    'improve-loop:skill-catalog',
+    /\/midas-improve-loop/.test(readFileSync(join(ROOT, 'docs', 'skills.md'), 'utf8')),
   );
-  const autoPilotTmpl = join(ROOT, 'harness', 'templates', 'auto-pilot-improve.md.tmpl');
-  check('auto-pilot:template', existsSync(autoPilotTmpl));
+  const improveLoopTmpl = join(ROOT, 'harness', 'templates', 'improve-loop-runbook.md.tmpl');
+  check('improve-loop:template', existsSync(improveLoopTmpl));
   check(
-    'auto-pilot:template-caps',
-    /midas-improve\//.test(readFileSync(autoPilotTmpl, 'utf8')) &&
-      /Never merge/.test(readFileSync(autoPilotTmpl, 'utf8')) &&
-      /Phase-8/.test(readFileSync(autoPilotTmpl, 'utf8')),
-  );
-  check(
-    'auto-pilot:journal-template',
-    existsSync(join(ROOT, 'harness', 'templates', 'auto-pilot-journal.md')),
+    'improve-loop:template-caps',
+    /midas-improve\//.test(readFileSync(improveLoopTmpl, 'utf8')) &&
+      /Never merge/.test(readFileSync(improveLoopTmpl, 'utf8')) &&
+      /Phase-8/.test(readFileSync(improveLoopTmpl, 'utf8')),
   );
   check(
-    'auto-pilot:playbook-template',
+    'improve-loop:journal-template',
+    existsSync(join(ROOT, 'harness', 'templates', 'improve-loop-journal.md')),
+  );
+  check(
+    'improve-loop:playbook-template',
     existsSync(join(ROOT, 'harness', 'templates', 'playbooks', 'improve-cycle.md')),
   );
   check(
-    'auto-pilot:skill-local-default',
+    'improve-loop:skill-local-default',
     /arm Cursor `\/loop`|arm Cursor \/loop|\/loop`\*\*|automatic mode/i.test(
-      readFileSync(join(ROOT, 'harness', 'skills', 'midas-auto-pilot', 'SKILL.md'), 'utf8'),
+      readFileSync(join(ROOT, 'harness', 'skills', 'midas-improve-loop', 'SKILL.md'), 'utf8'),
     ),
   );
   check(
-    'auto-pilot:skill-disambiguates',
-    /midas-autopilot/.test(
-      readFileSync(join(ROOT, 'harness', 'skills', 'midas-auto-pilot', 'SKILL.md'), 'utf8'),
-    ) &&
-      /\/automate/.test(
-        readFileSync(join(ROOT, 'harness', 'skills', 'midas-auto-pilot', 'SKILL.md'), 'utf8'),
-      ),
+    'improve-loop:skill-slim-response',
+    /≤6 lines|no autonomy lecture/i.test(
+      readFileSync(join(ROOT, 'harness', 'skills', 'midas-improve-loop', 'SKILL.md'), 'utf8'),
+    ),
   );
   check(
-    'auto-pilot:skill-brownfield-context',
-    /project-brief\.md/.test(readFileSync(join(ROOT, 'harness', 'skills', 'midas-auto-pilot', 'SKILL.md'), 'utf8')) &&
-      /features\.md/.test(readFileSync(join(ROOT, 'harness', 'skills', 'midas-auto-pilot', 'SKILL.md'), 'utf8')),
+    'improve-loop:autonomy-map-in-docs',
+    /## Autonomy commands/.test(readFileSync(join(ROOT, 'docs', 'skills.md'), 'utf8')),
   );
   check(
-    'auto-pilot:template-brownfield-context',
-    /project-brief\.md/.test(readFileSync(autoPilotTmpl, 'utf8')) &&
-      /features\.md/.test(readFileSync(autoPilotTmpl, 'utf8')),
+    'improve-loop:skill-brownfield-context',
+    /project-brief\.md/.test(readFileSync(join(ROOT, 'harness', 'skills', 'midas-improve-loop', 'SKILL.md'), 'utf8')) &&
+      /features\.md/.test(readFileSync(join(ROOT, 'harness', 'skills', 'midas-improve-loop', 'SKILL.md'), 'utf8')),
+  );
+  check(
+    'improve-loop:template-brownfield-context',
+    /project-brief\.md/.test(readFileSync(improveLoopTmpl, 'utf8')) &&
+      /features\.md/.test(readFileSync(improveLoopTmpl, 'utf8')),
   );
 
   const tmp = mkdtempSync(join(tmpdir(), 'midas-autonomy-'));

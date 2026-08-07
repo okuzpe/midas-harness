@@ -1,7 +1,7 @@
-# Auto-pilot journal
+# Improve-loop journal
 
-> Append-only log for `/midas-auto-pilot` improve cycles (local `/loop` or Cursor Automations).
-> Path: `{runs}/auto-pilot/journal.md` (optional directory — like `{runs}/explore/`; not in `RUNS_SUBDIRS`).
+> Append-only log for `/midas-improve-loop` cycles (local `/loop` or Cursor Automations).
+> Path: `{runs}/improve-loop/journal.md`
 > **Not** a Phase-8 audit. Producer evidence only.
 
 | When (ISO) | Branch / PR | Improvement (one line) | Verify command | Result | Notes |

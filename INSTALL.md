@@ -12,7 +12,7 @@ mirrors/adapters, writes `.harness/state.yaml` plus an ownership manifest, and m
 into `.gitignore` (secrets, `node_modules/` and common build dirs, volatile hashes — the harness itself stays
 committed) so the project is ready
 to use. Then run `/midas-init` once — the **one-time guided setup** (it adopts an existing repo for
-you); it retires itself afterward and `/midas-status` drives the rest. Optional later: `/midas-auto-pilot`
+you); it retires itself afterward and `/midas-status` drives the rest. Optional later: `/midas-improve-loop`
 to start continuous local improve cycles (arms Cursor `/loop`; optional `cloud` for Automations —
 distinct from ADR-009 `/midas-autopilot`).
 
@@ -31,20 +31,20 @@ Only host-required discovery surfaces stay at the repo root.
 **macOS / Linux**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash
-# shim defaults to github:okuzpe/midas-harness#v2.6.0
+# shim defaults to github:okuzpe/midas-harness#v2.6.1
 ```
 
 **Windows (PowerShell)**
 ```powershell
 irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | iex
-# shim defaults to #v2.6.0
+# shim defaults to #v2.6.1
 ```
 
 **Any platform, no shell script** (works with every package manager):
 ```bash
-npx  github:okuzpe/midas-harness#v2.6.0   # recommended — pinned
-pnpm dlx github:okuzpe/midas-harness#v2.6.0
-bunx github:okuzpe/midas-harness#v2.6.0
+npx  github:okuzpe/midas-harness#v2.6.1   # recommended — pinned
+pnpm dlx github:okuzpe/midas-harness#v2.6.1
+bunx github:okuzpe/midas-harness#v2.6.1
 ```
 
 Bleeding-edge (mutable `main`, not for production):
@@ -86,7 +86,7 @@ Post-install doctor: `node .harness/scripts/doctor.mjs --strict`.
 Examples:
 ```bash
 npx github:okuzpe/midas-harness --tools=cursor --dry-run --json   # plan only
-npx github:okuzpe/midas-harness#v2.6.0 --update --yes             # refresh in CI
+npx github:okuzpe/midas-harness#v2.6.1 --update --yes             # refresh in CI
 npx github:okuzpe/midas-harness --diagnose --json                 # status envelope
 ```
 
@@ -210,7 +210,7 @@ Phase 8 (`/close-sprint`) grades `.harness/engine/rules/security.md`: `.gitignor
 2. `/midas-init` — the **one-time guided setup** (a few questions once; for an existing repo it runs the
    brownfield adoption for you). It then retires — you won't run it again.
 3. `/midas-status` — from here on, shows the current phase and the single next command.
-4. Optional: `/midas-auto-pilot` — start continuous local improve (arms Cursor `/loop`; optional
+4. Optional: `/midas-improve-loop` — start continuous product improve (arms Cursor `/loop`; optional
    `cloud` for Automations). Does not require `--autonomy`. Distinct from ADR-009 `/midas-autopilot`.
 5. **`/midas-reconcile`** — when unsure which command to run (install vs update vs init); read-only.
 6. **`/midas-bundle`** — export/import portable JSON when seeding a new project or sharing rules/playbooks
@@ -225,13 +225,13 @@ Phase 8 (`/close-sprint`) grades `.harness/engine/rules/security.md`: `.gitignor
 
 | Situation | Terminal | Then in Cursor |
 |-----------|----------|----------------|
-| **Never installed Midas** | `npx github:okuzpe/midas-harness#v2.6.0 --tools=cursor` | `/midas-init` |
+| **Never installed Midas** | `npx github:okuzpe/midas-harness#v2.6.1 --tools=cursor` | `/midas-init` |
 | **`--update` said "no existing install"** | Same as above — **drop `--update`** | `/midas-init` |
 | Installed, first time in editor | — | `/midas-init` |
 | Installed, `setup_complete: true` | — | `/midas-status` |
 | Existing codebase, brownfield | install + | `/midas-init` (may route to `/midas-adopt`) |
-| Existing 1.x classic/compact/hub | `npx ...#v2.6.0 --migrate` then add `--apply` | `/midas-status` |
-| Engine refresh on v2 | `npx ...#v2.6.0 --update` **or** `/midas-update` (pick one) | `/midas-status` when CLI prints `verify: ok` |
+| Existing 1.x classic/compact/hub | `npx ...#v2.6.1 --migrate` then add `--apply` | `/midas-status` |
+| Engine refresh on v2 | `npx ...#v2.6.1 --update` **or** `/midas-update` (pick one) | `/midas-status` when CLI prints `verify: ok` |
 | **Not sure** | `npx github:okuzpe/midas-harness --diagnose` | `/midas-reconcile` |
 
 `--diagnose` and `/midas-reconcile` are **read-only** — they never write files.
@@ -249,8 +249,8 @@ markers. A modified `vendor` file aborts same-version updates before any write (
 refresh the engine wholesale). Pass **`--tools=…`** to change the host set and prune unused adapters:
 
 ```bash
-npx github:okuzpe/midas-harness#v2.6.0 --update
-npx github:okuzpe/midas-harness#v2.6.0 --update --tools=cursor
+npx github:okuzpe/midas-harness#v2.6.1 --update
+npx github:okuzpe/midas-harness#v2.6.1 --update --tools=cursor
 ```
 
 Project rules belong in `.harness/rules/`; a matching slug overrides the immutable base rule.
@@ -260,8 +260,8 @@ Project rules belong in `.harness/rules/`; a matching slug overrides the immutab
 Migration is the only operation that moves legacy files. Preview first; it is byte-for-byte read-only:
 
 ```powershell
-npx github:okuzpe/midas-harness#v2.6.0 --migrate
-npx github:okuzpe/midas-harness#v2.6.0 --migrate --apply
+npx github:okuzpe/midas-harness#v2.6.1 --migrate
+npx github:okuzpe/midas-harness#v2.6.1 --migrate --apply
 node .harness/scripts/doctor.mjs --strict
 ```
 
@@ -303,7 +303,7 @@ npx github:okuzpe/midas-harness --uninstall
 - **Keeps your product work** (`.harness/product/`, rules, runs, state) unless you pass `--purge`.
 
 For exact removal of a pinned install, uninstall with the same release:
-`npx github:okuzpe/midas-harness#v2.6.0 --uninstall`.
+`npx github:okuzpe/midas-harness#v2.6.1 --uninstall`.
 
 > Prefer to do it by hand? Delete `.harness/`, generated host mirrors, the marked block in `AGENTS.md`,
 > `.claude/CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`,

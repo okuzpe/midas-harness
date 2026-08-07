@@ -115,7 +115,7 @@ not pass a phase gate.
 | `/midas-lean-review` | Diff or named paths | Rank delete, stdlib, native, YAGNI, and shrink findings | Optional `lean-NN.md` | Apply only after approval |
 | `/midas-design` | UI that needs a stronger product identity | Audit, present three directions, obtain a choice, specify one | `design-NN.md`; optional one-slice implementation | Implement or verify; stage unchanged |
 | `/midas-autopilot` | Optional `--autonomy` install + Phase 7 code tasks | Guide `setup` / `dry-run`; human runs `tick` CLI only | Journal + audit records under `{runs}/autonomy/` | One task per tick; never auto-invoked from chat |
-| `/midas-auto-pilot` | Any install with product context | Validate; write runbook; **local:** tick #1 + arm `/loop`; **cloud:** Automations draft | `{runs}/auto-pilot/runbook.md` + `journal.md` | Automatic local mode by default; not ADR-009 policy plane |
+| `/midas-improve-loop` | Any install with product context | Validate; write runbook; **local:** tick #1 + arm `/loop`; **cloud:** Automations draft | `{runs}/improve-loop/runbook.md` + `journal.md` | Automatic local mode by default; not ADR-009 policy plane |
 
 Optional bounded loop (ADR-009) beside the manual sprint cycle:
 
@@ -128,19 +128,19 @@ flowchart LR
 
 Requires `.harness/autonomy/` (`npx … --autonomy`). See `/midas-autopilot` and `.harness/autonomy/README.md`.
 
-Complementary auto-pilot improve cycle (no `--autonomy` required):
+Complementary improve loop (no `--autonomy` required):
 
 ```mermaid
 flowchart LR
-  Start["/midas-auto-pilot"] --> Tick1["tick #1 now"]
+  Start["/midas-improve-loop"] --> Tick1["tick #1 now"]
   Tick1 --> Loop["arm Cursor /loop"]
   Loop --> OneFix["each wake: one improve + verify + PR"]
-  OneFix --> Journal["{runs}/auto-pilot/journal.md"]
+  OneFix --> Journal["{runs}/improve-loop/journal.md"]
   Journal --> Close["/close-sprint when sprint ready (manual)"]
   Start -.-> Cloud["optional: cloud → Cursor /automate"]
 ```
 
-See `/midas-auto-pilot` and `<paths.engine>/templates/auto-pilot-improve.md.tmpl`.
+See `/midas-improve-loop` and `<paths.engine>/templates/improve-loop-runbook.md.tmpl`.
 
 ## Maintenance, setup, and standing audits
 

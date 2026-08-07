@@ -1,20 +1,20 @@
-# Playbook: continuous improve cycle (auto-pilot)
+# Playbook: continuous improve cycle
 
 | Field | Value |
 |---|---|
-| **Use when** | Running continuous product-aligned code improvements via `/midas-auto-pilot` (local `/loop` default) or Cursor Automations (`cloud` mode) |
-| **Trigger** | Human runs `/midas-auto-pilot` (arms local loop), a `/loop` wake, or a Cursor Automation from the runbook |
+| **Use when** | Running continuous product-aligned code improvements via `/midas-improve-loop` (local `/loop` default) or Cursor Automations (`cloud` mode) |
+| **Trigger** | Human runs `/midas-improve-loop`, a `/loop` wake, or a Cursor Automation from the runbook |
 | **Stack** | Host agent = Cursor local Agent (default) or Cloud Automation; product stack = per `{product}/architecture.md` / project-brief |
 | **Owner tier** | build |
 
 ## Steps
 
-1. Run `/midas-auto-pilot` in the project (validates context; **starts automatic local mode** by default). Distinct from `/midas-autopilot` (ADR-009 CLI) and Cursor’s native `/automate`.
-2. Leave Cursor open while the local `/loop` is armed (default every 30m). Each wake: one code improvement → branch `midas-improve/<date>-<slug>` → verify → PR → append `{runs}/auto-pilot/journal.md`.
-3. Optional persistence when the laptop sleeps: `/midas-auto-pilot cloud` → paste runbook into Cursor `/automate` / cursor.com/automations.
+1. Run `/midas-improve-loop` (validates context; **starts automatic local mode** by default).
+2. Leave Cursor open while the local `/loop` is armed (default every 30m). Each wake: one code improvement → branch `midas-improve/<date>-<slug>` → verify → PR → append `{runs}/improve-loop/journal.md`.
+3. Optional persistence when the laptop sleeps: `/midas-improve-loop cloud` → paste runbook into Cursor `/automate` / cursor.com/automations.
 4. Human reviews PRs; when a sprint’s worth lands, run `/close-sprint` (auditor ≠ producer).
-5. Optional: if `--autonomy` is installed and the sprint has code checklist lines, use `/midas-autopilot` for policy-gated `tick`s — separate control plane.
-6. Stop local mode: `/midas-auto-pilot stop`.
+5. Optional: if `--autonomy` is installed and the sprint has code checklist lines, use `/midas-autopilot` for policy-gated `tick`s — separate control plane (see `docs/skills.md` § Autonomy commands).
+6. Stop local mode: `/midas-improve-loop stop`.
 
 ## Must honor
 
@@ -25,7 +25,7 @@
 
 ## Done when
 
-- [ ] `/midas-auto-pilot` armed local `/loop` **or** a Cloud Automation is configured from the runbook.
+- [ ] `/midas-improve-loop` armed local `/loop` **or** a Cloud Automation is configured from the runbook.
 - [ ] Each tick leaves a PR (or pushed branch) + journal row with verify command and result.
 - [ ] No tick claimed Phase-8 / `gate: passed`.
 - [ ] All applicable effective base/project rules still pass (audited in Phase 8).
