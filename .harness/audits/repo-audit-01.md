@@ -42,3 +42,8 @@ Meta-audit residual (not blocking): CHECK dedupe −30% not reached (ADR-005 Opt
 - `node scripts/test.mjs` — structural + new audit tests
 - `npm run align` — propagation ladder
 - `node scripts/doctor.mjs` — adapter sync
+
+## Amendment — 2026-08-07
+
+- `/midas-retro` **shipped** (sprint 02 / F-002; `harness/skills/midas-retro/`). `/midas-doc` remains PROPOSED.
+- Residual bullet above kept as historical snapshot of the 2026-07-06 freeze.

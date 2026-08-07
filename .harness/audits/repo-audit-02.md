@@ -47,3 +47,10 @@ sweep-02.
 - `npm run align` — aligned
 - `node scripts/doctor.mjs .` — adapters in sync
 - `.harness/sweeps/sweep-02.md` — `MIDAS_SWEEP_RESULT` verdict=clean
+
+## Amendment — 2026-08-07
+
+- `/midas-retro` **shipped** (F-002); `/midas-doc` still PROPOSED.
+- Engine `product/` MVP sprints 01–03 are **done** (features F-001–F-003 `passing`); stage remains `sprint_execution` with `phases.audit` pending orchestrate re-attest of audit-02/03.
+- Autonomy CI smoke exercised in engine dogfood (sprint 01 / F-001).
+- Residual / watch bullets above kept as historical snapshot of the 2026-08-07 morning freeze.

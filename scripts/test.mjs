@@ -906,7 +906,7 @@ if (engineVersion) {
   const featuresPath = join(ROOT, 'product', 'features.json');
   if (existsSync(featuresPath)) {
     const features = JSON.parse(readFileSync(featuresPath, 'utf8')).features || [];
-    for (const id of ['F-002', 'F-003']) {
+    for (const id of ['F-001', 'F-002', 'F-003']) {
       const row = features.find((f) => f.id === id);
       check(
         `dogfood:features:${id}:passing`,
