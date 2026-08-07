@@ -2,7 +2,7 @@
   "schema_version": 1,
   "updated": null,
   "source": "engine/rules",
-  "source_digest": "e2bc1a16a975307cb7ed030ed0101a5851d6cc19ac2b4f2b3662cdfeb4861df0",
+  "source_digest": "8e45692ababefd6c4dbf26170b2a0180f99a3e141ac999bbb33702aea30412ca",
   "rules": [
     {
       "path": "engine/rules/acceptance-criteria.md",
@@ -1139,6 +1139,48 @@
           "phase": 8,
           "owner": "orchestrate",
           "severity": "medium"
+        }
+      ]
+    },
+    {
+      "path": "engine/rules/safety-guardrails.md",
+      "slug": "safety-guardrails",
+      "title": "Rule: Safety guardrails (always-on)",
+      "owner": "orchestrate",
+      "phase": 8,
+      "check_count": 4,
+      "checks": [
+        {
+          "kind": "manual",
+          "body": "`manual:` the sprint/session evidence shows no unauthorized force-push, hard reset, recursive delete of non-tmp project paths, or production destroy; if such a command ran, the human's explicit OK for that command is recorded in the session or PR notes — otherwise fail.",
+          "section": "Checklist",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` when `{runs}/session/freeze-dir.txt` exists (or the human named a freeze root still in force), every path in the working-tree diff for that session lies under that root; any write outside is a fail.",
+          "section": "Checklist",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` when the human asked for guard/full-safety mode, the session both (a) paused on careful-class commands and (b) had a named freeze root before further edits — missing either is a fail.",
+          "section": "Checklist",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "command",
+          "body": "`harness/rules/safety-guardrails.md` (or `<paths.engine>/rules/safety-guardrails.md`) contains at least one `**CHECK:**` and a dated `## Amendment` section.",
+          "section": "Checklist",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "high"
         }
       ]
     },

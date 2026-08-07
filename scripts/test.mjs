@@ -2882,6 +2882,21 @@ if (existsSync(templateChecksIndex) && existsSync(join(ROOT, 'harness', 'checks.
       'Phase 7 must instruct regression tests on defect fixes',
     );
   }
+  {
+    const safetyRule = join(ROOT, 'harness', 'rules', 'safety-guardrails.md');
+    check('harness:safety-guardrails:exists', existsSync(safetyRule));
+    if (existsSync(safetyRule)) {
+      const raw = readFileSync(safetyRule, 'utf8');
+      check(
+        'harness:safety-guardrails:modes',
+        /### Careful/.test(raw) && /### Freeze/.test(raw) && /### Guard/.test(raw),
+      );
+      check(
+        'harness:safety-guardrails:has-check',
+        /\*\*CHECK:\*\*/.test(raw) && /## Amendment/.test(raw) && /2026-08-07/.test(raw),
+      );
+    }
+  }
   const progressTmpl = readFileSync(join(ROOT, 'harness', 'templates', 'sprint-progress.md'), 'utf8');
   check('harness:sprint-progress:route-column', /\|\s*Route\s*\|/.test(progressTmpl));
 

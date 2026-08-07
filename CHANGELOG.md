@@ -20,6 +20,7 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 - `scripts/doctor.mjs` — advisory `audit:attestation-NN` when a done sprint’s audit is `un-attested` (not `--strict`-blocking).
 - INSTALL commit table + README status blurb include retros/lean/improve-loop.
 - Bug-fix **regression** CHECK in `harness/rules/testing.md` + Phase-7 step in `7-sprint-execution.md` (gstack `/qa` gap).
+- `harness/rules/safety-guardrails.md` — careful / freeze / guard behavioral floor (gstack safety tools).
 
 ### Changed
 
@@ -27,8 +28,7 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
   with structural test anchors (`installer:update-stale-manifest-rebaseline`, vendor-conflict).
 - `docs/dogfood.md` — engine now dogfoods MVP sprints 01–03 (not TaskPilot-only for Phase 7–8).
 - `README.md` — TaskPilot audit/debate links corrected to legacy `.midas/` paths.
-- `docs/gstack-comparison.md` — marks bug-regression adoption as shipped.
----
+- `docs/gstack-comparison.md` — marks bug-regression and careful/freeze/guard as shipped.---
 
 ## [2.6.1] — 2026-08-07
 

@@ -334,7 +334,7 @@ medio / alto. Fuente gstack = README salvo indicación.
 | `/browse` stack propio | MCP Playwright | Bajo | Alto | Muy alto | No replicar browser factory |
 | `/pair-agent` | — | Bajo | Medio | Muy alto | Aplazar |
 | `/codex` 2ª opinión | tribunal | Alto | Alto | Medio | **Evaluar** |
-| `/careful` `/freeze` `/guard` | — | Alto | Alto | Bajo | **Adoptar** regla + hook |
+| `/careful` `/freeze` `/guard` | `safety-guardrails.md` | Alto | Alto | — | **Adoptado** (regla always-on; hooks opcionales) |
 | checkpoint + context-restore | progress.md, recall | Alto | Medio | Medio | **Evaluar** WIP commits estructurados |
 | `/make-pdf` `/diagram` | — | Medio | Bajo | Medio | Nice-to-have |
 | `gstack-model-benchmark` | doctor routing | Medio | Bajo | Medio | Evaluar |
@@ -354,7 +354,7 @@ medio / alto. Fuente gstack = README salvo indicación.
 |---|---|---|
 | **`/midas-retro`** *(shipped)* | `.claude/skills/midas-retro/SKILL.md`; salida `{runs}/retros/retro-NN.md`; non-advancing | gstack `/retro` / `/reflect` gap closed — freeze learnings without Phase-8 gate mutation |
 | **`/midas-investigate`** | Skill build-tier; playbook `product/playbooks/debug-root-cause.md`; refuerzo `verification.md` | Ley de Hierro + 3 strikes reduce “fixes al azar” |
-| **Salvaguardas careful/freeze/guard** | `harness/rules/safety-guardrails.md` + hook lefthook/pre-tool; skills opcionales `/midas-freeze` | Alineado con `security.md`; bajo esfuerzo |
+| **Salvaguardas careful/freeze/guard** *(shipped 2026-08-07)* | `harness/rules/safety-guardrails.md` (+ optional `{runs}/session/freeze-dir.txt`) | Alineado con `security.md`; behavioral floor without mandatory host hooks |
 | **`/midas-doc`** *(PROPOSED — not shipped)* | Skill build-tier; Diataxis map en PR body o `.harness/docs/doc-NN.md` | Cierra gap document-release/generate |
 | **Regresión por bug en inner loop** *(shipped 2026-08-07)* | CHECK en `testing.md` + paso en `7-sprint-execution.md` | Cierra el gap más importante vs `/qa` sin romper separación auditor |
 
@@ -474,8 +474,9 @@ CHECK en `verification.md`, onboarding UI, y check advisory en `doctor.mjs`. Ver
 
 **Pendiente (adopciones gstack, sección 6.1):** `/midas-retro` **ya shipped** (sprint 02 / F-002).
 Regresión por bug en inner loop Fase 7 **ya shipped** (`testing.md` + `7-sprint-execution.md`).
-Siguen abiertos si el equipo aprueba: `/midas-investigate`, salvaguardas careful/freeze/guard,
-`/midas-doc` (Diataxis) — cada uno como skill/regla nuevo con propagación `npm run build`.
+Careful/freeze/guard **ya shipped** (`safety-guardrails.md`).
+Siguen abiertos si el equipo aprueba: `/midas-investigate`, `/midas-doc` (Diataxis) — cada uno como
+skill nuevo con propagación `npm run build`.
 
 ---
 
