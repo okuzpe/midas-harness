@@ -137,7 +137,7 @@ contrato `**CHECK:**` en reglas, separación explícita productor/auditor, routi
 | `/design-consultation` | `/midas-design` + `design-direction.md` | Cubierto |
 | `/plan-devex-review` | — | **No** |
 | `/review` | Fase 8 + reglas code-quality | Parcial — sin auto-fix dedicado |
-| `/investigate` | verify→fix en Fase 7 | **No** (sin metodología explícita) |
+| `/investigate` | `/midas-investigate` | **Cerrado** (Iron Law + 3 strikes; freeze) |
 | `/qa` | `/midas-verify` | Parcial — verify no auto-fix ni regresión automática |
 | `/cso` | `/midas-security-audit` | Alta |
 | `/ship` | humano commit + CI; no skill ship | Parcial |
@@ -278,7 +278,7 @@ del inventario de features**.
 | Segunda opinión modelo | `/codex` cross-model | `/midas-tribunal` (mismo vendor posible) | **Gap Midas** para diversidad de modelo |
 | CWV / performance | `/benchmark` dedicado | Spot-check en verify (peldaño 4) | **Gap Midas** (sin baseline PR) |
 | Post-deploy | `/canary` | No (termina en `shipped`) | **Gap Midas** si se opera en prod |
-| Debugging sistemático | `/investigate` + freeze | verify→fix sin metodología | **Gap Midas** |
+| Debugging sistemático | `/investigate` + freeze | `/midas-investigate` + verify→fix | **Cerrado** (2026-08-07) |
 | Cobertura 100% meta | Declarada en `/ship` | No declarada como meta | Filosófico |
 | Productor corrige en QA | Sí (`/qa`) | No en verify (auditor separado en Fase 8) | **Diseño Midas** — más rigor, menos velocidad |
 | Evidencia parseable | Implícito en PR | `MIDAS_*_RESULT` + `.harness/*` | **Midas superior** en audit trail |
@@ -290,7 +290,7 @@ Priorizado por encaje con la filosofía Midas (productor prueba; auditor certifi
 | # | Adopción propuesta | Encaje | Notas de implementación futura |
 |---|---|---|---|
 | a | **Test de regresión obligatorio por bug corregido** en inner loop Fase 7 | Alto | **Shipped 2026-08-07** — `testing.md` CHECK + `7-sprint-execution.md` |
-| b | **`/midas-investigate`** (Ley de Hierro, 3 strikes) | Alto | Skill build-tier, non-advancing; enlaza con `verification.md` |
+| b | **`/midas-investigate`** (Ley de Hierro, 3 strikes) | Alto | **Shipped 2026-08-07** — skill + `investigate/inv-NN.md` + playbook |
 | c | **Segunda opinión cross-model** (opcional en close-sprint o pre-merge) | Medio | Power-tool; requiere Codex u otro CLI; no sustituye Fase 8 |
 | d | **`/midas-benchmark`** o extensión verify | Medio | CWV baseline en `.harness/verifications/`; solo UI |
 | e | **`/canary`** | Bajo (alcance) | Solo si se define Fase 9 operate — fuera del MVP actual |
@@ -317,7 +317,7 @@ medio / alto. Fuente gstack = README salvo indicación.
 | `/design-shotgun` | — | Bajo | Alto visual | Alto | Aplazar — acoplado a generación IA imágenes |
 | `/design-html` | tokens + componentes | Bajo | Medio | Alto | Aplazar |
 | `/review` auto-fix | Fase 8 | Medio | Alto | Medio | Inner-loop fix sí; veredicto en Fase 8 |
-| `/investigate` | — | Alto | Alto | Bajo | **Adoptar** `/midas-investigate` |
+| `/investigate` | `/midas-investigate` | Alto | Alto | — | **Adoptado** |
 | `/qa` + regresión | `/midas-verify` + `testing.md` regression CHECK | Alto | Alto | — | **Adoptado** (regla + Phase-7; sin auto-fix) |
 | `/qa-only` | `/midas-qa` + `/midas-verify` | Parcial — `/midas-qa` ad-hoc en rama; verify formal pre-close; sin auto-fix |
 | `/cso` | `/midas-security-audit` | — | — | — | Empate |
@@ -353,7 +353,7 @@ medio / alto. Fuente gstack = README salvo indicación.
 | Propuesta | Taxonomía Midas futura | Rationale |
 |---|---|---|
 | **`/midas-retro`** *(shipped)* | `.claude/skills/midas-retro/SKILL.md`; salida `{runs}/retros/retro-NN.md`; non-advancing | gstack `/retro` / `/reflect` gap closed — freeze learnings without Phase-8 gate mutation |
-| **`/midas-investigate`** | Skill build-tier; playbook `product/playbooks/debug-root-cause.md`; refuerzo `verification.md` | Ley de Hierro + 3 strikes reduce “fixes al azar” |
+| **`/midas-investigate`** *(shipped 2026-08-07)* | Skill build-tier; playbook `templates/playbooks/debug-root-cause.md`; freeze `{runs}/investigate/` | Ley de Hierro + 3 strikes reduce “fixes al azar” |
 | **Salvaguardas careful/freeze/guard** *(shipped 2026-08-07)* | `harness/rules/safety-guardrails.md` (+ optional `{runs}/session/freeze-dir.txt`) | Alineado con `security.md`; behavioral floor without mandatory host hooks |
 | **`/midas-doc`** *(PROPOSED — not shipped)* | Skill build-tier; Diataxis map en PR body o `.harness/docs/doc-NN.md` | Cierra gap document-release/generate |
 | **Regresión por bug en inner loop** *(shipped 2026-08-07)* | CHECK en `testing.md` + paso en `7-sprint-execution.md` | Cierra el gap más importante vs `/qa` sin romper separación auditor |
@@ -475,8 +475,8 @@ CHECK en `verification.md`, onboarding UI, y check advisory en `doctor.mjs`. Ver
 **Pendiente (adopciones gstack, sección 6.1):** `/midas-retro` **ya shipped** (sprint 02 / F-002).
 Regresión por bug en inner loop Fase 7 **ya shipped** (`testing.md` + `7-sprint-execution.md`).
 Careful/freeze/guard **ya shipped** (`safety-guardrails.md`).
-Siguen abiertos si el equipo aprueba: `/midas-investigate`, `/midas-doc` (Diataxis) — cada uno como
-skill nuevo con propagación `npm run build`.
+`/midas-investigate` **ya shipped** (`harness/skills/midas-investigate/`).
+Sigue abierto si el equipo aprueba: `/midas-doc` (Diataxis) — skill nuevo con propagación `npm run build`.
 
 ---
 

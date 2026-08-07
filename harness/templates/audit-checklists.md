@@ -50,6 +50,9 @@ MIDAS_SWEEP_RESULT: dead_flows=N orphans=N ledger_drift=N stale_docs=N harness_d
 # midas-retro
 MIDAS_RETRO_RESULT: sprint=NN went_well=N hurt=N learned=N carry=N verdict=frozen|dry-run
 
+# midas-investigate
+MIDAS_INVESTIGATE_RESULT: id=NN hypotheses=N strikes=N verdict=frozen|dry-run|stop
+
 # midas-lean-review
 MIDAS_LEAN_RESULT: findings=N high=N net_lines=-N verdict=report|clean
 

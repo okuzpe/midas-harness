@@ -904,6 +904,19 @@ if (engineVersion) {
     ? readFileSync(join(ROOT, 'docs', 'skills.md'), 'utf8')
     : '';
   check('dogfood:midas-retro:catalog', /\/midas-retro\b/.test(skillsCatalog));
+  check(
+    'dogfood:midas-investigate:skill-on-disk',
+    existsSync(join(ROOT, 'harness', 'skills', 'midas-investigate', 'SKILL.md')),
+  );
+  check('dogfood:midas-investigate:catalog', /\/midas-investigate\b/.test(skillsCatalog));
+  check(
+    'dogfood:midas-investigate:template',
+    existsSync(join(ROOT, 'harness', 'templates', 'investigate-record.md')),
+  );
+  check(
+    'dogfood:midas-investigate:playbook',
+    existsSync(join(ROOT, 'harness', 'templates', 'playbooks', 'debug-root-cause.md')),
+  );
   const featuresPath = join(ROOT, 'product', 'features.json');
   if (existsSync(featuresPath)) {
     const features = JSON.parse(readFileSync(featuresPath, 'utf8')).features || [];
@@ -1919,7 +1932,7 @@ check('paths:module-exists', existsSync(join(ROOT, 'scripts', 'paths.mjs')));
   check('paths:classic-engine', classic.engine === 'harness');
   check('paths:classic-state', classic.state === 'harness/state.yaml');
   check('paths:classic-runs', classic.runs === '.harness');
-  check('paths:runs-subdirs', RUNS_SUBDIRS.includes('sprints') && RUNS_SUBDIRS.includes('sweeps') && RUNS_SUBDIRS.includes('lean') && RUNS_SUBDIRS.includes('retros'));
+  check('paths:runs-subdirs', RUNS_SUBDIRS.includes('sprints') && RUNS_SUBDIRS.includes('sweeps') && RUNS_SUBDIRS.includes('lean') && RUNS_SUBDIRS.includes('retros') && RUNS_SUBDIRS.includes('investigate'));
   check('paths:migration-map-sprints', MIGRATION_MAP.some((m) => m.from === '.harness/sprints'));
   check('paths:hub-product-move', MIGRATION_MAP_HUB.some((m) => m.from === 'product'));
   check('paths:hub-yaml-product', hubPathsYaml().product === '.midas/product');
@@ -2737,8 +2750,11 @@ if (existsSync(join(ROOT, 'scripts', 'status-page.mjs'))) {
     check('behavioral:status-page-runs', html.includes('Midas harness status'));
     check(
       'behavioral:status-page-lists-retros-sweeps',
-      /<th>Retros<\/th>/.test(html) && /<th>Sweeps<\/th>/.test(html) && /Improve-loop journal/.test(html),
-      'status.html must list Retros, Sweeps, and improve-loop journal',
+      /<th>Retros<\/th>/.test(html) &&
+        /<th>Sweeps<\/th>/.test(html) &&
+        /<th>Investigations<\/th>/.test(html) &&
+        /Improve-loop journal/.test(html),
+      'status.html must list Retros, Sweeps, Investigations, and improve-loop journal',
     );
   } catch (e) {
     check('behavioral:status-page-runs', false, String(e.stderr || e.message));
@@ -2913,7 +2929,7 @@ if (existsSync(templateChecksIndex) && existsSync(join(ROOT, 'harness', 'checks.
   check('skill-registry:close-sprint-orchestrator-only', !!close && close.delegator === 'orchestrator-only');
   const yesRows = rows.filter((r) => r.delegator === 'yes');
   check('skill-registry:yes-floor', yesRows.length >= 10, `yes=${yesRows.length}`);
-  for (const name of ['midas-progress', 'midas-verify', 'midas-qa', 'midas-lean-review', 'midas-explore', 'midas-capture', 'midas-improve-loop', 'midas-autopilot', 'midas-retro']) {
+  for (const name of ['midas-progress', 'midas-verify', 'midas-qa', 'midas-lean-review', 'midas-explore', 'midas-capture', 'midas-improve-loop', 'midas-autopilot', 'midas-retro', 'midas-investigate']) {
     const row = rows.find((r) => r.name === name);
     check(`skill-registry:yes:${name}`, !!row && row.delegator === 'yes', row ? row.delegator : 'missing');
   }

@@ -12,7 +12,9 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 ### Added
 
 - `/midas-retro` — read-only sprint retrospective freeze to `{runs}/retros/retro-NN.md` (non-advancing).
+- `/midas-investigate` — root-cause Iron Law + 3 strikes; freeze `{runs}/investigate/inv-NN.md` + playbook `debug-root-cause.md`.
 - `harness/templates/retro-record.md`; `RUNS_SUBDIRS` / bundle freeze include `retros/` (+ `lean/` in bundle freeze).
+- `RUNS_SUBDIRS` / bundle freeze also include `investigate/`.
 - Structural dogfood locks: `install:update-docs:*`, `dogfood:midas-retro:*`, `dogfood:features:F-00*:passing`,
   `dogfood:retros:retro-0{1,2,3}`.
 - `docs/faq.md` — update answer uses `#v{VERSION}` placeholder + rebaseline pointer (no stale `#v2.2.1`).

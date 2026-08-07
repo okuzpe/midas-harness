@@ -55,6 +55,7 @@ const debates = listDir(paths.runsPath('debates'), /\.md$/);
 const sprints = listDir(paths.runsPath('sprints'), /\.md$/);
 const sweeps = listDir(paths.runsPath('sweeps'), /\.md$/);
 const retros = listDir(paths.runsPath('retros'), /\.md$/);
+const investigates = listDir(paths.runsPath('investigate'), /\.md$/);
 const lean = listDir(paths.runsPath('lean'), /\.md$/);
 const improveJournal = existsSync(join(ROOT, paths.runsPath('improve-loop'), 'journal.md'));
 
@@ -91,6 +92,7 @@ const html = `<!DOCTYPE html>
     <tr><th>Sprint progress</th><td>${sprints.length ? sprints.map(esc).join(', ') : '—'}</td></tr>
     <tr><th>Sweeps</th><td>${sweeps.length ? sweeps.map(esc).join(', ') : '—'}</td></tr>
     <tr><th>Retros</th><td>${retros.length ? retros.map(esc).join(', ') : '—'}</td></tr>
+    <tr><th>Investigations</th><td>${investigates.length ? investigates.map(esc).join(', ') : '—'}</td></tr>
     <tr><th>Lean reviews</th><td>${lean.length ? lean.map(esc).join(', ') : '—'}</td></tr>
     <tr><th>Improve-loop journal</th><td>${improveJournal ? 'present' : '—'}</td></tr>
   </table>

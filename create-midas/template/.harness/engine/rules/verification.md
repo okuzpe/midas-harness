@@ -94,7 +94,9 @@ acceptance criteria demand are green, with the proof recorded in its `evidence`.
 ## Cost & escalation
 - The per-task inner loop runs rungs **1–3 always**, and rung **4 when the task is UI-touching** — fix
   and re-run until green before the task is checked off, with a bounded number of self-fix rounds
-  (then surface to the human). Rung **5** runs once per sprint at close.
+  (then surface to the human). After failed speculative fixes, run `/midas-investigate` (Iron Law +
+  3 strikes) and freeze `{runs}/investigate/inv-NN.md` before guessing further. Rung **5** runs once
+  per sprint at close.
 - Browser MCPs and the heavier verifiers are **opt-in and cost-gated**: prefer the cheapest tool that
   proves the claim; reach for Chrome DevTools / Lighthouse / a multi-agent debate only when the
   evidence genuinely requires it. Respect `state.yaml.cost_profile`.
@@ -103,5 +105,7 @@ acceptance criteria demand are green, with the proof recorded in its `evidence`.
 
 ## Amendments
 
+- **2026-08-07** — After bounded self-fix rounds fail, prefer `/midas-investigate` (Iron Law +
+  freeze under `{runs}/investigate/`) before further speculative patches.
 - **2026-08-01** — Verify ladder requires Product authenticity on marketing/landing UI
   (`visual-design.md` + `/midas-verify` § Product authenticity; redesign via `/midas-design`).

@@ -51,8 +51,10 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
       always (static gate → behavioural tests → runtime smoke), plus rung 4 (drive + inspect via
       `/midas-verify` or ad-hoc `/midas-qa` on the diff) when the task is UI-touching. **Observe the actual output,
       fix any failure, and re-run until green** — bounded at ~3 self-fix rounds, after which you stop
-      and surface the blocker to the human (recommend-don't-wall). You self-check the cheap rungs
-      here; the *independent* verdict (rung 5) is rendered at Phase 8, never by you.
+      and surface the blocker to the human (recommend-don't-wall). Prefer `/midas-investigate` (Iron
+      Law + freeze under `{runs}/investigate/`) before further speculative fixes — see
+      [`verification.md`](../rules/verification.md) and `playbooks/debug-root-cause.md`. You self-check
+      the cheap rungs here; the *independent* verdict (rung 5) is rendered at Phase 8, never by you.
    f. Check the task off `## Tasks` in the sprint file **only after it passes verification**, noting
       the proof (command output, test name, or screenshot reference) **and the tool/MCP that proved it**
       (e.g. `test-runner`, `context7`, `agent-browser`, `playwright-mcp`, `@playwright/cli`). Mirror the same in

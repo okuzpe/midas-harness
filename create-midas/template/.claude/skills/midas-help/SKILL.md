@@ -26,6 +26,7 @@ recommended-model: claude-haiku-4-5
    - **Resume after a break** (`/midas-status` + `/midas-recall`)
    - **Run the next phase gate** (phase skills 0–8)
    - **Start or close a sprint** (`/start-sprint` / `/close-sprint` / `/midas-autopilot` / `/midas-retro`)
+   - **Debug a failing fix** (`/midas-investigate`)
    - **Continuous improve loop** (`/midas-improve-loop`)
    - **Verify UI / ad-hoc QA** (`/midas-verify` / `/midas-qa`)
    - **Redesign product UI** (`/midas-design`)
@@ -83,8 +84,15 @@ recommended-model: claude-haiku-4-5
 - What: gate evidence vs inner-loop smoke.
 - Command: `/midas-verify` (before close) · `/midas-qa` (branch/PR, non-gate)
 - Happens: drives flows, freezes `{runs}/verifications/verify-NN.md` or optional `{runs}/qa/`.
-- NOT for non-UI sprints (verify hard-skips).
+- NOT for non-UI sprints (verify hard-skips). NOT for root-cause before a bug fix → `/midas-investigate`.
 - Next: `/close-sprint` when verify is green.
+
+**Debug root cause (Iron Law)**
+- What: freeze symptoms → flow → hypotheses before speculative fixes; stop after 3 failed strikes.
+- Command: `/midas-investigate` [`topic`] · `--continue NN` · `--dry-run`
+- Happens: writes `{runs}/investigate/inv-NN.md`; does not advance stage.
+- NOT open-ended scoping → `/midas-explore`. NOT conformance → `/close-sprint`.
+- Next: implement fix + regression test; cite `inv-NN` in progress.
 
 **Redesign product UI**
 - What: authentic redesign with directions + human pick before implementation.

@@ -102,6 +102,15 @@ it does not replace close-sprint. See [skills.md](skills.md).
 
 ---
 
+**Q: What is `/midas-investigate` vs `/midas-explore`?**
+
+`/midas-investigate` is **root-cause before a bug fix** (Iron Law + 3 strikes) and freezes
+`{runs}/investigate/inv-NN.md`. `/midas-explore` is open-ended scoping outside the pipeline under
+`{runs}/explore/`. Use investigate when something is broken; explore when you are still framing
+the question. See [skills.md](skills.md).
+
+---
+
 **Q: What is the tribunal and when should I run it?**
 
 `/midas-tribunal` is a standing, on-demand adversarial debate over the entire project. A steelman

@@ -30,7 +30,7 @@ Human catalog (this file) uses slash-names. Agents that **delegate** use the gen
 For the compact entry → decision → state → handoff view of every command, see
 [Skill flows](skill-flows.md). It explains the system shape without duplicating each skill's procedure.
 
-Catalog size: **32 shipped active** + **1 engine-only** (`/midas-precommit`, not in installs).
+Catalog size: **33 shipped active** + **1 engine-only** (`/midas-precommit`, not in installs).
 
 ---
 
@@ -40,7 +40,7 @@ Catalog size: **32 shipped active** + **1 engine-only** (`/midas-precommit`, not
 |---|---|---|
 | **Pipeline** | Audited phase gates 0→8 | `/idea-intake` … `/close-sprint` |
 | **Orient** | Where am I / what next / resume / install confusion | `/midas-status`, `/midas-help`, `/midas-recall`, `/midas-reconcile` |
-| **Sprint day** | Inner loop during Phase 7 | `/midas-progress`, `/midas-verify`, `/midas-qa`, `/midas-explore`, `/midas-capture`, `/midas-lean-review`, `/midas-design`, `/midas-autopilot`, `/midas-improve-loop`, `/midas-retro` |
+| **Sprint day** | Inner loop during Phase 7 | `/midas-progress`, `/midas-verify`, `/midas-qa`, `/midas-explore`, `/midas-investigate`, `/midas-capture`, `/midas-lean-review`, `/midas-design`, `/midas-autopilot`, `/midas-improve-loop`, `/midas-retro` |
 | **Maintain + audit** | Sync, hygiene, optional deep audits, setup | `/midas-init`, `/midas-adopt`, `/midas-update`, `/midas-doctor`, `/midas-align`, `/midas-precommit` *(engine only)*, `/midas-sweep`, `/midas-bundle`, `/midas-tribunal`, `/midas-security-audit` |
 
 ---
@@ -83,6 +83,7 @@ Stage → command map (mechanical): `<paths.engine>/stage-command-table.yaml`.
 | `/midas-verify` | Sprint UI/API gate evidence → `verify-NN.md` (incl. authenticity; before close). | build |
 | `/midas-qa` | Ad-hoc branch/PR smoke (non-gate); does **not** replace verify. | build |
 | `/midas-explore` | Investigation outside the pipeline → `{runs}/explore/`. | scout |
+| `/midas-investigate` | Root-cause before bug fixes (Iron Law + 3 strikes) → `{runs}/investigate/inv-NN.md`. | build |
 | `/midas-capture` | Recurring pattern → rule / playbook / convention (asks first). | build |
 | `/midas-lean-review` | Over-engineering delete-list for the diff (stdlib/native/yagni/shrink). | build |
 | `/midas-autopilot` | Sprint checklist actuator — `setup` / `dry-run` / `tick` CLI (ADR-009; optional `--autonomy` install). | build |
@@ -132,6 +133,7 @@ Use **`/midas-status`** for the single next lifecycle step. Use this table when 
 | Unsure which command fits my intent | `/midas-help` |
 | Resuming after a break | `/midas-recall` |
 | Ad-hoc investigation outside the pipeline | `/midas-explore` |
+| Root-cause debug before fixing a bug | `/midas-investigate` |
 | One-time setup (+ optional monorepo) | `/midas-init` [`--monorepo`] |
 | Existing codebase, no Midas yet | `/midas-adopt` (or `/midas-init` which may call it) |
 | Edited conventions/rules | `/midas-doctor` |
@@ -153,6 +155,7 @@ Use **`/midas-status`** for the single next lifecycle step. Use this table when 
 |---|---|---|
 | Sprint conformance (Phase 8) | `/close-sprint` | **Yes** |
 | Sprint retrospective (learnings) | `/midas-retro` | No |
+| Root-cause investigation (Iron Law) | `/midas-investigate` | No |
 | Were decisions right? | `/midas-tribunal` | No |
 | Deep security (OWASP/STRIDE) | `/midas-security-audit` | No |
 
