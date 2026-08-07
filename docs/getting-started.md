@@ -125,6 +125,10 @@ Drive phases in order — each command runs when its predecessor's exit gate pas
 
 Run `/midas-tribunal` at any time for a whole-project adversarial debate.
 
+After a sprint lands, optional non-advancing commands: `/midas-retro` (freeze learnings),
+`/midas-sweep` (hygiene), `/midas-improve-loop` (continuous improve; arms Cursor `/loop`).
+See [skills.md](skills.md) § Sprint day and § Autonomy commands.
+
 For an existing codebase, `/midas-init` classifies it as **E2/E3** and runs `/midas-adopt` for you
 (no need to call it manually). Run `/midas-adopt --preflight` first for a read-only fit report.
 See the [Skills Reference](skills.md) for every command.

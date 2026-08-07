@@ -45,3 +45,8 @@ None — no failed checks.
 ## Verdict
 
 **pass** — sprint 01 complete. Next: `/start-sprint 02` (midas-retro-skill).
+
+## Amendment — 2026-08-07
+
+Sprints 02–03 subsequently shipped (F-002 `/midas-retro`, F-003 INSTALL rebaseline). Binding
+re-attest of `audit-02`/`audit-03` still owed on orchestrate tier. See `product/roadmap.md`.

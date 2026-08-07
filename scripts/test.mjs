@@ -915,6 +915,14 @@ if (engineVersion) {
       );
     }
   }
+  const runsRoot = join(ROOT, '.harness', 'retros');
+  for (const id of ['01', '02', '03']) {
+    check(
+      `dogfood:retros:retro-${id}`,
+      existsSync(join(runsRoot, `retro-${id}.md`)),
+      `missing .harness/retros/retro-${id}.md`,
+    );
+  }
 }
 
 // --- M. CI workflows carry the hardened supply-chain policy -------------------------------
