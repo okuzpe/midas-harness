@@ -15,7 +15,8 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 - `harness/templates/retro-record.md`; `RUNS_SUBDIRS` / bundle freeze include `retros/` (+ `lean/` in bundle freeze).
 - Structural dogfood locks: `install:update-docs:*`, `dogfood:midas-retro:*`, `dogfood:features:F-00*:passing`,
   `dogfood:retros:retro-0{1,2,3}`.
-- `docs/getting-started.md` — optional `/midas-retro` / sweep / improve-loop after the lifecycle list.
+- `docs/faq.md` — update answer uses `#v{VERSION}` placeholder + rebaseline pointer (no stale `#v2.2.1`).
+- Version-pin guard includes `docs/faq.md`.
 
 ### Changed
 

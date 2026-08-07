@@ -67,14 +67,18 @@ touching anything. On decline it prints the block for manual paste. Nothing is e
 
 **Q: How do I update Midas to a newer version?**
 
-Prefer a **pinned** update (see `harness/VERSION` / [INSTALL.md](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md)):
+Prefer a **pinned** update. Copy the exact `#v…` command from [INSTALL.md](../INSTALL.md)
+(matches `harness/VERSION` — do not invent the tag):
 ```bash
-npx github:okuzpe/midas-harness#v2.2.1 --update
+npx github:okuzpe/midas-harness#v{VERSION} --update
 ```
-`--update` refreshes the vendor engine and keeps your product/rules/runs. It is **not** the same as
-install-time `--force` (which overwrites conflicting files on a fresh install). After updating, run
-`/midas-doctor` to re-sync generated adapters. Unpinned `main` / pipe-to-shell installs are
-documented in SECURITY.md as higher risk.
+`--update` refreshes manifest-owned engine/generated files and keeps your product/rules/runs. It is
+**not** the same as install-time `--force`. On vendor edits outside overlays, same-version update
+**aborts** before writing; stale manifest hashes **re-baseline** after confirm. Full contract:
+[INSTALL.md § Updating an existing install](../INSTALL.md#updating-an-existing-install).
+`/midas-update` is an interactive alternative to the same CLI. After a successful CLI verify, adapters
+are already synced — `/midas-doctor` only if you still see drift. Unpinned `main` / pipe-to-shell
+installs are higher risk (see SECURITY.md).
 
 ---
 
@@ -82,11 +86,10 @@ documented in SECURITY.md as higher risk.
 
 Run the same one command with `--uninstall`: `npx github:okuzpe/midas-harness --uninstall` (or
 `curl -fsSL …/install.sh | bash -s -- --uninstall`). It is **surgical** — it removes only Midas's own
-engine files and **keeps your work** (`product/`, `{runs}/`, state file) unless you pass
-`--purge`; use `--dry-run` to preview. Prefer to remove it by hand? Delete `.claude/`, engine dirs
-(`.harness/`), `AGENTS.md`, `.claude/CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`,
-`.windsurf/rules/00-midas.md`, and `.mcp.json`. Your source code is untouched. See
-[INSTALL.md](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md#uninstalling).
+engine files and **keeps your work** (`.harness/product/`, `.harness/rules/`, `.harness/runs/`, state)
+unless you pass `--purge`; use `--dry-run` to preview. Prefer to remove it by hand? Delete host
+mirrors, `.harness/`, and generated adapters per [INSTALL.md § Uninstalling](../INSTALL.md#uninstalling).
+Your source code is untouched.
 
 ---
 

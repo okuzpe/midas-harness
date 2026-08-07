@@ -863,6 +863,7 @@ if (engineVersion) {
     'harness/skills/midas-reconcile/SKILL.md',
     'SECURITY.md',
     'README.md',
+    'docs/faq.md',
     'create-midas/index.mjs',
   ]) {
     const p = join(ROOT, f);
