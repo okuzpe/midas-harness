@@ -2,7 +2,7 @@
   "schema_version": 1,
   "updated": null,
   "source": "engine/rules",
-  "source_digest": "8a3a30ec7dd3338514c6b8870d8f037e7e101b527d59d507157aa825b12c961a",
+  "source_digest": "e2bc1a16a975307cb7ed030ed0101a5851d6cc19ac2b4f2b3662cdfeb4861df0",
   "rules": [
     {
       "path": "engine/rules/acceptance-criteria.md",
@@ -1452,11 +1452,19 @@
       "title": "Rule: Testing (always-on)",
       "owner": "build",
       "phase": 8,
-      "check_count": 18,
+      "check_count": 19,
       "checks": [
         {
           "kind": "manual",
           "body": "`manual:` the sprint diff pairs each behavioural change with a new/updated test in the same range; a behaviour change with no test delta is a fail.",
+          "section": "Checklist > Coverage contract",
+          "phase": 8,
+          "owner": "build",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` when the sprint diff includes a defect fix (`fix:` commit, bug/defect sprint task, or progress note naming a bug), the same range adds or updates a test (or a verify/acceptance evidence row) that covers the formerly broken behaviour; a fix-only diff with no regression proof is a fail.",
           "section": "Checklist > Coverage contract",
           "phase": 8,
           "owner": "build",

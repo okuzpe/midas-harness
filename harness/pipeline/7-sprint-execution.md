@@ -42,6 +42,10 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
    c. Write code that matches the conventions in `<paths.engine>/conventions.md` and
       `{product}/conventions.md`. Match surrounding style; prefer reuse over new abstractions.
    d. Write tests alongside the feature (not after). Test behavior, not implementation.
+      **Bug fixes:** add or update a **regression** test that fails without the fix (or an equivalent
+      verify/acceptance evidence row for the failure mode) in the same change — see
+      [`testing.md`](../rules/testing.md) Coverage contract. Do not check off a defect task on a
+      fix-only diff.
    e. **Verify the task before checking it off (the inner verify→fix loop).** Run the
       [`verification.md`](../rules/verification.md) ladder for what you just changed — rungs 1–3
       always (static gate → behavioural tests → runtime smoke), plus rung 4 (drive + inspect via

@@ -274,7 +274,7 @@ del inventario de features**.
 |---|---|---|---|
 | Tests unitarios/integración | `/ship` exige suite + cobertura | Peldaño 2 + `testing.md` CHECKs | Paridad en intención; gstack bootstrap explícito |
 | QA navegador | `/qa` siempre, auto-fix | `/midas-verify` gated, report-only | **gstack más agresivo en fix loop** |
-| Test regresión por bug | **Automático en `/qa`** | Manual vía convención testing | **Gap Midas** |
+| Test regresión por bug | **Automático en `/qa`** | CHECK + Phase-7 paso (2026-08-07) | **Cerrado** (manual audit, no auto-fix) |
 | Segunda opinión modelo | `/codex` cross-model | `/midas-tribunal` (mismo vendor posible) | **Gap Midas** para diversidad de modelo |
 | CWV / performance | `/benchmark` dedicado | Spot-check en verify (peldaño 4) | **Gap Midas** (sin baseline PR) |
 | Post-deploy | `/canary` | No (termina en `shipped`) | **Gap Midas** si se opera en prod |
@@ -289,7 +289,7 @@ Priorizado por encaje con la filosofía Midas (productor prueba; auditor certifi
 
 | # | Adopción propuesta | Encaje | Notas de implementación futura |
 |---|---|---|---|
-| a | **Test de regresión obligatorio por bug corregido** en inner loop Fase 7 | Alto | Ampliar `testing.md` CHECK + playbook en `harness/pipeline/7-sprint-execution.md`; no requiere auto-fix |
+| a | **Test de regresión obligatorio por bug corregido** en inner loop Fase 7 | Alto | **Shipped 2026-08-07** — `testing.md` CHECK + `7-sprint-execution.md` |
 | b | **`/midas-investigate`** (Ley de Hierro, 3 strikes) | Alto | Skill build-tier, non-advancing; enlaza con `verification.md` |
 | c | **Segunda opinión cross-model** (opcional en close-sprint o pre-merge) | Medio | Power-tool; requiere Codex u otro CLI; no sustituye Fase 8 |
 | d | **`/midas-benchmark`** o extensión verify | Medio | CWV baseline en `.harness/verifications/`; solo UI |
@@ -318,7 +318,7 @@ medio / alto. Fuente gstack = README salvo indicación.
 | `/design-html` | tokens + componentes | Bajo | Medio | Alto | Aplazar |
 | `/review` auto-fix | Fase 8 | Medio | Alto | Medio | Inner-loop fix sí; veredicto en Fase 8 |
 | `/investigate` | — | Alto | Alto | Bajo | **Adoptar** `/midas-investigate` |
-| `/qa` + regresión | `/midas-verify` | Alto | Alto | Medio | **Adoptar** regresión por bug en reglas |
+| `/qa` + regresión | `/midas-verify` + `testing.md` regression CHECK | Alto | Alto | — | **Adoptado** (regla + Phase-7; sin auto-fix) |
 | `/qa-only` | `/midas-qa` + `/midas-verify` | Parcial — `/midas-qa` ad-hoc en rama; verify formal pre-close; sin auto-fix |
 | `/cso` | `/midas-security-audit` | — | — | — | Empate |
 | `/ship` | CI + humano | Medio | Medio | Medio | Evaluar skill “pre-PR checklist” no gate |
@@ -356,7 +356,7 @@ medio / alto. Fuente gstack = README salvo indicación.
 | **`/midas-investigate`** | Skill build-tier; playbook `product/playbooks/debug-root-cause.md`; refuerzo `verification.md` | Ley de Hierro + 3 strikes reduce “fixes al azar” |
 | **Salvaguardas careful/freeze/guard** | `harness/rules/safety-guardrails.md` + hook lefthook/pre-tool; skills opcionales `/midas-freeze` | Alineado con `security.md`; bajo esfuerzo |
 | **`/midas-doc`** *(PROPOSED — not shipped)* | Skill build-tier; Diataxis map en PR body o `.harness/docs/doc-NN.md` | Cierra gap document-release/generate |
-| **Regresión por bug en inner loop** | CHECK nuevo en `testing.md` + paso en `7-sprint-execution.md` | Cierra el gap más importante vs `/qa` sin romper separación auditor |
+| **Regresión por bug en inner loop** *(shipped 2026-08-07)* | CHECK en `testing.md` + paso en `7-sprint-execution.md` | Cierra el gap más importante vs `/qa` sin romper separación auditor |
 
 ### 6.2 Evaluar (valor alto, decisión de alcance)
 
@@ -473,9 +473,9 @@ CHECK en `verification.md`, onboarding UI, y check advisory en `doctor.mjs`. Ver
 [0.5.21] — Verification / MCP governance.
 
 **Pendiente (adopciones gstack, sección 6.1):** `/midas-retro` **ya shipped** (sprint 02 / F-002).
+Regresión por bug en inner loop Fase 7 **ya shipped** (`testing.md` + `7-sprint-execution.md`).
 Siguen abiertos si el equipo aprueba: `/midas-investigate`, salvaguardas careful/freeze/guard,
-`/midas-doc` (Diataxis), y regresión obligatoria por bug en el inner loop de Fase 7 — cada uno como
-skill/regla nuevo con propagación `npm run build`.
+`/midas-doc` (Diataxis) — cada uno como skill/regla nuevo con propagación `npm run build`.
 
 ---
 

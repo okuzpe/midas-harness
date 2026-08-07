@@ -333,6 +333,7 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `node <paths.scripts>/doctor.mjs --gates-only` reports `ok` (or `skip`) for `gate:sprint-continuity`. An active sprint with no progress file and absent/stale `last_touched` is a fail. See also `session-continuity.md` § STM progress log (manual twin).
 - **Rule: Testing (always-on)** (`testing.md`, base)
   - **CHECK:** `manual:` the sprint diff pairs each behavioural change with a new/updated test in the same range; a behaviour change with no test delta is a fail.
+  - **CHECK:** `manual:` when the sprint diff includes a defect fix (`fix:` commit, bug/defect sprint task, or progress note naming a bug), the same range adds or updates a test (or a verify/acceptance evidence row) that covers the formerly broken behaviour; a fix-only diff with no regression proof is a fail.
   - **CHECK:** `manual:` tests assert public outputs/effects; a test reaching into private state/mocks-everything is a fail.
   - **CHECK:** the project test command (`npm test` / `pytest` / …) exits 0 with zero failures.
   - **CHECK:** `manual:` each new public function/module has a unit test with its dependencies stubbed.

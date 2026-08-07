@@ -2864,6 +2864,24 @@ if (existsSync(templateChecksIndex) && existsSync(join(ROOT, 'harness', 'checks.
     check('harness:organic-routing:has-check', /\*\*CHECK:\*\*/.test(raw));
     check('harness:organic-routing:has-amendment', /## Amendment/.test(raw) && /2026-08-06/.test(raw));
   }
+  {
+    const testingRule = readFileSync(join(ROOT, 'harness', 'rules', 'testing.md'), 'utf8');
+    check(
+      'harness:testing:bug-regression-check',
+      /\*\*bug fix\*\*/i.test(testingRule) &&
+        /regression/i.test(testingRule) &&
+        /fix-only diff/i.test(testingRule) &&
+        /## Amendment/.test(testingRule) &&
+        /2026-08-07/.test(testingRule),
+      'testing.md must require regression proof for bug fixes',
+    );
+    const phase7 = readFileSync(join(ROOT, 'harness', 'pipeline', '7-sprint-execution.md'), 'utf8');
+    check(
+      'harness:phase7:bug-regression-step',
+      /\*\*Bug fixes:\*\*/.test(phase7) && /regression/i.test(phase7),
+      'Phase 7 must instruct regression tests on defect fixes',
+    );
+  }
   const progressTmpl = readFileSync(join(ROOT, 'harness', 'templates', 'sprint-progress.md'), 'utf8');
   check('harness:sprint-progress:route-column', /\|\s*Route\s*\|/.test(progressTmpl));
 
