@@ -9,7 +9,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 /** Fixed evidence subdirs under the runs base. Cache is deliberately separate in v2. */
-export const RUNS_SUBDIRS = ['audits', 'verifications', 'debates', 'sprints', 'sweeps', 'lean'];
+export const RUNS_SUBDIRS = ['audits', 'verifications', 'debates', 'sprints', 'sweeps', 'lean', 'retros'];
 
 export const LEGACY_LAYOUTS = ['classic', 'compact', 'hub'];
 

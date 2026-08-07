@@ -327,7 +327,7 @@ medio / alto. Fuente gstack = README salvo indicación.
 | `/benchmark` | spot en verify | Alto | Medio | Medio | **Evaluar** `/midas-benchmark` |
 | `/document-release` | `docs.md` | Alto | Alto | Medio | **Adoptar** `/midas-doc` *(PROPOSED)* |
 | `/document-generate` | templates | Alto | Alto | Medio | Parte de `/midas-doc` *(PROPOSED)* |
-| `/retro` | — | Alto | Alto | Medio | **Adoptar** `/midas-retro` *(PROPOSED)* |
+| `/retro` | — | Alto | Alto | Medio | **Adoptar** `/midas-retro` *(shipped)* |
 | `/autoplan` | tribunal (parcial) | Alto | Alto | Alto | **Evaluar** `/midas-autoplan` |
 | `/spec` | sprint templates | Medio | Medio | Medio | Evaluar |
 | `/learn` + GBrain | capture + recall | **Bajo** | Alto (gstack) | Alto | **Rechazar** store oculto — ver ADR-003 |
@@ -352,7 +352,7 @@ medio / alto. Fuente gstack = README salvo indicación.
 
 | Propuesta | Taxonomía Midas futura | Rationale |
 |---|---|---|
-| **`/midas-retro`** *(planned — sprint 02)* | `.claude/skills/midas-retro/SKILL.md`; salida `{runs}/retros/retro-NN.md`; non-advancing | gstack tiene `/retro`; Midas solo audita conformidad en close-sprint hasta que sprint 02 cierre |
+| **`/midas-retro`** *(shipped)* | `.claude/skills/midas-retro/SKILL.md`; salida `{runs}/retros/retro-NN.md`; non-advancing | gstack `/retro` / `/reflect` gap closed — freeze learnings without Phase-8 gate mutation |
 | **`/midas-investigate`** | Skill build-tier; playbook `product/playbooks/debug-root-cause.md`; refuerzo `verification.md` | Ley de Hierro + 3 strikes reduce “fixes al azar” |
 | **Salvaguardas careful/freeze/guard** | `harness/rules/safety-guardrails.md` + hook lefthook/pre-tool; skills opcionales `/midas-freeze` | Alineado con `security.md`; bajo esfuerzo |
 | **`/midas-doc`** *(PROPOSED — not shipped)* | Skill build-tier; Diataxis map en PR body o `.harness/docs/doc-NN.md` | Cierra gap document-release/generate |

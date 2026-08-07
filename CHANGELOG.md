@@ -9,6 +9,11 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+### Added
+
+- `/midas-retro` — read-only sprint retrospective freeze to `{runs}/retros/retro-NN.md` (non-advancing).
+- `harness/templates/retro-record.md`; `RUNS_SUBDIRS` / bundle freeze include `retros/`.
+
 ---
 
 ## [2.6.1] — 2026-08-07

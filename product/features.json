@@ -22,8 +22,8 @@
         "WHEN a user invokes /midas-retro after a sprint, the skill SHALL produce a frozen note under {runs}/ without mutating paths.state stage.",
         "WHEN skill-quality-check runs, midas-retro SHALL have no hard fails."
       ],
-      "status": "failing",
-      "evidence": ""
+      "status": "passing",
+      "evidence": "harness/skills/midas-retro/SKILL.md; docs/skills.md; scripts/test.mjs skill-registry:yes:midas-retro"
     },
     {
       "id": "F-003",

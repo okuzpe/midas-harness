@@ -30,7 +30,7 @@ Human catalog (this file) uses slash-names. Agents that **delegate** use the gen
 For the compact entry → decision → state → handoff view of every command, see
 [Skill flows](skill-flows.md). It explains the system shape without duplicating each skill's procedure.
 
-Catalog size: **31 shipped active** + **1 engine-only** (`/midas-precommit`, not in installs).
+Catalog size: **32 shipped active** + **1 engine-only** (`/midas-precommit`, not in installs).
 
 ---
 
@@ -40,7 +40,7 @@ Catalog size: **31 shipped active** + **1 engine-only** (`/midas-precommit`, not
 |---|---|---|
 | **Pipeline** | Audited phase gates 0→8 | `/idea-intake` … `/close-sprint` |
 | **Orient** | Where am I / what next / resume / install confusion | `/midas-status`, `/midas-help`, `/midas-recall`, `/midas-reconcile` |
-| **Sprint day** | Inner loop during Phase 7 | `/midas-progress`, `/midas-verify`, `/midas-qa`, `/midas-explore`, `/midas-capture`, `/midas-lean-review`, `/midas-design`, `/midas-autopilot`, `/midas-improve-loop` |
+| **Sprint day** | Inner loop during Phase 7 | `/midas-progress`, `/midas-verify`, `/midas-qa`, `/midas-explore`, `/midas-capture`, `/midas-lean-review`, `/midas-design`, `/midas-autopilot`, `/midas-improve-loop`, `/midas-retro` |
 | **Maintain + audit** | Sync, hygiene, optional deep audits, setup | `/midas-init`, `/midas-adopt`, `/midas-update`, `/midas-doctor`, `/midas-align`, `/midas-precommit` *(engine only)*, `/midas-sweep`, `/midas-bundle`, `/midas-tribunal`, `/midas-security-audit` |
 
 ---
@@ -87,6 +87,7 @@ Stage → command map (mechanical): `<paths.engine>/stage-command-table.yaml`.
 | `/midas-lean-review` | Over-engineering delete-list for the diff (stdlib/native/yagni/shrink). | build |
 | `/midas-autopilot` | Sprint checklist actuator — `setup` / `dry-run` / `tick` CLI (ADR-009; optional `--autonomy` install). | build |
 | `/midas-improve-loop` | Continuous product improve (validate + tick #1 + arm Cursor `/loop`). Optional `cloud` for Automations. | build |
+| `/midas-retro` | Sprint retrospective freeze → `{runs}/retros/retro-NN.md` (non-advancing). | build |
 
 ---
 
@@ -143,6 +144,7 @@ Use **`/midas-status`** for the single next lifecycle step. Use this table when 
 | Over-engineered diff / what can we delete? | `/midas-lean-review` |
 | Bounded autopilot (one sprint task per tick) | `/midas-autopilot` → `node .harness/autonomy/bin/midas-autopilot.mjs setup` |
 | Continuous improve (discover → one fix → PR) | `/midas-improve-loop` (arms `/loop`) · `cloud` for Cursor Automations |
+| Sprint retrospective (learnings freeze) | `/midas-retro` |
 | Export/import knowledge | `/midas-bundle` or `node <paths.scripts>/bundle.mjs` |
 
 **Audits** (shared fragments: `<paths.engine>/templates/audit-checklists.md`):
@@ -150,6 +152,7 @@ Use **`/midas-status`** for the single next lifecycle step. Use this table when 
 | Need | Command | Advances gates? |
 |---|---|---|
 | Sprint conformance (Phase 8) | `/close-sprint` | **Yes** |
+| Sprint retrospective (learnings) | `/midas-retro` | No |
 | Were decisions right? | `/midas-tribunal` | No |
 | Deep security (OWASP/STRIDE) | `/midas-security-audit` | No |
 

@@ -25,7 +25,7 @@ recommended-model: claude-haiku-4-5
    - **Start or set up a product** (`/midas-init` / `/idea-intake` / `/midas-adopt`)
    - **Resume after a break** (`/midas-status` + `/midas-recall`)
    - **Run the next phase gate** (phase skills 0–8)
-   - **Start or close a sprint** (`/start-sprint` / `/close-sprint` / `/midas-autopilot`)
+   - **Start or close a sprint** (`/start-sprint` / `/close-sprint` / `/midas-autopilot` / `/midas-retro`)
    - **Continuous improve loop** (`/midas-improve-loop`)
    - **Verify UI / ad-hoc QA** (`/midas-verify` / `/midas-qa`)
    - **Redesign product UI** (`/midas-design`)
@@ -66,11 +66,11 @@ recommended-model: claude-haiku-4-5
 - Next: `/midas-status` again after the gate.
 
 **Start or close a sprint**
-- What: Phase 7 kickoff, Phase 8 audit, or bounded autopilot (one task per tick).
-- Command: `/start-sprint` · `/close-sprint` · `/midas-autopilot` → `node .harness/autonomy/bin/midas-autopilot.mjs setup`
-- Happens: start activates sprint; close audits rules; autopilot runs setup/dry-run/tick CLI (requires `--autonomy` install).
-- NOT for operator-only sprint tasks (release/merge) — ADR-009 autopilot targets code checklist items. NOT for inventing continuous improve without a checklist → `/midas-improve-loop`.
-- Next: after start → implement + `/midas-progress`; autopilot ready → human runs `tick`; after close → next sprint.
+- What: Phase 7 kickoff, Phase 8 audit, bounded autopilot, or a non-advancing retrospective.
+- Command: `/start-sprint` · `/close-sprint` · `/midas-autopilot` → `node .harness/autonomy/bin/midas-autopilot.mjs setup` · `/midas-retro` [`NN|latest`]
+- Happens: start activates sprint; close audits rules; autopilot runs setup/dry-run/tick CLI (requires `--autonomy` install); retro freezes `{runs}/retros/retro-NN.md` without touching stage.
+- NOT for operator-only sprint tasks (release/merge) — ADR-009 autopilot targets code checklist items. NOT for inventing continuous improve without a checklist → `/midas-improve-loop`. Retro is not a substitute for `/close-sprint`.
+- Next: after start → implement + `/midas-progress`; autopilot ready → human runs `tick`; after close → next sprint; after retro → optional `/midas-capture` on recurring learnings.
 
 **Continuous improve loop**
 - What: one slash starts continuous product-aligned improve (discover → one fix → verify → PR) via local Cursor `/loop`.

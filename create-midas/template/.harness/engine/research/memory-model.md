@@ -29,6 +29,7 @@ session ends. Midas points agents at the right LTM files instead of replaying ch
 | `/midas-capture` | build | Crystallize recurring patterns → rule / playbook / convention (user-approved) |
 | `/midas-bundle` | build | Export/import portable JSON — product knowledge, rules, evidence, config (no secrets) |
 | `/midas-sweep` | build | Hygiene — dead flows, ledger drift (orthogonal to recall) |
+| `/midas-retro` | build | Sprint retrospective freeze — `{runs}/retros/retro-NN.md` (LTM note; non-advancing) |
 | `/midas-improve-loop` | build | Continuous improve STM — `{runs}/improve-loop/journal.md`; arms Cursor `/loop`; not ADR-009 policy plane |
 | `/midas-autopilot` | build | Optional ADR-009 policy plane — `{runs}/autonomy/` journal when `--autonomy` installed |
 

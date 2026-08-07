@@ -421,7 +421,7 @@ Referencia rápida para la comparación (detalle completo en
 
 - **9 fases auditadas** (`harness/pipeline/0-idea-intake.md` … `8-audit-adjust.md`), máquina de
   estados en `harness/state.yaml` (`phases.*.status/gate`, `stage`, `stage_status`).
-- **32 skills** en `harness/skills/*/SKILL.md` (**31** enviados a installs + **1** solo engine: `/midas-precommit`; 9 de fase + ciclo de vida/mantenimiento/auditoría).
+- **33 skills** en `harness/skills/*/SKILL.md` (**32** enviados a installs + **1** solo engine: `/midas-precommit`; 9 de fase + ciclo de vida/mantenimiento/auditoría).
 - **3 agentes-tier**: `midas-orchestrator` (Opus), `midas-builder` (Sonnet), `midas-scout` (Haiku) — `harness/agents/*.md`.
 - **16 reglas *always-on*** en `harness/rules/*.md`, cada ítem con contrato `**CHECK:**` (`kind:
   command|manual`, `severity`), digest generado a `harness/checks.json` (233 CHECKs totales) e inyectado en los adapters.

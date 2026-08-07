@@ -60,8 +60,8 @@ sprints:
     last_touched: 2026-08-07
   - id: "02"
     title: midas-retro-skill
-    status: planned
-    audit_notes: ""
+    status: done
+    audit_notes: "skill shipped — F-002 passing; Phase-8 audit-02 still pending"
     last_touched: 2026-08-07
   - id: "03"
     title: installer-update-docs

@@ -1852,7 +1852,7 @@ check('paths:module-exists', existsSync(join(ROOT, 'scripts', 'paths.mjs')));
   check('paths:classic-engine', classic.engine === 'harness');
   check('paths:classic-state', classic.state === 'harness/state.yaml');
   check('paths:classic-runs', classic.runs === '.harness');
-  check('paths:runs-subdirs', RUNS_SUBDIRS.includes('sprints') && RUNS_SUBDIRS.includes('sweeps') && RUNS_SUBDIRS.includes('lean'));
+  check('paths:runs-subdirs', RUNS_SUBDIRS.includes('sprints') && RUNS_SUBDIRS.includes('sweeps') && RUNS_SUBDIRS.includes('lean') && RUNS_SUBDIRS.includes('retros'));
   check('paths:migration-map-sprints', MIGRATION_MAP.some((m) => m.from === '.harness/sprints'));
   check('paths:hub-product-move', MIGRATION_MAP_HUB.some((m) => m.from === 'product'));
   check('paths:hub-yaml-product', hubPathsYaml().product === '.midas/product');
@@ -2807,7 +2807,7 @@ if (existsSync(templateChecksIndex) && existsSync(join(ROOT, 'harness', 'checks.
   check('skill-registry:close-sprint-orchestrator-only', !!close && close.delegator === 'orchestrator-only');
   const yesRows = rows.filter((r) => r.delegator === 'yes');
   check('skill-registry:yes-floor', yesRows.length >= 10, `yes=${yesRows.length}`);
-  for (const name of ['midas-progress', 'midas-verify', 'midas-qa', 'midas-lean-review', 'midas-explore', 'midas-capture', 'midas-improve-loop', 'midas-autopilot']) {
+  for (const name of ['midas-progress', 'midas-verify', 'midas-qa', 'midas-lean-review', 'midas-explore', 'midas-capture', 'midas-improve-loop', 'midas-autopilot', 'midas-retro']) {
     const row = rows.find((r) => r.name === name);
     check(`skill-registry:yes:${name}`, !!row && row.delegator === 'yes', row ? row.delegator : 'missing');
   }
