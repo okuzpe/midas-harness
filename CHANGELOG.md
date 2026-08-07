@@ -11,6 +11,15 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.8.1] — 2026-08-08
+
+### Fixed
+
+- Installer no longer counts `.cursor/hooks.json` as a vendor "managed file" after Trace hook
+  merge (user-owned; ADR-011).
+
+---
+
 ## [2.8.0] — 2026-08-08
 
 ### Added
@@ -1585,7 +1594,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.8.0...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.8.1...HEAD
+[2.8.1]: https://github.com/okuzpe/midas-harness/compare/v2.8.0...v2.8.1
 [2.8.0]: https://github.com/okuzpe/midas-harness/compare/v2.7.0...v2.8.0
 [2.7.0]: https://github.com/okuzpe/midas-harness/compare/v2.6.1...v2.7.0
 [2.6.1]: https://github.com/okuzpe/midas-harness/compare/v2.6.0...v2.6.1

@@ -29,6 +29,7 @@ to observe agent tool flows in the same repo where they run the methodology.
    - Never ship a template `.cursor/hooks.json` through blind `copyTree` (would clobber on
      `--update`).
 4. **Ownership.** `.cursor/hooks.json` stays **user**-owned (not hashed as vendor/generated).
+   The installer merges it but does **not** list it among vendor "managed files refreshed".
    Uninstall runs `stripTraceHooks` to remove only Midas-marked entries (delete file if empty).
 5. **Still observe-only.** No MCP, breakpoints, skill instrumentation, or Langfuse in V2.
 6. **Disable.** Remove Midas entries from `.cursor/hooks.json` or delete the file; CLI still

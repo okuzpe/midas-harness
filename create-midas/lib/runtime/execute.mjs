@@ -313,11 +313,9 @@ async function executeInstallerCommand(cmd, hooks) {
             if (r.synced && !written.includes('.cursor/mcp.json')) written.push('.cursor/mcp.json');
           }
         }
+        // User-owned merge (ADR-011): seed/upsert only — never count as vendor "managed" files.
         if (activeTools.includes('cursor')) {
-          const hookResult = mergeTraceHooks(TARGET);
-          if (hookResult.wrote && !written.includes('.cursor/hooks.json')) {
-            written.push('.cursor/hooks.json');
-          }
+          mergeTraceHooks(TARGET);
         }
         gitignoreResult = await ensureGitignore(paths);
       },
