@@ -22,11 +22,11 @@ contributor-scale installs — mapped to engine dogfood, not a hosted SaaS.
 
 ## Success metrics
 
-| ID | Metric | Target | Measurable in |
-|----|--------|--------|---------------|
-| SM-1 | Autonomy fake tick in CI | New structural test passes on every PR | Sprint 01 |
-| SM-2 | `/midas-retro` in skills catalog | Skill quality gate pass + listed in `docs/skills.md` | Sprint 02 |
-| SM-3 | Update path documented | `INSTALL.md` section cites rebaseline + test id | Sprint 03 |
+| ID | Metric | Target | Measurable in | Result |
+|----|--------|--------|---------------|--------|
+| SM-1 | Autonomy fake tick in CI | New structural test passes on every PR | Sprint 01 | **met** — F-001 / `autonomy:install-fake-tick-smoke` |
+| SM-2 | `/midas-retro` in skills catalog | Skill quality gate pass + listed in `docs/skills.md` | Sprint 02 | **met** — F-002 / `harness/skills/midas-retro/` |
+| SM-3 | Update path documented | `INSTALL.md` section cites rebaseline + test id | Sprint 03 | **met** — F-003 / `installer:update-stale-manifest-rebaseline` |
 
 ## Go / no-go
 

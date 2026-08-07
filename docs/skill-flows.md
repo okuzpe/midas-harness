@@ -116,6 +116,7 @@ not pass a phase gate.
 | `/midas-design` | UI that needs a stronger product identity | Audit, present three directions, obtain a choice, specify one | `design-NN.md`; optional one-slice implementation | Implement or verify; stage unchanged |
 | `/midas-autopilot` | Optional `--autonomy` install + Phase 7 code tasks | Guide `setup` / `dry-run`; human runs `tick` CLI only | Journal + audit records under `{runs}/autonomy/` | One task per tick; never auto-invoked from chat |
 | `/midas-improve-loop` | Any install with product context | Validate; write runbook; **local:** tick #1 + arm `/loop`; **cloud:** Automations draft | `{runs}/improve-loop/runbook.md` + `journal.md` | Automatic local mode by default; not ADR-009 policy plane |
+| `/midas-retro` | After a sprint lands (or on demand) | Index sprint/progress/audit excerpts; draft went-well / hurt / learned / carry | `{runs}/retros/retro-NN.md` | Non-advancing; may propose `/midas-capture` |
 
 Optional bounded loop (ADR-009) beside the manual sprint cycle:
 
