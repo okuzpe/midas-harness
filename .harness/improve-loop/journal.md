@@ -21,4 +21,4 @@
 | 2026-08-07T20:10:00Z | main `65c1089` | status-page retros/sweeps + FAQ retro vs close-sprint | `node scripts/test.mjs` | pass | sweep-15 |
 | 2026-08-07T20:20:00Z | main `2edb90f` | doctor un-attested audit advisory + INSTALL/README runs dirs | `node scripts/test.mjs` | pass | sweep-16 |
 | 2026-08-07T20:30:00Z | main `a8a4084` | bug-fix regression CHECK + Phase-7 step (gstack gap) | `node scripts/test.mjs` | pass | sweep-17 |
-| 2026-08-07T20:40:00Z | main (pending) | safety-guardrails careful/freeze/guard rule | `node scripts/test.mjs` | pass | sweep-18 |
+| 2026-08-07T20:40:00Z | main `ec04205` | safety-guardrails careful/freeze/guard rule | `node scripts/test.mjs` | pass | sweep-18 |
