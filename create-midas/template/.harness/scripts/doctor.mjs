@@ -614,6 +614,7 @@ if (!stateRaw) {
     const unresolved = tallyNum(line[0], 'unresolved');
     const blocked = /verdict=blocked/.test(line[0]);
     const passClaimed = /verdict=pass/.test(line[0]);
+    const unattested = /attestation=un-attested/.test(line[0]);
     if (passClaimed && unresolved > 0) {
       // self-inconsistent: the record grades itself pass while carrying unresolved fails
       flagged++;
@@ -621,6 +622,13 @@ if (!stateRaw) {
     } else if (isClosed(nn) && (unresolved > 0 || blocked)) {
       flagged++;
       check(`gate:audit-${nn}`, 'warn', `record has unresolved=${unresolved}${blocked ? ' verdict=blocked' : ''} but sprint ${nn} is closed in state.yaml`);
+    } else if (isClosed(nn) && passClaimed && unattested) {
+      // Advisory only (not gate:* — must not fail --strict). Binding close still owed on orchestrate.
+      check(
+        `audit:attestation-${nn}`,
+        'warn',
+        `sprint ${nn} is done but audit is un-attested — re-run /close-sprint on midas-orchestrator`,
+      );
     }
   }
 

@@ -96,7 +96,8 @@ your editor and run the one-time setup, then let `/midas-status` drive the rest:
 /idea-intake       # …then the phases in order — /midas-status always tells you what's next
 ```
 
-Optional: `npm run status` in the repo root generates a local `status.html` dashboard (phase, gates, artifacts).
+Optional: `npm run status` in the repo root generates a local `status.html` dashboard (phase, audits,
+sweeps, retros, improve-loop journal, and other `{runs}/` artifacts).
 
 **Cursor quickstart**
 

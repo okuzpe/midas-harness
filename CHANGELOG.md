@@ -17,7 +17,8 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
   `dogfood:retros:retro-0{1,2,3}`.
 - `docs/faq.md` — update answer uses `#v{VERSION}` placeholder + rebaseline pointer (no stale `#v2.2.1`).
 - `scripts/status-page.mjs` — lists sweeps, retros, lean, and improve-loop journal presence.
-- FAQ: `/midas-retro` vs `/close-sprint`.
+- `scripts/doctor.mjs` — advisory `audit:attestation-NN` when a done sprint’s audit is `un-attested` (not `--strict`-blocking).
+- INSTALL commit table + README status blurb include retros/lean/improve-loop.
 
 ### Changed
 

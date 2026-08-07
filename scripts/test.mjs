@@ -1171,6 +1171,24 @@ if (existsSync(snippetPath)) {
 check('gitignore:merge-module', existsSync(join(ROOT, 'scripts', 'gitignore-merge.mjs')));
 check('gitignore:audit-export', /export function auditGitignore/.test(readFileSync(join(ROOT, 'scripts', 'gitignore-merge.mjs'), 'utf8')));
 check('doctor:gitignore-check', /gitignore:midas-block/.test(readFileSync(join(ROOT, 'scripts', 'doctor.mjs'), 'utf8')));
+check(
+  'doctor:attestation-advisory',
+  /audit:attestation-\$\{nn\}/.test(readFileSync(join(ROOT, 'scripts', 'doctor.mjs'), 'utf8')) ||
+    /audit:attestation-/.test(readFileSync(join(ROOT, 'scripts', 'doctor.mjs'), 'utf8')),
+  'doctor must advise when closed-sprint audits are un-attested',
+);
+{
+  const doc = spawnSync(process.execPath, [join(ROOT, 'scripts', 'doctor.mjs'), '.'], {
+    cwd: ROOT,
+    encoding: 'utf8',
+  });
+  const out = `${doc.stdout || ''}${doc.stderr || ''}`;
+  check(
+    'doctor:engine-flags-unattested-audits',
+    doc.status === 0 && /audit:attestation-02/.test(out) && /audit:attestation-03/.test(out),
+    out.slice(-500),
+  );
+}
 {
   const giRoot = mkdtempSync(join(tmpdir(), 'midas-gi-'));
   const tplDir = join(giRoot, 'harness', 'templates');

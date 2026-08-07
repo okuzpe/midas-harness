@@ -188,7 +188,7 @@ Midas splits project memory into **auditable artifacts** (commit them) and **vol
 |---|---|
 | `.harness/state.yaml` and `.harness/manifest.json` | `.env`, `*.pem`, API keys, credentials |
 | `.harness/product/*` and `.harness/rules/*` | `node_modules/`, build dirs (`dist/`, `.next/`, …) |
-| `.harness/runs/{audits,verifications,sweeps,debates,sprints}/` | `.harness/cache/`, `.harness/migrations/backups/`, `status.html` |
+| `.harness/runs/{audits,verifications,sweeps,debates,sprints,lean,retros}/` (+ improve-loop journal) | `.harness/cache/`, `.harness/migrations/backups/`, `status.html` |
 | `.harness/engine/`, `.harness/scripts/`, selected host mirrors | Test/browser output: `coverage/`, `test-results/`, `playwright-report/` |
 | Tool adapters at repo root (`AGENTS.md`, `.cursor/rules/`, …) | Portable bundle exports: `*.midas-bundle.json` (may contain project knowledge) |
 
