@@ -120,7 +120,7 @@ releases) and installer-safety notes are in **[INSTALL.md](./INSTALL.md)**.
 |---|---|---|
 | **Core** | drive any project through the lifecycle | `/midas-init` · `/midas-status` · the phase commands (`/idea-intake` → `/close-sprint`) · `/midas-doctor` |
 | **Brownfield** | adopt Midas into an existing repo | `/midas-adopt` |
-| **Advanced** | deeper audits & scale | `/midas-tribunal` · `/midas-security-audit` · `/midas-verify` · `/midas-qa` · `/midas-reconcile` · `/midas-init --monorepo` · `/midas-bundle` · `/midas-recall` · `/midas-progress` · `/midas-sweep` · `/midas-capture` |
+| **Advanced** | deeper audits & scale | `/midas-tribunal` · `/midas-security-audit` · `/midas-verify` · `/midas-qa` · `/midas-reconcile` · `/midas-init --monorepo` · `/midas-bundle` · `/midas-recall` · `/midas-progress` · `/midas-sweep` · `/midas-capture` · `/midas-retro` · `/midas-improve-loop` · `/midas-lean-review` |
 | **Maintenance** | keep an install current | `/midas-update` · `/midas-doctor` · `/midas-align` |
 
 Most users only need **Core** (+ `/midas-adopt` for an existing repo). Everything else is opt-in.

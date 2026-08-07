@@ -39,4 +39,4 @@ Sprints are **parallelizable** after planning; ordering is pedagogical (autonomy
 ---
 
 *Gate check: MVP scope covered ✓, each sprint has goal + acceptance + DoD ✓, deps ordered ✓.*  
-*Next: run `/start-sprint 01` (Phase 7).*
+*Next: orchestrate-attested `/close-sprint` for sprints 02–03 (audit-02 / audit-03); MVP feature work is done.*

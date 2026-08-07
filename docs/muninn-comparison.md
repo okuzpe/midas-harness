@@ -423,8 +423,8 @@ Referencia rápida para la comparación (detalle completo en
   estados en `harness/state.yaml` (`phases.*.status/gate`, `stage`, `stage_status`).
 - **33 skills** en `harness/skills/*/SKILL.md` (**32** enviados a installs + **1** solo engine: `/midas-precommit`; 9 de fase + ciclo de vida/mantenimiento/auditoría).
 - **3 agentes-tier**: `midas-orchestrator` (Opus), `midas-builder` (Sonnet), `midas-scout` (Haiku) — `harness/agents/*.md`.
-- **16 reglas *always-on*** en `harness/rules/*.md`, cada ítem con contrato `**CHECK:**` (`kind:
-  command|manual`, `severity`), digest generado a `harness/checks.json` (233 CHECKs totales) e inyectado en los adapters.
+- **20 reglas *always-on*** en `harness/rules/*.md`, cada ítem con contrato `**CHECK:**` (`kind:
+  command|manual`, `severity`), digest generado a `harness/checks.json` e inyectado en los adapters.
 - **Gates de fase** en `harness/gates.json` (evidencia requerida por fase, severidad, *owner*).
 - **6 hosts** vía adapters generados (`scripts/render-adapters.mjs`): Claude Code, Cursor, Windsurf,
   Gemini, Codex, Copilot.
@@ -730,8 +730,8 @@ flowchart TB
 |---|---|
 | Metodología | `harness/methodology.md`, [methodology.md](methodology.md) |
 | Estado y gates | `harness/state.yaml`, `harness/gates.json`, `harness/checks.json` |
-| Reglas | `harness/rules/*.md` (16 archivos, contrato `**CHECK:**`) |
-| Skills | `harness/skills/*/SKILL.md` (26), [skills.md](skills.md) |
+| Reglas | `harness/rules/*.md` (20 archivos, contrato `**CHECK:**`) |
+| Skills | `harness/skills/*/SKILL.md` (33 = 32 shipped + 1 engine-only), [skills.md](skills.md) |
 | Memoria | `harness/research/memory-model.md`, [ADR-003](adr/ADR-003-project-memory-model.md) |
 | Arquitectura del repo | [repository-architecture.md](repository-architecture.md) |
 | Comparación previa | [gstack-comparison.md](gstack-comparison.md) |

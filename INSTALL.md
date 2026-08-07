@@ -212,12 +212,14 @@ Phase 8 (`/close-sprint`) grades `.harness/engine/rules/security.md`: `.gitignor
 3. `/midas-status` — from here on, shows the current phase and the single next command.
 4. Optional: `/midas-improve-loop` — start continuous product improve (arms Cursor `/loop`; optional
    `cloud` for Automations). Does not require `--autonomy`. Distinct from ADR-009 `/midas-autopilot`.
-5. **`/midas-reconcile`** — when unsure which command to run (install vs update vs init); read-only.
-6. **`/midas-bundle`** — export/import portable JSON when seeding a new project or sharing rules/playbooks
+5. After a sprint lands: `/midas-retro` — freeze learnings under `{runs}/retros/` (non-advancing;
+   does not replace `/close-sprint`).
+6. **`/midas-reconcile`** — when unsure which command to run (install vs update vs init); read-only.
+7. **`/midas-bundle`** — export/import portable JSON when seeding a new project or sharing rules/playbooks
    between repos (`node <paths.scripts>/bundle.mjs export --profile memory -o bundle.json`).
-7. After substantive edits (rules, skills, installer, docs): **`/midas-align`** — propagation pass per
+8. After substantive edits (rules, skills, installer, docs): **`/midas-align`** — propagation pass per
    `<paths.engine>/rules/change-propagation.md` (engine repo: `npm run align`).
-8. Drive the lifecycle: `/idea-intake` → `/contextualize` → `/market-research` → `/business-plan` →
+9. Drive the lifecycle: `/idea-intake` → `/contextualize` → `/market-research` → `/business-plan` →
    `/choose-architecture` → `/define-conventions` → `/plan-sprints` → `/start-sprint` → `/close-sprint`.
    Run `/midas-tribunal` any time for a whole-project adversarial debate.
 

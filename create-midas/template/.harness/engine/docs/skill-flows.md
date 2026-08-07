@@ -166,8 +166,8 @@ The flow map exposes a few deliberate seams that are useful when evolving the de
 
 1. **Production and judgment are separate.** Phase artifacts can be drafted cheaply; binding gates
    remain independent orchestrate-tier decisions.
-2. **Only pipeline skills advance.** Verification, security, design, tribunal, sweep, and lean review
-   inform a gate but never impersonate one.
+2. **Only pipeline skills advance.** Verification, security, design, tribunal, sweep, lean review,
+   and retro inform a gate but never impersonate one.
 3. **State stays small.** Long-form evidence lives under `{product}/` and `{runs}/`; state stores the
    program counter, ledgers, and pointers.
 4. **Human choices are explicit.** Go/no-go, irreversible architecture, visual direction, rule

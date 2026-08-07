@@ -12,7 +12,8 @@
 
 ## Next
 
-Sprint closed — see `.harness/audits/audit-01.md`. Next: `/start-sprint 02`.
+Sprint 01 closed — `.harness/audits/audit-01.md`. Sprints 02–03 shipped on disk; remaining gate work is
+orchestrate-attested `/close-sprint` → `audit-02.md` / `audit-03.md`.
 
 ## Observations
 
