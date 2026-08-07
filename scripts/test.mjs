@@ -2715,7 +2715,13 @@ if (existsSync(join(ROOT, 'scripts', 'status-page.mjs'))) {
   const statusOut = join(statusTmp, 'status.html');
   try {
     execSync(`node "${join(ROOT, 'scripts', 'status-page.mjs')}" --out "${statusOut}"`, { cwd: ROOT, stdio: 'pipe' });
-    check('behavioral:status-page-runs', existsSync(statusOut));
+    const html = existsSync(statusOut) ? readFileSync(statusOut, 'utf8') : '';
+    check('behavioral:status-page-runs', html.includes('Midas harness status'));
+    check(
+      'behavioral:status-page-lists-retros-sweeps',
+      /<th>Retros<\/th>/.test(html) && /<th>Sweeps<\/th>/.test(html) && /Improve-loop journal/.test(html),
+      'status.html must list Retros, Sweeps, and improve-loop journal',
+    );
   } catch (e) {
     check('behavioral:status-page-runs', false, String(e.stderr || e.message));
   } finally {

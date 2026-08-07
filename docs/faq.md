@@ -93,6 +93,15 @@ Your source code is untouched.
 
 ---
 
+**Q: What is `/midas-retro` vs `/close-sprint`?**
+
+`/close-sprint` is Phase 8 — a binding conformance audit against frozen rules (advances the sprint
+gate ledger when attested). `/midas-retro` is a **non-advancing** learnings freeze under
+`{runs}/retros/retro-NN.md` (went well / hurt / learned / carry). Run retro after a sprint lands;
+it does not replace close-sprint. See [skills.md](skills.md).
+
+---
+
 **Q: What is the tribunal and when should I run it?**
 
 `/midas-tribunal` is a standing, on-demand adversarial debate over the entire project. A steelman

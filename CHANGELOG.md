@@ -16,7 +16,8 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 - Structural dogfood locks: `install:update-docs:*`, `dogfood:midas-retro:*`, `dogfood:features:F-00*:passing`,
   `dogfood:retros:retro-0{1,2,3}`.
 - `docs/faq.md` — update answer uses `#v{VERSION}` placeholder + rebaseline pointer (no stale `#v2.2.1`).
-- Version-pin guard includes `docs/faq.md`.
+- `scripts/status-page.mjs` — lists sweeps, retros, lean, and improve-loop journal presence.
+- FAQ: `/midas-retro` vs `/close-sprint`.
 
 ### Changed
 

@@ -18,3 +18,4 @@
 | 2026-08-07T19:40:00Z | main `9bfe563` | Amend repo-audits + retro-03 + F-001 dogfood lock | `node scripts/test.mjs` | pass | sweep-12 |
 | 2026-08-07T19:50:00Z | main `ea1e896` | getting-started standing skills + audit-01 amend + retros lock | `node scripts/test.mjs` | pass | sweep-13 |
 | 2026-08-07T20:00:00Z | main `32ea75c` | FAQ stale #v2.2.1 + uninstall paths + version-pin guard | `node scripts/test.mjs` | pass | sweep-14 |
+| 2026-08-07T20:10:00Z | main (pending) | status-page retros/sweeps + FAQ retro vs close-sprint | `node scripts/test.mjs` | pass | sweep-15 |
