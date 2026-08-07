@@ -472,8 +472,8 @@ stack automatizado Midas es **web browser**; gstack `/ios-qa` no tiene equivalen
 CHECK en `verification.md`, onboarding UI, y check advisory en `doctor.mjs`. Ver `CHANGELOG.md` §
 [Unreleased].
 
-**Pendiente (adopciones gstack, sección 6.1):** si el equipo aprueba las filas “Adoptar ya”, el
-siguiente sprint dedicado sería: `/midas-retro`, `/midas-investigate`, salvaguardas careful/freeze/guard,
+**Pendiente (adopciones gstack, sección 6.1):** `/midas-retro` **ya shipped** (sprint 02 / F-002).
+Siguen abiertos si el equipo aprueba: `/midas-investigate`, salvaguardas careful/freeze/guard,
 `/midas-doc` (Diataxis), y regresión obligatoria por bug en el inner loop de Fase 7 — cada uno como
 skill/regla nuevo con propagación `npm run build`.
 

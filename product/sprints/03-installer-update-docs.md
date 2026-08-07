@@ -48,5 +48,5 @@ name specific `scripts/test.mjs` check ids.
 
 ## Phase 8 audit notes
 
-- **Audit file:** `{runs}/audits/audit-03.md`
-- **Verdict:** pending — docs shipped; formal `/close-sprint` still owed
+- **Audit file:** `.harness/audits/audit-03.md`
+- **Verdict:** pass (un-attested) — re-attest with orchestrate `/close-sprint` for binding gate

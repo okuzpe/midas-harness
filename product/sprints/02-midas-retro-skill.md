@@ -60,5 +60,5 @@ Next fix (if not 🟢): n/a
 
 ## Phase 8 audit notes
 
-- **Audit file:** `{runs}/audits/audit-02.md`
-- **Verdict:** pending — skill shipped; formal `/close-sprint` still owed for gate ledger
+- **Audit file:** `.harness/audits/audit-02.md`
+- **Verdict:** pass (un-attested) — re-attest with orchestrate `/close-sprint` for binding gate

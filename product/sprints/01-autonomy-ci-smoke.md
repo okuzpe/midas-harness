@@ -52,4 +52,4 @@ Add a structural test that installs Midas with `--autonomy` into a temp director
 
 - **Audit file:** `.harness/audits/audit-01.md`
 - **Verdict:** pass
-- **Next action:** `/start-sprint 02`
+- **Next action:** sprints 02–03 shipped; re-attest via orchestrate `/close-sprint` if binding gate needed

@@ -61,10 +61,10 @@ sprints:
   - id: "02"
     title: midas-retro-skill
     status: done
-    audit_notes: "skill shipped — F-002 passing; Phase-8 audit-02 still pending"
+    audit_notes: "audit-02 pass un-attested — F-002; re-attest via orchestrate /close-sprint"
     last_touched: 2026-08-07
   - id: "03"
     title: installer-update-docs
     status: done
-    audit_notes: "F-003 passing — INSTALL.md rebaseline docs; Phase-8 audit-03 still pending"
+    audit_notes: "audit-03 pass un-attested — F-003; re-attest via orchestrate /close-sprint"
     last_touched: 2026-08-07
