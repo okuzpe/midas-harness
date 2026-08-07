@@ -57,9 +57,16 @@ import {
   stepsMarkdownLinkCount,
   summarizeReports,
 } from './skill-quality-check.mjs';
+import { HARNESS_ENGINE_ONLY_RELS } from './engine-only.mjs';
 
 const SCRIPT_DIR = dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
 const ROOT = resolve(SCRIPT_DIR, '..');
+
+/** @param {string} rel path relative to harness/ */
+function isHarnessEngineOnlyRel(rel) {
+  const n = rel.replace(/\\/g, '/');
+  return HARNESS_ENGINE_ONLY_RELS.some((ex) => n === ex || n.startsWith(`${ex}/`));
+}
 
 const MODELS = ['claude-opus-4-8', 'claude-sonnet-4-6', 'claude-haiku-4-5', 'inherit'];
 const RITUAL_GUARD = 'Run only when the user explicitly invokes';
@@ -445,14 +452,7 @@ if (existsSync(buildCreate)) {
   const sourceHarness = join(ROOT, 'harness');
   const templateHarness = join(ROOT, 'create-midas', 'template', '.harness', 'engine');
   if (existsSync(sourceHarness) && existsSync(templateHarness)) {
-    const sourceFiles = walkRelativeFiles(sourceHarness).filter((rel) => {
-      const n = rel.replace(/\\/g, '/');
-      return n !== 'state.yaml' &&
-        !n.startsWith('autonomy/') &&
-        n !== 'autonomy' &&
-        !n.startsWith('skills/midas-precommit/') &&
-        n !== 'skills/midas-precommit';
-    });
+    const sourceFiles = walkRelativeFiles(sourceHarness).filter((rel) => !isHarnessEngineOnlyRel(rel));
     const templateFiles = walkRelativeFiles(templateHarness)
       .filter((rel) => {
         const n = rel.replace(/\\/g, '/');
@@ -468,7 +468,13 @@ if (existsSync(buildCreate)) {
     check(
       'build-create:harness-tree-match',
       sameShape && sameContent,
-      'create-midas/template/harness drifts from harness source (excluding state.yaml + optional autonomy)',
+      'create-midas/template/harness drifts from harness source (excluding HARNESS_ENGINE_ONLY_RELS)',
+    );
+    check(
+      'build-create:excludes-harness-trace-research',
+      !existsSync(join(templateHarness, 'research', 'harness-trace.md')) &&
+        !existsSync(join(templateHarness, 'research', 'Untitled-1.md')),
+      'engine-only research/harness-trace.md or Untitled-1.md leaked into template',
     );
     check(
       'build-create:autonomy-optional-only',
@@ -3820,6 +3826,235 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
 
     rmSync(installRoot, { recursive: true, force: true });
     rmSync(`${installRoot}-b`, { recursive: true, force: true });
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
+// --- Harness Trace V1 (ADR-010) -----------------------------------------------------------------
+{
+  const { redactAttrs, validateEnvelope, makeEnvelope, SECRET_RE } = await import('./lib/trace-models.mjs');
+  const {
+    resolveTracesRoot,
+    startRun,
+    finishRun,
+    appendEnvelope,
+    readRun,
+    ensureRun,
+  } = await import('./lib/trace-store.mjs');
+  const { handleHookPayload } = await import('./trace-hook.mjs');
+  const { inspectRunMarkdown, formatInspect, collectProblems } = await import('./trace-inspect.mjs');
+  const { runTraceWrite } = await import('./trace-write.mjs');
+
+  const tmp = mkdtempSync(join(tmpdir(), 'midas-trace-'));
+  const tracesRoot = resolveTracesRoot(tmp);
+  try {
+    const redacted = redactAttrs({
+      tool: 'Shell',
+      result: 'SECRET body should go',
+      token: 'sk-abcdefghijklmnopqrstuvwxyz012345',
+      path: '/tmp/foo.md',
+    });
+    check('trace:redact-omits-result', redacted.result === '[omitted]');
+    check('trace:redact-secret', redacted.token === '[redacted]');
+    check('trace:redact-keeps-tool', redacted.tool === 'Shell');
+    check(
+      'trace:redact-keeps-error-message',
+      redactAttrs({ level: 'error', message: 'disk full' }).message === 'disk full',
+    );
+    check(
+      'trace:redact-secret-in-message',
+      redactAttrs({ message: 'token sk-abcdefghijklmnopqrstuvwxyz012345' }).message === '[redacted]',
+    );
+    check('trace:secret-re', SECRET_RE.test('sk-abcdefghijklmnopqrstuvwxyz012345'));
+
+    const bad = validateEnvelope({ ts: 'x' });
+    check('trace:validate-rejects-incomplete', bad.ok === false);
+
+    const { session_id, run_id } = startRun(tracesRoot, { attrs: { source: 'test' } });
+    check('trace:start-run-ids', Boolean(session_id && run_id));
+
+    appendEnvelope(
+      tracesRoot,
+      makeEnvelope({
+        session_id,
+        run_id,
+        type: 'span.finished',
+        name: 'tool.Shell',
+        attrs: { duration_ms: 1200, result: 'should-omit' },
+      }),
+    );
+    appendEnvelope(
+      tracesRoot,
+      makeEnvelope({
+        session_id,
+        run_id,
+        type: 'state.snapshot',
+        name: 'state',
+        attrs: { stage: 'sprint_execution', stage_status: 'in_progress', active_sprint: '01' },
+      }),
+    );
+    // synthetic skill-shaped event (no SKILL.md instrumentation)
+    appendEnvelope(
+      tracesRoot,
+      makeEnvelope({
+        session_id,
+        run_id,
+        type: 'span.finished',
+        name: 'skill.midas-status',
+        attrs: { duration_ms: 50, source: 'cli' },
+      }),
+    );
+    // corrupt line must not break read
+    const { appendFileSync: appendRaw } = await import('node:fs');
+    const { runFilePath } = await import('./lib/trace-store.mjs');
+    appendRaw(runFilePath(tracesRoot, session_id, run_id), '{not-json\n', 'utf8');
+    appendEnvelope(
+      tracesRoot,
+      makeEnvelope({
+        session_id,
+        run_id,
+        type: 'event',
+        name: 'error',
+        attrs: { level: 'error', message: 'boom' },
+      }),
+    );
+    finishRun(tracesRoot, { source: 'test' });
+
+    const loaded = readRun(tracesRoot, run_id);
+    check('trace:read-roundtrip', Boolean(loaded && loaded.events.length >= 4));
+    check(
+      'trace:corrupt-line-skipped',
+      loaded ? loaded.events.every((e) => e.type !== undefined) : false,
+    );
+    check(
+      'trace:span-redacts-result',
+      loaded
+        ? loaded.events.some(
+            (e) => e.name === 'tool.Shell' && e.attrs.result === '[omitted]',
+          )
+        : false,
+    );
+    check(
+      'trace:synthetic-skill-span',
+      loaded ? loaded.events.some((e) => e.name === 'skill.midas-status') : false,
+    );
+
+    const md = formatInspect(loaded);
+    check('trace:inspect-has-run', /## RUN/.test(md));
+    check('trace:inspect-has-trace', /## TRACE/.test(md));
+    check('trace:inspect-has-state', /## STATE/.test(md));
+    check('trace:inspect-has-problems', /## PROBLEMS/.test(md));
+    check('trace:inspect-flags-error', /error event/.test(md));
+
+    // slow span problem
+    const problems = collectProblems([
+      makeEnvelope({
+        session_id: 's',
+        run_id: 'r',
+        type: 'span.finished',
+        name: 'tool.Wait',
+        attrs: { duration_ms: 90_000 },
+      }),
+      makeEnvelope({
+        session_id: 's',
+        run_id: 'r',
+        type: 'span.finished',
+        name: 'tool.Wait',
+        attrs: { duration_ms: 1000 },
+      }),
+      makeEnvelope({
+        session_id: 's',
+        run_id: 'r',
+        type: 'span.finished',
+        name: 'tool.Wait',
+        attrs: { duration_ms: 1000 },
+      }),
+    ]);
+    check(
+      'trace:problems-slow-and-repeat',
+      problems.some((p) => /90\.0s/.test(p)) && problems.some((p) => /repeated 3/.test(p)),
+    );
+
+    // hook fixture
+    const hookTmp = mkdtempSync(join(tmpdir(), 'midas-trace-hook-'));
+    const hookRoot = resolveTracesRoot(hookTmp);
+    handleHookPayload(
+      {
+        tool_name: 'Shell',
+        result: 'echo sk-abcdefghijklmnopqrstuvwxyz012345 secrets',
+        duration_ms: 42,
+        path: '/abs/path/secret.env',
+      },
+      { tracesRoot: hookRoot, hookEvent: 'postToolUse' },
+    );
+    const afterHook = ensureRun(hookRoot);
+    const hookRun = readRun(hookRoot, afterHook.run_id);
+    const toolSpan = hookRun?.events.find((e) => e.type === 'span.finished' && /^tool\./.test(e.name));
+    check('trace:hook-postToolUse-span', Boolean(toolSpan));
+    check(
+      'trace:hook-no-result-body',
+      toolSpan ? !JSON.stringify(toolSpan).includes('echo sk-') : false,
+    );
+    check('trace:hook-tool-name', toolSpan?.name === 'tool.Shell');
+    handleHookPayload({}, { tracesRoot: hookRoot, hookEvent: 'stop' });
+    const finishedHook = readRun(hookRoot, afterHook.run_id);
+    check(
+      'trace:hook-stop-finishes',
+      finishedHook ? finishedHook.events.some((e) => e.type === 'run.finished') : false,
+    );
+
+    // sessionStart must finish an open run (no orphan)
+    const orphanTmp = mkdtempSync(join(tmpdir(), 'midas-trace-orphan-'));
+    const orphanRoot = resolveTracesRoot(orphanTmp);
+    handleHookPayload({}, { tracesRoot: orphanRoot, hookEvent: 'sessionStart' });
+    handleHookPayload(
+      { tool_name: 'Read', duration_ms: 3 },
+      { tracesRoot: orphanRoot, hookEvent: 'postToolUse' },
+    );
+    const openCur = (await import('./lib/trace-store.mjs')).readCurrent(orphanRoot);
+    const openRunId = openCur.run_id;
+    handleHookPayload({}, { tracesRoot: orphanRoot, hookEvent: 'sessionStart' });
+    const afterSess = (await import('./lib/trace-store.mjs')).readCurrent(orphanRoot);
+    const closed = readRun(orphanRoot, openRunId);
+    check(
+      'trace:sessionStart-finishes-open-run',
+      Boolean(closed?.events.some((e) => e.type === 'run.finished')) && afterSess.run_id == null,
+    );
+    rmSync(orphanTmp, { recursive: true, force: true });
+
+    // garbage hook / write fail-open
+    const garbage = handleHookPayload(null, { tracesRoot: hookRoot, hookEvent: 'postToolUse' });
+    check('trace:hook-null-payload-ok', garbage.ok === true && garbage.permission === 'allow');
+    const { Writable } = await import('node:stream');
+    let errBuf = '';
+    const sink = new Writable({
+      write(chunk, _enc, cb) {
+        errBuf += String(chunk);
+        cb();
+      },
+    });
+    const code = runTraceWrite(['not-a-command'], {
+      tracesRoot: hookRoot,
+      projectRoot: hookTmp,
+      stderr: sink,
+      stdout: sink,
+    });
+    check('trace:write-unknown-exit0', code === 0);
+
+    const listed = inspectRunMarkdown(['list'], { tracesRoot });
+    check('trace:inspect-list', /Trace runs/.test(listed));
+
+    // hooks.json present in engine dogfood
+    check(
+      'trace:hooks-json-present',
+      existsSync(join(ROOT, '.cursor', 'hooks.json')) &&
+        /trace-hook\.mjs postToolUse/.test(readFileSync(join(ROOT, '.cursor', 'hooks.json'), 'utf8')),
+    );
+    check('trace:adr-010', existsSync(join(ROOT, 'docs', 'adr', 'ADR-010-harness-trace-observe.md')));
+    check('trace:research-note', existsSync(join(ROOT, 'harness', 'research', 'harness-trace.md')));
+
+    rmSync(hookTmp, { recursive: true, force: true });
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }

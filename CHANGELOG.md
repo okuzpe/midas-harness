@@ -9,8 +9,13 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+---
+
+## [2.7.0] — 2026-08-08
+
 ### Added
 
+- **Harness Trace V1 (ADR-010)** — observe-only JSONL under `.harness/cache/traces/`, Cursor hooks (engine dogfood), `npm run trace:write` / `trace:inspect` CLI.
 - `/midas-retro` — read-only sprint retrospective freeze to `{runs}/retros/retro-NN.md` (non-advancing).
 - `/midas-investigate` — root-cause Iron Law + 3 strikes; freeze `{runs}/investigate/inv-NN.md` + playbook `debug-root-cause.md`.
 - `harness/templates/retro-record.md`; `RUNS_SUBDIRS` / bundle freeze include `retros/` (+ `lean/` in bundle freeze).
@@ -30,7 +35,9 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
   with structural test anchors (`installer:update-stale-manifest-rebaseline`, vendor-conflict).
 - `docs/dogfood.md` — engine now dogfoods MVP sprints 01–03 (not TaskPilot-only for Phase 7–8).
 - `README.md` — TaskPilot audit/debate links corrected to legacy `.midas/` paths.
-- `docs/gstack-comparison.md` — marks bug-regression and careful/freeze/guard as shipped.---
+- `docs/gstack-comparison.md` — marks bug-regression and careful/freeze/guard as shipped.
+
+---
 
 ## [2.6.1] — 2026-08-07
 
@@ -1560,7 +1567,9 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.6.1...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.7.0...HEAD
+[2.7.0]: https://github.com/okuzpe/midas-harness/compare/v2.6.1...v2.7.0
+[2.6.1]: https://github.com/okuzpe/midas-harness/compare/v2.6.0...v2.6.1
 [2.6.0]: https://github.com/okuzpe/midas-harness/compare/v2.5.5...v2.6.0
 [2.5.5]: https://github.com/okuzpe/midas-harness/compare/v2.5.4...v2.5.5
 [2.5.4]: https://github.com/okuzpe/midas-harness/compare/v2.5.3...v2.5.4

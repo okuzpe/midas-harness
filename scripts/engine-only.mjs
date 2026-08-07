@@ -7,6 +7,8 @@ export const ENGINE_ONLY_SKILLS = Object.freeze(['midas-precommit']);
 export const HARNESS_ENGINE_ONLY_RELS = Object.freeze([
   'state.yaml',
   'autonomy',
+  'research/harness-trace.md',
+  'research/Untitled-1.md',
   ...ENGINE_ONLY_SKILLS.map((name) => `skills/${name}`),
 ]);
 

@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "node scripts/trace-hook.mjs sessionStart",
+        "timeout": 10
+      }
+    ],
+    "postToolUse": [
+      {
+        "command": "node scripts/trace-hook.mjs postToolUse",
+        "timeout": 10
+      }
+    ],
+    "subagentStop": [
+      {
+        "command": "node scripts/trace-hook.mjs subagentStop",
+        "timeout": 10
+      }
+    ],
+    "stop": [
+      {
+        "command": "node scripts/trace-hook.mjs stop",
+        "timeout": 10
+      }
+    ]
+  }
+}
