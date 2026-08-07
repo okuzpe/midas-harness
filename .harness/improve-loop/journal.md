@@ -13,4 +13,4 @@
 | 2026-08-07T18:50:00Z | main `e17621e` | muninn/README/INSTALL inventories | doctor ok | pass | sweep-07 |
 | 2026-08-07T19:00:00Z | main `5e053c0` | un-attested audit-02/03 + gstack §8.3 | doctor gate:records 3 | pass | sweep-08; not binding |
 | 2026-08-07T19:10:00Z | main `ee3f49f` | TaskPilot `.midas/` links + dogfood.md | path Test-Path | pass | sweep-09 |
-| 2026-08-07T19:20:00Z | main (pending) | Seed improve-loop + bundle lean + gstack CHANGELOG ptr | doctor + test paths | pass | sweep-10 |
+| 2026-08-07T19:20:00Z | main `5dba475` | Seed improve-loop + bundle lean + gstack CHANGELOG ptr | doctor + test paths | pass | sweep-10 |
