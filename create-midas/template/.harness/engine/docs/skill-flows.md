@@ -115,7 +115,7 @@ not pass a phase gate.
 | `/midas-lean-review` | Diff or named paths | Rank delete, stdlib, native, YAGNI, and shrink findings | Optional `lean-NN.md` | Apply only after approval |
 | `/midas-design` | UI that needs a stronger product identity | Audit, present three directions, obtain a choice, specify one | `design-NN.md`; optional one-slice implementation | Implement or verify; stage unchanged |
 | `/midas-autopilot` | Optional `--autonomy` install + Phase 7 code tasks | Guide `setup` / `dry-run`; human runs `tick` CLI only | Journal + audit records under `{runs}/autonomy/` | One task per tick; never auto-invoked from chat |
-| `/midas-automate` | Any install with product context | Validate state + product artifacts; emit Cursor Automation draft | Draft in chat; optional `{runs}/automate/journal.md` after runs | Next: Cursor `/automate` (Agents Window); not ADR-009 policy plane |
+| `/midas-auto-pilot` | Any install with product context | Validate; write runbook; **local:** tick #1 + arm `/loop`; **cloud:** Automations draft | `{runs}/auto-pilot/runbook.md` + `journal.md` | Automatic local mode by default; not ADR-009 policy plane |
 
 Optional bounded loop (ADR-009) beside the manual sprint cycle:
 
@@ -128,17 +128,19 @@ flowchart LR
 
 Requires `.harness/autonomy/` (`npx … --autonomy`). See `/midas-autopilot` and `.harness/autonomy/README.md`.
 
-Complementary Cursor improve cycle (no `--autonomy` required):
+Complementary auto-pilot improve cycle (no `--autonomy` required):
 
 ```mermaid
 flowchart LR
-  Draft["/midas-automate"] --> CursorAuto["Cursor /automate"]
-  CursorAuto --> OneFix["one improve + verify + PR"]
-  OneFix --> Journal["{runs}/automate/journal.md"]
+  Start["/midas-auto-pilot"] --> Tick1["tick #1 now"]
+  Tick1 --> Loop["arm Cursor /loop"]
+  Loop --> OneFix["each wake: one improve + verify + PR"]
+  OneFix --> Journal["{runs}/auto-pilot/journal.md"]
   Journal --> Close["/close-sprint when sprint ready (manual)"]
+  Start -.-> Cloud["optional: cloud → Cursor /automate"]
 ```
 
-See `/midas-automate` and `<paths.engine>/templates/cursor-automation-improve.md.tmpl`.
+See `/midas-auto-pilot` and `<paths.engine>/templates/auto-pilot-improve.md.tmpl`.
 
 ## Maintenance, setup, and standing audits
 

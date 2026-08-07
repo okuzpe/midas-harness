@@ -3,9 +3,9 @@
 - **Status:** accepted
 - **Date:** 2026-08-05
 - **Extends:** ADR-003 (git-visible memory), ADR-007 (`.harness/` layout)
-- **Related:** methodology human sign-offs; model-routing provenance; complementary Cursor
-  Automations via `/midas-automate` (draft + product-context improve cycle — **not** this policy
-  plane; no durable lease/budget; PR-only caps in `templates/cursor-automation-improve.md.tmpl`)
+- **Related:** methodology human sign-offs; model-routing provenance; complementary continuous
+  improve via `/midas-auto-pilot` (local `/loop` default + optional Cursor Automations — **not**
+  this policy plane; no durable lease/budget; PR-only caps in `templates/auto-pilot-improve.md.tmpl`)
 
 ## Context
 

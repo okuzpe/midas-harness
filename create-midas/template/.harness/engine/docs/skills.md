@@ -40,7 +40,7 @@ Catalog size: **31 shipped active** + **1 engine-only** (`/midas-precommit`, not
 |---|---|---|
 | **Pipeline** | Audited phase gates 0→8 | `/idea-intake` … `/close-sprint` |
 | **Orient** | Where am I / what next / resume / install confusion | `/midas-status`, `/midas-help`, `/midas-recall`, `/midas-reconcile` |
-| **Sprint day** | Inner loop during Phase 7 | `/midas-progress`, `/midas-verify`, `/midas-qa`, `/midas-explore`, `/midas-capture`, `/midas-lean-review`, `/midas-design`, `/midas-autopilot`, `/midas-automate` |
+| **Sprint day** | Inner loop during Phase 7 | `/midas-progress`, `/midas-verify`, `/midas-qa`, `/midas-explore`, `/midas-capture`, `/midas-lean-review`, `/midas-design`, `/midas-autopilot`, `/midas-auto-pilot` |
 | **Maintain + audit** | Sync, hygiene, optional deep audits, setup | `/midas-init`, `/midas-adopt`, `/midas-update`, `/midas-doctor`, `/midas-align`, `/midas-precommit` *(engine only)*, `/midas-sweep`, `/midas-bundle`, `/midas-tribunal`, `/midas-security-audit` |
 
 ---
@@ -86,7 +86,7 @@ Stage → command map (mechanical): `<paths.engine>/stage-command-table.yaml`.
 | `/midas-capture` | Recurring pattern → rule / playbook / convention (asks first). | build |
 | `/midas-lean-review` | Over-engineering delete-list for the diff (stdlib/native/yagni/shrink). | build |
 | `/midas-autopilot` | Bounded sprint autopilot guide — `setup` / `dry-run` / `tick` CLI (ADR-009; optional `--autonomy` install). | build |
-| `/midas-automate` | Prepare Cursor Automation draft for continuous product-aligned improve cycles (validate + emit; scheduler = Cursor `/automate`). | build |
+| `/midas-auto-pilot` | Continuous local improve (validate + tick #1 + arm Cursor `/loop`). Optional `cloud` draft for Automations. Distinct from ADR-009 `/midas-autopilot`. | build |
 
 ---
 
@@ -129,7 +129,7 @@ Use **`/midas-status`** for the single next lifecycle step. Use this table when 
 | Dead code / ledger drift | `/midas-sweep` |
 | Over-engineered diff / what can we delete? | `/midas-lean-review` |
 | Bounded autopilot (one sprint task per tick) | `/midas-autopilot` → `node .harness/autonomy/bin/midas-autopilot.mjs setup` |
-| Cursor continuous improve (discover → one fix → PR) | `/midas-automate` → Agents Window Cursor `/automate` (paste draft) |
+| Continuous local improve (discover → one fix → PR) | `/midas-auto-pilot` (arms `/loop`) · `cloud` for Cursor Automations |
 | Export/import knowledge | `/midas-bundle` or `node <paths.scripts>/bundle.mjs` |
 
 **Audits** (shared fragments: `<paths.engine>/templates/audit-checklists.md`):

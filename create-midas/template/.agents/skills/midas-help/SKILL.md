@@ -26,7 +26,7 @@ metadata:
    - **Resume after a break** (`/midas-status` + `/midas-recall`)
    - **Run the next phase gate** (phase skills 0–8)
    - **Start or close a sprint** (`/start-sprint` / `/close-sprint` / `/midas-autopilot`)
-   - **Continuous Cursor improve** (`/midas-automate`)
+   - **Continuous local auto-pilot** (`/midas-auto-pilot`)
    - **Verify UI / ad-hoc QA** (`/midas-verify` / `/midas-qa`)
    - **Redesign product UI** (`/midas-design`)
    - **Security or adversarial review** (`/midas-security-audit` / `/midas-tribunal`)
@@ -69,15 +69,15 @@ metadata:
 - What: Phase 7 kickoff, Phase 8 audit, or bounded autopilot (one task per tick).
 - Command: `/start-sprint` · `/close-sprint` · `/midas-autopilot` → `node .harness/autonomy/bin/midas-autopilot.mjs setup`
 - Happens: start activates sprint; close audits rules; autopilot runs setup/dry-run/tick CLI (requires `--autonomy` install).
-- NOT for operator-only sprint tasks (release/merge) — autopilot targets code checklist items. NOT for inventing continuous improve without a checklist → `/midas-automate`.
+- NOT for operator-only sprint tasks (release/merge) — ADR-009 autopilot targets code checklist items. NOT for inventing continuous improve without a checklist → `/midas-auto-pilot`.
 - Next: after start → implement + `/midas-progress`; autopilot ready → human runs `tick`; after close → next sprint.
 
-**Continuous Cursor improve**
-- What: validate product context and emit a Cursor Automation draft (one improvement per scheduled run → PR).
-- Command: `/midas-automate` then Agents Window **Cursor** `/automate` (paste draft) — distinct names.
-- Happens: checks `paths.state` + product artifacts; fills `cursor-automation-improve.md.tmpl`; optional journal under `{runs}/automate/`.
-- NOT the ADR-009 policy plane (`/midas-autopilot`); NOT Phase-8 (`/close-sprint`).
-- Next: create the Automation; review PRs; `/close-sprint` when a sprint’s worth lands.
+**Continuous local auto-pilot**
+- What: one slash starts continuous product-aligned improve (discover → one fix → verify → PR) via local Cursor `/loop`.
+- Command: `/midas-auto-pilot` (default local) · `/midas-auto-pilot cloud` for Cursor Automations · `/midas-auto-pilot stop` to halt.
+- Happens: validates context; writes `{runs}/auto-pilot/runbook.md`; runs tick #1; arms `/loop` (default 30m). Distinct from `/midas-autopilot` (ADR-009 CLI).
+- NOT the ADR-009 policy plane (`/midas-autopilot`); NOT Phase-8 (`/close-sprint`). Laptop sleep → use `cloud` mode.
+- Next: leave Cursor open; review PRs; `/close-sprint` when a sprint’s worth lands.
 
 **Verify UI / ad-hoc QA**
 - What: gate evidence vs inner-loop smoke.

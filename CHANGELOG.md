@@ -11,6 +11,27 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.6.0] — 2026-08-07
+
+### Added
+
+- `/midas-auto-pilot` — continuous **local** improve (validate → tick #1 → arm Cursor `/loop`).
+  Optional `cloud` mode emits Cursor Automations draft; `stop` kills the local loop.
+
+### Changed
+
+- Improve-cycle templates renamed: `auto-pilot-improve.md.tmpl`, `auto-pilot-journal.md`;
+  journal path `{runs}/auto-pilot/`. Playbook `improve-cycle.md` is local-first.
+- `/midas-autopilot`, `/midas-help`, `docs/skills.md`, `skill-flows`, `INSTALL`, ADR-009 cross-links
+  disambiguate auto-pilot (local continuous) vs autopilot (ADR-009 CLI).
+
+### Removed
+
+- `/midas-automate` — renamed to `/midas-auto-pilot` (local continuous by default).
+- Templates `cursor-automation-improve.md.tmpl`, `automate-journal.md` (replaced by auto-pilot names).
+
+---
+
 ## [2.5.5] — 2026-08-07
 
 ### Added
@@ -1498,7 +1519,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.5.5...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.6.0...HEAD
+[2.6.0]: https://github.com/okuzpe/midas-harness/compare/v2.5.5...v2.6.0
 [2.5.5]: https://github.com/okuzpe/midas-harness/compare/v2.5.4...v2.5.5
 [2.5.4]: https://github.com/okuzpe/midas-harness/compare/v2.5.3...v2.5.4
 [2.5.2]: https://github.com/okuzpe/midas-harness/compare/v2.5.1...v2.5.2
