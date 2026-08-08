@@ -10,15 +10,15 @@
 
 **Midas-harness** is the engine repository for the Midas methodology — a copy-in kit of skills,
 rules, slash-commands, and agent definitions that drives software products from idea to shipped code
-through 9 audited phases. This repo dogfoods the methodology on itself (`harness/state.yaml`,
-classic layout) — that is **not** a nested product install. Never run `create-midas` install/update
+through 9 audited phases. This repo **authors** that methodology in `harness/` — it does **not**
+run the lifecycle on itself (see `docs/dogfood.md`). Never run `create-midas` install/update
 against this root (see `harness/rules/engine-repo-boundary.md`).
 
 - Stack: **Node ESM scripts + MkDocs** (engine tooling); product stacks are chosen per install in Phase 4
 - AI tools wired: **claude-code, cursor, windsurf, gemini**
 - Methodology: `harness/methodology.md` (9 audited phases, idea → shipped)
-- State: `harness/state.yaml` (single source of truth — read it for current phase)
-- Runs evidence: `runs/{audits,sprints,sweeps,…}` via `paths.runs` — **no** `.harness/engine` or root `.harness/` here
+- State: `harness/state.yaml` (contributor metadata — version, routing, path overrides)
+- Trace cache: `runs/cache/` (gitignored); lifecycle demo: `docs/research/taskpilot/`
 
 ## Conventions (always-on)
 

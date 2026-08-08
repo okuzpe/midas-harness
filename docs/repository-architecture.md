@@ -82,7 +82,7 @@ marketplace paths. They are not hand-edited; CI rebuilds them and fails if they 
 | Artifact | Keep in repo? | Action |
 |---|---|---|
 | `site/` or `_site/` | No (gitignored) | MkDocs output — use `mkdocs build --site-dir _site` locally; delete when done |
-| `.harness/cache/*`, `.harness/migrations/backups/*`, `runs/cache/*` | No (gitignored) | Local cache and rollback material (engine dogfood uses `runs/cache/`) |
+| `.harness/cache/*`, `.harness/migrations/backups/*`, `runs/cache/*` | No (gitignored) | Local cache and rollback material (engine Trace uses `runs/cache/`) |
 | `*.tgz` | No (gitignored) | `npm pack` output |
 | `harness/plugins/midas/`, `harness/.claude-plugin/`, `cli/template/` | Yes (generated but committed) | Run `npm run build` after source edits |
 | Root `lefthook.yml` | N/A | Not used in the engine repo; product installs scaffold hooks in Phase 5 |
@@ -192,7 +192,7 @@ Decisions about the repository itself (not about a product built with Midas) are
 | [ADR-005](adr/ADR-005-agents-md-generation.md) | accepted | AGENTS.md summary manual; adapter digest Option A |
 | [ADR-008](adr/ADR-008-thin-root-allowlist.md) | accepted | Thin root allowlist for host discovery |
 | [ADR-009](adr/ADR-009-optional-autonomy-control-plane.md) | accepted | Optional autonomy control plane (`--autonomy`) |
-| [ADR-010](adr/ADR-010-harness-trace-observe.md) | accepted | Harness trace observe (engine dogfood) |
+| [ADR-010](adr/ADR-010-harness-trace-observe.md) | accepted | Harness trace observe (engine contributors) |
 | [ADR-011](adr/ADR-011-harness-trace-installs.md) | accepted | Harness trace on installs |
 
 ## Glossary — two kinds of "bundle"
@@ -218,18 +218,18 @@ read-only migration inputs; `--update` never relocates them. Path resolution is 
 `.harness/autonomy/` (bounded control plane + `midas-autopilot.mjs` CLI; editor slash `/midas-auto-sprints`). Absent the flag, installs get
 no autonomy tree and no `@cursor/sdk`. Policy/ledger/journal stay outside the lifecycle FSM.
 
-The **engine repository** (this repo) dogfoods **classic** layout by design (`layout: classic` in
-`harness/state.yaml`, authored source in `harness/` + `scripts/`, installer in `cli/`). Dogfood
-**evidence** lives at root `runs/` (`paths.runs`); **cache** at `runs/cache/` (`paths.cache`). That
-is intentional contributor ergonomics — not the shape users get from `npx … create-midas`.
+The **engine repository** (this repo) uses **classic** layout metadata in `harness/state.yaml`
+(authored source in `harness/` + `scripts/`, installer in `cli/`). It does **not** run the Midas
+lifecycle on itself — see `docs/dogfood.md`. `runs/cache/` (gitignored) is Trace observe tooling for
+contributors. Lifecycle CI demo: `docs/research/taskpilot/`.
 
 ## Glossary — engine `runs/` vs install `.harness/runs/`
 
 | Context | Evidence path | Resolved from |
 |---|---|---|
-| **Engine repo (dogfood)** | `runs/{audits,sprints,sweeps,…}` | `harness/state.yaml` → `paths.runs: runs` |
+| **Engine repo** | No committed lifecycle evidence; `runs/cache/` for Trace | `harness/state.yaml` → `paths.cache` |
 | **Product install (ADR-007)** | `.harness/runs/{audits,sprints,…}` | `.harness/state.yaml` → `paths.runs` |
-| **Token `{runs}/`** | Either layout | Substitute `paths.runs` from the active state file |
+| **Token `{runs}/`** | Install layouts | Substitute `paths.runs` from the active state file |
 
 Never create `.harness/engine/` or `.harness/state.yaml` at the engine repository root. The installer
 refuses that layout (`node cli/index.mjs --dry-run .`). See `harness/rules/engine-repo-boundary.md`.

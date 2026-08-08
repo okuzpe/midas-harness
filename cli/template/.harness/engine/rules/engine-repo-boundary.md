@@ -16,19 +16,18 @@ against the engine repository root. Never create `.harness/engine/`, `.harness/s
 | `harness/` | **Authored engine source** | Yes — this *is* the product |
 | `scripts/` | Engine tooling (doctor, test, build) | Yes |
 | `cli/` | Installer package (npm name `create-midas`) | Yes |
-| `docs/product/` | Engine dogfood lifecycle docs (`paths.product`) | Yes (not an install) |
-| `runs/{audits,sprints,sweeps,…}` | Classic dogfood **evidence** (`paths.runs`) | Yes — not vendor |
-| `runs/cache/` | Dogfood cache + traces (`paths.cache`) | Yes — gitignored |
+| `docs/product/` | Stub README — **not** a product lifecycle tree | Yes (path token only) |
+| `runs/cache/` | Contributor Trace cache (`paths.cache`) | Yes — gitignored |
+| `runs/` (other) | Optional tooling output (adapters hash, etc.) | Not lifecycle evidence |
 | `.harness/engine/` | Product install vendor tree | **Forbidden** at repo root |
 | `.harness/state.yaml` | Product install state | **Forbidden** at repo root |
 
-**Glossary:** Engine dogfood uses root **`runs/`** (`paths.runs` in `harness/state.yaml`). Installed
-products use **`.harness/runs/`** under ADR-007 — not the same path. The `{runs}/` token resolves
+**Glossary:** `harness/state.yaml` here holds **contributor metadata** (version, routing, path overrides).
+Installed products use **`.harness/runs/`** for lifecycle evidence (ADR-007). The `{runs}/` token resolves
 from `paths.runs` in each project's state file.
 
-Dogfood (`layout: classic` in `harness/state.yaml`) tracks methodology on the engine itself. That is
-**not** “install harness on harness.” Installing would copy `harness/` into `.harness/engine/` and
-bite the tail.
+This repository **authors** Midas; it does **not** run Phase 0–8 on itself. Lifecycle demo:
+`docs/research/taskpilot/`.
 
 For install/migration tests use a **temp directory** or `docs/research/taskpilot/` — never the engine root.
 
@@ -52,3 +51,5 @@ For install/migration tests use a **temp directory** or `docs/research/taskpilot
 - **2026-08-08** — Engine dogfood `paths.product` is `docs/product/` (not root `product/`).
 - **2026-08-08** — Codified: engine repo ≠ install target; installer hard-refuses; clarify dogfood
   evidence vs nested product install.
+- **2026-08-08** — Removed engine lifecycle dogfood (sprints/audits/product ledger). `docs/product/`
+  is a stub; `runs/cache/` remains for Trace; lifecycle CI demo = `docs/research/taskpilot/`.

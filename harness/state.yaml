@@ -1,6 +1,5 @@
+# Engine source repo — NOT a Midas product lifecycle. Lifecycle demo = docs/research/taskpilot.
 midas_version: 2.8.2
-# Engine repository dogfoods classic layout by design (authored source in harness/ + scripts/).
-# Product installs use layout: harness — see ADR-007 / ADR-008.
 layout: classic
 paths:
   engine: harness
@@ -12,65 +11,19 @@ paths:
   product: docs/product
   agentsDoc: docs/agents-and-models.md
 name: harness
-mode: brownfield
 language: en
 created: 2026-06-29
 updated: 2026-08-08
-setup_complete: true        # engine repo — installer complete; dogfoods the harness on itself
-track: full
-routing_profile: claude
-
-# Engine-as-dogfood profile: phases 0–4 satisfied by README + docs/ + harness/ itself.
-# Phase 5 closed with docs/product/* artifacts (see docs/dogfood.md).
-# Sprints 01–03 closed; next cycle starts with /plan-sprints (or a new active sprint).
-stage: sprint_execution
+setup_complete: true
+mode: greenfield
+stage: shipped
 stage_status: passed
-entry_stage: architecture_rules
-
+routing_profile: claude
 cost_profile: balanced
 routing:
   orchestrate: claude-opus-4-8
   build:       claude-sonnet-4-6
   scout:       claude-haiku-4-5
-
 execution_mode: cloud
-
-# Multi-host dogfood for adapter coverage. Product default install is tools: [cursor] (ADR-008).
 tools: [claude-code, cursor, windsurf, gemini]
-mcp:   []
-
-phases:
-  idea_intake:        { status: passed, gate: passed, assumption: "Engine README + docs/index.md" }
-  contextualize:      { status: passed, gate: passed, assumption: "Scope in docs/repository-architecture.md" }
-  market_research:    { status: passed, gate: passed, assumption: "N/A — harness engine, not a commercial product" }
-  business_case:      { status: passed, gate: passed, assumption: "N/A — harness engine" }
-  tech_architecture:  { status: passed, gate: passed, assumption: "Stack in docs/repository-architecture.md" }
-  architecture_rules: { status: passed, gate: passed, artifacts: ["docs/product/idea.md", "docs/product/architecture.md", "docs/product/conventions.md"] }
-  sprint_planning:    { status: passed, gate: passed, artifacts: ["docs/product/business-plan.md", "docs/product/roadmap.md", "docs/product/features.json", "docs/product/sprints/01-autonomy-ci-smoke.md", "docs/product/sprints/02-midas-retro-skill.md", "docs/product/sprints/03-installer-update-docs.md"] }
-  sprint_execution:   { status: passed, gate: passed, artifacts: ["docs/product/sprints/01-autonomy-ci-smoke.md", "docs/product/sprints/02-midas-retro-skill.md", "docs/product/sprints/03-installer-update-docs.md"] }
-  audit:              { status: passed, gate: passed, artifacts: ["runs/audits/audit-01.md", "runs/audits/audit-02.md", "runs/audits/audit-03.md"] }
-
-last_audit:
-  phase: audit
-  sprint: "03"
-  verdict: pass
-  at: 2026-08-07
-  record: runs/audits/audit-03.md
-  note: "sprint 02/03 audits un-attested until re-run via orchestrate /close-sprint"
-
-sprints:
-  - id: "01"
-    title: autonomy-ci-smoke
-    status: done
-    audit_notes: "audit-01 pass — SM-1 met; autonomy:install-fake-tick-smoke"
-    last_touched: 2026-08-07
-  - id: "02"
-    title: midas-retro-skill
-    status: done
-    audit_notes: "audit-02 pass un-attested — F-002; re-attest via orchestrate /close-sprint"
-    last_touched: 2026-08-07
-  - id: "03"
-    title: installer-update-docs
-    status: done
-    audit_notes: "audit-03 pass un-attested — F-003; re-attest via orchestrate /close-sprint"
-    last_touched: 2026-08-07
+mcp: []

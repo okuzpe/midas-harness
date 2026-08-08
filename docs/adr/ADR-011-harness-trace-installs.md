@@ -7,7 +7,7 @@
 
 ## Context
 
-ADR-010 shipped Trace V1 as **engine dogfood only** (`scripts/trace-*.mjs` + root
+ADR-010 shipped Trace V1 as **engine-contributor observe tooling** (`scripts/trace-*.mjs` + root
 `.cursor/hooks.json`). Product installs (e.g. BodegaSuite) received Midas 2.7.0 skills but
 could not run `trace:inspect` — scripts were absent from `.harness/scripts/`. Users expected
 to observe agent tool flows in the same repo where they run the methodology.
@@ -19,7 +19,7 @@ to observe agent tool flows in the same repo where they run the methodology.
 2. **Project root via `resolveProjectRootFromScript`.** Install layout
    (`.harness/scripts/`) resolves to the project root (grandparent); engine `scripts/` stays
    parent. Traces live under `{paths.cache}/traces/` (gitignored): **product installs** →
-   `.harness/cache/traces/`; **engine dogfood** → `runs/cache/traces/` when
+   `.harness/cache/traces/`; **engine repo** → `runs/cache/traces/` when
    `paths.cache: runs/cache`.
 3. **Cursor hooks — seed + merge, not copyTree.** When `tools` includes `cursor`, the
    installer calls `mergeTraceHooks`:
@@ -41,7 +41,7 @@ to observe agent tool flows in the same repo where they run the methodology.
 
 - After `--update` to ≥2.8.0, installs can run
   `node .harness/scripts/trace-inspect.mjs list`.
-- Engine dogfood keeps `node scripts/trace-hook.mjs` in its own `.cursor/hooks.json`.
+- Engine contributors keep `node scripts/trace-hook.mjs` in the repo’s own `.cursor/hooks.json`.
 - Hosts without `cursor` still get the CLI scripts; automatic capture requires Cursor hooks.
 - ADR-008 allowlist: `.cursor/hooks.json` is an expected root surface when `tools` includes
   `cursor`.

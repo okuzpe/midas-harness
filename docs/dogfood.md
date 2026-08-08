@@ -1,22 +1,27 @@
-# Engine dogfood modes
+# Engine repository vs product installs
+
+This repository **authors** the Midas engine (`harness/`, `scripts/`, `cli/`). It does **not** run the
+9-phase Midas lifecycle on itself.
 
 | Mode | Where | What it proves |
 |---|---|---|
-| **Contributor / classic** | This repo (`layout: classic`) | Propagation, adapters, skill quality, installer tests, **engine MVP sprints** under `docs/product/sprints/` |
-| **Product install / harness** | `npx …#vX.Y.Z` → **other** project’s `.harness/` | Full 9-phase lifecycle on a real product — **never** into this engine repo root |
-| **Worked example** | `docs/research/taskpilot/` (`.harness/` layout) | Closed sprint + audit in CI — see [V2-PATH-MAP.md](research/taskpilot/V2-PATH-MAP.md) |
+| **Engine source** | This repo | Skills, rules, installer, adapters, `npm test`, doctor adapters |
+| **Product install** | Another project’s `.harness/` | Full 9-phase lifecycle — **never** at this engine root |
+| **Lifecycle demo (CI)** | `docs/research/taskpilot/` | Closed sprint + strict gates — see [V2-PATH-MAP.md](research/taskpilot/V2-PATH-MAP.md) |
 
 ## Not “harness on harness”
 
-This repository **authors** the engine in `harness/`. Root **`runs/`** here is dogfood evidence
-(`paths.runs` in `harness/state.yaml`) — there is **no** `.harness/engine` product install and **no**
-root `.harness/state.yaml`. `create-midas` (folder `cli/`, same npm name) **refuses** install/update/migrate
-against this root (see `harness/rules/engine-repo-boundary.md`).
+- **No** root `.harness/state.yaml` or `.harness/engine/` — installer refuses this root.
+- `harness/state.yaml` holds **contributor metadata** (version, routing, path overrides) — not a Phase 0–8 ledger.
+- `docs/product/` is a **stub** explaining that product lifecycle docs live in installs, not here.
+- `runs/cache/` (gitignored) is **Trace observe** tooling for contributors — not committed audit/sprint evidence.
 
-The engine closes Phase 5 (`architecture_rules`) with artifacts under `docs/product/`, then dogfoods
-Phase 6–8 on itself for thin engine MVP work (sprints 01–03: autonomy CI smoke, `/midas-retro`,
-installer update docs). Feature ledger: `docs/product/features.json` (F-001–F-003). Binding Phase-8
-provenance for sprints 02–03 may still need orchestrate re-attestation (`audit-02`/`audit-03` drafts
-are marked `un-attested`).
+## Verification
 
-TaskPilot remains the **product-shaped** CI fixture (`doctor.mjs --strict --gates-only docs/research/taskpilot`).
+| Check | Command |
+|---|---|
+| Structural tests | `node scripts/test.mjs` |
+| Adapter health | `node scripts/doctor.mjs` |
+| Product-shaped gates | `node scripts/doctor.mjs --strict --gates-only docs/research/taskpilot` |
+
+See `harness/rules/engine-repo-boundary.md`.

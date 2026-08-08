@@ -46,5 +46,5 @@ failure. Unknown application files under legacy `product/` or `scripts/` remain 
 - Node.js 22 is the minimum supported runtime.
 - Root host surfaces are further constrained by ADR-008 (thin-root allowlist, default Cursor,
   `--update --tools`).
-- The engine repository dogfoods **classic** (`layout: classic` in `harness/state.yaml`); that is
-  contributor ergonomics, not the product install shape.
+- The engine repository uses **classic** metadata (`layout: classic` in `harness/state.yaml`) for
+  contributor path overrides — not a product install shape and not a Phase 0–8 ledger.

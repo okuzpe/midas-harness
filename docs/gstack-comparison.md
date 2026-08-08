@@ -472,7 +472,7 @@ stack automatizado Midas es **web browser**; gstack `/ios-qa` no tiene equivalen
 CHECK en `verification.md`, onboarding UI, y check advisory en `doctor.mjs`. Ver `CHANGELOG.md` §
 [0.5.21] — Verification / MCP governance.
 
-**Pendiente (adopciones gstack, sección 6.1):** `/midas-retro` **ya shipped** (sprint 02 / F-002).
+**Pendiente (adopciones gstack, sección 6.1):** `/midas-retro` **ya shipped** (`harness/skills/midas-retro/`).
 Regresión por bug en inner loop Fase 7 **ya shipped** (`testing.md` + `7-sprint-execution.md`).
 Careful/freeze/guard **ya shipped** (`safety-guardrails.md`).
 `/midas-investigate` **ya shipped** (`harness/skills/midas-investigate/`).

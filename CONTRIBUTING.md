@@ -52,7 +52,7 @@ scripts/              ← render, doctor, test, build-* (dependency-free Node ES
 docs/                 ← MkDocs source (build to _site/, never commit)
 docs/research/taskpilot/   ← reference greenfield + CI gate fixture
 cli/                  ← installer package (npm name create-midas; template/ generated)
-runs/                 ← engine dogfood evidence (paths.runs) + gitignored runs/cache
+runs/                 ← optional tooling output; gitignored runs/cache (Trace)
 harness/plugins/midas/  ← Claude Code plugin bundle (generated)
 harness/.claude-plugin/ ← marketplace catalog (generated)
 AGENTS.md             ← engine project law (distinct from install template AGENTS.md.tmpl)

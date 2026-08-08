@@ -11,20 +11,21 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ### Changed
 
-- **Engine repo layout clarity:** installer folder `create-midas/` → `cli/` (npm package name stays `create-midas`); dogfood evidence `.harness/*` → root `runs/` + `runs/cache/` (`paths.runs` / `paths.cache` in `harness/state.yaml`). Product installs keep `.harness/` (ADR-007). **Contributor-breaking:** clone paths and local `node cli/index.mjs` replace `create-midas/`; do not create root `.harness/` on the engine repo.
+- **Engine repo layout clarity:** installer folder `create-midas/` → `cli/` (npm package name stays `create-midas`); contributor Trace cache uses root `runs/cache/` (`paths.cache` in `harness/state.yaml`). Product installs keep `.harness/` (ADR-007). **Contributor-breaking:** clone paths and local `node cli/index.mjs` replace `create-midas/`; do not create root `.harness/` on the engine repo.
 - Doc/ADR follow-through: ADR-010/011 + `harness/research/harness-trace.md` document `{paths.cache}/traces` (engine `runs/cache` vs install `.harness/cache`); INSTALL + hooks README aligned.
 - Playbook template rename: `improve-cycle.md` → `auto-pilot-cycle.md` (aligns with `/midas-auto-pilot`).
 - `scripts/ship-manifest.mjs` — single shipped-scripts list for `build-create` + `test` (no dual FILES lists).
 - Contributor hygiene: skill source-of-truth docs, v2 runs paths, MkDocs ADR-010/011, autonomy anti-typo callouts.
-- Dogfood `harness/state.yaml` — restored `sprint_execution` ledger row; closed audit cycle; `stage_status: passed`; `phases.audit` artifacts list `runs/audits/audit-0{1,2,3}.md`.
 - Installer refactor: shared `lib/core/preserve-policy.mjs` (`decideTemplateCopyAction`); extract `runtime/{copy-tree,autonomy-install,uninstall}.mjs` from `execute.mjs`. Plan notes vendor wipe/prune lifecycle; parity + autonomy pointer unit tests.
-- Dogfood evidence path cleanup: `docs/product/*` + `runs/{sprints,retros,sweeps}` cite `runs/audits/` (not legacy `.harness/audits/`); `SECURITY.md` uses `{runs}/audits/`.
+- `SECURITY.md` uses `{runs}/audits/` token (install-generic); engine repo no longer keeps a product lifecycle ledger.
+- **Removed engine lifecycle dogfood:** deleted committed `runs/{audits,sprints,sweeps,retros,debates,investigate,auto-pilot}/` and `docs/product/` lifecycle tree; `harness/state.yaml` is contributor metadata only (`stage: shipped`); stub `docs/product/README.md`; lifecycle CI demo remains `docs/research/taskpilot/`.
 
 ### Removed
 
 - Unused `create-midas/lib/steps/install.mjs` re-export stub; unused `pathIsFile` / `isExecutableOp` exports.
 - Stale `HARNESS_ENGINE_ONLY_RELS` entry `research/Untitled-1.md` (file never existed).
 - Accidentally committed `runs/cache/**` and `runs/adapters.hash` (gitignore already covered; untracked from index).
+- Engine MVP dogfood evidence and product ledger (see Changed above).
 
 ---
 

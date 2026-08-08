@@ -8,7 +8,6 @@ edit_uri: edit/main/docs/
 # TaskPilot fixture is a full Midas install — not MkDocs pages.
 exclude_docs: |
   research/taskpilot/**
-  product/sprints/**
 
 theme:
   name: material
@@ -40,9 +39,8 @@ nav:
   - Skill quality gate: skill-quality-gate.md
   - Precommit gate (engine): precommit-gate.md
   - Contributor quickstart: contributing-quickstart.md
-  - Engine dogfood: dogfood.md
+  - Engine repo vs installs: dogfood.md
   - Research fixtures: research/README.md
-  - Engine dogfood product: product/README.md
   - Agents & Models: agents-and-models.md
   - FAQ: faq.md
   - Comparisons (community):

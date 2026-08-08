@@ -1,13 +1,13 @@
 ---
 name: plan-sprints
-description: Phase 6 — decompose the MVP scope into a dependency-ordered roadmap and per-sprint plans, each with goal, scope, tasks, acceptance criteria, and a DoD that references the frozen rules. Use after conventions and the design system are frozen (stage architecture_rules → sprint_planning), before any sprint executes.
-user-invocable: true
-disable-model-invocation: true
-model: inherit
-harness-tier: orchestrate
-recommended-model: claude-opus-4-8
+description: "Phase 6 — decompose the MVP scope into a dependency-ordered roadmap and per-sprint plans, each with goal, scope, tasks, acceptance criteria, and a DoD that references the frozen rules. Use after conventions and the design system are frozen (stage architecture_rules → sprint_planning), before any sprint executes."
+metadata:
+  midas-disable-model-invocation: true
+  midas-harness-tier: orchestrate
+  midas-model: inherit
+  midas-recommended-model: claude-opus-4-8
+  midas-user-invocable: true
 ---
-
 # plan-sprints (Phase 6 — Sprint Planning)
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).

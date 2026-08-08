@@ -3,7 +3,7 @@
 - **Status:** accepted
 - **Date:** 2026-08-08
 - **Extends:** [ADR-003](./ADR-003-project-memory-model.md) (git-visible LTM; no hidden memory store)
-- **Related:** [ADR-008](./ADR-008-thin-root-allowlist.md) (root surfaces); engine dogfood only
+- **Related:** [ADR-008](./ADR-008-thin-root-allowlist.md) (root surfaces); engine contributors only (Trace observe)
 
 ## Context
 
@@ -19,13 +19,13 @@ product-wide install surface. Trace data must not become a second LTM that contr
 1. **Observe before control.** V1 records events only. No pause/step/continue, no MCP, no
    Langfuse/Grafana/OTel export, no `.nd` format, no HTTP debugger UI.
 2. **Cache ≠ LTM.** Append-only JSONL under `{paths.cache}/traces/` (gitignored). Product
-   installs resolve to `.harness/cache/traces/` (ADR-007). Engine dogfood resolves to
+   installs resolve to `.harness/cache/traces/` (ADR-007). The engine repo resolves to
    `runs/cache/traces/` (`harness/state.yaml` → `paths.cache: runs/cache`). Durable insight
    still crystallizes through existing markdown rituals (`/midas-sweep`, `/midas-investigate`,
-   `/midas-capture`, verify/audit records).
+   `/midas-capture`, verify/audit records) on **product installs**.
 3. **Zero new dependencies.** Node ESM scripts only (`scripts/lib/trace-*.mjs`,
    `scripts/trace-write.mjs`, `scripts/trace-inspect.mjs`, `scripts/trace-hook.mjs`).
-4. **Primary signal = Cursor hooks (engine dogfood).** Project `.cursor/hooks.json` wires
+4. **Primary signal = Cursor hooks (engine contributors).** Project `.cursor/hooks.json` wires
    `sessionStart`, `postToolUse`, `subagentStop`, `stop` → `node scripts/trace-hook.mjs`.
    Hooks are **not** shipped as a blind template file in `cli/template/` (installer merges
    them per ADR-011). CLI works on any host; hooks are Cursor-only.
@@ -43,7 +43,7 @@ product-wide install surface. Trace data must not become a second LTM that contr
 
 - Engine contributors can reconstruct a Cursor turn from cache JSONL + `trace-inspect`.
 - Product installs are unaffected until a later ADR ships an optional install path.
-- ADR-008 root noise: `.cursor/hooks.json` is dogfood-only; not part of the product
+- ADR-008 root noise: `.cursor/hooks.json` is engine-contributor Trace wiring; not part of the product
   thin-root allowlist yet.
 - V2 may add skill-shaped emits (when the binary exists), richer context inspect, loop
   compare, then MCP query — still without replacing progress/verify/audit markdown.
@@ -59,12 +59,17 @@ product-wide install surface. Trace data must not become a second LTM that contr
 
 - Superseded for **install packaging** by [ADR-011](./ADR-011-harness-trace-installs.md):
   scripts ship under `.harness/scripts/`; Cursor hooks are seeded/merged on install/update.
-  Engine dogfood hooks remain root `.cursor/hooks.json` → `scripts/trace-hook.mjs`.
+  Engine contributor hooks remain root `.cursor/hooks.json` → `scripts/trace-hook.mjs`.
   Decision points 4 and Consequences “product installs unaffected” no longer apply after 2.8.0.
 
 ## Amendment — 2026-08-08 (engine layout clarity)
 
-- Engine dogfood evidence/cache moved to root `runs/` + `runs/cache/` (`paths.runs` /
-  `paths.cache`). Trace store reads `resolvePaths().cache` — no hard-coded `.harness/cache/traces`
-  in engine scripts. Product installs unchanged (still `.harness/cache/traces/`).
+- Engine Trace cache moved to root `runs/cache/` (`paths.cache`). Trace store reads
+  `resolvePaths().cache` — no hard-coded `.harness/cache/traces` in engine scripts. Product
+  installs unchanged (still `.harness/cache/traces/`).
 - Installer package folder renamed `create-midas/` → `cli/` (npm name still `create-midas`).
+
+## Amendment — 2026-08-08 (no lifecycle dogfood)
+
+- The engine repo no longer keeps committed Phase 0–8 evidence under `runs/{audits,…}`.
+  `runs/cache/` remains Trace-only contributor tooling; lifecycle demo = `docs/research/taskpilot/`.

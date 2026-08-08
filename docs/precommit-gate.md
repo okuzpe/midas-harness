@@ -40,7 +40,7 @@ Equal weight. Overall = arithmetic mean, rounded to nearest integer.
 | `code_quality` | Code quality | Correctness footguns, error contracts, split-brain implementations |
 | `maintainability` | Maintainability | Module size, dead code paths, single execute path, test modularity |
 | `change_propagation` | Change propagation | Align ladder, mirror drift, version single-source, template fidelity |
-| `methodology_fitness` | Methodology fitness | 9-phase completeness, dogfooding honesty, gate mechanization |
+| `methodology_fitness` | Methodology fitness | 9-phase completeness, fixture honesty (TaskPilot), gate mechanization |
 
 ---
 

@@ -1,9 +1,13 @@
-# Engine dogfood — product artifacts
+# Engine repo — no product lifecycle here
 
-Lifecycle artifacts for **midas-harness itself** (not a shipped app). The engine repo dogfoods
-`layout: classic` with `paths.product: docs/product` in `harness/state.yaml`.
+This directory is **not** a Midas product install. The midas-harness engine repository authors
+methodology in `harness/` and ships it via `cli/` — it does **not** run Phase 0–8 on itself.
 
-- Runs / audits / sweeps live under root `runs/` (`paths.runs`); cache under `runs/cache/` (`paths.cache`).
-- For a full **product-shaped** CI fixture, see [`research/taskpilot/`](../research/taskpilot/).
+| What | Where |
+|---|---|
+| Engine source | `harness/`, `scripts/`, `cli/` |
+| Lifecycle demo (CI) | `docs/research/taskpilot/` |
+| Contributor Trace cache | `runs/cache/` (gitignored) |
 
-Do not run `create-midas` / `cli/` install against this repository root — see `harness/rules/engine-repo-boundary.md`.
+Product installs use `{product}/` under their project root (see ADR-007). Do not add sprint plans,
+feature ledgers, or audit evidence here unless you are intentionally reviving engine dogfood.

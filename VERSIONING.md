@@ -113,9 +113,10 @@ ADR-007 / `2.0.0`. Kept here for archaeology of 1.x installs.
 ## Engine repository layout (contributors)
 
 The **midas-harness** repo is not a product install. Authoring lives in `harness/` + `scripts/`;
-the installer package folder is `cli/` (npm name remains `create-midas`). Dogfood evidence is at
-root `runs/` (`paths.runs`), not `.harness/runs/`. Product installs still use `.harness/` (ADR-007).
-Renaming `cli/` or moving dogfood paths is contributor-breaking for clones and CI — not a product
+the installer package folder is `cli/` (npm name remains `create-midas`). Contributor Trace cache
+is at `runs/cache/` (`paths.cache`). Product lifecycle evidence lives in installs under
+`.harness/runs/` (ADR-007). Renaming `cli/` or moving path overrides in `harness/state.yaml` is
+contributor-breaking for clones and CI — not a product
 SemVer break unless installer behavior or install layout changes.
 
 ---

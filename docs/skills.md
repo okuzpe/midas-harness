@@ -14,7 +14,7 @@ Human catalog (this file) uses slash-names. Agents that **delegate** use the gen
 
 | Layout | Path |
 |---|---|
-| Engine dogfood | `harness/skill-registry.md` |
+| Engine source | `harness/skill-registry.md` |
 | Installs | `<paths.engine>/skill-registry.md` |
 
 - **Refresh:** `node <paths.scripts>/skill-registry.mjs` or `npm run align` / `doctor --fix` (recompute-and-compare; no cache sidecar).

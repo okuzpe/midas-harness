@@ -26,7 +26,7 @@ dimensions used in full audits. **Overall must be ≥ 80** or the verdict is fai
 | Abort unless cwd is midas-harness engine | Run on product installs / template trees |
 | Run mechanical floor + score 12 dimensions 1–100 | Advance `stage` or pass lifecycle gates |
 | Require overall ≥ 80 to `verdict=pass` | Replace `/midas-align`, `/midas-doctor`, or CI |
-| Optional freeze under `runs/precommits/` (engine dogfood) | Ship this skill to `cli/template` / `harness/plugins/midas` |
+| Optional freeze under `runs/precommits/` (contributors) | Ship this skill to `cli/template` / `harness/plugins/midas` |
 
 ## Engine guard (hard)
 

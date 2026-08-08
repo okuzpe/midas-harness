@@ -431,8 +431,9 @@ if (existsSync(tplRoot)) {
     'run build-plugin.mjs',
   );
   check(
-    'layout:engine-product-fixture',
-    existsSync(join(ROOT, 'docs', 'product', 'features.json')),
+    'layout:engine-product-stub',
+    existsSync(join(ROOT, 'docs', 'product', 'README.md')),
+    'docs/product/README.md stub',
   );
   // Engine dev state must never ship in the distributable bundle (cli/index.mjs writes fresh state).
   check('create-template:excludes:harness/state.yaml', !existsSync(join(tplRoot, '.harness', 'engine', 'state.yaml')));
@@ -1074,48 +1075,28 @@ if (engineVersion) {
 }
 
 {
-  // Engine MVP dogfood locks (sprints 02–03 / F-002–F-003) — keep catalog + docs honest.
+  // Engine skill locks — shipped skills + catalog + investigate templates (not lifecycle evidence).
   check(
-    'dogfood:midas-retro:skill-on-disk',
+    'engine-skill:midas-retro:skill-on-disk',
     existsSync(join(ROOT, 'harness', 'skills', 'midas-retro', 'SKILL.md')),
   );
   const skillsCatalog = existsSync(join(ROOT, 'docs', 'skills.md'))
     ? readFileSync(join(ROOT, 'docs', 'skills.md'), 'utf8')
     : '';
-  check('dogfood:midas-retro:catalog', /\/midas-retro\b/.test(skillsCatalog));
+  check('engine-skill:midas-retro:catalog', /\/midas-retro\b/.test(skillsCatalog));
   check(
-    'dogfood:midas-investigate:skill-on-disk',
+    'engine-skill:midas-investigate:skill-on-disk',
     existsSync(join(ROOT, 'harness', 'skills', 'midas-investigate', 'SKILL.md')),
   );
-  check('dogfood:midas-investigate:catalog', /\/midas-investigate\b/.test(skillsCatalog));
+  check('engine-skill:midas-investigate:catalog', /\/midas-investigate\b/.test(skillsCatalog));
   check(
-    'dogfood:midas-investigate:template',
+    'engine-skill:midas-investigate:template',
     existsSync(join(ROOT, 'harness', 'templates', 'investigate-record.md')),
   );
   check(
-    'dogfood:midas-investigate:playbook',
+    'engine-skill:midas-investigate:playbook',
     existsSync(join(ROOT, 'harness', 'templates', 'playbooks', 'debug-root-cause.md')),
   );
-  const featuresPath = join(ROOT, 'docs', 'product', 'features.json');
-  if (existsSync(featuresPath)) {
-    const features = JSON.parse(readFileSync(featuresPath, 'utf8')).features || [];
-    for (const id of ['F-001', 'F-002', 'F-003']) {
-      const row = features.find((f) => f.id === id);
-      check(
-        `dogfood:features:${id}:passing`,
-        !!row && row.status === 'passing' && String(row.evidence || '').trim().length > 0,
-        row ? `${row.status} evidence=${row.evidence || '(empty)'}` : 'missing',
-      );
-    }
-  }
-  const runsRoot = join(ROOT, 'runs', 'retros');
-  for (const id of ['01', '02', '03']) {
-    check(
-      `dogfood:retros:retro-${id}`,
-      existsSync(join(runsRoot, `retro-${id}.md`)),
-      `missing .harness/retros/retro-${id}.md`,
-    );
-  }
 }
 
 // --- M. CI workflows carry the hardened supply-chain policy -------------------------------
@@ -1337,7 +1318,7 @@ check('installer:thin-shim', /createExecuteHandler/.test(installer) && /runInsta
 check(
   'engine-state:classic-layout-declared',
   /^layout:\s*classic$/m.test(readFileSync(join(ROOT, 'harness', 'state.yaml'), 'utf8')),
-  'engine harness/state.yaml must declare layout: classic (dogfood honesty)',
+  'engine harness/state.yaml must declare layout: classic',
 );
 check(
   'ci:user-shape-cursor-smoke',
@@ -1375,18 +1356,6 @@ check(
     /audit:attestation-/.test(readFileSync(join(ROOT, 'scripts', 'doctor.mjs'), 'utf8')),
   'doctor must advise when closed-sprint audits are un-attested',
 );
-{
-  const doc = spawnSync(process.execPath, [join(ROOT, 'scripts', 'doctor.mjs'), '.'], {
-    cwd: ROOT,
-    encoding: 'utf8',
-  });
-  const out = `${doc.stdout || ''}${doc.stderr || ''}`;
-  check(
-    'doctor:engine-flags-unattested-audits',
-    doc.status === 0 && /audit:attestation-02/.test(out) && /audit:attestation-03/.test(out),
-    out.slice(-500),
-  );
-}
 {
   const giRoot = mkdtempSync(join(tmpdir(), 'midas-gi-'));
   const tplDir = join(giRoot, 'harness', 'templates');

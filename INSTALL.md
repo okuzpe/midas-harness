@@ -273,8 +273,8 @@ node .harness/scripts/trace-inspect.mjs list
 node .harness/scripts/trace-inspect.mjs <run-id>
 ```
 
-Traces live under `.harness/cache/traces/` (gitignored) on product installs. The engine
-repository dogfoods traces under `runs/cache/traces/` (`paths.cache`). Disable by removing
+Traces live under `.harness/cache/traces/` (gitignored) on product installs. Engine contributors
+use `runs/cache/traces/` (`paths.cache`). Disable by removing
 Midas entries from `.cursor/hooks.json` (commands containing `trace-hook.mjs`) or deleting
 that file.
 
