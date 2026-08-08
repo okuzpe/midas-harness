@@ -1,0 +1,46 @@
+# Secrets — never commit (.env.example is OK to commit)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*secret*
+*credential*
+!**/.harness/autonomy/lib/credentials.mjs
+.claude/settings.local.json
+
+# Dependencies & build output (npx, local tooling, common stacks)
+node_modules/
+vendor/
+dist/
+build/
+out/
+.next/
+.turbo/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+target/
+*.log
+
+# Test / browser tooling (midas-verify, midas-qa, CI)
+coverage/
+test-results/
+playwright-report/
+blob-report/
+
+# Midas local tooling output (not frozen evidence)
+status.html
+*.midas-bundle.json
+
+# Midas volatile state (state.yaml IS committed; caches/hashes are not)
+.harness/cache/
+.harness/migrations/backups/
+.harness/*.hash
+.harness/runs/explore/.active
+.harness/explore/.active
+.harness/autonomy/authz/
+.midas/cache/
+.midas/*.hash
+.midas/explore/.active

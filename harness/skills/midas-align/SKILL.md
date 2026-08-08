@@ -59,7 +59,7 @@ If `--fix` and adapters drifted: `node scripts/render-adapters.mjs` then re-run 
 Engine repo: **must** run **`npm run bump -- <X.Y.Z>`** (`change-propagation.md` — never hand-scatter
 pins). That writes VERSION, packages, state stamps, `INSTALL.md` pins, and rebuilds. Then confirm:
 
-- `package.json`, `create-midas/package.json`, `gemini-extension.json` match `harness/VERSION`
+- `package.json`, `cli/package.json`, `gemini-extension.json` match `harness/VERSION`
 - `INSTALL.md` is the only `#v…` copy-paste surface (skills/docs use `#v{VERSION}` or runtime reads)
 - `CHANGELOG.md` has a dated section for the release (not `[Unreleased]` only)
 - `harness/state.schema.md` example `midas_version` matches

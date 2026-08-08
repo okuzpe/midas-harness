@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Midas — installer shim. A thin wrapper around the one unified Node installer
-# (create-midas/index.mjs); this script just bootstraps it so there is no parallel
+# (cli/index.mjs); this script just bootstraps it so there is no parallel
 # bash/PowerShell install logic to drift.
 #
 # One-line install (run INSIDE the project you want to add Midas to).
@@ -15,7 +15,7 @@
 set -euo pipefail
 REPO="okuzpe/midas-harness"
 # midas-install-ref: bumped by scripts/bump-version.mjs — keep in sync with harness/VERSION
-MIDAS_REF="${MIDAS_INSTALL_REF:-v2.8.1}"
+MIDAS_REF="${MIDAS_INSTALL_REF:-v2.8.2}"
 if [ "${MIDAS_BLEEDING_EDGE:-}" = "1" ]; then
   MIDAS_REF="main"
 fi
@@ -33,8 +33,8 @@ fi
 # Inside a clone? run the local installer directly (offline-friendly). BASH_SOURCE is unset when bash
 # reads from stdin (curl | bash), and `set -u` would trip on a bare reference — default to empty.
 here="$(cd "$(dirname "${BASH_SOURCE[0]:-}")" 2>/dev/null && pwd)" || here=""
-if [ -n "$here" ] && [ -f "$here/create-midas/index.mjs" ]; then
-  exec node "$here/create-midas/index.mjs" "$@"
+if [ -n "$here" ] && [ -f "$here/cli/index.mjs" ]; then
+  exec node "$here/cli/index.mjs" "$@"
 fi
 
 # Curl-pipe path: delegate to npx on a pinned tag (or main when MIDAS_BLEEDING_EDGE=1).

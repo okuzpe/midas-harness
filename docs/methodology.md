@@ -18,10 +18,10 @@ and the per-phase playbooks in `harness/pipeline/`.
 | 5 | Architecture-as-Rules + Design System | `.harness/rules/*`, `.harness/product/design-system.md`, `.harness/product/playbooks/*` |
 | 6 | Sprint Planning | `product/roadmap.md`, `product/sprints/NN-*.md` |
 | 7 | Sprint Execution | code + tests + updated sprint |
-| 8 | Per-sprint Audit & Adjust | `.harness/audits/audit-NN.md` |
+| 8 | Per-sprint Audit & Adjust | `.harness/runs/audits/audit-NN.md` |
 
 **Transition rule:** advance phase N to N+1 only when the orchestrator (Opus) ran the exit gate,
-every item is satisfied with on-disk evidence, the verdict is frozen to `.harness/audits/`, and
+every item is satisfied with on-disk evidence, the verdict is frozen to `.harness/runs/audits/`, and
 `state.yaml` records `gate: passed`. The producer never grades its own homework.
 
 **Gates are mechanically checkable, not just prose.** Every `harness/rules/*` item ships a concrete
@@ -81,7 +81,7 @@ about which gates were passed vs deliberately skipped (skipped gates carry a rec
 ## The harness contract
 
 - **Stateful** — one source of truth: `.harness/state.yaml`. Skills read first, write last.
-- **Auditable** — every phase yields artifacts and a gate verdict frozen in `.harness/audits/`.
+- **Auditable** — every phase yields artifacts and a gate verdict frozen in `.harness/runs/audits/`.
 - **Resumable** — `/midas-status` reads state and prints the single next action; any agent on any
   tool can resume because the methodology is markdown, not a tool's memory.
 

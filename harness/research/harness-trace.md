@@ -14,11 +14,24 @@ MCP · Langfuse · Grafana · breakpoints · `.nd` · OTel · mirrored SKILL emi
 
 ## Layout
 
+Resolved as `{paths.cache}/traces/` (see `scripts/lib/trace-store.mjs` → `resolveTracesRoot`).
+
+**Product install (ADR-007)**
+
 ```
 .harness/cache/traces/
   current.json          # { session_id, run_id?, started_at }
   session-<id>/
     run-<id>.jsonl      # one envelope per line
+```
+
+**Engine dogfood** (`harness/state.yaml` → `paths.cache: runs/cache`)
+
+```
+runs/cache/traces/
+  current.json
+  session-<id>/
+    run-<id>.jsonl
 ```
 
 ## CLI

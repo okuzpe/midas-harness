@@ -1,0 +1,419 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-08-08T11:19:38.849Z",
+  "from_layout": "hub",
+  "to_layout": "harness",
+  "from_version": "1.0.0",
+  "to_version": "2.8.2",
+  "digest": "09f260d536e8e3c46fd07663b18c1b5a739df84bd4fc1721f429a4218a150f79",
+  "moved": [
+    {
+      "from": ".midas/audits/audit-01.md",
+      "to": ".harness/runs/audits/audit-01.md",
+      "kind": "user",
+      "size": 7859,
+      "sha256": "68d117653cc3e20498f9f80a9ae3b30e9cea71a89fe57886766411d49517a022"
+    },
+    {
+      "from": ".midas/debates/debate-01.md",
+      "to": ".harness/runs/debates/debate-01.md",
+      "kind": "user",
+      "size": 4704,
+      "sha256": "0a99b1a934374e0f11604d0b82072accad73365612002859fd6f0c62c1e04471"
+    },
+    {
+      "from": ".midas/engine/rules/folder-structure.md",
+      "to": ".harness/migrations/backups/from-1.0.0-hub/engine/rules/folder-structure.md",
+      "kind": "legacy-vendor",
+      "size": 1722,
+      "sha256": "fd31335877f02c0609f370d7b426fda871f41dc01271747542c867e453049fc3"
+    },
+    {
+      "from": ".midas/engine/rules/session-cookies.md",
+      "to": ".harness/migrations/backups/from-1.0.0-hub/engine/rules/session-cookies.md",
+      "kind": "legacy-vendor",
+      "size": 1105,
+      "sha256": "81668e1d00b90754dd7080c681df5d33bb80cb919db8b673e4c52fb9f4f91ac0"
+    },
+    {
+      "from": ".midas/engine/rules/tenant-isolation.md",
+      "to": ".harness/migrations/backups/from-1.0.0-hub/engine/rules/tenant-isolation.md",
+      "kind": "legacy-vendor",
+      "size": 1309,
+      "sha256": "733a64d0640af9982027da56edfa9354060ab3c56ede3f4ffa84447381a3bd7c"
+    },
+    {
+      "from": ".midas/product/adr/ADR-001-stack.md",
+      "to": ".harness/product/adr/ADR-001-stack.md",
+      "kind": "user",
+      "size": 2806,
+      "sha256": "cf7e5bcc479e48a96cf38569e9386f56935ff5bfd865577210a718c70623eb9f"
+    },
+    {
+      "from": ".midas/product/architecture.md",
+      "to": ".harness/product/architecture.md",
+      "kind": "user",
+      "size": 4498,
+      "sha256": "e9cf6e2eb3842b84c360aa9184aaba184e8c05eea9aee786956121cb31c409eb"
+    },
+    {
+      "from": ".midas/product/biome.json",
+      "to": ".harness/product/biome.json",
+      "kind": "user",
+      "size": 555,
+      "sha256": "66f8b8c0e059646a9cea90c425a97a6d7700c966f8b1ff224113ec6c8f069fa9"
+    },
+    {
+      "from": ".midas/product/business-plan.md",
+      "to": ".harness/product/business-plan.md",
+      "kind": "user",
+      "size": 3615,
+      "sha256": "ada1c94bf894618f75e6a74a59845558ec20b73339dd5b7bedd807e9f84d1acd"
+    },
+    {
+      "from": ".midas/product/commitlint.config.js",
+      "to": ".harness/product/commitlint.config.js",
+      "kind": "user",
+      "size": 241,
+      "sha256": "2d25a86cb11980a3b3477571584ccb994eada9021ca066cfdbe07d07869d744a"
+    },
+    {
+      "from": ".midas/product/conventions.md",
+      "to": ".harness/product/conventions.md",
+      "kind": "user",
+      "size": 1955,
+      "sha256": "1dcd94caad322619b20c8957c3f45511b0b25b9110d3aadd7734321709b63a7c"
+    },
+    {
+      "from": ".midas/product/design-direction.md",
+      "to": ".harness/product/design-direction.md",
+      "kind": "user",
+      "size": 2618,
+      "sha256": "9dbc69e3954f6ee1e40aa611d069354ee0ffe0028a61e4ba03dcd6549a67ce47"
+    },
+    {
+      "from": ".midas/product/design-system.md",
+      "to": ".harness/product/design-system.md",
+      "kind": "user",
+      "size": 4291,
+      "sha256": "192f53e84415d4a7d1eb3b72332544f72c6688fc315148a1ad8d1420757ac371"
+    },
+    {
+      "from": ".midas/product/features.json",
+      "to": ".harness/product/features.json",
+      "kind": "user",
+      "size": 1226,
+      "sha256": "5e0736d6f0e880f04ff7e41a2252e0e4e2d66424f9f21b6e4603be2f72da834a"
+    },
+    {
+      "from": ".midas/product/idea.md",
+      "to": ".harness/product/idea.md",
+      "kind": "user",
+      "size": 1901,
+      "sha256": "896f3de8e2eca51e573a5a90dc1ecc18d5642be74266dcfb53796e1f0ebc50c1"
+    },
+    {
+      "from": ".midas/product/lefthook.yml",
+      "to": ".harness/product/lefthook.yml",
+      "kind": "user",
+      "size": 562,
+      "sha256": "6c0a060b7ec5225003875b19ae6f59a0b408a16bbf28f9214ee9b517b4533e3f"
+    },
+    {
+      "from": ".midas/product/market.md",
+      "to": ".harness/product/market.md",
+      "kind": "user",
+      "size": 4719,
+      "sha256": "9108a8b73311934cbe792b0269d30e68884e9ec199cc4f1403ff40b2e85fd2ba"
+    },
+    {
+      "from": ".midas/product/open-questions.md",
+      "to": ".harness/product/open-questions.md",
+      "kind": "user",
+      "size": 2184,
+      "sha256": "b886f27d8d167ed90bd89e01ae3483c8dc6bc266226ca876571c6d7aa40aae6d"
+    },
+    {
+      "from": ".midas/product/package-lock.json",
+      "to": ".harness/product/package-lock.json",
+      "kind": "user",
+      "size": 190914,
+      "sha256": "f43cc450de65c6893050d7c47b0c549a3449d2b6a7220a5ccd336d6fcb089b56"
+    },
+    {
+      "from": ".midas/product/package.json",
+      "to": ".harness/product/package.json",
+      "kind": "user",
+      "size": 899,
+      "sha256": "738dbee0881b34e6ee81db385306cf660f1f204357c32593f3039866b786f612"
+    },
+    {
+      "from": ".midas/product/playbooks/add-api-route.md",
+      "to": ".harness/product/playbooks/add-api-route.md",
+      "kind": "user",
+      "size": 2315,
+      "sha256": "70afc631a696d207c85ec055878ab4899d6e70e2375284938fa7f5da85128272"
+    },
+    {
+      "from": ".midas/product/playbooks/add-drizzle-migration.md",
+      "to": ".harness/product/playbooks/add-drizzle-migration.md",
+      "kind": "user",
+      "size": 1878,
+      "sha256": "184a3a7cfb8658b093814018ef3b3f27ef70d3cb1e1099bfdecbd154006e67d0"
+    },
+    {
+      "from": ".midas/product/playbooks/bump-dependency.md",
+      "to": ".harness/product/playbooks/bump-dependency.md",
+      "kind": "user",
+      "size": 2168,
+      "sha256": "f35d2ef31b343041e459be3b6fd724099038d941edd2db1ba655b81d728a0848"
+    },
+    {
+      "from": ".midas/product/roadmap.md",
+      "to": ".harness/product/roadmap.md",
+      "kind": "user",
+      "size": 2715,
+      "sha256": "7699e1c5560090534c124c2ace344d982b538a1f6dfa3fb36fcb3bff1dcb89f1"
+    },
+    {
+      "from": ".midas/product/sprints/01-auth-and-task-crud.md",
+      "to": ".harness/product/sprints/01-auth-and-task-crud.md",
+      "kind": "user",
+      "size": 4773,
+      "sha256": "9932ae30e6ace95cee8786c68032c60369f15cccdbeb7e26d04e984c282d2bc9"
+    },
+    {
+      "from": ".midas/product/src/app/(app)/board/page.tsx",
+      "to": ".harness/product/src/app/(app)/board/page.tsx",
+      "kind": "user",
+      "size": 2338,
+      "sha256": "aa253e6de7ef133d4ce349ddfe9dc44c847d9135792c1e45041db6bcd176576d"
+    },
+    {
+      "from": ".midas/product/src/app/api/auth/login/route.ts",
+      "to": ".harness/product/src/app/api/auth/login/route.ts",
+      "kind": "user",
+      "size": 1529,
+      "sha256": "702e55df399ffcab05b2cbdf23bd03eed6e149b01e82af98814a23a9b13e0dc2"
+    },
+    {
+      "from": ".midas/product/src/app/api/auth/logout/route.ts",
+      "to": ".harness/product/src/app/api/auth/logout/route.ts",
+      "kind": "user",
+      "size": 547,
+      "sha256": "572199e65a041ae0bfbf87957b6542852a6d57826fa997fd9899c0698f5deada"
+    },
+    {
+      "from": ".midas/product/src/app/api/auth/register/route.ts",
+      "to": ".harness/product/src/app/api/auth/register/route.ts",
+      "kind": "user",
+      "size": 2302,
+      "sha256": "76bada37fa6ec722a587fff681840f1c1c99b71d1a22f331911623d58f24aa93"
+    },
+    {
+      "from": ".midas/product/src/app/api/tasks/[id]/route.test.ts",
+      "to": ".harness/product/src/app/api/tasks/[id]/route.test.ts",
+      "kind": "user",
+      "size": 3624,
+      "sha256": "92380d4a98f0965d515b0835bdebe2a0eb8f97dfdfd00d7bd1830bbba995623a"
+    },
+    {
+      "from": ".midas/product/src/app/api/tasks/[id]/route.ts",
+      "to": ".harness/product/src/app/api/tasks/[id]/route.ts",
+      "kind": "user",
+      "size": 2824,
+      "sha256": "2299f6a4fb0833db3b2c8d3f6c816f35fdfe39a11669e66069cf6710f65df733"
+    },
+    {
+      "from": ".midas/product/src/app/api/tasks/route.test.ts",
+      "to": ".harness/product/src/app/api/tasks/route.test.ts",
+      "kind": "user",
+      "size": 3038,
+      "sha256": "60670d42a872cd811c6b6edcdeb054bb386232c5f791a05a685930a550c0cb89"
+    },
+    {
+      "from": ".midas/product/src/app/api/tasks/route.ts",
+      "to": ".harness/product/src/app/api/tasks/route.ts",
+      "kind": "user",
+      "size": 2656,
+      "sha256": "7b0b749748fb71ee41a725d7966e49bb37ef9deb143f74a2192b21b448c66dce"
+    },
+    {
+      "from": ".midas/product/src/lib/auth/password.test.ts",
+      "to": ".harness/product/src/lib/auth/password.test.ts",
+      "kind": "user",
+      "size": 1283,
+      "sha256": "7dd3cbd6ef9f5e04aba677653d085f80ad77ecdd103b0e713dcd6da93a9f4946"
+    },
+    {
+      "from": ".midas/product/src/lib/auth/password.ts",
+      "to": ".harness/product/src/lib/auth/password.ts",
+      "kind": "user",
+      "size": 644,
+      "sha256": "88ec262f388a975ec413893afce3b15983c9585a55db40d7cd2df423d4be2864"
+    },
+    {
+      "from": ".midas/product/src/lib/auth/session.test.ts",
+      "to": ".harness/product/src/lib/auth/session.test.ts",
+      "kind": "user",
+      "size": 1464,
+      "sha256": "884a0927461c8dc364af3a28afa28639b82aa26c5b9f14c1e911c0a0ded63bf7"
+    },
+    {
+      "from": ".midas/product/src/lib/auth/session.ts",
+      "to": ".harness/product/src/lib/auth/session.ts",
+      "kind": "user",
+      "size": 2434,
+      "sha256": "eba8785622c0606b19fcbb4cbec5ff07f47e553973e7def5d5b2cf7fb039d4d2"
+    },
+    {
+      "from": ".midas/product/src/lib/db/index.ts",
+      "to": ".harness/product/src/lib/db/index.ts",
+      "kind": "user",
+      "size": 945,
+      "sha256": "a6d914f393171ca3e5ac9a3aa81a94993bfbfb67c6fa5c5aa966535f71eb2056"
+    },
+    {
+      "from": ".midas/product/src/lib/db/schema.test.ts",
+      "to": ".harness/product/src/lib/db/schema.test.ts",
+      "kind": "user",
+      "size": 4856,
+      "sha256": "b7f14bb5f3480fbe854939c790d4fbe75e325e230dda9b25ca8ae738d52ddf9d"
+    },
+    {
+      "from": ".midas/product/src/lib/db/schema.ts",
+      "to": ".harness/product/src/lib/db/schema.ts",
+      "kind": "user",
+      "size": 4952,
+      "sha256": "1f7fc0d09f7a1b57f6cc723fd8a2cb1372f9c90dcb19c38f8785f060a761e1b2"
+    },
+    {
+      "from": ".midas/product/src/middleware.ts",
+      "to": ".harness/product/src/middleware.ts",
+      "kind": "user",
+      "size": 1103,
+      "sha256": "be4a42578677609c0900d4a59cbb73dc8844eeea1203ff183826704cfe000179"
+    },
+    {
+      "from": ".midas/product/vitest.config.ts",
+      "to": ".harness/product/vitest.config.ts",
+      "kind": "user",
+      "size": 242,
+      "sha256": "532e34e5099ec986b15bf5d113bc2f3892f464e1e8be785202b5f5beb4db5176"
+    },
+    {
+      "from": ".midas/scripts/bundle.mjs",
+      "to": ".harness/migrations/backups/from-1.0.0-hub/scripts/bundle.mjs",
+      "kind": "legacy-vendor",
+      "size": 23406,
+      "sha256": "36301967b0c704f84cdcb69a845e41675471c762d311c9ecb764caeba26f1cd2"
+    },
+    {
+      "from": ".midas/scripts/doctor.mjs",
+      "to": ".harness/migrations/backups/from-1.0.0-hub/scripts/doctor.mjs",
+      "kind": "legacy-vendor",
+      "size": 16340,
+      "sha256": "d90ecffc7223037b68de86522034ed7621c95e2034c2182911e33c669ca2dd7c"
+    },
+    {
+      "from": ".midas/scripts/gitignore-merge.mjs",
+      "to": ".harness/migrations/backups/from-1.0.0-hub/scripts/gitignore-merge.mjs",
+      "kind": "legacy-vendor",
+      "size": 2843,
+      "sha256": "d0825f18bacca4d39c1dec3a91ad35e30b0337d96796771f15396741c3ee8a2e"
+    },
+    {
+      "from": ".midas/scripts/mcp-cursor-sync.mjs",
+      "to": ".harness/migrations/backups/from-1.0.0-hub/scripts/mcp-cursor-sync.mjs",
+      "kind": "legacy-vendor",
+      "size": 2321,
+      "sha256": "d33a43a97053a25869d327f534f5443f7d4e1425952f87c632a13ea6cdc93aaf"
+    },
+    {
+      "from": ".midas/scripts/mcp-drift.mjs",
+      "to": ".harness/migrations/backups/from-1.0.0-hub/scripts/mcp-drift.mjs",
+      "kind": "legacy-vendor",
+      "size": 4994,
+      "sha256": "09b7a8345551dca717de8f0ae71fe201bee1906c2c974ca2d64f12ef5c87815d"
+    },
+    {
+      "from": ".midas/scripts/migrate-layout.mjs",
+      "to": ".harness/migrations/backups/from-1.0.0-hub/scripts/migrate-layout.mjs",
+      "kind": "legacy-vendor",
+      "size": 6426,
+      "sha256": "37b81b1adc6876dec1bc687947cfa058e5de9c6024140450c209b3062b210258"
+    },
+    {
+      "from": ".midas/scripts/paths.mjs",
+      "to": ".harness/migrations/backups/from-1.0.0-hub/scripts/paths.mjs",
+      "kind": "legacy-vendor",
+      "size": 5520,
+      "sha256": "9a74f6602e3bbfc56b4f2cd8c2f8c09628bd78bfd15bc63aee85a23a0f6253f5"
+    },
+    {
+      "from": ".midas/scripts/render-adapters.mjs",
+      "to": ".harness/migrations/backups/from-1.0.0-hub/scripts/render-adapters.mjs",
+      "kind": "legacy-vendor",
+      "size": 12471,
+      "sha256": "2950380eb3b5bceb9ea8419c8635353f491cc1cf77d1aac4ff17668b5df83da2"
+    },
+    {
+      "from": ".midas/scripts/stage-command-table.mjs",
+      "to": ".harness/migrations/backups/from-1.0.0-hub/scripts/stage-command-table.mjs",
+      "kind": "legacy-vendor",
+      "size": 3577,
+      "sha256": "9036ed1649a5d2344c2c730a8b76ac30422b92ff8cf38c95a6fdbfd85fb7169c"
+    },
+    {
+      "from": ".midas/scripts/status-page.mjs",
+      "to": ".harness/migrations/backups/from-1.0.0-hub/scripts/status-page.mjs",
+      "kind": "legacy-vendor",
+      "size": 3339,
+      "sha256": "d489caab52eba91543117c5ca1d0747309ee24788049d35bcd1fc6272d58b51c"
+    },
+    {
+      "from": ".midas/scripts/tool-profiles.mjs",
+      "to": ".harness/migrations/backups/from-1.0.0-hub/scripts/tool-profiles.mjs",
+      "kind": "legacy-vendor",
+      "size": 7549,
+      "sha256": "d29759106af8dd3e347233ae954cd0fbdffbc3aade13915d175784ab972c1405"
+    },
+    {
+      "from": ".midas/scripts/yaml-lite.mjs",
+      "to": ".harness/migrations/backups/from-1.0.0-hub/scripts/yaml-lite.mjs",
+      "kind": "legacy-vendor",
+      "size": 3145,
+      "sha256": "b9f29f58cd0a2b06d8d5a6b2ec5b4204100d7c0df459d39b552b849167b7f166"
+    },
+    {
+      "from": ".midas/sprints/01-progress.md",
+      "to": ".harness/runs/sprints/01-progress.md",
+      "kind": "user",
+      "size": 1046,
+      "sha256": "ca6966f5d20b6e72c0e64e1d0bf52a7b1bc879306c287a5699fc8d482e6e6760"
+    },
+    {
+      "from": ".midas/state.yaml",
+      "to": ".harness/state.yaml",
+      "kind": "state",
+      "size": 3213,
+      "sha256": "9c6df143b8dea2133c01af9f72dac0074a5c825e1d2f3b26109c8c514c4ca100"
+    },
+    {
+      "from": ".midas/verifications/verify-01.md",
+      "to": ".harness/runs/verifications/verify-01.md",
+      "kind": "user",
+      "size": 4442,
+      "sha256": "ce7086519e1270e883732a1e3fba785254b60572897c94b3f1d01f2073db97ac"
+    }
+  ],
+  "preserved": [
+    ".midas/scripts/build-create.mjs",
+    ".midas/scripts/build-plugin.mjs",
+    ".midas/scripts/fixtures/consistent-audit/.harness/audits/audit-01.md",
+    ".midas/scripts/fixtures/consistent-audit/harness/state.yaml",
+    ".midas/scripts/fixtures/inconsistent-audit/.harness/audits/audit-01.md",
+    ".midas/scripts/fixtures/inconsistent-audit/harness/state.yaml",
+    ".midas/scripts/test.mjs"
+  ]
+}

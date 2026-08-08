@@ -32,24 +32,24 @@ jobs:
         run: node scripts/doctor.mjs
 
       - name: Gate records consistent with state (taskpilot example)
-        run: node scripts/doctor.mjs --strict --gates-only examples/taskpilot
+        run: node scripts/doctor.mjs --strict --gates-only docs/research/taskpilot
 
       - name: Plugin tree in sync with .claude/
         run: |
           node scripts/build-plugin.mjs
-          git diff --exit-code -- plugins .claude-plugin \
-            || (echo "::error::plugins/ is stale — run 'node scripts/build-plugin.mjs' and commit" && exit 1)
+          git diff --exit-code -- harness/plugins harness/.claude-plugin \
+            || (echo "::error::harness/plugins/ is stale — run 'node scripts/build-plugin.mjs' and commit" && exit 1)
 
       - name: create-midas template in sync with source
         run: |
           node scripts/build-create.mjs
-          git diff --exit-code -- create-midas/template \
-            || (echo "::error::create-midas/template is stale — run 'node scripts/build-create.mjs' and commit" && exit 1)
+          git diff --exit-code -- cli/template \
+            || (echo "::error::cli/template is stale — run 'node scripts/build-create.mjs' and commit" && exit 1)
 
       - name: Installer smoke test (user shape — cursor-only thin root)
         run: |
           # Primary product shape (ADR-008): default tools=[cursor]
-          node create-midas/index.mjs --tools=cursor /tmp/midas-smoke
+          node cli/index.mjs --tools=cursor /tmp/midas-smoke
           test -f /tmp/midas-smoke/AGENTS.md
           test -f /tmp/midas-smoke/.mcp.json
           test -f /tmp/midas-smoke/.cursor/rules/00-midas.mdc
@@ -65,7 +65,7 @@ jobs:
 
       - name: Installer smoke test (multi-host — non-default coverage)
         run: |
-          node create-midas/index.mjs --tools=claude-code,cursor,windsurf,gemini /tmp/midas-smoke-all
+          node cli/index.mjs --tools=claude-code,cursor,windsurf,gemini /tmp/midas-smoke-all
           test -f /tmp/midas-smoke-all/.claude/CLAUDE.md
           test -f /tmp/midas-smoke-all/GEMINI.md
           test -d /tmp/midas-smoke-all/.claude/skills
@@ -76,25 +76,25 @@ jobs:
           tmp=$(mktemp -d)
           rmdir "$tmp"
           set +e
-          node create-midas/index.mjs --diagnose "$tmp" >/tmp/midas-diagnose.out
+          node cli/index.mjs --diagnose "$tmp" >/tmp/midas-diagnose.out
           code=$?
           set -e
           test "$code" -eq 1
           grep -q "Status: not_installed" /tmp/midas-diagnose.out
           test ! -e "$tmp"
-          node create-midas/index.mjs --diagnose /tmp/midas-smoke | grep -q "Status:"
+          node cli/index.mjs --diagnose /tmp/midas-smoke | grep -q "Status:"
 
       - name: Update smoke test (preserves cursor-only tools)
         run: |
-          node create-midas/index.mjs --tools=cursor /tmp/midas-update-smoke
-          node create-midas/index.mjs --update /tmp/midas-update-smoke
+          node cli/index.mjs --tools=cursor /tmp/midas-update-smoke
+          node cli/index.mjs --update /tmp/midas-update-smoke
           grep -q 'tools: \[cursor\]' /tmp/midas-update-smoke/.harness/state.yaml
           test -d /tmp/midas-update-smoke/.cursor/skills
           test ! -e /tmp/midas-update-smoke/.claude
           node /tmp/midas-update-smoke/.harness/scripts/doctor.mjs --strict
 
       - name: npm pack dry-run
-        run: npm pack --dry-run 2>&1 | grep -q create-midas
+        run: npm pack --dry-run 2>&1 | grep -q cli
 
   host-smoke:
     runs-on: ${{ matrix.os }}

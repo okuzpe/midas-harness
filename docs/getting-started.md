@@ -56,9 +56,9 @@ On a TTY the installer shows a **compatibility matrix** and accepts presets (`c`
 
 ## Alternatives
 
-**Claude Code plugin marketplace**
+**Claude Code plugin marketplace** (clone the repo first)
 ```text
-/plugin marketplace add okuzpe/midas-harness
+/plugin marketplace add ./harness
 /plugin install midas@midas
 /midas-init
 ```
@@ -130,8 +130,11 @@ Drive phases in order — each command runs when its predecessor's exit gate pas
 Run `/midas-tribunal` at any time for a whole-project adversarial debate.
 
 After a sprint lands, optional non-advancing commands: `/midas-retro` (freeze learnings),
-`/midas-sweep` (hygiene), `/midas-improve-loop` (continuous improve; arms Cursor `/loop`).
-See [skills.md](skills.md) § Sprint day and § Autonomy commands.
+`/midas-sweep` (hygiene), `/midas-auto-pilot` (continuous evolve; arms Cursor `/loop`),
+`/midas-auto-sprints` (ADR-009 sprint checklist ticks; needs `--autonomy`).
+Do not confuse `/midas-auto-pilot` (product evolve) with `/midas-auto-sprints` (checklist ticks)
+or the CLI `midas-autopilot.mjs` (same ADR-009 controller). See [skills.md](skills.md)
+§ Autonomy commands (anti-typo table).
 
 For an existing codebase, `/midas-init` classifies it as **E2/E3** and runs `/midas-adopt` for you
 (no need to call it manually). Run `/midas-adopt --preflight` first for a read-only fit report.

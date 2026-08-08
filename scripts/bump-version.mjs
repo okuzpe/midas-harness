@@ -24,7 +24,7 @@ Usage:
 
 Updates:
   harness/VERSION
-  package.json, create-midas/package.json, gemini-extension.json
+  package.json, cli/package.json, gemini-extension.json
   harness/state.yaml + harness/state.schema.md example stamps
   INSTALL.md npx #v… pins (the only user-facing copy-paste pin)
   install.sh / install.ps1 default MIDAS_REF pins
@@ -82,7 +82,7 @@ function replaceJsonVersion(text) {
 
 plan('harness/VERSION', () => `${next}\n`);
 plan('package.json', replaceJsonVersion);
-plan('create-midas/package.json', replaceJsonVersion);
+plan('cli/package.json', replaceJsonVersion);
 plan('gemini-extension.json', replaceJsonVersion);
 plan('harness/state.yaml', (t) => t.replace(/^midas_version:\s*[^\s#]+/m, `midas_version: ${next}`));
 plan('harness/state.schema.md', (t) => t.replace(/midas_version:\s*[0-9][^\s#]*/, `midas_version: ${next}`));

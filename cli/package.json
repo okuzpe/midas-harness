@@ -1,0 +1,41 @@
+{
+  "name": "create-midas",
+  "version": "2.8.2",
+  "private": true,
+  "description": "Install the Midas product-development harness into any project (npm/pnpm/yarn/bun create).",
+  "type": "module",
+  "bin": {
+    "create-midas": "index.mjs"
+  },
+  "files": [
+    "index.mjs",
+    "install-diagnose.mjs",
+    "migrate-v2.mjs",
+    "lib",
+    "template"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/okuzpe/midas-harness#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/okuzpe/midas-harness.git",
+    "directory": "cli"
+  },
+  "bugs": {
+    "url": "https://github.com/okuzpe/midas-harness/issues"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "ai",
+    "agents",
+    "agents.md",
+    "harness",
+    "scaffold",
+    "initializer",
+    "context7"
+  ]
+}

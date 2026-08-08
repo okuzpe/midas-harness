@@ -7,7 +7,7 @@
 *secret*
 *credential*
 !harness/autonomy/lib/credentials.mjs
-!create-midas/template/.optional/autonomy/lib/credentials.mjs
+!cli/template/.optional/autonomy/lib/credentials.mjs
 .claude/settings.local.json
 
 # Node
@@ -17,6 +17,8 @@ npm-debug.log*
 # Midas volatile state (harness/state.yaml IS committed; caches/hashes are not)
 .harness/cache/
 .harness/*.hash
+runs/cache/
+runs/*.hash
 **/.DS_Store
 Thumbs.db
 

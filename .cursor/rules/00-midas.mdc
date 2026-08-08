@@ -182,7 +182,7 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
 - **Rule: Change propagation — keep sources, bundles, docs, and versions aligned (always-on)** (`change-propagation.md`, base)
   - **CHECK:** `manual:` the PR/sprint notes or `/midas-align` report names each downstream surface touched; an unmentioned generated tree in the diff that was hand-edited is a fail.
   - **CHECK:** `npm run align` (engine) or `/midas-align` exits with `verdict=aligned` or lists only resolved gaps; exit 1 with open gaps is a fail before merge.
-  - **CHECK:** `git diff --name-only` shows no lone edits under `plugins/midas/`, `create-midas/template/`, or managed adapter regions without a corresponding `.claude/`, `harness/`, or `scripts/` source change.
+  - **CHECK:** `git diff --name-only` shows no lone edits under `harness/plugins/midas/`, `harness/.claude-plugin/`, `cli/template/`, or managed adapter regions without a corresponding `.claude/`, `harness/`, or `scripts/` source change.
   - **CHECK:** `manual:` when `harness/VERSION` is in the PR/sprint diff, the session or PR notes name `npm run bump -- <ver>` (or `scripts/bump-version.mjs`); a VERSION bump done by editing mirrors/pins by hand without that command is a fail.
   - **CHECK:** `node scripts/test.mjs` `version:*` and `version-pin:*` checks pass when `harness/VERSION` is in the diff (`INSTALL.md` pins match; skills/SECURITY/README/installer have no hardcoded `#vX.Y.Z`).
   - **CHECK:** `manual:` a diff touching installer flags, layout, or skill commands also touches at least one user-facing doc; undocumented install/flow change is a fail.
@@ -230,6 +230,10 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
 - **Rule: Enforcement state is recorded and honest (always-on)** (`enforcement-state.md`, base)
   - **CHECK:** `node <paths.scripts>/doctor.mjs <project>` reports no `enforcement` **warn** — every named config file exists on disk. Any `installed: false` is reported as an advisory `ok` note, not a fail.
   - **CHECK:** when a stack rule's CHECK names a linter/scanner as its machine-readable form, a matching `enforcement:` entry exists and its config file is present. *(manual.)*
+- **Rule: Engine repository is not an install target (always-on)** (`engine-repo-boundary.md`, base)
+  - **CHECK:** `test ! -e .harness/engine/VERSION && test ! -e .harness/state.yaml` (or Windows equivalent) at the midas-harness repo root — either file present is a fail.
+  - **CHECK:** `node cli/index.mjs --dry-run .` exits non-zero with message containing `refusing to install/update/migrate into the midas-harness engine repository`.
+  - **CHECK:** `manual:` session/PR notes proposing a root product install without an explicit human override naming a *separate* directory is a fail.
 - **Rule: Git commits (always-on)** (`git-commits.md`, base)
   - **CHECK:** `git log <base>..HEAD --format=%s | grep -vE "^(feat|fix|docs|refactor|test|chore|perf|style|ci)(\(.+\))?!?: .{1,62}$"` → empty.
   - **CHECK:** same `git log` scan as above; any subject whose type is outside the allowed set is a fail.

@@ -5,6 +5,11 @@ repo_url: https://github.com/okuzpe/midas-harness
 repo_name: okuzpe/midas-harness
 edit_uri: edit/main/docs/
 
+# TaskPilot fixture is a full Midas install — not MkDocs pages.
+exclude_docs: |
+  research/taskpilot/**
+  product/sprints/**
+
 theme:
   name: material
   features:
@@ -30,16 +35,19 @@ nav:
   - Methodology: methodology.md
   - Context & files: context-hierarchy.md
   - Repository Architecture: repository-architecture.md
-  - "gstack comparison": gstack-comparison.md
-  - "muninn-harness comparison": muninn-comparison.md
   - Skills Reference: skills.md
   - Skill Flows: skill-flows.md
   - Skill quality gate: skill-quality-gate.md
   - Precommit gate (engine): precommit-gate.md
   - Contributor quickstart: contributing-quickstart.md
   - Engine dogfood: dogfood.md
+  - Research fixtures: research/README.md
+  - Engine dogfood product: product/README.md
   - Agents & Models: agents-and-models.md
   - FAQ: faq.md
+  - Comparisons (community):
+    - "gstack comparison": gstack-comparison.md
+    - "muninn-harness comparison": muninn-comparison.md
   - Decisions (ADR):
     - "ADR-001 — Install layout (historical)": adr/ADR-001-install-layout.md
     - "ADR-002 — Code-intelligence MCP": adr/ADR-002-code-intelligence-mcp.md
@@ -50,6 +58,8 @@ nav:
     - "ADR-007 — Canonical .harness layout": adr/ADR-007-canonical-harness-layout.md
     - "ADR-008 — Thin root allowlist": adr/ADR-008-thin-root-allowlist.md
     - "ADR-009 — Optional autonomy control plane": adr/ADR-009-optional-autonomy-control-plane.md
+    - "ADR-010 — Harness trace (observe)": adr/ADR-010-harness-trace-observe.md
+    - "ADR-011 — Harness trace (installs)": adr/ADR-011-harness-trace-installs.md
 
 markdown_extensions:
   - pymdownx.superfences:

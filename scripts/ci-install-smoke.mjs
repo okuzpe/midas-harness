@@ -24,7 +24,7 @@ const run = (args) => spawnSync(process.execPath, args, {
 });
 
 try {
-  const install = run(['create-midas/index.mjs', `--tools=${host}`, target]);
+  const install = run(['cli/index.mjs', `--tools=${host}`, target]);
   if (install.status !== 0) throw new Error(`install failed\n${install.stdout}\n${install.stderr}`);
   for (const rel of [
     '.harness/engine/VERSION',
@@ -42,7 +42,7 @@ try {
   const expectedByHost = {
     'claude-code': ['.claude/CLAUDE.md', '.claude/skills', '.claude/agents'],
     cursor: ['.cursor/rules/00-midas.mdc', '.cursor/skills'],
-    windsurf: ['.windsurf/rules/00-midas.md', '.agents/skills'],
+    windsurf: ['.harness/.windsurf/rules/00-midas.md', '.agents/skills'],
     gemini: ['GEMINI.md', '.agents/skills'],
     codex: ['.agents/skills'],
     copilot: ['.agents/skills'],
@@ -53,14 +53,14 @@ try {
   if (host !== 'claude-code' && existsSync(join(target, '.claude'))) {
     throw new Error(`host ${host} received an unnecessary .claude mirror`);
   }
-  if (host === 'cursor' && existsSync(join(target, '.agents'))) {
-    throw new Error('cursor-only install must not keep .agents/skills (ADR-008)');
+  if (host === 'windsurf' && existsSync(join(target, '.windsurf'))) {
+    throw new Error('windsurf adapter must live under .harness/.windsurf, not root .windsurf');
   }
 
   const doctor = run([join(target, '.harness', 'scripts', 'doctor.mjs'), '--strict']);
   if (doctor.status !== 0) throw new Error(`doctor failed\n${doctor.stdout}\n${doctor.stderr}`);
 
-  const update = run(['create-midas/index.mjs', '--update', target]);
+  const update = run(['cli/index.mjs', '--update', target]);
   if (update.status !== 0) throw new Error(`update failed\n${update.stdout}\n${update.stderr}`);
   console.log(`clean install/update/doctor ok: ${host}`);
 } finally {

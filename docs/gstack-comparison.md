@@ -6,7 +6,7 @@
 | Campo | Valor |
 |---|---|
 | **Fecha de revisión** | 2026-06-30 |
-| **Midas analizado** | `harness/VERSION` → **2.2.1** |
+| **Midas analizado** | Snapshot histórico del documento: **2.2.1** (2026-06-30). Current engine: see `harness/VERSION` (**2.8.2**). Paths below updated to v2 `.harness/runs/*` where applicable. |
 | **gstack analizado** | README público de [garrytan/gstack](https://github.com/garrytan/gstack) (landing/marketing; no se auditó el código fuente de gstack) |
 | **Tipo de documento** | Análisis comparativo — **no modifica el motor del harness** |
 
@@ -153,9 +153,9 @@ contrato `**CHECK:**` en reglas, separación explícita productor/auditor, routi
 
 ### 3.1 Gates auditados y trazabilidad
 
-Midas congela evidencia de **sprints** en `.harness/audits/audit-NN.md` y `.harness/verifications/verify-NN.md`
+Midas congela evidencia de **sprints** en `.harness/runs/audits/audit-NN.md` y `.harness/runs/verifications/verify-NN.md`
 con líneas parseables (`MIDAS_AUDIT_RESULT: …`, `MIDAS_VERIFY_RESULT: …`). Los **gates de fase** (0–6)
-congelan en `.harness/audits/gate-0N.md` cuando el skill de fase cierra. El avance de
+congelan en `.harness/runs/audits/gate-0N.md` cuando el skill de fase cierra. El avance de
 `.harness/state.yaml → stage` requiere veredicto orchestrate-tier. gstack encadena skills pero **no
 documenta gates formales** en el README.
 
@@ -255,7 +255,7 @@ criterio de aceptación, CI obligatorio, no skip sin issue, etc.
 - Playwright: drive flows, screenshots, selectores estables.
 - Chrome DevTools: errores consola, red happy-path, **spot-check CWV/Lighthouse** (ya mencionado en
   `verification.md` peldaño 4).
-- Salida: `.harness/verifications/verify-NN.md` + `MIDAS_VERIFY_RESULT: …`
+- Salida: `.harness/runs/verifications/verify-NN.md` + `MIDAS_VERIFY_RESULT: …`
 - **No** auto-fix ni generación automática de tests de regresión documentada en el skill.
 
 #### Ledger `product/features.json`
@@ -292,7 +292,7 @@ Priorizado por encaje con la filosofía Midas (productor prueba; auditor certifi
 | a | **Test de regresión obligatorio por bug corregido** en inner loop Fase 7 | Alto | **Shipped 2026-08-07** — `testing.md` CHECK + `7-sprint-execution.md` |
 | b | **`/midas-investigate`** (Ley de Hierro, 3 strikes) | Alto | **Shipped 2026-08-07** — skill + `investigate/inv-NN.md` + playbook |
 | c | **Segunda opinión cross-model** (opcional en close-sprint o pre-merge) | Medio | Power-tool; requiere Codex u otro CLI; no sustituye Fase 8 |
-| d | **`/midas-benchmark`** o extensión verify | Medio | CWV baseline en `.harness/verifications/`; solo UI |
+| d | **`/midas-benchmark`** o extensión verify | Medio | CWV baseline en `.harness/runs/verifications/`; solo UI |
 | e | **`/canary`** | Bajo (alcance) | Solo si se define Fase 9 operate — fuera del MVP actual |
 
 **Qué no copiar tal cual:** el loop `/qa` que auto-fixea sin pasar por auditor independiente choca con

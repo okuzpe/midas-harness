@@ -13,7 +13,7 @@ argument-hint: "[code|docs|harness|all] [--depth quick|standard] [--fix]"
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
 > No stage precondition — runs anytime. No `{product}/` + no app source → limit to harness/docs consistency.
-> Tally shape: `<paths.engine>/templates/audit-checklists.md` § Parseable tally lines.
+> Record shape: `<paths.engine>/templates/sweep-record.md`. Tally: `<paths.engine>/templates/audit-checklists.md` § Parseable tally lines.
 
 Standing **hygiene pass** (not a phase gate): find dead weight and drift, report ranked by severity, apply **safe** cleanups only with explicit user confirmation. Unlike `/midas-doctor` (adapters) or `/midas-tribunal` (decisions), sweep asks *what on disk is unused, unreachable, or lying?*
 

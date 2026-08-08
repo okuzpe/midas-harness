@@ -1,0 +1,10 @@
+{"ts":"2026-08-07T23:37:52.780Z","session_id":"sess-e1367769da43","run_id":"b4dffff1034d","type":"run.started","name":"","attrs":{}}
+{"ts":"2026-08-07T23:37:52.788Z","session_id":"sess-e1367769da43","run_id":"b4dffff1034d","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-8a662a688367","source":"hook.postToolUse"}}
+{"ts":"2026-08-07T23:37:52.797Z","session_id":"sess-e1367769da43","run_id":"b4dffff1034d","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-514e8ff572f4","source":"hook.postToolUse"}}
+{"ts":"2026-08-07T23:37:52.809Z","session_id":"sess-e1367769da43","run_id":"b4dffff1034d","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-7517f9d27803","source":"hook.postToolUse"}}
+{"ts":"2026-08-07T23:37:52.867Z","session_id":"sess-e1367769da43","run_id":"b4dffff1034d","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-2ceda476ea4c","source":"hook.postToolUse"}}
+{"ts":"2026-08-07T23:37:56.572Z","session_id":"sess-e1367769da43","run_id":"b4dffff1034d","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-eb769f178945","source":"hook.postToolUse"}}
+{"ts":"2026-08-07T23:37:56.575Z","session_id":"sess-e1367769da43","run_id":"b4dffff1034d","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-0a901fb32420","source":"hook.postToolUse"}}
+{"ts":"2026-08-07T23:37:58.327Z","session_id":"sess-e1367769da43","run_id":"b4dffff1034d","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-d3257e340b78","source":"hook.postToolUse"}}
+{"ts":"2026-08-07T23:38:02.322Z","session_id":"sess-e1367769da43","run_id":"b4dffff1034d","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-8965fa13cd3c","source":"hook.postToolUse"}}
+{"ts":"2026-08-07T23:38:17.753Z","session_id":"sess-e1367769da43","run_id":"b4dffff1034d","type":"run.finished","name":"","attrs":{"source":"hook.stop"}}

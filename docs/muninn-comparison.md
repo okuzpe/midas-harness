@@ -96,7 +96,7 @@ Puntos de diseño notables (leídos directamente del código, no del README):
 - `writeHarnessVersionStamp` + `runHarnessDoctorHints` — tras instalar/actualizar corre un *doctor* (advertencias, nunca bloqueante) — análogo a `scripts/doctor.mjs` de Midas pero ejecutado automáticamente al final de cada instalación/actualización.
 - `autoDetectReposJson` — heurística para poblar `.ai-flow/context/repos.json` (qué carpetas son repos de producto) en el primer install.
 
-Midas no tiene un equivalente de fusión estructural de config en `create-midas/index.mjs`/`/midas-update`
+Midas no tiene un equivalente de fusión estructural de config en `cli/index.mjs`/`/midas-update`
 tan granular a nivel de sub-claves anidadas; su `/midas-update` usa **dry-run + diff-confirm** (más
 seguro, pero más manual).
 

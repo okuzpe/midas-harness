@@ -1,0 +1,11 @@
+{"ts":"2026-08-07T22:06:10.663Z","session_id":"sess-e1367769da43","run_id":"99bd3e32d356","type":"run.started","name":"","attrs":{}}
+{"ts":"2026-08-07T22:06:10.666Z","session_id":"sess-e1367769da43","run_id":"99bd3e32d356","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-eaf613df6c38","source":"hook.postToolUse"}}
+{"ts":"2026-08-07T22:06:10.719Z","session_id":"sess-e1367769da43","run_id":"99bd3e32d356","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-aed8549343bd","source":"hook.postToolUse"}}
+{"ts":"2026-08-07T22:06:11.459Z","session_id":"sess-e1367769da43","run_id":"99bd3e32d356","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-f9d1b9ec8a1d","source":"hook.postToolUse"}}
+{"ts":"2026-08-07T22:06:32.678Z","session_id":"sess-e1367769da43","run_id":"99bd3e32d356","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-ab4cd4db6275","source":"hook.postToolUse"}}
+{"ts":"2026-08-07T22:06:33.829Z","session_id":"sess-e1367769da43","run_id":"99bd3e32d356","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-6c46f705de91","source":"hook.postToolUse"}}
+{"ts":"2026-08-07T22:06:42.491Z","session_id":"sess-e1367769da43","run_id":"99bd3e32d356","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-8ad705a33a6f","source":"hook.postToolUse"}}
+{"ts":"2026-08-07T22:07:11.354Z","session_id":"sess-e1367769da43","run_id":"99bd3e32d356","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-677e11f90d0c","source":"hook.postToolUse"}}
+{"ts":"2026-08-07T22:07:17.714Z","session_id":"sess-e1367769da43","run_id":"99bd3e32d356","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-91042ed6f5ef","source":"hook.postToolUse"}}
+{"ts":"2026-08-07T22:07:29.996Z","session_id":"sess-e1367769da43","run_id":"99bd3e32d356","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-210ab0d38a45","source":"hook.postToolUse"}}
+{"ts":"2026-08-07T22:07:53.109Z","session_id":"sess-e1367769da43","run_id":"99bd3e32d356","type":"run.finished","name":"","attrs":{"source":"hook.stop"}}

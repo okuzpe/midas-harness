@@ -1,4 +1,4 @@
-midas_version: 2.8.1
+midas_version: 2.8.2
 # Engine repository dogfoods classic layout by design (authored source in harness/ + scripts/).
 # Product installs use layout: harness — see ADR-007 / ADR-008.
 layout: classic
@@ -7,20 +7,24 @@ paths:
   scripts: scripts
   state: harness/state.yaml
   version: harness/VERSION
-  runs: .harness
-  product: product
+  runs: runs
+  cache: runs/cache
+  product: docs/product
   agentsDoc: docs/agents-and-models.md
 name: harness
 mode: brownfield
 language: en
 created: 2026-06-29
-updated: 2026-08-07
+updated: 2026-08-08
 setup_complete: true        # engine repo — installer complete; dogfoods the harness on itself
+track: full
+routing_profile: claude
 
 # Engine-as-dogfood profile: phases 0–4 satisfied by README + docs/ + harness/ itself.
-# Phase 5 closed with product/* artifacts (see docs/dogfood.md).
+# Phase 5 closed with docs/product/* artifacts (see docs/dogfood.md).
+# Sprints 01–03 closed; next cycle starts with /plan-sprints (or a new active sprint).
 stage: sprint_execution
-stage_status: not_started
+stage_status: passed
 entry_stage: architecture_rules
 
 cost_profile: balanced
@@ -41,16 +45,18 @@ phases:
   market_research:    { status: passed, gate: passed, assumption: "N/A — harness engine, not a commercial product" }
   business_case:      { status: passed, gate: passed, assumption: "N/A — harness engine" }
   tech_architecture:  { status: passed, gate: passed, assumption: "Stack in docs/repository-architecture.md" }
-  architecture_rules: { status: passed, gate: passed, artifacts: ["product/idea.md", "product/architecture.md", "product/conventions.md"] }
-  sprint_planning:    { status: passed, gate: passed, artifacts: ["product/business-plan.md", "product/roadmap.md", "product/features.json", "product/sprints/01-autonomy-ci-smoke.md", "product/sprints/02-midas-retro-skill.md", "product/sprints/03-installer-update-docs.md"] }
-  audit:              { status: in_progress, gate: pending }
+  architecture_rules: { status: passed, gate: passed, artifacts: ["docs/product/idea.md", "docs/product/architecture.md", "docs/product/conventions.md"] }
+  sprint_planning:    { status: passed, gate: passed, artifacts: ["docs/product/business-plan.md", "docs/product/roadmap.md", "docs/product/features.json", "docs/product/sprints/01-autonomy-ci-smoke.md", "docs/product/sprints/02-midas-retro-skill.md", "docs/product/sprints/03-installer-update-docs.md"] }
+  sprint_execution:   { status: passed, gate: passed, artifacts: ["docs/product/sprints/01-autonomy-ci-smoke.md", "docs/product/sprints/02-midas-retro-skill.md", "docs/product/sprints/03-installer-update-docs.md"] }
+  audit:              { status: passed, gate: passed }
 
 last_audit:
   phase: audit
-  sprint: "01"
+  sprint: "03"
   verdict: pass
   at: 2026-08-07
-  record: .harness/audits/audit-01.md
+  record: runs/audits/audit-03.md
+  note: "sprint 02/03 audits un-attested until re-run via orchestrate /close-sprint"
 
 sprints:
   - id: "01"

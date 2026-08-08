@@ -9,6 +9,41 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+### Changed
+
+- **Engine repo layout clarity:** installer folder `create-midas/` → `cli/` (npm package name stays `create-midas`); dogfood evidence `.harness/*` → root `runs/` + `runs/cache/` (`paths.runs` / `paths.cache` in `harness/state.yaml`). Product installs keep `.harness/` (ADR-007). **Contributor-breaking:** clone paths and local `node cli/index.mjs` replace `create-midas/`; do not create root `.harness/` on the engine repo.
+- Doc/ADR follow-through: ADR-010/011 + `harness/research/harness-trace.md` document `{paths.cache}/traces` (engine `runs/cache` vs install `.harness/cache`); INSTALL + hooks README aligned.
+- Playbook template rename: `improve-cycle.md` → `auto-pilot-cycle.md` (aligns with `/midas-auto-pilot`).
+- `scripts/ship-manifest.mjs` — single shipped-scripts list for `build-create` + `test` (no dual FILES lists).
+- Contributor hygiene: skill source-of-truth docs, v2 runs paths, MkDocs ADR-010/011, autonomy anti-typo callouts.
+- Dogfood `harness/state.yaml` — restored `sprint_execution` ledger row; closed audit cycle; `stage_status: passed`.
+- Installer refactor: shared `lib/core/preserve-policy.mjs` (`decideTemplateCopyAction`); extract `runtime/{copy-tree,autonomy-install,uninstall}.mjs` from `execute.mjs`. Plan notes vendor wipe/prune lifecycle; parity + autonomy pointer unit tests.
+
+### Removed
+
+- Unused `create-midas/lib/steps/install.mjs` re-export stub; unused `pathIsFile` / `isExecutableOp` exports.
+- Stale `HARNESS_ENGINE_ONLY_RELS` entry `research/Untitled-1.md` (file never existed).
+
+---
+
+## [2.8.2] — 2026-08-08
+
+### Changed
+
+- **Autonomy slash rename (compat aliases kept):**
+  - Continuous product evolve: `/midas-auto-pilot` (reclaims ≤2.6.0 name; was `/midas-improve-loop` in 2.6.1–2.8.1).
+    Asks **PR vs local code** once; evidence at `{runs}/auto-pilot/`; templates `auto-pilot-runbook.md.tmpl` /
+    `auto-pilot-journal.md`; branch prefix `midas-auto/`.
+  - Sprint checklist guide: `/midas-auto-sprints` (was `/midas-autopilot`).
+  - **CLI unchanged:** `midas-autopilot.mjs` / npm bin (ADR-009 controller).
+  - Deprecated stubs: `/midas-improve-loop` → auto-pilot; `/midas-autopilot` → auto-sprints.
+- PATCH with aliases: old slash names still resolve; installs keep working without MAJOR bump.
+- `auto-pilot` added to `RUNS_SUBDIRS` / bundle `FROZEN_RUNS` so journals are inventoried and exportable.
+
+### Added
+
+- [`harness/migrations/v2.8.2.md`](./harness/migrations/v2.8.2.md) — path/slash migration notes for 2.6.x–2.8.1 installs.
+
 ---
 
 ## [2.8.1] — 2026-08-08
@@ -1594,7 +1629,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.8.1...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.8.2...HEAD
+[2.8.2]: https://github.com/okuzpe/midas-harness/compare/v2.8.1...v2.8.2
 [2.8.1]: https://github.com/okuzpe/midas-harness/compare/v2.8.0...v2.8.1
 [2.8.0]: https://github.com/okuzpe/midas-harness/compare/v2.7.0...v2.8.0
 [2.7.0]: https://github.com/okuzpe/midas-harness/compare/v2.6.1...v2.7.0

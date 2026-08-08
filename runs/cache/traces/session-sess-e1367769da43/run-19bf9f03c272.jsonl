@@ -1,0 +1,2 @@
+{"ts":"2026-08-08T12:57:27.960Z","session_id":"sess-e1367769da43","run_id":"19bf9f03c272","type":"run.started","name":"","attrs":{}}
+{"ts":"2026-08-08T12:57:27.964Z","session_id":"sess-e1367769da43","run_id":"19bf9f03c272","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-b3b9b9162676","source":"hook.postToolUse"}}

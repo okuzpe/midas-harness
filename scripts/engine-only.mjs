@@ -1,5 +1,5 @@
 // engine-only.mjs — surfaces that belong in the midas-harness contributor tree
-// but must never ship in create-midas/template or plugins/midas.
+// but must never ship in cli/template or harness/plugins/midas.
 
 export const ENGINE_ONLY_SKILLS = Object.freeze(['midas-precommit']);
 
@@ -7,8 +7,9 @@ export const ENGINE_ONLY_SKILLS = Object.freeze(['midas-precommit']);
 export const HARNESS_ENGINE_ONLY_RELS = Object.freeze([
   'state.yaml',
   'autonomy',
+  'plugins',
+  '.claude-plugin',
   'research/harness-trace.md',
-  'research/Untitled-1.md',
   ...ENGINE_ONLY_SKILLS.map((name) => `skills/${name}`),
 ]);
 
@@ -31,7 +32,7 @@ export function isEngineRepo(root, fs, path) {
 }
 
 /**
- * Remove engine-only skill directories from a skills root (e.g. plugins/midas/skills).
+ * Remove engine-only skill directories from a skills root (e.g. harness/plugins/midas/skills).
  * @param {string} skillsRoot
  * @param {{ existsSync: (p: string) => boolean, rmSync: (p: string, o: object) => void }} fs
  * @param {{ join: (...parts: string[]) => string }} path

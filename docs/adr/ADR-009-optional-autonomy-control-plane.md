@@ -4,8 +4,9 @@
 - **Date:** 2026-08-05
 - **Extends:** ADR-003 (git-visible memory), ADR-007 (`.harness/` layout)
 - **Related:** methodology human sign-offs; model-routing provenance; complementary continuous
-  improve via `/midas-improve-loop` (local `/loop` default + optional Cursor Automations — **not**
-  this policy plane; no durable lease/budget; PR-only caps in `templates/improve-loop-runbook.md.tmpl`)
+  improve via `/midas-auto-pilot` (local `/loop` default + optional Cursor Automations — **not**
+  this policy plane; no durable lease/budget; delivery `pr|code` caps in `templates/auto-pilot-runbook.md.tmpl`).
+  Editor slash for this plane: `/midas-auto-sprints` (CLI controller remains `midas-autopilot.mjs`).
 
 ## Context
 
@@ -45,3 +46,10 @@ they lack per-workflow budgets, durable leases, and a public quota-reset API.
 - Absence of `autonomy:` in state means disabled (no effects).
 - Exactly-once agent create is not promised without a remote idempotent key; delivery is
   at-least-once with reconciliation.
+
+## Amendment — 2026-08-08
+
+- Complementary continuous-improve slash reclaimed as `/midas-auto-pilot` (was `/midas-improve-loop`);
+  evidence path `{runs}/auto-pilot/`; template `auto-pilot-runbook.md.tmpl`.
+- This plane’s editor slash is `/midas-auto-sprints`; **controller CLI name unchanged**
+  (`midas-autopilot.mjs` / npm bin). Deprecated alias `/midas-autopilot` → `/midas-auto-sprints`.

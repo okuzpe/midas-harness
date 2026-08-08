@@ -49,7 +49,7 @@ the pinned command in [INSTALL.md](../INSTALL.md), then repeat with `--apply`; v
 
 Use `npx github:okuzpe/midas-harness` (or the `curl|bash` / `irm|iex` shims) for a full project
 install: it copies all harness files into the repo so any tool can read them, and runs the adapter
-generator. Use the Claude Code plugin (`/plugin marketplace add okuzpe/midas-harness`) if you want
+generator. Use the Claude Code plugin (`/plugin marketplace add ./harness` from a clone) if you want
 to drive Midas purely from Claude Code without committing harness files to the repo. Note: the plugin
 does not write `AGENTS.md`, `.claude/CLAUDE.md`, or the state file — you still need `/midas-init`
 afterward, but the resulting files are local-only.

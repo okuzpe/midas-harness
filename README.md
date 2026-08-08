@@ -36,16 +36,16 @@ loop that re-audits the living code against those frozen rules.
   against the state file — flagging any sprint marked `done` while its audit still shows
   unresolved critical findings. CI enforces this on the worked example via
   `doctor.mjs --strict --gates-only`. *The first gate check that lives outside the model.*
-- **It closes the loop on disk.** [`examples/taskpilot`](./examples/taskpilot/) drives Sprint 1 to
-  `done` — build → [`audit-01.md`](./examples/taskpilot/.midas/audits/audit-01.md) (verdict **PASS**,
-  one rule consciously amended and tracked forward to Sprint 3) → Sprint 2 queued. Legacy **hub**
-  layout (`.midas/`); see [`V2-PATH-MAP.md`](./examples/taskpilot/V2-PATH-MAP.md). The signature
+- **It closes the loop on disk.** [`docs/research/taskpilot`](./docs/research/taskpilot/) drives Sprint 1 to
+  `done` — build → [`audit-01.md`](./docs/research/taskpilot/.harness/runs/audits/audit-01.md) (verdict **PASS**,
+  one rule consciously amended and tracked forward to Sprint 3) → Sprint 2 queued. v2
+  `.harness/` layout; see [`V2-PATH-MAP.md`](./docs/research/taskpilot/V2-PATH-MAP.md). The signature
   execute ⇄ audit loop (phases 7 and 8), demonstrated.
 - **Cost-aware by default.** Opus runs only the ~6 irreversible decisions (idea framing, stack choice,
   the audits); Sonnet builds, Haiku scouts. Current library docs are fetched before any third-party code
   ([Context7](#mcp--context7) recommended, or your own tool), so it's written against real APIs, not memory.
 - **Optional bounded autopilot (ADR-009).** Install with `--autonomy` for one-task-per-tick sprint execution
-  (`/midas-autopilot` → `midas-autopilot setup`); off by default, fail-closed policy + authz.
+  (`/midas-auto-sprints` → `midas-autopilot setup`); off by default, fail-closed policy + authz.
 
 ## When to use Midas — and when not to
 **Use it** when you want an agent to respect architecture, conventions, and tests instead of improvising —
@@ -97,7 +97,7 @@ your editor and run the one-time setup, then let `/midas-status` drive the rest:
 ```
 
 Optional: `npm run status` in the repo root generates a local `status.html` dashboard (phase, audits,
-sweeps, retros, improve-loop journal, and other `{runs}/` artifacts).
+sweeps, retros, auto-pilot journal, and other `{runs}/` artifacts).
 
 **Cursor quickstart**
 
@@ -110,8 +110,9 @@ npx github:okuzpe/midas-harness --tools=cursor,gemini,codex
 On a TTY the installer can also prompt you to pick tools interactively; pipe/`curl` installs default
 to all adapter tools. `--tools` is ignored on `--update` (existing state file is preserved).
 
-Other install methods (`npx github:okuzpe/midas-harness`, the Claude Code plugin, copy-only, pinned
-releases) and installer-safety notes are in **[INSTALL.md](./INSTALL.md)**.
+Other install methods (`npx github:okuzpe/midas-harness`, the Claude Code plugin — clone repo then
+`/plugin marketplace add ./harness`; see [INSTALL.md](./INSTALL.md) § Claude Code plugin — copy-only,
+pinned releases) and installer-safety notes are in **[INSTALL.md](./INSTALL.md)**.
 
 ---
 
@@ -122,7 +123,7 @@ releases) and installer-safety notes are in **[INSTALL.md](./INSTALL.md)**.
 |---|---|---|
 | **Core** | drive any project through the lifecycle | `/midas-init` · `/midas-status` · the phase commands (`/idea-intake` → `/close-sprint`) · `/midas-doctor` |
 | **Brownfield** | adopt Midas into an existing repo | `/midas-adopt` |
-| **Advanced** | deeper audits & scale | `/midas-tribunal` · `/midas-security-audit` · `/midas-verify` · `/midas-qa` · `/midas-investigate` · `/midas-reconcile` · `/midas-init --monorepo` · `/midas-bundle` · `/midas-recall` · `/midas-progress` · `/midas-sweep` · `/midas-capture` · `/midas-retro` · `/midas-improve-loop` · `/midas-lean-review` |
+| **Advanced** | deeper audits & scale | `/midas-tribunal` · `/midas-security-audit` · `/midas-verify` · `/midas-qa` · `/midas-investigate` · `/midas-reconcile` · `/midas-init --monorepo` · `/midas-bundle` · `/midas-recall` · `/midas-progress` · `/midas-sweep` · `/midas-capture` · `/midas-retro` · `/midas-auto-pilot` · `/midas-auto-sprints` · `/midas-lean-review` |
 | **Maintenance** | keep an install current | `/midas-update` · `/midas-doctor` · `/midas-align` |
 
 Most users only need **Core** (+ `/midas-adopt` for an existing repo). Everything else is opt-in.
@@ -136,9 +137,9 @@ Most users only need **Core** (+ `/midas-adopt` for an existing repo). Everythin
 | OpenAI Codex | native `AGENTS.md` | portable `.agents/skills/` | none | project `.mcp.json` | advisory |
 | GitHub Copilot | native `AGENTS.md` | portable `.agents/skills/` | none | project `.mcp.json` | advisory |
 | Gemini CLI | `GEMINI.md` + `AGENTS.md` | portable `.agents/skills/` + Gemini project memory | `GEMINI.md` | project `.mcp.json` | advisory |
-| Windsurf | native `AGENTS.md` | portable `.agents/skills/` + `.windsurf/rules/` | `.windsurf/rules/00-midas.md` | project `.mcp.json` | advisory |
+| Windsurf | native `AGENTS.md` | portable `.agents/skills/` + `.harness/.windsurf/rules/` | `.harness/.windsurf/rules/00-midas.md` | project `.mcp.json` | advisory |
 
-Generated adapters (`.claude/CLAUDE.md`, `.cursor/rules`, `.windsurf/rules`, `GEMINI.md`) and the portable
+Generated adapters (`.claude/CLAUDE.md`, `.cursor/rules`, `.harness/.windsurf/rules`, `GEMINI.md`) and the portable
 `.agents/skills/` mirror are re-rendered from a single source by `/midas-doctor` and the installer build
 — no hand-editing, no drift.
 For the contributor-facing source/generated-file map, see
@@ -173,12 +174,12 @@ business model, architecture, scope, rules, and code. Cheaper tiers debate; the 
 **per claim** and every claim must cite on-disk evidence or it's struck. It complements `/close-sprint`
 (which checks a sprint against the frozen rules) by asking the prior question — *were those decisions
 right?* Output is a ranked findings report frozen to `.harness/debates/debate-NN.md`. See a worked run
-in [`examples/taskpilot/.midas/debates/debate-01.md`](./examples/taskpilot/.midas/debates/debate-01.md)
-(legacy hub paths — [`V2-PATH-MAP.md`](./examples/taskpilot/V2-PATH-MAP.md)).
+in [`docs/research/taskpilot/.harness/runs/debates/debate-01.md`](./docs/research/taskpilot/.harness/runs/debates/debate-01.md)
+([`V2-PATH-MAP.md`](./docs/research/taskpilot/V2-PATH-MAP.md)).
 
 ### Worked example
 A runnable Sprint-1 vertical slice — auth, task CRUD, middleware, board stub + tests — plus every phase
-artifact on disk. See [`examples/taskpilot/`](./examples/taskpilot/).
+artifact on disk. See [`docs/research/taskpilot/`](./docs/research/taskpilot/).
 
 ## Status
 **Stable v2** — thin-root default (Cursor) + skill quality gate + `--update --tools` prune. Most complete on **Claude Code**
@@ -190,7 +191,8 @@ artifact on disk. See [`examples/taskpilot/`](./examples/taskpilot/).
 
 ## For contributors — where things live
 
-This repo has **three layers**: sources (`harness/skills`, `harness/agents`, `harness/`, `scripts/`), generated adapters
-(`.claude/CLAUDE.md`, `.cursor/`, …), and distribution bundles (`plugins/midas/`, `create-midas/template/`).
+This repo has **three layers**: sources (`harness/skills`, `harness/agents`, `harness/`, `scripts/`),
+generated adapters (`.claude/CLAUDE.md`, `.cursor/`, …), and distribution bundles (`harness/plugins/midas/`,
+`harness/.claude-plugin/`, `cli/template/`).
 Edit sources only; run `npm run verify` before opening a PR. Full map:
 [`docs/repository-architecture.md`](./docs/repository-architecture.md).

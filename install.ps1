@@ -1,5 +1,5 @@
 # Midas — installer shim (Windows / PowerShell). A thin wrapper around the one unified Node installer
-# (create-midas/index.mjs); this script just bootstraps it so there is no parallel bash/PowerShell
+# (cli/index.mjs); this script just bootstraps it so there is no parallel bash/PowerShell
 # install logic to drift.
 #
 # One-line install (run INSIDE the project you want to add Midas to).
@@ -20,7 +20,7 @@ param(
 $ErrorActionPreference = "Stop"
 $Repo = "okuzpe/midas-harness"
 # midas-install-ref: bumped by scripts/bump-version.mjs — keep in sync with harness/VERSION
-$MidasRef = if ($env:MIDAS_INSTALL_REF) { $env:MIDAS_INSTALL_REF } else { "v2.8.1" }
+$MidasRef = if ($env:MIDAS_INSTALL_REF) { $env:MIDAS_INSTALL_REF } else { "v2.8.2" }
 if ($env:MIDAS_BLEEDING_EDGE -eq "1") { $MidasRef = "main" }
 
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
@@ -35,7 +35,7 @@ if ($nodeMajor -lt 22) {
 
 # Inside a clone? run the local installer directly. Null-safe for the `irm | iex` (stdin) path.
 $here = if ($MyInvocation.MyCommand.Path) { Split-Path -Parent $MyInvocation.MyCommand.Path } else { $null }
-$local = if ($here) { Join-Path $here "create-midas/index.mjs" } else { $null }
+$local = if ($here) { Join-Path $here "cli/index.mjs" } else { $null }
 if ($local -and (Test-Path $local)) {
   & node $local @InstallerArgs
   exit $LASTEXITCODE

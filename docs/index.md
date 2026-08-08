@@ -48,7 +48,7 @@ for the source/generated-file map and the contributor change paths.
 - **Aligned** — `/midas-align` (and `harness/rules/change-propagation.md`) keeps sources, bundles, versions,
   and docs in sync after substantive edits.
 - **Cost-aware** — three built-in agents at three price tiers (Opus / Sonnet / Haiku).
-- **Auditable** — every gate verdict is frozen to `.harness/audits/`; drift is never silent.
+- **Auditable** — every gate verdict is frozen to `.harness/runs/audits/`; drift is never silent.
 - **Brownfield-safe** — `/midas-adopt` inventories existing code and never rewrites without a
   confirmed diff.
 

@@ -3,14 +3,14 @@
 //
 // Midas authors its skills/agents once under `harness/`. A Claude Code
 // *plugin*, however, auto-discovers `skills/` and `agents/` at the PLUGIN ROOT. So this script renders
-// a self-contained plugin under `plugins/midas/` by copying the source components, and writes the
-// repo-root `.claude-plugin/marketplace.json` that lists it.
+// a self-contained plugin under `harness/plugins/midas/` by copying the source components, and writes
+// `harness/.claude-plugin/marketplace.json` that lists it (marketplace root = `harness/`, not repo root).
 //
-// The whole `plugins/midas/` tree and `.claude/{skills,agents}` are GENERATED — do not hand-edit;
+// The whole `harness/plugins/midas/` tree and `.claude/{skills,agents}` are GENERATED — do not hand-edit;
 // edit `harness/{skills,agents}` and re-run:
 //   node scripts/build-plugin.mjs
 // Then a user installs Midas with:
-//   /plugin marketplace add okuzpe/midas-harness   →   /plugin install midas@midas
+//   /plugin marketplace add ./harness   →   /plugin install midas@midas
 //
 // No npm dependencies: only node:fs and node:path. Runs on Windows. Requires Node 22+.
 
@@ -30,8 +30,11 @@ export const DESCRIPTION =
   'Portable product-development harness: drive a product from idea to shipped code through 9 audited ' +
   'phases, with cost-tiered agents, a Context7-first rule, and a whole-project adversarial debate (/midas-tribunal).';
 
-const PLUGIN_DIR = join(ROOT, 'plugins', 'midas');
-const MARKETPLACE_DIR = join(ROOT, '.claude-plugin');
+export const PLUGIN_REL_PARTS = Object.freeze(['harness', 'plugins', 'midas']);
+export const PLUGIN_REL = 'harness/plugins/midas';
+const PLUGIN_DIR = join(ROOT, ...PLUGIN_REL_PARTS);
+const HARNESS_DIR = join(ROOT, 'harness');
+const MARKETPLACE_DIR = join(HARNESS_DIR, '.claude-plugin');
 const IS_MAIN = process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url));
 
 // --- helpers -----------------------------------------------------------------------------------
@@ -55,7 +58,10 @@ export function computePluginReadme() {
     '> **GENERATED — do not hand-edit.** This tree is rendered from `harness/skills`, `harness/agents`,',
     '> and `.mcp.json` by `scripts/build-plugin.mjs`. Edit the source and re-run the script.',
     '',
-    'Install: `/plugin marketplace add ' + OWNER + '/midas-harness` then `/plugin install midas@midas`.',
+    'Install from a clone: `/plugin marketplace add ./harness` then `/plugin install midas@midas`.',
+    '',
+    'The marketplace catalog lives at `harness/.claude-plugin/marketplace.json` (not repo root),',
+    'so `/plugin marketplace add ' + OWNER + '/midas-harness` without a local clone will not find it.',
     '',
     'Note: installing the plugin delivers the skills, agents, and MCP config — but Claude Code plugins',
     'do NOT auto-install project rules or `CLAUDE.md`. Run `/midas-init` once after install to write',
@@ -75,6 +81,7 @@ export function computeMarketplaceJson() {
         name: 'midas',
         description: DESCRIPTION,
         author: AUTHOR,
+        // Marketplace root is `harness/` — path is relative to that directory, not repo root.
         source: './plugins/midas',
         category: 'development',
         homepage: `https://github.com/${OWNER}/midas-harness`,
@@ -85,7 +92,7 @@ export function computeMarketplaceJson() {
 
 export function renderPluginTree() {
   renderClaudeMirrors();
-  // --- 1. render plugins/midas/ from canonical harness sources + .mcp.json ----------------------
+  // --- 1. render harness/plugins/midas/ from canonical harness sources + .mcp.json ------------
   // Start clean so deletions in source propagate (no stale skills left behind).
   if (existsSync(PLUGIN_DIR)) rmSync(PLUGIN_DIR, { recursive: true, force: true });
   mkdirSync(PLUGIN_DIR, { recursive: true });
@@ -101,7 +108,7 @@ export function renderPluginTree() {
   writeJson(join(PLUGIN_DIR, '.claude-plugin', 'plugin.json'), computePluginManifest());
   writeFileSync(join(PLUGIN_DIR, 'README.md'), computePluginReadme(), 'utf8');
 
-  // --- 2. write the repo-root marketplace.json -------------------------------------------------
+  // --- 2. write harness/.claude-plugin/marketplace.json --------------------------------------
   writeJson(join(MARKETPLACE_DIR, 'marketplace.json'), computeMarketplaceJson());
 }
 
@@ -126,6 +133,6 @@ export function renderClaudeMirrors() {
 
 if (IS_MAIN) {
   renderPluginTree();
-  console.log('midas build-plugin: rendered plugins/midas/ + .claude-plugin/marketplace.json');
+  console.log('midas build-plugin: rendered harness/plugins/midas/ + harness/.claude-plugin/marketplace.json');
   console.log('  owner=okuzpe; adjust author metadata in this script before publishing if desired.');
 }

@@ -120,7 +120,7 @@ benefit before we put a recommendation in front of users.
 ## Plan (phased)
 
 ### Phase 0 — Validate the premise (blocking gate, no engine edits)
-- Wire the MCP locally; index this repo (`harness/`, `scripts/`, `create-midas/`).
+- Wire the MCP locally; index this repo (`harness/`, `scripts/`, `cli/`).
 - Run a head-to-head on 2–3 real `scout` tasks (inventory, a boundary CHECK, a dead-code scan): record
   **tokens + wall-clock** for grep/read vs graph query.
 - **Exit criterion:** a measurable, non-trivial token/latency win on at least one real Midas task. If not,

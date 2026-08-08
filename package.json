@@ -1,14 +1,14 @@
 {
   "name": "midas-harness",
-  "version": "2.8.1",
+  "version": "2.8.2",
   "private": true,
   "description": "Portable product-development harness for AI coding agents (not Intel MiDaS depth estimation). Install with `npx github:okuzpe/midas-harness`. Drives a product from idea to shipped code through 9 audited phases.",
   "bin": {
-    "midas": "create-midas/index.mjs",
+    "midas": "cli/index.mjs",
     "midas-autopilot": "harness/autonomy/bin/midas-autopilot.mjs"
   },
   "files": [
-    "create-midas"
+    "cli"
   ],
   "engines": {
     "node": ">=22"

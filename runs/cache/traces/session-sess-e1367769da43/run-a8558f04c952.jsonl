@@ -1,0 +1,8 @@
+{"ts":"2026-08-08T12:54:49.229Z","session_id":"sess-e1367769da43","run_id":"a8558f04c952","type":"run.started","name":"","attrs":{}}
+{"ts":"2026-08-08T12:54:49.235Z","session_id":"sess-e1367769da43","run_id":"a8558f04c952","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-433b9076617b","source":"hook.postToolUse"}}
+{"ts":"2026-08-08T12:54:49.243Z","session_id":"sess-e1367769da43","run_id":"a8558f04c952","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-c772d5916b05","source":"hook.postToolUse"}}
+{"ts":"2026-08-08T12:54:49.257Z","session_id":"sess-e1367769da43","run_id":"a8558f04c952","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-967dbd013883","source":"hook.postToolUse"}}
+{"ts":"2026-08-08T12:54:59.934Z","session_id":"sess-e1367769da43","run_id":"a8558f04c952","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-3008a8403a17","source":"hook.postToolUse"}}
+{"ts":"2026-08-08T12:55:07.379Z","session_id":"sess-e1367769da43","run_id":"a8558f04c952","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-009a41a74c0e","source":"hook.postToolUse"}}
+{"ts":"2026-08-08T12:55:11.735Z","session_id":"sess-e1367769da43","run_id":"a8558f04c952","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-2952f47f4a71","source":"hook.postToolUse"}}
+{"ts":"2026-08-08T12:55:31.258Z","session_id":"sess-e1367769da43","run_id":"a8558f04c952","type":"run.finished","name":"","attrs":{"source":"hook.stop"}}

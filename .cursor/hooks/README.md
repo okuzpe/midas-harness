@@ -1,6 +1,9 @@
 # Cursor hooks — Harness Trace (engine dogfood)
 
-**Do not ship to product installs / `create-midas` template.** See [ADR-010](../../docs/adr/ADR-010-harness-trace-observe.md).
+**Do not ship to product installs / `cli/template`.** See [ADR-010](../../docs/adr/ADR-010-harness-trace-observe.md).
+
+Engine dogfood stores traces under `runs/cache/traces/` (`paths.cache` in `harness/state.yaml`).
+Product installs use `.harness/cache/traces/` (ADR-007).
 
 ## What runs
 
@@ -8,7 +11,7 @@
 
 | Hook | Effect |
 |---|---|
-| `sessionStart` | Ensure `session_id` in `.harness/cache/traces/current.json` |
+| `sessionStart` | Ensure `session_id` in `runs/cache/traces/current.json` (engine dogfood) |
 | `postToolUse` | Append redacted `span.finished` (`tool.<Name>`) |
 | `subagentStop` | Append `span.finished` (`subagent.<type>`) |
 | `stop` | `run.finished`; clear active `run_id` |

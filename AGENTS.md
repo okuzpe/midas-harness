@@ -10,12 +10,15 @@
 
 **Midas-harness** is the engine repository for the Midas methodology — a copy-in kit of skills,
 rules, slash-commands, and agent definitions that drives software products from idea to shipped code
-through 9 audited phases. This repo dogfoods the harness on itself (`harness/state.yaml`).
+through 9 audited phases. This repo dogfoods the methodology on itself (`harness/state.yaml`,
+classic layout) — that is **not** a nested product install. Never run `create-midas` install/update
+against this root (see `harness/rules/engine-repo-boundary.md`).
 
 - Stack: **Node ESM scripts + MkDocs** (engine tooling); product stacks are chosen per install in Phase 4
 - AI tools wired: **claude-code, cursor, windsurf, gemini**
 - Methodology: `harness/methodology.md` (9 audited phases, idea → shipped)
 - State: `harness/state.yaml` (single source of truth — read it for current phase)
+- Runs evidence: `runs/{audits,sprints,sweeps,…}` via `paths.runs` — **no** `.harness/engine` or root `.harness/` here
 
 ## Conventions (always-on)
 
@@ -31,8 +34,9 @@ All rules in `harness/conventions.md` apply unconditionally. Key points:
   (`harness/rules/change-propagation.md` + `VERSIONING.md`). Do not hand-edit version pins across the tree.
 - **Security** — secrets only in `${ENV_VAR}`; never commit them; least-privilege MCP scopes.
 - **Design system** — all UI uses `{product}/design-system.md` tokens; never hardcode colour/spacing/type.
-- **Skills portability** — `.claude/skills` is the editable source; `.agents/skills` is the generated
-  portable mirror for Codex/Cursor/Gemini-style discovery.
+- **Skills portability** — `harness/skills/` is the editable source; `.claude/skills` and
+  `.agents/skills` are generated mirrors (`npm run build`) for host discovery (Claude / Codex /
+  Cursor / Gemini). Never hand-edit the mirrors.
 
 Stack-specific rules (generated in Phase 5) live in `harness/rules/` and take highest precedence.
 
@@ -90,12 +94,12 @@ Skills must name produce/fetch legs in `## Tier & delegation` — `harness-tier`
 ## Safety
 
 - Side-effecting skills (`/midas-init`, `/define-conventions`, `/start-sprint`, `/close-sprint`, `/midas-doctor`,
- `/midas-adopt`, `/midas-update`, `/midas-verify`, `/midas-design`, `/midas-qa`, `/midas-init --monorepo`, `/midas-tribunal`, `/midas-security-audit`, `/midas-sweep`, `/midas-lean-review`, `/midas-capture`, `/midas-align`, `/midas-precommit`, `/midas-bundle`, `/midas-progress`, `/midas-explore`, `/midas-autopilot`, `/midas-improve-loop`, `/midas-retro`, `/midas-investigate`) are **user-typed slash commands**
+ `/midas-adopt`, `/midas-update`, `/midas-verify`, `/midas-design`, `/midas-qa`, `/midas-init --monorepo`, `/midas-tribunal`, `/midas-security-audit`, `/midas-sweep`, `/midas-lean-review`, `/midas-capture`, `/midas-align`, `/midas-precommit`, `/midas-bundle`, `/midas-progress`, `/midas-explore`, `/midas-auto-pilot`, `/midas-auto-sprints`, `/midas-improve-loop`, `/midas-autopilot`, `/midas-retro`, `/midas-investigate`) are **user-typed slash commands**
  (`disable-model-invocation`). **Never call them via the Skill tool** (it errors) or auto-run them — when one
  is the next step, **surface the command for the user to type** ("👉 Run `/…`"). Each also guards this in its body.
 - **State ritual (shared):** skills read **`paths.state` first** and **write last** (read-modify-write). They
   cite `harness/templates/skill-state-ritual.md` (installed: `<paths.engine>/templates/skill-state-ritual.md`)
   instead of restating stage enums or path substitution. Schema: `harness/state.schema.md`.
 - Secrets only via `${ENV_VAR}`; never write a key to disk or commit one.
-- Generated adapters (`.claude/CLAUDE.md` in installs, `CLAUDE.md` in this engine repo, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `GEMINI.md`) must not be
+- Generated adapters (`.claude/CLAUDE.md` in installs, `CLAUDE.md` in this engine repo, `.cursor/rules/00-midas.mdc`, `harness/.windsurf/rules/00-midas.md`, `GEMINI.md`) must not be
   hand-edited; they are re-rendered by `/midas-doctor`.

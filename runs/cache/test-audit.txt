@@ -1,0 +1,11 @@
+﻿node : migrate-layout: rolled back after failure ÔÇö MIDAS_TEST_FAIL_STEP=after-first-move
+En C:\Users\AfterMe\AppData\Local\Temp\ps-script-f935f01c-c349-4288-afb4-45ad336926db.ps1: 88 Carácter: 40
++ ... c:\Users\AfterMe\Desktop\Harness"; node scripts/test.mjs 2>&1 | Out-F ...
++                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (migrate-layout:...fter-first-move:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+midas test: 1047 passed, 1 failed
+
+Failures:
+  Ô£ù harness:checks-index:generator-sync ÔÇö harness/checks.json drifted from the generated index

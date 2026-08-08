@@ -18,15 +18,17 @@ product-wide install surface. Trace data must not become a second LTM that contr
 
 1. **Observe before control.** V1 records events only. No pause/step/continue, no MCP, no
    Langfuse/Grafana/OTel export, no `.nd` format, no HTTP debugger UI.
-2. **Cache ≠ LTM.** Append-only JSONL under `.harness/cache/traces/` (gitignored via
-   `.harness/cache/`). Durable insight still crystallizes through existing markdown rituals
-   (`/midas-sweep`, `/midas-investigate`, `/midas-capture`, verify/audit records).
+2. **Cache ≠ LTM.** Append-only JSONL under `{paths.cache}/traces/` (gitignored). Product
+   installs resolve to `.harness/cache/traces/` (ADR-007). Engine dogfood resolves to
+   `runs/cache/traces/` (`harness/state.yaml` → `paths.cache: runs/cache`). Durable insight
+   still crystallizes through existing markdown rituals (`/midas-sweep`, `/midas-investigate`,
+   `/midas-capture`, verify/audit records).
 3. **Zero new dependencies.** Node ESM scripts only (`scripts/lib/trace-*.mjs`,
    `scripts/trace-write.mjs`, `scripts/trace-inspect.mjs`, `scripts/trace-hook.mjs`).
 4. **Primary signal = Cursor hooks (engine dogfood).** Project `.cursor/hooks.json` wires
    `sessionStart`, `postToolUse`, `subagentStop`, `stop` → `node scripts/trace-hook.mjs`.
-   Hooks are **not** shipped in `create-midas/template`. CLI works on any host; hooks are
-   Cursor-only.
+   Hooks are **not** shipped as a blind template file in `cli/template/` (installer merges
+   them per ADR-011). CLI works on any host; hooks are Cursor-only.
 5. **Fail-open + redaction.** Hook adapter always exits 0 / allows the agent; never blocks.
    Do not persist full prompts, tool results, or diffs. Strip values matching secret patterns.
 6. **No mirrored skill instrumentation in V1.** Editing `harness/skills/*/SKILL.md` would
@@ -34,7 +36,7 @@ product-wide install surface. Trace data must not become a second LTM that contr
    `skill.*` emits are deferred (guard with `existsSync` / engine-only skill later).
 7. **Lifecycle.** `session_id` from `sessionStart` (or lazy); `run_id` opens on first tool
    span or CLI `start-run`; closes on hook `stop` or CLI `finish`. Pointer:
-   `.harness/cache/traces/current.json`.
+   `{paths.cache}/traces/current.json`.
 8. **Inspect views.** CLI prints RUN / TRACE / STATE / PROBLEMS only.
 
 ## Consequences
@@ -49,8 +51,8 @@ product-wide install surface. Trace data must not become a second LTM that contr
 ## Amendment — 2026-08-08
 
 - `sessionStart` / session-switch now emit `run.finished` before clearing `run_id` (no orphan runs).
-- `research/harness-trace.md` and `research/Untitled-1.md` are `HARNESS_ENGINE_ONLY_RELS` (not
-  copied into `create-midas/template`).
+- `research/harness-trace.md` is in `HARNESS_ENGINE_ONLY_RELS` (not copied into
+  `cli/template`).
 - Event `message` attrs are kept (redacted/truncated) instead of blanket `[omitted]`.
 
 ## Amendment — 2026-08-08 (install ship)
@@ -59,3 +61,10 @@ product-wide install surface. Trace data must not become a second LTM that contr
   scripts ship under `.harness/scripts/`; Cursor hooks are seeded/merged on install/update.
   Engine dogfood hooks remain root `.cursor/hooks.json` → `scripts/trace-hook.mjs`.
   Decision points 4 and Consequences “product installs unaffected” no longer apply after 2.8.0.
+
+## Amendment — 2026-08-08 (engine layout clarity)
+
+- Engine dogfood evidence/cache moved to root `runs/` + `runs/cache/` (`paths.runs` /
+  `paths.cache`). Trace store reads `resolvePaths().cache` — no hard-coded `.harness/cache/traces`
+  in engine scripts. Product installs unchanged (still `.harness/cache/traces/`).
+- Installer package folder renamed `create-midas/` → `cli/` (npm name still `create-midas`).

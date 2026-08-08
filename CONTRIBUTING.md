@@ -19,7 +19,7 @@ structure changes, and what the bar is for a contribution to land.
 - **Edit the source; never hand-edit generated files.** Canonical skills/agents live under
   `harness/skills/` and `harness/agents/`. `CLAUDE.md`, `.cursor/rules/00-midas.mdc`,
   `.windsurf/rules/00-midas.md`, `GEMINI.md`, `.claude/`, `.agents/`, `.cursor/skills/`,
-  `plugins/midas/**`, and `create-midas/template/**` are rendered by `npm run render` / `npm run build`.
+  `harness/plugins/midas/**`, `harness/.claude-plugin/**`, and `cli/template/**` are rendered by `npm run render` / `npm run build`.
   Edit `harness/` or `scripts/`, then run `npm run verify`. PRs that touch generated trees directly will
   be asked to revert those edits.
 - **One concern per PR.** Small, reviewable diffs merge faster.
@@ -38,7 +38,7 @@ For the full source/generated-file map, install flow, and change-path guide, see
 | **1. Sources** | `harness/skills/`, `harness/agents/`, `harness/` (rules, pipeline, …), `scripts/`, `docs/`, root `AGENTS.md` | **Yes** |
 | **2. Host discovery mirrors** | `.claude/skills/`, `.claude/agents/`, `.agents/skills/`, `.cursor/skills/` | No — `npm run build` |
 | **3. Generated adapters** | `CLAUDE.md`, `.cursor/rules/`, `.windsurf/rules/`, `GEMINI.md` | No — `npm run render` |
-| **4. Distribution bundles** | `plugins/midas/`, `create-midas/template/`, `.claude-plugin/` | No — `npm run build` |
+| **4. Distribution bundles** | `harness/plugins/midas/`, `cli/template/`, `harness/.claude-plugin/` | No — `npm run build` |
 
 The engine repo **commits** layers 2–4 so `npx` installs and the Claude plugin work offline. CI
 rebuilds them and fails on drift — never hand-edit a generated copy.
@@ -50,9 +50,11 @@ harness/skills/       ← **canonical skill source** (edit here)
 .agents/skills/       ← generated portable discovery mirror
 scripts/              ← render, doctor, test, build-* (dependency-free Node ESM)
 docs/                 ← MkDocs source (build to _site/, never commit)
-examples/taskpilot/   ← reference greenfield + CI gate fixture
-create-midas/         ← installer (index.mjs hand-authored; template/ generated)
-plugins/midas/        ← Claude Code plugin bundle (generated)
+docs/research/taskpilot/   ← reference greenfield + CI gate fixture
+cli/                  ← installer package (npm name create-midas; template/ generated)
+runs/                 ← engine dogfood evidence (paths.runs) + gitignored runs/cache
+harness/plugins/midas/  ← Claude Code plugin bundle (generated)
+harness/.claude-plugin/ ← marketplace catalog (generated)
 AGENTS.md             ← engine project law (distinct from install template AGENTS.md.tmpl)
 .mcp.json             ← engine MCP default; `.cursor/mcp.json` is Cursor-local (Windows npx wrap)
 ```
@@ -67,13 +69,13 @@ node scripts/skill-quality-check.mjs --staged --strict-warns
 # or step by step:
 npm test          # structural invariants
 npm run render    # if harness/conventions.md or rules digest changed
-npm run build     # sync plugins/midas + create-midas/template
+npm run build     # sync harness/plugins/midas + harness/.claude-plugin + cli/template
 npm run doctor    # adapter drift + health warnings
 ```
 
 **Engine commit bar:** before committing on midas-harness, run `/midas-precommit` (or ask the
 agent to). Overall score must be **≥ 80** (`docs/precommit-gate.md`). This skill is **engine-only**
-— it is stripped from `create-midas/template` and `plugins/midas`.
+— it is stripped from `cli/template`, `harness/plugins/midas`, and `harness/.claude-plugin`.
 
 ### Git hooks (engine, optional)
 
@@ -193,7 +195,7 @@ the right to submit the contribution under the Apache-2.0 license.
 
 Before opening a PR, confirm:
 
-- [ ] Edited source files only (not `plugins/midas/`, `create-midas/template/`, or generated adapters).
+- [ ] Edited source files only (not `harness/plugins/midas/`, `harness/.claude-plugin/`, `cli/template/`, or generated adapters).
 - [ ] Ran `npm run align` (or `npm run verify`) — all green.
 - [ ] Ran `/midas-precommit` (or `npm run precommit` + agent scorecard) — overall ≥ 80.
 - [ ] Any new skill includes the ritual guard if side-effecting.

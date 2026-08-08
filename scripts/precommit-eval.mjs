@@ -110,13 +110,13 @@ if (dirty.status === 0) {
 }
 
 // Template must not ship engine-only skills (if template exists).
-const tplSkill = join(ROOT, 'create-midas', 'template', '.harness', 'engine', 'skills', 'midas-precommit');
-const pluginSkill = join(ROOT, 'plugins', 'midas', 'skills', 'midas-precommit');
-if (existsSync(join(ROOT, 'create-midas', 'template'))) {
-  add('template-excludes-precommit', !existsSync(tplSkill), 'create-midas/template must omit midas-precommit');
+const tplSkill = join(ROOT, 'cli', 'template', '.harness', 'engine', 'skills', 'midas-precommit');
+const pluginSkill = join(ROOT, 'harness', 'plugins', 'midas', 'skills', 'midas-precommit');
+if (existsSync(join(ROOT, 'cli', 'template'))) {
+  add('template-excludes-precommit', !existsSync(tplSkill), 'cli/template must omit midas-precommit');
 }
-if (existsSync(join(ROOT, 'plugins', 'midas', 'skills'))) {
-  add('plugin-excludes-precommit', !existsSync(pluginSkill), 'plugins/midas must omit midas-precommit');
+if (existsSync(join(ROOT, 'harness', 'plugins', 'midas', 'skills'))) {
+  add('plugin-excludes-precommit', !existsSync(pluginSkill), 'harness/plugins/midas must omit midas-precommit');
 }
 
 const skillCount = readdirSync(join(ROOT, 'harness', 'skills'), { withFileTypes: true })

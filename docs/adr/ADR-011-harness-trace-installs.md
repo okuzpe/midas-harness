@@ -18,7 +18,9 @@ to observe agent tool flows in the same repo where they run the methodology.
    `lib/trace-{models,store}.mjs` into `.harness/scripts/` via `build-create` `FILES` (vendor).
 2. **Project root via `resolveProjectRootFromScript`.** Install layout
    (`.harness/scripts/`) resolves to the project root (grandparent); engine `scripts/` stays
-   parent. Traces remain under `.harness/cache/traces/` (gitignored).
+   parent. Traces live under `{paths.cache}/traces/` (gitignored): **product installs** →
+   `.harness/cache/traces/`; **engine dogfood** → `runs/cache/traces/` when
+   `paths.cache: runs/cache`.
 3. **Cursor hooks — seed + merge, not copyTree.** When `tools` includes `cursor`, the
    installer calls `mergeTraceHooks`:
    - Missing `.cursor/hooks.json` → seed with
@@ -43,3 +45,8 @@ to observe agent tool flows in the same repo where they run the methodology.
 - Hosts without `cursor` still get the CLI scripts; automatic capture requires Cursor hooks.
 - ADR-008 allowlist: `.cursor/hooks.json` is an expected root surface when `tools` includes
   `cursor`.
+
+## Amendment — 2026-08-08 (engine layout clarity)
+
+- Trace path is always `resolvePaths().cache + /traces`. Engine repo state pins
+  `paths.cache: runs/cache`; product installs keep `.harness/cache`.
