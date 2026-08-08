@@ -23,3 +23,8 @@ MIDAS_SWEEP_RESULT: dead_flows=0 orphans=0 ledger_drift=0 stale_docs=0 harness_d
 ## Disposition
 
 fixed — onboarding + historical audit pointer + retro presence locks.
+
+## Amendment
+
+- **2026-08-08** — Finding path `.harness/audits/audit-01.md` maps to `runs/audits/audit-01.md`
+  after engine dogfood `paths.runs` migration.

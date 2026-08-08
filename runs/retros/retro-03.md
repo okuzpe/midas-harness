@@ -12,7 +12,7 @@ Ran: 2026-08-07 · Tier: build · Sprint: 03 · Status snapshot: done
 ## Hurt
 | # | Note | Evidence |
 |---|------|----------|
-| 1 | Binding audit still un-attested | `.harness/audits/audit-03.md` |
+| 1 | Binding audit still un-attested | `runs/audits/audit-03.md` |
 | 2 | Earlier README TaskPilot links used wrong layout (`.harness` vs `.midas`) | fixed in sweep-09 |
 
 ## Learned
@@ -28,3 +28,8 @@ Ran: 2026-08-07 · Tier: build · Sprint: 03 · Status snapshot: done
 | 2 | MVP feature work complete — next product work is backlog (midas-doc, etc.) | roadmap / gstack |
 
 MIDAS_RETRO_RESULT: sprint=03 went_well=3 hurt=2 learned=2 carry=2 verdict=frozen
+
+## Amendment
+
+- **2026-08-08** — Audit evidence path updated to `runs/audits/audit-03.md` after dogfood
+  `paths.runs` migration.

@@ -170,7 +170,8 @@ These apply to all harness artifacts and generated code:
 - **Treat external input as untrusted.** Code generated during Phase 7 must validate at all
   boundaries (API responses, user input, file content). See `harness/conventions.md`.
 - **Never log secrets.** Error messages and audit logs must redact credentials. If a tool echoes
-  environment variables, check that secrets are not surfaced in `.harness/audits/`.
+  environment variables, check that secrets are not surfaced in `{runs}/audits/` (installs:
+  `.harness/runs/audits/`).
 - **Commit hygiene.** `git` history is permanent. The `.gitignore` at the root of this repo
   excludes common secret patterns; extend it if your project adds environment files.
 

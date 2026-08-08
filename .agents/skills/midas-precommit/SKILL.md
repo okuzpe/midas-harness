@@ -1,14 +1,14 @@
 ---
 name: midas-precommit
-description: "Engine-only precommit quality bar — scores architecture, security, agentic design, tests, reliability, docs, simplicity, DX, code quality, maintainability, change propagation, and methodology; requires overall >= 80 before commit. Use before committing on midas-harness. Not for product installs."
-metadata:
-  midas-argument-hint: "[--quick|--full] [--freeze]"
-  midas-disable-model-invocation: true
-  midas-harness-tier: orchestrate
-  midas-model: inherit
-  midas-recommended-model: claude-opus-4-8
-  midas-user-invocable: true
+description: Engine-only precommit quality bar — scores architecture, security, agentic design, tests, reliability, docs, simplicity, DX, code quality, maintainability, change propagation, and methodology; requires overall >= 80 before commit. Use before committing on midas-harness. Not for product installs.
+user-invocable: true
+disable-model-invocation: true
+model: inherit
+harness-tier: orchestrate
+recommended-model: claude-opus-4-8
+argument-hint: "[--quick|--full] [--freeze]"
 ---
+
 # midas-precommit — engine quality bar (≥ 80)
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
@@ -26,7 +26,7 @@ dimensions used in full audits. **Overall must be ≥ 80** or the verdict is fai
 | Abort unless cwd is midas-harness engine | Run on product installs / template trees |
 | Run mechanical floor + score 12 dimensions 1–100 | Advance `stage` or pass lifecycle gates |
 | Require overall ≥ 80 to `verdict=pass` | Replace `/midas-align`, `/midas-doctor`, or CI |
-| Optional freeze under `.harness/precommits/` | Ship this skill to `create-midas` / plugin |
+| Optional freeze under `runs/precommits/` (engine dogfood) | Ship this skill to `cli/template` / `harness/plugins/midas` |
 
 ## Engine guard (hard)
 

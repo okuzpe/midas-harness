@@ -1,3 +1,0 @@
-{"ts":"2026-08-07T23:36:23.879Z","session_id":"sess-e1367769da43","run_id":"64aa52009b58","type":"run.started","name":"","attrs":{}}
-{"ts":"2026-08-07T23:36:23.884Z","session_id":"sess-e1367769da43","run_id":"64aa52009b58","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-e49d6bb9826a","source":"hook.postToolUse"}}
-{"ts":"2026-08-07T23:36:37.370Z","session_id":"sess-e1367769da43","run_id":"64aa52009b58","type":"run.finished","name":"","attrs":{"source":"hook.stop"}}

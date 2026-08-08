@@ -32,7 +32,7 @@ advancing lifecycle stage — closing the gstack `/reflect` gap documented in `d
 - [x] Skill follows `harness/rules/skill-quality.md` (frontmatter, Tier & delegation, ≤500 lines).
 - [x] Propagation complete (`harness/rules/change-propagation.md` — `npm run align` / `npm run build`).
 - [x] Skill quality score block recorded in sprint notes or PR description.
-- [x] `product/features.json` F-002 updated if criteria met.
+- [x] `docs/product/features.json` F-002 updated if criteria met.
 
 ## Tasks
 
@@ -60,5 +60,5 @@ Next fix (if not 🟢): n/a
 
 ## Phase 8 audit notes
 
-- **Audit file:** `.harness/audits/audit-02.md`
+- **Audit file:** `runs/audits/audit-02.md`
 - **Verdict:** pass (un-attested) — re-attest with orchestrate `/close-sprint` for binding gate

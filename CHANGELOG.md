@@ -16,13 +16,15 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 - Playbook template rename: `improve-cycle.md` → `auto-pilot-cycle.md` (aligns with `/midas-auto-pilot`).
 - `scripts/ship-manifest.mjs` — single shipped-scripts list for `build-create` + `test` (no dual FILES lists).
 - Contributor hygiene: skill source-of-truth docs, v2 runs paths, MkDocs ADR-010/011, autonomy anti-typo callouts.
-- Dogfood `harness/state.yaml` — restored `sprint_execution` ledger row; closed audit cycle; `stage_status: passed`.
+- Dogfood `harness/state.yaml` — restored `sprint_execution` ledger row; closed audit cycle; `stage_status: passed`; `phases.audit` artifacts list `runs/audits/audit-0{1,2,3}.md`.
 - Installer refactor: shared `lib/core/preserve-policy.mjs` (`decideTemplateCopyAction`); extract `runtime/{copy-tree,autonomy-install,uninstall}.mjs` from `execute.mjs`. Plan notes vendor wipe/prune lifecycle; parity + autonomy pointer unit tests.
+- Dogfood evidence path cleanup: `docs/product/*` + `runs/{sprints,retros,sweeps}` cite `runs/audits/` (not legacy `.harness/audits/`); `SECURITY.md` uses `{runs}/audits/`.
 
 ### Removed
 
 - Unused `create-midas/lib/steps/install.mjs` re-export stub; unused `pathIsFile` / `isExecutableOp` exports.
 - Stale `HARNESS_ENGINE_ONLY_RELS` entry `research/Untitled-1.md` (file never existed).
+- Accidentally committed `runs/cache/**` and `runs/adapters.hash` (gitignore already covered; untracked from index).
 
 ---
 

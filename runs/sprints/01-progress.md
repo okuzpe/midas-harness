@@ -12,8 +12,8 @@
 
 ## Next
 
-Sprint 01 closed — `.harness/audits/audit-01.md`. Sprints 02–03 shipped on disk; remaining gate work is
-orchestrate-attested `/close-sprint` → `audit-02.md` / `audit-03.md`.
+Sprint 01 closed — `runs/audits/audit-01.md`. Sprints 02–03 shipped on disk; remaining gate work is
+orchestrate-attested `/close-sprint` → `runs/audits/audit-02.md` / `runs/audits/audit-03.md`.
 
 ## Observations
 
@@ -21,7 +21,7 @@ orchestrate-attested `/close-sprint` → `audit-02.md` / `audit-03.md`.
 
 | Field | Content |
 |---|---|
-| **What** | Added E2E linking `create-midas --autonomy` to `setup` + `tick --runner=fake` |
+| **What** | Added E2E linking `node cli/index.mjs --autonomy` (npm: `create-midas --autonomy`) to `setup` + `tick --runner=fake` |
 | **Why** | Sprint 01 acceptance; complements manual `cpSync` fixture earlier in the same test block |
 | **Where** | `scripts/test.mjs` (~autonomy:install-fake-tick-smoke) |
 | **Learned** | Fresh install defaults `idea_intake`; smoke patches state + sprint file before tick |

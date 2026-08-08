@@ -1,4 +1,0 @@
-{"ts":"2026-08-07T23:44:40.265Z","session_id":"sess-e1367769da43","run_id":"eea12f12e0ae","type":"run.started","name":"","attrs":{}}
-{"ts":"2026-08-07T23:44:40.270Z","session_id":"sess-e1367769da43","run_id":"eea12f12e0ae","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-b613fb27fb1b","source":"hook.postToolUse"}}
-{"ts":"2026-08-07T23:44:40.280Z","session_id":"sess-e1367769da43","run_id":"eea12f12e0ae","type":"span.finished","name":"tool.Tool","attrs":{"tool":"Tool","success":true,"span_id":"sp-80c1c513877e","source":"hook.postToolUse"}}
-{"ts":"2026-08-07T23:44:53.464Z","session_id":"sess-e1367769da43","run_id":"eea12f12e0ae","type":"run.finished","name":"","attrs":{"source":"hook.stop"}}

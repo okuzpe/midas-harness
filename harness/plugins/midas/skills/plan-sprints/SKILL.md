@@ -82,7 +82,7 @@ set `stage_status: gate_pending`. Do **not** self-advance the stage.
 - [ ] `{product}/features.json` seeded (every feature `status: failing`).
 - [ ] `sprints[]` in `paths.state` each `status: planned`.
 
-On pass: freeze `{runs}/audits/gate-06.md`, set gate passed; next **`/start-sprint`** on sprint 1.
+On pass: freeze `{runs}/audits/gate-06.md` from `<paths.engine>/templates/gate-record.md`, set gate passed; next **`/start-sprint`** on sprint 1.
 On fail: name the under-specified sprint or broken ordering.
 
 ## Tier & cost

@@ -10,7 +10,8 @@
 
 ## Goal
 
-Document the `create-midas --update` ownership-manifest rebaseline flow in `INSTALL.md`, anchored to
+Document the `create-midas --update` ownership-manifest rebaseline flow in `INSTALL.md` (engine
+contributors: `node cli/index.mjs --update`), anchored to
 existing structural tests so contributors know the contract before editing installer code.
 
 ## Scope / non-scope
@@ -31,7 +32,7 @@ name specific `scripts/test.mjs` check ids.
 - [x] All acceptance criteria above are met.
 - [x] Docs follow `harness/rules/docs.md` (behaviour change paired with doc update).
 - [x] No broken internal links in changed docs.
-- [x] `product/features.json` F-003 updated if criteria met.
+- [x] `docs/product/features.json` F-003 updated if criteria met.
 
 ## Tasks
 
@@ -48,5 +49,5 @@ name specific `scripts/test.mjs` check ids.
 
 ## Phase 8 audit notes
 
-- **Audit file:** `.harness/audits/audit-03.md`
+- **Audit file:** `runs/audits/audit-03.md`
 - **Verdict:** pass (un-attested) — re-attest with orchestrate `/close-sprint` for binding gate

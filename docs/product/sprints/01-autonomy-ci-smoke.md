@@ -32,7 +32,7 @@ Add a structural test that installs Midas with `--autonomy` into a temp director
 - [x] New/changed behaviour has a passing automated test (`harness/rules/testing.md`).
 - [x] No structural invariant regressions (`harness/rules/change-propagation.md` — run `npm run align`).
 - [x] No secrets committed (`harness/rules/security.md`).
-- [x] `product/features.json` F-001 updated (`status`, `evidence`) if criteria met.
+- [x] `docs/product/features.json` F-001 updated (`status`, `evidence`) if criteria met.
 - [x] `{runs}/sprints/01-progress.md` started on `/start-sprint` (Phase 7).
 
 ## Tasks
@@ -50,6 +50,6 @@ Add a structural test that installs Midas with `--autonomy` into a temp director
 
 ## Phase 8 audit notes
 
-- **Audit file:** `.harness/audits/audit-01.md`
+- **Audit file:** `runs/audits/audit-01.md`
 - **Verdict:** pass
 - **Next action:** sprints 02–03 shipped; re-attest via orchestrate `/close-sprint` if binding gate needed

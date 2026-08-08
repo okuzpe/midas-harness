@@ -1,13 +1,13 @@
 ---
 name: plan-sprints
-description: "Phase 6 — decompose the MVP scope into a dependency-ordered roadmap and per-sprint plans, each with goal, scope, tasks, acceptance criteria, and a DoD that references the frozen rules. Use after conventions and the design system are frozen (stage architecture_rules → sprint_planning), before any sprint executes."
-metadata:
-  midas-disable-model-invocation: true
-  midas-harness-tier: orchestrate
-  midas-model: inherit
-  midas-recommended-model: claude-opus-4-8
-  midas-user-invocable: true
+description: Phase 6 — decompose the MVP scope into a dependency-ordered roadmap and per-sprint plans, each with goal, scope, tasks, acceptance criteria, and a DoD that references the frozen rules. Use after conventions and the design system are frozen (stage architecture_rules → sprint_planning), before any sprint executes.
+user-invocable: true
+disable-model-invocation: true
+model: inherit
+harness-tier: orchestrate
+recommended-model: claude-opus-4-8
 ---
+
 # plan-sprints (Phase 6 — Sprint Planning)
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
@@ -82,7 +82,7 @@ set `stage_status: gate_pending`. Do **not** self-advance the stage.
 - [ ] `{product}/features.json` seeded (every feature `status: failing`).
 - [ ] `sprints[]` in `paths.state` each `status: planned`.
 
-On pass: freeze `{runs}/audits/gate-06.md`, set gate passed; next **`/start-sprint`** on sprint 1.
+On pass: freeze `{runs}/audits/gate-06.md` from `<paths.engine>/templates/gate-record.md`, set gate passed; next **`/start-sprint`** on sprint 1.
 On fail: name the under-specified sprint or broken ordering.
 
 ## Tier & cost

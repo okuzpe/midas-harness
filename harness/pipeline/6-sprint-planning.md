@@ -63,7 +63,7 @@ Sprints cover MVP only — no scope creep. Dependencies must be ordered.
 - [ ] Sprint 01 is independently runnable (no external sprint dependencies)
 - [ ] All sprints registered in `paths.state` under `sprints:` (each `status: planned`)
 - [ ] `{product}/features.json` seeded from MVP scope; every MVP feature has an entry with `status: failing`
-- [ ] Gate verdict written to `{runs}/audits/gate-06.md`
+- [ ] Gate verdict written to `{runs}/audits/gate-06.md` (seed: `templates/gate-record.md`)
 
 ## Recommended tier + agents
 

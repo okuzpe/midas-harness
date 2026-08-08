@@ -26,8 +26,8 @@ MIDAS_TRIBUNAL_RESULT: criticals=0 highs=2
 
 ## Recommended actions (applied in this sprint)
 - T-01 through T-10 + P1b handoff fixes implemented per plan.
-- CI: `doctor.mjs --strict --gates-only examples/taskpilot` + `mkdocs build --strict`.
+- CI: `doctor.mjs --strict --gates-only docs/research/taskpilot` + `mkdocs build --strict`.
 
 ## Full transcript (appendix)
 See session tribunal audit of the six-flow investigation and plan review (2026-06-30). Key amendment:
-`doctor --strict examples/taskpilot` would fail without `--gates-only` because the partial example lacks generated adapters.
+`doctor --strict docs/research/taskpilot` would fail without `--gates-only` because the partial example lacks generated adapters.

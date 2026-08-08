@@ -23,3 +23,8 @@ MIDAS_SWEEP_RESULT: dead_flows=0 orphans=0 ledger_drift=0 stale_docs=0 harness_d
 ## Disposition
 
 fixed — historical repo-audits amended without rewriting freeze bodies.
+
+## Amendment
+
+- **2026-08-08** — Path citations like `.harness/audits/repo-audit-0{1,2}.md` were accurate at
+  sweep time; engine dogfood now uses `runs/audits/` (`paths.runs: runs`).

@@ -89,7 +89,7 @@ the Phase 8 audit references exactly these files.
       installed on user's OK or left with exact command; decision in `paths.state → enforcement:`
 - [ ] `{product}/design-system/tokens.json` and `tokens.css` are consistent with each other
 - [ ] `node <paths.scripts>/render-adapters.mjs` ran without errors; generated adapters are up to date
-- [ ] Gate verdict written to `{runs}/audits/gate-05.md`
+- [ ] Gate verdict written to `{runs}/audits/gate-05.md` (seed: `templates/gate-record.md`)
 
 ## Recommended tier + agents
 

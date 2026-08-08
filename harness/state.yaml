@@ -48,7 +48,7 @@ phases:
   architecture_rules: { status: passed, gate: passed, artifacts: ["docs/product/idea.md", "docs/product/architecture.md", "docs/product/conventions.md"] }
   sprint_planning:    { status: passed, gate: passed, artifacts: ["docs/product/business-plan.md", "docs/product/roadmap.md", "docs/product/features.json", "docs/product/sprints/01-autonomy-ci-smoke.md", "docs/product/sprints/02-midas-retro-skill.md", "docs/product/sprints/03-installer-update-docs.md"] }
   sprint_execution:   { status: passed, gate: passed, artifacts: ["docs/product/sprints/01-autonomy-ci-smoke.md", "docs/product/sprints/02-midas-retro-skill.md", "docs/product/sprints/03-installer-update-docs.md"] }
-  audit:              { status: passed, gate: passed }
+  audit:              { status: passed, gate: passed, artifacts: ["runs/audits/audit-01.md", "runs/audits/audit-02.md", "runs/audits/audit-03.md"] }
 
 last_audit:
   phase: audit

@@ -20,7 +20,7 @@ mcp-recommended: [context7]
 |---|---|
 | Encode arch into CHECKABLE `<paths.rules>/*` + design system | Self-advance `stage` (orchestrator audits gate) |
 | Scaffold enforcement + re-render adapters | Hand-edit generated `.cursor/rules/*`, `.windsurf/rules/*` |
-| Freeze gate verdict to `{runs}/audits/gate-05.md` on pass | Block on `/midas-tribunal` (optional pre-rules-freeze checkpoint) |
+| Freeze gate verdict to `{runs}/audits/gate-05.md` on pass (seed: `<paths.engine>/templates/gate-record.md`) | Block on `/midas-tribunal` (optional pre-rules-freeze checkpoint) |
 
 **Keystone:** vague rules weaken every Phase-8 audit. Orchestrate decides; **build** writes files. Full pipeline steps + artifact table: **`<paths.engine>/pipeline/5-architecture-rules.md`**.
 
@@ -72,7 +72,7 @@ Full checklist: **`<paths.engine>/pipeline/5-architecture-rules.md` § Exit gate
 - [ ] Design direction + design system present; 0–4 playbooks (anti-bloat honored).
 - [ ] Adapters rendered (`node <paths.scripts>/doctor.mjs` / `/midas-doctor` reports no drift).
 
-On pass: freeze `{runs}/audits/gate-05.md`, set gate passed; next → `/plan-sprints`. On fail: report uncheckable rule or unrendered adapter.
+On pass: freeze `{runs}/audits/gate-05.md` from `<paths.engine>/templates/gate-record.md`, set gate passed; next → `/plan-sprints`. On fail: report uncheckable rule or unrendered adapter.
 
 ## Tier & cost
 Rule set + playbook selection → **orchestrate**. File writes → **build**. Context7 fetches → **scout**. UI: design specialist if installed; else `midas-builder`.

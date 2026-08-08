@@ -47,3 +47,12 @@ fixed — all actionable rows closed; #7 accepted.
 
 **Amended 2026-08-07:** sweep-02 confirms post-audit hygiene (`verdict=clean`); see
 `.harness/audits/repo-audit-02.md` for audit-cycle closure.
+
+## Amendment
+
+- **2026-08-08** — Engine dogfood evidence moved to root `runs/` (`paths.runs`). Historical
+  `.harness/audits|debates` citations above refer to pre-move paths; live records are
+  `runs/audits/`, `runs/debates/`.
+- **2026-08-08** — Layout rename (post-`92d9afd`): authored installer tree is `cli/` (npm package
+  name still `create-midas`); TaskPilot fixture is `docs/research/taskpilot/`. Scope lines above
+  keep the names as of the sweep date.

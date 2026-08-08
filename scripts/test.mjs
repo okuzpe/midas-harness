@@ -51,6 +51,7 @@ import { scriptBundleFiles } from './ship-manifest.mjs';
 import {
   roleForPath,
   findVendorConflicts,
+  findGeneratedMirrorConflicts,
   computeOwnershipManifest,
   writeOwnershipManifest,
   readOwnershipManifest,
@@ -645,8 +646,26 @@ if (existsSync(buildCreate)) {
       'ownership:detects-vendor-byte-drift',
       conflicts.length === 1 && conflicts[0] === vendorRel,
     );
+    mkdirSync(join(ownRoot, '.harness', 'engine', 'skills', 'demo'), { recursive: true });
+    mkdirSync(join(ownRoot, '.claude', 'skills', 'demo'), { recursive: true });
+    const engineSkill = join(ownRoot, '.harness', 'engine', 'skills', 'demo', 'SKILL.md');
+    const genRel = '.claude/skills/demo/SKILL.md';
+    writeFileSync(engineSkill, '---\nname: demo\n---\nbody\n', 'utf8');
+    writeFileSync(join(ownRoot, genRel), '---\nname: demo\n---\nbody\n', 'utf8');
+    const withGen = writeOwnershipManifest(ownRoot, '9.9.9');
+    check(
+      'ownership:tracks-generated-skill-mirror',
+      withGen.files.some((f) => f.path === genRel && f.role === 'generated' && f.sha256),
+    );
+    check('ownership:no-generated-conflict-when-unchanged', findGeneratedMirrorConflicts(ownRoot, withGen).length === 0);
+    writeFileSync(join(ownRoot, genRel), '---\nname: demo\n---\nchanged\n', 'utf8');
+    const genConflicts = findGeneratedMirrorConflicts(ownRoot, withGen);
+    check(
+      'ownership:detects-generated-mirror-drift',
+      genConflicts.length === 1 && genConflicts[0] === genRel,
+    );
     const empty = computeOwnershipManifest(join(ownRoot, 'missing-never'), '0.0.0');
-    check('ownership:compute-empty-root', Array.isArray(empty.files) && empty.files.length === 0);
+    check('ownership:compute-missing-subdir-empty', Array.isArray(empty.files) && empty.files.length === 0);
   } finally {
     rmSync(ownRoot, { recursive: true, force: true });
   }
