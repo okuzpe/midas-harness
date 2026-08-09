@@ -2,7 +2,7 @@
   "schema_version": 1,
   "updated": null,
   "source": "engine/rules",
-  "source_digest": "5f3662c3f9bcdce8bdac1697c6d696b2068a71d4558186689def9e73582c4974",
+  "source_digest": "13e5e53c53f5ebfb6b70de646e052bb2797cb64f5321ae7e1f35510a642dee69",
   "rules": [
     {
       "path": "engine/rules/acceptance-criteria.md",
@@ -174,7 +174,7 @@
       "title": "Rule: Change propagation — keep sources, bundles, docs, and versions aligned (always-on)",
       "owner": "orchestrate",
       "phase": 8,
-      "check_count": 8,
+      "check_count": 9,
       "checks": [
         {
           "kind": "manual",
@@ -202,7 +202,7 @@
         },
         {
           "kind": "manual",
-          "body": "`manual:` when `harness/VERSION` is in the PR/sprint diff, the session or PR notes name `npm run bump -- <ver>` (or `scripts/bump-version.mjs`); a VERSION bump done by editing mirrors/pins by hand without that command is a fail.",
+          "body": "`manual:` when `harness/VERSION` is in the PR/sprint diff, the session or PR notes name `npm run bump -- <ver>`; a VERSION bump done by editing mirrors/pins by hand without that command is a fail.",
           "section": "Checklist > Version and docs (engine releases)",
           "phase": 8,
           "owner": "orchestrate",
@@ -210,7 +210,15 @@
         },
         {
           "kind": "command",
-          "body": "`node scripts/test.mjs` `version:*` and `version-pin:*` checks pass when `harness/VERSION` is in the diff (`INSTALL.md` pins match; skills/SECURITY/README/installer have no hardcoded `#vX.Y.Z`).",
+          "body": "`node scripts/sync-version.mjs --check` exits 0 when `harness/VERSION` is in the diff.",
+          "section": "Checklist > Version and docs (engine releases)",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "high"
+        },
+        {
+          "kind": "command",
+          "body": "`node scripts/test.mjs` `version:*`, `version-pin:*`, and `version:sync-check` pass.",
           "section": "Checklist > Version and docs (engine releases)",
           "phase": 8,
           "owner": "orchestrate",

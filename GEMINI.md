@@ -178,8 +178,9 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` the PR/sprint notes or `/midas-align` report names each downstream surface touched; an unmentioned generated tree in the diff that was hand-edited is a fail.
   - **CHECK:** `npm run align` (engine) or `/midas-align` exits with `verdict=aligned` or lists only resolved gaps; exit 1 with open gaps is a fail before merge.
   - **CHECK:** `git diff --name-only` shows no lone edits under `harness/plugins/midas/`, `harness/.claude-plugin/`, `cli/template/`, or managed adapter regions without a corresponding `.claude/`, `harness/`, or `scripts/` source change.
-  - **CHECK:** `manual:` when `harness/VERSION` is in the PR/sprint diff, the session or PR notes name `npm run bump -- <ver>` (or `scripts/bump-version.mjs`); a VERSION bump done by editing mirrors/pins by hand without that command is a fail.
-  - **CHECK:** `node scripts/test.mjs` `version:*` and `version-pin:*` checks pass when `harness/VERSION` is in the diff (`INSTALL.md` pins match; skills/SECURITY/README/installer have no hardcoded `#vX.Y.Z`).
+  - **CHECK:** `manual:` when `harness/VERSION` is in the PR/sprint diff, the session or PR notes name `npm run bump -- <ver>`; a VERSION bump done by editing mirrors/pins by hand without that command is a fail.
+  - **CHECK:** `node scripts/sync-version.mjs --check` exits 0 when `harness/VERSION` is in the diff.
+  - **CHECK:** `node scripts/test.mjs` `version:*`, `version-pin:*`, and `version:sync-check` pass.
   - **CHECK:** `manual:` a diff touching installer flags, layout, or skill commands also touches at least one user-facing doc; undocumented install/flow change is a fail.
   - **CHECK:** `node <paths.scripts>/doctor.mjs` reports no adapter `drift` after a `<paths.engine>/rules/` diff.
   - **CHECK:** `grep -rnE 'harness/state\.yaml' .claude/skills/` → only examples naming classic layout, not as the sole read path in ritual guards.

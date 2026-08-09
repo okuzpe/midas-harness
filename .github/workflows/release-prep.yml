@@ -21,6 +21,7 @@ jobs:
 
       - name: Build and verify
         run: |
+          node scripts/sync-version.mjs --check
           npm test
           npm run build
           node scripts/build-create.mjs

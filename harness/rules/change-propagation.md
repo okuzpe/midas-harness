@@ -49,17 +49,15 @@ code-quality.md` § …) — do not add a parallel `_fragments/` layer (see `con
 ### Version and docs (engine releases)
 - [ ] **Engine version publishes use `npm run bump` — never hand-scatter version strings.**
       To cut a release (or any intentional `harness/VERSION` change) run
-      `npm run bump -- <X.Y.Z>` (or `node scripts/bump-version.mjs <X.Y.Z>`). That is the **only**
-      allowed writer for VERSION + package mirrors + state example stamps + `INSTALL.md` `#v…` pins.
-      Do **not** hand-edit `package.json` / `cli/package.json` / `gemini-extension.json` /
-      `INSTALL.md` pins / skill `#v…` tags for a version bump. Then finish CHANGELOG + `git tag`.
+      `npm run bump -- <X.Y.Z>` (writes `harness/VERSION` only), which runs
+      `scripts/sync-version.mjs` + `npm run build`. Do **not** hand-edit package mirrors,
+      `INSTALL.md` pins, or skill `#v…` tags. Then finish CHANGELOG + `git tag`.
       Full checklist: `VERSIONING.md` § Release checklist.
       **CHECK:** `manual:` when `harness/VERSION` is in the PR/sprint diff, the session or PR notes
-      name `npm run bump -- <ver>` (or `scripts/bump-version.mjs`); a VERSION bump done by editing
-      mirrors/pins by hand without that command is a fail.
-      **CHECK:** `node scripts/test.mjs` `version:*` and `version-pin:*` checks pass when
-      `harness/VERSION` is in the diff (`INSTALL.md` pins match; skills/SECURITY/README/installer
-      have no hardcoded `#vX.Y.Z`).
+      name `npm run bump -- <ver>`; a VERSION bump done by editing mirrors/pins by hand without that
+      command is a fail.
+      **CHECK:** `node scripts/sync-version.mjs --check` exits 0 when `harness/VERSION` is in the diff.
+      **CHECK:** `node scripts/test.mjs` `version:*`, `version-pin:*`, and `version:sync-check` pass.
 - [ ] User-facing behaviour or install flow change updates `INSTALL.md`, `docs/getting-started.md`, or
       `docs/index.md` in the same change set.
       **CHECK:** `manual:` a diff touching installer flags, layout, or skill commands also touches at least
