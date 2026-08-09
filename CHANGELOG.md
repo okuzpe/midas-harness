@@ -11,6 +11,16 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.9.4] — 2026-08-10
+
+### Fixed
+
+- **`secrets-prompt.mjs` Cursor contract** — `beforeSubmitPrompt` now emits `{ continue: true|false }` (not `permission`), so fail-closed hooks no longer block chat with "returned no output".
+- **Ship `secrets-prompt.mjs`** — was excluded by `.gitignore` `*secret*`; now tracked with explicit allow rules so installs receive the script.
+- **Doctor** — warns when safety hooks are wired but scripts are missing on disk.
+
+---
+
 ## [2.9.3] — 2026-08-09
 
 ### Added
@@ -1679,7 +1689,9 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.9.3...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.9.4...HEAD
+[2.9.4]: https://github.com/okuzpe/midas-harness/compare/v2.9.3...v2.9.4
+[2.9.3]: https://github.com/okuzpe/midas-harness/compare/v2.9.0...v2.9.3
 [2.9.0]: https://github.com/okuzpe/midas-harness/compare/v2.8.2...v2.9.0
 [2.8.2]: https://github.com/okuzpe/midas-harness/compare/v2.8.1...v2.8.2
 [2.8.1]: https://github.com/okuzpe/midas-harness/compare/v2.8.0...v2.8.1
