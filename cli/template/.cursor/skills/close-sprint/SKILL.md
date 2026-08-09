@@ -34,15 +34,21 @@ Full procedure: **`<paths.engine>/pipeline/8-audit-adjust.md`**.
 
 Step outline (Steps 0–6):
 - **Step 0 — Hygiene pass:** sweep record required for brownfield; greenfield recommended on large diffs; document any skip. On a fat feature/UI diff, recommend `/midas-lean-review` (optional `--freeze`) before the conformance pass — does not block the gate alone.
+- **Step 0.5 — Diff gate receipts (when production paths changed):** require `{paths.cache}/gates/<run>/test.json` and `quality.json` with **`isPassingReceipt`** semantics (`pass` or `skipped` + reason) **or** record an explicit skip with reason in `{runs}/sprints/NN-progress.md` or audit notes. Engine-only / docs-only diffs: skip OK. Run `/midas-diff-gates` when receipts are missing or stale. Does **not** change `verify-NN.md` semantics — UI/API proof stays `/midas-verify`.
 - **Step 1 — Read state + frozen rules:** `paths.state`, active sprint, all effective rules, architecture + idea docs, design system.
 - **Step 2 — Conformance audit:** every rule, pass/fail with on-disk evidence; confirm Context7 doc coverage; trigger every matching playbook.
 - **Step 3 — Scope audit:** delivered scope vs plan and business-case success metrics; no scope creep, no silent drops.
 - **Step 4 — Resolve drift:** fix now or consciously amend the rule (+ ADR); re-render adapters if amended; nothing left silent.
 - **Step 5 — Freeze the audit:** write `{runs}/audits/audit-NN.md` with `MIDAS_AUDIT_RESULT` tally; `unresolved=0` required before closing.
 - **Step 6 — Plan adjustment + update state:** set sprint `status: done`; reconcile `sprints[]`; select next sprint or declare MVP complete.
+- **Optional — lifecycle journal:** `node <paths.scripts>/lifecycle-journal.mjs close_sprint --detail "sprint-NN"` (fail-open metrics under `{paths.cache}/metrics/lifecycle.jsonl`).
+- **Optional — quality log:** `node <paths.scripts>/quality-log.mjs audit pass --detail "sprint-NN"` (metadata-only JSONL; never secrets).
+- **Optional — carryover refresh:** `node <paths.scripts>/carryover-refresh.mjs` after sprint `done` (snapshot → idle). Resume ladder: `<paths.engine>/templates/session-resume-precedence.md`.
+- **Optional — capture proposals:** after `{runs}/sprints/NN-progress.md` § Learned is filled, the human may run `node <paths.scripts>/capture-candidates.mjs --progress {runs}/sprints/NN-progress.md` — propose only; never auto-write rules/playbooks.
 
 ## Exit gate
 - **Every rule audited** pass/fail **with evidence**.
+- **Diff gate receipts** when production paths changed: Step 0.5 satisfied (`{paths.cache}/gates/<run>/` or documented skip).
 - **Playbook triggers honored:** any diff matching a `{product}/playbooks/*` `Trigger` shows that playbook's done-when satisfied.
 - **Drift fixed or the rule consciously amended** (logged) — nothing silent.
 - **Scope reconciled** against the business case.

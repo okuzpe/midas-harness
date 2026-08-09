@@ -1,5 +1,5 @@
 # Engine source repo — NOT a Midas product lifecycle. Lifecycle CI fixture = scripts/fixtures/product-closed/.
-midas_version: 2.8.2
+midas_version: 2.9.0
 layout: classic
 paths:
   engine: harness

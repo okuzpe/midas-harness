@@ -102,3 +102,6 @@ Tell the user in **one line** exactly what was written/changed and where, so the
 ## Tier & delegation
 Classify + write the artifact → **build** (`midas-builder`). The detection/proposal happens inline in whatever tier
 is already driving the conversation. Re-rendering adapters is mechanical. Respect `cost_profile`.
+
+**Related (optional):** after sprint close, scan `{runs}/sprints/NN-progress.md` § Learned with
+`node <paths.scripts>/capture-candidates.mjs --progress {runs}/sprints/NN-progress.md` — propose only; this skill still requires user confirmation before any write.

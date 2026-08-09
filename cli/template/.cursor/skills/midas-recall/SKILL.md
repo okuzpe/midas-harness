@@ -31,13 +31,17 @@ Full model: `<paths.engine>/research/memory-model.md`.
 | `phase` | default when `stage` has no active sprint | Pack for the current lifecycle phase |
 | `sprint` | use when `sprint_execution` + active sprint | Pack for the active sprint + STM |
 | `task` | narrow | Pack for the next unchecked task in the active sprint |
-| `--focus "<query>"` | optional | Extra grep in `{product}/` + effective engine/project rules; add top hits to the pack |
+| `--focus "<query>"` | optional | Scored snippets over playbooks/progress/investigate (see §2b) + grep in `{product}/` + rules |
 
 ## Procedure
 
 ### 1. Read state
 Load the file at **`paths.state`**. If missing → report `/midas-init`. Parse `layout`, `paths`, `stage`, `stage_status`, `mode`,
 `entry_stage`, `sprints[]` (find `status: active`), `phases` ledger.
+
+**Resume ladder:** cite `<paths.engine>/templates/session-resume-precedence.md` — do not restate it.
+When step 4 is fresh (`{paths.cache}/metrics/current-carryover.json`, `ok: true`, matching sprint id,
+`generated_at` ≤ 24h), seed the pack from its `files[]` before stage-command-table paths (dedupe).
 
 ### 2. Build Context Pack (max ~15 paths, ordered)
 
@@ -66,6 +70,24 @@ Stage-specific additions beyond the YAML list:
 
 **`--focus`:** grep the query in `{product}/`, `<paths.engine>/rules/`, and `<paths.rules>/`; append matching files until the cap.
 
+### 2b. Scored snippets (`--focus` only, optional)
+
+When `--focus "<query>"` is set, rank git-visible markdown **at read time** — no `memory/entries`
+corpus, no BM25, no hidden store (**ADR-003** floor; Muninn F-030 inspire only).
+
+1. Collect paths that exist: `{product}/playbooks/*.md`, active `{runs}/sprints/NN-progress.md`,
+   and `{runs}/investigate/*.md` (skip missing globs).
+2. Run (scout-tier, read-only):
+
+   `node <paths.scripts>/recall-rank.mjs --root <project> --query "<focus>" --limit 5 --paths <comma-separated paths>`
+   Optional: add `--fifo` to skip paths already injected this session
+   (`{paths.cache}/session/recall-fifo.json`) — default off.
+
+3. Parse the JSON array (`{ path, score, excerpt }`). Inject **≤ 5** top excerpts into the brief
+   under a `Focus snippets:` block (path + score + excerpt each). Do not paste full file bodies.
+
+If the array is empty, omit the block — do not fabricate snippets.
+
 ### 3. Emit brief (~30 lines max)
 
 ```
@@ -78,6 +100,7 @@ Context pack (N paths):
 Where am I: …
 What matters now: …
 Open gaps: …
+Focus snippets (only when `--focus`): …
 Conflict hints (if any): …
 Do not re-read: …
 ```
@@ -92,7 +115,9 @@ Map to the single ritual for the stage (see `<paths.engine>/stage-command-table.
 ## Hard boundaries
 
 - Read-only — no Edit, no `state.yaml` writes, no progress file creation (use Phase 7 / template for that).
-- Do not paste full file bodies — list paths + one-line why each matters.
+- **ADR-003:** git-visible artifacts only; scored recall reads on-disk markdown — never build or query a
+  `memory/entries` corpus, vector store, or auto-inject index.
+- Do not paste full file bodies — list paths + one-line why each matters; focus snippets use CLI excerpts only.
 - If nothing exists yet (E0 empty), say so and point at `/idea-intake`.
 
 ## Exit gate
@@ -104,4 +129,6 @@ Map to the single ritual for the stage (see `<paths.engine>/stage-command-table.
 ## Tier & delegation
 - **Dispatch (read-only):** `scout` → `midas-scout` (or `Explore`).
 - Assembles the path pack + brief; never decides gates or writes artifacts.
+- **`--focus` scored snippets:** delegate the `recall-rank.mjs` invocation to scout — mechanical read +
+  rank only; no writes, no memory corpus.
 - Respect `cost_profile` as intent on non-Claude hosts (cheapest model).

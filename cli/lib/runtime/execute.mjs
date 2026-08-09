@@ -36,10 +36,26 @@ import {
   rollbackInstall as libRollbackInstall,
   discardRollbackSession as libDiscardRollbackSession,
 } from '../core/transaction.mjs';
+import {
+  acquireInstallLock,
+  releaseInstallLock,
+} from '../core/install-lock.mjs';
+import {
+  appendJournal,
+  clearActiveRun,
+  newInstallRunId,
+  readActiveRun,
+  removeInstallRun,
+  sessionFromJournal,
+  writeActiveRun,
+} from '../core/install-journal.mjs';
 import { assessUpdateConflicts } from '../core/conflicts.mjs';
 import { runPlanOps } from '../core/runner.mjs';
 import { bindExecutableOps } from '../steps/bind-applies.mjs';
 import { mergeTraceHooks } from '../steps/trace-hooks.mjs';
+import { mergeSafetyHooks } from '../steps/safety-hooks.mjs';
+import { mergeCarryoverHooks } from '../steps/carryover-hooks.mjs';
+import { mergeContextCostHooks } from '../steps/context-cost-hooks.mjs';
 import { copyTree as copyTreeMod, resetFreshVendorTrees, pruneStaleVendorTree as pruneStaleVendorTreeMod } from './copy-tree.mjs';
 import {
   installAutonomyCapability as installAutonomyCapabilityMod,
@@ -153,10 +169,45 @@ async function executeInstallerCommand(cmd, hooks) {
       return { ok: true, message: cmd.dryRun ? 'uninstall dry-run' : 'uninstall complete' };
     }
 
-    if (cmd.command === 'migrate' && !cmd.apply) {
+    if (cmd.command === 'migrate' && !cmd.apply && !cmd.rollback && !cmd.resume) {
       const migrationPlan = planV2Migration(TARGET);
       if (!jsonOut) console.log(formatMigrationPlan(migrationPlan));
       return { ok: true, message: 'migrate preview — pass --apply to write' };
+    }
+
+    // Intentional journal rollback (crash recovery) — no re-apply.
+    if (cmd.rollback && !cmd.dryRun) {
+      const active = readActiveRun(TARGET);
+      if (!active) {
+        return {
+          ok: false,
+          exitCode: 1,
+          outcome: 'FAILED_FATAL',
+          message: 'create-midas: --rollback found no active.json installer run',
+        };
+      }
+      const durable = sessionFromJournal(TARGET, active.run_id, installRollbackPaths());
+      if (!durable) {
+        return {
+          ok: false,
+          exitCode: 1,
+          outcome: 'FAILED_FATAL',
+          message: `create-midas: --rollback found no journal for run ${active.run_id}`,
+        };
+      }
+      libRollbackInstall(durable);
+      clearActiveRun(TARGET);
+      releaseInstallLock(TARGET, { force: true });
+      appendJournal(TARGET, active.run_id, { op: 'rollback', detail: 'intentional --rollback' });
+      if (!jsonOut) {
+        console.warn(`create-midas: rolled back installer run ${active.run_id}`);
+      }
+      return {
+        ok: true,
+        exitCode: 0,
+        outcome: 'COMPLETED',
+        message: `create-midas: rolled back installer run ${active.run_id}`,
+      };
     }
 
     // Rebaseline stale manifest hashes only after confirm (never during dry-run/checks).
@@ -185,7 +236,87 @@ async function executeInstallerCommand(cmd, hooks) {
 
     let migrationPlan = null;
     let migrationOuterRollback = null;
-    const rollbackSession = beginRollbackSession(TARGET, installRollbackPaths());
+    let runId = null;
+    let lockHeld = false;
+
+    if (!cmd.dryRun) {
+      const lock = acquireInstallLock(TARGET);
+      if (!lock.ok) {
+        const holder = lock.holder;
+        return {
+          ok: false,
+          exitCode: 2,
+          outcome: 'LOCK_HELD',
+          message:
+            `create-midas: installer lock held by pid ${holder?.pid} on ${holder?.hostname}` +
+            ' — wait or remove a stale lock after confirming the other process is dead',
+        };
+      }
+      lockHeld = true;
+
+      const prior = readActiveRun(TARGET);
+      if (cmd.resume) {
+        if (!prior) {
+          releaseInstallLock(TARGET);
+          lockHeld = false;
+          return {
+            ok: false,
+            exitCode: 1,
+            outcome: 'FAILED_FATAL',
+            message: 'create-midas: --resume found no active.json installer run',
+          };
+        }
+        runId = prior.run_id;
+        writeActiveRun(TARGET, {
+          ...prior,
+          step: 'resume',
+          pid: process.pid,
+        });
+        appendJournal(TARGET, runId, { op: 'resume', command: cmd.command });
+      } else if (prior) {
+        releaseInstallLock(TARGET);
+        lockHeld = false;
+        return {
+          ok: false,
+          exitCode: 3,
+          outcome: 'INCOMPLETE',
+          message:
+            `create-midas: incomplete installer run ${prior.run_id} (step=${prior.step})` +
+            ' — pass --resume or --rollback',
+        };
+      } else {
+        runId = newInstallRunId();
+        writeActiveRun(TARGET, {
+          run_id: runId,
+          started_at: new Date().toISOString(),
+          command: cmd.command,
+          step: 'apply',
+        });
+        appendJournal(TARGET, runId, { op: 'start', command: cmd.command });
+      }
+    }
+
+    let rollbackSession;
+    if (cmd.resume && runId) {
+      const durable = sessionFromJournal(TARGET, runId, installRollbackPaths());
+      if (!durable) {
+        releaseInstallLock(TARGET);
+        lockHeld = false;
+        return {
+          ok: false,
+          exitCode: 1,
+          outcome: 'FAILED_FATAL',
+          message:
+            `create-midas: --resume for run ${runId} found no journal backups` +
+            ' — use --rollback if the partial apply left nothing to restore, or fix the journal',
+        };
+      }
+      libRollbackInstall(durable);
+      appendJournal(TARGET, runId, { op: 'restored', detail: 'pre-resume rollback from journal' });
+      rollbackSession = beginRollbackSession(TARGET, installRollbackPaths(), { runId });
+    } else {
+      rollbackSession = beginRollbackSession(TARGET, installRollbackPaths(), runId ? { runId } : {});
+    }
     const session = makeSession({
       get migrationPlan() { return migrationPlan; },
       setMigrationPlan(p) { migrationPlan = p; },
@@ -202,7 +333,20 @@ async function executeInstallerCommand(cmd, hooks) {
 
       // Migrate outer snapshot wraps layout moves before install-refresh writes.
       if (cmd.command === 'migrate' && cmd.apply) {
-        migrationOuterRollback = beginRollbackSession(TARGET, installRollbackPaths());
+        migrationOuterRollback = beginRollbackSession(
+          TARGET,
+          installRollbackPaths(),
+          runId ? { runId: `${runId}-migrate-outer` } : {},
+        );
+      }
+
+      if (runId) {
+        writeActiveRun(TARGET, {
+          run_id: runId,
+          started_at: readActiveRun(TARGET)?.started_at || new Date().toISOString(),
+          command: cmd.command,
+          step: 'apply',
+        });
       }
 
       const { applied } = await runPlanOps(plan, session);
@@ -221,29 +365,71 @@ async function executeInstallerCommand(cmd, hooks) {
         migrationOuterRollback = null;
       }
 
+      const ok = !(verifyResult && !verifyResult.ok);
+      if (runId) {
+        if (ok) {
+          appendJournal(TARGET, runId, { op: 'complete' });
+          clearActiveRun(TARGET);
+        } else {
+          writeActiveRun(TARGET, {
+            run_id: runId,
+            started_at: readActiveRun(TARGET)?.started_at || new Date().toISOString(),
+            command: cmd.command,
+            step: 'verify',
+          });
+          appendJournal(TARGET, runId, { op: 'needs_repair', detail: 'verify failed' });
+        }
+      }
+
       return {
-        ok: !(verifyResult && !verifyResult.ok),
+        ok,
+        exitCode: ok ? 0 : 6,
+        outcome: ok ? 'COMPLETED' : 'NEEDS_REPAIR',
         verify: verifyResult ? { ok: !!verifyResult.ok } : null,
         written: [...written],
         skipped: [...skipped],
         message: updatedTo ? `updated → v${updatedTo}` : 'install complete',
       };
     } catch (err) {
+      const outerRunId = migrationOuterRollback?.durable?.runId || null;
       rollbackInstall(rollbackSession);
       if (migrationOuterRollback) {
         rollbackInstall(migrationOuterRollback);
         migrationOuterRollback = null;
+      }
+      if (runId) {
+        // In-process restore succeeded; clear active so the next run is not blocked.
+        // Crash mid-apply (no finally clear) leaves active.json for --resume/--rollback.
+        appendJournal(TARGET, runId, {
+          op: 'rolled_back',
+          detail: String(err.message || err),
+        });
+        clearActiveRun(TARGET);
+        if (lockHeld) {
+          releaseInstallLock(TARGET);
+          lockHeld = false;
+        }
+        removeInstallRun(TARGET, runId);
+        if (outerRunId) removeInstallRun(TARGET, outerRunId);
       }
       if (!jsonOut) {
         console.error(`create-midas: install failed; restored previous files — ${err.message || err}`);
       }
       return {
         ok: false,
+        exitCode: 5,
+        outcome: 'ROLLED_BACK',
         error: err,
         message: `create-midas: install failed; restored previous files — ${err.message || err}`,
       };
     } finally {
-      if (rollbackSession) discardRollbackSession(rollbackSession);
+      if (rollbackSession) {
+        const stillActive = runId && readActiveRun(TARGET);
+        if (!(stillActive && rollbackSession.durable)) {
+          discardRollbackSession(rollbackSession);
+        }
+      }
+      if (lockHeld) releaseInstallLock(TARGET);
     }
   }
 
@@ -357,9 +543,12 @@ async function executeInstallerCommand(cmd, hooks) {
             if (r.synced && !written.includes('.cursor/mcp.json')) written.push('.cursor/mcp.json');
           }
         }
-        // User-owned merge (ADR-011): seed/upsert only — never count as vendor "managed" files.
+        // User-owned merge (ADR-011/012): seed/upsert only — never count as vendor "managed" files.
         if (activeTools.includes('cursor')) {
           mergeTraceHooks(TARGET);
+          mergeSafetyHooks(TARGET);
+          mergeCarryoverHooks(TARGET);
+          mergeContextCostHooks(TARGET);
         }
         gitignoreResult = await ensureGitignore(paths);
       },
@@ -435,30 +624,44 @@ function copyTree(srcDir, dstDir) {
 }
 
 function installRollbackPaths() {
+  // Durable backups live under `.harness/cache/installer/` — never snapshot that
+  // parent (`.harness` or `.harness/cache`) or Node cpSync rejects self-subdir copies.
+  const vendorAndAdapters = [
+    '.harness/engine',
+    '.harness/scripts',
+    '.harness/autonomy',
+    '.harness/manifest.json',
+    '.harness/state.yaml',
+    '.harness/migrations',
+    '.claude',
+    '.agents',
+    '.cursor',
+    '.windsurf',
+    'AGENTS.md',
+    'CLAUDE.md',
+    'GEMINI.md',
+    '.mcp.json',
+    'gemini-extension.json',
+    'docs/agents-and-models.md',
+  ];
   if (update) {
-    return [
-      '.harness/engine',
-      '.harness/scripts',
-      '.harness/autonomy',
-      '.harness/cache',
-      '.harness/manifest.json',
-      '.claude',
-      '.agents',
-      '.cursor',
-      '.windsurf',
-      'AGENTS.md',
-      'CLAUDE.md',
-      'GEMINI.md',
-      '.mcp.json',
-      'gemini-extension.json',
-      'docs/agents-and-models.md',
-    ];
+    return vendorAndAdapters;
   }
-  return ['.harness', '.claude', '.agents', '.cursor', '.windsurf', 'harness', 'scripts', '.midas', 'product', 'AGENTS.md', 'CLAUDE.md', 'GEMINI.md', '.mcp.json', '.gitignore', 'gemini-extension.json', 'docs/agents-and-models.md'];
+  return [
+    ...vendorAndAdapters,
+    '.harness/product',
+    '.harness/rules',
+    '.harness/runs',
+    'harness',
+    'scripts',
+    '.midas',
+    'product',
+    '.gitignore',
+  ];
 }
 
-function beginRollbackSession(root, relPaths) {
-  return libBeginRollbackSession(root, relPaths);
+function beginRollbackSession(root, relPaths, opts = {}) {
+  return libBeginRollbackSession(root, relPaths, opts);
 }
 
 function rollbackInstall(session) {

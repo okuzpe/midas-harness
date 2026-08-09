@@ -124,9 +124,11 @@ export async function runInstaller(cmd, deps) {
         plan,
         error: new Error('cancelled'),
         message: 'create-midas: cancelled.',
+        outcome: 'CANCELLED',
+        exit_code: 130,
       });
       emitResult(envelope, { json });
-      return 1;
+      return 130;
     }
   }
   emitPhase('confirm', { json, color, status: 'done' });
@@ -157,10 +159,12 @@ export async function runInstaller(cmd, deps) {
       error: result.error,
       message: result.message,
       dryRun: !!cmd.dryRun,
+      outcome: result.outcome || (result.ok ? 'COMPLETED' : 'FAILED_FATAL'),
+      exit_code: result.exitCode ?? (result.ok ? 0 : 1),
     });
     if (json) emitResult(envelope, { json: true });
     // Non-json: execute() prints human success/failure when it owns the report.
-    return result.ok ? 0 : 1;
+    return result.exitCode ?? (result.ok ? 0 : 1);
   } catch (err) {
     emitPhase('execute', { json, color, status: 'failed' });
     const envelope = buildResultEnvelope({

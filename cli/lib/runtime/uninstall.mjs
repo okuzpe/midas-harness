@@ -7,6 +7,9 @@ import {
   sha256File,
 } from '../../template/.harness/scripts/ownership-manifest.mjs';
 import { stripTraceHooks } from '../steps/trace-hooks.mjs';
+import { stripSafetyHooks } from '../steps/safety-hooks.mjs';
+import { stripCarryoverHooks } from '../steps/carryover-hooks.mjs';
+import { stripContextCostHooks } from '../steps/context-cost-hooks.mjs';
 
 /**
  * @typedef {{
@@ -100,6 +103,43 @@ function reportUninstall(ctx, { removed, keptModified, keptUser, purged, layout 
     : `\n  Done — Midas removed.${ctx.purge ? '' : ` Your .harness/product/, .harness/rules/, ${runsLabel} and state.yaml were kept (use --purge to remove those too).`}\n`);
 }
 
+/**
+ * Strip Midas Cursor hook entries (trace, safety, carryover, context-cost).
+ * @param {UninstallCtx} ctx
+ * @param {string[]} removed
+ */
+function stripMidasCursorHooks(ctx, removed) {
+  if (!existsSync(join(ctx.target, '.cursor', 'hooks.json'))) return;
+  if (ctx.dryRun) {
+    removed.push('.cursor/hooks.json (Midas trace + safety + carryover + context-cost hook entries would be stripped)');
+    return;
+  }
+  const stripTrace = stripTraceHooks(ctx.target);
+  if (stripTrace.wrote) {
+    removed.push(stripTrace.removed
+      ? '.cursor/hooks.json (Midas trace hooks; file removed)'
+      : '.cursor/hooks.json (Midas trace hook entries stripped)');
+  }
+  const stripSafety = stripSafetyHooks(ctx.target);
+  if (stripSafety.wrote) {
+    removed.push(stripSafety.removed
+      ? '.cursor/hooks.json (Midas safety hooks; file removed)'
+      : '.cursor/hooks.json (Midas safety hook entries stripped)');
+  }
+  const stripCarryover = stripCarryoverHooks(ctx.target);
+  if (stripCarryover.wrote) {
+    removed.push(stripCarryover.removed
+      ? '.cursor/hooks.json (Midas carryover hooks; file removed)'
+      : '.cursor/hooks.json (Midas carryover hook entries stripped)');
+  }
+  const stripCost = stripContextCostHooks(ctx.target);
+  if (stripCost.wrote) {
+    removed.push(stripCost.removed
+      ? '.cursor/hooks.json (Midas context-cost hooks; file removed)'
+      : '.cursor/hooks.json (Midas context-cost hook entries stripped)');
+  }
+}
+
 function runCanonicalUninstall(ctx, { removed, keptModified, keptUser, purged }) {
   const manifest = readOwnershipManifest(ctx.target);
   if (!manifest) {
@@ -154,18 +194,7 @@ function runCanonicalUninstall(ctx, { removed, keptModified, keptUser, purged })
     removed.push(`${rel} (Midas managed block)`);
   }
 
-  if (existsSync(join(ctx.target, '.cursor', 'hooks.json'))) {
-    if (!ctx.dryRun) {
-      const strip = stripTraceHooks(ctx.target);
-      if (strip.wrote) {
-        removed.push(strip.removed
-          ? '.cursor/hooks.json (Midas trace hooks; file removed)'
-          : '.cursor/hooks.json (Midas trace hook entries stripped)');
-      }
-    } else {
-      removed.push('.cursor/hooks.json (Midas trace hook entries would be stripped)');
-    }
-  }
+  stripMidasCursorHooks(ctx, removed);
 
   const userPaths = [
     '.harness/product',
@@ -241,6 +270,8 @@ export function runUninstall(ctx) {
   for (const hp of hashPaths) {
     if (existsSync(join(ctx.target, hp))) { rmFile(ctx, hp); removed.push(hp); }
   }
+
+  stripMidasCursorHooks(ctx, removed);
 
   const workPaths = layout === 'hub'
     ? ['.midas']

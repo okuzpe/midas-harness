@@ -19,6 +19,18 @@ npm-debug.log*
 .harness/*.hash
 runs/cache/
 runs/*.hash
+
+# Muninn-adapt session/metrics/installer (under cache — already covered by .harness/cache/ and runs/cache/)
+#   session/commit-approved.json
+#   metrics/current-carryover.json
+#   metrics/context-cost.jsonl | lifecycle.jsonl | context-cost.log
+#   context/digest.json
+#   installer/runs/ | active.json | install.lock
+# Belt: if written outside cache (misconfigured path)
+runs/session/
+runs/metrics/
+runs/installer/
+
 **/.DS_Store
 Thumbs.db
 

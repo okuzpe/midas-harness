@@ -81,6 +81,9 @@ One **`{runs}/verifications/verify-NN.md`** (NN = sprint id only). Template: `<p
 ### 7. Feed failures back
 Route each `fail` to `/close-sprint`.
 
+**Optional — lifecycle journal:** after freezing `verify-NN.md`,
+`node <paths.scripts>/lifecycle-journal.mjs verify --detail "verify-NN"` (fail-open).
+
 ## Exit gate (verification complete)
 - [ ] Scope honoured; non-UI/API-only skips logged.
 - [ ] Every criterion `pass | fail | blocked` with on-disk evidence.

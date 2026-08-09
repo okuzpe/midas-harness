@@ -5,6 +5,14 @@
       {
         "command": "node scripts/trace-hook.mjs sessionStart",
         "timeout": 10
+      },
+      {
+        "command": "node scripts/carryover-refresh.mjs --hook",
+        "timeout": 10
+      },
+      {
+        "command": "node scripts/context-cost-refresh.mjs --hook",
+        "timeout": 10
       }
     ],
     "postToolUse": [
@@ -23,6 +31,25 @@
       {
         "command": "node scripts/trace-hook.mjs stop",
         "timeout": 10
+      }
+    ],
+    "beforeSubmitPrompt": [
+      {
+        "command": "node scripts/safety/secrets-prompt.mjs",
+        "timeout": 10,
+        "failClosed": true
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": "node scripts/safety/gate-commits.mjs",
+        "timeout": 10,
+        "failClosed": true
+      },
+      {
+        "command": "node scripts/safety/destructive-shell.mjs",
+        "timeout": 10,
+        "failClosed": true
       }
     ]
   }

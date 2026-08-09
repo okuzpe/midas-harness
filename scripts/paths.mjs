@@ -234,14 +234,17 @@ export function harnessPathsYaml() {
 
 /**
  * Project root when a Midas script is invoked with no directory argument.
- * Engine repo: `scripts/foo.mjs` → parent; v1: `.midas/scripts/foo.mjs` → grandparent;
- * v2: `.harness/scripts/foo.mjs` → grandparent.
+ * Engine repo: `scripts/foo.mjs` → parent; `scripts/safety/*.mjs` → grandparent;
+ * v1: `.midas/scripts/foo.mjs` → grandparent; v2: `.harness/scripts/foo.mjs` → grandparent.
  * @param {string} metaUrl import.meta.url
  */
 export function resolveProjectRootFromScript(metaUrl) {
   const scriptDir = dirname(fileURLToPath(metaUrl));
   const norm = scriptDir.replace(/\\/g, '/');
   if (norm.endsWith('/.midas/scripts') || norm.endsWith('/.harness/scripts')) {
+    return resolve(scriptDir, '..', '..');
+  }
+  if (norm.endsWith('/scripts/safety') || norm.endsWith('/scripts/safety/lib')) {
     return resolve(scriptDir, '..', '..');
   }
   return resolve(scriptDir, '..');

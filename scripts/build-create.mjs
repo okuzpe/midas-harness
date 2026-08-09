@@ -64,6 +64,7 @@ cpSync(join(ROOT, 'docs', 'agents-and-models.md'), join(engineTarget, 'docs', 'a
 cpSync(join(ROOT, 'docs', 'skill-quality-gate.md'), join(engineTarget, 'docs', 'skill-quality-gate.md'));
 cpSync(join(ROOT, 'docs', 'skill-flows.md'), join(engineTarget, 'docs', 'skill-flows.md'));
 cpSync(join(ROOT, 'docs', 'skills.md'), join(engineTarget, 'docs', 'skills.md'));
+cpSync(join(ROOT, 'docs', 'context-digest.md'), join(engineTarget, 'docs', 'context-digest.md'));
 cpSync(join(ROOT, '.mcp.json'), join(TEMPLATE, '.mcp.json'));
 
 // Host discovery mirrors. These are generated from the canonical engine sources and pruned by

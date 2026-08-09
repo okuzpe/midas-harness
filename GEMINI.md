@@ -204,6 +204,10 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` each boundary entry validates shape/range before use; an unvalidated external read is a fail (evidence: `file:line`).
   - **CHECK:** `manual:` inspect error/response paths; a message returning a raw secret or internal stack trace to a caller is a fail.
   - **CHECK:** `grep -rnE "catch\s*\([^)]*\)\s*\{\s*\}|except[^\n]*:\s*\n\s*pass"` → empty.
+- **Rule: Cursor safety hooks (always-on when installed)** (`cursor-safety-hooks.md`, base)
+  - **CHECK:** `manual:` when `.cursor/hooks.json` lists both Trace and safety commands, agents and docs treat Trace as observe-only (exit 0) and safety as optional fail-closed enforcement; citing Trace spans as proof that a destructive command was blocked is a fail.
+  - **CHECK:** `manual:` if `gate-commits.mjs` is wired, session evidence shows the human asked to commit/push before the command ran and `{paths.cache}/session/commit-approved.json` was written with `schema_version: 2` immediately prior; reuse across unrelated diffs is a fail.
+  - **CHECK:** `harness/rules/cursor-safety-hooks.md` (or `<paths.engine>/rules/cursor-safety-hooks.md`) contains at least one `**CHECK:**` and a dated `## Amendment` section.
 - **Rule: Documentation (always-on)** (`docs.md`, base)
   - **CHECK:** `manual:` each `export`ed symbol in the diff is preceded by a doc comment; an undocumented public export is a fail.
   - **CHECK:** `manual:` a doc comment that merely echoes the signature is a fail.
@@ -245,6 +249,7 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` no branch outlives its sprint window without a recorded reason.
   - **CHECK:** `manual:` reflog/CI shows no force-push to the default branch without a referencing ADR.
   - **CHECK:** `manual:` each push traces to an explicit human request in the session; an agent-initiated push is a fail.
+  - **CHECK:** `manual:` if `gate-commits.mjs` is wired in `.cursor/hooks.json`, a commit/push without a fresh receipt or ahead of an explicit human request is a fail.
   - **CHECK:** `manual:` the PR targets the default branch and links the sprint task; a PR with no sprint reference is a fail.
   - **CHECK:** `manual:` merged history matches the project's single chosen strategy (no mixed merge/squash).
 - **Rule: Hygiene & dead-flow sweep (always-on)** (`hygiene.md`, base)
@@ -332,6 +337,9 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` grep new/changed skill frontmatter; missing name/description, name≠dir, or side-effect skill without `disable-model-invocation: true` (and no documented exception) is a fail.
   - **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` warns `not referenced in the skills catalog` when a skill directory has no `/<name>` mention in `docs/skills.md` (or `<paths.engine>/docs/skills.md` on installs) — mechanizes the presence half of this CHECK; a warning on a touched skill is a fail. Still `manual:` whether a changed one-line role was updated in the catalog text, not just that the slash-name is still present (see also `change-propagation.md`).
   - **CHECK:** `manual:` entry line count (`wc -l` / editor) ≤ 500, or the skill/PR names the L3 split files; mandatory happy-path depth &gt; SKILL + one support file is a fail.
+- **Rule: No soft-pass on gates (always-on)** (`soft-pass.md`, base)
+  - **CHECK:** `manual:` when the diff touches production paths and close-sprint Step 0.5 applies, session or audit notes cite `{paths.cache}/gates/<run>/test.json` and `quality.json` with passing receipt status **or** a documented skip — citing only Trace output or agent prose is a fail.
+  - **CHECK:** `manual:` agents do not cite Trace spans as proof that destructive commands were blocked or that test/quality gates passed; see `cursor-safety-hooks.md`.
 - **Rule: State integrity (always-on)** (`state-integrity.md`, base)
   - **CHECK:** `node <paths.scripts>/doctor.mjs --gates-only` reports `ok` for `gate:phase-artifacts` (or no `warn gate:phase-*`). A `gate=passed` phase with neither assumption nor on-disk artifacts is a fail.
   - **CHECK:** `node <paths.scripts>/doctor.mjs --gates-only` reports `ok` (or `skip`) for `gate:sprint-continuity`. An active sprint with no progress file and absent/stale `last_touched` is a fail. See also `session-continuity.md` § STM progress log (manual twin).

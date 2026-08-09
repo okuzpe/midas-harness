@@ -65,6 +65,8 @@ export function buildResultEnvelope({
   written = null,
   skipped = null,
   message = null,
+  outcome = null,
+  exit_code = null,
 }) {
   return {
     schema_version: 1,
@@ -80,6 +82,8 @@ export function buildResultEnvelope({
     ...(written ? { written } : {}),
     ...(skipped ? { skipped } : {}),
     ...(message ? { message } : {}),
+    ...(outcome ? { outcome } : {}),
+    ...(exit_code != null ? { exit_code } : {}),
   };
 }
 

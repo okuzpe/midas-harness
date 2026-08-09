@@ -61,6 +61,8 @@ Phase-8 audits see git-visible evidence of what was proved and how.
 - [ ] Every new **Done** row has non-empty **Proof** and **Tool** (and **Route** when ≥4-file cluster).
 - [ ] `stage` / sprint status unchanged (no gate advance).
 - [ ] Chat shows `STM updated → {runs}/sprints/NN-progress.md`.
+- **Optional — lifecycle journal:** after a substantive STM update,
+  `node <paths.scripts>/lifecycle-journal.mjs session_note --detail "sprint-NN-progress"` (fail-open; metadata only).
 
 ## Tier & delegation
 - **Dispatch + progress file writes:** `build` → `midas-builder`.

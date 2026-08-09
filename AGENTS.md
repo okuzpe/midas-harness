@@ -93,8 +93,11 @@ Skills must name produce/fetch legs in `## Tier & delegation` — `harness-tier`
 
 ## Safety
 
+- **Trace observe ≠ safety deny.** Harness Trace hooks are fail-open (record only; ADR-010). When
+  `tools` includes `cursor`, the installer may also merge **fail-closed** safety hooks (ADR-012) —
+  agents must not treat Trace spans as enforcement. See `harness/rules/cursor-safety-hooks.md`.
 - Side-effecting skills (`/midas-init`, `/define-conventions`, `/start-sprint`, `/close-sprint`, `/midas-doctor`,
- `/midas-adopt`, `/midas-update`, `/midas-verify`, `/midas-design`, `/midas-qa`, `/midas-init --monorepo`, `/midas-tribunal`, `/midas-security-audit`, `/midas-sweep`, `/midas-lean-review`, `/midas-capture`, `/midas-align`, `/midas-precommit`, `/midas-bundle`, `/midas-progress`, `/midas-explore`, `/midas-auto-pilot`, `/midas-auto-sprints`, `/midas-improve-loop`, `/midas-autopilot`, `/midas-retro`, `/midas-investigate`) are **user-typed slash commands**
+  `/midas-adopt`, `/midas-update`, `/midas-verify`, `/midas-diff-gates`, `/midas-design`, `/midas-qa`, `/midas-init --monorepo`, `/midas-tribunal`, `/midas-security-audit`, `/midas-sweep`, `/midas-lean-review`, `/midas-capture`, `/midas-align`, `/midas-precommit`, `/midas-bundle`, `/midas-progress`, `/midas-explore`, `/midas-auto-pilot`, `/midas-auto-sprints`, `/midas-improve-loop`, `/midas-autopilot`, `/midas-retro`, `/midas-investigate`) are **user-typed slash commands**
  (`disable-model-invocation`). **Never call them via the Skill tool** (it errors) or auto-run them — when one
  is the next step, **surface the command for the user to type** ("👉 Run `/…`"). Each also guards this in its body.
 - **State ritual (shared):** skills read **`paths.state` first** and **write last** (read-modify-write). They

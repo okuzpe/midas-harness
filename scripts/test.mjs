@@ -473,7 +473,8 @@ if (existsSync(buildCreate)) {
         return n !== 'docs/agents-and-models.md' &&
           n !== 'docs/skill-quality-gate.md' &&
           n !== 'docs/skill-flows.md' &&
-          n !== 'docs/skills.md';
+          n !== 'docs/skills.md' &&
+          n !== 'docs/context-digest.md';
       });
     const sameShape = JSON.stringify(sourceFiles) === JSON.stringify(templateFiles);
     const sameContent = sameShape && sourceFiles.every(
@@ -1603,7 +1604,7 @@ check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bi
     );
     check(
       'installer:cursor-mcp-conflict-rolls-back',
-      install.status === 1 &&
+      (install.status === 1 || install.status === 5) &&
         /Cursor config before installing/.test(`${install.stdout}${install.stderr}`) &&
         treeDigest(cursorMcpRoot) === before,
       install.stderr || install.stdout,
@@ -1755,7 +1756,7 @@ check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bi
     );
     check(
       'installer:migration-rollback-after-install-failure',
-      migration.status === 1 &&
+      (migration.status === 1 || migration.status === 5) &&
         /restored previous files/.test(`${migration.stdout}${migration.stderr}`) &&
         treeDigest(migrationRollbackRoot) === before,
       migration.stderr || migration.stdout,
@@ -1974,6 +1975,43 @@ check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bi
     );
   } finally {
     rmSync(uninstallDry, { recursive: true, force: true });
+  }
+}
+{
+  const hooksFixture = mkdtempSync(join(tmpdir(), 'midas-uninstall-hooks-'));
+  try {
+    const install = spawnSync(
+      process.execPath,
+      [join(ROOT, 'cli', 'index.mjs'), '--tools=cursor', hooksFixture],
+      { cwd: ROOT, encoding: 'utf8' },
+    );
+    check('installer:hooks-fixture-install', install.status === 0, install.stderr || install.stdout);
+    const hooksPath = join(hooksFixture, '.cursor', 'hooks.json');
+    const hooksBefore = existsSync(hooksPath) ? readFileSync(hooksPath, 'utf8') : '';
+    check(
+      'installer:cursor-hooks-seeded',
+      /trace-hook\.mjs|\.harness\/scripts\/safety\//.test(hooksBefore) &&
+        /carryover-refresh\.mjs|context-cost-refresh\.mjs/.test(hooksBefore),
+      hooksBefore.slice(0, 300) || 'missing hooks.json',
+    );
+    const uninstallHooks = spawnSync(
+      process.execPath,
+      [join(ROOT, 'cli', 'index.mjs'), '--uninstall', hooksFixture],
+      { cwd: ROOT, encoding: 'utf8' },
+    );
+    const hooksAfter = existsSync(hooksPath) ? readFileSync(hooksPath, 'utf8') : '';
+    check(
+      'installer:uninstall-strips-cursor-hooks',
+      uninstallHooks.status === 0 &&
+        (!existsSync(hooksPath) ||
+          (!hooksAfter.includes('trace-hook.mjs') &&
+            !hooksAfter.includes('.harness/scripts/safety/') &&
+            !hooksAfter.includes('carryover-refresh.mjs') &&
+            !hooksAfter.includes('context-cost-refresh.mjs'))),
+      uninstallHooks.stderr || uninstallHooks.stdout,
+    );
+  } finally {
+    rmSync(hooksFixture, { recursive: true, force: true });
   }
 }
 {
@@ -2829,6 +2867,30 @@ check('create-midas:files-install-diagnose', /install-diagnose\.mjs/.test(readFi
         'create-template:skill-flows:match',
         readFileSync(sourceSkillFlows, 'utf8') === readFileSync(templateSkillFlows, 'utf8'),
         'cli/template/.harness/engine/docs/skill-flows.md drifted from docs/skill-flows.md',
+      );
+    }
+  }
+  {
+    const sourceContextDigest = join(ROOT, 'docs', 'context-digest.md');
+    const templateContextDigest = join(ROOT, 'cli', 'template', '.harness', 'engine', 'docs', 'context-digest.md');
+    check('create-template:context-digest', existsSync(templateContextDigest));
+    if (existsSync(sourceContextDigest) && existsSync(templateContextDigest)) {
+      check(
+        'create-template:context-digest:match',
+        readFileSync(sourceContextDigest, 'utf8') === readFileSync(templateContextDigest, 'utf8'),
+        'cli/template/.harness/engine/docs/context-digest.md drifted from docs/context-digest.md',
+      );
+    }
+  }
+  {
+    const sourceResume = join(ROOT, 'harness', 'templates', 'session-resume-precedence.md');
+    const templateResume = join(ROOT, 'cli', 'template', '.harness', 'engine', 'templates', 'session-resume-precedence.md');
+    check('create-template:session-resume-precedence', existsSync(templateResume));
+    if (existsSync(sourceResume) && existsSync(templateResume)) {
+      check(
+        'create-template:session-resume-precedence:match',
+        readFileSync(sourceResume, 'utf8') === readFileSync(templateResume, 'utf8'),
+        'template session-resume-precedence.md drifted from harness source',
       );
     }
   }
@@ -4342,6 +4404,13 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
       `got ${resolved}`,
     );
 
+    const safetyMeta = toUrl(join(ROOT, 'scripts', 'safety', 'gate-commits.mjs')).href;
+    check(
+      'safety:root-from-engine-safety-scripts',
+      resolve(resolveProjectRootFromScript(safetyMeta)) === resolve(ROOT),
+      resolveProjectRootFromScript(safetyMeta),
+    );
+
     // CLI write with projectRoot = install root stores under {paths.cache}/traces (.harness/cache/traces)
     const sink = { write() {} };
     runTraceWrite(['start-run'], { projectRoot: installTmp, stdout: sink, stderr: sink });
@@ -4436,6 +4505,112 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
   }
 
   check('trace:adr-011', existsSync(join(ROOT, 'docs', 'adr', 'ADR-011-harness-trace-installs.md')));
+}
+
+// --- Cursor safety hooks (ADR-012) — merge/strip + unit suite ---------------------------------
+{
+  const { mergeSafetyHooks, stripSafetyHooks, installSafetyHookCommand } = await import(
+    '../cli/lib/steps/safety-hooks.mjs'
+  );
+  const { mergeTraceHooks } = await import('../cli/lib/steps/trace-hooks.mjs');
+
+  const hookTmp = mkdtempSync(join(tmpdir(), 'midas-safety-merge-'));
+  try {
+    const seed = mergeSafetyHooks(hookTmp);
+    check('safety:hooks-seed', seed.action === 'seed' && seed.wrote);
+    const raw = JSON.parse(readFileSync(join(hookTmp, '.cursor', 'hooks.json'), 'utf8'));
+    check(
+      'safety:hooks-secrets-cmd',
+      raw.hooks.beforeSubmitPrompt?.[0]?.command === installSafetyHookCommand('secrets-prompt.mjs') &&
+        raw.hooks.beforeSubmitPrompt?.[0]?.failClosed === true,
+    );
+    check(
+      'safety:hooks-shell-cmds',
+      raw.hooks.beforeShellExecution?.length === 2 &&
+        raw.hooks.beforeShellExecution.every((h) => h.failClosed === true),
+    );
+
+    mergeTraceHooks(hookTmp);
+    mergeSafetyHooks(hookTmp);
+    const again = mergeSafetyHooks(hookTmp);
+    check('safety:hooks-idempotent', again.action === 'noop' && again.wrote === false);
+
+    const stripped = stripSafetyHooks(hookTmp);
+    const after = JSON.parse(readFileSync(join(hookTmp, '.cursor', 'hooks.json'), 'utf8'));
+    check('safety:hooks-strip-keeps-trace', stripped.wrote === true && stripped.removed === false);
+    check(
+      'safety:hooks-strip-no-safety',
+      !JSON.stringify(after).includes('scripts/safety/') &&
+        Boolean(after.hooks.postToolUse?.some((h) => String(h.command).includes('trace-hook.mjs'))),
+    );
+  } finally {
+    rmSync(hookTmp, { recursive: true, force: true });
+  }
+
+  check('safety:adr-012', existsSync(join(ROOT, 'docs', 'adr', 'ADR-012-muninn-adaptations.md')));
+  check(
+    'safety:rule',
+    existsSync(join(ROOT, 'harness', 'rules', 'cursor-safety-hooks.md')),
+  );
+
+  const unit = spawnSync(
+    process.execPath,
+    [
+      '--test',
+      'cli/lib/steps/tests/safety-hooks.test.js',
+      'cli/lib/steps/tests/carryover-hooks.test.js',
+      'cli/lib/steps/tests/context-cost-hooks.test.js',
+      'cli/lib/core/tests/install-journal.test.js',
+      'cli/lib/core/tests/install-lock.test.js',
+      'cli/lib/core/tests/install-execute.test.js',
+      'cli/lib/core/tests/durable-transaction.test.js',
+      'scripts/lib/tests/commit-receipt.test.js',
+      'scripts/lib/tests/carryover.test.js',
+      'scripts/lib/tests/context-cost.test.js',
+      'scripts/lib/tests/lifecycle-journal.test.js',
+      'scripts/lib/tests/quality-log.test.js',
+      'scripts/lib/tests/context-digest.test.js',
+      'scripts/lib/tests/gate-result.test.js',
+      'scripts/lib/tests/recall-score.test.js',
+      'scripts/lib/tests/recall-fifo.test.js',
+      'scripts/lib/tests/capture-candidates.test.js',
+      'scripts/safety/tests/secrets-prompt.test.js',
+      'scripts/safety/tests/gate-commits.test.js',
+      'scripts/safety/tests/destructive-shell.test.js',
+      'scripts/gates/tests/test-gate.test.js',
+      'scripts/gates/tests/quality-gate.test.js',
+      'scripts/gates/tests/diff-paths.test.js',
+    ],
+    { cwd: ROOT, encoding: 'utf8' },
+  );
+  check(
+    'safety:unit-suite',
+    unit.status === 0,
+    unit.status === 0 ? '' : (unit.stderr || unit.stdout || '').slice(0, 500),
+  );
+
+  // Wire contract: deny stdout uses Cursor snake_case message fields
+  const denySmoke = spawnSync(
+    process.execPath,
+    [join(ROOT, 'scripts', 'safety', 'gate-commits.mjs')],
+    {
+      cwd: ROOT,
+      encoding: 'utf8',
+      input: JSON.stringify({ command: 'git commit -m x' }),
+    },
+  );
+  let denyJson = null;
+  try {
+    denyJson = JSON.parse((denySmoke.stdout || '').trim());
+  } catch {
+    denyJson = null;
+  }
+  check(
+    'safety:deny-snake-case',
+    denyJson?.permission === 'deny' &&
+      typeof denyJson.user_message === 'string' &&
+      denyJson.userMessage === undefined,
+  );
 }
 
 console.log(`midas test: ${passed} passed, ${failures.length} failed`);

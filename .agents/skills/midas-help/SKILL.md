@@ -68,10 +68,10 @@ metadata:
 
 **Start or close a sprint**
 - What: Phase 7 kickoff, Phase 8 audit, bounded sprint ticks, or a non-advancing retrospective.
-- Command: `/start-sprint` · `/close-sprint` · `/midas-auto-sprints` → `node .harness/autonomy/bin/midas-autopilot.mjs setup` · `/midas-retro` [`NN|latest`]
+- Command: `/start-sprint` · `/close-sprint` · `/midas-diff-gates` (production diff receipts before close) · `/midas-auto-sprints` → `node .harness/autonomy/bin/midas-autopilot.mjs setup` · `/midas-retro` [`NN|latest`]
 - Happens: start activates sprint; close audits rules; auto-sprints guides setup/dry-run/tick CLI (requires `--autonomy` install); retro freezes `{runs}/retros/retro-NN.md` without touching stage.
 - NOT for operator-only sprint tasks (release/merge) — ADR-009 targets code checklist items. NOT for inventing continuous improve without a checklist → `/midas-auto-pilot`. Retro is not a substitute for `/close-sprint`.
-- Next: after start → implement + `/midas-progress`; auto-sprints ready → human runs `tick`; after close → next sprint; after retro → optional `/midas-capture` on recurring learnings.
+- Next: after start → implement + `/midas-progress`; run `/midas-diff-gates` before `/close-sprint` when the diff touches production paths; auto-sprints ready → human runs `tick`; after close → next sprint; after retro → optional `/midas-capture` on recurring learnings.
 
 **Continuous auto-pilot**
 - What: one slash starts continuous product-aligned improve (ask PR|code → discover → one fix → verify → evidence) via local Cursor `/loop`.

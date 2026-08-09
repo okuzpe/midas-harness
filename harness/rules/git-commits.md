@@ -54,6 +54,12 @@ branch strategies (e.g. GitHub Flow vs trunk-based) are added by `/define-conven
 - [ ] Code is committed and pushed **only when the human explicitly requests it** — not
       proactively by the agent.
       **CHECK:** `manual:` each push traces to an explicit human request in the session; an agent-initiated push is a fail.
+- [ ] When Cursor safety hooks are installed (`tools` includes `cursor`), commit/push also
+      requires a one-shot receipt at `{paths.cache}/session/commit-approved.json` (`schema_version: 2`)
+      written by the agent immediately after the human's explicit request; hooks consume it on allow.
+      See [`cursor-safety-hooks.md`](./cursor-safety-hooks.md).
+      **CHECK:** `manual:` if `gate-commits.mjs` is wired in `.cursor/hooks.json`, a commit/push
+      without a fresh receipt or ahead of an explicit human request is a fail.
 - [ ] PRs are opened against the default branch; the PR description references the sprint task
       and acceptance criteria from `{product}/sprints/NN-*.md`.
       **CHECK:** `manual:` the PR targets the default branch and links the sprint task; a PR with no sprint reference is a fail.

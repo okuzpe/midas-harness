@@ -1,6 +1,6 @@
 {
   "name": "create-midas",
-  "version": "2.8.2",
+  "version": "2.9.0",
   "private": true,
   "description": "Install the Midas product-development harness into any project (npm/pnpm/yarn/bun create).",
   "type": "module",

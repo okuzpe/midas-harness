@@ -25,12 +25,12 @@ Human catalog (this file) uses slash-names. Agents that **delegate** use the gen
 - **Never** dump the whole registry into a prompt — pass a matched subset only.
 - **v1 scope:** Midas-owned engine skills only (no project/user overlays yet).
 - Implementation size/ambiguity routing: `<paths.engine>/rules/organic-routing.md` (complements model-routing).
-- Phase-7 tip: for delegated work, path-pass matching `yes` procedures such as `midas-progress`, `midas-verify`, `midas-qa`, `midas-lean-review`, `midas-explore` when those jobs apply.
+- Phase-7 tip: for delegated work, path-pass matching `yes` procedures such as `midas-progress`, `midas-verify`, `midas-diff-gates`, `midas-qa`, `midas-lean-review`, `midas-explore` when those jobs apply.
 
 For the compact entry → decision → state → handoff view of every command, see
 [Skill flows](skill-flows.md). It explains the system shape without duplicating each skill's procedure.
 
-Catalog size: **35 shipped active** (+ 2 deprecated alias stubs) + **1 engine-only** (`/midas-precommit`, not in installs).
+Catalog size: **36 shipped active** (+ 2 deprecated alias stubs) + **1 engine-only** (`/midas-precommit`, not in installs).
 
 ---
 
@@ -40,7 +40,7 @@ Catalog size: **35 shipped active** (+ 2 deprecated alias stubs) + **1 engine-on
 |---|---|---|
 | **Pipeline** | Audited phase gates 0→8 | `/idea-intake` … `/close-sprint` |
 | **Orient** | Where am I / what next / resume / install confusion | `/midas-status`, `/midas-help`, `/midas-recall`, `/midas-reconcile` |
-| **Sprint day** | Inner loop during Phase 7 | `/midas-progress`, `/midas-verify`, `/midas-qa`, `/midas-explore`, `/midas-investigate`, `/midas-capture`, `/midas-lean-review`, `/midas-design`, `/midas-auto-pilot`, `/midas-auto-sprints`, `/midas-retro` |
+| **Sprint day** | Inner loop during Phase 7 | `/midas-progress`, `/midas-verify`, `/midas-diff-gates`, `/midas-qa`, `/midas-explore`, `/midas-investigate`, `/midas-capture`, `/midas-lean-review`, `/midas-design`, `/midas-auto-pilot`, `/midas-auto-sprints`, `/midas-retro` |
 | **Maintain + audit** | Sync, hygiene, optional deep audits, setup | `/midas-init`, `/midas-adopt`, `/midas-update`, `/midas-doctor`, `/midas-align`, `/midas-precommit` *(engine only)*, `/midas-sweep`, `/midas-bundle`, `/midas-tribunal`, `/midas-security-audit` |
 
 ---
@@ -81,6 +81,7 @@ Stage → command map (mechanical): `<paths.engine>/stage-command-table.yaml`.
 | `/midas-progress` | Write STM — `{runs}/sprints/NN-progress.md` after tasks. | build |
 | `/midas-design` | Product-authentic redesign — 3 directions → pick → spec → one slice; `{runs}/design/`. | orchestrate |
 | `/midas-verify` | Sprint UI/API gate evidence → `verify-NN.md` (incl. authenticity; before close). | build |
+| `/midas-diff-gates` | Diff-scoped test/quality receipts → `{paths.cache}/gates/<run>/` (production diffs; before close). | build |
 | `/midas-qa` | Ad-hoc branch/PR smoke (non-gate); does **not** replace verify. | build |
 | `/midas-explore` | Investigation outside the pipeline → `{runs}/explore/`. | scout |
 | `/midas-investigate` | Root-cause before bug fixes (Iron Law + 3 strikes) → `{runs}/investigate/inv-NN.md`. | build |
@@ -149,6 +150,7 @@ Use **`/midas-status`** for the single next lifecycle step. Use this table when 
 | Edited engine / installer / skills / VERSION | `/midas-align` then `/midas-precommit` (engine) |
 | Before commit on midas-harness | `/midas-precommit` (overall ≥ 80) |
 | Sprint UI proof (gate evidence) | `/midas-verify` |
+| Production diff test/quality receipts (before close) | `/midas-diff-gates` |
 | Redesign / improve UI (think before JSX) | `/midas-design` |
 | Quick PR/branch smoke test | `/midas-qa` |
 | Dead code / ledger drift | `/midas-sweep` |

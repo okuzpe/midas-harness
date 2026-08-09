@@ -517,6 +517,37 @@ if (mcp === null) {
     } else {
       check('mcp:cursor-sync', 'ok', '');
     }
+
+    const carryoverScript = join(ROOT, paths.scripts, 'carryover-refresh.mjs');
+    if (!existsSync(carryoverScript)) {
+      check('gate:carryover-hook', 'skip', 'carryover-refresh.mjs not installed in paths.scripts');
+    } else {
+      const hooksRaw = read('.cursor/hooks.json');
+      if (hooksRaw === null) {
+        check(
+          'gate:carryover-hook',
+          'warn',
+          '`.cursor/hooks.json` missing — re-run installer with `--tools=cursor` or merge carryover sessionStart hook',
+        );
+      } else {
+        try {
+          const hooks = JSON.parse(hooksRaw);
+          const list = hooks?.hooks?.sessionStart;
+          const hasCarryover = Array.isArray(list) && list.some(
+            (h) => h && typeof h.command === 'string' && h.command.includes('carryover-refresh.mjs'),
+          );
+          check(
+            'gate:carryover-hook',
+            hasCarryover ? 'ok' : 'warn',
+            hasCarryover
+              ? ''
+              : 'sessionStart missing carryover-refresh.mjs — re-run installer or merge carryover hook',
+          );
+        } catch {
+          check('gate:carryover-hook', 'warn', '`.cursor/hooks.json` invalid JSON');
+        }
+      }
+    }
   }
 }
 {
@@ -713,6 +744,68 @@ if (!stateRaw) {
     }
     if (flagged === 0) {
       check('gate:sprint-continuity', 'ok', `${active.length} active sprint(s) have progress or fresh last_touched`);
+    }
+  }
+}
+
+// Diff-scoped gate receipts (ADR-012): scripts present; warn when active sprint + production diff lacks passing aggregate.
+{
+  const scriptsDir = join(ROOT, paths.scripts);
+  const testGate = join(scriptsDir, 'gates', 'test-gate.mjs');
+  const qualityGate = join(scriptsDir, 'gates', 'quality-gate.mjs');
+  if (!existsSync(testGate) || !existsSync(qualityGate)) {
+    check('gate:diff-receipts', 'skip', 'gate runners not installed in paths.scripts');
+  } else if (!stateRaw) {
+    check('gate:diff-receipts', 'skip', 'no state.yaml');
+  } else {
+    const sprintStatus = parseSprints(stateRaw);
+    const active = [...sprintStatus.entries()].filter(([, st]) => st === 'active');
+    if (!active.length) {
+      check('gate:diff-receipts', 'ok', 'gate runners present; no active sprint');
+    } else {
+      let hasProd = false;
+      try {
+        const { hasProductionPaths, listChangedPaths } = await import('./gates/lib/diff-paths.mjs');
+        hasProd = hasProductionPaths(listChangedPaths(ROOT));
+      } catch {
+        hasProd = false;
+      }
+      if (!hasProd) {
+        check('gate:diff-receipts', 'ok', 'gate runners present; no production paths in working diff');
+      } else {
+        const { listGateRunDir, isPassingReceipt, readGateResult, findPassingGateRunForDiff } = await import('./lib/gate-result.mjs');
+        const { listChangedPaths } = await import('./gates/lib/diff-paths.mjs');
+        const changed = listChangedPaths(ROOT);
+        const match = findPassingGateRunForDiff(ROOT, changed);
+        if (match) {
+          check(
+            'gate:diff-receipts',
+            'ok',
+            `passing receipts for current diff under cache/gates/${match.runId}/`,
+          );
+        } else {
+          const cacheGates = dirname(listGateRunDir(ROOT, '_probe'));
+          let staleOnly = false;
+          if (existsSync(cacheGates)) {
+            for (const runId of readdirSync(cacheGates)) {
+              if (runId.startsWith('_')) continue;
+              const testR = readGateResult(ROOT, runId, 'test');
+              const qualityR = readGateResult(ROOT, runId, 'quality');
+              if (isPassingReceipt(testR) && isPassingReceipt(qualityR)) {
+                staleOnly = true;
+                break;
+              }
+            }
+          }
+          check(
+            'gate:diff-receipts',
+            'warn',
+            staleOnly
+              ? 'passing gate receipts exist but changed_paths do not match current production diff — re-run /midas-diff-gates'
+              : 'active sprint + production diff: missing passing cache/gates/<run>/{test,quality}.json — run /midas-diff-gates before /close-sprint',
+          );
+        }
+      }
     }
   }
 }

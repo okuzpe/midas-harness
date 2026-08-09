@@ -2,7 +2,8 @@
   TEMPLATE — rendered by /midas-init into the project-root AGENTS.md.
   Placeholders: {{PROJECT_NAME}}, {{STACK}}, {{TOOLS}}.
   Do NOT confuse this with the engine's own root AGENTS.md (harness source of truth).
-  Never hand-edit the rendered AGENTS.md; edit harness/conventions.md and re-run /midas-doctor.
+  Never hand-edit the rendered AGENTS.md; edit this file (`harness/templates/AGENTS.md.tmpl`)
+  and re-run `node scripts/build-create.mjs` (or `/midas-doctor` / installer rebuild).
 }}
 <!-- midas:begin AGENTS -->
 # AGENTS.md — {{PROJECT_NAME}}
@@ -20,6 +21,21 @@
 - AI tools wired: **{{TOOLS}}**
 - Methodology: `.harness/engine/methodology.md` (9 audited phases, idea → shipped)
 - State: `.harness/state.yaml` (single source of truth — read it for current phase)
+
+## CRITICAL — active session
+
+**Every turn** — before acting, bootstrap session context:
+
+1. Read `.harness/state.yaml` (`paths.state`) first — note `stage` and whether any sprint is `active`.
+2. **Active session** when (a) a sprint is `active` **or** (b) `{runs}/explore/.active` exists (resolve `{runs}` from `paths.runs`).
+3. **Active sprint:** follow the resume ladder in `.harness/engine/templates/session-resume-precedence.md` (steps 1→7). When step 4 is fresh, use `{paths.cache}/metrics/current-carryover.json` `files[]`; otherwise `/midas-recall`, `{runs}/sprints/NN-progress.md`, and `{product}/sprints/`.
+4. **Explore active:** read explore carryover per `/midas-explore` — `meta.yaml` + `notes.md` under the active explore dir; do not load the full skill mid-turn.
+5. When the carryover snapshot is fresh, do **not** load full phase skills mid-session.
+6. Precedence and staleness rules: `.harness/engine/templates/session-resume-precedence.md`.
+7. **Lazy context digest (opt-in):** if `{paths.cache}/context/digest.json` exists, you may run
+   `node <paths.scripts>/context-digest.mjs query <substring>` for path hits — never dump the digest
+   into context; never treat it as a substitute for `{product}/architecture.md`. Absent the file,
+   skip (digest is off by default).
 
 ## Conventions (always-on)
 
@@ -84,8 +100,11 @@ On tools without per-agent model selection, apply as intent: fastest for researc
 
 ## Safety
 
+- **Trace observe ≠ safety deny.** Harness Trace hooks are fail-open (record only). When Cursor safety
+  hooks are installed they may be fail-closed — do not treat Trace spans as proof that a destructive
+  command was blocked. See `.harness/engine/rules/cursor-safety-hooks.md`.
 - Side-effecting skills (`/midas-init`, `/define-conventions`, `/start-sprint`, `/close-sprint`, `/midas-doctor`,
-  `/midas-adopt`, `/midas-update`, `/midas-verify`, `/midas-design`, `/midas-qa`, `/midas-init --monorepo`, `/midas-tribunal`, `/midas-security-audit`, `/midas-sweep`, `/midas-lean-review`, `/midas-capture`, `/midas-align`, `/midas-bundle`, `/midas-progress`, `/midas-explore`, `/midas-auto-pilot`, `/midas-auto-sprints`, `/midas-improve-loop`, `/midas-autopilot`, `/midas-retro`, `/midas-investigate`) are **user-typed slash commands**
+  `/midas-adopt`, `/midas-update`, `/midas-verify`, `/midas-diff-gates`, `/midas-design`, `/midas-qa`, `/midas-init --monorepo`, `/midas-tribunal`, `/midas-security-audit`, `/midas-sweep`, `/midas-lean-review`, `/midas-capture`, `/midas-align`, `/midas-bundle`, `/midas-progress`, `/midas-explore`, `/midas-auto-pilot`, `/midas-auto-sprints`, `/midas-improve-loop`, `/midas-autopilot`, `/midas-retro`, `/midas-investigate`) are **user-typed slash commands**
   (`disable-model-invocation`). **Never call them via the Skill tool** (it errors) or auto-run them — when one
   is the next step, **surface the command for the user to type** ("👉 Run `/…`"). Each also guards this in its body.
 - **State ritual (shared):** skills read **`paths.state` first** and **write last** (read-modify-write). Cite

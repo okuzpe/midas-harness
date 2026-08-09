@@ -38,6 +38,8 @@ export function parseToolsList(value) {
  *   apply: boolean,
  *   purge: boolean,
  *   autonomy: boolean,
+ *   resume: boolean,
+ *   rollback: boolean,
  *   routing: string|null,
  *   layout: string|null,
  *   positionals: string[],
@@ -66,6 +68,8 @@ export function parseInstallerArgs(argv) {
       autonomy: { type: 'boolean', default: false },
       json: { type: 'boolean', default: false },
       yes: { type: 'boolean', short: 'y', default: false },
+      resume: { type: 'boolean', default: false },
+      rollback: { type: 'boolean', default: false },
       tools: { type: 'string' },
       routing: { type: 'string' },
       layout: { type: 'string' },
@@ -110,6 +114,16 @@ export function parseInstallerArgs(argv) {
     err.code = 'APPLY_WITHOUT_MIGRATE';
     throw err;
   }
+  if (values.resume && values.rollback) {
+    const err = new Error('create-midas: choose either --resume or --rollback, not both.');
+    err.code = 'RESUME_ROLLBACK_CONFLICT';
+    throw err;
+  }
+  if ((values.resume || values.rollback) && !values.update && !values.migrate) {
+    const err = new Error('create-midas: --resume/--rollback require --update or --migrate.');
+    err.code = 'RESUME_WITHOUT_MODE';
+    throw err;
+  }
 
   const command = values.diagnose
     ? 'diagnose'
@@ -147,6 +161,8 @@ function baseCommand({ command, target = '.', positionals = [], tools, toolsFlag
     apply: !!values.apply,
     purge: !!values.purge,
     autonomy: !!values.autonomy,
+    resume: !!values.resume,
+    rollback: !!values.rollback,
     routing: values.routing ? String(values.routing) : null,
     layout: values.layout ? String(values.layout) : null,
     positionals,

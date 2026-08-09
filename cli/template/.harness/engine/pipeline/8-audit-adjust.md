@@ -31,6 +31,14 @@ recommended on large diffs; not blocking if none was run and no prior sweep left
 high-severity findings. When a sweep exists, resolve or consciously defer every `dead-flow` and
 `ledger-drift` row before grading other rules.
 
+### 0.5. Diff gate receipts (production diffs)
+
+When the working diff touches **production** paths (see `scripts/gates/lib/diff-paths.mjs` and ADR-012 §4),
+require passing receipts under `{paths.cache}/gates/<run>/test.json` and `quality.json` (`isPassingReceipt`
+semantics) **or** record an explicit skip with reason in `{runs}/sprints/NN-progress.md` or audit notes.
+Run `/midas-diff-gates` when receipts are missing or stale (`changed_paths` no longer matches the diff).
+Engine-only / docs-only diffs: skip OK. UI/API proof remains `/midas-verify` — gate receipts do not replace it.
+
 ### 1. Load state + frozen rules
 
 Load the inputs above. Design-direction named UI references are the evidence the

@@ -9,25 +9,37 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+---
+
+## [2.9.0] — 2026-08-09
+
+### Added
+
+- **ADR-012 Muninn adaptations (phased)** — safety hooks, session carryover, diff gate receipts, durable installer resume, and optional P2 observability (see [`docs/adr/ADR-012-muninn-adaptations.md`](./docs/adr/ADR-012-muninn-adaptations.md)).
+- **Cursor safety hooks (fail-closed)** — `scripts/safety/{secrets-prompt,gate-commits,destructive-shell}.mjs`; installer merge via `cli/lib/steps/safety-hooks.mjs`; rule `harness/rules/cursor-safety-hooks.md`.
+- **Commit receipt** — `scripts/commit-receipt.mjs` + `scripts/lib/commit-receipt.mjs`; diff-bound git write approval for `gate-commits.mjs`.
+- **Session carryover** — `carryover-refresh.mjs`, `{paths.cache}/metrics/current-carryover.json`, Cursor `sessionStart` hook; `session-resume-precedence.md` + AGENTS CRITICAL bootstrap.
+- **Diff-scoped gate receipts** — `gates/{test,quality}-gate.mjs`, `lib/gate-result.mjs`, `/midas-diff-gates` skill; close-sprint Step 0.5 + `soft-pass.md` rule; doctor `gate:diff-receipts` anti-stale matching.
+- **Durable installer** — `install-journal.mjs`, `install-lock.mjs`, `--resume` / `--rollback`; exit codes 2/3/5/6; [`docs/installer-outcomes.md`](./docs/installer-outcomes.md).
+- **Optional P2** — context digest/cost metrics, scored recall (`recall-rank.mjs`), lifecycle/quality journals, capture-candidates CLI.
+- **Docs** — `docs/context-digest.md` shipped to install template.
+
 ### Changed
 
-- **Engine repo layout clarity:** installer folder `create-midas/` → `cli/` (npm package name stays `create-midas`); contributor Trace cache uses root `runs/cache/` (`paths.cache` in `harness/state.yaml`). Product installs keep `.harness/` (ADR-007). **Contributor-breaking:** clone paths and local `node cli/index.mjs` replace `create-midas/`; do not create root `.harness/` on the engine repo.
-- Doc/ADR follow-through: ADR-010/011 + `harness/research/harness-trace.md` document `{paths.cache}/traces` (engine `runs/cache` vs install `.harness/cache`); INSTALL + hooks README aligned.
+- **Engine repo layout clarity:** installer folder `create-midas/` → `cli/` (npm package name stays `create-midas`); contributor Trace cache uses root `runs/cache/` (`paths.cache` in `harness/state.yaml`). Product installs keep `.harness/` (ADR-007).
+- Doc/ADR follow-through: ADR-010/011 + `harness/research/harness-trace.md` document `{paths.cache}/traces`; INSTALL + hooks README aligned.
 - Playbook template rename: `improve-cycle.md` → `auto-pilot-cycle.md` (aligns with `/midas-auto-pilot`).
-- `scripts/ship-manifest.mjs` — single shipped-scripts list for `build-create` + `test` (no dual FILES lists).
+- `scripts/ship-manifest.mjs` — single shipped-scripts list for `build-create` + `test`.
 - Contributor hygiene: skill source-of-truth docs, v2 runs paths, MkDocs ADR-010/011, autonomy anti-typo callouts.
-- Installer refactor: shared `lib/core/preserve-policy.mjs` (`decideTemplateCopyAction`); extract `runtime/{copy-tree,autonomy-install,uninstall}.mjs` from `execute.mjs`. Plan notes vendor wipe/prune lifecycle; parity + autonomy pointer unit tests.
-- `SECURITY.md` uses `{runs}/audits/` token (install-generic); engine repo no longer keeps a product lifecycle ledger.
-- **Removed engine lifecycle dogfood:** deleted committed `runs/{audits,sprints,sweeps,retros,debates,investigate,auto-pilot}/` and `docs/product/` lifecycle tree; `harness/state.yaml` is contributor metadata only (`stage: shipped`); stub `docs/product/README.md`; lifecycle CI fixture = `scripts/fixtures/product-closed/`.
-- **Removed TaskPilot research fixture:** deleted `docs/research/` (~200 files including vendored `.harness/engine/`); bundle + gate CI now use slim `scripts/fixtures/product-closed/` (no engine copy).
+- Installer refactor: shared preserve-policy, durable transaction journal, hook strip on uninstall (trace/safety/carryover/context-cost).
+- `SECURITY.md` uses `{runs}/audits/` token (install-generic).
+- Skills wired for ADR-012 rituals: `start-sprint`, `close-sprint`, `midas-recall`, `midas-explore`, `midas-verify`, `midas-progress`, `midas-help`, `midas-capture`.
 
 ### Removed
 
-- `docs/research/` (TaskPilot fixture and README) — replaced by `scripts/fixtures/product-closed/`.
-- Unused `create-midas/lib/steps/install.mjs` re-export stub; unused `pathIsFile` / `isExecutableOp` exports.
-- Stale `HARNESS_ENGINE_ONLY_RELS` entry `research/Untitled-1.md` (file never existed).
-- Accidentally committed `runs/cache/**` and `runs/adapters.hash` (gitignore already covered; untracked from index).
-- Engine MVP dogfood evidence and product ledger (see Changed above).
+- `docs/research/` (TaskPilot fixture) — replaced by `scripts/fixtures/product-closed/`.
+- Unused `create-midas/lib/steps/install.mjs` re-export stub; unused exports.
+- Engine MVP dogfood evidence and product ledger; committed `runs/cache/**` untracked from index.
 
 ---
 
@@ -1634,7 +1646,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.8.2...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.9.0...HEAD
+[2.9.0]: https://github.com/okuzpe/midas-harness/compare/v2.8.2...v2.9.0
 [2.8.2]: https://github.com/okuzpe/midas-harness/compare/v2.8.1...v2.8.2
 [2.8.1]: https://github.com/okuzpe/midas-harness/compare/v2.8.0...v2.8.1
 [2.8.0]: https://github.com/okuzpe/midas-harness/compare/v2.7.0...v2.8.0

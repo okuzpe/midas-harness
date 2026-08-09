@@ -115,6 +115,11 @@ pass; **conformance to rules is verified in Phase 8** (`/close-sprint`).
 - [ ] `paths.state` shows the sprint `status: active` and `stage: sprint_execution` (write last).
 - [ ] User knows next close ritual is `/close-sprint` (after tests + `/midas-verify` when UI).
 - [ ] No Phase-8 `MIDAS_AUDIT_RESULT` claimed here — kickoff only.
+- **Optional — lifecycle journal:** after setting the sprint `active`,
+  `node <paths.scripts>/lifecycle-journal.mjs start_sprint --detail "sprint-NN"` (fail-open).
+- **Optional — carryover snapshot:** `node <paths.scripts>/carryover-refresh.mjs` after the sprint is
+  `active` (or rely on Cursor `sessionStart` hook when `tools` includes `cursor`). Resume ladder:
+  `<paths.engine>/templates/session-resume-precedence.md`.
 
 ## Tier & delegation
 Audit + adjustment decisions + agent selection → **orchestrate** (`midas-orchestrator`). Implementation →

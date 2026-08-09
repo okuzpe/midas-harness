@@ -49,13 +49,15 @@ or `--end`, run **Carryover only** (below). Otherwise load this full skill on ex
 3. **Slug:** kebab-case from topic (max 5 words); on collision append `-2`, `-3`.
 4. Create `{runs}/explore/<slug>/` from `<paths.engine>/templates/explore-meta.yaml` + `explore-notes.md`.
 5. Write slug to `{runs}/explore/.active`.
-6. Confirm in ≤5 lines: slug, path, how to end (`/midas-explore --end`).
+6. **Optional — lifecycle journal:** `node <paths.scripts>/lifecycle-journal.mjs explore_start --detail "<slug>"` (fail-open).
+7. Confirm in ≤5 lines: slug, path, how to end (`/midas-explore --end`).
 
 ## End — `/midas-explore --end`
 
 1. Set `status: completed` in `meta.yaml`; delete `.active` (or clear it).
-2. Summarize Actionable items (≤10 lines).
-3. Unless `--no-capture`: if items look like a durable rule/playbook/convention, **propose**
+2. **Optional — lifecycle journal:** `node <paths.scripts>/lifecycle-journal.mjs explore_end --detail "<slug>"` (fail-open).
+3. Summarize Actionable items (≤10 lines).
+4. Unless `--no-capture`: if items look like a durable rule/playbook/convention, **propose**
    `/midas-capture` (recommend-don't-wall — ask first, never write the artifact here).
 
 ## When NOT

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "updated": null,
   "source": "engine/rules",
-  "source_digest": "2000ece66fa9419c6ffeee5de87754403fb0a5183390f4c9ca8183247e538662",
+  "source_digest": "ddaedec05e7ceab1593be65691ff9add0385b6977d2556e647f30a65c52dc8d0",
   "rules": [
     {
       "path": "engine/rules/acceptance-criteria.md",
@@ -447,6 +447,40 @@
       ]
     },
     {
+      "path": "engine/rules/cursor-safety-hooks.md",
+      "slug": "cursor-safety-hooks",
+      "title": "Rule: Cursor safety hooks (always-on when installed)",
+      "owner": "orchestrate",
+      "phase": 8,
+      "check_count": 3,
+      "checks": [
+        {
+          "kind": "manual",
+          "body": "`manual:` when `.cursor/hooks.json` lists both Trace and safety commands, agents and docs treat Trace as observe-only (exit 0) and safety as optional fail-closed enforcement; citing Trace spans as proof that a destructive command was blocked is a fail.",
+          "section": "Checklist",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` if `gate-commits.mjs` is wired, session evidence shows the human asked to commit/push before the command ran and `{paths.cache}/session/commit-approved.json` was written with `schema_version: 2` immediately prior; reuse across unrelated diffs is a fail.",
+          "section": "Checklist",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "command",
+          "body": "`harness/rules/cursor-safety-hooks.md` (or `<paths.engine>/rules/cursor-safety-hooks.md`) contains at least one `**CHECK:**` and a dated `## Amendment` section.",
+          "section": "Checklist",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "high"
+        }
+      ]
+    },
+    {
       "path": "engine/rules/docs.md",
       "slug": "docs",
       "title": "Rule: Documentation (always-on)",
@@ -658,7 +692,7 @@
       "title": "Rule: Git commits (always-on)",
       "owner": "orchestrate",
       "phase": 8,
-      "check_count": 17,
+      "check_count": 18,
       "checks": [
         {
           "kind": "command",
@@ -775,6 +809,14 @@
         {
           "kind": "manual",
           "body": "`manual:` each push traces to an explicit human request in the session; an agent-initiated push is a fail.",
+          "section": "Checklist > Push and merge discipline",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` if `gate-commits.mjs` is wired in `.cursor/hooks.json`, a commit/push without a fresh receipt or ahead of an explicit human request is a fail.",
           "section": "Checklist > Push and merge discipline",
           "phase": 8,
           "owner": "orchestrate",
@@ -1490,6 +1532,32 @@
           "kind": "manual",
           "body": "`manual:` entry line count (`wc -l` / editor) ≤ 500, or the skill/PR names the L3 split files; mandatory happy-path depth &gt; SKILL + one support file is a fail.",
           "section": "Checklist > Progressive disclosure",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        }
+      ]
+    },
+    {
+      "path": "engine/rules/soft-pass.md",
+      "slug": "soft-pass",
+      "title": "Rule: No soft-pass on gates (always-on)",
+      "owner": "orchestrate",
+      "phase": 8,
+      "check_count": 2,
+      "checks": [
+        {
+          "kind": "manual",
+          "body": "`manual:` when the diff touches production paths and close-sprint Step 0.5 applies, session or audit notes cite `{paths.cache}/gates/<run>/test.json` and `quality.json` with passing receipt status **or** a documented skip — citing only Trace output or agent prose is a fail.",
+          "section": "Checklist",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` agents do not cite Trace spans as proof that destructive commands were blocked or that test/quality gates passed; see `cursor-safety-hooks.md`.",
+          "section": "Checklist",
           "phase": 8,
           "owner": "orchestrate",
           "severity": "medium"
