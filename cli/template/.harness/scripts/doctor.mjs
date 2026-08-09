@@ -882,7 +882,7 @@ if (gatesRegistryRaw === null) {
   }
 }
 
-// Structured stage-command table: canonical phase -> ritual/recall map.
+// Structured stage-command table: runtime YAML must match STAGE_ROWS (authoring SoT).
 const stageTableRaw = read(join(paths.engine, 'stage-command-table.yaml'));
 if (stageTableRaw === null) {
   check('stage-table', 'skip', `no ${paths.engine}/stage-command-table.yaml`);
@@ -890,7 +890,7 @@ if (stageTableRaw === null) {
   try {
     const generatedStageTable = computeStageCommandTableYaml();
     if (stageTableRaw !== generatedStageTable) {
-      check('stage-table', 'warn', `stage-command-table.yaml drifted from the generated table — engine maintainers run \`${doctorCmd} --fix\``);
+      check('stage-table', 'warn', `stage-command-table.yaml drifted from STAGE_ROWS — engine maintainers edit scripts/stage-command-table.mjs then run \`${doctorCmd} --fix\``);
     } else {
       check('stage-table', 'ok', 'canonical stage-command table');
     }

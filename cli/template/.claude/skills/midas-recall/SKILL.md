@@ -45,8 +45,9 @@ When step 4 is fresh (`{paths.cache}/metrics/current-carryover.json`, `ok: true`
 
 ### 2. Build Context Pack (max ~15 paths, ordered)
 
-**Canonical recall paths:** `<paths.engine>/stage-command-table.yaml` per `stage` (parsed by
-`<paths.scripts>/stage-command-table.mjs` for `/midas-bundle` recall profile).
+**Runtime recall paths:** `<paths.engine>/stage-command-table.yaml` per `stage` (parsed by
+`<paths.scripts>/stage-command-table.mjs` for `/midas-bundle` recall profile). The YAML is
+**generated** from `STAGE_ROWS` in that script — do not hand-edit it in the engine repo.
 
 Always include when present:
 

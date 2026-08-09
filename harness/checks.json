@@ -2,7 +2,7 @@
   "schema_version": 1,
   "updated": null,
   "source": "engine/rules",
-  "source_digest": "13e5e53c53f5ebfb6b70de646e052bb2797cb64f5321ae7e1f35510a642dee69",
+  "source_digest": "97065c7b21843d254f1015507e80f98913b793fed4eefa3f9b99a050f1034017",
   "rules": [
     {
       "path": "engine/rules/acceptance-criteria.md",
@@ -1244,7 +1244,7 @@
         },
         {
           "kind": "manual",
-          "body": "`manual:` when `{runs}/session/freeze-dir.txt` exists (or the human named a freeze root still in force), every path in the working-tree diff for that session lies under that root; any write outside is a fail.",
+          "body": "`manual:` when `{paths.cache}/session/freeze-dir.txt` exists (or the human named a freeze root still in force), every path in the working-tree diff for that session lies under that root; any write outside is a fail.",
           "section": "Checklist",
           "phase": 8,
           "owner": "orchestrate",

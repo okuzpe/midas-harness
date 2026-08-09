@@ -2,9 +2,10 @@
 
 > This file is project law for **any** AI agent working in this repository
 > (Claude Code, Cursor, Copilot, Codex, Windsurf, …).
-> It is **maintained** for the Midas engine repository. Product installs get their own `AGENTS.md`
-> from the installer template. Edit `harness/conventions.md` and re-run `/midas-doctor` to propagate
-> adapter changes — this summary file is updated manually when engine metadata changes.
+> It is **engine-repo only** (manually curated; ADR-005). Product installs get a different
+> `AGENTS.md` from `harness/templates/AGENTS.md.tmpl` → `cli/template/AGENTS.md` at install time.
+> Edit `harness/conventions.md` and re-run `/midas-doctor` to propagate adapter changes — this
+> summary file is updated manually when engine metadata changes.
 
 ## What this project is
 

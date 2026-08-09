@@ -24,7 +24,7 @@ Safe exceptions: deleting paths the human named this turn; tmp/fixture cleanup t
 owns; soft resets the human requested.
 
 ### Freeze — edit boundary
-When the human asks to freeze/lock edits to a path, or `{runs}/session/freeze-dir.txt` exists
+When the human asks to freeze/lock edits to a path, or `{paths.cache}/session/freeze-dir.txt` exists
 (one absolute or repo-relative directory, trailing slash optional):
 
 - Create/edit/delete **only** under that root
@@ -42,7 +42,7 @@ When the human asks for guard / full safety / lock it down: enable **both** care
       recursive delete of non-tmp project paths, or production destroy; if such a command ran, the
       human's explicit OK for that command is recorded in the session or PR notes — otherwise fail.
 - [ ] An active freeze boundary is respected.
-      **CHECK:** `manual:` when `{runs}/session/freeze-dir.txt` exists (or the human named a freeze
+      **CHECK:** `manual:` when `{paths.cache}/session/freeze-dir.txt` exists (or the human named a freeze
       root still in force), every path in the working-tree diff for that session lies under that
       root; any write outside is a fail.
 - [ ] Guard requests activate both protections.
@@ -55,5 +55,7 @@ When the human asks for guard / full safety / lock it down: enable **both** care
 
 ## Amendment
 
+- **2026-08-10** — Freeze file path moved to `{paths.cache}/session/freeze-dir.txt` (ADR-012
+  ephemeral session artifacts under cache; do not reintroduce `{runs}/session/` as SoT).
 - **2026-08-07** — Adopted gstack careful/freeze/guard as always-on behavioral rule (no mandatory
-  host hooks). Optional `{runs}/session/freeze-dir.txt` records the freeze root for audit.
+  host hooks). Optional freeze-dir file records the freeze root for audit.

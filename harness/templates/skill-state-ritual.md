@@ -14,8 +14,9 @@ file**; they do not restate stage enums, path substitution, or the read/write or
 2. Resolve `{runs}/`, `{product}/`, engine, and scripts via `AGENTS.md` § Path resolution.
 3. Stage enum, `stage_status`, and field meanings live only in
    `<paths.engine>/state.schema.md` — **cite, never copy**.
-4. Stage → next-command map: `<paths.engine>/stage-command-table.yaml` (same source as
-   `/midas-status` / `/midas-help`).
+4. Stage → next-command map (runtime): `<paths.engine>/stage-command-table.yaml` (same file
+   `/midas-status` / `/midas-help` read). In the engine repo the YAML is generated from
+   `STAGE_ROWS` in `scripts/stage-command-table.mjs` — do not hand-edit it.
 
 ## Read first, write last
 

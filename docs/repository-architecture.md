@@ -68,11 +68,42 @@ flowchart TD
 |---|---|---|
 | Base conventions and rules | `harness/conventions.md`, `harness/rules/*` | `.claude/CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `GEMINI.md` |
 | Skills and agents | `harness/skills/*/SKILL.md`, `harness/agents/*.md` | `.claude/*`, `.agents/skills`, plugins, installer template |
+| Stage → command + recall | `STAGE_ROWS` in `scripts/stage-command-table.mjs` | `harness/stage-command-table.yaml` (committed; runtime readers use this file) |
 | Installable project template | `harness/*`, `.mcp.json`, selected `docs/*`, selected `scripts/*` | `cli/template/*` |
 | Installer CLI (zero-dep) | `cli/index.mjs`, `cli/lib/**` (npm package name `create-midas`) | `npx` / `create-midas` bin; lifecycle: requirements → checks → plan → confirm → execute → verify |
 | Plugin package | `harness/skills`, `harness/agents`, `.mcp.json`, metadata in `scripts/build-plugin.mjs` | `harness/plugins/midas/*`, `harness/.claude-plugin/marketplace.json` |
 | Documentation site | `docs/*.md`, `mkdocs.yml` | `mkdocs build --site-dir _site` locally; GitHub Pages artifact from `.github/workflows/docs.yml` |
 | Version stamp | `harness/VERSION` | `npm run bump -- <ver>` → packages, state stamps, `INSTALL.md` `#v…` pins, rebuild |
+
+### AGENTS.md surfaces (three roles — do not conflate)
+
+| Path | Role |
+|---|---|
+| Root `AGENTS.md` | Engine-repo law (manually curated; ADR-005) |
+| `harness/templates/AGENTS.md.tmpl` | Authoring SoT for **product install** `AGENTS.md` |
+| `cli/template/AGENTS.md` | Generated install preview (from the tmpl via `build-create.mjs`) |
+
+### Package naming triangle
+
+| Name | Where | Role |
+|---|---|---|
+| `midas-harness` | Root `package.json` / GitHub repo | Engine repository |
+| `create-midas` | `cli/package.json` | Published npm installer package |
+| `midas` | Root / cli `bin` | CLI entry alias (`npx … midas`) |
+
+### Engine `layout: classic` vs product `layout: harness`
+
+`harness/state.yaml` uses `layout: classic` with path overrides for **contributor authoring**
+(engine repo). That is not a v1 product install. Product projects use `layout: harness` and
+`.harness/state.yaml` (ADR-007). Do not create `.harness/state.yaml` at the engine root
+(`engine-repo-boundary.md`).
+
+### Test fixtures
+
+| Fixture | Layout | Use |
+|---|---|---|
+| `scripts/fixtures/product-closed/` | v2 (`.harness/`) | Canonical lifecycle / closed-loop CI |
+| `scripts/fixtures/consistent-*`, `inconsistent-*` | Hybrid / classic markers | Legacy gate tests — treat as v1-era; prefer `product-closed` for new coverage |
 
 Generated trees are intentionally committed because users install from the repository and plugin
 marketplace paths. They are not hand-edited; CI rebuilds them and fails if they drift.
@@ -83,6 +114,7 @@ marketplace paths. They are not hand-edited; CI rebuilds them and fails if they 
 |---|---|---|
 | `site/` or `_site/` | No (gitignored) | MkDocs output — use `mkdocs build --site-dir _site` locally; delete when done |
 | `.harness/cache/*`, `.harness/migrations/backups/*`, `runs/cache/*` | No (gitignored) | Local cache and rollback material (engine Trace uses `runs/cache/`) |
+| `*midas-lock-test*/` | No (gitignored) | Accidental installer lock dirs created under the repo root — delete |
 | `*.tgz` | No (gitignored) | `npm pack` output |
 | `harness/plugins/midas/`, `harness/.claude-plugin/`, `cli/template/` | Yes (generated but committed) | Run `npm run build` after source edits |
 | Root `lefthook.yml` | N/A | Not used in the engine repo; product installs scaffold hooks in Phase 5 |

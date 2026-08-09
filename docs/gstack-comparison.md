@@ -6,7 +6,7 @@
 | Campo | Valor |
 |---|---|
 | **Fecha de revisión** | 2026-06-30 |
-| **Midas analizado** | Snapshot histórico del documento: **2.2.1** (2026-06-30). Current engine: see `harness/VERSION` (**2.8.2**). Paths below updated to v2 `.harness/runs/*` where applicable. |
+| **Midas analizado** | Snapshot histórico del documento: **2.2.1** (2026-06-30). Current engine: see `harness/VERSION` (today **2.9.3**). Paths below updated to v2 `.harness/runs/*` where applicable. |
 | **gstack analizado** | README público de [garrytan/gstack](https://github.com/garrytan/gstack) (landing/marketing; no se auditó el código fuente de gstack) |
 | **Tipo de documento** | Análisis comparativo — **no modifica el motor del harness** |
 
@@ -354,7 +354,7 @@ medio / alto. Fuente gstack = README salvo indicación.
 |---|---|---|
 | **`/midas-retro`** *(shipped)* | `.claude/skills/midas-retro/SKILL.md`; salida `{runs}/retros/retro-NN.md`; non-advancing | gstack `/retro` / `/reflect` gap closed — freeze learnings without Phase-8 gate mutation |
 | **`/midas-investigate`** *(shipped 2026-08-07)* | Skill build-tier; playbook `templates/playbooks/debug-root-cause.md`; freeze `{runs}/investigate/` | Ley de Hierro + 3 strikes reduce “fixes al azar” |
-| **Salvaguardas careful/freeze/guard** *(shipped 2026-08-07)* | `harness/rules/safety-guardrails.md` (+ optional `{runs}/session/freeze-dir.txt`) | Alineado con `security.md`; behavioral floor without mandatory host hooks |
+| **Salvaguardas careful/freeze/guard** *(shipped 2026-08-07)* | `harness/rules/safety-guardrails.md` (+ optional `{paths.cache}/session/freeze-dir.txt`) | Alineado con `security.md`; behavioral floor without mandatory host hooks |
 | **`/midas-doc`** *(PROPOSED — not shipped)* | Skill build-tier; Diataxis map en PR body o `.harness/docs/doc-NN.md` | Cierra gap document-release/generate |
 | **Regresión por bug en inner loop** *(shipped 2026-08-07)* | CHECK en `testing.md` + paso en `7-sprint-execution.md` | Cierra el gap más importante vs `/qa` sin romper separación auditor |
 

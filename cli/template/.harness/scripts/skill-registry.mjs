@@ -28,7 +28,8 @@ const ROOT = resolve(HERE, '..');
  * Keep this list SMALL — phase gates, install/sync, and high-stakes audits.
  * Phase-7 procedures (verify, qa, progress, explore, lean-review, …) are Delegator: yes so
  * parents can path-pass their SKILL.md for reading without Skill-tool invocation.
- * Keep in sync with harness/stage-command-table.yaml + AGENTS.md Safety for gate owners.
+ * Keep in sync with STAGE_ROWS in scripts/stage-command-table.mjs (→ generated
+ * harness/stage-command-table.yaml) + AGENTS.md Safety for gate owners.
  */
 export const ORCHESTRATOR_ONLY_ALLOWLIST = new Set([
   // Pipeline phase gates 0–8

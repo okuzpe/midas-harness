@@ -39,11 +39,11 @@ Trace) without contradicting ADR-003 or ADR-010/011.
    - **P0 — Safety hooks + receipt:** Mechanical tool-call guardrails and a lightweight receipt
      record proving hooks evaluated the session (fail-closed path separate from Trace).
    - **P1 — AGENTS bootstrap + carryover:** Per-phase or per-sprint minimal carryover files
-     (small, git-visible or `{runs}/`-scoped) so agents resume without re-reading full skills;
-     bootstrap snippet in generated `AGENTS.md` / adapters — not muninn’s full-turn `AGENTS.md`
-     contract.
-   - **P1 — Gate receipts:** Structured receipt files under `{runs}/receipts/` tied to sprint close
-     or pre-commit when production paths change.
+     (small; ephemeral under `{paths.cache}/metrics/`) so agents resume without re-reading full
+     skills; bootstrap snippet in generated `AGENTS.md` / adapters — not muninn’s full-turn
+     `AGENTS.md` contract.
+   - **P1 — Gate receipts:** Structured receipt files under `{paths.cache}/gates/<run>/` (split
+     `test.json` / `quality.json`) tied to sprint close or pre-commit when production paths change.
    - **P1 — Durable installer resume:** Checkpoint installer/update steps so interrupted installs
      resume idempotently (muninn-inspired, Midas layout).
    - **P2 — Optional context digest / cost / scored recall:** Thin digest of active rules for cost
@@ -83,9 +83,16 @@ Trace) without contradicting ADR-003 or ADR-010/011.
 - New contributor scripts under `scripts/safety/` (`secrets-prompt.mjs`, `gate-commits.mjs`,
   `destructive-shell.mjs`) plus receipt helpers under `scripts/lib/`; installer step
   `cli/lib/steps/safety-hooks.mjs` mirrors ADR-011 Trace merge (marker `safety/`).
-- Cache and session artifacts under `{paths.cache}/` (e.g. `{paths.cache}/gates/`,
-  `{paths.cache}/metrics/`) and `{runs}/explore/` remain
-  **gitignored**; durable insight still flows to markdown rituals and `{product}/*` per ADR-003.
+- **Ephemeral path cheat-sheet (all under `{paths.cache}/`, gitignored):**
+  - Gate receipts → `{paths.cache}/gates/<run>/{test,quality}.json`
+  - Carryover snapshot → `{paths.cache}/metrics/current-carryover.json`
+  - Commit approval receipt → `{paths.cache}/session/commit-approved.json`
+  - Context cost / lifecycle journals → `{paths.cache}/metrics/`
+  - Installer lock / journal → `{paths.cache}/installer/`
+  - Explore active flag (not cache) → `{runs}/explore/.active`
+  Do **not** reintroduce `{runs}/receipts/`, `{runs}/gates/`, or `{runs}/session/` as SoT
+  (including freeze-dir — use `{paths.cache}/session/freeze-dir.txt`).
+  Durable insight still flows to markdown rituals and `{product}/*` per ADR-003.
 - `.cursor/hooks.json` may contain both Trace and safety command entries when `tools` includes
   `cursor`; uninstall/update must strip only Midas-marked entries per hook family.
 - Product installs gain optional mechanical safety without adopting muninn’s mono-tool or hidden

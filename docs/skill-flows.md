@@ -4,8 +4,10 @@ This guide explains the shape of each Midas skill without repeating its step-by-
 Use it to understand where a command starts, what decision it owns, what it leaves on disk, and
 where control normally goes next.
 
-The canonical procedure remains each `harness/skills/<name>/SKILL.md`. Lifecycle routing comes from
-`harness/stage-command-table.yaml`; state semantics come from `harness/state.schema.md`.
+The canonical procedure remains each `harness/skills/<name>/SKILL.md`. Lifecycle routing at runtime
+comes from `<paths.engine>/stage-command-table.yaml` (generated from `STAGE_ROWS` in
+`scripts/stage-command-table.mjs` — edit the JS rows, then `doctor --fix` / `align`). State
+semantics come from `harness/state.schema.md`.
 
 ## How to read the flows
 

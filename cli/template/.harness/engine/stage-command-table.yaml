@@ -1,7 +1,6 @@
-# Canonical stage → command + recall paths (single source of truth).
-# Consumed by: scripts/stage-command-table.mjs, scripts/bundle.mjs (recall profile),
-# .claude/skills/midas-status, .claude/skills/midas-recall.
-# After edits: npm run align (copies to cli/template via build-create).
+# GENERATED — do not hand-edit. Authoring SoT: STAGE_ROWS in scripts/stage-command-table.mjs
+# Runtime consumers read this file: midas-status, midas-recall, scripts/bundle.mjs (recall).
+# Regenerate: npm run doctor -- --fix  (or npm run align).
 
 stages:
   idea_intake:

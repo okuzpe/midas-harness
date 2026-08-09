@@ -87,3 +87,6 @@ _site/
 
 # Local analysis artifacts (not part of the repo)
 docs/analisis/
+
+# Accidental temp dirs created inside the repo (installer lock tests, etc.)
+*midas-lock-test*/

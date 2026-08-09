@@ -1,5 +1,13 @@
 /**
- * Parse harness/stage-command-table.yaml — canonical stage → command + recall paths.
+ * Stage → command + recall paths.
+ *
+ * **Authoring SoT:** `STAGE_ROWS` in this file. Edit rows here, then run
+ * `npm run doctor -- --fix` (or `npm run align`) to regenerate
+ * `harness/stage-command-table.yaml`.
+ *
+ * **Runtime SoT (on disk):** the committed YAML under `<paths.engine>/` —
+ * skills and bundle recall *read* that file; do not hand-edit the YAML.
+ *
  * @module stage-command-table
  */
 import { readFileSync, existsSync, readdirSync, writeFileSync, mkdirSync } from 'node:fs';
@@ -10,6 +18,7 @@ const ROOT = resolveProjectRootFromScript(import.meta.url);
 
 /** @typedef {{ command: string|null, commandWhenDone?: string|null, verifyUi?: string|null, redesignUi?: string|null, qaAdhoc?: string|null, note?: string, recall: string[] }} StageEntry */
 
+/** Authoring source of truth — regenerate YAML via doctor --fix / align. */
 const STAGE_ROWS = [
   {
     name: 'idea_intake',
@@ -77,15 +86,14 @@ function yamlScalar(value) {
 }
 
 /**
- * Canonical YAML for the stage-command table.
+ * Generated YAML for the stage-command table (committed artifact; not authoring SoT).
  * @returns {string}
  */
 export function computeStageCommandTableYaml() {
   const lines = [
-    '# Canonical stage → command + recall paths (single source of truth).',
-    '# Consumed by: scripts/stage-command-table.mjs, scripts/bundle.mjs (recall profile),',
-    '# .claude/skills/midas-status, .claude/skills/midas-recall.',
-    '# After edits: npm run align (copies to cli/template via build-create).',
+    '# GENERATED — do not hand-edit. Authoring SoT: STAGE_ROWS in scripts/stage-command-table.mjs',
+    '# Runtime consumers read this file: midas-status, midas-recall, scripts/bundle.mjs (recall).',
+    '# Regenerate: npm run doctor -- --fix  (or npm run align).',
     '',
     'stages:',
   ];

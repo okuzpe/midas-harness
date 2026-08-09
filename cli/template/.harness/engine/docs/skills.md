@@ -59,7 +59,8 @@ Catalog size: **36 shipped active** (+ 2 deprecated alias stubs) + **1 engine-on
 | `/start-sprint` | 7 | Kick off sprint — pre-audit living code vs frozen rules. | orchestrate |
 | `/close-sprint` | 8 | Conformance audit; resolve drift; next sprint or ship. | orchestrate |
 
-Stage → command map (mechanical): `<paths.engine>/stage-command-table.yaml`.
+Stage → command map (runtime): `<paths.engine>/stage-command-table.yaml` (generated from
+`STAGE_ROWS` in `scripts/stage-command-table.mjs`).
 
 ---
 

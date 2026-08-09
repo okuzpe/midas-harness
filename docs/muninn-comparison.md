@@ -312,7 +312,8 @@ muninn tiene un **camino explícito de memoria → regla siempre activa**, anál
 manual puntual del usuario.
 
 Midas resuelve el problema equivalente con `/midas-recall` (lee ~15 rutas fijas por fase, definidas
-estáticamente en `harness/stage-command-table.yaml`) y `harness/research/memory-model.md` — es
+en `harness/stage-command-table.yaml`, generado desde `STAGE_ROWS` en `scripts/stage-command-table.mjs`)
+y `harness/research/memory-model.md` — es
 **deliberadamente más simple** (ADR-003 rechaza explícitamente una base vectorial oculta), pero
 también **estrictamente menos capaz** para encontrar la entrada correcta cuando el corpus de
 conocimiento crece: no hay scoring, no hay decaimiento, no hay *ranking* — solo rutas fijas por fase +
@@ -511,7 +512,8 @@ invariantes de seguridad viven exclusivamente como texto en `harness/rules/secur
 muninn resuelve *"¿qué recordar y cuándo?"* con una función de scoring explícita (archivo tocado,
 tags, dominio, patrón, ticket) más decaimiento temporal más fusión BM25/keyword — y lo hace **antes**
 de cargar cualquier archivo pesado (fase 0 de señales). Midas resuelve el mismo problema con una tabla
-estática `harness/stage-command-table.yaml` (~15 rutas fijas por fase). Esto funciona bien mientras
+estática `harness/stage-command-table.yaml` (~15 rutas fijas por fase; generada desde `STAGE_ROWS`).
+Esto funciona bien mientras
 `{product}/*` es pequeño, pero **no escala** a un proyecto con cientos de decisiones/ADRs/aprendizajes
 acumulados a lo largo de muchos sprints — no hay forma de que `/midas-recall` priorice "la entrada más
 relevante para lo que estoy haciendo ahora mismo" frente a "todo lo que existe para esta fase".

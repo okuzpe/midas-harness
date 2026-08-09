@@ -36,9 +36,10 @@ completion — it reports the truth already on disk. Safe to run at any time, in
    *user* to type.** The phase rituals are gated (`disable-model-invocation`); **never call the Skill tool on
    them** (it errors) — present the command (e.g. *"👉 Run `/define-conventions`"*), don't invoke it.
 
-   **Canonical table:** read `<paths.engine>/stage-command-table.yaml` on disk (parsed by
-   `<paths.scripts>/stage-command-table.mjs`). **Do not duplicate the YAML in this skill** — resolve each
-   run from the file:
+   **Runtime table:** read `<paths.engine>/stage-command-table.yaml` on disk (parsed by
+   `<paths.scripts>/stage-command-table.mjs`). That YAML is **generated** from `STAGE_ROWS` in
+   `stage-command-table.mjs` — engine maintainers edit the JS rows, then `doctor --fix` / `align`.
+   **Do not duplicate the YAML in this skill** — resolve each run from the file:
 
    - `(no state file)` → `/midas-init` (or diagnose per step 1)
    - `setup_complete: false` → `/midas-init` (finish one-time setup), regardless of `stage`

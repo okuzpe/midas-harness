@@ -303,7 +303,7 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` cost-aware tier (orchestrate/build/scout) is still applied after the route is chosen — see [`model-routing.md`](./model-routing.md).
 - **Rule: Safety guardrails (always-on)** (`safety-guardrails.md`, base)
   - **CHECK:** `manual:` the sprint/session evidence shows no unauthorized force-push, hard reset, recursive delete of non-tmp project paths, or production destroy; if such a command ran, the human's explicit OK for that command is recorded in the session or PR notes — otherwise fail.
-  - **CHECK:** `manual:` when `{runs}/session/freeze-dir.txt` exists (or the human named a freeze root still in force), every path in the working-tree diff for that session lies under that root; any write outside is a fail.
+  - **CHECK:** `manual:` when `{paths.cache}/session/freeze-dir.txt` exists (or the human named a freeze root still in force), every path in the working-tree diff for that session lies under that root; any write outside is a fail.
   - **CHECK:** `manual:` when the human asked for guard/full-safety mode, the session both (a) paused on careful-class commands and (b) had a named freeze root before further edits — missing either is a fail.
   - **CHECK:** `harness/rules/safety-guardrails.md` (or `<paths.engine>/rules/safety-guardrails.md`) contains at least one `**CHECK:**` and a dated `## Amendment` section.
 - **Rule: Security (always-on)** (`security.md`, base)
