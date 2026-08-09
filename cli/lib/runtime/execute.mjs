@@ -556,7 +556,8 @@ async function executeInstallerCommand(cmd, hooks) {
       async applyOwnershipManifest() {
         const paths = session.paths || await loadPaths(TARGET);
         session.paths = paths;
-        updatedTo = update || migrate ? bumpVersionStamp(paths) : null;
+        // Always align preserved state.yaml with the engine we just laid down (re-install without --update).
+        updatedTo = bumpVersionStamp(paths);
         const installedVersion = (readMaybe(join(TARGET, paths.version)) || '0.0.0').trim();
         writeOwnershipManifest(TARGET, installedVersion);
       },

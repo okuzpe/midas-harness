@@ -839,6 +839,11 @@ if (existsSync(rootPkg)) {
   try { pkg = JSON.parse(readFileSync(rootPkg, 'utf8')); } catch { check('root-pkg:parses', false); }
   const bins = pkg.bin ? Object.values(pkg.bin) : [];
   check('root-pkg:has-bin', bins.length > 0, 'no bin → `npx github:` install would not work');
+  check(
+    'root-pkg:single-npx-bin',
+    Object.keys(pkg.bin || {}).length === 1 && pkg.bin?.midas === 'cli/index.mjs',
+    'multiple root bins break `npx github:…` on npm 11+',
+  );
   for (const b of bins) check(`root-bin-exists:${b}`, existsSync(join(ROOT, b)));
 }
 
@@ -2074,6 +2079,39 @@ check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bi
     );
   } finally {
     rmSync(upgradeRoot, { recursive: true, force: true });
+  }
+}
+{
+  const reinstallRoot = mkdtempSync(join(tmpdir(), 'midas-reinstall-'));
+  try {
+    const install = spawnSync(
+      process.execPath,
+      [join(ROOT, 'cli', 'index.mjs'), '--tools=cursor', reinstallRoot],
+      { cwd: ROOT, encoding: 'utf8' },
+    );
+    check('installer:reinstall-fixture', install.status === 0, install.stderr || install.stdout);
+    const statePath = join(reinstallRoot, '.harness', 'state.yaml');
+    const state = readFileSync(statePath, 'utf8').replace(/midas_version:\s*\S+/, 'midas_version: 2.6.0');
+    writeFileSync(statePath, state, 'utf8');
+    const manifestPath = join(reinstallRoot, '.harness', 'manifest.json');
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+    manifest.midas_version = '2.6.0';
+    writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+    const reinstall = spawnSync(
+      process.execPath,
+      [join(ROOT, 'cli', 'index.mjs'), '--tools=cursor', '--yes', reinstallRoot],
+      { cwd: ROOT, encoding: 'utf8' },
+    );
+    const newState = readFileSync(statePath, 'utf8');
+    check(
+      'installer:reinstall-stale-version-bump',
+      reinstall.status === 0 &&
+        !/midas_version:\s*2\.6\.0/.test(newState) &&
+        /verify:\s*ok/i.test(`${reinstall.stdout}${reinstall.stderr}`),
+      reinstall.stderr || reinstall.stdout,
+    );
+  } finally {
+    rmSync(reinstallRoot, { recursive: true, force: true });
   }
 }
 

@@ -15,7 +15,7 @@
 set -euo pipefail
 REPO="okuzpe/midas-harness"
 # midas-install-ref: bumped by scripts/bump-version.mjs — keep in sync with harness/VERSION
-MIDAS_REF="${MIDAS_INSTALL_REF:-v2.9.0}"
+MIDAS_REF="${MIDAS_INSTALL_REF:-v2.9.1}"
 if [ "${MIDAS_BLEEDING_EDGE:-}" = "1" ]; then
   MIDAS_REF="main"
 fi
@@ -42,4 +42,4 @@ if ! command -v npx >/dev/null 2>&1; then
   echo "midas: npx is required (it ships with Node >=22). Reinstall Node.js." >&2
   exit 1
 fi
-exec npx -y "github:$REPO#$MIDAS_REF" "$@"
+exec npx -y --package="github:$REPO#$MIDAS_REF" midas "$@"

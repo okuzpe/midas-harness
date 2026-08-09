@@ -11,7 +11,16 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
-## [2.9.0] — 2026-08-09
+## [2.9.1] — 2026-08-09
+
+### Fixed
+
+- **`npx github:okuzpe/midas-harness#vX.Y.Z`** — root package exposes a single `midas` bin again so npm 11+ no longer fails with `could not determine executable to run` (`midas-autopilot` remains under `.harness/autonomy/` when `--autonomy` is used).
+- **Re-install over an existing v2 project** — installer bumps preserved `midas_version` before strict doctor (fixes rollback when state was stale, e.g. 2.6.0 vs engine 2.9.0).
+- **`doctor --fix`** — syncs `midas_version` in preserved `state.yaml` to match the engine.
+- **Install shims** — `install.sh` / `install.ps1` invoke `npx … midas` explicitly.
+
+---
 
 ### Added
 
@@ -1646,7 +1655,7 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.9.0...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.9.1...HEAD
 [2.9.0]: https://github.com/okuzpe/midas-harness/compare/v2.8.2...v2.9.0
 [2.8.2]: https://github.com/okuzpe/midas-harness/compare/v2.8.1...v2.8.2
 [2.8.1]: https://github.com/okuzpe/midas-harness/compare/v2.8.0...v2.8.1

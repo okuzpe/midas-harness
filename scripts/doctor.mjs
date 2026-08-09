@@ -165,6 +165,7 @@ function compareMirror(sourceRel, targetRel, transform = (_rel, raw) => raw) {
 }
 
 // --- --fix: rewrite adapters via the shared render path ----------------------------------------
+const ENGINE_VERSION = (read(paths.version) || '').trim();
 if (FIX) {
   if (!existsSync(join(ROOT, paths.engine, 'conventions.md'))) {
     console.error(`midas doctor --fix: ${paths.engine}/conventions.md missing — cannot render adapters.`);
@@ -199,6 +200,13 @@ if (FIX) {
   // (balanced pins are the published defaults).
   {
     const stateForPins = read(paths.state) || '';
+    if (stateForPins && ENGINE_VERSION) {
+      const bumped = stateForPins.replace(/^midas_version:\s*[^\s#]+/m, `midas_version: ${ENGINE_VERSION}`);
+      if (bumped !== stateForPins) {
+        writeFileSync(join(ROOT, paths.state), bumped, 'utf8');
+        console.log(`  wrote    ${paths.state} midas_version: ${ENGINE_VERSION}`);
+      }
+    }
     if (stateForPins) {
       const { costProfile, routingProfile } = parseRouting(stateForPins);
       const activeProfile = normalizeRoutingProfile(routingProfile) || 'claude';
@@ -250,7 +258,7 @@ const health = [];
 const check = (name, status, note) => health.push({ name, status, note: note || '' });
 
 // version: state midas_version vs engine VERSION
-const VERSION = (read(paths.version) || '').trim();
+const VERSION = ENGINE_VERSION;
 const stateRaw = read(paths.state);
 if (!stateRaw) {
   check('version', 'skip', `no ${paths.state} (engine repo or pre-init)`);
