@@ -910,7 +910,7 @@ if (engineVersion) {
 // --- I1. install-cmd helpers (canonical npx strings) ------------------------------------------
 {
   const { formatInstallCmd, formatUpdateCmd, npxPackageRef } = await import('./lib/install-cmd.mjs');
-  check('install-cmd:package-ref', npxPackageRef('2.9.1') === 'github:okuzpe/midas-harness#v2.9.1');
+  check('install-cmd:package-ref', npxPackageRef(engineVersion || '0.0.0') === `github:okuzpe/midas-harness#v${engineVersion || '0.0.0'}`);
   if (engineVersion) {
     check(
       'install-cmd:install',
@@ -1083,18 +1083,28 @@ if (engineVersion) {
   {
     const sh = readFileSync(join(ROOT, 'install.sh'), 'utf8');
     const ps = readFileSync(join(ROOT, 'install.ps1'), 'utf8');
-    const esc = engineVersion.replace(/\./g, '\\.');
     check(
-      'install-shim:sh-pinned-default',
-      new RegExp(`MIDAS_INSTALL_REF:-v${esc}`).test(sh),
-      'install.sh must default MIDAS_REF to harness/VERSION',
+      'install-shim:sh-reads-harness-version',
+      /harness\/VERSION/.test(sh) && /resolve_midas_ref/.test(sh),
+      'install.sh must resolve pin from harness/VERSION',
     );
     check(
-      'install-shim:ps-pinned-default',
-      new RegExp(`else \\{ "v${esc}" \\}`).test(ps),
-      'install.ps1 must default MidasRef to harness/VERSION',
+      'install-shim:ps-reads-harness-version',
+      /harness\/VERSION/.test(ps) && /Resolve-MidasRef/.test(ps),
+      'install.ps1 must resolve pin from harness/VERSION',
     );
     check('install-shim:bleeding-edge-escape', /MIDAS_BLEEDING_EDGE/.test(sh) && /MIDAS_BLEEDING_EDGE/.test(ps));
+  }
+  {
+    const syncCheck = spawnSync(process.execPath, [join(ROOT, 'scripts', 'sync-version.mjs'), '--check'], {
+      cwd: ROOT,
+      encoding: 'utf8',
+    });
+    check(
+      'version:sync-check',
+      syncCheck.status === 0,
+      syncCheck.stderr || syncCheck.stdout || 'mirrors drift from harness/VERSION',
+    );
   }
 }
 
@@ -3061,6 +3071,8 @@ if (existsSync(join(ROOT, 'scripts', 'precommit-eval.mjs'))) {
   }
 }
 check('script:bump-version:exists', existsSync(join(ROOT, 'scripts', 'bump-version.mjs')));
+check('script:sync-version:exists', existsSync(join(ROOT, 'scripts', 'sync-version.mjs')));
+check('script:engine-version:exists', existsSync(join(ROOT, 'scripts', 'lib', 'engine-version.mjs')));
 check('template:skill-state-ritual:exists', existsSync(join(ROOT, 'harness', 'templates', 'skill-state-ritual.md')));
 if (existsSync(join(ROOT, 'scripts', 'bump-version.mjs'))) {
   try {
@@ -3071,8 +3083,8 @@ if (existsSync(join(ROOT, 'scripts', 'bump-version.mjs'))) {
     });
     check(
       'behavioral:bump-version-dry-run',
-      /bump-version: .+ → 9\.9\.9 \(dry-run\)/.test(out) && /INSTALL\.md/.test(out),
-      'dry-run should list INSTALL.md and not write',
+      /bump-version: .+ → 9\.9\.9 \(dry-run\)/.test(out) && /harness\/VERSION/.test(out),
+      'dry-run should list harness/VERSION only',
     );
   } catch (e) {
     check('behavioral:bump-version-dry-run', false, String(e.stderr || e.message));

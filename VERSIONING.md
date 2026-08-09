@@ -128,12 +128,13 @@ SemVer break unless installer behavior or install layout changes.
 > fail under `harness/rules/change-propagation.md`.
 
 1. Update `CHANGELOG.md` — move items from `[Unreleased]` to the new version section (can draft first).
-2. Run **`npm run bump -- <X.Y.Z>`** — writes `harness/VERSION`, package mirrors, state example stamps,
-   `INSTALL.md` `#v…` pins, the Unreleased compare link, and `npm run build`.
+2. Run **`npm run bump -- <X.Y.Z>`** — writes **`harness/VERSION`** (sole source), runs
+   `scripts/sync-version.mjs` to propagate mirrors, then `npm run build`.
 3. Finish the CHANGELOG section + compare link row for the new version if not already done.
 4. `npm test`, then `git tag vX.Y.Z && git push origin main vX.Y.Z`.
 5. If breaking: add `harness/migrations/vX.Y.md` before tagging.
 
 **Do not** hand-edit `#v…` pins in skills, SECURITY, FAQ, or installer help — those use `#v{VERSION}`
-placeholders or read the bundled `VERSION` at runtime. The only user-facing copy-paste pin is
-`INSTALL.md` (maintained by the bump script).
+placeholders or read the bundled `VERSION` at runtime. `INSTALL.md` pins are **generated** by
+`npm run sync-version` from `harness/VERSION`. `install.sh` / `install.ps1` read `harness/VERSION`
+at runtime (local clone or `main` on GitHub).

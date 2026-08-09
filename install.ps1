@@ -3,7 +3,7 @@
 # install logic to drift.
 #
 # One-line install (run INSIDE the project you want to add Midas to).
-# Default pin matches harness/VERSION (rewritten by `npm run bump`).
+# Version pin: read from harness/VERSION (local clone) or main/harness/VERSION (irm pipe).
 #   irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | iex
 # Bleeding edge (mutable main):
 #   $env:MIDAS_BLEEDING_EDGE=1; irm …/install.ps1 | iex
@@ -19,9 +19,20 @@ param(
 
 $ErrorActionPreference = "Stop"
 $Repo = "okuzpe/midas-harness"
-# midas-install-ref: bumped by scripts/bump-version.mjs — keep in sync with harness/VERSION
-$MidasRef = if ($env:MIDAS_INSTALL_REF) { $env:MIDAS_INSTALL_REF } else { "v2.9.2" }
-if ($env:MIDAS_BLEEDING_EDGE -eq "1") { $MidasRef = "main" }
+
+function Resolve-MidasRef {
+  if ($env:MIDAS_INSTALL_REF) { return $env:MIDAS_INSTALL_REF }
+  if ($env:MIDAS_BLEEDING_EDGE -eq "1") { return "main" }
+  $here = if ($MyInvocation.MyCommand.Path) { Split-Path -Parent $MyInvocation.MyCommand.Path } else { $null }
+  $versionFile = if ($here) { Join-Path $here "harness/VERSION" } else { $null }
+  if ($versionFile -and (Test-Path $versionFile)) {
+    $v = (Get-Content -LiteralPath $versionFile -Raw).Trim()
+    return "v$v"
+  }
+  $uri = "https://raw.githubusercontent.com/$Repo/main/harness/VERSION"
+  $v = (Invoke-WebRequest -Uri $uri -UseBasicParsing).Content.Trim()
+  return "v$v"
+}
 
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
   Write-Error "midas: Node.js (>=22) is required. Install: winget install OpenJS.NodeJS.LTS  (or https://nodejs.org)"
@@ -46,5 +57,6 @@ if (-not (Get-Command npx -ErrorAction SilentlyContinue)) {
   Write-Error "midas: npx is required (it ships with Node >=22). Reinstall Node.js."
   exit 1
 }
-& npx -y --package="github:${Repo}#${MidasRef}" midas @InstallerArgs
+$MidasRef = Resolve-MidasRef
+& npx -y --package="github:${Repo}#$MidasRef" midas @InstallerArgs
 exit $LASTEXITCODE

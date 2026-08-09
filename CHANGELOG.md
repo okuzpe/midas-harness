@@ -11,7 +11,19 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
-## [2.9.2] — 2026-08-09
+## [2.9.3] — 2026-08-09
+
+### Added
+
+- **`harness/VERSION` as sole editable source** — `scripts/lib/engine-version.mjs` + `scripts/sync-version.mjs` propagate mirrors; `npm run sync-version --check` fails CI on drift.
+- **`npm run sync-version`** — run automatically at the start of `npm run build`.
+
+### Changed
+
+- **`npm run bump`** — writes only `harness/VERSION`, then sync + build (no duplicated propagation logic).
+- **`install.sh` / `install.ps1`** — resolve the npx pin from `harness/VERSION` (local clone or `main` on GitHub); no baked version string in shims.
+
+---
 
 ### Added
 
@@ -1667,7 +1679,7 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.9.2...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.9.3...HEAD
 [2.9.0]: https://github.com/okuzpe/midas-harness/compare/v2.8.2...v2.9.0
 [2.8.2]: https://github.com/okuzpe/midas-harness/compare/v2.8.1...v2.8.2
 [2.8.1]: https://github.com/okuzpe/midas-harness/compare/v2.8.0...v2.8.1
