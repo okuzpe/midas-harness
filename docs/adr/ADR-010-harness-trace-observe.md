@@ -72,4 +72,4 @@ product-wide install surface. Trace data must not become a second LTM that contr
 ## Amendment — 2026-08-08 (no lifecycle dogfood)
 
 - The engine repo no longer keeps committed Phase 0–8 evidence under `runs/{audits,…}`.
-  `runs/cache/` remains Trace-only contributor tooling; lifecycle demo = `docs/research/taskpilot/`.
+  `runs/cache/` remains Trace-only contributor tooling; lifecycle CI fixture = `scripts/fixtures/product-closed/`.

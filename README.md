@@ -36,11 +36,10 @@ loop that re-audits the living code against those frozen rules.
   against the state file — flagging any sprint marked `done` while its audit still shows
   unresolved critical findings. CI enforces this on the worked example via
   `doctor.mjs --strict --gates-only`. *The first gate check that lives outside the model.*
-- **It closes the loop on disk.** [`docs/research/taskpilot`](./docs/research/taskpilot/) drives Sprint 1 to
-  `done` — build → [`audit-01.md`](./docs/research/taskpilot/.harness/runs/audits/audit-01.md) (verdict **PASS**,
-  one rule consciously amended and tracked forward to Sprint 3) → Sprint 2 queued. v2
-  `.harness/` layout; see [`V2-PATH-MAP.md`](./docs/research/taskpilot/V2-PATH-MAP.md). The signature
-  execute ⇄ audit loop (phases 7 and 8), demonstrated.
+- **It closes the loop on disk.** [`scripts/fixtures/product-closed`](./scripts/fixtures/product-closed/) is a slim
+  product install with Sprint 01 `done` — [`audit-01.md`](./scripts/fixtures/product-closed/.harness/runs/audits/audit-01.md)
+  (verdict **PASS**). CI runs `doctor.mjs --strict --gates-only` on that fixture. The signature
+  execute ⇄ audit loop (phases 7 and 8), demonstrated without vendoring `.harness/engine/`.
 - **Cost-aware by default.** Opus runs only the ~6 irreversible decisions (idea framing, stack choice,
   the audits); Sonnet builds, Haiku scouts. Current library docs are fetched before any third-party code
   ([Context7](#mcp--context7) recommended, or your own tool), so it's written against real APIs, not memory.
@@ -173,13 +172,13 @@ red-team Prosecution plus a dissent-forcing Catfish argue every assumption acros
 business model, architecture, scope, rules, and code. Cheaper tiers debate; the Opus judge rules
 **per claim** and every claim must cite on-disk evidence or it's struck. It complements `/close-sprint`
 (which checks a sprint against the frozen rules) by asking the prior question — *were those decisions
-right?* Output is a ranked findings report frozen to `.harness/debates/debate-NN.md`. See a worked run
-in [`docs/research/taskpilot/.harness/runs/debates/debate-01.md`](./docs/research/taskpilot/.harness/runs/debates/debate-01.md)
-([`V2-PATH-MAP.md`](./docs/research/taskpilot/V2-PATH-MAP.md)).
+right?* Output is a ranked findings report frozen to `.harness/debates/debate-NN.md`. Run `/midas-tribunal`
+on a product install to see a worked example.
 
 ### Worked example
-A runnable Sprint-1 vertical slice — auth, task CRUD, middleware, board stub + tests — plus every phase
-artifact on disk. See [`docs/research/taskpilot/`](./docs/research/taskpilot/).
+Install Midas into a scratch directory (`npx github:okuzpe/midas-harness … /tmp/my-product`) or inspect
+the CI fixture at [`scripts/fixtures/product-closed/`](./scripts/fixtures/product-closed/) for closed-sprint
+gate records and bundle export coverage.
 
 ## Status
 **Stable v2** — thin-root default (Cursor) + skill quality gate + `--update --tools` prune. Most complete on **Claude Code**

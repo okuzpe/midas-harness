@@ -1,4 +1,4 @@
-# Engine source repo — NOT a Midas product lifecycle. Lifecycle demo = docs/research/taskpilot.
+# Engine source repo — NOT a Midas product lifecycle. Lifecycle CI fixture = scripts/fixtures/product-closed/.
 midas_version: 2.8.2
 layout: classic
 paths:

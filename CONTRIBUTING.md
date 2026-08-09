@@ -50,7 +50,7 @@ harness/skills/       ← **canonical skill source** (edit here)
 .agents/skills/       ← generated portable discovery mirror
 scripts/              ← render, doctor, test, build-* (dependency-free Node ESM)
 docs/                 ← MkDocs source (build to _site/, never commit)
-docs/research/taskpilot/   ← reference greenfield + CI gate fixture
+scripts/fixtures/product-closed/   ← slim product-closed CI gate + bundle fixture
 cli/                  ← installer package (npm name create-midas; template/ generated)
 runs/                 ← optional tooling output; gitignored runs/cache (Trace)
 harness/plugins/midas/  ← Claude Code plugin bundle (generated)

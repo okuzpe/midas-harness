@@ -1,8 +1,0 @@
----
-# Explore session metadata (copy to {runs}/explore/<slug>/meta.yaml)
-slug: <slug>
-topic: "<topic>"
-started: <ISO>
-last_activity: <ISO>
-status: active
-turn_count: 0

@@ -31,8 +31,8 @@ jobs:
       - name: Generated adapters in sync with source
         run: node scripts/doctor.mjs
 
-      - name: Gate records consistent with state (taskpilot example)
-        run: node scripts/doctor.mjs --strict --gates-only docs/research/taskpilot
+      - name: Gate records (product-closed fixture)
+        run: node scripts/doctor.mjs --strict --gates-only scripts/fixtures/product-closed
 
       - name: Plugin tree in sync with .claude/
         run: |

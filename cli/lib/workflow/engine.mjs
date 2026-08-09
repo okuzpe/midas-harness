@@ -217,7 +217,7 @@ function gatherRequirements(cmd, ctx, deps) {
       message:
         'refusing to install/update/migrate into the midas-harness engine repository — ' +
         'edit harness/ (source) and ship via create-midas; do not nest .harness/engine here. ' +
-        'Use a separate product directory or docs/research/ for install tests.',
+        'Use a separate product directory or scripts/fixtures/ for install tests.',
     });
   }
 

@@ -71,6 +71,7 @@ import { HARNESS_ENGINE_ONLY_RELS } from './engine-only.mjs';
 
 const SCRIPT_DIR = dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
 const ROOT = resolve(SCRIPT_DIR, '..');
+const PRODUCT_CLOSED = join(ROOT, 'scripts', 'fixtures', 'product-closed');
 
 /** @param {string} rel path relative to harness/ */
 function isHarnessEngineOnlyRel(rel) {
@@ -416,8 +417,8 @@ if (existsSync(tplRoot)) {
     !existsSync(join(tplRoot, '.harness', 'engine', 'plugins')),
   );
   check(
-    'layout:research-taskpilot-fixture',
-    existsSync(join(ROOT, 'docs', 'research', 'taskpilot', '.harness', 'state.yaml')),
+    'layout:product-closed-fixture',
+    existsSync(join(PRODUCT_CLOSED, '.harness', 'state.yaml')),
   );
   check('layout:no-legacy-root-product-dir', !existsSync(join(ROOT, 'product')));
   check('layout:no-root-claude-plugin-dir', !existsSync(join(ROOT, '.claude-plugin')));
@@ -776,17 +777,14 @@ if (existsSync(buildCreate)) {
   }
 }
 
-// --- F3. TaskPilot verify/audit cited test paths exist on disk -------------------------------
-const taskpilotProduct = join(ROOT, 'docs', 'research', 'taskpilot', '.harness', 'product');
-const citedTestPaths = [
-  'src/app/api/tasks/route.test.ts',
-  'src/app/api/tasks/[id]/route.test.ts',
-];
-for (const rel of citedTestPaths) {
-  check(`taskpilot:cited-test:${rel}`, existsSync(join(taskpilotProduct, rel)));
-}
+// --- F3. product-closed cited test paths exist on disk ---------------------------------------
+const productClosedProduct = join(PRODUCT_CLOSED, '.harness', 'product');
+check(
+  'product-closed:cited-test:route',
+  existsSync(join(productClosedProduct, 'src/app/api/tasks/route.test.ts')),
+);
 
-const stateFile = join(ROOT, 'docs', 'research', 'taskpilot', '.harness', 'state.yaml');
+const stateFile = join(PRODUCT_CLOSED, '.harness', 'state.yaml');
 if (existsSync(stateFile)) {
   const s = readFileSync(stateFile, 'utf8');
   for (const key of ['midas_version', 'stage', 'cost_profile', 'routing', 'phases', 'sprints']) {
@@ -892,7 +890,7 @@ if (engineVersion) {
 if (engineVersion) {
   for (const [f, re] of [
     ['harness/state.schema.md', /midas_version:\s*([0-9][^\s#]*)/],
-    ['docs/research/taskpilot/.harness/state.yaml', /^midas_version:\s*([0-9][^\s#]*)/m],
+    ['scripts/fixtures/product-closed/.harness/state.yaml', /^midas_version:\s*([0-9][^\s#]*)/m],
   ]) {
     const p = join(ROOT, f);
     if (existsSync(p)) {
@@ -996,13 +994,11 @@ if (existsSync(join(ROOT, 'scripts', 'fixtures', 'inconsistent-sprint-continuity
     doctorExit('scripts/fixtures/consistent-sprint-continuity', '--strict --gates-only') === 0,
   );
 }
-if (existsSync(join(ROOT, 'docs', 'research', 'taskpilot'))) {
-  check(
-    'behavioral:taskpilot-strict-gates',
-    doctorExit('docs/research/taskpilot', '--strict --gates-only') === 0,
-    'taskpilot gate records must be consistent with state.yaml',
-  );
-}
+check(
+  'behavioral:product-closed-strict-gates',
+  doctorExit('scripts/fixtures/product-closed', '--strict --gates-only') === 0,
+  'product-closed gate records must be consistent with state.yaml',
+);
 
 // --- L0. installer --update must pass paths into readToolsFromState ---------------------------
 {
@@ -1255,11 +1251,15 @@ check(
     r.stderr || r.stdout || `exit ${r.status}`,
   );
 }
-if (existsSync(join(ROOT, 'docs', 'research', 'taskpilot'))) {
-  const tpOut = doctorOutput('docs/research/taskpilot');
-  check('behavioral:mcp-drift-taskpilot', /ok\s+mcp:declared-vs-wired/.test(tpOut), 'taskpilot .mcp.json should satisfy declared MCPs');
-  const tpGi = auditGitignore(join(ROOT, 'docs', 'research', 'taskpilot'));
-  check('taskpilot:gitignore-audit', tpGi.status === 'ok', tpGi.note);
+{
+  const pcOut = doctorOutput('scripts/fixtures/product-closed');
+  check(
+    'behavioral:mcp-drift-product-closed',
+    /ok\s+mcp:declared-vs-wired/.test(pcOut),
+    'product-closed .mcp.json should satisfy declared MCPs',
+  );
+  const pcGi = auditGitignore(PRODUCT_CLOSED);
+  check('product-closed:gitignore-audit', pcGi.status === 'ok', pcGi.note);
 }
 
 // --- O. tool selection + tool-aware adapter render ----------------------------------------------
@@ -2516,22 +2516,21 @@ if (existsSync(helpSkill)) {
   );
 }
 
-// --- M. midas-bundle export/import (docs/research/taskpilot) ---------------------------------------
+// --- M. midas-bundle export/import (scripts/fixtures/product-closed) -------------------------------
 {
-  const taskpilot = join(ROOT, 'docs', 'research', 'taskpilot');
-  if (existsSync(taskpilot)) {
-    const mem = exportBundle(taskpilot, { profile: 'memory' });
+  check('bundle:product-closed-fixture', existsSync(join(PRODUCT_CLOSED, '.harness', 'state.yaml')));
+  const mem = exportBundle(PRODUCT_CLOSED, { profile: 'memory' });
     const memPaths = mem.files.map((f) => f.path);
     check('bundle:memory:idea', memPaths.includes('product/idea.md'));
     check('bundle:memory:state_yaml', Boolean(mem.state_yaml));
     check('bundle:memory:stack-rules', ['folder-structure.md', 'tenant-isolation.md', 'session-cookies.md'].every((r) =>
       memPaths.includes(`harness/rules/${r}`)));
     check('bundle:memory:no-base-rule', !memPaths.includes('harness/rules/code-quality.md'));
-    const full = exportBundle(taskpilot, { profile: 'full' });
+    const full = exportBundle(PRODUCT_CLOSED, { profile: 'full' });
     check('bundle:full:biome', full.files.some((f) => f.path === 'product/biome.json'));
-    const playOnly = exportBundle(taskpilot, { only: ['product/playbooks'] });
+    const playOnly = exportBundle(PRODUCT_CLOSED, { only: ['product/playbooks'] });
     check('bundle:only:no-src', !playOnly.files.some((f) => f.path.startsWith('product/src/')));
-    const withTests = exportBundle(taskpilot, { includeTests: true, profile: 'memory' });
+    const withTests = exportBundle(PRODUCT_CLOSED, { includeTests: true, profile: 'memory' });
     check('bundle:tests:route-test', withTests.files.some((f) => f.path.endsWith('route.test.ts')));
     check('bundle:mcp-secret-detect', checkMcpSecrets('{"token":"sk-live-abc"}'));
     check('bundle:mcp-env-ok', !checkMcpSecrets('{"token":"${MY_TOKEN}"}'));
@@ -2564,7 +2563,7 @@ if (existsSync(helpSkill)) {
     }
     check('bundle:engine-base-rules-count', ENGINE_BASE_RULES.size >= 15);
     check('bundle:unknown-profile', (() => {
-      try { exportBundle(taskpilot, { profile: 'bogus' }); return false; } catch { return true; }
+      try { exportBundle(PRODUCT_CLOSED, { profile: 'bogus' }); return false; } catch { return true; }
     })());
     check('bundle:canonical-compact', fromCanonical('harness/state.yaml', 'compact') === '.midas/state.yaml');
     check('bundle:canonical-hub-product', fromCanonical('product/idea.md', 'hub') === '.midas/product/idea.md');
@@ -2593,7 +2592,7 @@ if (existsSync(helpSkill)) {
       const st = plan.actions.find((a) => a.kind === 'state');
       check('bundle:replace-state-action', st?.action === 'replace');
       applyImport(tmp2, mem, { replaceState: true });
-      check('bundle:replace-state-writes', readFileSync(join(tmp2, 'harness', 'state.yaml'), 'utf8').includes('taskpilot'));
+      check('bundle:replace-state-writes', readFileSync(join(tmp2, 'harness', 'state.yaml'), 'utf8').includes('product-closed'));
     } finally {
       rmSync(tmp2, { recursive: true, force: true });
     }
@@ -2672,9 +2671,8 @@ if (existsSync(helpSkill)) {
         rmSync(stateRoot, { recursive: true, force: true });
       }
     }
-    const playDir = exportBundle(taskpilot, { only: ['product/playbooks'] });
+    const playDir = exportBundle(PRODUCT_CLOSED, { only: ['product/playbooks'] });
     check('bundle:only-playbooks-count', playDir.files.length === 3);
-  }
 }
 
 // --- N. stage-command-table + rules-match + migrate-layout smoke ----------------------------
@@ -2733,9 +2731,8 @@ if (existsSync(join(ROOT, 'scripts', 'bundle.mjs'))) {
   }
 }
 
-const taskpilotRoot = join(ROOT, 'docs', 'research', 'taskpilot');
-if (existsSync(join(taskpilotRoot, '.harness', 'state.yaml'))) {
-  const st = readFileSync(join(taskpilotRoot, '.harness', 'state.yaml'), 'utf8');
+{
+  const st = readFileSync(join(PRODUCT_CLOSED, '.harness', 'state.yaml'), 'utf8');
   const artifactPaths = [];
   let inArtifacts = false;
   for (const line of st.split('\n')) {
@@ -2754,10 +2751,10 @@ if (existsSync(join(taskpilotRoot, '.harness', 'state.yaml'))) {
   }
   for (const p of artifactPaths) {
     if (!p || p.includes('*')) continue;
-    check(`taskpilot:artifact:${p}`, existsSync(join(taskpilotRoot, p)));
+    check(`product-closed:artifact:${p}`, existsSync(join(PRODUCT_CLOSED, p)));
   }
-  check('taskpilot:features-json', existsSync(join(taskpilotRoot, '.harness', 'product', 'features.json')));
-  check('taskpilot:sprint-progress', existsSync(join(taskpilotRoot, '.harness', 'runs', 'sprints', '01-progress.md')));
+  check('product-closed:features-json', existsSync(join(PRODUCT_CLOSED, '.harness', 'product', 'features.json')));
+  check('product-closed:sprint-progress', existsSync(join(PRODUCT_CLOSED, '.harness', 'runs', 'sprints', '01-progress.md')));
 }
 
 check('skill:midas-progress', existsSync(join(ROOT, '.claude', 'skills', 'midas-progress', 'SKILL.md')));

@@ -6,7 +6,7 @@ methodology in `harness/` and ships it via `cli/` — it does **not** run Phase 
 | What | Where |
 |---|---|
 | Engine source | `harness/`, `scripts/`, `cli/` |
-| Lifecycle demo (CI) | `docs/research/taskpilot/` |
+| Lifecycle CI fixture | `scripts/fixtures/product-closed/` |
 | Contributor Trace cache | `runs/cache/` (gitignored) |
 
 Product installs use `{product}/` under their project root (see ADR-007). Do not add sprint plans,

@@ -1,0 +1,72 @@
+midas_version: 2.8.2
+layout: harness
+paths:
+  root: .harness
+  state: .harness/state.yaml
+  product: .harness/product
+  rules: .harness/rules
+  runs: .harness/runs
+  cache: .harness/cache
+name: product-closed
+mode: greenfield
+setup_complete: true
+stage: sprint_execution
+stage_status: passed
+cost_profile: balanced
+routing_profile: claude
+routing:
+  orchestrate: claude-opus-4-8
+  build: claude-sonnet-4-6
+  scout: claude-haiku-4-5
+tools: [claude-code]
+mcp: [sequential-thinking]
+enforcement:
+  linter: { config: .harness/product/biome.json, installed: true }
+phases:
+  idea_intake:
+    status: passed
+    gate: passed
+    assumption: fixture closed-loop
+  contextualize:
+    status: passed
+    gate: passed
+    assumption: fixture closed-loop
+  market_research:
+    status: passed
+    gate: passed
+    assumption: fixture closed-loop
+  business_case:
+    status: passed
+    gate: passed
+    assumption: fixture closed-loop
+  tech_architecture:
+    status: passed
+    gate: passed
+    assumption: fixture closed-loop
+  architecture_rules:
+    status: passed
+    gate: passed
+    artifacts:
+      - .harness/rules/folder-structure.md
+      - .harness/rules/tenant-isolation.md
+      - .harness/rules/session-cookies.md
+      - .harness/product/playbooks/add-api-route.md
+      - .harness/product/playbooks/add-drizzle-migration.md
+      - .harness/product/playbooks/bump-dependency.md
+  sprint_planning:
+    status: passed
+    gate: passed
+    artifacts: [.harness/product/sprints/01-closed.md]
+  sprint_execution:
+    status: passed
+    gate: passed
+    artifacts: [.harness/product/src/app/api/tasks/route.test.ts]
+  audit:
+    status: passed
+    gate: passed
+    artifacts: [.harness/runs/audits/audit-01.md]
+sprints:
+  - id: "01"
+    title: closed-fixture
+    status: done
+    last_touched: 2026-08-08

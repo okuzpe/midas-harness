@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "features": [
+    {
+      "id": "F-001",
+      "title": "Tasks API cited test path",
+      "description": "Fixture cites route.test.ts for bundle and gate checks.",
+      "sprint": "01",
+      "acceptance_criteria": [
+        "WHEN the cited test file exists, the system SHALL satisfy artifact and bundle checks."
+      ],
+      "status": "passing",
+      "evidence": "product/src/app/api/tasks/route.test.ts; audit-01.md"
+    }
+  ]
+}

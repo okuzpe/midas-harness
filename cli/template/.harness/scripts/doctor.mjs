@@ -5,7 +5,7 @@
 //   node scripts/doctor.mjs --fix    → re-render the adapters from source, then exit 0
 //   node scripts/doctor.mjs <dir>    → check THAT project (its adapters, state.yaml, gate records), not the engine
 //   node scripts/doctor.mjs --strict → exit 1 on deterministic install/registry/gate drift
-//   node scripts/doctor.mjs --gates-only → skip adapter drift (for partial examples like taskpilot)
+//   node scripts/doctor.mjs --gates-only → skip adapter drift (for partial examples like product-closed)
 //
 // Adapter drift is always authoritative. Under --strict, deterministic health invariants also block;
 // project-dependent recommendations remain advisory. Shares render logic with render-adapters.mjs.
@@ -52,7 +52,7 @@ const STRICT = process.argv.includes('--strict');
 const GATES_ONLY = process.argv.includes('--gates-only');
 const SHOW_HELP = process.argv.includes('--help') || process.argv.includes('-h');
 // Optional positional project root: check THAT project instead of the engine repo. Lets `--strict` run
-// against a real install (or docs/research/taskpilot) so the gate-records check is provably exercised.
+// against a real install (or scripts/fixtures/product-closed) so the gate-records check is provably exercised.
 const rootArg = process.argv.slice(2).find((a) => !a.startsWith('-'));
 const ROOT = rootArg ? resolve(process.cwd(), rootArg) : resolveProjectRootFromScript(import.meta.url);
 const paths = resolvePaths(ROOT);

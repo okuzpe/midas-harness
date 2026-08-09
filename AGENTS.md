@@ -18,7 +18,7 @@ against this root (see `harness/rules/engine-repo-boundary.md`).
 - AI tools wired: **claude-code, cursor, windsurf, gemini**
 - Methodology: `harness/methodology.md` (9 audited phases, idea → shipped)
 - State: `harness/state.yaml` (contributor metadata — version, routing, path overrides)
-- Trace cache: `runs/cache/` (gitignored); lifecycle demo: `docs/research/taskpilot/`
+- Trace cache: `runs/cache/` (gitignored); lifecycle CI fixture: `scripts/fixtures/product-closed/`
 
 ## Conventions (always-on)
 

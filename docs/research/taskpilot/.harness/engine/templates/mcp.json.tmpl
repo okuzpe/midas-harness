@@ -1,9 +1,0 @@
-{
-  "{{!": "TEMPLATE — rendered by /midas-init into project-root .mcp.json. Placeholders use ${ENV_VAR} syntax (shell-style, secret-free). Never commit real credentials. Re-render with /midas-doctor.",
-
-  "mcpServers": {
-    "{{!governance}}": "No server is enabled by default. Add only an explicitly approved Runlayer-managed integration. Use a runlayer.com URL or command `runlayer run <UUID>`; /midas-doctor --strict blocks shadow and unpinned MCP servers.",
-    "{{!docs}}": "For current library docs, prefer an approved Runlayer-managed Context7 integration. If none is available, use the editor/web fallback required by harness/rules/context7-usage.md instead of starting an ad-hoc server.",
-    "{{!least-privilege}}": "Grant only the project, repository, browser, or credential scope needed for the selected workflow. Never paste credentials here; use ${ENV_VAR} placeholders."
-  }
-}

@@ -26,10 +26,10 @@ against the engine repository root. Never create `.harness/engine/`, `.harness/s
 Installed products use **`.harness/runs/`** for lifecycle evidence (ADR-007). The `{runs}/` token resolves
 from `paths.runs` in each project's state file.
 
-This repository **authors** Midas; it does **not** run Phase 0–8 on itself. Lifecycle demo:
-`docs/research/taskpilot/`.
+This repository **authors** Midas; it does **not** run Phase 0–8 on itself. Lifecycle CI fixture:
+`scripts/fixtures/product-closed/`.
 
-For install/migration tests use a **temp directory** or `docs/research/taskpilot/` — never the engine root.
+For install/migration tests use a **temp directory** or `scripts/fixtures/*` — never the engine root.
 
 ## Checklist
 
@@ -52,4 +52,4 @@ For install/migration tests use a **temp directory** or `docs/research/taskpilot
 - **2026-08-08** — Codified: engine repo ≠ install target; installer hard-refuses; clarify dogfood
   evidence vs nested product install.
 - **2026-08-08** — Removed engine lifecycle dogfood (sprints/audits/product ledger). `docs/product/`
-  is a stub; `runs/cache/` remains for Trace; lifecycle CI demo = `docs/research/taskpilot/`.
+  is a stub; `runs/cache/` remains for Trace; lifecycle CI fixture = `scripts/fixtures/product-closed/`.

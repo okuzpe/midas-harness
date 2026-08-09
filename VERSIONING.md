@@ -55,7 +55,7 @@ A change is breaking if an existing install would need a migration step to stay 
 - Adding a new optional SKILL.md frontmatter key with a documented default.
 - Adding a new phase-N pipeline playbook file when the stage enum is unchanged and the phase is opt-in.
 - Wording improvements to methodology, conventions, or docs that do not change checkable behavior.
-- New fixture files under `docs/research/`.
+- New fixture files under `scripts/fixtures/` when adding CI gate or bundle coverage.
 - New `harness/rules/*.md` files that are additive (existing audits pass without the new rule).
 - Thin-root host-mirror pruning / default `--tools=cursor` (ADR-008) when existing multi-tool
   installs keep their `state.tools` until `--update --tools=…`.

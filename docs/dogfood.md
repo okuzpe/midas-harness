@@ -7,7 +7,7 @@ This repository **authors** the Midas engine (`harness/`, `scripts/`, `cli/`). I
 |---|---|---|
 | **Engine source** | This repo | Skills, rules, installer, adapters, `npm test`, doctor adapters |
 | **Product install** | Another project’s `.harness/` | Full 9-phase lifecycle — **never** at this engine root |
-| **Lifecycle demo (CI)** | `docs/research/taskpilot/` | Closed sprint + strict gates — see [V2-PATH-MAP.md](research/taskpilot/V2-PATH-MAP.md) |
+| **Lifecycle CI fixture** | `scripts/fixtures/product-closed/` | Closed sprint + strict gates + bundle export |
 
 ## Not “harness on harness”
 
@@ -22,6 +22,6 @@ This repository **authors** the Midas engine (`harness/`, `scripts/`, `cli/`). I
 |---|---|
 | Structural tests | `node scripts/test.mjs` |
 | Adapter health | `node scripts/doctor.mjs` |
-| Product-shaped gates | `node scripts/doctor.mjs --strict --gates-only docs/research/taskpilot` |
+| Product-shaped gates | `node scripts/doctor.mjs --strict --gates-only scripts/fixtures/product-closed` |
 
 See `harness/rules/engine-repo-boundary.md`.

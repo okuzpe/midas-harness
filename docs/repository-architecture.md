@@ -221,7 +221,7 @@ no autonomy tree and no `@cursor/sdk`. Policy/ledger/journal stay outside the li
 The **engine repository** (this repo) uses **classic** layout metadata in `harness/state.yaml`
 (authored source in `harness/` + `scripts/`, installer in `cli/`). It does **not** run the Midas
 lifecycle on itself — see `docs/dogfood.md`. `runs/cache/` (gitignored) is Trace observe tooling for
-contributors. Lifecycle CI demo: `docs/research/taskpilot/`.
+contributors. Lifecycle CI fixture: `scripts/fixtures/product-closed/`.
 
 ## Glossary — engine `runs/` vs install `.harness/runs/`
 

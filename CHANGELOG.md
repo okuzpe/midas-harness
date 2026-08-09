@@ -18,10 +18,12 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 - Contributor hygiene: skill source-of-truth docs, v2 runs paths, MkDocs ADR-010/011, autonomy anti-typo callouts.
 - Installer refactor: shared `lib/core/preserve-policy.mjs` (`decideTemplateCopyAction`); extract `runtime/{copy-tree,autonomy-install,uninstall}.mjs` from `execute.mjs`. Plan notes vendor wipe/prune lifecycle; parity + autonomy pointer unit tests.
 - `SECURITY.md` uses `{runs}/audits/` token (install-generic); engine repo no longer keeps a product lifecycle ledger.
-- **Removed engine lifecycle dogfood:** deleted committed `runs/{audits,sprints,sweeps,retros,debates,investigate,auto-pilot}/` and `docs/product/` lifecycle tree; `harness/state.yaml` is contributor metadata only (`stage: shipped`); stub `docs/product/README.md`; lifecycle CI demo remains `docs/research/taskpilot/`.
+- **Removed engine lifecycle dogfood:** deleted committed `runs/{audits,sprints,sweeps,retros,debates,investigate,auto-pilot}/` and `docs/product/` lifecycle tree; `harness/state.yaml` is contributor metadata only (`stage: shipped`); stub `docs/product/README.md`; lifecycle CI fixture = `scripts/fixtures/product-closed/`.
+- **Removed TaskPilot research fixture:** deleted `docs/research/` (~200 files including vendored `.harness/engine/`); bundle + gate CI now use slim `scripts/fixtures/product-closed/` (no engine copy).
 
 ### Removed
 
+- `docs/research/` (TaskPilot fixture and README) — replaced by `scripts/fixtures/product-closed/`.
 - Unused `create-midas/lib/steps/install.mjs` re-export stub; unused `pathIsFile` / `isExecutableOp` exports.
 - Stale `HARNESS_ENGINE_ONLY_RELS` entry `research/Untitled-1.md` (file never existed).
 - Accidentally committed `runs/cache/**` and `runs/adapters.hash` (gitignore already covered; untracked from index).

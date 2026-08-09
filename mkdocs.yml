@@ -5,10 +5,6 @@ repo_url: https://github.com/okuzpe/midas-harness
 repo_name: okuzpe/midas-harness
 edit_uri: edit/main/docs/
 
-# TaskPilot fixture is a full Midas install — not MkDocs pages.
-exclude_docs: |
-  research/taskpilot/**
-
 theme:
   name: material
   features:
@@ -40,7 +36,6 @@ nav:
   - Precommit gate (engine): precommit-gate.md
   - Contributor quickstart: contributing-quickstart.md
   - Engine repo vs installs: dogfood.md
-  - Research fixtures: research/README.md
   - Agents & Models: agents-and-models.md
   - FAQ: faq.md
   - Comparisons (community):

@@ -1,18 +1,17 @@
-# Autonomy P0 pilot — TaskPilot value gate
+# Autonomy P0 pilot — temp-dir value gate
 
-Pilot target: `docs/research/taskpilot/` (content fixture; hub/v1 layout).
+Pilot target: a **scratch install** in a temp directory (not a committed fixture tree).
 
 ## Baseline (manual)
 
-1. Note time-to-complete for one TaskPilot sprint task with human-driven `/start-sprint` flow.
+1. Note time-to-complete for one sprint task with human-driven `/start-sprint` flow on a scratch project.
 2. Record interventions (prompt edits, re-runs, merges).
 
 ## P0 protocol
 
-1. Install autonomy into a scratch v2 project (or copy TaskPilot product artifacts into a fresh
-   `--autonomy` install):
+1. Install autonomy into a scratch v2 project:
    ```bash
-   npx github:okuzpe/midas-harness --tools=cursor --autonomy /tmp/taskpilot-auto
+   npx github:okuzpe/midas-harness --tools=cursor --autonomy /tmp/midas-autonomy-pilot
    ```
    **CI smoke (engine repo):** structural test `autonomy:install-fake-tick-smoke` in `scripts/test.mjs`
    runs `create-midas --autonomy` → `setup` → `tick --runner=fake` with no `CURSOR_API_KEY`.
@@ -38,15 +37,7 @@ CLI unchanged: `midas-autopilot.mjs`. Continuous product evolve (not this plane)
 | Human interventions vs baseline | ≤ 50% of baseline |
 | Duplicate PRs / duplicate remote agents | 0 |
 | Hook / policy bypasses | 0 |
-| Each run within its budget reserve | 100% |
 
-## P1 decision
+## Amendment
 
-- **Pass gate** → open ADR amending `harness/methodology.md` sign-offs; then profiles
-  `custom`/`full`, merge/deploy manifests, Admin API / canary capacity revalidation.
-- **Fail gate** → keep bounded-only; file findings under `{runs}/autonomy/pilot-notes.md`.
-
-## Deferred (explicit)
-
-custom/full, auto-merge/deploy, Automations-as-trigger, mandatory Admin API, stage-table
-generalization, methodology human sign-off removal.
+- **2026-08-08** — Pilot target is temp-dir install; removed TaskPilot fixture references.
