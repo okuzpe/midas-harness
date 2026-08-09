@@ -8,6 +8,9 @@
 *credential*
 !harness/autonomy/lib/credentials.mjs
 !cli/template/.optional/autonomy/lib/credentials.mjs
+!scripts/safety/secrets-prompt.mjs
+!scripts/safety/tests/secrets-prompt.test.js
+!cli/template/.harness/scripts/safety/secrets-prompt.mjs
 .claude/settings.local.json
 
 # Node

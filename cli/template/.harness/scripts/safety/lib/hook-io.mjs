@@ -1,5 +1,5 @@
 // hook-io.mjs — shared Cursor safety hook I/O helpers.
-// docs: Cursor Hooks beforeShellExecution output — permission + user_message/agent_message
+// docs: Cursor Hooks — beforeShellExecution uses permission; beforeSubmitPrompt uses continue
 // via https://cursor.com/docs/hooks
 
 import { readFileSync } from 'node:fs';
@@ -32,11 +32,13 @@ export function parseHookPayload(raw) {
 }
 
 /**
+ * Read hook stdin without blocking when Cursor did not pipe a payload (TTY).
  * @param {string} [raw]
  * @returns {string}
  */
 export function readHookStdin(raw) {
   if (typeof raw === 'string') return raw;
+  if (process.stdin.isTTY) return '';
   try {
     return readFileSync(0, 'utf8');
   } catch {
@@ -87,4 +89,31 @@ export function denyDecision(message) {
     user_message: message,
     agent_message: message,
   };
+}
+
+/** @typedef {{ continue: boolean, user_message?: string }} PromptHookDecision */
+
+/**
+ * Map internal allow/deny to Cursor beforeSubmitPrompt output (`continue`, not `permission`).
+ * @param {{ permission: 'allow' | 'deny', user_message?: string }} decision
+ * @returns {PromptHookDecision}
+ */
+export function toPromptHookOutput(decision) {
+  if (decision.permission === 'allow') {
+    return { continue: true };
+  }
+  const out = { continue: false };
+  if (decision.user_message) out.user_message = decision.user_message;
+  return out;
+}
+
+/**
+ * @param {PromptHookDecision} decision
+ */
+export function emitPromptDecision(decision) {
+  const out = { continue: decision.continue };
+  if (decision.continue === false && decision.user_message) {
+    out.user_message = decision.user_message;
+  }
+  process.stdout.write(`${JSON.stringify(out)}\n`);
 }

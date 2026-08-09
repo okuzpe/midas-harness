@@ -22,6 +22,10 @@ Safety entries use `failClosed: true` and invoke `.harness/scripts/safety/*.mjs`
 (engine contributors: `scripts/safety/*.mjs`). Uninstall/update strips only Midas-marked safety
 entries — same family isolation as Trace.
 
+**Hook output contracts (Cursor):** `beforeSubmitPrompt` → stdout `{"continue": true}` or
+`{"continue": false, "user_message": "…"}` — **not** `permission` (that shape is for
+`beforeShellExecution` only). `secrets-prompt.mjs` implements the prompt contract.
+
 ## Commit/push receipt (one-shot)
 
 When safety hooks are installed, `gate-commits.mjs` allows `git commit` / `git push` (and close
@@ -55,6 +59,8 @@ receipt is the mechanical twin when Cursor safety hooks are present.
 
 ## Amendment
 
+- **2026-08-10** — Document `beforeSubmitPrompt` stdout uses `continue` (not `permission`); fixes
+  fail-closed "no output" when Cursor rejects shell-shaped JSON from `secrets-prompt.mjs`.
 - **2026-08-09** — P0 docs: Trace observe ≠ Cursor safety deny; receipt path
   `{paths.cache}/session/commit-approved.json` schema v2; hook events and one-shot consume contract
   per ADR-012.

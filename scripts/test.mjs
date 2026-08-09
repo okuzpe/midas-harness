@@ -4686,6 +4686,29 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
       typeof denyJson.user_message === 'string' &&
       denyJson.userMessage === undefined,
   );
+
+  const promptSmoke = spawnSync(
+    process.execPath,
+    [join(ROOT, 'scripts', 'safety', 'secrets-prompt.mjs')],
+    {
+      cwd: ROOT,
+      encoding: 'utf8',
+      input: JSON.stringify({ prompt: 'hello world' }),
+    },
+  );
+  let promptJson = null;
+  try {
+    promptJson = JSON.parse((promptSmoke.stdout || '').trim());
+  } catch {
+    promptJson = null;
+  }
+  check(
+    'safety:secrets-prompt-continue',
+    promptSmoke.status === 0 &&
+      promptJson?.continue === true &&
+      promptJson?.permission === undefined,
+    'secrets-prompt must emit beforeSubmitPrompt continue contract (not permission)',
+  );
 }
 
 console.log(`midas test: ${passed} passed, ${failures.length} failed`);

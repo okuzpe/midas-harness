@@ -557,6 +557,47 @@ if (mcp === null) {
         }
       }
     }
+
+    const SAFETY_HOOK_SCRIPTS = ['secrets-prompt.mjs', 'gate-commits.mjs', 'destructive-shell.mjs'];
+    const hooksRawSafety = read('.cursor/hooks.json');
+    if (hooksRawSafety === null) {
+      check('gate:safety-hooks', 'skip', 'no .cursor/hooks.json');
+    } else {
+      try {
+        const hooksDoc = JSON.parse(hooksRawSafety);
+        const hookCommands = [
+          ...(hooksDoc?.hooks?.beforeSubmitPrompt || []),
+          ...(hooksDoc?.hooks?.beforeShellExecution || []),
+        ]
+          .map((h) => (h && typeof h.command === 'string' ? h.command : ''))
+          .filter(Boolean);
+        const wantsSafety = hookCommands.some(
+          (cmd) => cmd.includes('scripts/safety/') || cmd.includes('.harness/scripts/safety/'),
+        );
+        if (!wantsSafety) {
+          check('gate:safety-hooks', 'skip', 'no safety hook commands in .cursor/hooks.json');
+        } else {
+          let missing = false;
+          for (const script of SAFETY_HOOK_SCRIPTS) {
+            const scriptPath = join(ROOT, paths.scripts, 'safety', script);
+            const ok = existsSync(scriptPath);
+            if (!ok) missing = true;
+            check(
+              `gate:safety-script:${script}`,
+              ok ? 'ok' : 'warn',
+              ok ? '' : `missing ${paths.scripts}/safety/${script} — run installer --update`,
+            );
+          }
+          check(
+            'gate:safety-hooks',
+            missing ? 'warn' : 'ok',
+            missing ? 'safety hooks wired but script(s) missing on disk' : '',
+          );
+        }
+      } catch {
+        check('gate:safety-hooks', 'warn', '`.cursor/hooks.json` invalid JSON');
+      }
+    }
   }
 }
 {
