@@ -2,6 +2,7 @@
 
 import { resolve } from 'node:path';
 import { detectContext, compareVersions, hasMidasInstall, detectLegacyLayout, isMidasEngineRepository } from '../core/context.mjs';
+import { formatUpdateCmd } from '../core/install-cmd.mjs';
 import { createPlan } from '../core/plan.mjs';
 import { assessUpdateConflicts } from '../core/conflicts.mjs';
 import { planTemplateCopy } from '../steps/plan-tree.mjs';
@@ -34,7 +35,7 @@ export async function runInstaller(cmd, deps) {
 
   if (cmd.command === 'diagnose') {
     emitPhase('requirements', { json, color, status: 'active' });
-    const step = runDiagnoseStep({ target, installCmd: deps.installCmd, json });
+    const step = runDiagnoseStep({ target, installCmd: deps.installCmd, bundledVersion: deps.bundledVersion, json });
     emitPhase('complete', { json, color, status: step.ok ? 'done' : 'failed' });
     if (json) emitResult(step.envelope, { json: true });
     else console.log(step.envelope.message);
@@ -261,6 +262,18 @@ function gatherRequirements(cmd, ctx, deps) {
         ? `${ctx.dir} is already inside a Midas project (root: ${ctx.ancestorRoot}). Pass --force for a nested install.`
         : 'no ancestor install',
     });
+  }
+
+  if (cmd.command === 'install' && ctx.installed && ctx.layout === 'harness' && ctx.engineVersion) {
+    const behind = compareVersions(ctx.engineVersion, deps.bundledVersion) < 0;
+    if (behind) {
+      out.push({
+        id: 'install-vs-update',
+        ok: false,
+        message:
+          `existing install at engine v${ctx.engineVersion}; use ${formatUpdateCmd({ version: deps.bundledVersion })} instead of a fresh install`,
+      });
+    }
   }
 
   if (cmd.command === 'migrate') {

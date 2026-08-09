@@ -12,12 +12,19 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const contextPath = existsSync(join(HERE, 'lib', 'core', 'context.mjs'))
   ? join(HERE, 'lib', 'core', 'context.mjs')
   : join(HERE, 'install-context.mjs');
+const installCmdPath = existsSync(join(HERE, 'lib', 'core', 'install-cmd.mjs'))
+  ? join(HERE, 'lib', 'core', 'install-cmd.mjs')
+  : join(HERE, 'lib', 'install-cmd.mjs');
 const {
   detectContext,
   hasMidasInstall,
   findAncestorMidasRoot,
   yamlScalar,
 } = await import(pathToFileURL(contextPath).href);
+const {
+  formatInstallCmd,
+  formatUpdateCmd,
+} = await import(pathToFileURL(installCmdPath).href);
 
 export { hasMidasInstall, findAncestorMidasRoot, yamlScalar };
 
@@ -46,8 +53,10 @@ export function autonomyDiagnoseHint(dir, stateRaw) {
   return null;
 }
 
-/** Fallback when caller does not pass installCmd (prefer reading bundled VERSION in create-midas). */
-const DEFAULT_INSTALL_CMD = 'npx github:okuzpe/midas-harness --tools=cursor';
+/** Fallback when caller does not pass installCmd (prefer bundledVersion from create-midas). */
+function defaultInstallCmd(bundledVersion) {
+  return formatInstallCmd({ version: bundledVersion || null, tools: 'cursor' });
+}
 
 /**
  * @param {string} installCmd
@@ -66,7 +75,7 @@ function relatedCli(installCmd, mode) {
 export function diagnoseProject(targetDir, opts = {}) {
   const ctx = detectContext(targetDir);
   const dir = ctx.dir;
-  const installCmd = opts.installCmd || DEFAULT_INSTALL_CMD;
+  const installCmd = opts.installCmd || defaultInstallCmd(opts.bundledVersion);
   const ancestor = ctx.ancestorRoot;
 
   if (!ctx.installed) {
@@ -129,14 +138,13 @@ export function diagnoseProject(targetDir, opts = {}) {
   }
 
   if (engineVersion && midasVersion && midasVersion !== engineVersion) {
-    const pin = engineVersion ? `#v${engineVersion}` : '';
     return {
       status: 'version_behind',
       dir,
       midasVersion,
       engineVersion,
       summary: `Engine on disk is ${engineVersion} but state.yaml records midas_version ${midasVersion}.`,
-      nextCli: `npx github:okuzpe/midas-harness${pin} --update`,
+      nextCli: formatUpdateCmd({ version: engineVersion }),
       nextSlash: '/midas-update',
       detail:
         'Pick one (not both): `npx ... --update` (full refresh — done when verify ok) or `/midas-update` (interactive confirm that runs the same refresh).',

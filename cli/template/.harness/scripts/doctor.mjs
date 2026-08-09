@@ -20,6 +20,7 @@ import { parseSprints, parseSprintLastTouched, parsePhases, parseEnforcement, pa
 import { syncCursorMcp, wrapMcpServersForWindows } from './mcp-cursor-sync.mjs';
 import { auditGitignore, ensureMidasGitignore } from './gitignore-merge.mjs';
 import { resolvePaths, detectLayout, resolveProjectRootFromScript } from './paths.mjs';
+import { formatUpdateCmd } from './lib/install-cmd.mjs';
 import { computeStageCommandTableYaml, renderStageCommandTable } from './stage-command-table.mjs';
 import { computeDesignSystemCss, renderDesignSystemTokens } from './design-system.mjs';
 import {
@@ -270,7 +271,7 @@ if (!stateRaw) {
     check(
       'version',
       'warn',
-      `state ${sv} != engine ${VERSION} — run npx github:okuzpe/midas-harness#v${VERSION} --update (or /midas-update for diff-confirm)`,
+      `state ${sv} != engine ${VERSION} — run ${formatUpdateCmd({ version: VERSION })} (or /midas-update for diff-confirm)`,
     );
   }
   else check('version', 'ok', sv || '');

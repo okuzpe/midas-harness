@@ -5,11 +5,12 @@ import { createPlan } from '../core/plan.mjs';
 import { buildResultEnvelope } from '../report/render.mjs';
 
 /**
- * @param {{ target: string, installCmd?: string, json?: boolean }} opts
+ * @param {{ target: string, installCmd?: string, bundledVersion?: string, json?: boolean }} opts
  */
 export function runDiagnoseStep(opts) {
   const diagnosis = diagnoseProject(opts.target, {
     installCmd: opts.installCmd,
+    bundledVersion: opts.bundledVersion,
   });
   const plan = createPlan({
     mode: 'diagnose',

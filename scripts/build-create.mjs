@@ -59,6 +59,10 @@ cpSync(
   join(ROOT, 'cli', 'lib', 'core', 'context.mjs'),
   join(scriptsTarget, 'install-context.mjs'),
 );
+cpSync(
+  join(ROOT, 'cli', 'lib', 'core', 'install-cmd.mjs'),
+  join(scriptsTarget, 'lib', 'install-cmd.mjs'),
+);
 mkdirSync(join(engineTarget, 'docs'), { recursive: true });
 cpSync(join(ROOT, 'docs', 'agents-and-models.md'), join(engineTarget, 'docs', 'agents-and-models.md'));
 cpSync(join(ROOT, 'docs', 'skill-quality-gate.md'), join(engineTarget, 'docs', 'skill-quality-gate.md'));

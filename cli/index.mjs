@@ -10,6 +10,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { dirname, basename, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DEFAULT_ROUTING_PROFILE, isKnownRoutingProfile, normalizeRoutingProfile } from './template/.harness/scripts/model-profiles.mjs';
+import { formatInstallCmd } from './lib/core/install-cmd.mjs';
 import { formatMigrationPlan, planV2Migration } from './migrate-v2.mjs';
 import {
   KNOWN_TOOLS as LIB_KNOWN_TOOLS,
@@ -61,7 +62,7 @@ if (!existsSync(TEMPLATE) && parsedCmd.command !== 'diagnose') {
   process.exit(1);
 }
 
-const installCmd = `npx github:okuzpe/midas-harness#v${readBundledVersion()} --tools=cursor`;
+const installCmd = formatInstallCmd({ version: readBundledVersion(), tools: 'cursor' });
 
 const execute = createExecuteHandler({
   template: TEMPLATE,

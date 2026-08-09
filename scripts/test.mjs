@@ -604,12 +604,13 @@ if (existsSync(buildCreate)) {
     const templateScriptFiles = walkRelativeFiles(templateScripts)
       .map((rel) => rel.replace(/\\/g, '/'))
       .sort();
-    const extraScripts = ['install-diagnose.mjs', 'install-context.mjs'];
+    const extraScripts = ['install-diagnose.mjs', 'install-context.mjs', 'lib/install-cmd.mjs'];
     const sameShape = JSON.stringify(templateScriptFiles) === JSON.stringify([...expectedScripts, ...extraScripts].sort());
     const sameContent = sameShape && expectedScripts.every(
       (rel) => readFileSync(join(ROOT, 'scripts', rel), 'utf8') === readFileSync(join(templateScripts, rel), 'utf8'),
     ) && readFileSync(join(ROOT, 'cli', 'install-diagnose.mjs'), 'utf8') === readFileSync(join(templateScripts, 'install-diagnose.mjs'), 'utf8')
-      && readFileSync(join(ROOT, 'cli', 'lib', 'core', 'context.mjs'), 'utf8') === readFileSync(join(templateScripts, 'install-context.mjs'), 'utf8');
+      && readFileSync(join(ROOT, 'cli', 'lib', 'core', 'context.mjs'), 'utf8') === readFileSync(join(templateScripts, 'install-context.mjs'), 'utf8')
+      && readFileSync(join(ROOT, 'cli', 'lib', 'core', 'install-cmd.mjs'), 'utf8') === readFileSync(join(templateScripts, 'lib', 'install-cmd.mjs'), 'utf8');
     check(
       'build-create:scripts-tree-match',
       sameShape && sameContent,
@@ -904,6 +905,27 @@ if (engineVersion) {
       check(`version:${f}`, !!m && m[1] === engineVersion, m ? `${m[1]} != ${engineVersion}` : 'no midas_version');
     }
   }
+}
+
+// --- I1. install-cmd helpers (canonical npx strings) ------------------------------------------
+{
+  const { formatInstallCmd, formatUpdateCmd, npxPackageRef } = await import('./lib/install-cmd.mjs');
+  check('install-cmd:package-ref', npxPackageRef('2.9.1') === 'github:okuzpe/midas-harness#v2.9.1');
+  if (engineVersion) {
+    check(
+      'install-cmd:install',
+      formatInstallCmd({ version: engineVersion, tools: 'cursor' }) === `npx github:okuzpe/midas-harness#v${engineVersion} --tools=cursor`,
+    );
+    check(
+      'install-cmd:update',
+      formatUpdateCmd({ version: engineVersion }) === `npx github:okuzpe/midas-harness#v${engineVersion} --update`,
+    );
+  }
+  check(
+    'install-cmd:shipped',
+    existsSync(join(ROOT, 'cli', 'lib', 'core', 'install-cmd.mjs')) &&
+      existsSync(join(ROOT, 'scripts', 'lib', 'install-cmd.mjs')),
+  );
 }
 
 // --- J. referenced pipeline playbooks resolve (regression guard for the 00- vs 0- bug) ----------
@@ -1283,6 +1305,7 @@ rmSync(narrowRoot, { recursive: true, force: true });
 
 const installerArgsSrc = readFileSync(join(ROOT, 'cli', 'lib', 'cli', 'args.mjs'), 'utf8');
 const installerRuntime = readFileSync(join(ROOT, 'cli', 'lib', 'runtime', 'execute.mjs'), 'utf8');
+const engineSrc = readFileSync(join(ROOT, 'cli', 'lib', 'workflow', 'engine.mjs'), 'utf8');
 const installerRunner = readFileSync(join(ROOT, 'cli', 'lib', 'core', 'runner.mjs'), 'utf8');
 check('installer:tools-flag', /KNOWN_TOOLS/.test(installer) && /--tools/.test(installer));
 check('installer:tool-onboarding', /printToolOnboarding/.test(installerRuntime) && /tool-profiles\.mjs/.test(installerRuntime));
@@ -1391,7 +1414,9 @@ check('installer:gitignore-after-engine', /ensureGitignore\(paths\)/.test(instal
 check('installer:verify-after-update', /function verifyInstall\(paths\)/.test(installerRuntime) && /runDoctor\(TARGET, paths/.test(installerRuntime));
 check('installer:verify-auto-fix-routing', /STRICT:.*\\b\(routing\|version\)\\b/.test(installerRuntime));
 check('installer:update-complete-hint', /no need to run \/midas-update/i.test(installerRuntime));
-const engineSrc = readFileSync(join(ROOT, 'cli', 'lib', 'workflow', 'engine.mjs'), 'utf8');
+check('installer:install-vs-update-guard', /id: 'install-vs-update'/.test(engineSrc));
+check('installer:bump-version-always', /updatedTo = bumpVersionStamp\(paths\)/.test(installerRuntime));
+check('installer:install-cmd-module', /install-cmd\.mjs/.test(engineSrc));
 check('installer:layout-flag', /v2 writes only --layout=harness/.test(engineSrc) && /--migrate/.test(installer));
 check(
   'installer:refuses-engine-repo',

@@ -11,7 +11,19 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
-## [2.9.1] — 2026-08-09
+## [2.9.2] — 2026-08-09
+
+### Added
+
+- **`cli/lib/core/install-cmd.mjs`** — canonical `npx github:okuzpe/midas-harness` strings (`formatInstallCmd`, `formatUpdateCmd`, …); wired into installer, diagnose, and doctor messages.
+- **Installer guard** — plain `install` on an existing v2 project whose engine is older than the bundled CLI fails fast with the exact `--update` command.
+
+### Changed
+
+- **`npm run bump`** now also rewrites `scripts/fixtures/product-closed/.harness/state.yaml` (no manual fixture edit per release).
+- **`install-diagnose`** uses bundled version for default install hints; version-mismatch path uses `formatUpdateCmd`.
+
+---
 
 ### Fixed
 
@@ -1655,7 +1667,7 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.9.1...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.9.2...HEAD
 [2.9.0]: https://github.com/okuzpe/midas-harness/compare/v2.8.2...v2.9.0
 [2.8.2]: https://github.com/okuzpe/midas-harness/compare/v2.8.1...v2.8.2
 [2.8.1]: https://github.com/okuzpe/midas-harness/compare/v2.8.0...v2.8.1
