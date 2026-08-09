@@ -86,6 +86,6 @@ If ≥2 Learned rows look like durable rules/playbooks, **propose** `/midas-capt
 
 ## When NOT
 - Conformance / scope audit → `/close-sprint`.
-- Mid-sprint STM row only → `/midas-progress`.
-- Dead flows / ledger drift → `/midas-sweep`.
+- Mid-sprint STM row only → path-pass `midas-progress` (internal).
+- Dead flows / ledger drift → path-pass `midas-sweep` (internal).
 - Decision quality debate → `/midas-tribunal`.

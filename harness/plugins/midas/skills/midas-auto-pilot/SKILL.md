@@ -1,56 +1,70 @@
 ---
 name: midas-auto-pilot
-description: "Continuous local product evolve — ask PR|code delivery, then tick + arm Cursor /loop. Optional cloud draft. For ADR-009 sprint checklist ticks use /midas-auto-sprints (CLI midas-autopilot.mjs)."
+description: "Unified autonomy guide — ask evolve vs sprint checklist (ADR-009), then PR|code delivery or CLI setup/status/tick. Arms Cursor /loop for continuous evolve. CLI midas-autopilot.mjs unchanged."
 user-invocable: true
 disable-model-invocation: true
 model: inherit
 harness-tier: build
 recommended-model: claude-sonnet-4-6
-argument-hint: "[pr|code|local|cloud|stop] [interval]"
+argument-hint: "[pr|code|local|cloud|stop|setup|status|dry-run|tick|resume] [interval]"
 ---
 
-# midas-auto-pilot — continuous product evolve
+# midas-auto-pilot — unified autonomy guide
 
 > **Guard:** `<paths.engine>/templates/skill-state-ritual.md` + `AGENTS.md` § Safety.
-> **Runbook:** `<paths.engine>/templates/auto-pilot-runbook.md.tmpl` → `{runs}/auto-pilot/runbook.md`
-> **Journal:** `<paths.engine>/templates/auto-pilot-journal.md` → `{runs}/auto-pilot/journal.md`
-> **Playbook:** `<paths.engine>/templates/playbooks/auto-pilot-cycle.md` → propose `{product}/playbooks/auto-pilot-cycle.md`
+> **Evolve:** runbook/journal under `{runs}/auto-pilot/` — templates `auto-pilot-runbook.md.tmpl`, `auto-pilot-journal.md`, playbook `auto-pilot-cycle.md`.
+> **Sprint checklist (L3):** `./sprint-checklist.md` → CLI `.harness/autonomy/bin/midas-autopilot.mjs` (ADR-009).
 > **Command map:** `docs/skills.md` § Autonomy commands (install: `<paths.engine>/docs/skills.md`).
-
-**Not** `/midas-auto-sprints` (sprint checklist) and **not** the CLI `midas-autopilot.mjs`.
-Former names: `/midas-improve-loop` (2.6.1–2.8.1), `/midas-auto-pilot` (≤2.6.0, reclaimed 2.8.2).
+> **Aliases (forward here):** `/midas-auto-sprints`, `/midas-autopilot`, `/midas-improve-loop`.
 
 ## Response shape (always)
 
-Keep the reply **≤8 lines** (≤6 after delivery is known). No autonomy lecture unless asked.
+Keep the reply **≤8 lines** (≤6 when intent + delivery known). No autonomy lecture unless asked.
 
 1. **Verdict** — `ready` | `ready_with_warnings` | `blocked` | `stopped` + short why
-2. **Delivery** — `pr` | `code` | `unset` (when Ask pending)
-3. **Mode** — `local` (default) | `cloud` | `stop`
-4. **Next** — one line
-5. **Evidence** — runbook + journal paths; tick result when a tick ran
+2. **Intent** — `evolve` | `sprints` | `stop` | `status` | `unset` (Ask pending)
+3. **Delivery** — `pr` | `code` | `unset` | `n/a` (non-evolve)
+4. **Mode** — `local` | `cloud` | `stop` | `n/a`
+5. **Next** — one line
+6. **Evidence** — runbook/journal and/or CLI paths; tick result when a tick ran
 
 ## When NOT
 
 - No install / no `paths.state` → `/midas-reconcile` or install (`INSTALL.md`).
-- No product context at all → `/midas-init` or `/midas-adopt` first.
-- Sprint checklist `tick` with ADR-009 policy/budget → `/midas-auto-sprints` (needs `--autonomy`; CLI `midas-autopilot.mjs`).
+- No product context (evolve path) → `/midas-init` or `/midas-adopt` first.
+- Sprint path without `.harness/autonomy/` → `--autonomy` via `/midas-update`.
 - Phase-8 gate verdict → `/close-sprint`.
-- Laptop will sleep / Cursor will quit → `cloud` mode; local `/loop` dies with the session.
+- Laptop will sleep / Cursor will quit → evolve `cloud` mode; local `/loop` dies with the session.
 
-## Arguments
+## Arguments (short-circuit — skip Mode gate)
 
-| Arg | Meaning |
+| Arg | Path |
 |---|---|
-| `pr` / `code` | Set delivery, persist to runbook, then continue (local default) |
-| *(none)* or `local` | Validate → **B0 delivery gate** → (if known) tick #1 → arm `/loop` |
-| `local 15m` / `local 1h` | Same; interval default **30m** |
-| `cloud` | Validate → delivery gate → Cursor Automation draft only |
-| `stop` | Kill armed local loop |
+| `pr` / `code` | Evolve — set delivery, persist, continue (local default) |
+| *(none)* | **B00 Mode gate** (unless alias default — see B00) |
+| `local` / `local 15m` / `local 1h` | Evolve — delivery gate → tick #1 → arm `/loop` (interval default **30m**) |
+| `cloud` | Evolve — delivery gate → Automations draft only |
+| `stop` | Kill armed local evolve loop |
+| `setup` / `status` / `dry-run` / `tick` / `resume` | Sprint checklist — follow `./sprint-checklist.md` |
 
 ## Procedure
 
-### A. Validate (read `paths.state` first)
+### B00. Mode gate (bare invoke only)
+
+Resolve intent from (first wins): clear arg (table above) → alias default → AskQuestion.
+
+**Alias defaults (no Ask):** bare `/midas-auto-sprints` → intent=`sprints` (then L3). Other aliases with no arg → Ask like canonical.
+
+If **unset**, AskQuestion **once** (exact labels, this order):
+
+1. **Continuous product evolve** — discover/fix on a schedule (`/loop` or cloud)
+2. **Sprint checklist ticks** — next code task via ADR-009 CLI (needs `--autonomy`)
+3. **Stop local evolve loop**
+4. **Sprint status / dry-run** — read-only ADR-009 orient; if no `.harness/autonomy/` → `blocked` + point to `--autonomy` / `/midas-update`
+
+After answer: set Intent; for (1) continue evolve (B0+); for (2) open L3 setup path; for (3) §D stop; for (4) L3 §B status/dry-run. Do **not** run evolve tick or arm `/loop` until intent is `evolve` and delivery known.
+
+### A. Validate (evolve path — read `paths.state` first)
 
 Hard-block (`blocked`) only when:
 
@@ -67,7 +81,7 @@ Warn (`ready_with_warnings`) when:
 
 Record `name`, `stage`, `paths.product`, `paths.runs`.
 
-### B0. Delivery gate (before local tick or cloud draft)
+### B0. Delivery gate (evolve — before local tick or cloud draft)
 
 Resolve `delivery` from (first wins): arg `pr`|`code` → runbook `delivery:` field → unset.
 
@@ -82,7 +96,7 @@ If **unset** (applies to `local` and `cloud`):
 
 If delivery already known → skip Ask.
 
-### B1. Paths + migration (one-shot)
+### B1. Paths + migration (one-shot, evolve)
 
 Use `paths.runs` (not a hardcoded `.harness/…` string).
 
@@ -104,7 +118,7 @@ Use `paths.runs` (not a hardcoded `.harness/…` string).
    - Do not duplicate an existing loop for this project.
 3. Confirm: delivery, interval, tick #1 outcome, next wake time, **Cursor must stay open**.
 
-On later wakes: one tick only; read journal first — do not repeat an identical failed attempt; do not re-ask delivery.
+On later wakes: one tick only; read journal first — do not repeat an identical failed attempt; do not re-ask delivery or Mode gate.
 
 ### C. `cloud` — Cursor Automations draft only
 
@@ -118,11 +132,11 @@ On later wakes: one tick only; read journal first — do not repeat an identical
 1. Kill tracked auto-pilot PID (per `/loop` stop rules); also clear legacy improve-loop sentinel if present.
 2. Verdict `stopped`.
 
-### E. Optional ADR-009 handoff
+### E. Sprint checklist path
 
-If `.harness/autonomy/` exists and `midas-autopilot dry-run` shows a **code** task, mention `/midas-auto-sprints` separately — never auto-`tick` from this skill.
+Follow `./sprint-checklist.md`. Never auto-`tick` from chat. Never require `MIDAS_AUTONOMY_AUTHZ_KEY` for everyday local setup.
 
-## Caps (every tick)
+## Caps (every evolve tick)
 
 - One improvement per tick; ~4 source files (+ tests).
 - Branch prefix `midas-auto/`; **never** edit `main`/`master` by default.
@@ -135,15 +149,16 @@ If `.harness/autonomy/` exists and `midas-autopilot dry-run` shows a **code** ta
 
 ## Exit gate
 
-- [ ] Verdict + evidence paths; reply ≤8 lines (≤6 when delivery already known).
-- [ ] **Delivery unset:** Ask once + STOP (no tick, no `/loop`, no Automations draft).
+- [ ] Verdict + evidence paths; reply ≤8 lines (≤6 when intent + delivery known).
+- [ ] **Bare invoke / Mode unset:** Ask once (B00) before evolve tick or sprint CLI effects (except alias default for bare `/midas-auto-sprints`).
+- [ ] **Delivery unset (evolve):** Ask once + STOP (no tick, no `/loop`, no Automations draft).
 - [ ] **`local` + delivery known:** tick #1 attempted **and** `/loop` armed (or hard-blocked before start).
 - [ ] **`cloud` + delivery known:** runbook emitted; one Next toward Automations editor.
 - [ ] **`stop`:** loop killed.
-- [ ] Did not auto-start ADR-009 `tick` or require `MIDAS_AUTONOMY_AUTHZ_KEY`.
+- [ ] Sprint path: L3 exit gate; did not auto-start ADR-009 `tick` or require `MIDAS_AUTONOMY_AUTHZ_KEY`.
 
 ## Tier & delegation
 
-- **Dispatch:** validate + delivery gate + local arm + first tick → **build**.
-- Scout may fetch docs during a tick; do not delegate the arming exit gate away.
+- **Dispatch:** Mode/delivery gates + local arm + first evolve tick + sprint narrate/setup → **build**.
+- Scout may fetch docs during an evolve tick; do not delegate the arming exit gate away.
 - Path-pass `Delegator: yes` — `disable-model-invocation` still forbids Skill-tool / auto slash.

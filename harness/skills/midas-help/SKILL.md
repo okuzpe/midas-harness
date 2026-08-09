@@ -18,6 +18,9 @@ recommended-model: claude-haiku-4-5
 > **Flow shape (handoffs, not commands):** `docs/skill-flows.md` (install:
 > `<paths.engine>/docs/skill-flows.md`) — cite when the user asks how skills connect; commands still
 > come from `docs/skills.md` or `/midas-status`.
+> **Surface filter (ADR-013):** AskQuestion options and Exact commands are **`user-surface: primary`
+> only**. Do not offer `internal` (`progress`, `qa`, `diff-gates`, `lean-review`, `sweep`) or
+> `deprecated` aliases as menu choices — parents path-pass those; power-users may type them.
 
 ## Steps
 
@@ -25,20 +28,20 @@ recommended-model: claude-haiku-4-5
    - **Start or set up a product** (`/midas-init` / `/idea-intake` / `/midas-adopt`)
    - **Resume after a break** (`/midas-status` + `/midas-recall`)
    - **Run the next phase gate** (phase skills 0–8)
-   - **Start or close a sprint** (`/start-sprint` / `/close-sprint` / `/midas-auto-sprints` / `/midas-retro`)
+   - **Start or close a sprint** (`/start-sprint` / `/close-sprint` / `/midas-auto-pilot` / `/midas-retro`)
    - **Debug a failing fix** (`/midas-investigate`)
-   - **Continuous auto-pilot** (`/midas-auto-pilot`)
-   - **Verify UI / ad-hoc QA** (`/midas-verify` / `/midas-qa`)
+   - **Autonomy / auto-pilot** (`/midas-auto-pilot`)
+   - **Verify UI before close** (`/midas-verify`)
    - **Redesign product UI** (`/midas-design`)
    - **Security or adversarial review** (`/midas-security-audit` / `/midas-tribunal`)
-   - **Capture a pattern or sweep hygiene** (`/midas-capture` / `/midas-sweep` / `/midas-lean-review`)
+   - **Capture a recurring pattern** (`/midas-capture`)
    - **Install / version / adapter health** (`/midas-reconcile` / `/midas-doctor` / `/midas-update`)
    - **Investigate something outside the pipeline** (`/midas-explore`)
    - **I'm not sure — show a short summary table**
 
 2. **Answer ≤15 lines** with this fixed structure:
    1. **What** (1 sentence)
-   2. **Exact command** (placeholders in `<…>`)
+   2. **Exact command** (placeholders in `<…>` — primary slash only)
    3. **What happens** (2–3 bullets)
    4. **When NOT** (1 line)
    5. **Next** (usual follow-up command)
@@ -68,23 +71,23 @@ recommended-model: claude-haiku-4-5
 
 **Start or close a sprint**
 - What: Phase 7 kickoff, Phase 8 audit, bounded sprint ticks, or a non-advancing retrospective.
-- Command: `/start-sprint` · `/close-sprint` · `/midas-diff-gates` (production diff receipts before close) · `/midas-auto-sprints` → `node .harness/autonomy/bin/midas-autopilot.mjs setup` · `/midas-retro` [`NN|latest`]
-- Happens: start activates sprint; close audits rules; auto-sprints guides setup/dry-run/tick CLI (requires `--autonomy` install); retro freezes `{runs}/retros/retro-NN.md` without touching stage.
-- NOT for operator-only sprint tasks (release/merge) — ADR-009 targets code checklist items. NOT for inventing continuous improve without a checklist → `/midas-auto-pilot`. Retro is not a substitute for `/close-sprint`.
-- Next: after start → implement + `/midas-progress`; run `/midas-diff-gates` before `/close-sprint` when the diff touches production paths; auto-sprints ready → human runs `tick`; after close → next sprint; after retro → optional `/midas-capture` on recurring learnings.
+- Command: `/start-sprint` · `/close-sprint` · `/midas-auto-pilot` (Sprint checklist / `setup`) → `node .harness/autonomy/bin/midas-autopilot.mjs setup` · `/midas-retro` [`NN|latest`]
+- Happens: start activates sprint and path-passes STM (`midas-progress`); close path-passes hygiene/diff-gates/lean as needed then audits rules; auto-pilot sprint path guides setup/dry-run/tick CLI (requires `--autonomy` install); retro freezes `{runs}/retros/retro-NN.md` without touching stage.
+- NOT for operator-only sprint tasks (release/merge) — ADR-009 targets code checklist items. NOT for inventing continuous improve without a checklist → `/midas-auto-pilot` Continuous evolve. Retro is not a substitute for `/close-sprint`.
+- Next: after start → implement per Phase 7 (STM via path-pass progress); after close → next sprint; after retro → optional `/midas-capture` on recurring learnings.
 
-**Continuous auto-pilot**
-- What: one slash starts continuous product-aligned improve (ask PR|code → discover → one fix → verify → evidence) via local Cursor `/loop`.
-- Command: `/midas-auto-pilot` (default local) · `/midas-auto-pilot pr|code` · `/midas-auto-pilot cloud` · `/midas-auto-pilot stop`
-- Happens: validates context; asks delivery once if unset; writes `{runs}/auto-pilot/runbook.md`; runs tick #1; arms `/loop` (default 30m).
-- NOT the ADR-009 policy plane (`/midas-auto-sprints` / CLI `midas-autopilot.mjs`); NOT Phase-8 (`/close-sprint`). Laptop sleep → use `cloud` mode.
-- Next: leave Cursor open; review PRs or local diffs; `/close-sprint` when a sprint’s worth lands. Command map: `docs/skills.md` § Autonomy commands.
+**Autonomy / auto-pilot**
+- What: one slash for continuous evolve (PR|code → tick → `/loop`) **or** ADR-009 sprint checklist guide (setup/status/tick).
+- Command: `/midas-auto-pilot` (bare → Mode Ask) · `/midas-auto-pilot pr|code|local|cloud|stop` · `/midas-auto-pilot setup|status|dry-run|tick`
+- Happens: Mode gate if bare; evolve writes `{runs}/auto-pilot/runbook.md` and arms `/loop`; sprint path shells `midas-autopilot.mjs` (never auto-`tick` from chat).
+- NOT Phase-8 (`/close-sprint`). Laptop sleep → evolve `cloud` mode. Deprecated aliases forward here (not listed as options).
+- Next: leave Cursor open for evolve; review PRs or local diffs; `/close-sprint` when a sprint’s worth lands. Command map: `docs/skills.md` § Autonomy commands.
 
-**Verify UI / ad-hoc QA**
-- What: gate evidence vs inner-loop smoke.
-- Command: `/midas-verify` (before close) · `/midas-qa` (branch/PR, non-gate)
-- Happens: drives flows, freezes `{runs}/verifications/verify-NN.md` or optional `{runs}/qa/`.
-- NOT for non-UI sprints (verify hard-skips). NOT for root-cause before a bug fix → `/midas-investigate`.
+**Verify UI before close**
+- What: gate evidence for UI/API acceptance journeys.
+- Command: `/midas-verify` (before close)
+- Happens: drives flows, freezes `{runs}/verifications/verify-NN.md`.
+- NOT for non-UI sprints (verify hard-skips). NOT for root-cause before a bug fix → `/midas-investigate`. Ad-hoc branch smoke is path-passed inside Phase 7 (`midas-qa` internal) — do not list as a separate menu command.
 - Next: `/close-sprint` when verify is green.
 
 **Debug root cause (Iron Law)**
@@ -92,7 +95,7 @@ recommended-model: claude-haiku-4-5
 - Command: `/midas-investigate` [`topic`] · `--continue NN` · `--dry-run`
 - Happens: writes `{runs}/investigate/inv-NN.md`; does not advance stage.
 - NOT open-ended scoping → `/midas-explore`. NOT conformance → `/close-sprint`.
-- Next: implement fix + regression test; cite `inv-NN` in progress.
+- Next: implement fix + regression test; cite `inv-NN` in progress (path-pass STM).
 
 **Redesign product UI**
 - What: authentic redesign with directions + human pick before implementation.
@@ -108,12 +111,12 @@ recommended-model: claude-haiku-4-5
 - NOT a substitute for `/close-sprint` sprint conformance.
 - Next: fix findings; then `/close-sprint` when ready.
 
-**Capture a pattern or sweep hygiene**
-- What: crystallize a rule/playbook, find dead flows, or cut over-engineering.
-- Command: `/midas-capture` · `/midas-sweep` [`--fix` only after confirm] · `/midas-lean-review` [`--freeze`]
-- Happens: capture proposes an artifact (asks first); sweep freezes `{runs}/sweeps/sweep-NN.md`; lean-review prints a delete-list (optional `{runs}/lean/lean-NN.md`).
-- NOT for one-off preferences with no CHECK → say so and skip. Lean-review is not a security audit.
-- Next: `/midas-doctor` if a rule changed; apply lean cuts only after user OK.
+**Capture a recurring pattern**
+- What: crystallize a rule, playbook, or convention (asks first).
+- Command: `/midas-capture`
+- Happens: capture proposes an artifact; never writes silently.
+- NOT for one-off preferences with no CHECK → say so and skip. Hygiene/lean are path-passed by `/close-sprint` (internal) — not separate help options.
+- Next: `/midas-doctor` if a rule changed.
 
 **Install / version / adapter health**
 - What: orientation, adapter drift, or engine upgrade.
@@ -132,13 +135,15 @@ recommended-model: claude-haiku-4-5
 **I'm not sure — short summary**
 
 Print the **canonical router** from `docs/skills.md` § Which command when (install:
-`<paths.engine>/docs/skills.md`) — do not invent rows. End with: Pipeline PC = `/midas-status`.
+`<paths.engine>/docs/skills.md`) — do not invent rows. Prefer **primary** commands; mention
+internals only as parent-owned path-pass. End with: Pipeline PC = `/midas-status`.
 
 ## Rules
 
 - One `AskQuestion` only — do not chain.
 - Do not paste the full midas-status stage table unless the user needs a phase gate name.
 - If the chosen option needs a prerequisite (e.g. verify needs a UI sprint), say so in When NOT.
+- Never list deprecated aliases (`/midas-improve-loop`, `/midas-autopilot`, `/midas-auto-sprints`) as Exact command.
 
 ## Tier & delegation
 - **Dispatch (read-only):** `scout` → `midas-scout` (or fastest session model).

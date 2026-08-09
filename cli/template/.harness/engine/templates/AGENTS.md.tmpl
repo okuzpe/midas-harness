@@ -103,10 +103,19 @@ On tools without per-agent model selection, apply as intent: fastest for researc
 - **Trace observe ≠ safety deny.** Harness Trace hooks are fail-open (record only). When Cursor safety
   hooks are installed they may be fail-closed — do not treat Trace spans as proof that a destructive
   command was blocked. See `.harness/engine/rules/cursor-safety-hooks.md`.
-- Side-effecting skills (`/midas-init`, `/define-conventions`, `/start-sprint`, `/close-sprint`, `/midas-doctor`,
-  `/midas-adopt`, `/midas-update`, `/midas-verify`, `/midas-diff-gates`, `/midas-design`, `/midas-qa`, `/midas-init --monorepo`, `/midas-tribunal`, `/midas-security-audit`, `/midas-sweep`, `/midas-lean-review`, `/midas-capture`, `/midas-align`, `/midas-bundle`, `/midas-progress`, `/midas-explore`, `/midas-auto-pilot`, `/midas-auto-sprints`, `/midas-improve-loop`, `/midas-autopilot`, `/midas-retro`, `/midas-investigate`) are **user-typed slash commands**
-  (`disable-model-invocation`). **Never call them via the Skill tool** (it errors) or auto-run them — when one
-  is the next step, **surface the command for the user to type** ("👉 Run `/…`"). Each also guards this in its body.
+- Side-effecting skills are **user-typed slash commands** (`disable-model-invocation`) **or**
+  **path-pass reads** under a parent orchestrator the human typed (ADR-013). **Never call them via
+  the Skill tool** (it errors) or auto-run them as slash. When a **primary** skill is the next step,
+  **surface the command for the user to type** ("👉 Run `/…`"). When an **internal** procedure is
+  needed (`user-surface: internal`: `/midas-progress`, `/midas-qa`, `/midas-diff-gates`,
+  `/midas-lean-review`, `/midas-sweep`), the parent (`/start-sprint`, `/close-sprint`, Phase 7 body)
+  **reads** `<paths.engine>/skills/<name>/SKILL.md` and runs those steps in-process — power-users
+  may still type the internal slash. Primary side-effect examples: `/midas-init`, `/define-conventions`,
+  `/start-sprint`, `/close-sprint`, `/midas-doctor`, `/midas-adopt`, `/midas-update`, `/midas-verify`,
+  `/midas-design`, `/midas-init --monorepo`, `/midas-tribunal`, `/midas-security-audit`, `/midas-capture`,
+  `/midas-align`, `/midas-bundle`, `/midas-explore`, `/midas-auto-pilot`,
+  `/midas-retro`, `/midas-investigate`. Deprecated aliases (`/midas-improve-loop`, `/midas-autopilot`,
+  `/midas-auto-sprints`) forward to `/midas-auto-pilot` — do not list in `/midas-help`.
 - **State ritual (shared):** skills read **`paths.state` first** and **write last** (read-modify-write). Cite
   `<paths.engine>/templates/skill-state-ritual.md` instead of restating stage enums or path substitution.
   Schema: `<paths.engine>/state.schema.md`.

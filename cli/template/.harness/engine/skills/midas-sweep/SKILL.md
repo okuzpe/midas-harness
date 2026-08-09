@@ -3,6 +3,7 @@ name: midas-sweep
 description: Hygiene and dead-flow sweep — find orphans, stale docs, ledger drift, and harness mismatches; freeze to {runs}/sweeps/sweep-NN.md. Optional --fix with explicit confirm. Use on demand, after brownfield adopt, or before closing a large sprint.
 user-invocable: true
 disable-model-invocation: true
+user-surface: internal
 model: inherit
 harness-tier: build
 recommended-model: claude-sonnet-4-6
@@ -12,6 +13,7 @@ argument-hint: "[code|docs|harness|all] [--depth quick|standard] [--fix]"
 # midas-sweep — Hygiene, cleanup & dead-flow detection
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Surface:** `internal` (ADR-013) — prefer `/close-sprint` / adopt / status path-pass; power-user may still type this slash.
 > No stage precondition — runs anytime. No `{product}/` + no app source → limit to harness/docs consistency.
 > Record shape: `<paths.engine>/templates/sweep-record.md`. Tally: `<paths.engine>/templates/audit-checklists.md` § Parseable tally lines.
 

@@ -93,6 +93,11 @@ export function ensureMigratedStateShape(ctx, paths, routingProfile) {
       `  scout:       ${routing.scout}`,
     );
   }
+  // v1 installs often declare mcp: servers without Runlayer; default governance is runlayer and
+  // doctor --strict then fails migrate/update. Preserve declared servers as self_managed.
+  if (/^mcp:\s*\[/m.test(cur) && !/^mcp_governance:\s*\S+/m.test(cur)) {
+    patches.push('mcp_governance: self_managed');
+  }
   if (!patches.length) return;
   const next = `${cur.replace(/\s*$/, '')}\n\n${patches.join('\n')}\n`;
   writeFileSync(f, next, 'utf8');

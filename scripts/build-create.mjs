@@ -11,12 +11,21 @@ import { cpSync, rmSync, existsSync, mkdirSync, readFileSync, writeFileSync } fr
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { renderPortableSkillsTree } from './portable-skills.mjs';
-import { HARNESS_ENGINE_ONLY_RELS, stripEngineOnlySkills } from './engine-only.mjs';
+import {
+  HARNESS_ENGINE_ONLY_RELS,
+  stripEngineOnlySkills,
+  stripHostPickerExcludedSkills,
+} from './engine-only.mjs';
+import {
+  INTERNAL_SURFACE_ALLOWLIST,
+  DEPRECATED_SURFACE_ALLOWLIST,
+} from './skill-registry.mjs';
 import { shippedScriptRepoPaths } from './ship-manifest.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..');
 const TEMPLATE = join(ROOT, 'cli', 'template');
+const HOST_PICKER_EXCLUDED = [...INTERNAL_SURFACE_ALLOWLIST, ...DEPRECATED_SURFACE_ALLOWLIST];
 
 // What a fresh project needs to run the harness (NOT docs/research/, harness/plugins/, .github/, tests, or the
 // repo's own dev scripts). NOTE: AGENTS.md is intentionally NOT copied from the repo root — that file
@@ -77,6 +86,12 @@ cpSync(join(ROOT, '.mcp.json'), join(TEMPLATE, '.mcp.json'));
 cpSync(join(ROOT, 'harness', 'skills'), join(TEMPLATE, '.claude', 'skills'), { recursive: true });
 cpSync(join(ROOT, 'harness', 'agents'), join(TEMPLATE, '.claude', 'agents'), { recursive: true });
 stripEngineOnlySkills(join(TEMPLATE, '.claude', 'skills'), { existsSync, rmSync }, { join });
+stripHostPickerExcludedSkills(
+  join(TEMPLATE, '.claude', 'skills'),
+  { existsSync, rmSync },
+  { join },
+  HOST_PICKER_EXCLUDED,
+);
 renderPortableSkillsTree(TEMPLATE, {
   sourceDir: '.harness/engine/skills',
   targetDir: '.agents/skills',
@@ -87,6 +102,7 @@ renderPortableSkillsTree(TEMPLATE, {
 });
 stripEngineOnlySkills(join(TEMPLATE, '.agents', 'skills'), { existsSync, rmSync }, { join });
 stripEngineOnlySkills(join(TEMPLATE, '.cursor', 'skills'), { existsSync, rmSync }, { join });
+// Portable trees already skip internal/deprecated; strip again for safety after engine-only prune.
 
 // Render the PROJECT AGENTS.md from the template (strip the leading {{! author note }} block; keep the
 // {{PROJECT_NAME}}/{{STACK}}/{{TOOLS}} placeholders for the installer to fill).

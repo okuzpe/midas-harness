@@ -4,9 +4,10 @@
 - **Date:** 2026-08-05
 - **Extends:** ADR-003 (git-visible memory), ADR-007 (`.harness/` layout)
 - **Related:** methodology human sign-offs; model-routing provenance; complementary continuous
-  improve via `/midas-auto-pilot` (local `/loop` default + optional Cursor Automations — **not**
-  this policy plane; no durable lease/budget; delivery `pr|code` caps in `templates/auto-pilot-runbook.md.tmpl`).
-  Editor slash for this plane: `/midas-auto-sprints` (CLI controller remains `midas-autopilot.mjs`).
+  improve via `/midas-auto-pilot` (unified Mode gate: local `/loop` evolve + optional Cursor Automations
+  **or** this policy plane’s CLI guide — **not** a second lease/budget implementation; delivery `pr|code`
+  caps in `templates/auto-pilot-runbook.md.tmpl`). Editor slash for both planes: `/midas-auto-pilot`
+  (CLI controller remains `midas-autopilot.mjs`; aliases `/midas-auto-sprints` etc. forward).
 
 ## Context
 
@@ -53,3 +54,14 @@ they lack per-workflow budgets, durable leases, and a public quota-reset API.
   evidence path `{runs}/auto-pilot/`; template `auto-pilot-runbook.md.tmpl`.
 - This plane’s editor slash is `/midas-auto-sprints`; **controller CLI name unchanged**
   (`midas-autopilot.mjs` / npm bin). Deprecated alias `/midas-autopilot` → `/midas-auto-sprints`.
+
+## Amendment — 2026-08-10
+
+- **Supersedes** the 2026-08-08 editor-slash split: one unified editor guide `/midas-auto-pilot`
+  asks Mode (continuous evolve vs sprint checklist vs stop vs sprint status/dry-run), then
+  delivery `pr|code` for evolve or CLI setup/status/tick for this policy plane.
+- L3 procedure: `harness/skills/midas-auto-pilot/sprint-checklist.md`.
+- Aliases `/midas-auto-sprints`, `/midas-autopilot`, `/midas-improve-loop` **forward** to the
+  unified skill (bare `/midas-auto-sprints` defaults intent=`sprints`).
+- **Controller CLI name unchanged** (`midas-autopilot.mjs` / npm bin). Chat still never
+  auto-invokes `tick`.

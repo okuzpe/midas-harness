@@ -8,9 +8,12 @@
 #   curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash
 # Bleeding edge (mutable main):
 #   MIDAS_BLEEDING_EDGE=1 curl -fsSL …/install.sh | bash
+# Refresh existing install (v1 or v2) to the latest release pin:
+#   curl -fsSL …/install.sh | bash -s -- --update --yes
+#   # or: MIDAS_INSTALL_ARGS='--update --yes' curl -fsSL …/install.sh | bash
 #
 # From a local clone:
-#   bash install.sh [target-dir] [--force | --uninstall [--dry-run|--purge]]
+#   bash install.sh [target-dir] [--force | --update --yes | --uninstall [--dry-run|--purge]]
 
 set -euo pipefail
 REPO="okuzpe/midas-harness"
@@ -49,7 +52,12 @@ fi
 # reads from stdin (curl | bash), and `set -u` would trip on a bare reference — default to empty.
 here="$(cd "$(dirname "${BASH_SOURCE[0]:-}")" 2>/dev/null && pwd)" || here=""
 if [ -n "$here" ] && [ -f "$here/cli/index.mjs" ]; then
-  exec node "$here/cli/index.mjs" "$@"
+  extra=()
+  if [ -n "${MIDAS_INSTALL_ARGS:-}" ]; then
+    # shellcheck disable=SC2206
+    extra=( ${MIDAS_INSTALL_ARGS} )
+  fi
+  exec node "$here/cli/index.mjs" "${extra[@]}" "$@"
 fi
 
 # Curl-pipe path: delegate to npx on a pinned tag (or main when MIDAS_BLEEDING_EDGE=1).
@@ -58,4 +66,10 @@ if ! command -v npx >/dev/null 2>&1; then
   exit 1
 fi
 MIDAS_REF="$(resolve_midas_ref)"
-exec npx -y --package="github:$REPO#$MIDAS_REF" midas "$@"
+# Optional: MIDAS_INSTALL_ARGS='--update --yes' when piping (curl | bash) with no argv.
+extra=()
+if [ -n "${MIDAS_INSTALL_ARGS:-}" ]; then
+  # shellcheck disable=SC2206
+  extra=( ${MIDAS_INSTALL_ARGS} )
+fi
+exec npx -y --package="github:$REPO#$MIDAS_REF" midas "${extra[@]}" "$@"

@@ -11,6 +11,15 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.9.5] — 2026-08-10
+
+### Changed
+
+- **Unified `/midas-auto-pilot`** — one slash asks Mode (continuous evolve vs ADR-009 sprint checklist vs stop vs sprint status/dry-run), then PR\|code delivery or CLI setup/status/tick. L3: `harness/skills/midas-auto-pilot/sprint-checklist.md`. Aliases `/midas-auto-sprints`, `/midas-autopilot`, `/midas-improve-loop` forward here. CLI `midas-autopilot.mjs` unchanged. See `harness/migrations/v2.9.5.md` and ADR-009 amendment 2026-08-10.
+- **Skill UX surfaces (ADR-013)** — frontmatter `user-surface: primary|internal|deprecated`; registry **Surface** column; `/midas-help` lists primary only. Internals (`progress`, `qa`, `diff-gates`, `lean-review`, `sweep`) path-passed by `/start-sprint` / `/close-sprint` / Phase 7 — not Skill-tool invoke. Host skill mirrors omit internal + deprecated. Doc scrub: README / getting-started / methodology / adopt; stage-table `qa_internal`.
+
+---
+
 ## [2.9.4] — 2026-08-10
 
 ### Fixed
@@ -1689,7 +1698,7 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.9.4...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.9.5...HEAD
 [2.9.4]: https://github.com/okuzpe/midas-harness/compare/v2.9.3...v2.9.4
 [2.9.3]: https://github.com/okuzpe/midas-harness/compare/v2.9.0...v2.9.3
 [2.9.0]: https://github.com/okuzpe/midas-harness/compare/v2.8.2...v2.9.0

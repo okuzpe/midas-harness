@@ -16,7 +16,7 @@ import { resolvePaths, resolveProjectRootFromScript } from './paths.mjs';
 
 const ROOT = resolveProjectRootFromScript(import.meta.url);
 
-/** @typedef {{ command: string|null, commandWhenDone?: string|null, verifyUi?: string|null, redesignUi?: string|null, qaAdhoc?: string|null, note?: string, recall: string[] }} StageEntry */
+/** @typedef {{ command: string|null, commandWhenDone?: string|null, verifyUi?: string|null, redesignUi?: string|null, qaInternal?: string|null, note?: string, recall: string[] }} StageEntry */
 
 /** Authoring source of truth — regenerate YAML via doctor --fix / align. */
 const STAGE_ROWS = [
@@ -63,7 +63,8 @@ const STAGE_ROWS = [
     commandWhenDone: '/close-sprint',
     verifyUi: '/midas-verify',
     redesignUi: '/midas-design',
-    qaAdhoc: '/midas-qa',
+    // Internal surface (ADR-013) — path-pass only; never the sole Next slash.
+    qaInternal: 'skills/midas-qa/SKILL.md',
     recall: [
       '{product}/features.json',
       '{product}/design-direction.md',
@@ -103,7 +104,7 @@ export function computeStageCommandTableYaml() {
     if (stage.commandWhenDone !== undefined) lines.push(`    command_when_done: ${yamlScalar(stage.commandWhenDone)}`);
     if (stage.verifyUi !== undefined) lines.push(`    verify_ui: ${yamlScalar(stage.verifyUi)}`);
     if (stage.redesignUi !== undefined) lines.push(`    redesign_ui: ${yamlScalar(stage.redesignUi)}`);
-    if (stage.qaAdhoc !== undefined) lines.push(`    qa_adhoc: ${yamlScalar(stage.qaAdhoc)}`);
+    if (stage.qaInternal !== undefined) lines.push(`    qa_internal: ${yamlScalar(stage.qaInternal)}`);
     if (stage.note !== undefined) lines.push(`    note: ${stage.note}`);
     lines.push('    recall:');
     for (const item of stage.recall) {
@@ -161,9 +162,16 @@ function parseStageTableYaml(text) {
       inRecall = false;
       continue;
     }
-    const qa = line.match(/^    qa_adhoc: (.+)$/);
+    const qa = line.match(/^    qa_internal: (.+)$/);
     if (qa) {
-      stages[current].qaAdhoc = unquote(qa[1]);
+      stages[current].qaInternal = unquote(qa[1]);
+      inRecall = false;
+      continue;
+    }
+    // Legacy key (pre-ADR-013 scrub) — accept and map.
+    const qaLegacy = line.match(/^    qa_adhoc: (.+)$/);
+    if (qaLegacy) {
+      stages[current].qaInternal = unquote(qaLegacy[1]);
       inRecall = false;
       continue;
     }

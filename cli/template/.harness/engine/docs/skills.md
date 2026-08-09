@@ -8,6 +8,32 @@ supported. See the [tools matrix](https://github.com/okuzpe/midas-harness#suppor
 > **Canonical router.** `/midas-status` and `/midas-help` **cite this file** — they do not maintain a
 > parallel situation→command table. Product installs: `<paths.engine>/docs/skills.md`.
 
+## Surfaces (UX layers — ADR-013)
+
+Orthogonal to **Delegator** (path-readability). Frontmatter `user-surface`:
+
+| Surface | Meaning | Count (approx.) |
+|---|---|---|
+| **primary** | Listed in this catalog’s primary tables and `/midas-help` options | ~29 |
+| **internal** | Path-pass under orchestrators (`/start-sprint`, `/close-sprint`, Phase 7 body); power-user may still type the slash | 5 |
+| **deprecated** | Alias stubs — help must not list | 3 |
+
+**v1+ host discovery:** mirrors (`.cursor` / `.claude` / `.agents`) omit `internal` + `deprecated`
+skills (ADR-013). Bodies remain under `<paths.engine>/skills/` for path-pass.
+
+### Layer map
+
+| Layer | Job | Skills |
+|---|---|---|
+| **A Orient** | Where am I / what next / resume / install confusion | `/midas-status`, `/midas-help`, `/midas-recall`, `/midas-reconcile` |
+| **B Lifecycle** | Setup + audited phase gates 0→8 | `/midas-init`, `/midas-adopt`, `/midas-update`, `/idea-intake` … `/close-sprint` |
+| **C Sync** | Adapters / propagation / engine bar | `/midas-doctor`, `/midas-align`, `/midas-precommit` *(engine only)* |
+| **D Autonomy** | Continuous evolve + ADR-009 checklist guide | `/midas-auto-pilot` |
+| **E On-demand** | Audits, design, debug, portability | `/midas-tribunal`, `/midas-security-audit`, `/midas-design`, `/midas-capture`, `/midas-investigate`, `/midas-explore`, `/midas-bundle`, `/midas-verify`, `/midas-retro` |
+| **Internal (delegated)** | Sprint rituals owned by parents | `/midas-progress`, `/midas-qa`, `/midas-diff-gates`, `/midas-lean-review`, `/midas-sweep` |
+
+---
+
 ## Skill registry (machine index)
 
 Human catalog (this file) uses slash-names. Agents that **delegate** use the generated path index:
@@ -18,34 +44,23 @@ Human catalog (this file) uses slash-names. Agents that **delegate** use the gen
 | Installs | `<paths.engine>/skill-registry.md` |
 
 - **Refresh:** `node <paths.scripts>/skill-registry.mjs` or `npm run align` / `doctor --fix` (recompute-and-compare; no cache sidecar).
-- **Columns:** Skill · Trigger/description · Scope · **Delegator** (`yes` \| `orchestrator-only`) · Path.
+- **Columns:** Skill · Trigger/description · Scope · **Delegator** · **Surface** · Path.
 - **Delegator contract:**
   - `yes` — parent may pass `<paths.engine>/<Path>` so a builder/scout **reads** the skill body. Does **not** bypass `disable-model-invocation` (still no Skill-tool / auto slash).
   - `orchestrator-only` — phase gates, install/sync, high-stakes audits; human slash / stage table only — never free-picked.
+- **Surface contract:** see § Surfaces above — do not confuse with Delegator.
 - **Never** dump the whole registry into a prompt — pass a matched subset only.
 - **v1 scope:** Midas-owned engine skills only (no project/user overlays yet).
 - Implementation size/ambiguity routing: `<paths.engine>/rules/organic-routing.md` (complements model-routing).
-- Phase-7 tip: for delegated work, path-pass matching `yes` procedures such as `midas-progress`, `midas-verify`, `midas-diff-gates`, `midas-qa`, `midas-lean-review`, `midas-explore` when those jobs apply.
+- Phase-7 tip: parents **path-pass** matching `internal` / `Delegator: yes` procedures (`midas-progress`, `midas-diff-gates`, `midas-qa`, `midas-lean-review`, `midas-sweep`) — read the body; do not Skill-tool invoke.
 
-For the compact entry → decision → state → handoff view of every command, see
-[Skill flows](skill-flows.md). It explains the system shape without duplicating each skill's procedure.
+Catalog size: **~29 primary** + **5 internal** + **3 deprecated aliases** + **1 engine-only** among primary (`/midas-precommit`).
 
-Catalog size: **36 shipped active** (+ 2 deprecated alias stubs) + **1 engine-only** (`/midas-precommit`, not in installs).
-
----
-
-## Buckets (how to think about the catalog)
-
-| Bucket | Job | Skills |
-|---|---|---|
-| **Pipeline** | Audited phase gates 0→8 | `/idea-intake` … `/close-sprint` |
-| **Orient** | Where am I / what next / resume / install confusion | `/midas-status`, `/midas-help`, `/midas-recall`, `/midas-reconcile` |
-| **Sprint day** | Inner loop during Phase 7 | `/midas-progress`, `/midas-verify`, `/midas-diff-gates`, `/midas-qa`, `/midas-explore`, `/midas-investigate`, `/midas-capture`, `/midas-lean-review`, `/midas-design`, `/midas-auto-pilot`, `/midas-auto-sprints`, `/midas-retro` |
-| **Maintain + audit** | Sync, hygiene, optional deep audits, setup | `/midas-init`, `/midas-adopt`, `/midas-update`, `/midas-doctor`, `/midas-align`, `/midas-precommit` *(engine only)*, `/midas-sweep`, `/midas-bundle`, `/midas-tribunal`, `/midas-security-audit` |
+For entry → decision → state → handoff, see [Skill flows](skill-flows.md).
 
 ---
 
-## Pipeline (phases 0–8)
+## Pipeline (phases 0–8) — primary
 
 | Command | Phase | One-line description | Tier |
 |---|---|---|---|
@@ -64,59 +79,69 @@ Stage → command map (runtime): `<paths.engine>/stage-command-table.yaml` (gene
 
 ---
 
-## Orient
+## Orient — primary
 
 | Command | One-line description | Tier |
 |---|---|---|
 | `/midas-status` | Pipeline PC — phase, gate status, **single** next command. | scout |
-| `/midas-help` | Interactive intent → one command (AskQuestion). | scout |
+| `/midas-help` | Interactive intent → one **primary** command (AskQuestion). | scout |
 | `/midas-recall` | Context pack (~15 paths + brief) to resume after a break. | scout |
 | `/midas-reconcile` | Install/setup/version/cwd check → one next CLI or slash command. | scout |
 
 ---
 
-## Sprint day
+## Sprint day — primary
 
 | Command | One-line description | Tier |
 |---|---|---|
-| `/midas-progress` | Write STM — `{runs}/sprints/NN-progress.md` after tasks. | build |
 | `/midas-design` | Product-authentic redesign — 3 directions → pick → spec → one slice; `{runs}/design/`. | orchestrate |
 | `/midas-verify` | Sprint UI/API gate evidence → `verify-NN.md` (incl. authenticity; before close). | build |
-| `/midas-diff-gates` | Diff-scoped test/quality receipts → `{paths.cache}/gates/<run>/` (production diffs; before close). | build |
-| `/midas-qa` | Ad-hoc branch/PR smoke (non-gate); does **not** replace verify. | build |
 | `/midas-explore` | Investigation outside the pipeline → `{runs}/explore/`. | scout |
 | `/midas-investigate` | Root-cause before bug fixes (Iron Law + 3 strikes) → `{runs}/investigate/inv-NN.md`. | build |
 | `/midas-capture` | Recurring pattern → rule / playbook / convention (asks first). | build |
-| `/midas-lean-review` | Over-engineering delete-list for the diff (stdlib/native/yagni/shrink). | build |
-| `/midas-auto-pilot` | Continuous product evolve — ask PR\|code, tick #1, arm Cursor `/loop`. Optional `cloud`. | build |
-| `/midas-auto-sprints` | Sprint checklist actuator — guide to `midas-autopilot.mjs` setup/dry-run/tick (ADR-009; optional `--autonomy`). | build |
+| `/midas-auto-pilot` | Unified autonomy — ask evolve vs sprint checklist; PR\|code or CLI setup/status/tick; arms `/loop` for evolve. | build |
 | `/midas-retro` | Sprint retrospective freeze → `{runs}/retros/retro-NN.md` (non-advancing). | build |
 
 ---
 
-## Autonomy commands (pick one)
+## Delegated procedures — internal (not in `/midas-help` primary options)
+
+Parents **path-pass** these `SKILL.md` bodies (read + execute steps in the same run). Power-users may still type the slash. **Not** Skill-tool / auto-slash.
+
+| Command | Natural parent | One-line description | Tier |
+|---|---|---|---|
+| `/midas-progress` | `/start-sprint` + Phase 7 body | Write STM — `{runs}/sprints/NN-progress.md` after tasks. | build |
+| `/midas-qa` | Phase 7 inner loop / status | Ad-hoc branch/PR smoke (non-gate); does **not** replace verify. | build |
+| `/midas-diff-gates` | `/close-sprint` Step 0.5 | Diff-scoped test/quality receipts → `{paths.cache}/gates/<run>/`. | build |
+| `/midas-lean-review` | `/close-sprint` / fat-diff | Over-engineering delete-list (stdlib/native/yagni/shrink). | build |
+| `/midas-sweep` | `/close-sprint`, `/midas-adopt`, status | Dead flows, orphans, ledger drift; optional `--fix`. | build |
+
+---
+
+## Autonomy commands (one slash)
 
 | Goal | Command | What it does |
 |---|---|---|
-| **Discover and fix** product improvements on a schedule | `/midas-auto-pilot` | Ask PR\|code once; local `/loop` by default; journal at `{runs}/auto-pilot/`. |
+| **Unified entry** (ask evolve vs sprint vs stop) | `/midas-auto-pilot` | Mode gate Ask when bare; then PR\|code or ADR-009 CLI guide. |
+| **Discover and fix** on a schedule | `/midas-auto-pilot` → Continuous evolve | Ask PR\|code once; local `/loop`; journal at `{runs}/auto-pilot/`. |
 | Cursor cloud scheduler (optional) | `/midas-auto-pilot cloud` | Emits runbook for Cursor `/automate` / cursor.com/automations. |
 | Stop the local loop | `/midas-auto-pilot stop` | Kills the armed `/loop` for this project. |
-| Execute the **next sprint checklist line** with policy/budget/lease | `/midas-auto-sprints` | Guide to ADR-009 CLI (`midas-autopilot.mjs`). Needs `--autonomy` install. |
+| **Next sprint checklist line** (policy/budget/lease) | `/midas-auto-pilot` → Sprint checklist · or `/midas-auto-pilot setup` | Guide to ADR-009 CLI (`midas-autopilot.mjs`). Needs `--autonomy`. |
 
 **Anti-typo (do not confuse):**
 
 | Token | Role |
 |---|---|
-| `/midas-auto-pilot` | Continuous product evolve (this section’s primary) |
-| `/midas-auto-sprints` | Sprint checklist guide |
+| `/midas-auto-pilot` | Canonical unified autonomy guide |
+| `/midas-auto-sprints` | Deprecated alias → `/midas-auto-pilot` (bare defaults to sprint path) |
 | `midas-autopilot.mjs` | ADR-009 controller CLI (npm bin — **unchanged**) |
 | `/midas-improve-loop` | Deprecated alias → `/midas-auto-pilot` |
-| `/midas-autopilot` | Deprecated alias → `/midas-auto-sprints` (typo trap vs `auto-pilot`) |
+| `/midas-autopilot` | Deprecated alias → `/midas-auto-pilot` (typo trap vs `auto-pilot`) |
 
-**Not the same:** Cursor’s native `/automate` is the Automations editor; `/midas-auto-pilot` is the Midas runbook + caps. History: `/midas-automate` → `/midas-auto-pilot` (≤2.6.0) → `/midas-improve-loop` (2.6.1) → `/midas-auto-pilot` reclaimed (2.8.2).
+**Not the same:** Cursor’s native `/automate` is the Automations editor; `/midas-auto-pilot` is the Midas runbook + caps (+ sprint CLI guide). History: `/midas-automate` → `/midas-auto-pilot` (≤2.6.0) → `/midas-improve-loop` (2.6.1) → `/midas-auto-pilot` reclaimed (2.8.2) → unified with sprint guide (Unreleased).
 ---
 
-## Maintain + audit + setup
+## Maintain + audit + setup — primary
 
 | Command | Role | One-line description | Tier |
 |---|---|---|---|
@@ -126,16 +151,18 @@ Stage → command map (runtime): `<paths.engine>/stage-command-table.yaml` (gene
 | `/midas-doctor` | Sync | Adapter drift + install health; re-render adapters. | build |
 | `/midas-align` | Sync | Full propagation matrix (engine/product) + gap report. | build |
 | `/midas-precommit` | **Engine only** | Harness fitness scorecard; overall ≥ 80 required before commit. Not shipped to installs. | orchestrate |
-| `/midas-sweep` | Hygiene | Dead flows, orphans, ledger drift; optional `--fix`. | build |
 | `/midas-bundle` | Portability | Export/import knowledge JSON via `bundle.mjs`. | build |
 | `/midas-tribunal` | Audit | Adversarial debate — decisions right? (non-advancing). | orchestrate |
 | `/midas-security-audit` | Audit | OWASP/STRIDE deep scan (non-advancing). | orchestrate |
+
+Hygiene / lean / progress / qa / diff-gates live under **Delegated procedures** (parents path-pass).
 
 ---
 
 ## Which command when? (canonical router)
 
-Use **`/midas-status`** for the single next lifecycle step. Use this table when unsure *which* skill:
+Use **`/midas-status`** for the single next lifecycle step. Use this table when unsure *which* skill.
+Prefer **primary** slash names; internals are noted as parent-owned.
 
 | Situation | Command |
 |---|---|
@@ -151,15 +178,16 @@ Use **`/midas-status`** for the single next lifecycle step. Use this table when 
 | Edited engine / installer / skills / VERSION | `/midas-align` then `/midas-precommit` (engine) |
 | Before commit on midas-harness | `/midas-precommit` (overall ≥ 80) |
 | Sprint UI proof (gate evidence) | `/midas-verify` |
-| Production diff test/quality receipts (before close) | `/midas-diff-gates` |
+| Production diff test/quality receipts (before close) | `/close-sprint` (path-passes `/midas-diff-gates`) |
 | Redesign / improve UI (think before JSX) | `/midas-design` |
-| Quick PR/branch smoke test | `/midas-qa` |
-| Dead code / ledger drift | `/midas-sweep` |
-| Over-engineered diff / what can we delete? | `/midas-lean-review` |
-| Bounded sprint ticks (one checklist task per tick) | `/midas-auto-sprints` → `node .harness/autonomy/bin/midas-autopilot.mjs setup` |
-| Continuous improve (discover → one fix → PR or local code) | `/midas-auto-pilot` (arms `/loop`) · `cloud` for Cursor Automations |
+| Quick PR/branch smoke test | Phase 7 path-pass `/midas-qa` (or type it) |
+| Dead code / ledger drift | `/close-sprint` / adopt path-pass `/midas-sweep` |
+| Over-engineered diff / what can we delete? | `/close-sprint` path-pass `/midas-lean-review` |
+| Bounded sprint ticks (one checklist task per tick) | `/midas-auto-pilot` (Sprint checklist / `setup`) → `node .harness/autonomy/bin/midas-autopilot.mjs setup` |
+| Continuous improve (discover → one fix → PR or local code) | `/midas-auto-pilot` (Continuous evolve; arms `/loop`) · `cloud` for Cursor Automations |
 | Sprint retrospective (learnings freeze) | `/midas-retro` |
 | Export/import knowledge | `/midas-bundle` or `node <paths.scripts>/bundle.mjs` |
+| Mid-sprint STM write | Phase 7 / `/start-sprint` path-pass `/midas-progress` |
 
 **Audits** (shared fragments: `<paths.engine>/templates/audit-checklists.md`):
 
@@ -179,7 +207,8 @@ Each `SKILL.md` frontmatter declares:
 
 - `harness-tier` — `orchestrate` / `build` / `scout`
 - `recommended-model` — canonical model id for that tier
-- `disable-model-invocation: true` — side-effecting; user-typed only
+- `disable-model-invocation: true` — side-effecting; user-typed only (or parent path-pass read)
+- `user-surface` — `primary` \| `internal` \| `deprecated` (default `primary`; see ADR-013)
 - `mcp-recommended` / `mcp-required` — advisory vs hard need (doctor warns)
 
 State ritual (shared): `<paths.engine>/templates/skill-state-ritual.md`.
@@ -199,6 +228,7 @@ Rule: `harness/rules/skill-quality.md`. Mechanical: `npm run skill-quality`.
   `AGENTS.md` / adapters / source without dry-run diff + confirm.
 - After conventions/rules edits → `/midas-doctor`. After engine/skills/VERSION edits → `/midas-align`.
 - Naming: phase gates are unprefixed (`/idea-intake`); utilities are `/midas-*`. Intentional.
-- **Lean ladder** (`<paths.engine>/rules/lean-ladder.md` + `/midas-lean-review`) is Midas-native.
+- **Lean ladder** (`<paths.engine>/rules/lean-ladder.md` + internal `/midas-lean-review`) is Midas-native.
   Optional: install [Ponytail](https://github.com/DietrichGebert/ponytail) for host hooks /
   `lite|full|ultra` — prefer one always-on voice (see the rule's compose note).
+- UX demote ≠ merge audits — see [ADR-013](adr/ADR-013-skill-user-surface.md) and [ADR-004](adr/ADR-004-audit-skill-surface.md).

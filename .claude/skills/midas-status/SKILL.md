@@ -49,16 +49,22 @@ completion — it reports the truth already on disk. Safe to run at any time, in
      - `sprint_execution` → pick **one** command from sprint reality:
        - sprint not yet `active` → `command` (`/start-sprint`)
        - sprint `active`, tasks remain → continue per `<paths.engine>/pipeline/7-sprint-execution.md`
+         (path-pass STM via `skills/midas-progress/SKILL.md` after significant tasks — do **not**
+         Skill-tool invoke; prefer telling the user to keep working or run `/close-sprint` when ready)
        - UI journeys not frozen → `verify_ui` (`/midas-verify`) when the sprint is UI-touching
        - visual redesign before JSX → `redesign_ui` (`/midas-design`)
-       - tasks done + tests green → `command_when_done` (`/close-sprint`)
-       - ad-hoc branch smoke only → `qa_adhoc` (`/midas-qa`) — never replaces verify before close
+       - tasks done + tests green → `command_when_done` (`/close-sprint`) — close path-passes
+         internal hygiene / diff-gates / lean as needed
+       - ad-hoc branch smoke only → mention optional path-pass `qa_internal`
+         (`skills/midas-qa/SKILL.md` under Phase 7; power-user slash `/midas-qa`) — never replaces
+         verify before close; do **not** make qa the sole Next line unless the user asked for smoke only
      - `shipped` → `command: null` (MVP complete; no next ritual)
 
 5. **Surface optional prompts (never force).** At a high-leverage decision point, add **one** line if relevant:
    - **Tribunal** — see tribunal table below
-   - **Sweep** — at `sprint_planning`: *"💡 Before seeding `features.json`, consider `/midas-sweep docs` (optional) — reconcile the ledger with what exists."*; at `sprint_execution` when the active sprint's tasks look done: *"💡 Before `/close-sprint`, consider `/midas-sweep` (optional) on large diffs."*; after brownfield (`mode: brownfield` in state): *"💡 Post-adopt `/midas-sweep all` (optional) helps drop dead flows before the next gate."*
-   - **Lean review** — at `sprint_execution` when the active sprint's tasks look done and the diff looks large: *"💡 Before `/close-sprint`, consider `/midas-lean-review` (optional) — delete-list for over-engineering."*
+   - **Sweep** — at `sprint_planning`: *"💡 Before seeding `features.json`, consider path-pass `/midas-sweep docs` (optional hygiene) — reconcile the ledger with what exists."*; at `sprint_execution` when the active sprint's tasks look done: *"💡 Before `/close-sprint`, close will path-pass `/midas-sweep` on large diffs (optional)."*; after brownfield (`mode: brownfield` in state): *"💡 Post-adopt path-pass `/midas-sweep all` (optional) helps drop dead flows before the next gate."*
+   - **Lean review** — at `sprint_execution` when the active sprint's tasks look done and the diff looks large: *"💡 Before `/close-sprint`, close may path-pass `/midas-lean-review` (optional) — delete-list for over-engineering."*
+   - **STM / progress** — when an active sprint is missing `{runs}/sprints/NN-progress.md` or `last_touched` is stale: *"💡 Session continuity: path-pass `skills/midas-progress/SKILL.md` (or type `/midas-progress`) so STM exists before Phase 8."*
    - **Recall** — when `stage_status: in_progress`, or an active sprint's `last_touched` is **> 7 days** ago, or `{runs}/sprints/NN-progress.md` is missing for an active sprint: *"💡 Resuming? Run `/midas-recall` (optional) for a context pack — distinct from this status line."*
    Skipping is fine; do not block.
 
@@ -86,9 +92,11 @@ Next: <single command>
 If `stage_status` is `in_progress`, add one line naming what is left before the gate can be re-run.
 At a **tribunal checkpoint** (step 5), add the recommended-`/midas-tribunal` line (optional, your call).
 At a **sweep checkpoint** (`sprint_planning`, end of `sprint_execution`, or `mode: brownfield`), add the
-recommended-`/midas-sweep` line from step 5 when relevant.
-At a **lean checkpoint** (end of `sprint_execution` with a large diff), add the recommended-`/midas-lean-review`
-line from step 5 when relevant.
+optional path-pass `/midas-sweep` line from step 5 when relevant (escape hatch — not the sole Next).
+At a **lean checkpoint** (end of `sprint_execution` with a large diff), add the optional path-pass
+`/midas-lean-review` line from step 5 when relevant.
+At a **STM gap** (active sprint, missing or empty `{runs}/sprints/NN-progress.md`), add the progress
+path-pass reminder from step 5.
 At a **recall checkpoint** (`stage_status: in_progress`, stale `last_touched` > 7 days, or missing progress
 file for active sprint), add the recommended-`/midas-recall` line from step 5 when relevant.
 Mention `/midas-doctor` only if you observed adapter or config drift while reading.

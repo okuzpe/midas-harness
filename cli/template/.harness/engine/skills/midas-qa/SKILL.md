@@ -3,6 +3,7 @@ name: midas-qa
 description: Ad-hoc branch/PR QA — map diff to routes/screens, drive with agent-browser (web) or Maestro MCP (native), report in chat; optional {runs}/qa/qa-adhoc-*.md. Use during Phase 7 inner loop; does not replace /midas-verify before /close-sprint.
 user-invocable: true
 disable-model-invocation: true
+user-surface: internal
 model: inherit
 harness-tier: build
 recommended-model: claude-sonnet-4-6
@@ -13,6 +14,7 @@ argument-hint: "[PR number | branch name | current] [--port PORT]"
 # midas-qa — Ad-hoc branch QA
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Surface:** `internal` (ADR-013) — prefer Phase 7 path-pass; power-user may still type this slash.
 
 Quick QA on **what changed** — not the formal sprint gate. **`/midas-verify`** remains required before **`/close-sprint`** for UI sprints.
 

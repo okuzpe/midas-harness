@@ -24,6 +24,18 @@ describe('diff-paths production heuristic', () => {
     assert.equal(isProductionPath('README.md'), false);
   });
 
+  it('isProductionPath matches installed product source trees', () => {
+    assert.equal(isProductionPath('.harness/product/src/app.ts'), true);
+    assert.equal(isProductionPath('.harness/product/app/page.tsx'), true);
+    assert.equal(isProductionPath('.midas/product/src/index.ts'), true);
+    assert.equal(isProductionPath('product/src/main.go'), true);
+  });
+
+  it('isProductionPath excludes product ritual paths', () => {
+    assert.equal(isProductionPath('.harness/product/sprints/01-auth.md'), false);
+    assert.equal(isProductionPath('.harness/product/src/foo.test.ts'), false);
+  });
+
   it('hasProductionPaths aggregates', () => {
     assert.equal(hasProductionPaths(['docs/a.md', 'harness/b.md']), false);
     assert.equal(hasProductionPaths(['docs/a.md', 'Dockerfile']), true);

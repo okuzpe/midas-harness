@@ -13,7 +13,7 @@
 2. Leave Cursor open while the local `/loop` is armed (default every 30m). Each wake: one code improvement → branch `midas-auto/<date>-<slug>` → verify → PR **or** journal-only (`delivery: code`) → append `{runs}/auto-pilot/journal.md`.
 3. Optional persistence when the laptop sleeps: `/midas-auto-pilot cloud` → paste runbook into Cursor `/automate` / cursor.com/automations.
 4. Human reviews PRs (or local diffs); when a sprint’s worth lands, run `/close-sprint` (auditor ≠ producer).
-5. Optional: if `--autonomy` is installed and the sprint has code checklist lines, use `/midas-auto-sprints` for policy-gated `tick`s — separate control plane (CLI `midas-autopilot.mjs`; see `docs/skills.md` § Autonomy commands).
+5. Optional: if `--autonomy` is installed and the sprint has code checklist lines, use `/midas-auto-pilot` (Sprint checklist) for policy-gated `tick`s — ADR-009 control plane (CLI `midas-autopilot.mjs`; see `docs/skills.md` § Autonomy commands).
 6. Stop local mode: `/midas-auto-pilot stop`.
 
 ## Must honor

@@ -64,6 +64,21 @@ describe('context-digest', () => {
     }
   });
 
+  it('buildDigest indexes installed product source trees', () => {
+    const root = makeProject('product');
+    try {
+      mkdirSync(join(root, '.harness'), { recursive: true });
+      writeFileSync(join(root, '.harness', 'state.yaml'), 'layout: harness\n', 'utf8');
+      mkdirSync(join(root, '.harness', 'product', 'src'), { recursive: true });
+      writeFileSync(join(root, '.harness', 'product', 'src', 'app.ts'), 'export {};\n', 'utf8');
+
+      const digest = buildDigest(root, { maxFiles: 50 });
+      assert.ok(digest.files.some((f) => f.path === '.harness/product/src/app.ts'));
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it('buildDigest respects maxFiles cap', () => {
     const root = makeProject('cap');
     try {

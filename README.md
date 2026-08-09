@@ -44,7 +44,7 @@ loop that re-audits the living code against those frozen rules.
   the audits); Sonnet builds, Haiku scouts. Current library docs are fetched before any third-party code
   ([Context7](#mcp--context7) recommended, or your own tool), so it's written against real APIs, not memory.
 - **Optional bounded autopilot (ADR-009).** Install with `--autonomy` for one-task-per-tick sprint execution
-  (`/midas-auto-sprints` → `midas-autopilot setup`); off by default, fail-closed policy + authz.
+  (`/midas-auto-pilot` Sprint checklist → `midas-autopilot setup`); off by default, fail-closed policy + authz.
 
 ## When to use Midas — and when not to
 **Use it** when you want an agent to respect architecture, conventions, and tests instead of improvising —
@@ -122,7 +122,7 @@ pinned releases) and installer-safety notes are in **[INSTALL.md](./INSTALL.md)*
 |---|---|---|
 | **Core** | drive any project through the lifecycle | `/midas-init` · `/midas-status` · the phase commands (`/idea-intake` → `/close-sprint`) · `/midas-doctor` |
 | **Brownfield** | adopt Midas into an existing repo | `/midas-adopt` |
-| **Advanced** | deeper audits & scale | `/midas-tribunal` · `/midas-security-audit` · `/midas-verify` · `/midas-qa` · `/midas-investigate` · `/midas-reconcile` · `/midas-init --monorepo` · `/midas-bundle` · `/midas-recall` · `/midas-progress` · `/midas-sweep` · `/midas-capture` · `/midas-retro` · `/midas-auto-pilot` · `/midas-auto-sprints` · `/midas-lean-review` |
+| **Advanced** | deeper audits & scale | `/midas-tribunal` · `/midas-security-audit` · `/midas-verify` · `/midas-investigate` · `/midas-reconcile` · `/midas-init --monorepo` · `/midas-bundle` · `/midas-recall` · `/midas-capture` · `/midas-retro` · `/midas-auto-pilot` · `/midas-design` |
 | **Maintenance** | keep an install current | `/midas-update` · `/midas-doctor` · `/midas-align` |
 
 Most users only need **Core** (+ `/midas-adopt` for an existing repo). Everything else is opt-in.

@@ -10,6 +10,9 @@
 //   - orchestrator-only — phase gates + install/sync/high-stakes audits; human slash / stage table
 //           only — never free-picked by builders.
 //
+// Surface column (UX catalog; orthogonal to Delegator — see ADR-013):
+//   - primary | internal | deprecated from frontmatter `user-surface` (allowlist fallback).
+//
 // Usage:
 //   node scripts/skill-registry.mjs              # write harness/skill-registry.md
 //   node scripts/skill-registry.mjs --check       # exit 1 if on-disk drifts from recomputed
@@ -56,6 +59,52 @@ export const ORCHESTRATOR_ONLY_ALLOWLIST = new Set([
 ]);
 
 /**
+ * UX surface (orthogonal to Delegator). Human catalog / midas-help filter.
+ * - primary — listed in docs/skills.md primary tables and midas-help options
+ * - internal — path-pass under orchestrators; power-user may still type slash
+ * - deprecated — alias stubs; help must not list
+ * Keep in sync with frontmatter user-surface on harness/skills (see ADR-013).
+ */
+export const INTERNAL_SURFACE_ALLOWLIST = new Set([
+  'midas-progress',
+  'midas-qa',
+  'midas-diff-gates',
+  'midas-lean-review',
+  'midas-sweep',
+]);
+
+export const DEPRECATED_SURFACE_ALLOWLIST = new Set([
+  'midas-improve-loop',
+  'midas-autopilot',
+  'midas-auto-sprints',
+]);
+
+/**
+ * Skills present under harness/skills but omitted from host discovery mirrors
+ * (`.claude/skills`, `.agents/skills`, `.cursor/skills`) — ADR-013 host filter.
+ * Canonical bodies remain for path-pass; power-users may still open them from engine paths.
+ */
+export function isHostMirrorExcluded(id) {
+  return INTERNAL_SURFACE_ALLOWLIST.has(id) || DEPRECATED_SURFACE_ALLOWLIST.has(id);
+}
+
+const USER_SURFACES = new Set(['primary', 'internal', 'deprecated']);
+
+/**
+ * Resolve user-surface from frontmatter with allowlist fallback.
+ * @param {string} id
+ * @param {Record<string, string>} fm
+ * @returns {'primary' | 'internal' | 'deprecated'}
+ */
+export function resolveUserSurface(id, fm = {}) {
+  const raw = String(fm['user-surface'] || '').trim().toLowerCase();
+  if (USER_SURFACES.has(raw)) return /** @type {'primary' | 'internal' | 'deprecated'} */ (raw);
+  if (DEPRECATED_SURFACE_ALLOWLIST.has(id)) return 'deprecated';
+  if (INTERNAL_SURFACE_ALLOWLIST.has(id)) return 'internal';
+  return 'primary';
+}
+
+/**
  * Escape pipe cells for markdown tables.
  * @param {string} value
  */
@@ -69,7 +118,7 @@ function escapeCell(value) {
 /**
  * @param {string} root
  * @param {{ engine?: string }} [paths]
- * @returns {{ id: string, name: string, description: string, scope: string, delegator: string, path: string }[]}
+ * @returns {{ id: string, name: string, description: string, scope: string, delegator: string, surface: string, path: string }[]}
  */
 export function collectSkillRegistryRows(root, paths) {
   const p = paths || resolvePaths(root);
@@ -97,6 +146,7 @@ export function collectSkillRegistryRows(root, paths) {
       description,
       scope: 'engine',
       delegator: orchestratorOnly ? 'orchestrator-only' : 'yes',
+      surface: resolveUserSurface(id, fm),
       path: relPath,
     });
   }
@@ -105,7 +155,7 @@ export function collectSkillRegistryRows(root, paths) {
 }
 
 /**
- * @param {{ id: string, name: string, description: string, scope: string, delegator: string, path: string }[]} rows
+ * @param {{ id: string, name: string, description: string, scope: string, delegator: string, surface: string, path: string }[]} rows
  * @param {{ engineRel?: string }} [opts]
  */
 export function formatSkillRegistryMarkdown(rows, opts = {}) {
@@ -120,16 +170,18 @@ export function formatSkillRegistryMarkdown(rows, opts = {}) {
     '',
     '**Delegator meaning:** `yes` = parents may path-pass this `SKILL.md` for the worker to **read**. It does **not** authorize Skill-tool or auto slash invoke when `disable-model-invocation: true`. `orchestrator-only` = phase gates / install-sync / high-stakes audits — human slash or stage table only.',
     '',
+    '**Surface meaning** (`user-surface` frontmatter; orthogonal to Delegator): `primary` = midas-help / docs primary catalog; `internal` = path-pass under orchestrators (power-user may still type slash); `deprecated` = alias stubs — help must not list. Host skill mirrors (`.cursor` / `.claude` / `.agents`) omit `internal` + `deprecated` (ADR-013) — bodies remain under `<paths.engine>/skills/` for path-pass.',
+    '',
     'Resolve each Path as `<paths.engine>/<Path>` (e.g. `harness/skills/…` in the engine repo, `.harness/engine/skills/…` in installs).',
     '',
     `Source: \`${engineRel}/skills/*/SKILL.md\`. v1 indexes engine skills only (no project/user overlays).`,
     '',
-    '| Skill | Trigger / description | Scope | Delegator | Path |',
-    '| --- | --- | --- | --- | --- |',
+    '| Skill | Trigger / description | Scope | Delegator | Surface | Path |',
+    '| --- | --- | --- | --- | --- | --- |',
   ];
   for (const r of rows) {
     lines.push(
-      `| \`${escapeCell(r.name)}\` | ${escapeCell(r.description)} | ${escapeCell(r.scope)} | ${escapeCell(r.delegator)} | \`${escapeCell(r.path)}\` |`,
+      `| \`${escapeCell(r.name)}\` | ${escapeCell(r.description)} | ${escapeCell(r.scope)} | ${escapeCell(r.delegator)} | ${escapeCell(r.surface)} | \`${escapeCell(r.path)}\` |`,
     );
   }
   lines.push('');

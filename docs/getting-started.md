@@ -130,11 +130,12 @@ Drive phases in order — each command runs when its predecessor's exit gate pas
 Run `/midas-tribunal` at any time for a whole-project adversarial debate.
 
 After a sprint lands, optional non-advancing commands: `/midas-retro` (freeze learnings),
-`/midas-sweep` (hygiene), `/midas-auto-pilot` (continuous evolve; arms Cursor `/loop`),
-`/midas-auto-sprints` (ADR-009 sprint checklist ticks; needs `--autonomy`).
-Do not confuse `/midas-auto-pilot` (product evolve) with `/midas-auto-sprints` (checklist ticks)
-or the CLI `midas-autopilot.mjs` (same ADR-009 controller). See [skills.md](skills.md)
-§ Autonomy commands (anti-typo table).
+`/midas-auto-pilot` (unified: continuous evolve **or** ADR-009 sprint checklist;
+needs `--autonomy` only for the sprint path). Hygiene / STM / lean / diff-gates are **internal**
+procedures path-passed by `/close-sprint` and Phase 7 (ADR-013) — not separate menu commands.
+Do not confuse the slash `/midas-auto-pilot` with the CLI `midas-autopilot.mjs` (ADR-009 controller).
+Aliases `/midas-auto-sprints` / `/midas-autopilot` / `/midas-improve-loop` forward to the unified skill.
+See [skills.md](skills.md) § Autonomy commands (anti-typo table).
 
 For an existing codebase, `/midas-init` classifies it as **E2/E3** and runs `/midas-adopt` for you
 (no need to call it manually). Run `/midas-adopt --preflight` first for a read-only fit report.
@@ -180,8 +181,9 @@ When `architecture.md` declares React Native, Flutter, or Capacitor:
 
 ### Ad-hoc QA during the sprint
 
-`/midas-qa` exercises changed routes on the current branch (agent-browser / Maestro). Optional evidence:
-`{runs}/qa/qa-adhoc-*.md` — does **not** replace `/midas-verify` at sprint close.
+Phase 7 may **path-pass** `midas-qa` (internal surface, ADR-013) to smoke changed routes on the
+current branch (agent-browser / Maestro). Optional evidence: `{runs}/qa/qa-adhoc-*.md` — does **not**
+replace `/midas-verify` at sprint close. Power-users may still type `/midas-qa`.
 
 `node <paths.scripts>/doctor.mjs` warns if `state.yaml → mcp:` declares servers not present in `.mcp.json`.
 API-only projects: use the test runner; skip browser/mobile tooling.

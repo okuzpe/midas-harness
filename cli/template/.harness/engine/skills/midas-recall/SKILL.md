@@ -20,7 +20,7 @@ advances `stage`.
 > **vs `/midas-status`:** status = program counter + single next command (~6 lines). Recall = curated
 > path list (~15 max) + ~30-line brief. Status may suggest recall; it does not replace it.
 >
-> **vs `/midas-sweep`:** recall **reads** for orientation; sweep **finds dead flows** and ledger drift.
+> **vs path-pass `midas-sweep` (internal):** recall **reads** for orientation; sweep **finds dead flows** and ledger drift.
 
 Full model: `<paths.engine>/research/memory-model.md`.
 

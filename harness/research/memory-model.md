@@ -31,8 +31,8 @@ session ends. Midas points agents at the right LTM files instead of replaying ch
 | `/midas-sweep` | build | Hygiene — dead flows, ledger drift (orthogonal to recall) |
 | `/midas-retro` | build | Sprint retrospective freeze — `{runs}/retros/retro-NN.md` (LTM note; non-advancing) |
 | `/midas-investigate` | build | Root-cause freeze — `{runs}/investigate/inv-NN.md` (Iron Law + 3 strikes; non-advancing) |
-| `/midas-auto-pilot` | build | Continuous improve STM — `{runs}/auto-pilot/journal.md`; arms Cursor `/loop`; not ADR-009 policy plane |
-| `/midas-auto-sprints` | build | Optional ADR-009 policy plane — `{runs}/autonomy/` journal when `--autonomy` installed; CLI `midas-autopilot.mjs` |
+| `/midas-auto-pilot` | build | Unified autonomy — evolve (`{runs}/auto-pilot/`) and/or ADR-009 sprint path (`{runs}/autonomy/` + CLI `midas-autopilot.mjs`) |
+
 
 `/midas-status` **suggests** `/midas-recall` when `stage_status: in_progress` or an active sprint's
 `last_touched` is older than **7 days** — optional, never blocking.

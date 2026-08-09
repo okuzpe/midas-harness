@@ -73,7 +73,7 @@ export function statusReport(projectRoot) {
 const AUTOPILOT_CLI = 'node .harness/autonomy/bin/midas-autopilot.mjs';
 
 /**
- * One next command per blocker — keeps /midas-auto-sprints from dumping option walls.
+ * One next command per blocker — keeps /midas-auto-pilot sprint path from dumping option walls.
  * @param {string[]} blockers
  * @param {{ operator_pending?: string[] }} [extra]
  */

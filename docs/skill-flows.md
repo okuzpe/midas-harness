@@ -105,21 +105,30 @@ flowchart LR
 ## Sprint-day and investigation skills
 
 These operate inside or beside the Phase-7 loop. They create evidence or improve work, but they do
-not pass a phase gate.
+not pass a phase gate. **Surface** (ADR-013): primary skills stay in `/midas-help`; **internal**
+skills are path-passed by parents (read body — not Skill-tool invoke).
+
+### Primary (user-facing)
 
 | Skill | Starts from | Core flow | Leaves behind | State effect / handoff |
 |---|---|---|---|---|
-| `/midas-progress` | Long active sprint | Capture done work, proof, tools, observations, and next task | `{runs}/sprints/NN-progress.md` | Refreshes `last_touched`; continue |
 | `/midas-verify` | Landed UI/API acceptance journeys | Drive the running product and inspect runtime health | `verify-NN.md` + screenshots | Sets `last_verification`; then close |
-| `/midas-qa` | Branch or PR needing a quick smoke | Map the diff to affected screens and exercise them | Optional ad-hoc QA record | Fix or continue; never replaces verify |
 | `/midas-explore` | Question outside the lifecycle path | Open an append-only investigation, gather notes, close it | `{runs}/explore/<slug>/` | May propose capture; stage unchanged |
 | `/midas-capture` | A recurring, user-approved pattern | Classify as rule, playbook, or convention; amend or create | Project-owned durable guidance | Doctor after rule changes |
-| `/midas-lean-review` | Diff or named paths | Rank delete, stdlib, native, YAGNI, and shrink findings | Optional `lean-NN.md` | Apply only after approval |
 | `/midas-design` | UI that needs a stronger product identity | Audit, present three directions, obtain a choice, specify one | `design-NN.md`; optional one-slice implementation | Implement or verify; stage unchanged |
-| `/midas-auto-sprints` | Optional `--autonomy` install + Phase 7 code tasks | Guide `setup` / `dry-run`; human runs `midas-autopilot.mjs tick` only | Journal + audit records under `{runs}/autonomy/` | One task per tick; never auto-invoked from chat |
-| `/midas-auto-pilot` | Any install with product context | Ask PR\|code once; write runbook; **local:** tick #1 + arm `/loop`; **cloud:** Automations draft | `{runs}/auto-pilot/runbook.md` + `journal.md` | Delivery gate then local mode; not ADR-009 policy plane |
+| `/midas-auto-pilot` | Product context and/or optional `--autonomy` | Bare: Mode Ask (evolve vs sprint vs stop). **Evolve:** Ask PR\|code; runbook; local tick#1+`/loop` or cloud draft. **Sprint:** guide `setup`/`dry-run`; human runs CLI `tick` | `{runs}/auto-pilot/*` and/or `{runs}/autonomy/` | Never auto-`tick` ADR-009 from chat; aliases forward here |
 | `/midas-investigate` | Bug / failed self-fix needs root cause | Iron Law + 3 strikes; freeze symptoms→flow→hypotheses | `{runs}/investigate/inv-NN.md` | Non-advancing; then fix + regression |
 | `/midas-retro` | After a sprint lands (or on demand) | Index sprint/progress/audit excerpts; draft went-well / hurt / learned / carry | `{runs}/retros/retro-NN.md` | Non-advancing; may propose `/midas-capture` |
+
+### Internal (path-pass under orchestrators)
+
+| Skill | Natural parent | Core flow | Leaves behind | State effect / handoff |
+|---|---|---|---|---|
+| `/midas-progress` | `/start-sprint` + `pipeline/7-sprint-execution.md` | Capture done work, proof, tools, observations, and next task | `{runs}/sprints/NN-progress.md` | Refreshes `last_touched`; continue |
+| `/midas-qa` | Phase 7 inner loop / status | Map the diff to affected screens and exercise them | Optional ad-hoc QA record | Fix or continue; never replaces verify |
+| `/midas-diff-gates` | `/close-sprint` Step 0.5 | Diff-scoped test/quality receipts | `{paths.cache}/gates/<run>/` | Receipts or documented skip before conformance |
+| `/midas-lean-review` | `/close-sprint` / fat-diff | Rank delete, stdlib, native, YAGNI, and shrink findings | Optional `lean-NN.md` | Apply only after approval |
+| `/midas-sweep` | `/close-sprint`, `/midas-adopt`, status | Find dead flows, orphans, stale docs, ledger drift | `sweep-NN.md` | Stage unchanged; `--fix` needs confirm |
 
 Optional bounded loop (ADR-009) beside the manual sprint cycle:
 
@@ -130,13 +139,14 @@ flowchart LR
   Tick --> Dry
 ```
 
-Requires `.harness/autonomy/` (`npx … --autonomy`). See `/midas-auto-sprints` and `.harness/autonomy/README.md`.
+Requires `.harness/autonomy/` (`npx … --autonomy`). See `/midas-auto-pilot` (Sprint checklist) and `.harness/autonomy/README.md`.
 
-Complementary auto-pilot (no `--autonomy` required):
+Complementary continuous evolve (no `--autonomy` required):
 
 ```mermaid
 flowchart LR
-  Start["/midas-auto-pilot"] --> Ask["Ask PR or code if unset"]
+  Start["/midas-auto-pilot"] --> Mode["Mode Ask if bare"]
+  Mode --> Ask["Ask PR or code if unset"]
   Ask --> Tick1["tick #1 now"]
   Tick1 --> Loop["arm Cursor /loop"]
   Loop --> OneFix["each wake: one improve + verify"]
@@ -159,10 +169,11 @@ Except for intake/adoption placement, they do not advance lifecycle gates.
 | `/midas-update` | Installed engine version behind | Compare versions, preview migration, confirm, refresh engine | Updated engine/adapters and version stamp | Then `/midas-doctor` or `/midas-status`; engine repo → `/midas-align` |
 | `/midas-doctor` | Any installation | Check layout, routing, enforcement, gates, and adapter drift | Health report; optional regenerated managed files | Stage unchanged |
 | `/midas-align` | Substantive engine/product change | Map diff to propagation surfaces, run the alignment ladder | Alignment or gap report; regenerated mirrors as needed | Stage unchanged |
-| `/midas-sweep` | Any project, especially brownfield | Find dead flows, orphans, stale docs, and ledger drift | `sweep-NN.md`; optional approved safe fixes | Stage unchanged |
 | `/midas-bundle` | Portable knowledge needed | Select profile, export/import, verify checksums, preview conflicts | Knowledge JSON or confirmed imported files | Stage unchanged by default |
 | `/midas-tribunal` | A decision needs adversarial challenge | Argue opposing cases across evidence; independent judge rules | `debate-NN.md` | Informational; bridge actions back to work |
 | `/midas-security-audit` | Code and architecture available | Threat-model, scan, rank, and route security findings | `security-NN.md` | Sets optional pointer; never passes a gate |
+
+Hygiene `/midas-sweep` is **internal** (path-pass from close/adopt/status) — see Sprint-day internals above.
 
 ## Design seams worth reviewing
 
@@ -171,7 +182,8 @@ The flow map exposes a few deliberate seams that are useful when evolving the de
 1. **Production and judgment are separate.** Phase artifacts can be drafted cheaply; binding gates
    remain independent orchestrate-tier decisions.
 2. **Only pipeline skills advance.** Verification, security, design, tribunal, sweep, lean review,
-   and retro inform a gate but never impersonate one.
+   and retro inform a gate but never impersonate one. UX demote of internals (ADR-013) does **not**
+   merge audits (ADR-004) or auto-invoke `disable-model-invocation` skills.
 3. **State stays small.** Long-form evidence lives under `{product}/` and `{runs}/`; state stores the
    program counter, ledgers, and pointers.
 4. **Human choices are explicit.** Go/no-go, irreversible architecture, visual direction, rule

@@ -31,7 +31,7 @@ at Phase-5 rules — that is what makes the Phase-8 audit possible.
 ## When NOT
 - Rules/design system not frozen → `/define-conventions` first.
 - Sprints already planned and you only need to kick off → `/start-sprint`.
-- Mid-sprint task tracking → `/midas-progress` (replan only if the human explicitly asks).
+- Mid-sprint task tracking → path-pass `midas-progress` (internal; replan only if the human explicitly asks).
 
 **Anti-rationalization:** a sprint that keeps absorbing scope is a **fail** — split it. Do **not**
 merge extras into sprint 1 so it stops being independently shippable. Soft target: **≤ 5 concrete

@@ -7,9 +7,12 @@
 #   irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | iex
 # Bleeding edge (mutable main):
 #   $env:MIDAS_BLEEDING_EDGE=1; irm …/install.ps1 | iex
+# Refresh existing install (v1 or v2) to the latest release pin:
+#   $env:MIDAS_INSTALL_ARGS='--update --yes'; irm …/install.ps1 | iex
+#   # or: curl-equivalent via local clone → pwsh install.ps1 --update --yes
 #
 # From a local clone:
-#   pwsh install.ps1 [target-dir] [--force | --uninstall [--dry-run|--purge]]
+#   pwsh install.ps1 [target-dir] [--force | --update --yes | --uninstall [--dry-run|--purge]]
 
 [CmdletBinding()]
 param(
@@ -48,7 +51,11 @@ if ($nodeMajor -lt 22) {
 $here = if ($MyInvocation.MyCommand.Path) { Split-Path -Parent $MyInvocation.MyCommand.Path } else { $null }
 $local = if ($here) { Join-Path $here "cli/index.mjs" } else { $null }
 if ($local -and (Test-Path $local)) {
-  & node $local @InstallerArgs
+  $extra = @()
+  if ($env:MIDAS_INSTALL_ARGS) {
+    $extra = @($env:MIDAS_INSTALL_ARGS -split '\s+' | Where-Object { $_ })
+  }
+  & node $local @extra @InstallerArgs
   exit $LASTEXITCODE
 }
 
@@ -58,5 +65,10 @@ if (-not (Get-Command npx -ErrorAction SilentlyContinue)) {
   exit 1
 }
 $MidasRef = Resolve-MidasRef
-& npx -y --package="github:${Repo}#$MidasRef" midas @InstallerArgs
+# Optional: $env:MIDAS_INSTALL_ARGS = '--update --yes' when piping (irm | iex) with no argv.
+$extra = @()
+if ($env:MIDAS_INSTALL_ARGS) {
+  $extra = @($env:MIDAS_INSTALL_ARGS -split '\s+' | Where-Object { $_ })
+}
+& npx -y --package="github:${Repo}#$MidasRef" midas @extra @InstallerArgs
 exit $LASTEXITCODE

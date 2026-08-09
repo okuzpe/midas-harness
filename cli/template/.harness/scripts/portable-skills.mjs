@@ -3,9 +3,10 @@
 // `harness/skills` is the authored source. `.claude/skills`, `.agents/skills`, and `.cursor/skills`
 // are generated host discovery trees and may contain only Midas-owned files (ADR-008).
 
-import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync, cpSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { resolvePaths } from './paths.mjs';
+import { isHostMirrorExcluded } from './skill-registry.mjs';
 
 const ALLOWED_FRONTMATTER_KEYS = new Set(['name', 'description', 'license', 'compatibility', 'metadata', 'allowed-tools']);
 const MIDAS_META_PREFIX = 'midas-';
@@ -133,6 +134,8 @@ function copyRecursive(sourceDir, targetDir, sourceRoot) {
     const src = join(sourceDir, entry.name);
     const dst = join(targetDir, entry.name);
     if (entry.isDirectory()) {
+      // Top-level skill dirs: skip internal/deprecated from host pickers (ADR-013).
+      if (sourceDir === sourceRoot && isHostMirrorExcluded(entry.name)) continue;
       mkdirSync(dst, { recursive: true });
       written.push(...copyRecursive(src, dst, sourceRoot));
       continue;
@@ -166,6 +169,7 @@ export function renderPortableSkillsTree(root, { sourceDir = null, targetDir = '
       '',
       '> **GENERATED — do not hand-edit.** Source: `harness/skills/` (or `<paths.engine>/skills/`).',
       '> Rebuild with `npm run build` (engine) or the installer sync path (product).',
+      '> Omits `user-surface: internal|deprecated` skills (ADR-013) — those stay under `<paths.engine>/skills/` for path-pass.',
       '',
     ].join('\n'),
     'utf8',
@@ -177,8 +181,8 @@ export function renderPortableSkillsTree(root, { sourceDir = null, targetDir = '
 }
 
 /**
- * Drop Midas skill dirs removed from the engine but still present in a host mirror.
- * User-owned neighbours (not in `bundledMirrorRoot`) are preserved.
+ * Drop obsolete or host-picker-excluded Midas skill dirs from a host mirror.
+ * User-owned neighbours (not in the bundled template) are preserved.
  */
 export function pruneObsoleteMidasSkillMirrors(
   root,
@@ -203,11 +207,17 @@ export function pruneObsoleteMidasSkillMirrors(
   const removed = [];
   for (const entry of readdirSync(targetRoot, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
-    if (engineNames.has(entry.name)) continue;
-    if (!bundledNames.has(entry.name)) continue;
-    const abs = join(targetRoot, entry.name);
+    const name = entry.name;
+    const wasMidasBundled = bundledNames.has(name);
+    const surfaceExcluded = isHostMirrorExcluded(name);
+    const removedFromEngine = !engineNames.has(name);
+    // Keep user-owned dirs that were never in the Midas bundled mirror.
+    if (!wasMidasBundled && !surfaceExcluded) continue;
+    // Prune: obsolete Midas skill, or internal/deprecated that should not live in host pickers.
+    if (!(surfaceExcluded || (wasMidasBundled && removedFromEngine))) continue;
+    const abs = join(targetRoot, name);
     rmSync(abs, { recursive: true, force: true });
-    removed.push(join(targetDir, entry.name).replace(/\\/g, '/'));
+    removed.push(join(targetDir, name).replace(/\\/g, '/'));
   }
   return removed;
 }

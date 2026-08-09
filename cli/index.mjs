@@ -95,13 +95,13 @@ Install:
   npx github:okuzpe/midas-harness#${pin} --tools=cursor
   npx github:okuzpe/midas-harness --layout=harness   explicit no-op; v2 has one layout
 
-Migrate an existing v1 install (always explicit):
-  npx github:okuzpe/midas-harness#${pin} --migrate          preview only; writes nothing
-  npx github:okuzpe/midas-harness#${pin} --migrate --apply  migrate transactionally + verify
+Refresh (one command — v2 refresh, or auto-migrate 1.x then refresh):
+  npx github:okuzpe/midas-harness#${pin} --update --yes
+  npx github:okuzpe/midas-harness --update --yes       unpinned main (bleeding)
 
-Update an existing install (overwrites the engine, KEEPS your work, bumps the version stamp):
-  npx github:okuzpe/midas-harness --update             refresh to the latest (main)
-  npx github:okuzpe/midas-harness#${pin} --update refresh to a pinned release
+Optional explicit migrate (preview / apply):
+  npx github:okuzpe/midas-harness#${pin} --migrate          preview only; writes nothing
+  npx github:okuzpe/midas-harness#${pin} --migrate --apply  same end-state as --update on 1.x
 
 Uninstall (surgical — removes only Midas's files, keeps your work):
   npx github:okuzpe/midas-harness --uninstall             remove owned engine files; keep product, rules, runs, state
@@ -116,7 +116,7 @@ Options:
   --force      (install) overwrite files that already exist
   --migrate    preview a v1 → v2 migration without writing
   --apply      apply the migration plan; valid with --migrate
-  --update     refresh an existing v2 install; never relocates a v1 layout
+  --update     refresh to this package; auto-migrates 1.x then refreshes
   --uninstall  remove Midas instead of installing it
   --dry-run    plan only (install/update/migrate/uninstall) — write nothing
   --json       machine-readable diagnose / plan / result on stdout

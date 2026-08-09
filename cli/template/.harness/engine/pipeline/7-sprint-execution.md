@@ -24,6 +24,8 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
    **New session or stale progress:** run `/midas-recall sprint` (optional) or read
    `{runs}/sprints/NN-progress.md` before implementing. On first activation, seed progress from
    `<paths.engine>/templates/sprint-progress.md` → `{runs}/sprints/NN-progress.md`.
+   **STM writes:** after significant tasks, **path-pass** `<paths.engine>/skills/midas-progress/SKILL.md`
+   (read + apply Done/Learned/Next) — do **not** Skill-tool invoke (`user-surface: internal`).
 2. **Implement tasks — one feature at a time.** Work a single task through to *done* (past
    verification) before starting the next; never batch-implement and verify only at the end. This
    incremental discipline is what keeps a long run from exhausting context and drifting — it matters
@@ -49,7 +51,7 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
    e. **Verify the task before checking it off (the inner verify→fix loop).** Run the
       [`verification.md`](../rules/verification.md) ladder for what you just changed — rungs 1–3
       always (static gate → behavioural tests → runtime smoke), plus rung 4 (drive + inspect via
-      `/midas-verify` or ad-hoc `/midas-qa` on the diff) when the task is UI-touching. **Observe the actual output,
+      `/midas-verify` or path-pass `<paths.engine>/skills/midas-qa/SKILL.md` on the diff) when the task is UI-touching. **Observe the actual output,
       fix any failure, and re-run until green** — bounded at ~3 self-fix rounds, after which you stop
       and surface the blocker to the human (recommend-don't-wall). Prefer `/midas-investigate` (Iron
       Law + freeze under `{runs}/investigate/`) before further speculative fixes — see
@@ -58,16 +60,18 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
    f. Check the task off `## Tasks` in the sprint file **only after it passes verification**, noting
       the proof (command output, test name, or screenshot reference) **and the tool/MCP that proved it**
       (e.g. `test-runner`, `context7`, `agent-browser`, `playwright-mcp`, `@playwright/cli`). Mirror the same in
-      `{runs}/sprints/NN-progress.md` § Done (Task · Proof · Tool · **Route** when ≥4 files). If the task completes a feature in
+      `{runs}/sprints/NN-progress.md` § Done (Task · Proof · Tool · **Route** when ≥4 files) via path-pass
+      `midas-progress`. If the task completes a feature in
       `{product}/features.json`, flip that feature's `status` to `passing` and fill its `evidence` —
       editing **only** `status`/`evidence`, never the spec fields.
 3. **Verify acceptance criteria.** After all tasks are checked, run or demonstrate
    every item in `## Acceptance criteria`. Record evidence (output, screenshot reference,
    or test name) next to each item. For a UI-touching sprint, run `/midas-verify` (`--scope web|mobile|all`
    per `architecture.md`) so each criterion is proven and frozen to `{runs}/verifications/verify-NN.md`.
-   **Optional inner loop:** `/midas-qa` on the branch diff (evidence in `{runs}/qa/`, non-gate).
-   **Optional (recommended for large or messy sprints):** run `/midas-sweep` before handing off to
+   **Optional inner loop:** path-pass `midas-qa` on the branch diff (evidence in `{runs}/qa/`, non-gate).
+   **Optional (recommended for large or messy sprints):** path-pass `midas-sweep` before handing off to
    Phase 8 — surface dead flows and ledger drift so the audit grades real behaviour, not cruft.
+   Prefer letting `/close-sprint` own Steps 0 / 0.5 path-pass when the human types close.
 4. **Self-check DoD.** Walk the `## Definition of Done` list:
    - Tests pass
    - No convention violations (check against the combined base and project rule patterns)

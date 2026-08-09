@@ -92,9 +92,12 @@ amendments in the sprint's `audit_notes`.
 ### 6. Hand off to implementation
 Implementation runs on the **build** tier per **`<paths.engine>/pipeline/7-sprint-execution.md`**. Print: *"👉 Optional: `/midas-recall sprint` for a context pack
 before coding (scout tier; read-only)."* — do **not** re-load the full rule set here; recall delegates to scout.
-During long sprints, remind: *"👉 `/midas-progress` after significant tasks (STM in `{runs}/sprints/NN-progress.md`)."*
+**STM (required for continuity):** after kickoff, seed `{runs}/sprints/NN-progress.md` from
+`<paths.engine>/templates/sprint-progress.md` if missing, then **path-pass**
+`<paths.engine>/skills/midas-progress/SKILL.md` after significant tasks (Done / Learned / Next) —
+do **not** Skill-tool invoke; power-users may still type `/midas-progress`.
 **Optional bounded sprint ticks:** if the user wants one code task per scheduled tick (ADR-009), point to
-`/midas-auto-sprints` after kickoff — requires `npx … --autonomy` install; the skill guides `setup` /
+`/midas-auto-pilot` (Sprint checklist / `setup`) after kickoff — requires `npx … --autonomy` install; the skill guides `setup` /
 `dry-run`; only the human or CI runs `midas-autopilot tick` (never auto-invoked from chat).
 Before writing any third-party code, follow
 `<paths.engine>/rules/context7-usage.md` (`resolve-library-id` → `get-library-docs` at the pinned version).

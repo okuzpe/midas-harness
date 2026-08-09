@@ -47,7 +47,7 @@ stages:
     command_when_done: /close-sprint
     verify_ui: /midas-verify
     redesign_ui: /midas-design
-    qa_adhoc: /midas-qa
+    qa_internal: skills/midas-qa/SKILL.md
     recall:
       - "{product}/features.json"
       - "{product}/design-direction.md"

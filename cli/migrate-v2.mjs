@@ -321,6 +321,23 @@ export function planV2Migration(projectRoot) {
   };
 }
 
+/**
+ * Normalize a migrated project rule so doctor `rules:combined` accepts it.
+ * v1 hub rules often ship with a UTF-8 BOM (breaks `^#` title detection) and/or a
+ * `## CHECK` section without the required `**CHECK:**` marker.
+ */
+export function normalizeMigratedProjectRule(name, raw) {
+  let body = String(raw ?? '').replace(/^\uFEFF/, '');
+  if (!/^#\s+\S/m.test(body)) {
+    const slug = String(name || 'rule').replace(/\.md$/i, '');
+    body = `# Rule: ${slug} (migrated)\n\n${body.replace(/^\s+/, '')}`;
+  }
+  if (!/\*\*CHECK:\*\*/.test(body)) {
+    body = `${body.replace(/\s*$/, '')}\n\n## Checklist\n\n- [ ] Review this migrated stack rule.\n  **CHECK:** \`manual:\` confirm this rule still matches the shipped architecture; amend or replace before the next Phase-8 audit.\n`;
+  }
+  return body.endsWith('\n') ? body : `${body}\n`;
+}
+
 /** Preserve project-authored rule files and explicit legacy amendment sections outside the engine. */
 export function extractLegacyRuleOverrides(projectRoot, plan, canonicalRuleNames = []) {
   if (!plan.backup_base) return [];
@@ -336,10 +353,20 @@ export function extractLegacyRuleOverrides(projectRoot, plan, canonicalRuleNames
     const raw = readFileSync(source, 'utf8');
     if (!canonical.has(name)) {
       const target = join(targetDir, name);
-      if (existsSync(target) && sha256File(target) !== sha256File(source)) {
-        throw new Error(`project rule conflict: .harness/rules/${name}`);
+      const body = normalizeMigratedProjectRule(name, raw);
+      if (existsSync(target)) {
+        const existing = readFileSync(target, 'utf8');
+        // Allow rewrite when the on-disk file is the legacy source or an earlier
+        // normalize pass; only conflict on a true divergent project edit.
+        if (
+          existing !== body &&
+          existing !== raw &&
+          normalizeMigratedProjectRule(name, existing) !== body
+        ) {
+          throw new Error(`project rule conflict: .harness/rules/${name}`);
+        }
       }
-      if (!existsSync(target)) cpSync(source, target);
+      writeFileSync(target, body, 'utf8');
       written.push(posix(relative(root, target)));
       continue;
     }

@@ -17,8 +17,12 @@
 import { cpSync, writeFileSync, existsSync, mkdirSync, rmSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { stripEngineOnlySkills } from './engine-only.mjs';
+import { stripEngineOnlySkills, stripHostPickerExcludedSkills } from './engine-only.mjs';
 import { renderPortableSkillsTree } from './portable-skills.mjs';
+import {
+  INTERNAL_SURFACE_ALLOWLIST,
+  DEPRECATED_SURFACE_ALLOWLIST,
+} from './skill-registry.mjs';
 
 const SCRIPT_DIR = dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
 const ROOT = resolve(SCRIPT_DIR, '..');
@@ -36,6 +40,7 @@ const PLUGIN_DIR = join(ROOT, ...PLUGIN_REL_PARTS);
 const HARNESS_DIR = join(ROOT, 'harness');
 const MARKETPLACE_DIR = join(HARNESS_DIR, '.claude-plugin');
 const IS_MAIN = process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url));
+const HOST_PICKER_EXCLUDED = [...INTERNAL_SURFACE_ALLOWLIST, ...DEPRECATED_SURFACE_ALLOWLIST];
 
 // --- helpers -----------------------------------------------------------------------------------
 function writeJson(absFile, obj) {
@@ -99,8 +104,15 @@ export function renderPluginTree() {
 
   cpSync(join(ROOT, 'harness', 'skills'), join(PLUGIN_DIR, 'skills'), { recursive: true });
   cpSync(join(ROOT, 'harness', 'agents'), join(PLUGIN_DIR, 'agents'), { recursive: true });
-  // Engine-only skills stay in harness/ + .claude for contributors; never ship via marketplace plugin.
+  // Engine-only skills stay in harness/ for contributors; never ship via marketplace plugin.
+  // ADR-013: omit internal/deprecated from host pickers — path-pass from engine skills only.
   stripEngineOnlySkills(join(PLUGIN_DIR, 'skills'), { existsSync, rmSync }, { join });
+  stripHostPickerExcludedSkills(
+    join(PLUGIN_DIR, 'skills'),
+    { existsSync, rmSync },
+    { join },
+    HOST_PICKER_EXCLUDED,
+  );
   if (existsSync(join(ROOT, '.mcp.json'))) {
     cpSync(join(ROOT, '.mcp.json'), join(PLUGIN_DIR, '.mcp.json'));
   }
@@ -120,7 +132,15 @@ export function renderClaudeMirrors() {
     if (existsSync(target)) rmSync(target, { recursive: true, force: true });
     cpSync(source, target, { recursive: true });
   }
-  // Keep engine portable mirrors in sync (includes engine-only skills for local Cursor/Codex).
+  stripHostPickerExcludedSkills(
+    join(ROOT, '.claude', 'skills'),
+    { existsSync, rmSync },
+    { join },
+    HOST_PICKER_EXCLUDED,
+  );
+  // Keep engine portable mirrors in sync (primary surface only in host pickers; ADR-013).
+  // Engine-only midas-precommit stays in harness/skills for contributors but is omitted from
+  // portable trees via render + optional strip when shipping templates.
   renderPortableSkillsTree(ROOT, {
     sourceDir: 'harness/skills',
     targetDir: '.agents/skills',

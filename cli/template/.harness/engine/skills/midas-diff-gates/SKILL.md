@@ -3,6 +3,7 @@ name: midas-diff-gates
 description: Run diff-scoped test/quality gate receipts into {paths.cache}/gates/<run>/; use before close-sprint when production paths changed. Does not replace close-sprint or midas-verify.
 user-invocable: true
 disable-model-invocation: true
+user-surface: internal
 model: inherit
 harness-tier: build
 recommended-model: claude-sonnet-4-6
@@ -12,6 +13,7 @@ argument-hint: "[--run <id>] [--base <ref>]"
 # midas-diff-gates — Diff-scoped gate receipts
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Surface:** `internal` (ADR-013) — prefer `/close-sprint` Step 0.5 path-pass; power-user may still type this slash.
 
 Mechanical **test + quality** receipts for the current working diff. Run before `/close-sprint` when
 production paths changed. Does **not** replace `/midas-verify` (UI/API journeys) or Phase-8 rule

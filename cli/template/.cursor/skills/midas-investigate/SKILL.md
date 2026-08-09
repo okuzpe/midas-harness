@@ -18,7 +18,7 @@ metadata:
 
 Standing **debug investigation** (gstack `/investigate` / Ley de Hierro): do not ship a speculative
 fix until symptoms, flow, and a falsifiable root-cause hypothesis are frozen. Distinct from
-`/midas-explore` (open-ended scoping outside the pipeline) and `/midas-qa` (ad-hoc smoke).
+`/midas-explore` (open-ended scoping outside the pipeline) and path-pass `midas-qa` (ad-hoc smoke, internal).
 
 ## Does / Does not
 
@@ -95,6 +95,6 @@ MIDAS_INVESTIGATE_RESULT: id=NN hypotheses=N strikes=N verdict=frozen|dry-run|st
 ## When NOT
 - Open-ended product scoping → `/midas-explore`.
 - UI acceptance proof → `/midas-verify`.
-- Branch smoke without root-cause need → `/midas-qa`.
+- Branch smoke without root-cause need → path-pass `midas-qa` (internal; not gate proof).
 - Decision quality debate → `/midas-tribunal`.
 - Sprint conformance → `/close-sprint`.

@@ -86,6 +86,8 @@ function shouldSkipDir(dirName, relPath) {
   return false;
 }
 
+const PRODUCT_SOURCE_DIRS = ['src', 'app', 'lib', 'ui', 'web', 'api', 'server', 'backend', 'frontend'];
+
 /**
  * @param {string} projectRoot
  * @returns {string[]}
@@ -93,10 +95,31 @@ function shouldSkipDir(dirName, relPath) {
 function discoverPreferredRoots(projectRoot) {
   /** @type {string[]} */
   const roots = [];
+  const seen = new Set();
+  const addRoot = (rel) => {
+    const norm = normalizeRel(rel);
+    if (!seen.has(norm) && existsSync(join(projectRoot, norm))) {
+      seen.add(norm);
+      roots.push(norm);
+    }
+  };
+
   for (const dir of PREFERRED_DIRS) {
-    const rel = normalizeRel(dir);
-    if (existsSync(join(projectRoot, rel))) roots.push(rel);
+    addRoot(dir);
   }
+
+  try {
+    const paths = resolvePaths(projectRoot);
+    const product = paths.product?.replace(/\\/g, '/');
+    if (product) {
+      for (const dir of PRODUCT_SOURCE_DIRS) {
+        addRoot(join(product, dir));
+      }
+    }
+  } catch {
+    /* fail-open */
+  }
+
   return roots;
 }
 

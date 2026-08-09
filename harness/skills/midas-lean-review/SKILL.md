@@ -3,6 +3,7 @@ name: midas-lean-review
 description: Over-engineering review — delete-list for the current diff or named paths (stdlib/native/yagni/shrink). Use before /close-sprint on a fat diff, after a feature branch, or when the user asks what to cut. Complements correctness review; does not replace /midas-sweep or /close-sprint.
 user-invocable: true
 disable-model-invocation: true
+user-surface: internal
 model: inherit
 harness-tier: build
 recommended-model: claude-sonnet-4-6
@@ -12,6 +13,7 @@ argument-hint: "[--scope diff|paths|repo] [--freeze] [path ...]"
 # midas-lean-review — What to delete (over-engineering only)
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Surface:** `internal` (ADR-013) — prefer `/close-sprint` / fat-diff path-pass; power-user may still type this slash.
 > **Rule:** `<paths.engine>/rules/lean-ladder.md`. Tally shape: `<paths.engine>/templates/audit-checklists.md`.
 
 Standing **complexity review** (not a phase gate): hunt unnecessary code in the working tree / named

@@ -3,6 +3,7 @@ name: midas-progress
 description: Phase 7 STM writer — updates {runs}/sprints/NN-progress.md after tasks or significant decisions (Done rows, Learned observations, Next line). Build-tier; complements read-only /midas-recall. Use mid-sprint when session-continuity rule applies.
 user-invocable: true
 disable-model-invocation: true
+user-surface: internal
 model: inherit
 harness-tier: build
 recommended-model: claude-sonnet-4-6
@@ -12,6 +13,7 @@ argument-hint: "[--task \"<id>\" --proof \"<evidence>\" --tool \"<runner>\"]"
 # midas-progress — Sprint STM (session memory)
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Surface:** `internal` (ADR-013) — prefer parent path-pass from `/start-sprint` / Phase 7; power-user may still type this slash.
 
 > **Paths:** `{runs}/sprints/NN-progress.md` from template `<paths.engine>/templates/sprint-progress.md`.
 > See `<paths.engine>/rules/session-continuity.md` and `<paths.engine>/research/memory-model.md`.

@@ -22,6 +22,9 @@ import {
   collectSkillRegistryRows,
   computeSkillRegistryMarkdown,
   writeSkillRegistry,
+  isHostMirrorExcluded,
+  INTERNAL_SURFACE_ALLOWLIST,
+  DEPRECATED_SURFACE_ALLOWLIST,
 } from './skill-registry.mjs';
 import { evaluateMcpDeclaredVsWired, evaluateMcpGovernance, evaluateSkillMcpRequired, OPTIONAL_MCP_IDS } from './mcp-drift.mjs';
 import { ensureMidasGitignore, GITIGNORE_BEGIN, GITIGNORE_END, auditGitignore } from './gitignore-merge.mjs';
@@ -35,8 +38,10 @@ import { createHash } from 'node:crypto';
 import {
   applyV2Migration,
   extractLegacyRuleOverrides,
+  normalizeMigratedProjectRule,
   planV2Migration,
 } from '../cli/migrate-v2.mjs';
+import { resolveRefreshCommand } from '../cli/lib/workflow/engine.mjs';
 import {
   isKnownRoutingProfile,
   isKnownCostProfile,
@@ -347,9 +352,15 @@ for (const f of computeAdapters(ROOT).files) {
 const pluginSkills = join(ROOT, 'harness', 'plugins', 'midas', 'skills');
 const pluginAgents = join(ROOT, 'harness', 'plugins', 'midas', 'agents');
 if (existsSync(join(ROOT, 'harness', 'plugins', 'midas'))) {
-  const shippedSkills = dirNames(skillsDir).filter((n) => n !== 'midas-precommit');
+  const shippedSkills = dirNames(skillsDir).filter(
+    (n) => n !== 'midas-precommit' && !isHostMirrorExcluded(n),
+  );
   check('plugin:skills-match', JSON.stringify(dirNames(pluginSkills)) === JSON.stringify(shippedSkills), 're-run build-plugin.mjs');
   check('plugin:excludes-midas-precommit', !existsSync(join(pluginSkills, 'midas-precommit')));
+  check(
+    'plugin:excludes-host-picker-internal',
+    [...INTERNAL_SURFACE_ALLOWLIST].every((n) => !existsSync(join(pluginSkills, n))),
+  );
   const srcAgents = walk(agentsDir).map((p) => basename(p)).sort();
   const plgAgents = walk(pluginAgents).map((p) => basename(p)).sort();
   check('plugin:agents-match', JSON.stringify(srcAgents) === JSON.stringify(plgAgents), 're-run build-plugin.mjs');
@@ -400,7 +411,7 @@ if (existsSync(tplRoot)) {
   check(
     'create-template:skills-match',
     JSON.stringify(dirNames(join(tplRoot, '.claude', 'skills'))) ===
-      JSON.stringify(dirNames(skillsDir).filter((n) => n !== 'midas-precommit')),
+      JSON.stringify(dirNames(skillsDir).filter((n) => n !== 'midas-precommit' && !isHostMirrorExcluded(n))),
     're-run build-create.mjs',
   );
   for (const f of ['AGENTS.md', '.mcp.json', '.harness/engine/methodology.md', '.harness/engine/conventions.md', '.harness/engine/gates.json', '.harness/engine/checks.json', '.harness/engine/skill-registry.md', '.harness/engine/stage-command-table.yaml', '.harness/scripts/render-adapters.mjs', '.harness/scripts/yaml-lite.mjs', '.harness/scripts/mcp-drift.mjs', '.harness/scripts/mcp-cursor-sync.mjs', '.harness/scripts/tool-profiles.mjs', '.harness/scripts/model-profiles.mjs', '.harness/scripts/portable-skills.mjs', '.harness/scripts/gitignore-merge.mjs', '.harness/scripts/paths.mjs', '.harness/scripts/migrate-layout.mjs', '.harness/scripts/stage-command-table.mjs', '.harness/scripts/design-system.mjs', '.harness/scripts/doctor.mjs', '.harness/scripts/status-page.mjs', '.harness/scripts/skill-quality-check.mjs', '.harness/scripts/skill-registry.mjs', '.harness/scripts/bundle.mjs', '.harness/scripts/ownership-manifest.mjs', '.harness/scripts/trace-write.mjs', '.harness/scripts/trace-inspect.mjs', '.harness/scripts/trace-hook.mjs', '.harness/scripts/lib/trace-models.mjs', '.harness/scripts/lib/trace-store.mjs', '.harness/engine/docs/agents-and-models.md', '.harness/engine/docs/skill-quality-gate.md', '.harness/engine/docs/skill-flows.md', '.harness/engine/docs/skills.md']) {
@@ -503,7 +514,11 @@ if (existsSync(buildCreate)) {
       const sourceFiles = [
         ...walkRelativeFiles(join(sourceClaude, 'skills'))
           .map((rel) => `skills/${rel.replace(/\\/g, '/')}`)
-          .filter((rel) => !rel.startsWith('skills/midas-precommit/')),
+          .filter((rel) => {
+            if (rel.startsWith('skills/midas-precommit/')) return false;
+            const name = rel.split('/')[1];
+            return name && !isHostMirrorExcluded(name);
+          }),
         ...walkRelativeFiles(join(sourceClaude, 'agents')).map((rel) => `agents/${rel.replace(/\\/g, '/')}`),
       ].sort();
       const templateFiles = walkRelativeFiles(templateClaude).map((rel) => rel.replace(/\\/g, '/'));
@@ -514,7 +529,7 @@ if (existsSync(buildCreate)) {
       check(
         'create-template:claude-tree-match',
         sameShape && sameContent,
-        'cli/template/.claude drifts from source .claude (excluding engine-only skills)',
+        'cli/template/.claude drifts from harness skills/agents (excluding engine-only + ADR-013 host exclusions)',
       );
       check(
         'create-template:excludes-midas-precommit',
@@ -527,7 +542,9 @@ if (existsSync(buildCreate)) {
     const sourcePortableSkills = join(ROOT, 'harness', 'skills');
     const templatePortableSkills = join(ROOT, 'cli', 'template', '.agents', 'skills');
     if (existsSync(sourcePortableSkills) && existsSync(templatePortableSkills)) {
-      const sourceNames = dirNames(sourcePortableSkills).filter((n) => n !== 'midas-precommit');
+      const sourceNames = dirNames(sourcePortableSkills).filter(
+        (n) => n !== 'midas-precommit' && !isHostMirrorExcluded(n),
+      );
       const templateNames = dirNames(templatePortableSkills);
       const sameShape = JSON.stringify(sourceNames) === JSON.stringify(templateNames);
       let sameContent = sameShape;
@@ -572,7 +589,9 @@ if (existsSync(buildCreate)) {
     const sourcePortableSkills = join(ROOT, 'harness', 'skills');
     const bundledPortableSkills = join(ROOT, 'cli', 'template', '.agents', 'skills');
     if (existsSync(sourcePortableSkills) && existsSync(bundledPortableSkills)) {
-      const sourceNames = dirNames(sourcePortableSkills).filter((n) => n !== 'midas-precommit');
+      const sourceNames = dirNames(sourcePortableSkills).filter(
+        (n) => n !== 'midas-precommit' && !isHostMirrorExcluded(n),
+      );
       const portableNames = dirNames(bundledPortableSkills);
       const sameShape = JSON.stringify(sourceNames) === JSON.stringify(portableNames);
       let sameContent = sameShape;
@@ -1759,16 +1778,28 @@ check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bi
     writeFileSync(join(legacyUpdateRoot, 'harness', 'VERSION'), '1.1.4\n', 'utf8');
     writeFileSync(join(legacyUpdateRoot, 'harness', 'state.yaml'), 'midas_version: 1.1.4\nlayout: classic\n', 'utf8');
     const before = treeDigest(legacyUpdateRoot);
-    const updateResult = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), '--update', legacyUpdateRoot], {
-      cwd: ROOT,
-      encoding: 'utf8',
-    });
+    const dry = spawnSync(
+      process.execPath,
+      [join(ROOT, 'cli', 'index.mjs'), '--update', '--dry-run', legacyUpdateRoot],
+      { cwd: ROOT, encoding: 'utf8' },
+    );
     check(
-      'installer:update-refuses-v1-without-writing',
-      updateResult.status === 1 &&
-        /--migrate/.test(`${updateResult.stdout}${updateResult.stderr}`) &&
+      'installer:update-v1-dry-run-previews-migrate',
+      dry.status === 0 &&
+        /1\.x|migrate/i.test(`${dry.stdout}${dry.stderr}`) &&
         treeDigest(legacyUpdateRoot) === before,
-      updateResult.stderr || updateResult.stdout,
+      dry.stderr || dry.stdout,
+    );
+    const updateResult = spawnSync(
+      process.execPath,
+      [join(ROOT, 'cli', 'index.mjs'), '--update', '--yes', legacyUpdateRoot],
+      { cwd: ROOT, encoding: 'utf8' },
+    );
+    const out = `${updateResult.stdout}${updateResult.stderr}`;
+    check(
+      'installer:update-v1-promotes-to-migrate',
+      /will migrate to v2/i.test(out) && updateResult.status !== 0,
+      out.slice(0, 800),
     );
   } finally {
     rmSync(legacyUpdateRoot, { recursive: true, force: true });
@@ -1942,6 +1973,16 @@ check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bi
     writeFileSync(join(legacy, 'harness', 'VERSION'), '1.1.4\n', 'utf8');
     writeFileSync(join(legacy, 'harness', 'state.yaml'), 'midas_version: 1.1.4\nlayout: classic\n', 'utf8');
     check('diagnose:matrix-legacy', diagnoseProject(legacy).status === 'legacy_layout');
+    {
+      const promoted = resolveRefreshCommand({ command: 'update', dryRun: false, yes: true }, legacy);
+      check('update-promotes-legacy', promoted.promoted === true && promoted.cmd.command === 'migrate' && promoted.cmd.apply === true);
+      const preview = resolveRefreshCommand({ command: 'update', dryRun: true }, legacy);
+      check('update-promotes-legacy-dry-run', preview.promoted === true && preview.cmd.apply === false);
+      const stay = resolveRefreshCommand({ command: 'update', dryRun: false }, diagTmp);
+      check('update-stays-on-harness', stay.promoted === false && stay.cmd.command === 'update');
+      const legacyCli = diagnoseProject(legacy);
+      check('diagnose:legacy-points-update', /--update/.test(legacyCli.nextCli || ''));
+    }
     rmSync(legacy, { recursive: true, force: true });
 
     writeFileSync(join(diagTmp, '.harness', 'state.yaml'), 'midas_version: 2.0.0\nlayout: harness\nsetup_complete: true\n', 'utf8');
@@ -2374,6 +2415,13 @@ check('migrate-layout:module-exists', existsSync(join(ROOT, 'scripts', 'migrate-
     check('migrate-v2:unknowns-stay', existsSync(join(migrationRoot, 'scripts', 'app.mjs')) && existsSync(join(migrationRoot, 'product', 'custom.txt')));
     check('migrate-v2:user-skill-stays', existsSync(join(migrationRoot, '.agents', 'skills', 'acme-local', 'SKILL.md')));
     check('migrate-v2:amendment-extracted', extracted.includes('.harness/rules/legacy-testing-amendments.md'));
+    {
+      const bomRule = String.fromCharCode(0xfeff) + '# Rule: bom-stack (always-on)\n\n## CHECK\n- Pass iff true.\n';
+      const normalized = normalizeMigratedProjectRule('bom-stack.md', bomRule);
+      check('migrate-v2:normalize-bom-rule', normalized.charCodeAt(0) !== 0xfeff && /^#\s+\S/m.test(normalized) && /\*\*CHECK:\*\*/.test(normalized));
+      const needsCheck = normalizeMigratedProjectRule('legacy-stack.md', '# Rule: legacy\n\n## CHECK\n- Pass iff reviewed.\n');
+      check('migrate-v2:normalize-check-stub', /\*\*CHECK:\*\*/.test(needsCheck));
+    }
     check('migrate-v2:idempotent-plan', planV2Migration(migrationRoot).rows.length === 0);
   } finally {
     rmSync(migrationRoot, { recursive: true, force: true });
@@ -2625,6 +2673,21 @@ if (existsSync(helpSkill)) {
     /skill-flows\.md/.test(helpBody),
     'help should cite skill-flows.md for flow-shape questions',
   );
+  check(
+    'skill:midas-help:surface-filter',
+    /user-surface:\s*primary/i.test(helpBody) || /Surface filter \(ADR-013\)/i.test(helpBody),
+    'help must document primary-only surface filter (ADR-013)',
+  );
+  // AskQuestion option lines use "** Label ** (`/slash`)" — internals must not appear there.
+  const askBlock = helpBody.match(/## Steps[\s\S]*?2\.\s+\*\*Answer/i)?.[0] || '';
+  for (const banned of ['/midas-qa', '/midas-diff-gates', '/midas-lean-review', '/midas-sweep', '/midas-progress', '/midas-improve-loop', '/midas-autopilot', '/midas-auto-sprints']) {
+    const inOptions = askBlock.includes(banned);
+    check(
+      `skill:midas-help:no-option:${banned.replace('/', '')}`,
+      !inOptions,
+      inOptions ? `AskQuestion options must not list ${banned}` : 'ok',
+    );
+  }
 }
 
 // --- M. midas-bundle export/import (scripts/fixtures/product-closed) -------------------------------
@@ -2868,11 +2931,29 @@ if (existsSync(join(ROOT, 'scripts', 'bundle.mjs'))) {
   check('product-closed:sprint-progress', existsSync(join(PRODUCT_CLOSED, '.harness', 'runs', 'sprints', '01-progress.md')));
 }
 
-check('skill:midas-progress', existsSync(join(ROOT, '.claude', 'skills', 'midas-progress', 'SKILL.md')));
-check('skill:midas-qa', existsSync(join(ROOT, '.claude', 'skills', 'midas-qa', 'SKILL.md')));
+check('skill:midas-progress:canonical', existsSync(join(ROOT, 'harness', 'skills', 'midas-progress', 'SKILL.md')));
+check('skill:midas-qa:canonical', existsSync(join(ROOT, 'harness', 'skills', 'midas-qa', 'SKILL.md')));
+check(
+  'skill:midas-progress:not-in-host-mirror',
+  !existsSync(join(ROOT, '.claude', 'skills', 'midas-progress', 'SKILL.md')),
+  'internal surface must be omitted from .claude/skills (ADR-013)',
+);
+check(
+  'skill:midas-qa:not-in-host-mirror',
+  !existsSync(join(ROOT, '.claude', 'skills', 'midas-qa', 'SKILL.md')),
+  'internal surface must be omitted from .claude/skills (ADR-013)',
+);
 check('skill:midas-design', existsSync(join(ROOT, 'harness', 'skills', 'midas-design', 'SKILL.md')));
 check('skill:midas-design-claude-mirror', existsSync(join(ROOT, '.claude', 'skills', 'midas-design', 'SKILL.md')));
 check('skill:midas-reconcile', existsSync(join(ROOT, '.claude', 'skills', 'midas-reconcile', 'SKILL.md')));
+check(
+  'skill:host-mirror-excludes-internal',
+  [...INTERNAL_SURFACE_ALLOWLIST].every((n) => !existsSync(join(ROOT, '.cursor', 'skills', n, 'SKILL.md'))),
+);
+check(
+  'skill:host-mirror-excludes-deprecated',
+  [...DEPRECATED_SURFACE_ALLOWLIST].every((n) => !existsSync(join(ROOT, '.agents', 'skills', n, 'SKILL.md'))),
+);
 check('installer:diagnose-flag', /--diagnose/.test(installer) && (/install-diagnose\.mjs/.test(installer) || /runInstaller/.test(installer)));
 check('build-create:install-diagnose', existsSync(join(ROOT, 'cli', 'install-diagnose.mjs')));
 check('create-midas:files-install-diagnose', /install-diagnose\.mjs/.test(readFileSync(join(ROOT, 'cli', 'package.json'), 'utf8')));
@@ -3279,13 +3360,37 @@ if (existsSync(templateChecksIndex) && existsSync(join(ROOT, 'harness', 'checks.
   check('skill-registry:close-sprint-orchestrator-only', !!close && close.delegator === 'orchestrator-only');
   const yesRows = rows.filter((r) => r.delegator === 'yes');
   check('skill-registry:yes-floor', yesRows.length >= 10, `yes=${yesRows.length}`);
-  for (const name of ['midas-progress', 'midas-verify', 'midas-qa', 'midas-lean-review', 'midas-explore', 'midas-capture', 'midas-auto-pilot', 'midas-auto-sprints', 'midas-retro', 'midas-investigate']) {
+  for (const name of ['midas-progress', 'midas-verify', 'midas-qa', 'midas-lean-review', 'midas-explore', 'midas-capture', 'midas-auto-pilot', 'midas-retro', 'midas-investigate']) {
     const row = rows.find((r) => r.name === name);
     check(`skill-registry:yes:${name}`, !!row && row.delegator === 'yes', row ? row.delegator : 'missing');
   }
-  for (const name of ['midas-improve-loop', 'midas-autopilot']) {
+  for (const name of ['midas-progress', 'midas-qa', 'midas-diff-gates', 'midas-lean-review', 'midas-sweep']) {
     const row = rows.find((r) => r.name === name);
-    check(`skill-registry:alias-stub:${name}`, !!row, 'alias stub skill missing');
+    check(`skill-registry:surface-internal:${name}`, !!row && row.surface === 'internal', row ? row.surface : 'missing');
+  }
+  for (const name of ['midas-improve-loop', 'midas-autopilot', 'midas-auto-sprints']) {
+    const row = rows.find((r) => r.name === name);
+    check(`skill-registry:surface-deprecated:${name}`, !!row && row.surface === 'deprecated', row ? row.surface : 'missing');
+  }
+  check(
+    'skill-registry:surface-primary-floor',
+    rows.filter((r) => r.surface === 'primary').length >= 25,
+    `primary=${rows.filter((r) => r.surface === 'primary').length}`,
+  );
+  check(
+    'skill-registry:md-has-surface-column',
+    /\| Surface \|/.test(readFileSync(join(ROOT, 'harness', 'skill-registry.md'), 'utf8')),
+  );
+  for (const name of ['midas-improve-loop', 'midas-autopilot', 'midas-auto-sprints']) {
+    const row = rows.find((r) => r.name === name);
+    const body = existsSync(join(ROOT, 'harness', 'skills', name, 'SKILL.md'))
+      ? readFileSync(join(ROOT, 'harness', 'skills', name, 'SKILL.md'), 'utf8')
+      : '';
+    check(
+      `skill-registry:alias-stub:${name}`,
+      !!row && /\/midas-auto-pilot/.test(body),
+      row ? 'missing /midas-auto-pilot forward' : 'alias stub skill missing',
+    );
   }
   check('skill-registry:fresh', checkSkillRegistry(ROOT).ok === true);
   check(
@@ -3355,13 +3460,20 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
   check(
     'autonomy:alias-stub',
     existsSync(join(ROOT, 'harness', 'skills', 'midas-autopilot', 'SKILL.md')) &&
-      /\/midas-auto-sprints/.test(readFileSync(join(ROOT, 'harness', 'skills', 'midas-autopilot', 'SKILL.md'), 'utf8')),
+      /\/midas-auto-pilot/.test(readFileSync(join(ROOT, 'harness', 'skills', 'midas-autopilot', 'SKILL.md'), 'utf8')),
   );
 
-  // /midas-auto-pilot — continuous local evolve (complementary to ADR-009)
+  // /midas-auto-pilot — unified autonomy guide (evolve + ADR-009 sprint path)
   check(
     'auto-pilot:skill-source',
     existsSync(join(ROOT, 'harness', 'skills', 'midas-auto-pilot', 'SKILL.md')),
+  );
+  check(
+    'auto-pilot:sprint-checklist-l3',
+    existsSync(join(ROOT, 'harness', 'skills', 'midas-auto-pilot', 'sprint-checklist.md')) &&
+      /midas-autopilot\.mjs/.test(
+        readFileSync(join(ROOT, 'harness', 'skills', 'midas-auto-pilot', 'sprint-checklist.md'), 'utf8'),
+      ),
   );
   check(
     'auto-pilot:skill-catalog',
@@ -3405,6 +3517,15 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
       /STOP/.test(autoPilotSkill),
   );
   check(
+    'auto-pilot:mode-gate',
+    /Mode gate|B00/i.test(autoPilotSkill) &&
+      /Continuous product evolve/.test(autoPilotSkill) &&
+      /Sprint checklist ticks/.test(autoPilotSkill) &&
+      /Stop local evolve loop/.test(autoPilotSkill) &&
+      /Sprint status \/ dry-run/.test(autoPilotSkill) &&
+      /midas-autopilot\.mjs/.test(autoPilotSkill),
+  );
+  check(
     'auto-pilot:loop-sentinel',
     /AGENT_LOOP_TICK_midas_auto_pilot_/.test(autoPilotSkill),
   );
@@ -3424,7 +3545,8 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
   );
   check(
     'auto-pilot:migration-notes',
-    existsSync(join(ROOT, 'harness', 'migrations', 'v2.8.2.md')),
+    existsSync(join(ROOT, 'harness', 'migrations', 'v2.8.2.md')) &&
+      existsSync(join(ROOT, 'harness', 'migrations', 'v2.9.5.md')),
   );
   check(
     'auto-pilot:no-legacy-templates',
@@ -4643,6 +4765,7 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
       'scripts/lib/tests/carryover.test.js',
       'scripts/lib/tests/context-cost.test.js',
       'scripts/lib/tests/lifecycle-journal.test.js',
+      'scripts/lib/tests/close-ready.test.js',
       'scripts/lib/tests/quality-log.test.js',
       'scripts/lib/tests/context-digest.test.js',
       'scripts/lib/tests/gate-result.test.js',

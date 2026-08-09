@@ -14,7 +14,7 @@ import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from '
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { computeAdapters, computeChecksIndex, computeGatesIndex, renderAdapters } from './render-adapters.mjs';
-import { checkSkillRegistry } from './skill-registry.mjs';
+import { checkSkillRegistry, isHostMirrorExcluded } from './skill-registry.mjs';
 import { evaluateMcpDeclaredVsWired, evaluateMcpGovernance, evaluateSkillMcpRequired, collectSkillMcpRequired } from './mcp-drift.mjs';
 import { parseSprints, parseSprintLastTouched, parsePhases, parseEnforcement, parseRouting, parseToolsFromStateYaml, rewriteRoutingMap } from './yaml-lite.mjs';
 import { syncCursorMcp, wrapMcpServersForWindows } from './mcp-cursor-sync.mjs';
@@ -138,15 +138,22 @@ function walkRelativeFiles(base) {
   return out.sort();
 }
 
-function compareMirror(sourceRel, targetRel, transform = (_rel, raw) => raw) {
+function compareMirror(sourceRel, targetRel, transform = (_rel, raw) => raw, opts = {}) {
   const source = join(ROOT, sourceRel);
   const target = join(ROOT, targetRel);
   if (!existsSync(source)) return { status: 'skip', note: `no ${sourceRel}` };
   if (!existsSync(target)) return { status: 'warn', note: `${targetRel} missing` };
-  const sourceFiles = walkRelativeFiles(source);
+  const excludeTop = opts.excludeTopLevelDirs instanceof Set
+    ? opts.excludeTopLevelDirs
+    : new Set(opts.excludeTopLevelDirs || []);
+  const sourceFiles = walkRelativeFiles(source).filter((file) => {
+    const top = file.split('/')[0];
+    return !excludeTop.has(top);
+  });
   const targetFiles = walkRelativeFiles(target);
   const missing = sourceFiles.filter((file) => !targetFiles.includes(file));
   const extra = targetFiles.filter((file) => !sourceFiles.includes(file));
+  const staleExcluded = extra.filter((file) => excludeTop.has(file.split('/')[0]));
   const drifted = sourceFiles.filter((file) => {
     const targetFile = join(target, file);
     return existsSync(targetFile) &&
@@ -155,14 +162,26 @@ function compareMirror(sourceRel, targetRel, transform = (_rel, raw) => raw) {
   const failures = [
     missing.length ? `missing=${missing.length}` : '',
     drifted.length ? `drift=${drifted.length}` : '',
+    staleExcluded.length ? `stale-excluded=${staleExcluded.length}` : '',
   ].filter(Boolean);
+  const userExtra = extra.length - staleExcluded.length;
   return failures.length
     ? { status: 'warn', note: `${failures.join(', ')} — regenerate ${targetRel}` }
     : {
         status: 'ok',
         note: `${sourceFiles.length}/${sourceFiles.length} Midas files match` +
-          (extra.length ? `; ${extra.length} user/host file(s) preserved` : ''),
+          (userExtra > 0 ? `; ${userExtra} user/host file(s) preserved` : ''),
       };
+}
+
+function hostMirrorSkillExcludeSet(engineSkillsRel) {
+  const abs = join(ROOT, engineSkillsRel);
+  if (!existsSync(abs)) return new Set();
+  return new Set(
+    readdirSync(abs, { withFileTypes: true })
+      .filter((e) => e.isDirectory() && isHostMirrorExcluded(e.name))
+      .map((e) => e.name),
+  );
 }
 
 // --- --fix: rewrite adapters via the shared render path ----------------------------------------
@@ -391,8 +410,11 @@ if (paths.layout === 'harness') {
 
   const tools = stateRaw ? parseToolsFromStateYaml(stateRaw) || [] : [];
   const skillPlan = resolveSkillMirrorPlan(tools);
+  const skillExclude = hostMirrorSkillExcludeSet(join(paths.engine, 'skills'));
   if (skillPlan.claude) {
-    const skillsMirror = compareMirror(join(paths.engine, 'skills'), '.claude/skills');
+    const skillsMirror = compareMirror(join(paths.engine, 'skills'), '.claude/skills', (_rel, raw) => raw, {
+      excludeTopLevelDirs: skillExclude,
+    });
     check('mirror:claude-skills', skillsMirror.status, skillsMirror.note);
     const agentsMirror = compareMirror(join(paths.engine, 'agents'), '.claude/agents');
     check('mirror:claude-agents', agentsMirror.status, agentsMirror.note);
@@ -404,6 +426,7 @@ if (paths.layout === 'harness') {
       (file, raw) => file.endsWith('/SKILL.md') || file === 'SKILL.md'
         ? renderPortableSkillText(raw, file)
         : raw,
+      { excludeTopLevelDirs: skillExclude },
     );
     check('mirror:agent-skills', portableMirror.status, portableMirror.note);
   }
@@ -414,6 +437,7 @@ if (paths.layout === 'harness') {
       (file, raw) => file.endsWith('/SKILL.md') || file === 'SKILL.md'
         ? renderPortableSkillText(raw, file)
         : raw,
+      { excludeTopLevelDirs: skillExclude },
     );
     check('mirror:cursor-skills', cursorMirror.status, cursorMirror.note);
   }
@@ -860,6 +884,39 @@ if (!stateRaw) {
   }
 }
 
+// Close-ready preflight (ADR-012 A3): warn when active sprint fails readiness checks.
+{
+  const closeReadyScript = join(ROOT, paths.scripts, 'close-ready.mjs');
+  if (!existsSync(closeReadyScript)) {
+    check('gate:close-ready', 'skip', 'close-ready.mjs not installed in paths.scripts');
+  } else if (!stateRaw) {
+    check('gate:close-ready', 'skip', 'no state.yaml');
+  } else {
+    try {
+      const { evaluateCloseReady } = await import('./lib/close-ready.mjs');
+      const report = evaluateCloseReady(ROOT);
+      if (report.checks[0]?.id === 'active-sprint' && report.checks[0]?.status === 'skip') {
+        check('gate:close-ready', 'ok', 'no active sprint');
+      } else if (report.ok) {
+        check(
+          'gate:close-ready',
+          'ok',
+          report.sprint_id ? `sprint ${report.sprint_id} ready for /close-sprint` : 'ready',
+        );
+      } else {
+        const warns = report.checks.filter((c) => c.status === 'warn').map((c) => c.id);
+        check(
+          'gate:close-ready',
+          'warn',
+          `sprint ${report.sprint_id ?? '?'} not ready — ${warns.join(', ')} (run close-ready.mjs)`,
+        );
+      }
+    } catch (err) {
+      check('gate:close-ready', 'warn', err instanceof Error ? err.message : String(err));
+    }
+  }
+}
+
 // Optional bounded autonomy (ADR-009): advisory when Phase 7 but capability missing or policy disabled.
 if (!stateRaw) {
   check('autonomy:capability', 'skip', 'no state.yaml');
@@ -873,7 +930,7 @@ if (!stateRaw) {
     check(
       'autonomy:capability',
       'ok',
-      'not installed — optional: npx … --update --autonomy then /midas-auto-sprints (CLI: midas-autopilot setup)',
+      'not installed — optional: npx … --update --autonomy then /midas-auto-pilot setup (CLI: midas-autopilot setup)',
     );
   } else {
     const policyPath = join(ROOT, '.harness', 'autonomy', 'policy.yaml');
@@ -1040,7 +1097,8 @@ if (checksIndexRaw === null) {
     ? readdirSync(projectRulesDir).filter((name) => name.endsWith('.md'))
     : [];
   const invalidProjectRules = projectNames.filter((name) => {
-    const raw = readFileSync(join(projectRulesDir, name), 'utf8');
+    // Strip UTF-8 BOM — common in Windows-authored stack rules and breaks `^#` title detection.
+    const raw = readFileSync(join(projectRulesDir, name), 'utf8').replace(/^\uFEFF/, '');
     return !/^#\s+\S/m.test(raw) || !/\*\*CHECK:\*\*/.test(raw);
   });
   check(

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "updated": null,
   "source": "engine/methodology.md",
-  "source_digest": "e8074eee6ee8b2d36d734efaa0b780c08c42234e872e874c78e7ea7c900c617f",
+  "source_digest": "623eaf90d635e93d1927032e54c1f3de3d587912067e5790bdab3774bb35e3e8",
   "gates": [
     {
       "id": "gate-00",

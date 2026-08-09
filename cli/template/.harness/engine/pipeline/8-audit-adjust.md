@@ -25,19 +25,22 @@ or declare the MVP complete. The producer never grades its own work.
 
 ### 0. Hygiene pass
 
-Read `paths.state` → `mode`. **Brownfield:** a `/midas-sweep` record for this sprint cycle is
+Read `paths.state` → `mode`. **Brownfield:** a sweep record for this sprint cycle is
 **required** unless the audit documents `sweep: skipped — <reason>`. **Greenfield:** sweep is
 recommended on large diffs; not blocking if none was run and no prior sweep left unresolved
-high-severity findings. When a sweep exists, resolve or consciously defer every `dead-flow` and
-`ledger-drift` row before grading other rules.
+high-severity findings. Prefer **path-pass** `<paths.engine>/skills/midas-sweep/SKILL.md` (internal
+surface, ADR-013) inside `/close-sprint` — do not Skill-tool invoke. When a sweep exists, resolve or
+consciously defer every `dead-flow` and `ledger-drift` row before grading other rules. On a fat
+feature/UI diff, path-pass `midas-lean-review` (optional) before conformance.
 
 ### 0.5. Diff gate receipts (production diffs)
 
 When the working diff touches **production** paths (see `scripts/gates/lib/diff-paths.mjs` and ADR-012 §4),
 require passing receipts under `{paths.cache}/gates/<run>/test.json` and `quality.json` (`isPassingReceipt`
 semantics) **or** record an explicit skip with reason in `{runs}/sprints/NN-progress.md` or audit notes.
-Run `/midas-diff-gates` when receipts are missing or stale (`changed_paths` no longer matches the diff).
-Engine-only / docs-only diffs: skip OK. UI/API proof remains `/midas-verify` — gate receipts do not replace it.
+When receipts are missing or stale (`changed_paths` no longer matches the diff), **path-pass**
+`<paths.engine>/skills/midas-diff-gates/SKILL.md` in this close run. Engine-only / docs-only diffs: skip OK.
+UI/API proof remains `/midas-verify` — gate receipts do not replace it.
 
 ### 1. Load state + frozen rules
 

@@ -2,11 +2,32 @@
 
 import { execFileSync } from 'node:child_process';
 
+/** Installed product roots (v2 harness, hub, classic/compact). */
+/** @type {readonly string[]} */
+const PRODUCT_ROOT_PREFIXES = [
+  '.harness/product/',
+  '.midas/product/',
+  'product/',
+];
+
+/** Ritual / planning paths under product — not deployable source. */
+/** @type {readonly string[]} */
+const PRODUCT_RITUAL_PREFIXES = [
+  'sprints/',
+  'playbooks/',
+  'adr/',
+];
+
 /** @type {readonly string[]} */
 const NON_PRODUCTION_PREFIXES = [
   'docs/',
   'harness/',
   '.harness/engine/',
+  '.harness/rules/',
+  '.harness/scripts/',
+  '.harness/cache/',
+  '.harness/runs/',
+  '.midas/engine/',
   'scripts/',
   'cli/',
 ];
@@ -61,12 +82,48 @@ function isTestPath(path) {
 }
 
 /**
+ * @param {string} norm normalized repo-relative path
+ * @returns {string | null} suffix after product root, or null if not under product
+ */
+function stripProductRoot(norm) {
+  for (const prefix of PRODUCT_ROOT_PREFIXES) {
+    if (norm.startsWith(prefix)) return norm.slice(prefix.length);
+  }
+  return null;
+}
+
+/**
+ * @param {string} suffix path relative to product root
+ * @returns {boolean}
+ */
+function isProductProductionSuffix(suffix) {
+  if (!suffix || suffix.endsWith('.md')) return false;
+  if (isTestPath(suffix)) return false;
+  for (const ritual of PRODUCT_RITUAL_PREFIXES) {
+    if (suffix.startsWith(ritual)) return false;
+  }
+  for (const prefix of PRODUCTION_PREFIXES) {
+    if (suffix.startsWith(prefix)) return true;
+  }
+  const base = suffix.split('/').pop() || suffix;
+  if (PRODUCTION_BASENAME_PATTERNS.some((re) => re.test(base))) return true;
+  if (PRODUCTION_PATH_PATTERNS.some((re) => re.test(suffix))) return true;
+  return false;
+}
+
+/**
  * @param {string} path
  * @returns {boolean}
  */
 export function isProductionPath(path) {
   const norm = normalizePath(path);
   if (norm.endsWith('.md')) return false;
+
+  const productSuffix = stripProductRoot(norm);
+  if (productSuffix !== null) {
+    return isProductProductionSuffix(productSuffix);
+  }
+
   if (isTestPath(norm)) return false;
 
   for (const prefix of NON_PRODUCTION_PREFIXES) {

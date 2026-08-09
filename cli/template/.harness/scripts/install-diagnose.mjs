@@ -38,14 +38,14 @@ export function autonomyDiagnoseHint(dir, stateRaw) {
   if (stage !== 'sprint_execution') return null;
   const capability = join(dir, '.harness', 'autonomy', 'bin', 'midas-autopilot.mjs');
   if (!existsSync(capability)) {
-    return 'Optional bounded sprint ticks: reinstall with --autonomy, then /midas-auto-sprints (or `midas-autopilot setup`).';
+    return 'Optional bounded sprint ticks: reinstall with --autonomy, then /midas-auto-pilot setup (or `midas-autopilot setup`).';
   }
   const policyPath = join(dir, '.harness', 'autonomy', 'policy.yaml');
   if (!existsSync(policyPath)) return null;
   try {
     const policy = readFileSync(policyPath, 'utf8');
     if (/^enabled:\s*false/m.test(policy) || /^mode:\s*disabled/m.test(policy)) {
-      return 'Autonomy installed but disabled — run `node .harness/autonomy/bin/midas-autopilot.mjs setup` or `/midas-auto-sprints`.';
+      return 'Autonomy installed but disabled — run `node .harness/autonomy/bin/midas-autopilot.mjs setup` or `/midas-auto-pilot setup`.';
     }
   } catch {
     return null;
@@ -107,10 +107,12 @@ export function diagnoseProject(targetDir, opts = {}) {
     return {
       status: 'legacy_layout',
       dir,
-      summary: 'A Midas 1.x classic/compact/hub layout was detected; update will not move it.',
-      nextCli: relatedCli(installCmd, 'migrate'),
-      nextSlash: '/midas-reconcile',
-      detail: 'Review the read-only plan, then repeat with --migrate --apply to migrate transactionally.',
+      summary: 'A Midas 1.x classic/compact/hub layout was detected; --update will migrate it to v2 then refresh.',
+      nextCli: `${relatedCli(installCmd, 'update')} --yes`,
+      nextSlash: '/midas-update',
+      detail:
+        'One command: `npx … --update --yes` auto-runs migrate+refresh. ' +
+        'Optional preview: add `--dry-run` (or use explicit `--migrate` then `--migrate --apply`).',
     };
   }
 

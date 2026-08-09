@@ -87,8 +87,8 @@ Tell the user in **one line** exactly what was written/changed and where, so the
 ## When NOT
 
 - One-off preference with no recurrence → skip (say so); do not invent a rule.
-- Dead flows / ledger drift → `/midas-sweep` (hygiene), not capture.
-- Over-engineering delete-list on a diff → `/midas-lean-review`.
+- Dead flows / ledger drift → path-pass `midas-sweep` (hygiene, internal), not capture.
+- Over-engineering delete-list on a diff → path-pass `midas-lean-review` (internal).
 - Full knowledge pack move between repos → `/midas-bundle`.
 - User has not confirmed the proposal → do not write.
 

@@ -48,3 +48,24 @@ export function stripEngineOnlySkills(skillsRoot, fs, path) {
   }
   return removed;
 }
+
+/**
+ * Remove ADR-013 host-picker exclusions (internal + deprecated) from a skills mirror root.
+ * Canonical bodies remain under harness/skills (or engine/skills) for path-pass.
+ * @param {string} skillsRoot
+ * @param {{ existsSync: (p: string) => boolean, rmSync: (p: string, o: object) => void, readdirSync?: Function }} fs
+ * @param {{ join: (...parts: string[]) => string }} path
+ * @param {Iterable<string>} excludedNames
+ * @returns {string[]}
+ */
+export function stripHostPickerExcludedSkills(skillsRoot, fs, path, excludedNames) {
+  const removed = [];
+  if (!fs.existsSync(skillsRoot)) return removed;
+  for (const name of excludedNames) {
+    const abs = path.join(skillsRoot, name);
+    if (!fs.existsSync(abs)) continue;
+    fs.rmSync(abs, { recursive: true, force: true });
+    removed.push(name);
+  }
+  return removed;
+}

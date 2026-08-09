@@ -1,20 +1,21 @@
 ---
 name: midas-improve-loop
-description: "Deprecated alias — use /midas-auto-pilot for continuous local product evolve. Not /midas-auto-sprints."
+description: "Deprecated alias — forwards to /midas-auto-pilot (unified autonomy guide). Not a separate loop."
 user-invocable: true
 disable-model-invocation: true
+user-surface: deprecated
 model: inherit
 harness-tier: build
 recommended-model: claude-sonnet-4-6
-argument-hint: "[pr|code|local|cloud|stop] [interval]"
+argument-hint: "[pr|code|local|cloud|stop|setup|status|dry-run|tick|resume] [interval]"
 ---
 
-# midas-improve-loop — renamed
+# midas-improve-loop — alias → `/midas-auto-pilot`
 
 > **Guard:** `<paths.engine>/templates/skill-state-ritual.md` + `AGENTS.md` § Safety.
 
-**Verdict:** `redirect` — use **`/midas-auto-pilot`** (same args). Not `/midas-auto-sprints`.
+**Forward:** execute the **`/midas-auto-pilot`** procedure with the **same arguments** (Mode gate / delivery gate / L3 sprint path as that skill defines). Never auto-`tick` from chat.
 
 ## Tier & delegation
 
-- **Dispatch:** redirect only → **build**. No tick, no `/loop` from this stub.
+- **Dispatch:** forward only → **build**. Same caps as `/midas-auto-pilot`.

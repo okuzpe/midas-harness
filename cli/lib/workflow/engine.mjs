@@ -13,21 +13,29 @@ import { confirm, isInteractive } from '../prompt.mjs';
 import { emitPhase, emitResult, buildResultEnvelope } from '../report/render.mjs';
 
 /**
+ * `--update` is the single refresh command: on a 1.x classic/compact/hub install it
+ * promotes to migrate (+apply unless --dry-run). Explicit `--migrate` stays available.
  * @param {import('../cli/args.mjs').InstallCommand} cmd
- * @param {{
- *   template: string,
- *   bundledVersion: string,
- *   installCmd: string,
- *   execute: (cmd: import('../cli/args.mjs').InstallCommand, hooks: object) => Promise<{
- *     ok: boolean,
- *     message?: string,
- *     verify?: object,
- *     written?: string[],
- *     skipped?: string[],
- *     error?: Error,
- *   }>,
- * }} deps
+ * @param {string} targetDir
  */
+export function resolveRefreshCommand(cmd, targetDir) {
+  if (cmd.command !== 'update') return { cmd, promoted: false, fromLayout: null };
+  const legacy = detectLegacyLayout(targetDir);
+  if (!legacy || legacy === 'harness' || legacy === 'conflict') {
+    return { cmd, promoted: false, fromLayout: legacy };
+  }
+  return {
+    cmd: {
+      ...cmd,
+      command: 'migrate',
+      // dry-run stays preview-only; otherwise apply (same as --migrate --apply)
+      apply: !cmd.dryRun,
+    },
+    promoted: true,
+    fromLayout: legacy,
+  };
+}
+
 export async function runInstaller(cmd, deps) {
   const target = resolve(process.cwd(), cmd.target);
   const json = !!cmd.json;
@@ -40,6 +48,15 @@ export async function runInstaller(cmd, deps) {
     if (json) emitResult(step.envelope, { json: true });
     else console.log(step.envelope.message);
     return step.exitCode;
+  }
+
+  const resolved = resolveRefreshCommand(cmd, target);
+  cmd = resolved.cmd;
+  if (resolved.promoted && !json) {
+    const tip = cmd.dryRun
+      ? `1.x ${resolved.fromLayout} layout — --update --dry-run shows the migrate preview (no writes)`
+      : `1.x ${resolved.fromLayout} layout — --update will migrate to v2 then refresh (same as --migrate --apply)`;
+    console.error(`create-midas: ${tip}`);
   }
 
   const ctx = detectContext(target);
@@ -230,7 +247,7 @@ function gatherRequirements(cmd, ctx, deps) {
     out.push({
       id: 'layout',
       ok: false,
-      message: 'v2 writes only --layout=harness. Existing classic/compact/hub installs must use --migrate first.',
+      message: 'v2 writes only --layout=harness. Existing classic/compact/hub installs: use --update (auto-migrates) or --migrate --apply.',
     });
   } else {
     out.push({ id: 'layout', ok: true, message: 'layout=harness' });
@@ -250,7 +267,7 @@ function gatherRequirements(cmd, ctx, deps) {
       ok: !legacy || legacy === 'harness',
       message: (!legacy || legacy === 'harness')
         ? 'canonical v2 layout'
-        : `this is a Midas 1.x layout; --update never relocates files. Preview: ${deps.installCmd.replace(/ --tools=\S+/, '')} --migrate`,
+        : `layout conflict or unexpected 1.x markers — resolve partial migration, then: ${deps.installCmd.replace(/ --tools=\S+/, '')} --update --yes`,
     });
   }
 

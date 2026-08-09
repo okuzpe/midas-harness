@@ -71,17 +71,17 @@ here; the **independent** verdict is always Phase 8 (the producer never grades i
 
 | Step | Command / ritual | Who | When |
 |---|---|---|---|
-| 1 Kickoff | `/start-sprint` | orchestrate | Sprint `planned` → `active`; pre-sprint drift audit + working plan |
-| 2 Build | implement tasks (+ optional `/midas-qa`) | build | Per-task inner loop; Context7 before third-party APIs |
+| 1 Kickoff | `/start-sprint` (+ path-pass STM `midas-progress`) | orchestrate | Sprint `planned` → `active`; pre-sprint drift audit + working plan |
+| 2 Build | implement tasks (+ optional path-pass `midas-qa`) | build | Per-task inner loop; Context7 before third-party APIs |
 | 3 UI proof | `/midas-verify` | scout/build | Web/mobile acceptance journeys before close (`--scope` per architecture) |
-| 4 Hygiene (optional) | `/midas-sweep` | scout | Large/messy diffs — `/midas-status` may suggest |
+| 4 Hygiene (optional) | path-pass `midas-sweep` (often via `/close-sprint`) | scout | Large/messy diffs — `/midas-status` may suggest |
 | 5 Security (optional) | `/midas-security-audit` | orchestrate | Informational; does not advance gates |
-| 6 Gate | `/close-sprint` | orchestrate | Formal Phase-8 audit; freezes `{runs}/audits/audit-NN.md` |
+| 6 Gate | `/close-sprint` (path-pass diff-gates / lean / sweep as needed) | orchestrate | Formal Phase-8 audit; freezes `{runs}/audits/audit-NN.md` |
 | 7 Continue | `/start-sprint` or `shipped` | orchestrate | Next sprint or MVP complete |
 
 Optional **standing** audits (`/midas-tribunal`, `/midas-security-audit`) inform humans but never
 substitute for `/close-sprint`. Session continuity: `/midas-recall` + `{runs}/sprints/NN-progress.md`
-(STM); `/midas-progress` updates STM during long sprints.
+(STM); path-pass `midas-progress` (internal surface, ADR-013) updates STM during long sprints.
 
 ## Entry points — the maturity spectrum
 
@@ -128,11 +128,12 @@ cost-aware (a multi-agent Opus debate), it stays optional and non-advancing by d
 
 ## Standing hygiene — the sweep
 Beyond sync (`/midas-doctor`) and adversarial debate (`/midas-tribunal`), Midas offers an on-demand
-**hygiene pass**: `/midas-sweep`. It hunts **dead flows** (routes nothing reaches, playbooks whose
-triggers never fire), **orphans** (unimported modules, stale doc links), and **ledger drift**
-(`{product}/features.json`, roadmap sprints, open questions vs `{product}/idea.md`). It reports first;
-`--fix` applies only safe cleanups the human explicitly approves. Findings freeze to
-`{runs}/sweeps/sweep-NN.md`.
+**hygiene pass** via the internal skill `midas-sweep` (ADR-013). Prefer **path-pass** from
+`/close-sprint`, `/midas-adopt`, or Phase 6 prep — not a peer menu command. It hunts **dead flows**
+(routes nothing reaches, playbooks whose triggers never fire), **orphans** (unimported modules, stale
+doc links), and **ledger drift** (`{product}/features.json`, roadmap sprints, open questions vs
+`{product}/idea.md`). It reports first; `--fix` applies only safe cleanups the human explicitly
+approves. Findings freeze to `{runs}/sweeps/sweep-NN.md`. Power-users may still type `/midas-sweep`.
 
 Recommended checkpoints — `/midas-status` may surface them; skipping is fine:
 
@@ -158,7 +159,7 @@ a human must approve before the harness advances. Each is recorded on disk so a 
 | Phase 5 / Phase 8 | Every **rule amendment** — changing a frozen rule is a conscious choice, never silent | the rule file's `## Amendment` entry (date + who) |
 | Phase 8 — Scope drift | Accepting or deferring a feature outside MVP scope | `{runs}/audits/audit-NN.md` § scope reconciliation |
 | Any time | **Applying** `/midas-tribunal` findings (it only reports; the human decides what to act on) | the follow-up that consumes `{runs}/debates/debate-NN.md` |
-| Any time | **Applying** `/midas-sweep` fixes (especially deletes and ledger edits) | the human's explicit OK + `{runs}/sweeps/sweep-NN.md` |
+| Any time | **Applying** path-pass `/midas-sweep` fixes (especially deletes and ledger edits) | the human's explicit OK + `{runs}/sweeps/sweep-NN.md` |
 | Ship | Declaring the MVP done when success metrics are met | the final `{runs}/audits/audit-NN.md` + `stage: shipped` |
 | Always | **Committing / pushing** code — only when the human explicitly asks (see `rules/git-commits.md`) | git history |
 
