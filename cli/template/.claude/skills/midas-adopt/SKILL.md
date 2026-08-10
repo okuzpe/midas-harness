@@ -35,8 +35,8 @@ Step outline (Steps 0–6):
 - **Step 2 — Infer de-facto architecture** (orchestrate): write `{product}/architecture.md` (as-built) + ADRs.
 - **Step 3 — Reverse-engineer rules** (brownfield keystone): derive `<paths.rules>/*` + `{product}/conventions.md` from real code; log violations as debt.
 - **Step 4 — Backfill product context:** write `{product}/idea.md` (document-existing mode); infer → SHOW → confirm; tag conflicts **DISPUTED**.
-- **Step 4b — Dead-flow hygiene:** path-pass `<paths.engine>/skills/midas-sweep/SKILL.md` at
-  `--depth quick` (optional; user may skip; internal surface ADR-013)
+- **Step 4b — Dead-flow hygiene:** prefer `/midas-hygiene` (or path-pass
+  `<paths.engine>/skills/midas-hygiene/SKILL.md`) at quick depth (optional; user may skip)
   before the baseline audit — canonical indexed pass per `<paths.engine>/rules/hygiene.md`. If skipped,
   run a light inline index (orphan routes, duplicate utilities, `open-questions.md` drift) and record
   findings in adoption notes; reconcile obvious drift before Step 5.
@@ -55,9 +55,8 @@ Step outline (Steps 0–6):
 
 - Fresh empty repo / no real codebase yet → `/midas-init` (greenfield track).
 - Install/version/cwd confusion → `/midas-reconcile` first.
-- Already adopted (`mode: brownfield` + inventory present) and only need hygiene → path-pass
-  `midas-sweep` (or type `/midas-sweep` as power-user).
-- Engine upgrade on an installed project → `/midas-update`.
+- Already adopted (`mode: brownfield` + inventory present) and only need hygiene → `/midas-hygiene`.
+- Engine upgrade on an installed project → `/midas-init` (tips CLI `--update`).
 
 ## Tier & delegation
 Inventory + evidence → **scout** (`midas-scout`). Architecture inference, rule derivation, baseline audit, and

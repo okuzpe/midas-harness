@@ -123,7 +123,7 @@ pinned releases) and installer-safety notes are in **[INSTALL.md](./INSTALL.md)*
 | **Core** | drive any project through the lifecycle | `/midas-init` · `/midas-status` · the phase commands (`/idea-intake` → `/close-sprint`) · `/midas-doctor` |
 | **Brownfield** | adopt Midas into an existing repo | `/midas-adopt` |
 | **Advanced** | deeper audits & scale | `/midas-tribunal` · `/midas-security-audit` · `/midas-verify` · `/midas-investigate` · `/midas-reconcile` · `/midas-init --monorepo` · `/midas-bundle` · `/midas-recall` · `/midas-capture` · `/midas-retro` · `/midas-auto-pilot` · `/midas-design` |
-| **Maintenance** | keep an install current | `/midas-update` · `/midas-doctor` · `/midas-align` |
+| **Maintenance** | keep an install current / clean the product repo | `/midas-init` (version tip) · `/midas-hygiene` · `/midas-doctor` · `/midas-align` |
 
 Most users only need **Core** (+ `/midas-adopt` for an existing repo). Everything else is opt-in.
 
@@ -181,7 +181,7 @@ the CI fixture at [`scripts/fixtures/product-closed/`](./scripts/fixtures/produc
 gate records and bundle export coverage.
 
 ## Status
-**Stable v2** — thin-root default (Cursor) + skill quality gate + `--update --tools` prune. Most complete on **Claude Code**
+**Stable release** — thin-root default (Cursor) + skill quality gate + `--update --tools` prune. Most complete on **Claude Code**
 (see [Honest scope](#supported-tools)). Current version: [`harness/VERSION`](./harness/VERSION). Details: [`CHANGELOG.md`](./CHANGELOG.md) ·
 [`VERSIONING.md`](./VERSIONING.md) · [docs site](https://okuzpe.github.io/midas-harness/).
 

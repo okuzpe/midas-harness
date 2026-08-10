@@ -32,7 +32,7 @@ Keep the reply **≤8 lines** (≤6 when intent + delivery known). No autonomy l
 
 - No install / no `paths.state` → `/midas-reconcile` or install (`INSTALL.md`).
 - No product context (evolve path) → `/midas-init` or `/midas-adopt` first.
-- Sprint path without `.harness/autonomy/` → `--autonomy` via `/midas-update`.
+- Sprint path without `.harness/autonomy/` → `--autonomy` via `/midas-init` (tips pinned `--update --autonomy`).
 - Phase-8 gate verdict → `/close-sprint`.
 - Laptop will sleep / Cursor will quit → evolve `cloud` mode; local `/loop` dies with the session.
 
@@ -60,7 +60,7 @@ If **unset**, AskQuestion **once** (exact labels, this order):
 1. **Continuous product evolve** — discover/fix on a schedule (`/loop` or cloud)
 2. **Sprint checklist ticks** — next code task via ADR-009 CLI (needs `--autonomy`)
 3. **Stop local evolve loop**
-4. **Sprint status / dry-run** — read-only ADR-009 orient; if no `.harness/autonomy/` → `blocked` + point to `--autonomy` / `/midas-update`
+4. **Sprint status / dry-run** — read-only ADR-009 orient; if no `.harness/autonomy/` → `blocked` + point to `--autonomy` / `/midas-init`
 
 After answer: set Intent; for (1) continue evolve (B0+); for (2) open L3 setup path; for (3) §D stop; for (4) L3 §B status/dry-run. Do **not** run evolve tick or arm `/loop` until intent is `evolve` and delivery known.
 

@@ -33,8 +33,8 @@ transition after that.
 ## Schema
 
 ```yaml
-midas_version: 2.9.5      # engine version that wrote this file (for /midas-update)
-layout: harness                # the only writable v2 layout; v1 layouts are read/migrate-only
+midas_version: 2.9.6      # engine version that wrote this file (for /midas-init version tip)
+layout: harness                # the only writable layout; classic/compact/hub are read/migrate-only
 paths:
   root: .harness
   engine: .harness/engine

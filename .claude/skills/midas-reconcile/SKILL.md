@@ -17,7 +17,7 @@ argument-hint: "[project-root]"
 
 Use when:
 - `npx ... --update` failed with "no existing Midas install"
-- You are not sure whether to run `/midas-init`, `/midas-adopt`, or `/midas-update`
+- You are not sure whether to run `/midas-init` or `/midas-adopt`
 - You might be in a subfolder instead of the project root
 
 ## Procedure
@@ -55,7 +55,7 @@ Do not invent a different command unless the script is missing (fallback below).
 | No `.harness/engine/VERSION`, `harness/VERSION`, or `.midas/engine/VERSION` | `npx github:okuzpe/midas-harness#v{VERSION} --tools=cursor` then `/midas-init` |
 | `harness/VERSION` or `.midas/engine/VERSION` exists but canonical engine does not | `npx …#v{VERSION} --update --yes` (auto-migrates 1.x) |
 | Engine present, `setup_complete: false` | `/midas-init` |
-| v2 `midas_version` ≠ engine `VERSION` | Same: `npx …#v{VERSION} --update --yes` (or `/midas-update` as a thin guide) |
+| v2 `midas_version` ≠ engine `VERSION` | Same: `npx …#v{VERSION} --update --yes` (or `/midas-init` for the tip) |
 | Parent dir has Midas, this folder does not | `cd` to parent; `/midas-status` |
 | Otherwise | `/midas-status` |
 
@@ -63,9 +63,9 @@ Do not invent a different command unless the script is missing (fallback below).
 
 | Command | Role |
 |---------|------|
-| `/midas-reconcile` | **Which command next?** (install/setup/version/cwd) |
+| `/midas-reconcile` | **Which command next?** (install/setup/version/cwd) — read-only |
 | `/midas-status` | **Which phase next?** (after setup is complete) |
-| `/midas-update` | Thin guide to `npx … --update` |
+| `/midas-init` | **Do setup / tip update** — diagnose then intake or CLI tip |
 | Install CLI | Source of truth for install / update / migrate / uninstall / diagnose |
 
 ## Exit gate

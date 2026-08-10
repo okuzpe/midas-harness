@@ -1,4 +1,4 @@
-# Migration — unified `/midas-auto-pilot` (v2.9.5)
+# Migration — unified `/midas-auto-pilot`
 
 Editor slash unification for continuous evolve + ADR-009 sprint checklist guide.
 **Controller CLI unchanged:** `node .harness/autonomy/bin/midas-autopilot.mjs`.

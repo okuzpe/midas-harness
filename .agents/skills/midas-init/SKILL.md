@@ -1,6 +1,6 @@
 ---
 name: midas-init
-description: "One-time adaptive setup — scan repo, classify maturity, pre-fill artifacts, ask gap-only questions, place at the right phase; optional --monorepo. Use when the user explicitly runs /midas-init on a fresh or incomplete install."
+description: "Onboarding entry — diagnose install/setup/version, tip install or pinned --update, or run one-time adaptive intake (optional --monorepo). Use when starting a project, setup_complete is false, or engine is behind."
 metadata:
   midas-argument-hint: "[--monorepo] [--dry-run]"
   midas-disable-model-invocation: true
@@ -9,45 +9,75 @@ metadata:
   midas-model: inherit
   midas-recommended-model: claude-opus-4-8
   midas-user-invocable: true
+  midas-user-surface: primary
 ---
-# midas-init — adaptive intake (one-time setup)
+# midas-init — install / setup / update tip
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
-> **Precondition:** `setup_complete` must not already be `true` (except `--monorepo`). Wrong state → stop.
+> **Surface:** `primary` — single human entry for onboarding. `/midas-update` is a deprecated alias here.
+> **SoT for install shape:** `node <paths.scripts>/install-diagnose.mjs` (or `npx github:okuzpe/midas-harness --diagnose`). Do **not** re-implement detection in the model.
+
+One slash: detect where the project is, then tip the install CLI, run one-time setup, or tip a pinned `--update`.
 
 ## Does / Does not
 
 | Does | Does not |
 |---|---|
-| Scan, classify, pre-fill, place at correct phase | Run when `setup_complete: true` (except `--monorepo`) |
-| One batched `AskUserQuestion` for genuine gaps | Silently bake inferred values — always infer → SHOW → confirm |
-| Set `setup_complete: true` on full intake | Overwrite content outside `<!-- midas:begin -->` … `<!-- midas:end -->` |
+| Run diagnose and branch on status | Invent a parallel install/update plan |
+| Run adaptive intake when `setup_pending` | Run intake when **not installed** (no engine on disk) |
+| Tip exact CLI for install or `--update` | Run `npx --update` without the human typing it |
+| Honor `--monorepo` / `--dry-run` on intake path | Replace `/midas-reconcile` (read-only “which command?”) |
 
-**Decision tree:**
-- `setup_complete: true` + `--monorepo` → **Phase F only**; do not flip `setup_complete`; point at `/midas-status`.
-- `setup_complete: true` without `--monorepo` → **STOP**; point at `/midas-status`.
-- Otherwise → full intake; set `setup_complete: true`; tell user: *"Setup complete — from here, just use `/midas-status`; you won't need `/midas-init` again (except `--monorepo` wiring)."*
+## Procedure
 
-**Flow:** SCAN → CLASSIFY → TRACK → PRE-FILL → SHOW + ASK → GENERATE → [MONOREPO] → `setup_complete: true`. **Never write a secret to disk.**
+### 0. Diagnose (always)
 
-## Full procedure
+```bash
+node <paths.scripts>/install-diagnose.mjs
+# if scripts missing:
+npx github:okuzpe/midas-harness --diagnose
+```
 
-Follow **`<paths.engine>/pipeline/init-adaptive.md`** for the complete Phase A–F bodies
+Statuses: `not_installed` | `legacy_layout` | `setup_pending` | `version_behind` | `nested_or_wrong_cwd` | `ready`
+
+### 1. Branch (exact)
+
+| Status | Action |
+|---|---|
+| `not_installed` | Print diagnose `nextCli` (**install**, never `--update`). Say: *Install first, then re-run `/midas-init`.* **STOP** — do not start intake. |
+| `setup_pending` | Continue to **§ Intake** below (init-adaptive A–F). Forward `--monorepo` / `--dry-run`. |
+| `version_behind` / `legacy_layout` | Print diagnose `nextCli` (pinned `--update`). Optionally mention dry-run. **Allowed even when `setup_complete: true`.** Do not invent a copy plan. **STOP** after the tip. |
+| `nested_or_wrong_cwd` | Print detail; ask human to `cd` to project root; **STOP**. |
+| `ready` | Onboarding complete — *👉 Run `/midas-status`*. If args include `--monorepo`, run **Phase F only** (see init-adaptive); do not flip `setup_complete`. Otherwise **STOP**. |
+
+### 2. Intake (`setup_pending` only)
+
+Follow **`<paths.engine>/pipeline/init-adaptive.md`** for Phase A–F bodies
 (SCAN, CLASSIFY, TRACK, PRE-FILL, SHOW+ASK, GENERATE, MONOREPO).
+
+**Intake decision tree (within setup_pending / generate path):**
+- Full intake → set `setup_complete: true`; tell user: *"Setup complete — from here, just use `/midas-status`. For later engine refresh, `/midas-init` will tip `--update`."*
+- `--monorepo` alone when already complete is handled under `ready` above.
+
+**Never write a secret to disk.** Prefer infer → SHOW → confirm for gaps.
 
 ## When NOT
 
-- `setup_complete: true` without `--monorepo` → `/midas-status` (do not re-init).
-- Confused install/version/cwd → `/midas-reconcile` first.
-- Existing codebase needing brownfield inventory mid-pipeline → often `/midas-adopt` (init may route there).
-- Engine upgrade on an already-set-up project → `/midas-update`.
+- Only want a **read-only** “which command?” print → `/midas-reconcile`.
+- Deep brownfield inventory mid-pipeline → `/midas-adopt` (intake may still route there).
+- Adapter drift with setup already complete and versions aligned → `/midas-doctor`.
+- Product dead flows → `/midas-hygiene`.
 
 ## Exit gate
-- [ ] Files written / confirmed per init-adaptive; secrets never written to disk.
-- [ ] Maturity + placement stated; `setup_complete: true` after full intake (not on `--monorepo`-only).
-- [ ] Single next action named (usually `/midas-status`); optional `/midas-recall phase`.
-- [ ] `--monorepo` path: Phase F only; does not flip `setup_complete` when already true.
+
+- [ ] Diagnose status named; branch matched the table above.
+- [ ] `not_installed` / wrong cwd → stopped without intake.
+- [ ] `setup_pending` → intake completed per init-adaptive (or `--monorepo` Phase F when applicable).
+- [ ] Update path → human given exact CLI; model did not shadow the installer.
+- [ ] Single next action named.
 
 ## Tier & delegation
-Scan → **scout** (`midas-scout`). Classification + adoption → **orchestrate** (`midas-orchestrator`).
-Pre-fill drafts → **build** (`midas-builder`). Respect `cost_profile`.
+
+- Diagnose + branch judgment → **orchestrate** (`midas-orchestrator`).
+- Intake produce legs → **build** / **scout** as init-adaptive defines.
+- Respect `cost_profile`.

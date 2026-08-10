@@ -50,3 +50,6 @@ human catalog filter.
 - **2026-08-10** — Implemented host-mirror filter (omit internal/deprecated from discovery trees);
   scrubbed README / getting-started / methodology / adopt / When NOT peers; renamed stage-table
   `qa_adhoc` → `qa_internal` (path-pass only).
+- **2026-08-10** — Product hygiene primary `/midas-hygiene` (path-pass sweep `product` + lean);
+  `/midas-update` deprecated → `/midas-init` (single setup/update tip entry). Diagnose `nextSlash`
+  → `/midas-init`. No `/midas-onboard`. See `harness/migrations/hygiene-init-entry.md`.

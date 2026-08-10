@@ -89,7 +89,7 @@ mutate vendor agent files.
 
 - Full engine propagation matrix / VERSION bump judgment → `/midas-align` (engine maintainers).
 - Install missing / wrong cwd / version behind → `/midas-reconcile` first.
-- Engine content migration across versions → `/midas-update`.
+- Engine content migration across versions → `/midas-init` (diagnose tips pinned `--update`).
 - Pipeline orientation only → `/midas-status`.
 
 ## Tier & delegation

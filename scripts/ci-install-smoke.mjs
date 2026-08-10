@@ -15,7 +15,7 @@ if (!known.has(host)) {
 }
 
 const root = resolve(import.meta.dirname, '..');
-const parent = mkdtempSync(join(tmpdir(), 'midas-v2-ci-'));
+const parent = mkdtempSync(join(tmpdir(), 'midas-harness-ci-'));
 const target = join(parent, `project with spaces ${host}`);
 const run = (args) => spawnSync(process.execPath, args, {
   cwd: root,

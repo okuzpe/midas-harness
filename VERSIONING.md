@@ -75,16 +75,18 @@ midas_version: 2.0.0   # engine version that wrote or last migrated this file
 
 ---
 
-## Migration: `/midas-update` and `--migrate`
+## Migration: CLI `--update` and `--migrate`
 
 - **Already on v2 (`.harness/`)** — `npx github:okuzpe/midas-harness#v{VERSION} --update`
-  (pin from `harness/VERSION`; optional `--tools=…` to prune hosts) **or** skill `/midas-update`
-  for diff-confirm (pick one — not both).
-  CLI update is complete when it prints `verify: ok`.
+  (pin from `harness/VERSION`; optional `--tools=…` to prune hosts) **or** `/midas-init` when
+  diagnose reports `version_behind` / `legacy_layout` (tips the same CLI — pick one, not both).
+  Deprecated `/midas-update` forwards to `/midas-init`. CLI update is complete when it prints
+  `verify: ok`.
 - **Still on v1 classic/compact/hub** — `npx … --migrate` (preview) then `--migrate --apply`.
   `--update` never relocates a v1 tree (ADR-007).
 
-Migration notes for breaking versions live in `harness/migrations/vX.Y.md` when cut.
+Migration notes for breaking versions live in `harness/migrations/<slug>.md` when cut (see index in
+`harness/migrations/README.md`).
 
 ---
 
@@ -92,7 +94,7 @@ Migration notes for breaking versions live in `harness/migrations/vX.Y.md` when 
 
 | Surface | Freeze criterion |
 |---------|------------------|
-| Writable install layout | `layout: harness` only (`.harness/`); v1 layouts = migrate inputs |
+| Writable install layout | `layout: harness` only (`.harness/`); classic/compact/hub = migrate inputs |
 | Thin-root allowlist | ADR-008 — host discovery at root; engine under `.harness/` |
 | Ownership roles | `vendor` / `generated` / `user` in `.harness/manifest.json` |
 | `paths.state` schema | Required keys + stage enum stable; additive optional fields only in MINOR |

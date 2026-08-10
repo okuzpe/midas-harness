@@ -23,29 +23,29 @@ CLI `midas-autopilot.mjs` unchanged).
 
 ## One command (recommended)
 
-Run **inside the project** you want to add Midas to. v2 has one installed layout: engine, scripts,
+Run **inside the project** you want to add Midas to. There is one installed layout: engine, scripts,
 product artifacts, rules, runs, state, cache, and migration metadata live under `.harness/`.
 Only host-required discovery surfaces stay at the repo root.
 
-**Prefer a pinned release** (matches `harness/VERSION` — currently **v2.9.5**):
+**Prefer a pinned release** (matches `harness/VERSION` — currently **v2.9.6**):
 
 **macOS / Linux**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash
-# shim defaults to github:okuzpe/midas-harness#v2.9.5
+# shim defaults to github:okuzpe/midas-harness#v2.9.6
 ```
 
 **Windows (PowerShell)**
 ```powershell
 irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | iex
-# shim defaults to #v2.9.5
+# shim defaults to #v2.9.6
 ```
 
 **Any platform, no shell script** (works with every package manager):
 ```bash
-npx  github:okuzpe/midas-harness#v2.9.5   # recommended — pinned
-pnpm dlx github:okuzpe/midas-harness#v2.9.5
-bunx github:okuzpe/midas-harness#v2.9.5
+npx  github:okuzpe/midas-harness#v2.9.6   # recommended — pinned
+pnpm dlx github:okuzpe/midas-harness#v2.9.6
+bunx github:okuzpe/midas-harness#v2.9.6
 ```
 
 Bleeding-edge (mutable `main`, not for production):
@@ -68,9 +68,9 @@ or `MIDAS_INSTALL_REF` overrides the tag.
   default to **cursor**. On **`--update`**, when passed, rewrites `state.yaml` `tools:` and prunes
   orphan Midas host mirrors/adapters; omit it to keep the existing tools list.
 - `--force` — overwrite files that already exist (default: skip them).
-- `--migrate` — optional preview for a v1 classic/compact/hub install (`--update --dry-run` also previews).
+- `--migrate` — optional preview for a classic/compact/hub install (`--update --dry-run` also previews).
 - `--migrate --apply` — apply that plan (usually unnecessary — `--update` auto-migrates 1.x).
-- `--update` — refresh to this package version; auto-migrates 1.x then refreshes v2.
+- `--update` — refresh to this package version; auto-migrates 1.x then refreshes the harness layout.
 - `--diagnose` — read-only; print install state and the **single next command** (no writes). Works even
   when Midas is not installed yet.
 - `--dry-run` — plan only for install / update / uninstall (writes nothing). Prints the lifecycle plan.
@@ -80,15 +80,16 @@ or `MIDAS_INSTALL_REF` overrides the tag.
 - a positional `target-dir` — install into that directory instead of the current one.
 
 **Lifecycle (deterministic CLI):** requirements → checks → ordered plan → confirm → execute → verify →
-result (or rollback). `/midas-update` and `/midas-reconcile` are thin guides; they do not re-plan
-installs in the model.
+result (or rollback). `/midas-init` (when diagnose says version/layout behind) and `/midas-reconcile`
+are thin guides to the CLI; they do not re-plan installs in the model. Deprecated `/midas-update`
+forwards to `/midas-init`.
 
 Post-install doctor: `node .harness/scripts/doctor.mjs --strict`.
 
 Examples:
 ```bash
 npx github:okuzpe/midas-harness --tools=cursor --dry-run --json   # plan only
-npx github:okuzpe/midas-harness#v2.9.5 --update --yes             # refresh in CI
+npx github:okuzpe/midas-harness#v2.9.6 --update --yes             # refresh in CI
 npx github:okuzpe/midas-harness --diagnose --json                 # status envelope
 ```
 
@@ -246,7 +247,7 @@ irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | ie
 
 **Any platform (npx):**
 ```bash
-npx github:okuzpe/midas-harness#v2.9.5 --update --yes
+npx github:okuzpe/midas-harness#v2.9.6 --update --yes
 ```
 
 Preview: add `--dry-run`. Explicit `--migrate` / `--migrate --apply` remain available.
@@ -255,7 +256,7 @@ Preview: add `--dry-run`. Explicit `--migrate` / `--migrate --apply` remain avai
 
 | Situation | Terminal | Then in Cursor |
 |-----------|----------|----------------|
-| **Never installed Midas** | `npx github:okuzpe/midas-harness#v2.9.5 --tools=cursor` | `/midas-init` |
+| **Never installed Midas** | `npx github:okuzpe/midas-harness#v2.9.6 --tools=cursor` | `/midas-init` |
 | **`--update` said "no existing install"** | Same as above — **drop `--update`** | `/midas-init` |
 | Installed, first time in editor | — | `/midas-init` |
 | Installed, `setup_complete: true` | — | `/midas-status` |
@@ -267,26 +268,26 @@ Preview: add `--dry-run`. Explicit `--migrate` / `--migrate --apply` remain avai
 
 ## Updating an existing install
 
-**Prefer the [Always refresh](#always-refresh-one-command) one-liner.** `--update` refreshes v2 **and**
+**Prefer the [Always refresh](#always-refresh-one-command) one-liner.** `--update` refreshes the harness layout **and**
 auto-migrates 1.x (classic/compact/hub) in one shot.
 
-**`--update` and `/midas-update` are alternatives, not a sequence.** The CLI path is complete when it
-prints `verify: ok — adapters in sync`. Use `/midas-update` only when you want an interactive
-dry-run and confirm before the same refresh runs.
+**`--update` and `/midas-init` (version_behind path) are alternatives, not a sequence.** The CLI
+path is complete when it prints `verify: ok — adapters in sync`. Use `/midas-init` when you want
+diagnose + an interactive tip before the same refresh; deprecated `/midas-update` forwards there.
 
-On a v2 install, **`--update`** refreshes manifest-owned engine/generated files, re-renders adapters
+On a harness-layout install, **`--update`** refreshes manifest-owned engine/generated files, re-renders adapters
 and skill mirrors, prunes orphan host trees, and runs strict doctor before it finishes. On a 1.x
 layout it migrates transactionally to `.harness/` first, then does the same refresh. It preserves
 product, rules, runs, state, MCP, and content outside generated markers. Pass **`--tools=…`** to
 change the host set and prune unused adapters.
 
 **npm 11+ / explicit bin (optional):** the published package exposes one CLI bin (`midas`). The short
-`npx github:okuzpe/midas-harness#v2.9.5 --tools=cursor` form works on current releases. If npm reports
+`npx github:okuzpe/midas-harness#v2.9.6 --tools=cursor` form works on current releases. If npm reports
 `could not determine executable to run`, name the bin explicitly:
 
 ```bash
-npx -y --package=github:okuzpe/midas-harness#v2.9.5 midas --tools=cursor
-npx -y --package=github:okuzpe/midas-harness#v2.9.5 midas --update --dry-run
+npx -y --package=github:okuzpe/midas-harness#v2.9.6 midas --tools=cursor
+npx -y --package=github:okuzpe/midas-harness#v2.9.6 midas --update --dry-run
 ```
 
 (`midas-autopilot` is installed under `.harness/autonomy/` when you pass `--autonomy`, not as a root npx bin.)
@@ -330,8 +331,8 @@ Related checks (all in `scripts/test.mjs`): `installer:update-honours-tools`,
 Migration is the only operation that moves legacy files. Preview first; it is byte-for-byte read-only:
 
 ```powershell
-npx github:okuzpe/midas-harness#v2.9.5 --migrate
-npx github:okuzpe/midas-harness#v2.9.5 --migrate --apply
+npx github:okuzpe/midas-harness#v2.9.6 --migrate
+npx github:okuzpe/midas-harness#v2.9.6 --migrate --apply
 node .harness/scripts/doctor.mjs --strict
 ```
 
@@ -373,7 +374,7 @@ npx github:okuzpe/midas-harness --uninstall
 - **Keeps your product work** (`.harness/product/`, rules, runs, state) unless you pass `--purge`.
 
 For exact removal of a pinned install, uninstall with the same release:
-`npx github:okuzpe/midas-harness#v2.9.5 --uninstall`.
+`npx github:okuzpe/midas-harness#v2.9.6 --uninstall`.
 
 > Prefer to do it by hand? Delete `.harness/`, generated host mirrors, the marked block in `AGENTS.md`,
 > `.claude/CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`,

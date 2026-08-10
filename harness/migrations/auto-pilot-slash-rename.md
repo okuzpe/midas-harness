@@ -1,4 +1,4 @@
-# Migration — v2.8.2 (auto-pilot / auto-sprints)
+# Migration — auto-pilot slash rename
 
 Slash and evidence-path rename for continuous improve + ADR-009 editor guide.
 **Controller CLI unchanged:** `node .harness/autonomy/bin/midas-autopilot.mjs`.

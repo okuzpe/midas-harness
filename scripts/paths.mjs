@@ -1,6 +1,6 @@
 // paths.mjs — layout-aware path resolver.
 //
-// Installed projects write only the v2 `harness` layout. The v1 layouts remain readable so the
+// Installed projects write only the `harness` layout. Legacy layouts remain readable so the
 // standalone installer can diagnose and migrate them. The engine repository itself intentionally
 // keeps its authored source in `harness/` + `scripts/`.
 
@@ -9,7 +9,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parsePathsBlock } from './yaml-lite.mjs';
 
-/** Fixed evidence subdirs under the runs base. Cache is deliberately separate in v2. */
+/** Fixed evidence subdirs under the runs base. Cache is deliberately separate under the harness layout. */
 export const RUNS_SUBDIRS = ['audits', 'verifications', 'debates', 'sprints', 'sweeps', 'lean', 'retros', 'investigate', 'auto-pilot'];
 
 export const LEGACY_LAYOUTS = ['classic', 'compact', 'hub'];

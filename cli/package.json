@@ -1,6 +1,6 @@
 {
   "name": "create-midas",
-  "version": "2.9.5",
+  "version": "2.9.6",
   "private": true,
   "description": "Install the Midas product-development harness into any project (npm/pnpm/yarn/bun create).",
   "type": "module",
@@ -10,7 +10,7 @@
   "files": [
     "index.mjs",
     "install-diagnose.mjs",
-    "migrate-v2.mjs",
+    "migrate-harness.mjs",
     "lib",
     "template"
   ],

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| **Status** | **historical** — superseded for new installs by [ADR-007](./ADR-007-canonical-harness-layout.md) (canonical `.harness/`). Hub default was ADR-006; classic/compact/hub remain **read/migrate-only** in v2. |
+| **Status** | **historical** — superseded for new installs by [ADR-007](./ADR-007-canonical-harness-layout.md) (canonical `.harness/`). Hub default was ADR-006; classic/compact/hub remain **read/migrate-only** under the harness layout. |
 | **Date** | 2026-06-29 |
 | **Deciders** | maintainer + orchestrate tier |
 | **Context7 verified** | n/a (no third-party library decision) |
@@ -12,7 +12,7 @@
 > `docs/adr/`.
 
 > **Archaeology only.** Do not treat hub/compact as the current default. New installs: ADR-007 +
-> thin-root ADR-008. Intra-v1 moves may still use `scripts/migrate-layout.mjs`; v1→v2 uses
+> thin-root ADR-008. Intra-legacy moves may still use `scripts/migrate-layout.mjs`; legacy→harness uses
 > `npx … --migrate`.
 
 ## Context
@@ -120,7 +120,7 @@ output as named subdirectories).
 
 - **`--update` on a classic install must not half-migrate.** Mitigation: `--update` detects the
   installed layout from disk and refreshes **in place**; relocation only happens via an explicit
-  `--migrate-layout` step (dry-run + diff-confirm, like `/midas-update`), never silently.
+  `--migrate-layout` step (dry-run + diff-confirm, like CLI `--update` / `/midas-init` tip), never silently.
 - **Monorepos** (`/midas-init --monorepo`) assume `harness/state.yaml` per package. Mitigation: the layout
   resolver is applied per package; the migration step is required before monorepo indexing under compact.
 - **Drift between the two layouts in tests.** Mitigation: add a `scripts/test.mjs` matrix that asserts

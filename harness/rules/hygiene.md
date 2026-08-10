@@ -2,8 +2,9 @@
 
 These rules apply from Phase 7 (Sprint Execution) onward and are re-audited each Phase 8. They
 complement [`code-quality.md`](./code-quality.md) (no dead code in the diff) with **project-level**
-hygiene: unreachable flows, ledger drift, and stale harness/docs artifacts. The mechanical pass is
-`/midas-sweep`; Phase 8 grades whether its findings were resolved or consciously deferred.
+hygiene: unreachable flows, ledger drift, and stale product docs. The mechanical pass is
+`/midas-hygiene` (path-passes sweep scope `product` + optional lean); Phase 8 grades whether its
+findings were resolved or consciously deferred.
 
 > **Every item carries a `**CHECK:**`** — the concrete condition the Phase-8 audit evaluates: a
 > command/grep where one exists, or a `manual:` observable when judgment is required (the auditor
@@ -11,11 +12,11 @@ hygiene: unreachable flows, ledger drift, and stale harness/docs artifacts. The 
 
 ## When to sweep
 
-- **Brownfield** (`paths.state` → `mode: brownfield`): run `/midas-sweep all` before the
+- **Brownfield** (`paths.state` → `mode: brownfield`): run `/midas-hygiene` (product scope) before the
   **first** `/close-sprint` after adoption, and again before any sprint close that touched routes,
   navigation, or `{product}/features.json`.
-- **Greenfield**: sweep is **recommended** before `/close-sprint` when the sprint diff is large or
-  added new routes/pages; not required if no sweep was run — unless a prior sweep this cycle reported
+- **Greenfield**: hygiene is **recommended** before `/close-sprint` when the sprint diff is large or
+  added new routes/pages; not required if none was run — unless a prior sweep this cycle reported
   unresolved high-severity findings (see below).
 
 ## Checklist
@@ -57,7 +58,13 @@ hygiene: unreachable flows, ledger drift, and stale harness/docs artifacts. The 
 
 | Tool | Role |
 |---|---|
-| `/midas-sweep` | Produces `{runs}/sweeps/sweep-NN.md` and optional fixes |
-| `/midas-doctor` | Adapter/state sync — not a substitute for sweep |
-| `/close-sprint` | Grades this rule's CHECKs at Phase 8 |
+| `/midas-hygiene` | Primary orchestrator — product sweep + optional lean |
+| `midas-sweep` (internal) | Produces `{runs}/sweeps/sweep-NN.md` (path-pass; prefer scope `product`) |
+| `/midas-doctor` | Adapter/state sync — not a substitute for hygiene |
+| `/close-sprint` | Grades this rule's CHECKs at Phase 8 (Step 0 path-passes hygiene) |
 | `/midas-tribunal` | Strategic *decisions* audit — orthogonal to hygiene |
+
+## Amendment
+
+- **2026-08-10** — Mechanical pass cited as `/midas-hygiene` (product scope); sweep `harness` remains
+  power-user-only, not graded under this product-hygiene rule.

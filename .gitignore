@@ -22,6 +22,7 @@ npm-debug.log*
 .harness/*.hash
 runs/cache/
 runs/*.hash
+runs/test-out*.txt
 
 # Muninn-adapt session/metrics/installer (under cache — already covered by .harness/cache/ and runs/cache/)
 #   session/commit-approved.json

@@ -107,12 +107,13 @@ export function diagnoseProject(targetDir, opts = {}) {
     return {
       status: 'legacy_layout',
       dir,
-      summary: 'A Midas 1.x classic/compact/hub layout was detected; --update will migrate it to v2 then refresh.',
+      summary: 'A Midas 1.x classic/compact/hub layout was detected; --update will migrate it to the harness layout then refresh.',
       nextCli: `${relatedCli(installCmd, 'update')} --yes`,
-      nextSlash: '/midas-update',
+      nextSlash: '/midas-init',
       detail:
         'One command: `npx … --update --yes` auto-runs migrate+refresh. ' +
-        'Optional preview: add `--dry-run` (or use explicit `--migrate` then `--migrate --apply`).',
+        'Optional preview: add `--dry-run` (or use explicit `--migrate` then `--migrate --apply`). ' +
+        'Or run /midas-init in the editor for the same tip.',
     };
   }
 
@@ -134,8 +135,8 @@ export function diagnoseProject(targetDir, opts = {}) {
       nextSlash: '/midas-init',
       detail:
         mode === 'brownfield'
-          ? '/midas-init will scan the repo and may route to /midas-adopt for existing code.'
-          : '/midas-init classifies maturity and places the project at the right phase.',
+          ? '/midas-init runs setup (may route to /midas-adopt for existing code).'
+          : '/midas-init runs one-time setup — classifies maturity and places the project.',
     };
   }
 
@@ -147,9 +148,9 @@ export function diagnoseProject(targetDir, opts = {}) {
       engineVersion,
       summary: `Engine on disk is ${engineVersion} but state.yaml records midas_version ${midasVersion}.`,
       nextCli: formatUpdateCmd({ version: engineVersion }),
-      nextSlash: '/midas-update',
+      nextSlash: '/midas-init',
       detail:
-        'Pick one (not both): `npx ... --update` (full refresh — done when verify ok) or `/midas-update` (interactive confirm that runs the same refresh).',
+        'Pick one (not both): `npx ... --update` (full refresh — done when verify ok) or `/midas-init` (interactive tip that points at the same refresh).',
     };
   }
 

@@ -96,9 +96,9 @@ Puntos de diseño notables (leídos directamente del código, no del README):
 - `writeHarnessVersionStamp` + `runHarnessDoctorHints` — tras instalar/actualizar corre un *doctor* (advertencias, nunca bloqueante) — análogo a `scripts/doctor.mjs` de Midas pero ejecutado automáticamente al final de cada instalación/actualización.
 - `autoDetectReposJson` — heurística para poblar `.ai-flow/context/repos.json` (qué carpetas son repos de producto) en el primer install.
 
-Midas no tiene un equivalente de fusión estructural de config en `cli/index.mjs`/`/midas-update`
-tan granular a nivel de sub-claves anidadas; su `/midas-update` usa **dry-run + diff-confirm** (más
-seguro, pero más manual).
+Midas no tiene un equivalente de fusión estructural de config en `cli/index.mjs` tan granular a
+nivel de sub-claves anidadas; su refresh usa CLI `--update` (**dry-run + confirm**; tip vía
+`/midas-init` cuando diagnose reporta version/layout behind) — más seguro, pero más manual.
 
 ### 2.3 El motor `.cursor/` — skills
 
@@ -402,8 +402,9 @@ El propio repositorio del harness usa `fixtures/workspace-stale/` — un workspa
 que simula una instalación pre-v0.4.5 (fila `AGENTS.md` obsoleta, comandos slash incompletos,
 `config.yml` sin las sub-claves anidadas más recientes) — para que `test_muninn_update.py` verifique
 que `update` fusiona sin destruir personalizaciones del usuario. Es una práctica de testing que Midas
-no replica hoy para su propio `/midas-update`: no hay un *fixture* de "instalación vieja" versionado
-en el repo del motor que pruebe la migración de forma determinista y repetible en CI.
+no replica hoy para su propio CLI `--update` / tip `/midas-init`: no hay un *fixture* de
+"instalación vieja" versionado en el repo del motor que pruebe la migración de forma determinista
+y repetible en CI.
 
 ### 2.14 Cambios locales sin commitear (estado del repo analizado)
 
@@ -560,7 +561,7 @@ portabilidad multi-tool, sin store oculto). **Esfuerzo** = bajo / medio / alto.
 | Mapa de contexto/símbolos indexado y consultable | Grep/Glob nativo + reglas de capas | Medio | Medio-alto en monorepos grandes | Alto | **Evaluar** — posible futuro MCP opcional (nota: ADR-002 ya rechazó un MCP de code-intelligence por complejidad — revisar si las condiciones cambiaron) |
 | Preferencias de estilo separadas del conocimiento de producto | Todo pasa por `/midas-capture` | Medio | Bajo-medio | Bajo | **Evaluar** |
 | *Staleness nudges* de una línea por sesión | No existe (recall es manual/sugerido por `/midas-status`) | Alto | Medio | Bajo | **Adoptar** — pequeña extensión de `/midas-status` |
-| *Fixture* de instalación desactualizada para probar `update`/`migrate` en CI | Ya cubierto por suite `migrate-v2` en `scripts/test.mjs` (~temp dirs v1.1.4 classic/compact/hub) | Alto | Medio (confianza en migraciones) | Bajo | **Ya cubierto** — ver §7.8 |
+| *Fixture* de instalación desactualizada para probar `update`/`migrate` en CI | Ya cubierto por suite `migrate-harness` en `scripts/test.mjs` (~temp dirs v1.1.4 classic/compact/hub) | Alto | Medio (confianza en migraciones) | Bajo | **Ya cubierto** — ver §7.8 |
 | Camino explícito memoria → regla siempre activa (`share: workspace\|team` + `/refresh-memory --consolidate`) | Solo vía `/midas-capture` manual | Medio | Medio | Bajo | **Evaluar** |
 | Export/import de conocimiento portable | Ya existe (`/midas-bundle`) | — | — | — | Empate, sin acción |
 | *Fail-closed* explícito y documentado por hook | Reglas sin modo de fallo declarado | Alto | Alto (higiene de reglas) | Bajo | **Adoptar** — anotar `fail-open`/`fail-closed` en cada CHECK crítico de seguridad |
@@ -653,7 +654,7 @@ síntesis en `8-audit-adjust.md`.
 
 **Corrección (2026-07-29):** `scripts/test.mjs` ya simula instalaciones legacy (`midas_version:
 1.1.4`, layouts `classic`/`compact`/`hub`) en temp dirs y ejecuta `migrate-layout.mjs --apply`
-(sección `migrate-v2`, ~líneas 1215–1330). No hace falta un `fixtures/workspace-stale/` adicional
+(sección `migrate-harness`, ~líneas 1215–1330). No hace falta un `fixtures/workspace-stale/` adicional
 para cerrar esta brecha; el patrón muninn ya está cubierto por tests deterministas.
 
 ### 7.9 Evaluar — camino automático memoria → regla (paralelo a `/midas-capture`)
@@ -756,7 +757,7 @@ flowchart TB
 
 **Ya shippeado (2026-07-29):** §7.3 (doctor `gate:phase-*` / `gate:sprint-continuity` + `state-integrity.md`),
 `/midas-help`, `/midas-explore`, y el pase de concisión de skills. §7.4 queda en **monitorizar**; §7.8 ya
-estaba cubierto por la suite `migrate-v2`.
+estaba cubierto por la suite `migrate-harness`.
 
 **Siguiente sprint del motor (si el equipo prioriza):** ADR + plantilla de hooks mecánicos opcionales
 por host (§7.1) — el gap de mayor impacto aún abierto. Después: filas "Evaluar" de §7 (recall con

@@ -35,7 +35,7 @@ per-subagent model routing — the tiers collapse to prose intent in `AGENTS.md`
 
 ---
 
-**Q: Where does Midas live in v2?**
+**Q: Where does Midas live under the harness layout?**
 
 Everything Midas-owned lives under `.harness/` except selected-host discovery adapters. Classic,
 compact, and hub 1.x installs remain detectable but are not updated in place. Preview migrate with
@@ -76,7 +76,8 @@ npx github:okuzpe/midas-harness#v{VERSION} --update
 **not** the same as install-time `--force`. On vendor edits outside overlays, same-version update
 **aborts** before writing; stale manifest hashes **re-baseline** after confirm. Full contract:
 [INSTALL.md § Updating an existing install](../INSTALL.md#updating-an-existing-install).
-`/midas-update` is an interactive alternative to the same CLI. After a successful CLI verify, adapters
+`/midas-init` tips the same pinned CLI when diagnose reports `version_behind` / `legacy_layout`
+(deprecated `/midas-update` forwards there). After a successful CLI verify, adapters
 are already synced — `/midas-doctor` only if you still see drift. Unpinned `main` / pipe-to-shell
 installs are higher risk (see SECURITY.md).
 

@@ -14,7 +14,7 @@ Orthogonal to **Delegator** (path-readability). Frontmatter `user-surface`:
 
 | Surface | Meaning | Count (approx.) |
 |---|---|---|
-| **primary** | Listed in this catalog’s primary tables and `/midas-help` options | ~29 |
+| **primary** | Listed in this catalog’s primary tables and `/midas-help` options | ~31 |
 | **internal** | Path-pass under orchestrators (`/start-sprint`, `/close-sprint`, Phase 7 body); power-user may still type the slash | 5 |
 | **deprecated** | Alias stubs — help must not list | 3 |
 
@@ -26,10 +26,10 @@ skills (ADR-013). Bodies remain under `<paths.engine>/skills/` for path-pass.
 | Layer | Job | Skills |
 |---|---|---|
 | **A Orient** | Where am I / what next / resume / install confusion | `/midas-status`, `/midas-help`, `/midas-recall`, `/midas-reconcile` |
-| **B Lifecycle** | Setup + audited phase gates 0→8 | `/midas-init`, `/midas-adopt`, `/midas-update`, `/idea-intake` … `/close-sprint` |
+| **B Lifecycle** | Setup + audited phase gates 0→8 | `/midas-init`, `/midas-adopt`, `/idea-intake` … `/close-sprint` |
 | **C Sync** | Adapters / propagation / engine bar | `/midas-doctor`, `/midas-align`, `/midas-precommit` *(engine only)* |
 | **D Autonomy** | Continuous evolve + ADR-009 checklist guide | `/midas-auto-pilot` |
-| **E On-demand** | Audits, design, debug, portability | `/midas-tribunal`, `/midas-security-audit`, `/midas-design`, `/midas-capture`, `/midas-investigate`, `/midas-explore`, `/midas-bundle`, `/midas-verify`, `/midas-retro` |
+| **E On-demand** | Audits, design, debug, hygiene, portability | `/midas-tribunal`, `/midas-security-audit`, `/midas-design`, `/midas-capture`, `/midas-investigate`, `/midas-explore`, `/midas-bundle`, `/midas-verify`, `/midas-retro`, `/midas-hygiene` |
 | **Internal (delegated)** | Sprint rituals owned by parents | `/midas-progress`, `/midas-qa`, `/midas-diff-gates`, `/midas-lean-review`, `/midas-sweep` |
 
 ---
@@ -54,7 +54,7 @@ Human catalog (this file) uses slash-names. Agents that **delegate** use the gen
 - Implementation size/ambiguity routing: `<paths.engine>/rules/organic-routing.md` (complements model-routing).
 - Phase-7 tip: parents **path-pass** matching `internal` / `Delegator: yes` procedures (`midas-progress`, `midas-diff-gates`, `midas-qa`, `midas-lean-review`, `midas-sweep`) — read the body; do not Skill-tool invoke.
 
-Catalog size: **~29 primary** + **5 internal** + **3 deprecated aliases** + **1 engine-only** among primary (`/midas-precommit`).
+Catalog size: **~30 primary** + **5 internal** + **4 deprecated aliases** + **1 engine-only** among primary (`/midas-precommit`).
 
 For entry → decision → state → handoff, see [Skill flows](skill-flows.md).
 
@@ -101,6 +101,7 @@ Stage → command map (runtime): `<paths.engine>/stage-command-table.yaml` (gene
 | `/midas-capture` | Recurring pattern → rule / playbook / convention (asks first). | build |
 | `/midas-auto-pilot` | Unified autonomy — ask evolve vs sprint checklist; PR\|code or CLI setup/status/tick; arms `/loop` for evolve. | build |
 | `/midas-retro` | Sprint retrospective freeze → `{runs}/retros/retro-NN.md` (non-advancing). | build |
+| `/midas-hygiene` | Product-repo cleanup — path-passes sweep (`product`) + optional lean-review; not adapter/doctor sync. | build |
 
 ---
 
@@ -145,9 +146,9 @@ Parents **path-pass** these `SKILL.md` bodies (read + execute steps in the same 
 
 | Command | Role | One-line description | Tier |
 |---|---|---|---|
-| `/midas-init` | Setup | Adaptive intake (E0–E3); optional `--monorepo`. | orchestrate |
+| `/midas-init` | Setup | Onboarding entry — diagnose then install tip / adaptive intake / `--update` tip; optional `--monorepo`. | orchestrate |
 | `/midas-adopt` | Brownfield | Inventory, reverse-engineer rules, baseline audit. | orchestrate |
-| `/midas-update` | Setup | Thin guide to `npx … --update` (CLI is source of truth). | build |
+| `/midas-hygiene` | Hygiene | Product-repo dead flows, ledger/doc drift, optional lean delete-list. | build |
 | `/midas-doctor` | Sync | Adapter drift + install health; re-render adapters. | build |
 | `/midas-align` | Sync | Full propagation matrix (engine/product) + gap report. | build |
 | `/midas-precommit` | **Engine only** | Harness fitness scorecard; overall ≥ 80 required before commit. Not shipped to installs. | orchestrate |
@@ -155,7 +156,7 @@ Parents **path-pass** these `SKILL.md` bodies (read + execute steps in the same 
 | `/midas-tribunal` | Audit | Adversarial debate — decisions right? (non-advancing). | orchestrate |
 | `/midas-security-audit` | Audit | OWASP/STRIDE deep scan (non-advancing). | orchestrate |
 
-Hygiene / lean / progress / qa / diff-gates live under **Delegated procedures** (parents path-pass).
+Deprecated setup alias: `/midas-update` → `/midas-init`. Hygiene / lean / progress / qa / diff-gates / sweep live under **Delegated procedures** (parents path-pass) except primary `/midas-hygiene`.
 
 ---
 
@@ -166,13 +167,13 @@ Prefer **primary** slash names; internals are noted as parent-owned.
 
 | Situation | Command |
 |---|---|
-| Install confusion (missing, wrong cwd, version behind) | `/midas-reconcile` |
+| Install confusion (missing, wrong cwd, version behind) | `/midas-init` (or `/midas-reconcile` read-only) |
 | Where am I in the pipeline? | `/midas-status` |
 | Unsure which command fits my intent | `/midas-help` |
 | Resuming after a break | `/midas-recall` |
 | Ad-hoc investigation outside the pipeline | `/midas-explore` |
 | Root-cause debug before fixing a bug | `/midas-investigate` |
-| One-time setup (+ optional monorepo) | `/midas-init` [`--monorepo`] |
+| One-time setup / engine refresh tip (+ optional monorepo) | `/midas-init` [`--monorepo`] |
 | Existing codebase, no Midas yet | `/midas-adopt` (or `/midas-init` which may call it) |
 | Edited conventions/rules | `/midas-doctor` |
 | Edited engine / installer / skills / VERSION | `/midas-align` then `/midas-precommit` (engine) |
@@ -181,8 +182,8 @@ Prefer **primary** slash names; internals are noted as parent-owned.
 | Production diff test/quality receipts (before close) | `/close-sprint` (path-passes `/midas-diff-gates`) |
 | Redesign / improve UI (think before JSX) | `/midas-design` |
 | Quick PR/branch smoke test | Phase 7 path-pass `/midas-qa` (or type it) |
-| Dead code / ledger drift | `/close-sprint` / adopt path-pass `/midas-sweep` |
-| Over-engineered diff / what can we delete? | `/close-sprint` path-pass `/midas-lean-review` |
+| Dead code / ledger drift | `/midas-hygiene` (or `/close-sprint` Step 0) |
+| Over-engineered diff / what can we delete? | `/midas-hygiene lean` (or close path-pass lean-review) |
 | Bounded sprint ticks (one checklist task per tick) | `/midas-auto-pilot` (Sprint checklist / `setup`) → `node .harness/autonomy/bin/midas-autopilot.mjs setup` |
 | Continuous improve (discover → one fix → PR or local code) | `/midas-auto-pilot` (Continuous evolve; arms `/loop`) · `cloud` for Cursor Automations |
 | Sprint retrospective (learnings freeze) | `/midas-retro` |

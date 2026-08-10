@@ -39,7 +39,7 @@ Adopt a **three-layer memory model on disk**:
 
 | Layer | Role | Canonical locations |
 |---|---|---|
-| **Program counter** | where am I in the lifecycle | `paths.state` (`.harness/state.yaml` in v2) |
+| **Program counter** | where am I in the lifecycle | `paths.state` (`.harness/state.yaml`) |
 | **STM** (session / sprint cycle) | what happened this working stretch | `{runs}/sprints/NN-progress.md`, active `{product}/sprints/NN-*.md` |
 | **LTM** (durable project truth) | decisions, scope, rules, frozen evidence | `{product}/*` (via `paths.product`), `harness/rules/*`, `{runs}/audits|debates|sweeps|verifications/*` |
 

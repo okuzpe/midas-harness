@@ -290,7 +290,7 @@ if (!stateRaw) {
     check(
       'version',
       'warn',
-      `state ${sv} != engine ${VERSION} — run ${formatUpdateCmd({ version: VERSION })} (or /midas-update for diff-confirm)`,
+      `state ${sv} != engine ${VERSION} — run ${formatUpdateCmd({ version: VERSION })} (or /midas-init for the tip)`,
     );
   }
   else check('version', 'ok', sv || '');
@@ -578,6 +578,37 @@ if (mcp === null) {
           );
         } catch {
           check('gate:carryover-hook', 'warn', '`.cursor/hooks.json` invalid JSON');
+        }
+      }
+    }
+
+    const contextCostScript = join(ROOT, paths.scripts, 'context-cost-refresh.mjs');
+    if (!existsSync(contextCostScript)) {
+      check('gate:context-cost-hook', 'skip', 'context-cost-refresh.mjs not installed in paths.scripts');
+    } else {
+      const hooksRawCost = read('.cursor/hooks.json');
+      if (hooksRawCost === null) {
+        check(
+          'gate:context-cost-hook',
+          'warn',
+          '`.cursor/hooks.json` missing — re-run installer with `--tools=cursor` or merge context-cost sessionStart hook',
+        );
+      } else {
+        try {
+          const hooks = JSON.parse(hooksRawCost);
+          const list = hooks?.hooks?.sessionStart;
+          const hasContextCost = Array.isArray(list) && list.some(
+            (h) => h && typeof h.command === 'string' && h.command.includes('context-cost-refresh.mjs'),
+          );
+          check(
+            'gate:context-cost-hook',
+            hasContextCost ? 'ok' : 'warn',
+            hasContextCost
+              ? ''
+              : 'sessionStart missing context-cost-refresh.mjs — re-run installer or merge context-cost hook',
+          );
+        } catch {
+          check('gate:context-cost-hook', 'warn', '`.cursor/hooks.json` invalid JSON');
         }
       }
     }

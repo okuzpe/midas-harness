@@ -1,4 +1,4 @@
-// migrate-v2.mjs — transactional v1 layout -> v2 `.harness/` migration.
+// migrate-harness.mjs — transactional legacy layout -> `.harness/` migration.
 
 import {
   cpSync,
@@ -189,7 +189,7 @@ function knownProductPaths(root, productRoot, stateRaw) {
   return [...out].sort();
 }
 
-export function planV2Migration(projectRoot) {
+export function planHarnessMigration(projectRoot) {
   const root = resolve(projectRoot);
   const layout = detectLegacyLayout(root);
   if (layout === 'conflict') {
@@ -379,7 +379,7 @@ export function extractLegacyRuleOverrides(projectRoot, plan, canonicalRuleNames
     const body = [
       `# Legacy amendments — ${slug}`,
       '',
-      '> Extracted during the v2 layout migration. Review and consolidate into a project rule.',
+      '> Extracted during the harness layout migration. Review and consolidate into a project rule.',
       '',
       ...amendments,
       '',
@@ -394,7 +394,7 @@ export function extractLegacyRuleOverrides(projectRoot, plan, canonicalRuleNames
 }
 
 function backupRoots(root) {
-  const backup = mkdtempSync(join(tmpdir(), 'midas-v2-migration-'));
+  const backup = mkdtempSync(join(tmpdir(), 'midas-harness-migration-'));
   const entries = [];
   for (const rel of ['.harness', '.midas', '.claude', '.agents', 'harness', 'scripts', 'product']) {
     const src = join(root, rel);
@@ -550,11 +550,11 @@ function pruneEmptyTree(path) {
   }
 }
 
-export function applyV2Migration(projectRoot, plan = planV2Migration(projectRoot)) {
+export function applyHarnessMigration(projectRoot, plan = planHarnessMigration(projectRoot)) {
   const root = resolve(projectRoot);
   if (!plan.rows.length) return plan;
   const session = backupRoots(root);
-  const staging = mkdtempSync(join(tmpdir(), 'midas-v2-staging-'));
+  const staging = mkdtempSync(join(tmpdir(), 'midas-harness-staging-'));
   const maybeFail = (step) => {
     if (process.env.MIDAS_TEST_FAIL_STEP === step) throw new Error(`injected failure: ${step}`);
   };

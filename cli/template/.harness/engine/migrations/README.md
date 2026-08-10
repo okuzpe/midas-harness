@@ -1,7 +1,8 @@
 # Midas engine migrations
 
-Breaking engine version cuts ship a migration note here: `vX.Y.md` with the minimal file edits
-required to move an existing install from the previous version.
+Breaking engine version cuts ship a migration note here: a purpose-slug markdown file
+(`kebab-case.md`) with the minimal file edits required to move an existing install from the
+previous version. The index table below maps each engine version to its note.
 
 Pre-1.0: most breaking changes are documented in `CHANGELOG.md` under `### Migration` until 1.0.0.
 
@@ -9,9 +10,10 @@ Pre-1.0: most breaking changes are documented in `CHANGELOG.md` under `### Migra
 
 | Version | File | Status |
 |---------|------|--------|
-| 2.0.0 | [`v2.0.md`](v2.0.md) | Implemented by installer `--migrate` / `--migrate --apply` |
-| 2.8.2 | [`v2.8.2.md`](v2.8.2.md) | Slash/path rename (auto-pilot / auto-sprints); journal migration on first `/midas-auto-pilot` |
-| 2.9.5 (Unreleased) | [`v2.9.5.md`](v2.9.5.md) | Unify evolve + sprint guide under `/midas-auto-pilot`; aliases forward |
+| 2.0.0 | [`harness-layout.md`](harness-layout.md) | Implemented by installer `--migrate` / `--migrate --apply` |
+| 2.8.2 | [`auto-pilot-slash-rename.md`](auto-pilot-slash-rename.md) | Slash/path rename (auto-pilot / auto-sprints); journal migration on first `/midas-auto-pilot` |
+| 2.9.5 | [`auto-pilot-unify.md`](auto-pilot-unify.md) | Unify evolve + sprint guide under `/midas-auto-pilot`; aliases forward |
+| 2.9.6 | [`hygiene-init-entry.md`](hygiene-init-entry.md) | `/midas-hygiene` + `/midas-init` setup/update entry; `/midas-update` deprecated |
 
 Migration receipts are written to `.harness/migrations/receipts/`; local rollback backups live under
 `.harness/migrations/backups/` and are gitignored.

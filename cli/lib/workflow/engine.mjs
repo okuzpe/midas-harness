@@ -55,7 +55,7 @@ export async function runInstaller(cmd, deps) {
   if (resolved.promoted && !json) {
     const tip = cmd.dryRun
       ? `1.x ${resolved.fromLayout} layout — --update --dry-run shows the migrate preview (no writes)`
-      : `1.x ${resolved.fromLayout} layout — --update will migrate to v2 then refresh (same as --migrate --apply)`;
+      : `1.x ${resolved.fromLayout} layout — --update will migrate to harness layout then refresh (same as --migrate --apply)`;
     console.error(`create-midas: ${tip}`);
   }
 
@@ -266,7 +266,7 @@ function gatherRequirements(cmd, ctx, deps) {
       id: 'not-legacy',
       ok: !legacy || legacy === 'harness',
       message: (!legacy || legacy === 'harness')
-        ? 'canonical v2 layout'
+        ? 'canonical harness layout'
         : `layout conflict or unexpected 1.x markers — resolve partial migration, then: ${deps.installCmd.replace(/ --tools=\S+/, '')} --update --yes`,
     });
   }
@@ -321,7 +321,7 @@ function gatherChecks(cmd, ctx, deps) {
       ok: !!assessment.manifest,
       message: assessment.manifest
         ? `manifest midas_version=${assessment.manifest.midas_version}`
-        : 'canonical install has no valid .harness/manifest.json — run --migrate for a v1 layout, or repair the manifest before updating',
+        : 'canonical install has no valid .harness/manifest.json — run --migrate for a legacy layout, or repair the manifest before updating',
     });
     if (assessment.manifest) {
       const isUpgrade = compareVersions(assessment.manifest.midas_version || '0.0.0', deps.bundledVersion) < 0;

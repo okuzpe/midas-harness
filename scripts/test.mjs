@@ -36,11 +36,11 @@ import { computeDesignSystemCss } from './design-system.mjs';
 import { computePluginManifest, computePluginReadme, computeMarketplaceJson } from './build-plugin.mjs';
 import { createHash } from 'node:crypto';
 import {
-  applyV2Migration,
+  applyHarnessMigration,
   extractLegacyRuleOverrides,
   normalizeMigratedProjectRule,
-  planV2Migration,
-} from '../cli/migrate-v2.mjs';
+  planHarnessMigration,
+} from '../cli/migrate-harness.mjs';
 import { resolveRefreshCommand } from '../cli/lib/workflow/engine.mjs';
 import {
   isKnownRoutingProfile,
@@ -617,6 +617,38 @@ if (existsSync(buildCreate)) {
       );
     }
   }
+  {
+    const sourcePortableSkills = join(ROOT, 'harness', 'skills');
+    const cursorPortableSkills = join(ROOT, 'cli', 'template', '.cursor', 'skills');
+    if (existsSync(sourcePortableSkills) && existsSync(cursorPortableSkills)) {
+      const sourceNames = dirNames(sourcePortableSkills).filter(
+        (n) => n !== 'midas-precommit' && !isHostMirrorExcluded(n),
+      );
+      const cursorNames = dirNames(cursorPortableSkills);
+      const sameShape = JSON.stringify(sourceNames) === JSON.stringify(cursorNames);
+      let sameContent = sameShape;
+      if (sameShape) {
+        for (const name of sourceNames) {
+          const src = readFileSync(join(sourcePortableSkills, name, 'SKILL.md'), 'utf8');
+          const dst = readFileSync(join(cursorPortableSkills, name, 'SKILL.md'), 'utf8');
+          const srcParts = splitFrontmatter(src);
+          const dstParts = parsePortableSkill(dst);
+          sameContent = sameContent && !!srcParts && !!dstParts &&
+            dstParts.name === name &&
+            dstParts.description === normalizePortableScalar((frontmatter(src) || {}).description) &&
+            Object.keys(dstParts).every((k) => ['name', 'description', 'license', 'compatibility', 'allowed-tools', 'metadata'].includes(k)) &&
+            dstParts.metadata['midas-harness-tier'] &&
+            srcParts.body.trim() === (dst.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n?([\s\S]*)$/) || [])[1].trim();
+          if (!sameContent) break;
+        }
+      }
+      check(
+        'create-template:cursor-skills:match',
+        sameShape && sameContent,
+        'cli/template/.cursor/skills drifts from harness/skills (excluding engine-only + ADR-013 host exclusions)',
+      );
+    }
+  }
   const templateScripts = join(ROOT, 'cli', 'template', '.harness', 'scripts');
   const expectedScripts = scriptBundleFiles();
   if (existsSync(templateScripts)) {
@@ -892,7 +924,7 @@ if (engineVersion) {
       check('create-midas:pkg:type', pkg.type === 'module', `type=${pkg.type}`);
       check(
         'create-midas:pkg:files',
-        JSON.stringify(pkg.files || []) === JSON.stringify(['index.mjs', 'install-diagnose.mjs', 'migrate-v2.mjs', 'lib', 'template']),
+        JSON.stringify(pkg.files || []) === JSON.stringify(['index.mjs', 'install-diagnose.mjs', 'migrate-harness.mjs', 'lib', 'template']),
         `files=${JSON.stringify(pkg.files || [])}`,
       );
       check('create-midas:pkg:engine-floor', pkg.engines?.node === '>=22', `node=${pkg.engines?.node}`);
@@ -1280,6 +1312,7 @@ check(
   );
   const r2 = diagnoseProject(tmp);
   check('diagnose:setup-pending', r2.status === 'setup_pending' && r2.nextSlash === '/midas-init');
+  check('diagnose:not-installed-slash', r1.nextSlash === '/midas-init');
   rmSync(tmp, { recursive: true, force: true });
 }
 {
@@ -1409,6 +1442,11 @@ check('gitignore:merge-module', existsSync(join(ROOT, 'scripts', 'gitignore-merg
 check('gitignore:audit-export', /export function auditGitignore/.test(readFileSync(join(ROOT, 'scripts', 'gitignore-merge.mjs'), 'utf8')));
 check('doctor:gitignore-check', /gitignore:midas-block/.test(readFileSync(join(ROOT, 'scripts', 'doctor.mjs'), 'utf8')));
 check(
+  'doctor:context-cost-hook-check',
+  /gate:context-cost-hook/.test(readFileSync(join(ROOT, 'scripts', 'doctor.mjs'), 'utf8')),
+  'doctor must verify context-cost-refresh sessionStart hook when script is installed',
+);
+check(
   'doctor:attestation-advisory',
   /audit:attestation-\$\{nn\}/.test(readFileSync(join(ROOT, 'scripts', 'doctor.mjs'), 'utf8')) ||
     /audit:attestation-/.test(readFileSync(join(ROOT, 'scripts', 'doctor.mjs'), 'utf8')),
@@ -1442,7 +1480,7 @@ check('installer:gitignore-report-always', /reportGitignoreLine|gitignore: Midas
 check('installer:gitignore-after-engine', /ensureGitignore\(paths\)/.test(installerRuntime) && /gitignore-merge\.mjs/.test(installerRuntime));
 check('installer:verify-after-update', /function verifyInstall\(paths\)/.test(installerRuntime) && /runDoctor\(TARGET, paths/.test(installerRuntime));
 check('installer:verify-auto-fix-routing', /STRICT:.*\\b\(routing\|version\)\\b/.test(installerRuntime));
-check('installer:update-complete-hint', /no need to run \/midas-update/i.test(installerRuntime));
+check('installer:update-complete-hint', /no need to run \/midas-init for refresh/i.test(installerRuntime));
 check('installer:install-vs-update-guard', /id: 'install-vs-update'/.test(engineSrc));
 check('installer:bump-version-always', /updatedTo = bumpVersionStamp\(paths\)/.test(installerRuntime));
 check('installer:install-cmd-module', /install-cmd\.mjs/.test(engineSrc));
@@ -1523,7 +1561,7 @@ check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bi
   }
 }
 {
-  const updateRoot = mkdtempSync(join(tmpdir(), 'midas-v2-update-conflict-'));
+  const updateRoot = mkdtempSync(join(tmpdir(), 'midas-harness-update-conflict-'));
   try {
     const install = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), '--tools=cursor', updateRoot], {
       cwd: ROOT,
@@ -1551,7 +1589,7 @@ check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bi
   }
 }
 {
-  const staleRoot = mkdtempSync(join(tmpdir(), 'midas-v2-update-stale-manifest-'));
+  const staleRoot = mkdtempSync(join(tmpdir(), 'midas-harness-update-stale-manifest-'));
   try {
     const install = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), '--tools=cursor', staleRoot], {
       cwd: ROOT,
@@ -1584,7 +1622,7 @@ check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bi
   }
 }
 {
-  const pruneRoot = mkdtempSync(join(tmpdir(), 'midas-v2-update-tools-'));
+  const pruneRoot = mkdtempSync(join(tmpdir(), 'midas-harness-update-tools-'));
   try {
     const install = spawnSync(
       process.execPath,
@@ -1617,7 +1655,7 @@ check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bi
   }
 }
 {
-  const userMirrorRoot = mkdtempSync(join(tmpdir(), 'midas-v2-user-mirror-'));
+  const userMirrorRoot = mkdtempSync(join(tmpdir(), 'midas-harness-user-mirror-'));
   try {
     mkdirSync(join(userMirrorRoot, '.agents', 'skills', 'acme-local'), { recursive: true });
     writeFileSync(
@@ -1647,7 +1685,7 @@ check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bi
   }
 }
 {
-  const cursorMcpRoot = mkdtempSync(join(tmpdir(), 'midas-v2-cursor-mcp-conflict-'));
+  const cursorMcpRoot = mkdtempSync(join(tmpdir(), 'midas-harness-cursor-mcp-conflict-'));
   try {
     mkdirSync(join(cursorMcpRoot, '.cursor'), { recursive: true });
     writeFileSync(
@@ -1673,7 +1711,7 @@ check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bi
   }
 }
 {
-  const projectRulesRoot = mkdtempSync(join(tmpdir(), 'midas-v2-project-rules-'));
+  const projectRulesRoot = mkdtempSync(join(tmpdir(), 'midas-harness-project-rules-'));
   try {
     const install = spawnSync(
       process.execPath,
@@ -1726,7 +1764,7 @@ check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bi
   }
 }
 {
-  const uninstallRoot = mkdtempSync(join(tmpdir(), 'midas-v2-uninstall-'));
+  const uninstallRoot = mkdtempSync(join(tmpdir(), 'midas-harness-uninstall-'));
   try {
     mkdirSync(join(uninstallRoot, '.agents', 'skills', 'acme-local'), { recursive: true });
     writeFileSync(
@@ -1798,7 +1836,7 @@ check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bi
     const out = `${updateResult.stdout}${updateResult.stderr}`;
     check(
       'installer:update-v1-promotes-to-migrate',
-      /will migrate to v2/i.test(out) && updateResult.status !== 0,
+      /will migrate to harness layout/i.test(out) && updateResult.status !== 0,
       out.slice(0, 800),
     );
   } finally {
@@ -1806,7 +1844,7 @@ check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bi
   }
 }
 {
-  const migrationRollbackRoot = mkdtempSync(join(tmpdir(), 'midas-v2-cli-rollback-'));
+  const migrationRollbackRoot = mkdtempSync(join(tmpdir(), 'midas-harness-cli-rollback-'));
   try {
     mkdirSync(join(migrationRollbackRoot, 'harness'), { recursive: true });
     mkdirSync(join(migrationRollbackRoot, 'scripts'), { recursive: true });
@@ -1982,11 +2020,16 @@ check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bi
       check('update-stays-on-harness', stay.promoted === false && stay.cmd.command === 'update');
       const legacyCli = diagnoseProject(legacy);
       check('diagnose:legacy-points-update', /--update/.test(legacyCli.nextCli || ''));
+      check('diagnose:legacy-slash-init', legacyCli.nextSlash === '/midas-init');
     }
     rmSync(legacy, { recursive: true, force: true });
 
     writeFileSync(join(diagTmp, '.harness', 'state.yaml'), 'midas_version: 2.0.0\nlayout: harness\nsetup_complete: true\n', 'utf8');
-    check('diagnose:matrix-version-behind', diagnoseProject(diagTmp).status === 'version_behind');
+    {
+      const behind = diagnoseProject(diagTmp);
+      check('diagnose:matrix-version-behind', behind.status === 'version_behind');
+      check('diagnose:version-behind-slash-init', behind.nextSlash === '/midas-init');
+    }
 
     writeFileSync(join(diagTmp, '.harness', 'state.yaml'), 'midas_version: 2.2.1\nlayout: harness\nsetup_complete: true\n', 'utf8');
     check('diagnose:matrix-ready', diagnoseProject(diagTmp).status === 'ready');
@@ -2379,14 +2422,14 @@ check('migrate-layout:module-exists', existsSync(join(ROOT, 'scripts', 'migrate-
     );
 
     const beforePreview = treeDigest(migrationRoot);
-    const plan = planV2Migration(migrationRoot);
-    check('migrate-v2:preview-read-only', treeDigest(migrationRoot) === beforePreview);
-    check('migrate-v2:detect-classic', plan.from_layout === 'classic');
-    check('migrate-v2:preserves-unknown-script', plan.preserved.includes('scripts/app.mjs'));
-    check('migrate-v2:preserves-unknown-product', plan.preserved.includes('product/custom.txt'));
-    check('migrate-v2:preserves-user-skill', plan.preserved.includes('.agents/skills/acme-local/SKILL.md'));
+    const plan = planHarnessMigration(migrationRoot);
+    check('migrate-harness:preview-read-only', treeDigest(migrationRoot) === beforePreview);
+    check('migrate-harness:detect-classic', plan.from_layout === 'classic');
+    check('migrate-harness:preserves-unknown-script', plan.preserved.includes('scripts/app.mjs'));
+    check('migrate-harness:preserves-unknown-product', plan.preserved.includes('product/custom.txt'));
+    check('migrate-harness:preserves-user-skill', plan.preserved.includes('.agents/skills/acme-local/SKILL.md'));
     check(
-      'migrate-v2:archives-known-mirror',
+      'migrate-harness:archives-known-mirror',
       plan.rows.some((row) =>
         row.from === '.agents/skills/midas-known/SKILL.md' &&
         row.to.includes('/host-mirrors/.agents/skills/midas-known/SKILL.md')
@@ -2395,40 +2438,40 @@ check('migrate-layout:module-exists', existsSync(join(ROOT, 'scripts', 'migrate-
 
     process.env.MIDAS_TEST_FAIL_STEP = 'after-delete';
     try {
-      applyV2Migration(migrationRoot, plan);
-      check('migrate-v2:rollback-injected', false, 'migration unexpectedly succeeded');
+      applyHarnessMigration(migrationRoot, plan);
+      check('migrate-harness:rollback-injected', false, 'migration unexpectedly succeeded');
     } catch {
-      check('migrate-v2:rollback-injected', treeDigest(migrationRoot) === beforePreview);
+      check('migrate-harness:rollback-injected', treeDigest(migrationRoot) === beforePreview);
     } finally {
       delete process.env.MIDAS_TEST_FAIL_STEP;
     }
 
-    applyV2Migration(migrationRoot, plan);
+    applyHarnessMigration(migrationRoot, plan);
     const extracted = extractLegacyRuleOverrides(migrationRoot, plan, ['testing.md']);
     const migratedState = readFileSync(join(migrationRoot, '.harness', 'state.yaml'), 'utf8');
-    check('migrate-v2:canonical-state', /^layout:\s*harness$/m.test(migratedState));
-    check('migrate-v2:canonical-paths', /product:\s*\.harness\/product/.test(migratedState));
-    check('migrate-v2:known-state-path-rewritten', /^artifact:\s*\.harness\/product\/idea\.md$/m.test(migratedState));
-    check('migrate-v2:prose-not-rewritten', /note: "leave product\/custom\.txt unchanged in prose"/.test(migratedState));
-    check('migrate-v2:product-moved', existsSync(join(migrationRoot, '.harness', 'product', 'idea.md')));
-    check('migrate-v2:run-moved', existsSync(join(migrationRoot, '.harness', 'runs', 'audits', 'audit-01.md')));
-    check('migrate-v2:unknowns-stay', existsSync(join(migrationRoot, 'scripts', 'app.mjs')) && existsSync(join(migrationRoot, 'product', 'custom.txt')));
-    check('migrate-v2:user-skill-stays', existsSync(join(migrationRoot, '.agents', 'skills', 'acme-local', 'SKILL.md')));
-    check('migrate-v2:amendment-extracted', extracted.includes('.harness/rules/legacy-testing-amendments.md'));
+    check('migrate-harness:canonical-state', /^layout:\s*harness$/m.test(migratedState));
+    check('migrate-harness:canonical-paths', /product:\s*\.harness\/product/.test(migratedState));
+    check('migrate-harness:known-state-path-rewritten', /^artifact:\s*\.harness\/product\/idea\.md$/m.test(migratedState));
+    check('migrate-harness:prose-not-rewritten', /note: "leave product\/custom\.txt unchanged in prose"/.test(migratedState));
+    check('migrate-harness:product-moved', existsSync(join(migrationRoot, '.harness', 'product', 'idea.md')));
+    check('migrate-harness:run-moved', existsSync(join(migrationRoot, '.harness', 'runs', 'audits', 'audit-01.md')));
+    check('migrate-harness:unknowns-stay', existsSync(join(migrationRoot, 'scripts', 'app.mjs')) && existsSync(join(migrationRoot, 'product', 'custom.txt')));
+    check('migrate-harness:user-skill-stays', existsSync(join(migrationRoot, '.agents', 'skills', 'acme-local', 'SKILL.md')));
+    check('migrate-harness:amendment-extracted', extracted.includes('.harness/rules/legacy-testing-amendments.md'));
     {
       const bomRule = String.fromCharCode(0xfeff) + '# Rule: bom-stack (always-on)\n\n## CHECK\n- Pass iff true.\n';
       const normalized = normalizeMigratedProjectRule('bom-stack.md', bomRule);
-      check('migrate-v2:normalize-bom-rule', normalized.charCodeAt(0) !== 0xfeff && /^#\s+\S/m.test(normalized) && /\*\*CHECK:\*\*/.test(normalized));
+      check('migrate-harness:normalize-bom-rule', normalized.charCodeAt(0) !== 0xfeff && /^#\s+\S/m.test(normalized) && /\*\*CHECK:\*\*/.test(normalized));
       const needsCheck = normalizeMigratedProjectRule('legacy-stack.md', '# Rule: legacy\n\n## CHECK\n- Pass iff reviewed.\n');
-      check('migrate-v2:normalize-check-stub', /\*\*CHECK:\*\*/.test(needsCheck));
+      check('migrate-harness:normalize-check-stub', /\*\*CHECK:\*\*/.test(needsCheck));
     }
-    check('migrate-v2:idempotent-plan', planV2Migration(migrationRoot).rows.length === 0);
+    check('migrate-harness:idempotent-plan', planHarnessMigration(migrationRoot).rows.length === 0);
   } finally {
     rmSync(migrationRoot, { recursive: true, force: true });
   }
 }
 for (const legacyLayout of ['compact', 'hub']) {
-  const migrationRoot = mkdtempSync(join(tmpdir(), `midas-v2-${legacyLayout}-`));
+  const migrationRoot = mkdtempSync(join(tmpdir(), `midas-harness-${legacyLayout}-`));
   try {
     mkdirSync(join(migrationRoot, '.midas', 'engine'), { recursive: true });
     mkdirSync(join(migrationRoot, '.midas', 'scripts'), { recursive: true });
@@ -2469,51 +2512,51 @@ for (const legacyLayout of ['compact', 'hub']) {
       writeFileSync(join(productRoot, 'src', 'app', 'page.tsx'), 'export default function Page() { return null }\n', 'utf8');
       writeFileSync(join(productRoot, 'biome.json'), '{}\n', 'utf8');
     }
-    const plan = planV2Migration(migrationRoot);
-    check(`migrate-v2:${legacyLayout}:detected`, plan.from_layout === legacyLayout);
-    check(`migrate-v2:${legacyLayout}:known-script-signature`, !plan.preserved.includes('.midas/scripts/status-page.mjs'));
+    const plan = planHarnessMigration(migrationRoot);
+    check(`migrate-harness:${legacyLayout}:detected`, plan.from_layout === legacyLayout);
+    check(`migrate-harness:${legacyLayout}:known-script-signature`, !plan.preserved.includes('.midas/scripts/status-page.mjs'));
     if (legacyLayout === 'hub') {
       check(
-        `migrate-v2:${legacyLayout}:moves-full-product`,
+        `migrate-harness:${legacyLayout}:moves-full-product`,
         !plan.preserved.some((p) => p.startsWith('.midas/product/')) &&
           plan.rows.some((row) => row.from === '.midas/product/src/app/page.tsx'),
       );
     }
-    applyV2Migration(migrationRoot, plan);
-    check(`migrate-v2:${legacyLayout}:product`, existsSync(join(migrationRoot, '.harness', 'product', 'idea.md')));
+    applyHarnessMigration(migrationRoot, plan);
+    check(`migrate-harness:${legacyLayout}:product`, existsSync(join(migrationRoot, '.harness', 'product', 'idea.md')));
     if (legacyLayout === 'hub') {
       check(
-        `migrate-v2:${legacyLayout}:product-src`,
+        `migrate-harness:${legacyLayout}:product-src`,
         existsSync(join(migrationRoot, '.harness', 'product', 'src', 'app', 'page.tsx')) &&
           existsSync(join(migrationRoot, '.harness', 'product', 'biome.json')),
       );
       const hubState = readFileSync(join(migrationRoot, '.harness', 'state.yaml'), 'utf8');
       check(
-        `migrate-v2:${legacyLayout}:rewrites-list-artifacts`,
+        `migrate-harness:${legacyLayout}:rewrites-list-artifacts`,
         /\.harness\/product\/src\/app\/page\.tsx/.test(hubState) &&
           !/\.midas\/product\//.test(hubState),
       );
     }
-    check(`migrate-v2:${legacyLayout}:state`, /^layout:\s*harness$/m.test(readFileSync(join(migrationRoot, '.harness', 'state.yaml'), 'utf8')));
-    check(`migrate-v2:${legacyLayout}:legacy-root-removed`, !existsSync(join(migrationRoot, '.midas')));
+    check(`migrate-harness:${legacyLayout}:state`, /^layout:\s*harness$/m.test(readFileSync(join(migrationRoot, '.harness', 'state.yaml'), 'utf8')));
+    check(`migrate-harness:${legacyLayout}:legacy-root-removed`, !existsSync(join(migrationRoot, '.midas')));
   } finally {
     rmSync(migrationRoot, { recursive: true, force: true });
   }
 }
 {
-  const partialRoot = mkdtempSync(join(tmpdir(), 'midas-v2-partial-'));
+  const partialRoot = mkdtempSync(join(tmpdir(), 'midas-harness-partial-'));
   try {
     mkdirSync(join(partialRoot, '.midas', 'engine'), { recursive: true });
     writeFileSync(join(partialRoot, '.midas', 'engine', 'VERSION'), '1.1.4\n', 'utf8');
-    const plan = planV2Migration(partialRoot);
-    applyV2Migration(partialRoot, plan);
-    check('migrate-v2:partial-no-state', plan.from_version === 'unknown' && !existsSync(join(partialRoot, '.harness', 'state.yaml')));
+    const plan = planHarnessMigration(partialRoot);
+    applyHarnessMigration(partialRoot, plan);
+    check('migrate-harness:partial-no-state', plan.from_version === 'unknown' && !existsSync(join(partialRoot, '.harness', 'state.yaml')));
   } finally {
     rmSync(partialRoot, { recursive: true, force: true });
   }
 }
 {
-  const conflictRoot = mkdtempSync(join(tmpdir(), 'midas-v2-conflict-'));
+  const conflictRoot = mkdtempSync(join(tmpdir(), 'midas-harness-conflict-'));
   try {
     mkdirSync(join(conflictRoot, 'harness'), { recursive: true });
     mkdirSync(join(conflictRoot, 'product'), { recursive: true });
@@ -2524,8 +2567,8 @@ for (const legacyLayout of ['compact', 'hub']) {
     writeFileSync(join(conflictRoot, '.harness', 'product', 'IDEA.md'), 'different\n', 'utf8');
     const before = treeDigest(conflictRoot);
     let rejected = false;
-    try { planV2Migration(conflictRoot); } catch { rejected = true; }
-    check('migrate-v2:case-conflict-prewrite', rejected && treeDigest(conflictRoot) === before);
+    try { planHarnessMigration(conflictRoot); } catch { rejected = true; }
+    check('migrate-harness:case-conflict-prewrite', rejected && treeDigest(conflictRoot) === before);
   } finally {
     rmSync(conflictRoot, { recursive: true, force: true });
   }
@@ -3545,8 +3588,8 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
   );
   check(
     'auto-pilot:migration-notes',
-    existsSync(join(ROOT, 'harness', 'migrations', 'v2.8.2.md')) &&
-      existsSync(join(ROOT, 'harness', 'migrations', 'v2.9.5.md')),
+    existsSync(join(ROOT, 'harness', 'migrations', 'auto-pilot-slash-rename.md')) &&
+      existsSync(join(ROOT, 'harness', 'migrations', 'auto-pilot-unify.md')),
   );
   check(
     'auto-pilot:no-legacy-templates',
@@ -3571,7 +3614,7 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
   );
   check(
     'auto-pilot:migrations-index',
-    /v2\.8\.2\.md/.test(readFileSync(join(ROOT, 'harness', 'migrations', 'README.md'), 'utf8')),
+    /auto-pilot-slash-rename\.md/.test(readFileSync(join(ROOT, 'harness', 'migrations', 'README.md'), 'utf8')),
   );
 
   const tmp = mkdtempSync(join(tmpdir(), 'midas-autonomy-'));

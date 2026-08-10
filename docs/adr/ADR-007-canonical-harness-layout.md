@@ -42,7 +42,7 @@ failure. Unknown application files under legacy `product/` or `scripts/` remain 
 
 - New installs and all v2 writes resolve through `.harness/state.yaml`.
 - `--update` never migrates a v1 installation.
-- v1 layouts remain detectable and migratable throughout v2.
+- Classic/compact/hub layouts remain detectable and migratable under the harness layout.
 - Node.js 22 is the minimum supported runtime.
 - Root host surfaces are further constrained by ADR-008 (thin-root allowlist, default Cursor,
   `--update --tools`).

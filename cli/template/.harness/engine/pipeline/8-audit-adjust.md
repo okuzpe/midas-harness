@@ -28,10 +28,10 @@ or declare the MVP complete. The producer never grades its own work.
 Read `paths.state` → `mode`. **Brownfield:** a sweep record for this sprint cycle is
 **required** unless the audit documents `sweep: skipped — <reason>`. **Greenfield:** sweep is
 recommended on large diffs; not blocking if none was run and no prior sweep left unresolved
-high-severity findings. Prefer **path-pass** `<paths.engine>/skills/midas-sweep/SKILL.md` (internal
-surface, ADR-013) inside `/close-sprint` — do not Skill-tool invoke. When a sweep exists, resolve or
-consciously defer every `dead-flow` and `ledger-drift` row before grading other rules. On a fat
-feature/UI diff, path-pass `midas-lean-review` (optional) before conformance.
+high-severity findings. Prefer **path-pass** `<paths.engine>/skills/midas-hygiene/SKILL.md` (product scope; path-passes
+sweep `product` + lean on fat diffs) inside `/close-sprint` — do not Skill-tool invoke. When a
+sweep exists, resolve or consciously defer every `dead-flow` and `ledger-drift` row before grading
+other rules.
 
 ### 0.5. Diff gate receipts (production diffs)
 

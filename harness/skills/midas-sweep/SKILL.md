@@ -7,19 +7,19 @@ user-surface: internal
 model: inherit
 harness-tier: build
 recommended-model: claude-sonnet-4-6
-argument-hint: "[code|docs|harness|all] [--depth quick|standard] [--fix]"
+argument-hint: "[code|docs|product|harness|all] [--depth quick|standard] [--fix]"
 ---
 
 # midas-sweep — Hygiene, cleanup & dead-flow detection
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
-> **Surface:** `internal` (ADR-013) — prefer `/close-sprint` / adopt / status path-pass; power-user may still type this slash.
+> **Surface:** `internal` (ADR-013) — prefer `/midas-hygiene` / `/close-sprint` / adopt path-pass; power-user may still type this slash.
 > No stage precondition — runs anytime. No `{product}/` + no app source → limit to harness/docs consistency.
 > Record shape: `<paths.engine>/templates/sweep-record.md`. Tally: `<paths.engine>/templates/audit-checklists.md` § Parseable tally lines.
 
 Standing **hygiene pass** (not a phase gate): find dead weight and drift, report ranked by severity, apply **safe** cleanups only with explicit user confirmation. Unlike `/midas-doctor` (adapters) or `/midas-tribunal` (decisions), sweep asks *what on disk is unused, unreachable, or lying?*
 
-**Recommended checkpoints** (surfaced by `/midas-status`, never forced): post-adopt, pre-close-sprint (large/messy), pre-plan-sprints (`features.json` reconcile). Non-advancing — never changes `stage`.
+**Recommended checkpoints:** prefer **`/midas-hygiene`** (primary) for product scopes; this body is the path-pass procedure. Non-advancing — never changes `stage`.
 
 ## Does / Does not
 
@@ -27,11 +27,18 @@ Standing **hygiene pass** (not a phase gate): find dead weight and drift, report
 |---|---|
 | Index, classify, rank, freeze `{runs}/sweeps/sweep-NN.md` | Advance `stage` or pass gates |
 | Optional `--fix` after numbered plan + explicit yes | Silently delete or rewrite business/architecture decisions |
-| Emit `MIDAS_SWEEP_RESULT` tally | Replace `/midas-security-audit`, `/midas-tribunal`, `/midas-doctor`, or `/close-sprint` |
+| Emit `MIDAS_SWEEP_RESULT` tally | Replace `/midas-hygiene`, `/midas-security-audit`, `/midas-tribunal`, `/midas-doctor`, or `/close-sprint` |
 
 ## Scope & depth
 
-**Scope** (default `all`): `code` (source, routes, imports, playbooks vs `src/*`) · `docs` (`{product}/*`, broken links, stale OPEN questions) · `harness` (state vs sprint/gate files, stale audits) · `all` (every row).
+**Scope** (default `all` for power-user slash; **`/midas-hygiene` always passes `product`**):
+- `code` — source, routes, imports, playbooks vs `src/*`
+- `docs` — `{product}/*`, broken links, stale OPEN questions
+- `product` — `code` + `docs` only (**excludes** harness-drift). Prefer this from `/midas-hygiene`.
+- `harness` — state vs sprint/gate files, stale audits (power-user / install health — not product hygiene)
+- `all` — every row including harness (legacy; do **not** use from `/midas-hygiene`)
+
+When scope is `product`, `code`, or `docs`: set `harness_drift=0` in the tally (do not hunt harness-drift).
 
 **Depth** (`--depth`, default `standard`): `quick` = scout index only (grep/import cross-refs, cap 15 findings) · `standard` = scout index + build classification + ranked report.
 

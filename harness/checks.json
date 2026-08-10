@@ -2,7 +2,7 @@
   "schema_version": 1,
   "updated": null,
   "source": "engine/rules",
-  "source_digest": "3200d4d2fa709c6d04ffce919f35a3103c32c0af7545e88975835ede052680ef",
+  "source_digest": "e00707225842c5bbbe8a52de3b4fbdd29b880681dff77d880172357c4a08b0ff",
   "rules": [
     {
       "path": "engine/rules/acceptance-criteria.md",

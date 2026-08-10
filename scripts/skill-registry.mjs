@@ -49,6 +49,7 @@ export const ORCHESTRATOR_ONLY_ALLOWLIST = new Set([
   'midas-init',
   'midas-adopt',
   'midas-update',
+  'midas-hygiene',
   'midas-doctor',
   'midas-align',
   'midas-precommit',
@@ -77,6 +78,7 @@ export const DEPRECATED_SURFACE_ALLOWLIST = new Set([
   'midas-improve-loop',
   'midas-autopilot',
   'midas-auto-sprints',
+  'midas-update',
 ]);
 
 /**

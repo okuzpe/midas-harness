@@ -164,16 +164,17 @@ Except for intake/adoption placement, they do not advance lifecycle gates.
 
 | Skill | Starts from | Core flow | Leaves behind | State effect / handoff |
 |---|---|---|---|---|
-| `/midas-init` | Installed but not initialized project | Scan → classify E0–E3 → prefill → confirm → generate | Writable `.harness/` layout and initial state | Sets `setup_complete`; routes by maturity |
+| `/midas-init` | Installed but not initialized project, or version/layout behind | Diagnose → tip install (stop) / intake / tip `--update` / ready→status | Writable `.harness/` layout and initial state, or CLI tip | Sets `setup_complete` when intake runs; routes by maturity |
 | `/midas-adopt` | E2/E3 codebase | Inventory reality, infer architecture/rules, baseline audit, confirm wiring | Inventory, as-built architecture, debt, rules, baseline audit | Places E2 at rules; E3 at sprint planning |
-| `/midas-update` | Installed engine version behind | Compare versions, preview migration, confirm, refresh engine | Updated engine/adapters and version stamp | Then `/midas-doctor` or `/midas-status`; engine repo → `/midas-align` |
+| `/midas-hygiene` | Dirty product repo / pre-close fat diff | Path-pass sweep scope `product` + optional lean-review | `{runs}/sweeps/sweep-NN.md` (+ lean notes) | Stage unchanged; human OK for deletes |
 | `/midas-doctor` | Any installation | Check layout, routing, enforcement, gates, and adapter drift | Health report; optional regenerated managed files | Stage unchanged |
 | `/midas-align` | Substantive engine/product change | Map diff to propagation surfaces, run the alignment ladder | Alignment or gap report; regenerated mirrors as needed | Stage unchanged |
 | `/midas-bundle` | Portable knowledge needed | Select profile, export/import, verify checksums, preview conflicts | Knowledge JSON or confirmed imported files | Stage unchanged by default |
 | `/midas-tribunal` | A decision needs adversarial challenge | Argue opposing cases across evidence; independent judge rules | `debate-NN.md` | Informational; bridge actions back to work |
 | `/midas-security-audit` | Code and architecture available | Threat-model, scan, rank, and route security findings | `security-NN.md` | Sets optional pointer; never passes a gate |
 
-Hygiene `/midas-sweep` is **internal** (path-pass from close/adopt/status) — see Sprint-day internals above.
+Hygiene `/midas-hygiene` is **primary** (path-passes internal sweep/lean). Sweep alone remains
+**internal** — see Sprint-day internals above. Deprecated `/midas-update` → `/midas-init`.
 
 ## Design seams worth reviewing
 

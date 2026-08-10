@@ -11,7 +11,7 @@ import { dirname, basename, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DEFAULT_ROUTING_PROFILE, isKnownRoutingProfile, normalizeRoutingProfile } from './template/.harness/scripts/model-profiles.mjs';
 import { formatInstallCmd } from './lib/core/install-cmd.mjs';
-import { formatMigrationPlan, planV2Migration } from './migrate-v2.mjs';
+import { formatMigrationPlan, planHarnessMigration } from './migrate-harness.mjs';
 import {
   KNOWN_TOOLS as LIB_KNOWN_TOOLS,
   parseInstallerArgs,
@@ -80,7 +80,7 @@ process.exit(await runInstaller(parsedCmd, {
   template: TEMPLATE,
   bundledVersion: readBundledVersion(),
   installCmd,
-  planMigration: (dir) => planV2Migration(dir),
+  planMigration: (dir) => planHarnessMigration(dir),
   formatMigrationPlan,
   execute,
 }));

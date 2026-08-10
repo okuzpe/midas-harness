@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// build-create.mjs — assemble the canonical v2 `.harness/` installer template.
+// build-create.mjs — assemble the canonical `.harness/` installer template.
 //
 // `create-midas` bundles a copy of the harness so `npx github:...` works offline and version-pinned.
 // That copy is GENERATED here from the canonical source — do not hand-edit cli/template/.

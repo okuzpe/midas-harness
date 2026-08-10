@@ -114,7 +114,7 @@ contrato `**CHECK:**` en reglas, separación explícita productor/auditor, routi
 | `/close-sprint` | 8 — Auditoría conformidad |
 | `/midas-init`, `/midas-adopt` | Setup / brownfield |
 | `/midas-status`, `/midas-recall` | Orientación / context pack |
-| `/midas-doctor`, `/midas-update` | Mantenimiento engine |
+| `/midas-doctor`, `/midas-init` (version tip), `/midas-hygiene` | Mantenimiento engine / producto |
 | `/midas-verify` | QA UI (Playwright + DevTools) |
 | `/midas-sweep` | Hygiene / dead-flow |
 | `/midas-tribunal` | Debate adversarial |

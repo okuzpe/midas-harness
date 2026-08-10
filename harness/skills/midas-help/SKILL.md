@@ -20,22 +20,25 @@ recommended-model: claude-haiku-4-5
 > come from `docs/skills.md` or `/midas-status`.
 > **Surface filter (ADR-013):** AskQuestion options and Exact commands are **`user-surface: primary`
 > only**. Do not offer `internal` (`progress`, `qa`, `diff-gates`, `lean-review`, `sweep`) or
-> `deprecated` aliases as menu choices — parents path-pass those; power-users may type them.
+> `deprecated` aliases (`update`, auto-pilot aliases) as menu choices — parents path-pass those;
+> power-users may type them.
 
 ## Steps
 
 1. **Ask once.** Use `AskQuestion` with ONE single-select. Options (copy labels exactly, this order):
-   - **Start or set up a product** (`/midas-init` / `/idea-intake` / `/midas-adopt`)
+   - **Set up or update Midas** (`/midas-init`)
+   - **Start a product idea or adopt brownfield** (`/idea-intake` / `/midas-adopt`)
    - **Resume after a break** (`/midas-status` + `/midas-recall`)
    - **Run the next phase gate** (phase skills 0–8)
    - **Start or close a sprint** (`/start-sprint` / `/close-sprint` / `/midas-auto-pilot` / `/midas-retro`)
    - **Debug a failing fix** (`/midas-investigate`)
    - **Autonomy / auto-pilot** (`/midas-auto-pilot`)
    - **Verify UI before close** (`/midas-verify`)
+   - **Clean dead flows / lean the repo** (`/midas-hygiene`)
    - **Redesign product UI** (`/midas-design`)
    - **Security or adversarial review** (`/midas-security-audit` / `/midas-tribunal`)
    - **Capture a recurring pattern** (`/midas-capture`)
-   - **Install / version / adapter health** (`/midas-reconcile` / `/midas-doctor` / `/midas-update`)
+   - **Install confusion / adapter health** (`/midas-reconcile` / `/midas-doctor`)
    - **Investigate something outside the pipeline** (`/midas-explore`)
    - **I'm not sure — show a short summary table**
 
@@ -48,11 +51,18 @@ recommended-model: claude-haiku-4-5
 
 ### Response map
 
-**Start or set up a product**
-- What: one-time adaptive setup, or Phase 0 idea capture, or brownfield adopt.
-- Command: `/midas-init` · greenfield idea → `/idea-intake` · existing code → `/midas-adopt`
-- Happens: scans maturity, pre-fills artifacts, places you at the right `stage`.
-- NOT if you only need orientation → `/midas-status` or `/midas-reconcile`.
+**Set up or update Midas**
+- What: single entry — diagnose install/setup/version, then tip install CLI, run intake, or tip `--update`.
+- Command: `/midas-init` [`--monorepo`]
+- Happens: runs diagnose; `not_installed` → install tip + stop; `setup_pending` → adaptive intake; version behind → tip pinned `--update`.
+- NOT if you only want a read-only “which command?” print → `/midas-reconcile`.
+- Next: `/midas-status` after setup/refresh.
+
+**Start a product idea or adopt brownfield**
+- What: Phase 0 idea capture, or brownfield adopt inventory.
+- Command: `/idea-intake` · existing code → `/midas-adopt` (or `/midas-init` first if setup incomplete)
+- Happens: writes idea/inventory artifacts; may set brownfield mode.
+- NOT if Midas is not installed / setup incomplete → `/midas-init` first.
 - Next: `/midas-status` then the phase skill it names.
 
 **Resume after a break**
@@ -111,18 +121,25 @@ recommended-model: claude-haiku-4-5
 - NOT a substitute for `/close-sprint` sprint conformance.
 - Next: fix findings; then `/close-sprint` when ready.
 
+**Clean dead flows / lean the repo**
+- What: product-repo hygiene — dead routes, orphans, ledger/doc drift, optional lean delete-list.
+- Command: `/midas-hygiene` [`all|dead-flows|docs|lean|report-only`]
+- Happens: path-passes sweep scope `product` (+ lean on fat diffs); freezes `sweep-NN.md` / optional `lean-NN.md`.
+- NOT adapter sync → `/midas-doctor`. NOT binding gate → `/close-sprint` (close path-passes hygiene in Step 0).
+- Next: `/close-sprint` when in an active sprint, else `/midas-status`.
+
 **Capture a recurring pattern**
 - What: crystallize a rule, playbook, or convention (asks first).
 - Command: `/midas-capture`
 - Happens: capture proposes an artifact; never writes silently.
-- NOT for one-off preferences with no CHECK → say so and skip. Hygiene/lean are path-passed by `/close-sprint` (internal) — not separate help options.
+- NOT for one-off preferences with no CHECK → say so and skip. Product hygiene → `/midas-hygiene`.
 - Next: `/midas-doctor` if a rule changed.
 
-**Install / version / adapter health**
-- What: orientation, adapter drift, or engine upgrade.
-- Command: `/midas-reconcile` · `/midas-doctor` · `/midas-update` · `/midas-align` (engine edits)
-- Happens: prints next CLI/slash command, re-renders adapters, or migrates version.
-- NOT for product work mid-sprint → `/midas-status`.
+**Install confusion / adapter health**
+- What: read-only “which command?” or adapter/engine sync (not setup/update — that is `/midas-init`).
+- Command: `/midas-reconcile` · `/midas-doctor` · `/midas-align` (engine edits)
+- Happens: prints next CLI/slash command or re-renders adapters.
+- NOT for first-time setup or version refresh → `/midas-init`.
 - Next: the command reconcile/doctor names.
 
 **Investigate outside the pipeline**
@@ -143,7 +160,7 @@ internals only as parent-owned path-pass. End with: Pipeline PC = `/midas-status
 - One `AskQuestion` only — do not chain.
 - Do not paste the full midas-status stage table unless the user needs a phase gate name.
 - If the chosen option needs a prerequisite (e.g. verify needs a UI sprint), say so in When NOT.
-- Never list deprecated aliases (`/midas-improve-loop`, `/midas-autopilot`, `/midas-auto-sprints`) as Exact command.
+- Never list deprecated aliases (`/midas-improve-loop`, `/midas-autopilot`, `/midas-auto-sprints`, `/midas-update`) as Exact command.
 
 ## Tier & delegation
 - **Dispatch (read-only):** `scout` → `midas-scout` (or fastest session model).

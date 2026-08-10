@@ -108,14 +108,14 @@ On tools without per-agent model selection, apply as intent: fastest for researc
   the Skill tool** (it errors) or auto-run them as slash. When a **primary** skill is the next step,
   **surface the command for the user to type** ("👉 Run `/…`"). When an **internal** procedure is
   needed (`user-surface: internal`: `/midas-progress`, `/midas-qa`, `/midas-diff-gates`,
-  `/midas-lean-review`, `/midas-sweep`), the parent (`/start-sprint`, `/close-sprint`, Phase 7 body)
+  `/midas-lean-review`, `/midas-sweep`), the parent (`/start-sprint`, `/close-sprint`, `/midas-hygiene`, Phase 7 body)
   **reads** `<paths.engine>/skills/<name>/SKILL.md` and runs those steps in-process — power-users
   may still type the internal slash. Primary side-effect examples: `/midas-init`, `/define-conventions`,
-  `/start-sprint`, `/close-sprint`, `/midas-doctor`, `/midas-adopt`, `/midas-update`, `/midas-verify`,
+  `/start-sprint`, `/close-sprint`, `/midas-doctor`, `/midas-adopt`, `/midas-hygiene`, `/midas-verify`,
   `/midas-design`, `/midas-init --monorepo`, `/midas-tribunal`, `/midas-security-audit`, `/midas-capture`,
   `/midas-align`, `/midas-bundle`, `/midas-explore`, `/midas-auto-pilot`,
   `/midas-retro`, `/midas-investigate`. Deprecated aliases (`/midas-improve-loop`, `/midas-autopilot`,
-  `/midas-auto-sprints`) forward to `/midas-auto-pilot` — do not list in `/midas-help`.
+  `/midas-auto-sprints`, `/midas-update`) forward to their primary — do not list in `/midas-help`.
 - **State ritual (shared):** skills read **`paths.state` first** and **write last** (read-modify-write). Cite
   `<paths.engine>/templates/skill-state-ritual.md` instead of restating stage enums or path substitution.
   Schema: `<paths.engine>/state.schema.md`.

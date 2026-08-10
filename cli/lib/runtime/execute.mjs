@@ -8,12 +8,12 @@ import { createInterface } from 'node:readline';
 import { stdin as input, stdout as output } from 'node:process';
 import { spawnSync } from 'node:child_process';
 import {
-  applyV2Migration,
+  applyHarnessMigration,
   extractLegacyRuleOverrides,
   formatMigrationPlan,
-  planV2Migration,
+  planHarnessMigration,
   writeMigrationReceipt,
-} from '../../migrate-v2.mjs';
+} from '../../migrate-harness.mjs';
 import {
   readOwnershipManifest,
   sha256File,
@@ -170,7 +170,7 @@ async function executeInstallerCommand(cmd, hooks) {
     }
 
     if (cmd.command === 'migrate' && !cmd.apply && !cmd.rollback && !cmd.resume) {
-      const migrationPlan = planV2Migration(TARGET);
+      const migrationPlan = planHarnessMigration(TARGET);
       if (!jsonOut) console.log(formatMigrationPlan(migrationPlan));
       return { ok: true, message: 'migrate preview — pass --apply to write' };
     }
@@ -442,12 +442,12 @@ async function executeInstallerCommand(cmd, hooks) {
       ...extra,
 
       async applyMigration() {
-        const plan = planV2Migration(TARGET);
+        const plan = planHarnessMigration(TARGET);
         if (!jsonOut) console.log(formatMigrationPlan(plan));
         if (plan.from_layout === 'harness') return;
         if (extra.setMigrationPlan) extra.setMigrationPlan(plan);
         else session.migrationPlan = plan;
-        applyV2Migration(TARGET, plan);
+        applyHarnessMigration(TARGET, plan);
         const canonicalNames = existsSync(join(TEMPLATE, '.harness', 'engine', 'rules'))
           ? readdirSync(join(TEMPLATE, '.harness', 'engine', 'rules')).filter((name) => name.endsWith('.md'))
           : [];
@@ -891,7 +891,7 @@ async function report(tools, paths) {
     reportGitignoreLine();
     if (verifyResult?.ok) {
       console.log('     verify: ok — adapters in sync (midas-doctor passed).');
-      console.log('     Update complete — no need to run /midas-update. Next: /midas-status in your editor.');
+      console.log('     Update complete — no need to run /midas-init for refresh. Next: /midas-status in your editor.');
       console.log('     Reload Cursor if new slash commands do not appear.');
     } else if (verifyResult && !verifyResult.missing) {
       console.log('     verify: FAILED — adapters still out of sync after auto-fix.');
