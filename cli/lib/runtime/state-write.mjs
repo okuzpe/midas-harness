@@ -7,7 +7,7 @@ import {
   normalizeRoutingProfile,
   resolveRoutingModels,
 } from '../../template/.harness/scripts/model-profiles.mjs';
-import { evaluateMcpGovernance } from '../../../scripts/mcp-drift.mjs';
+import { evaluateMcpGovernance } from '../../template/.harness/scripts/mcp-drift.mjs';
 import { DEFAULT_TOOLS } from '../cli/args.mjs';
 
 /**

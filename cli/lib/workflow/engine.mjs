@@ -13,7 +13,7 @@ import { planMigrate } from '../steps/migrate.mjs';
 import { planUninstall } from '../steps/uninstall.mjs';
 import { confirm, isInteractive } from '../prompt.mjs';
 import { emitPhase, emitResult, buildResultEnvelope } from '../report/render.mjs';
-import { evaluateMcpGovernance } from '../../../scripts/mcp-drift.mjs';
+import { evaluateMcpGovernance } from '../../template/.harness/scripts/mcp-drift.mjs';
 
 /**
  * `--update` is the single refresh command: on a 1.x classic/compact/hub install it

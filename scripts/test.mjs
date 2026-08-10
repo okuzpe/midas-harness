@@ -1486,6 +1486,19 @@ check('installer:gitignore-merge', /gitignore-merge\.mjs/.test(installerRuntime)
 check('installer:gitignore-report-always', /reportGitignoreLine|gitignore: Midas block already up to date/.test(installerRuntime));
 check('installer:gitignore-after-engine', /ensureGitignore\(paths\)/.test(installerRuntime) && /gitignore-merge\.mjs/.test(installerRuntime));
 check('installer:verify-after-update', /function verifyInstall\(paths\)/.test(installerRuntime) && /runDoctor\(TARGET, paths/.test(installerRuntime));
+{
+  // npx ships only `cli/` (package.json files). Imports must stay under cli/template, not repo scripts/.
+  const engineImport = readFileSync(join(ROOT, 'cli', 'lib', 'workflow', 'engine.mjs'), 'utf8');
+  const stateImport = readFileSync(join(ROOT, 'cli', 'lib', 'runtime', 'state-write.mjs'), 'utf8');
+  check(
+    'installer:npx-imports-stay-in-cli',
+    /from ['"]\.\.\/\.\.\/template\/\.harness\/scripts\/mcp-drift\.mjs['"]/.test(engineImport) &&
+      /from ['"]\.\.\/\.\.\/template\/\.harness\/scripts\/mcp-drift\.mjs['"]/.test(stateImport) &&
+      !/from ['"]\.\.\/\.\.\/\.\.\/scripts\//.test(engineImport) &&
+      !/from ['"]\.\.\/\.\.\/\.\.\/scripts\//.test(stateImport),
+    'cli runtime must not import repo-root scripts/ (absent in npx package)',
+  );
+}
 check('installer:verify-auto-fix-routing', /STRICT:.*\\b\(routing\|version\)\\b/.test(installerRuntime));
 check('installer:update-complete-hint', /no need to run \/midas-init for refresh/i.test(installerRuntime));
 check('installer:install-vs-update-guard', /id: 'install-vs-update'/.test(engineSrc));

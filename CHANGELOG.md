@@ -11,6 +11,16 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.9.9] — 2026-08-10
+
+### Fixed
+
+- **npx package import** — `engine.mjs` / `state-write.mjs` import `mcp-drift` from
+  `cli/template/.harness/scripts/` (published under `"files": ["cli"]`), not repo-root
+  `scripts/` which is absent in the npx install and crashed `--update` on 2.9.8.
+
+---
+
 ## [2.9.8] — 2026-08-10
 
 ### Fixed
@@ -1738,7 +1748,7 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.9.8...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.9.9...HEAD
 [2.9.7]: https://github.com/okuzpe/midas-harness/compare/v2.9.6...v2.9.7
 [2.9.6]: https://github.com/okuzpe/midas-harness/compare/v2.9.5...v2.9.6
 [2.9.5]: https://github.com/okuzpe/midas-harness/compare/v2.9.4...v2.9.5
