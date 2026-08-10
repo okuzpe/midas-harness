@@ -553,9 +553,10 @@ function pruneEmptyTree(path) {
   }
 }
 
-export function applyHarnessMigration(projectRoot, plan = planHarnessMigration(projectRoot)) {
+export function applyHarnessMigration(projectRoot, plan = planHarnessMigration(projectRoot), opts = {}) {
+  const retainBackup = !!opts.retainBackup;
   const root = resolve(projectRoot);
-  if (!plan.rows.length) return plan;
+  if (!plan.rows.length) return { ...plan, retainedBackup: null };
   const session = backupRoots(root);
   const staging = mkdtempSync(join(tmpdir(), 'midas-harness-staging-'));
   const maybeFail = (step) => {
@@ -600,8 +601,11 @@ export function applyHarnessMigration(projectRoot, plan = planHarnessMigration(p
     }
     maybeFail('after-delete');
     rmSync(staging, { recursive: true, force: true });
-    rmSync(session.backup, { recursive: true, force: true });
-    return plan;
+    if (!retainBackup) {
+      rmSync(session.backup, { recursive: true, force: true });
+      return { ...plan, retainedBackup: null };
+    }
+    return { ...plan, retainedBackup: session.backup };
   } catch (error) {
     rollback(root, session);
     rmSync(staging, { recursive: true, force: true });

@@ -1,7 +1,9 @@
 // engine.mjs — lifecycle runner: requirements → checks → plan → confirm → execute → verify.
 
-import { resolve } from 'node:path';
-import { detectContext, compareVersions, hasMidasInstall, detectLegacyLayout, isMidasEngineRepository } from '../core/context.mjs';
+import { existsSync, readFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { detectContext, compareVersions, hasMidasInstall, detectLegacyLayout, isMidasEngineRepository, yamlScalar } from '../core/context.mjs';
 import { formatUpdateCmd } from '../core/install-cmd.mjs';
 import { createPlan } from '../core/plan.mjs';
 import { assessUpdateConflicts } from '../core/conflicts.mjs';
@@ -11,6 +13,7 @@ import { planMigrate } from '../steps/migrate.mjs';
 import { planUninstall } from '../steps/uninstall.mjs';
 import { confirm, isInteractive } from '../prompt.mjs';
 import { emitPhase, emitResult, buildResultEnvelope } from '../report/render.mjs';
+import { evaluateMcpGovernance } from '../../../scripts/mcp-drift.mjs';
 
 /**
  * `--update` is the single refresh command: on a 1.x classic/compact/hub install it
@@ -313,6 +316,70 @@ function gatherChecks(cmd, ctx, deps) {
     ok: true,
     message: `bundled template v${deps.bundledVersion}`,
   });
+
+  if (cmd.command === 'update' || cmd.command === 'migrate') {
+    const dirty = spawnSync('git', ['status', '--porcelain'], {
+      cwd: ctx.dir,
+      encoding: 'utf8',
+    });
+    if (dirty.status === 0 && (dirty.stdout || '').trim()) {
+      const lines = (dirty.stdout || '').trim().split(/\r?\n/).length;
+      out.push({
+        id: 'git-dirty',
+        ok: true,
+        message: `working tree has ${lines} dirty path(s) — commit or stash before migrate/update if you need a clean restore point (not blocking)`,
+      });
+    }
+  }
+
+  if (cmd.command === 'migrate') {
+    const layout = detectLegacyLayout(ctx.dir);
+    if (layout === 'conflict') {
+      out.push({
+        id: 'layout-conflict',
+        ok: false,
+        message:
+          'layout markers conflict (classic/hub and .harness coexist) — resolve manually or restore from git before migrate',
+      });
+    } else {
+      out.push({
+        id: 'layout',
+        ok: true,
+        message: layout ? `will migrate ${layout} → harness` : 'no legacy layout markers',
+      });
+    }
+
+    const stateRaw = ctx.stateRaw || '';
+    const hasGov = !!yamlScalar(stateRaw, 'mcp_governance');
+    let mcpPath = join(ctx.dir, '.mcp.json');
+    if (existsSync(mcpPath)) {
+      try {
+        const gov = evaluateMcpGovernance(readFileSync(mcpPath, 'utf8'));
+        const shadows = gov.shadowServers || [];
+        if (shadows.length && !hasGov) {
+          out.push({
+            id: 'mcp-self-managed',
+            ok: true,
+            message:
+              `shadow MCP(s) ${shadows.join(', ')} — will set mcp_governance: self_managed on apply ` +
+              `(switch to runlayer after moving servers to Runlayer-managed URLs)`,
+          });
+        } else if (shadows.length && hasGov) {
+          out.push({
+            id: 'mcp-governance',
+            ok: true,
+            message: `mcp_governance=${yamlScalar(stateRaw, 'mcp_governance')} with shadow MCP(s): ${shadows.join(', ')}`,
+          });
+        }
+      } catch {
+        out.push({
+          id: 'mcp-json',
+          ok: true,
+          message: '.mcp.json present but not valid JSON — doctor will report after apply',
+        });
+      }
+    }
+  }
 
   if (cmd.command === 'update') {
     const assessment = assessUpdateConflicts(ctx.dir);

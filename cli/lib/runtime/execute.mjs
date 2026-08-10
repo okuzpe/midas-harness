@@ -1,7 +1,7 @@
 // execute.mjs — install/update/migrate/uninstall execute leg + helpers (moved from index).
 // Phase ops carry apply/verify; runPlanOps walks them. File-level copy-* ops stay informational.
 
-import { readdirSync, readFileSync, existsSync, mkdirSync } from 'node:fs';
+import { readdirSync, readFileSync, existsSync, mkdirSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createInterface } from 'node:readline';
@@ -98,8 +98,10 @@ export function createExecuteHandler(env) {
   const NAME = env.name;
   const targetArg = env.targetArg;
   const parsedCmd = env.cmd;
-  const update = parsedCmd.command === 'update';
-  const migrate = parsedCmd.command === 'migrate';
+  // Defaults from argv; overwritten at the start of each execute(cmd) from the *resolved* command
+  // (so --update promoted to migrate uses migrate rollback paths + migrate bind flags).
+  let update = parsedCmd.command === 'update';
+  let migrate = parsedCmd.command === 'migrate';
   const force = parsedCmd.force;
   const dryRun = parsedCmd.dryRun;
   const purge = parsedCmd.purge;
@@ -116,6 +118,13 @@ export function createExecuteHandler(env) {
   let rendered = false;
   let verifyResult = null;
   let updatedTo = null;
+  /** @type {string | null} tmp backup retained by applyHarnessMigration until verify ok */
+  let retainedMigrateBackup = null;
+
+  function syncEffectiveFlags(cmd) {
+    update = cmd.command === 'update';
+    migrate = cmd.command === 'migrate';
+  }
 
   function copyCtx() {
     return { target: TARGET, template: TEMPLATE, update, migrate, force, written, skipped };
@@ -158,6 +167,8 @@ export function createExecuteHandler(env) {
   }
 
 async function executeInstallerCommand(cmd, hooks) {
+    syncEffectiveFlags(cmd);
+
     if (cmd.command === 'uninstall') {
       const plan = hooks.plan;
       const session = makeSession({ migrationPlan: null });
@@ -186,7 +197,11 @@ async function executeInstallerCommand(cmd, hooks) {
           message: 'create-midas: --rollback found no active.json installer run',
         };
       }
-      const durable = sessionFromJournal(TARGET, active.run_id, installRollbackPaths());
+      const pathOpts = {
+        migrate: active.command === 'migrate',
+        update: active.command === 'update',
+      };
+      const durable = sessionFromJournal(TARGET, active.run_id, installRollbackPaths(pathOpts));
       if (!durable) {
         return {
           ok: false,
@@ -233,6 +248,7 @@ async function executeInstallerCommand(cmd, hooks) {
     rendered = false;
     verifyResult = null;
     updatedTo = null;
+    retainedMigrateBackup = null;
 
     let migrationPlan = null;
     let migrationOuterRollback = null;
@@ -360,12 +376,14 @@ async function executeInstallerCommand(cmd, hooks) {
       }
       if (!jsonOut) await report(session.selectedTools, session.paths);
 
-      if (migrationOuterRollback) {
-        discardRollbackSession(migrationOuterRollback);
-        migrationOuterRollback = null;
-      }
-
       const ok = !(verifyResult && !verifyResult.ok);
+      if (ok) {
+        if (migrationOuterRollback) {
+          discardRollbackSession(migrationOuterRollback);
+          migrationOuterRollback = null;
+        }
+        clearRetainedMigrateBackup();
+      }
       if (runId) {
         if (ok) {
           appendJournal(TARGET, runId, { op: 'complete' });
@@ -377,8 +395,23 @@ async function executeInstallerCommand(cmd, hooks) {
             command: cmd.command,
             step: 'verify',
           });
-          appendJournal(TARGET, runId, { op: 'needs_repair', detail: 'verify failed' });
+          appendJournal(TARGET, runId, {
+            op: 'needs_repair',
+            detail: verifyResult?.missing
+              ? 'doctor script missing'
+              : 'verify failed (doctor --strict)',
+          });
         }
+      }
+
+      if (!ok && !jsonOut) {
+        const detail = verifyResult?.out?.trim() || 'doctor verification failed';
+        console.error(
+          'create-midas: apply finished but verify needs repair — tree left in place.\n' +
+            `  Fix the doctor findings below, then: npx … --update --resume --yes\n` +
+            `  Or undo this run: npx … --update --rollback --yes\n` +
+            detail,
+        );
       }
 
       return {
@@ -388,7 +421,9 @@ async function executeInstallerCommand(cmd, hooks) {
         verify: verifyResult ? { ok: !!verifyResult.ok } : null,
         written: [...written],
         skipped: [...skipped],
-        message: updatedTo ? `updated → v${updatedTo}` : 'install complete',
+        message: ok
+          ? (updatedTo ? `updated → v${updatedTo}` : 'install complete')
+          : 'create-midas: NEEDS_REPAIR — verify failed after apply; use --resume or --rollback',
       };
     } catch (err) {
       const outerRunId = migrationOuterRollback?.durable?.runId || null;
@@ -397,6 +432,7 @@ async function executeInstallerCommand(cmd, hooks) {
         rollbackInstall(migrationOuterRollback);
         migrationOuterRollback = null;
       }
+      clearRetainedMigrateBackup();
       if (runId) {
         // In-process restore succeeded; clear active so the next run is not blocked.
         // Crash mid-apply (no finally clear) leaves active.json for --resume/--rollback.
@@ -412,21 +448,30 @@ async function executeInstallerCommand(cmd, hooks) {
         removeInstallRun(TARGET, runId);
         if (outerRunId) removeInstallRun(TARGET, outerRunId);
       }
+      const msg = `create-midas: apply failed; restored from installer backups — ${err.message || err}`;
       if (!jsonOut) {
-        console.error(`create-midas: install failed; restored previous files — ${err.message || err}`);
+        console.error(msg);
       }
       return {
         ok: false,
         exitCode: 5,
         outcome: 'ROLLED_BACK',
         error: err,
-        message: `create-midas: install failed; restored previous files — ${err.message || err}`,
+        message: msg,
       };
     } finally {
       if (rollbackSession) {
         const stillActive = runId && readActiveRun(TARGET);
+        // Keep durable backups when NEEDS_REPAIR (active.json still present) for --rollback.
         if (!(stillActive && rollbackSession.durable)) {
           discardRollbackSession(rollbackSession);
+        }
+      }
+      if (migrationOuterRollback) {
+        const stillActive = runId && readActiveRun(TARGET);
+        if (!(stillActive && migrationOuterRollback.durable)) {
+          discardRollbackSession(migrationOuterRollback);
+          migrationOuterRollback = null;
         }
       }
       if (lockHeld) releaseInstallLock(TARGET);
@@ -447,7 +492,8 @@ async function executeInstallerCommand(cmd, hooks) {
         if (plan.from_layout === 'harness') return;
         if (extra.setMigrationPlan) extra.setMigrationPlan(plan);
         else session.migrationPlan = plan;
-        applyHarnessMigration(TARGET, plan);
+        const result = applyHarnessMigration(TARGET, plan, { retainBackup: true });
+        if (result?.retainedBackup) retainedMigrateBackup = result.retainedBackup;
         const canonicalNames = existsSync(join(TEMPLATE, '.harness', 'engine', 'rules'))
           ? readdirSync(join(TEMPLATE, '.harness', 'engine', 'rules')).filter((name) => name.endsWith('.md'))
           : [];
@@ -569,12 +615,10 @@ async function executeInstallerCommand(cmd, hooks) {
       },
 
       async verifyDoctorOk() {
-        if (verifyResult && !verifyResult.ok) {
-          throw new Error(
-            verifyResult.missing
-              ? `strict doctor missing at ${session.paths.scripts}/doctor.mjs`
-              : `strict doctor verification failed\n${verifyResult.out}`,
-          );
+        // Do not throw — NEEDS_REPAIR path after runPlanOps must run (docs/installer-outcomes.md).
+        // Missing doctor script is still a hard apply failure.
+        if (verifyResult?.missing) {
+          throw new Error(`strict doctor missing at ${session.paths.scripts}/doctor.mjs`);
         }
       },
 
@@ -624,9 +668,11 @@ function copyTree(srcDir, dstDir) {
   copyTreeMod(srcDir, dstDir, copyCtx());
 }
 
-function installRollbackPaths() {
+function installRollbackPaths(opts = {}) {
   // Durable backups live under `.harness/cache/installer/` — never snapshot that
   // parent (`.harness` or `.harness/cache`) or Node cpSync rejects self-subdir copies.
+  const asMigrate = opts.migrate ?? migrate;
+  const asUpdate = opts.update ?? update;
   const vendorAndAdapters = [
     '.harness/engine',
     '.harness/scripts',
@@ -645,7 +691,9 @@ function installRollbackPaths() {
     'gemini-extension.json',
     'docs/agents-and-models.md',
   ];
-  if (update) {
+  // Pure --update on harness layout: vendor/adapters only.
+  // Migrate (including --update promote) and fresh install: full layout restore set.
+  if (asUpdate && !asMigrate) {
     return vendorAndAdapters;
   }
   return [
@@ -659,6 +707,16 @@ function installRollbackPaths() {
     'product',
     '.gitignore',
   ];
+}
+
+function clearRetainedMigrateBackup() {
+  if (!retainedMigrateBackup) return;
+  try {
+    rmSync(retainedMigrateBackup, { recursive: true, force: true });
+  } catch {
+    // Best-effort cleanup of tmp migrate backup.
+  }
+  retainedMigrateBackup = null;
 }
 
 function beginRollbackSession(root, relPaths, opts = {}) {
@@ -829,13 +887,19 @@ async function ensureGitignore(paths) {
 function runDoctor(target, paths, fix = false) {
   const doctorScript = join(target, paths.scripts, 'doctor.mjs');
   if (!existsSync(doctorScript)) return { ok: false, missing: true, out: '' };
-  const args = fix ? [doctorScript, '--fix'] : [doctorScript, '--strict'];
+  const args = fix
+    ? [doctorScript, '--fix']
+    : [doctorScript, '--strict', '--profile=install-verify'];
   const r = spawnSync(process.execPath, args, { cwd: target, encoding: 'utf8' });
   const out = `${r.stdout || ''}${r.stderr || ''}`;
   return { ok: r.status === 0, missing: false, out };
 }
 
 function verifyInstall(paths) {
+  // Test hook: force NEEDS_REPAIR without mutating doctor (SinFalta-shape regression).
+  if (process.env.MIDAS_TEST_VERIFY_FAIL === '1') {
+    return { ok: false, missing: false, out: 'MIDAS_TEST_VERIFY_FAIL=1' };
+  }
   let result = runDoctor(TARGET, paths);
   if (!result.ok && !result.missing) {
     const autoFixable =

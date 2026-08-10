@@ -11,6 +11,25 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.9.8] — 2026-08-10
+
+### Fixed
+
+- **Installer verify fail → `NEEDS_REPAIR` (exit 6)** — post-apply doctor failure no longer throws into
+  destructive vendor-only rollback. Promoted `--update` (classic→harness) uses migrate rollback paths;
+  backups stay until verify ok. Apply/I/O throw still `ROLLED_BACK` (5) with a full restore.
+- **Doctor `--profile=install-verify`** — installer verify uses a reduced strict set (omits
+  `rules:combined` / MCP governance+sync as blockers). Human `doctor --strict` stays full.
+- **Diagnose `partial_migrate`** — `.harness/product` or state without engine tips `--rollback` or git
+  restore + pinned `#v2.9.8+` `--update`.
+
+### Changed
+
+- Brownfield migrate preflight notes shadow MCPs and sets `mcp_governance: self_managed` when missing.
+- Migrate apply can retain its tmp backup until verify commits.
+
+---
+
 ## [2.9.7] — 2026-08-10
 
 ### Fixed
@@ -1719,7 +1738,7 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.9.7...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.9.8...HEAD
 [2.9.7]: https://github.com/okuzpe/midas-harness/compare/v2.9.6...v2.9.7
 [2.9.6]: https://github.com/okuzpe/midas-harness/compare/v2.9.5...v2.9.6
 [2.9.5]: https://github.com/okuzpe/midas-harness/compare/v2.9.4...v2.9.5

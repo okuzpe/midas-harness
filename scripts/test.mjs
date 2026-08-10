@@ -1442,6 +1442,13 @@ check('gitignore:merge-module', existsSync(join(ROOT, 'scripts', 'gitignore-merg
 check('gitignore:audit-export', /export function auditGitignore/.test(readFileSync(join(ROOT, 'scripts', 'gitignore-merge.mjs'), 'utf8')));
 check('doctor:gitignore-check', /gitignore:midas-block/.test(readFileSync(join(ROOT, 'scripts', 'doctor.mjs'), 'utf8')));
 check(
+  'doctor:install-verify-profile',
+  /--profile=install-verify/.test(readFileSync(join(ROOT, 'scripts', 'doctor.mjs'), 'utf8')) &&
+    /INSTALL_VERIFY_WARN_ONLY/.test(readFileSync(join(ROOT, 'scripts', 'doctor.mjs'), 'utf8')) &&
+    /--profile=install-verify/.test(installerRuntime),
+  'doctor + installer must share install-verify profile',
+);
+check(
   'doctor:context-cost-hook-check',
   /gate:context-cost-hook/.test(readFileSync(join(ROOT, 'scripts', 'doctor.mjs'), 'utf8')),
   'doctor must verify context-cost-refresh sessionStart hook when script is installed',
@@ -1836,7 +1843,9 @@ check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bi
     const out = `${updateResult.stdout}${updateResult.stderr}`;
     check(
       'installer:update-v1-promotes-to-migrate',
-      /will migrate to harness layout/i.test(out) && updateResult.status !== 0,
+      /will migrate to harness layout/i.test(out) &&
+        (updateResult.status === 0 || updateResult.status === 6) &&
+        existsSync(join(legacyUpdateRoot, '.harness', 'engine', 'VERSION')),
       out.slice(0, 800),
     );
   } finally {
@@ -1866,12 +1875,126 @@ check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bi
     check(
       'installer:migration-rollback-after-install-failure',
       (migration.status === 1 || migration.status === 5) &&
-        /restored previous files/.test(`${migration.stdout}${migration.stderr}`) &&
+        /restored from installer backups|restored previous files/.test(`${migration.stdout}${migration.stderr}`) &&
         treeDigest(migrationRollbackRoot) === before,
       migration.stderr || migration.stdout,
     );
   } finally {
     rmSync(migrationRollbackRoot, { recursive: true, force: true });
+  }
+}
+{
+  // SinFalta-shape: classic --update verify fail → NEEDS_REPAIR (exit 6), tree stays migrated.
+  const needsRepairRoot = mkdtempSync(join(tmpdir(), 'midas-update-needs-repair-'));
+  try {
+    mkdirSync(join(needsRepairRoot, 'harness'), { recursive: true });
+    mkdirSync(join(needsRepairRoot, 'scripts'), { recursive: true });
+    mkdirSync(join(needsRepairRoot, 'product'), { recursive: true });
+    writeFileSync(join(needsRepairRoot, 'harness', 'VERSION'), '1.1.4\n', 'utf8');
+    writeFileSync(
+      join(needsRepairRoot, 'harness', 'state.yaml'),
+      'midas_version: 1.1.4\nlayout: classic\nsetup_complete: true\n',
+      'utf8',
+    );
+    writeFileSync(join(needsRepairRoot, 'scripts', 'doctor.mjs'), '// Midas doctor\n', 'utf8');
+    writeFileSync(join(needsRepairRoot, 'product', 'idea.md'), '# idea\n', 'utf8');
+    const updateFail = spawnSync(
+      process.execPath,
+      [join(ROOT, 'cli', 'index.mjs'), '--update', '--yes', '--tools=cursor', needsRepairRoot],
+      {
+        cwd: ROOT,
+        encoding: 'utf8',
+        env: { ...process.env, MIDAS_TEST_VERIFY_FAIL: '1' },
+      },
+    );
+    const failOut = `${updateFail.stdout}${updateFail.stderr}`;
+    const { diagnoseProject: diagnoseNeedsRepair } = await import(
+      pathToFileURL(join(ROOT, 'cli', 'install-diagnose.mjs')).href
+    );
+    check(
+      'installer:update-classic-verify-fail-needs-repair',
+      updateFail.status === 6 &&
+        /NEEDS_REPAIR|needs repair/i.test(failOut) &&
+        existsSync(join(needsRepairRoot, '.harness', 'engine', 'VERSION')) &&
+        !existsSync(join(needsRepairRoot, 'harness', 'VERSION')) &&
+        existsSync(join(needsRepairRoot, '.harness', 'cache', 'installer', 'active.json')) &&
+        diagnoseNeedsRepair(needsRepairRoot).status !== 'not_installed' &&
+        diagnoseNeedsRepair(needsRepairRoot).status !== 'partial_migrate',
+      failOut.slice(0, 1200),
+    );
+  } finally {
+    rmSync(needsRepairRoot, { recursive: true, force: true });
+  }
+}
+{
+  // Apply throw mid-migrate via promoted --update → ROLLED_BACK with classic restored.
+  const updateThrowRoot = mkdtempSync(join(tmpdir(), 'midas-update-throw-restore-'));
+  try {
+    mkdirSync(join(updateThrowRoot, 'harness'), { recursive: true });
+    mkdirSync(join(updateThrowRoot, 'scripts'), { recursive: true });
+    mkdirSync(join(updateThrowRoot, 'product'), { recursive: true });
+    writeFileSync(join(updateThrowRoot, 'harness', 'VERSION'), '1.1.4\n', 'utf8');
+    writeFileSync(join(updateThrowRoot, 'harness', 'state.yaml'), 'midas_version: 1.1.4\nlayout: classic\n', 'utf8');
+    writeFileSync(join(updateThrowRoot, 'scripts', 'doctor.mjs'), '// Midas doctor\n', 'utf8');
+    writeFileSync(join(updateThrowRoot, 'product', 'idea.md'), '# idea\n', 'utf8');
+    const before = treeDigest(updateThrowRoot);
+    const thrown = spawnSync(
+      process.execPath,
+      [join(ROOT, 'cli', 'index.mjs'), '--update', '--yes', updateThrowRoot],
+      {
+        cwd: ROOT,
+        encoding: 'utf8',
+        env: { ...process.env, MIDAS_TEST_FAIL_STEP: 'after-state' },
+      },
+    );
+    const thrownOut = `${thrown.stdout}${thrown.stderr}`;
+    check(
+      'installer:update-promote-apply-throw-restores-classic',
+      thrown.status === 5 &&
+        /ROLLED_BACK|restored from installer backups/i.test(thrownOut) &&
+        treeDigest(updateThrowRoot) === before &&
+        existsSync(join(updateThrowRoot, 'harness', 'VERSION')) &&
+        existsSync(join(updateThrowRoot, 'product', 'idea.md')) &&
+        !existsSync(join(updateThrowRoot, '.harness', 'engine', 'VERSION')),
+      thrownOut.slice(0, 1200),
+    );
+  } finally {
+    rmSync(updateThrowRoot, { recursive: true, force: true });
+  }
+}
+{
+  // Harness-layout --update verify fail → NEEDS_REPAIR; vendor tree not wiped.
+  const harnessVerifyRoot = mkdtempSync(join(tmpdir(), 'midas-harness-verify-fail-'));
+  try {
+    const install = spawnSync(
+      process.execPath,
+      [join(ROOT, 'cli', 'index.mjs'), '--tools=cursor', harnessVerifyRoot],
+      { cwd: ROOT, encoding: 'utf8' },
+    );
+    check('installer:harness-verify-fail-fixture', install.status === 0, install.stderr || install.stdout);
+    const statePath = join(harnessVerifyRoot, '.harness', 'state.yaml');
+    const state = readFileSync(statePath, 'utf8').replace(/^midas_version:\s*\S+/m, 'midas_version: 2.0.0');
+    writeFileSync(statePath, state, 'utf8');
+    const update = spawnSync(
+      process.execPath,
+      [join(ROOT, 'cli', 'index.mjs'), '--update', '--yes', harnessVerifyRoot],
+      {
+        cwd: ROOT,
+        encoding: 'utf8',
+        env: { ...process.env, MIDAS_TEST_VERIFY_FAIL: '1' },
+      },
+    );
+    const out = `${update.stdout}${update.stderr}`;
+    check(
+      'installer:update-harness-verify-fail-needs-repair',
+      update.status === 6 &&
+        /NEEDS_REPAIR|needs repair/i.test(out) &&
+        existsSync(join(harnessVerifyRoot, '.harness', 'engine', 'VERSION')) &&
+        existsSync(join(harnessVerifyRoot, '.harness', 'cache', 'installer', 'active.json')),
+      out.slice(0, 1200),
+    );
+  } finally {
+    rmSync(harnessVerifyRoot, { recursive: true, force: true });
   }
 }
 
@@ -2023,6 +2146,13 @@ check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bi
       check('diagnose:legacy-slash-init', legacyCli.nextSlash === '/midas-init');
     }
     rmSync(legacy, { recursive: true, force: true });
+
+    const partial = mkdtempSync(join(tmpdir(), 'midas-diag-partial-'));
+    mkdirSync(join(partial, '.harness', 'product'), { recursive: true });
+    writeFileSync(join(partial, '.harness', 'product', 'idea.md'), '# idea\n', 'utf8');
+    check('diagnose:matrix-partial-migrate', diagnoseProject(partial).status === 'partial_migrate');
+    check('diagnose:partial-slash-init', diagnoseProject(partial).nextSlash === '/midas-init');
+    rmSync(partial, { recursive: true, force: true });
 
     writeFileSync(join(diagTmp, '.harness', 'state.yaml'), 'midas_version: 2.0.0\nlayout: harness\nsetup_complete: true\n', 'utf8');
     {

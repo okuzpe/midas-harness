@@ -1,12 +1,13 @@
 // state-write.mjs — AGENTS fill, state.yaml create/patch, version stamp.
 
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import {
   DEFAULT_ROUTING_PROFILE,
   normalizeRoutingProfile,
   resolveRoutingModels,
 } from '../../template/.harness/scripts/model-profiles.mjs';
+import { evaluateMcpGovernance } from '../../../scripts/mcp-drift.mjs';
 import { DEFAULT_TOOLS } from '../cli/args.mjs';
 
 /**
@@ -94,9 +95,26 @@ export function ensureMigratedStateShape(ctx, paths, routingProfile) {
     );
   }
   // v1 installs often declare mcp: servers without Runlayer; default governance is runlayer and
-  // doctor --strict then fails migrate/update. Preserve declared servers as self_managed.
-  if (/^mcp:\s*\[/m.test(cur) && !/^mcp_governance:\s*\S+/m.test(cur)) {
-    patches.push('mcp_governance: self_managed');
+  // doctor --strict then fails migrate/update. Preserve declared / shadow servers as self_managed.
+  if (!/^mcp_governance:\s*\S+/m.test(cur)) {
+    let needSelfManaged = /^mcp:\s*\[[^\]]*\]/m.test(cur) && !/^mcp:\s*\[\s*\]/m.test(cur);
+    if (!needSelfManaged) {
+      const mcpPath = join(ctx.target, '.mcp.json');
+      if (existsSync(mcpPath)) {
+        try {
+          const gov = evaluateMcpGovernance(readFileSync(mcpPath, 'utf8'));
+          needSelfManaged = (gov.shadowServers || []).length > 0;
+        } catch {
+          // ignore invalid mcp.json here — doctor surfaces it later
+        }
+      }
+    }
+    if (needSelfManaged) {
+      patches.push(
+        '# Brownfield shadow MCPs — set mcp_governance: runlayer after migrating servers to Runlayer',
+        'mcp_governance: self_managed',
+      );
+    }
   }
   if (!patches.length) return;
   const next = `${cur.replace(/\s*$/, '')}\n\n${patches.join('\n')}\n`;

@@ -45,16 +45,25 @@ Usage:
   node scripts/doctor.mjs [dir]     check adapters + health (exit 1 on drift)
   node scripts/doctor.mjs --fix     re-render adapters from source
   node scripts/doctor.mjs --strict  exit 1 on deterministic install, registry, routing, or gate drift
+  node scripts/doctor.mjs --strict --profile=install-verify
+      reduced blocking set for create-midas verify (omits rules:combined + mcp governance/sync)
   node scripts/doctor.mjs --gates-only  skip adapter drift check
-  node scripts/doctor.mjs --help    show this help`;
+  node scripts/doctor.mjs --help    show this help
+
+Profiles (with --strict):
+  full            default for humans / midas-doctor — all deterministic warns block
+  install-verify  installer post-apply — layout/version/routing/manifest/mirrors/adapters/secrets;
+                  rules:combined and mcp:governance|cursor-sync|template-sync|declared-vs-wired stay warn-only`;
 
 const FIX = process.argv.includes('--fix');
 const STRICT = process.argv.includes('--strict');
 const GATES_ONLY = process.argv.includes('--gates-only');
 const SHOW_HELP = process.argv.includes('--help') || process.argv.includes('-h');
+const profileArg = process.argv.find((a) => a.startsWith('--profile='));
+const STRICT_PROFILE = (profileArg ? profileArg.slice('--profile='.length) : 'full').trim() || 'full';
 // Optional positional project root: check THAT project instead of the engine repo. Lets `--strict` run
 // against a real install (or scripts/fixtures/product-closed) so the gate-records check is provably exercised.
-const rootArg = process.argv.slice(2).find((a) => !a.startsWith('-'));
+const rootArg = process.argv.slice(2).find((a) => !a.startsWith('-') && !a.startsWith('--'));
 const ROOT = rootArg ? resolve(process.cwd(), rootArg) : resolveProjectRootFromScript(import.meta.url);
 const paths = resolvePaths(ROOT);
 const doctorCmd = `node ${paths.scripts}/doctor.mjs`;
@@ -1148,35 +1157,49 @@ if (drift) {
   console.log('\nAdapters OUT OF SYNC. Run `' + doctorCmd + ' --fix` (or `/midas-doctor`).');
   process.exit(1);
 }
-const strictBlocking = health.filter((h) => h.status === 'warn' && (
-  (GATES_ONLY && h.name.startsWith('gate:')) ||
-  (!GATES_ONLY && (
-  h.name === 'version' ||
-  h.name === 'routing' ||
-  h.name.startsWith('state:') ||
-  h.name.startsWith('layout:') ||
-  h.name.startsWith('file:') ||
-  h.name.startsWith('manifest:') ||
-  h.name.startsWith('mirror:') ||
-  h.name.startsWith('gate:') ||
-  h.name === 'gates:registry' ||
-  h.name === 'stage-table' ||
-  h.name === 'design-system:tokens' ||
-  h.name === 'checks:index' ||
-  h.name === 'skills:registry' ||
-  h.name === 'rules:combined' ||
-  h.name === 'skills:frontmatter' ||
-  h.name === 'gitignore:midas-block' ||
-  h.name === 'mcp:secret-free' ||
-  h.name === 'mcp:governance' ||
-  h.name === 'mcp:declared-vs-wired' ||
-  h.name === 'mcp:skill-required' ||
-  h.name === 'mcp:cursor-sync' ||
-  h.name === 'mcp:template-sync'
-  ))
-));
+/** Names that never block under --profile=install-verify (still warn in the health table). */
+const INSTALL_VERIFY_WARN_ONLY = new Set([
+  'rules:combined',
+  'mcp:governance',
+  'mcp:declared-vs-wired',
+  'mcp:cursor-sync',
+  'mcp:template-sync',
+]);
+
+function isStrictBlockingName(name) {
+  if (GATES_ONLY) return name.startsWith('gate:');
+  const core =
+    name === 'version' ||
+    name === 'routing' ||
+    name.startsWith('state:') ||
+    name.startsWith('layout:') ||
+    name.startsWith('file:') ||
+    name.startsWith('manifest:') ||
+    name.startsWith('mirror:') ||
+    name.startsWith('gate:') ||
+    name === 'gates:registry' ||
+    name === 'stage-table' ||
+    name === 'design-system:tokens' ||
+    name === 'checks:index' ||
+    name === 'skills:registry' ||
+    name === 'rules:combined' ||
+    name === 'skills:frontmatter' ||
+    name === 'gitignore:midas-block' ||
+    name === 'mcp:secret-free' ||
+    name === 'mcp:governance' ||
+    name === 'mcp:declared-vs-wired' ||
+    name === 'mcp:skill-required' ||
+    name === 'mcp:cursor-sync' ||
+    name === 'mcp:template-sync';
+  if (!core) return false;
+  if (STRICT_PROFILE === 'install-verify' && INSTALL_VERIFY_WARN_ONLY.has(name)) return false;
+  return true;
+}
+
+const strictBlocking = health.filter((h) => h.status === 'warn' && isStrictBlockingName(h.name));
 if (STRICT && strictBlocking.length) {
-  console.log(`\nSTRICT: ${strictBlocking.length} deterministic health check(s) failed: ${strictBlocking.map((h) => h.name).join(', ')}`);
+  const profileNote = STRICT_PROFILE === 'install-verify' ? ' (profile=install-verify)' : '';
+  console.log(`\nSTRICT${profileNote}: ${strictBlocking.length} deterministic health check(s) failed: ${strictBlocking.map((h) => h.name).join(', ')}`);
   process.exit(1);
 }
 const tail = GATES_ONLY ? 'Gate checks complete.' : 'Adapters in sync.';

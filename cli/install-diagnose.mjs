@@ -77,6 +77,29 @@ export function diagnoseProject(targetDir, opts = {}) {
   const dir = ctx.dir;
   const installCmd = opts.installCmd || defaultInstallCmd(opts.bundledVersion);
   const ancestor = ctx.ancestorRoot;
+  const hasEngine = existsSync(join(dir, '.harness', 'engine', 'VERSION'));
+  const hasProduct = existsSync(join(dir, '.harness', 'product'));
+  const hasState = existsSync(join(dir, '.harness', 'state.yaml'));
+  const activeRun = existsSync(join(dir, '.harness', 'cache', 'installer', 'active.json'));
+
+  // Broken mid-migrate / failed verify+bad rollback trees (pre-2.9.8 SinFalta-shape).
+  if (!hasEngine && (hasProduct || hasState)) {
+    const updateBase = relatedCli(installCmd, 'update');
+    return {
+      status: 'partial_migrate',
+      dir,
+      summary: 'Partial harness migrate detected (.harness/product or state without .harness/engine).',
+      nextCli: activeRun
+        ? `${updateBase} --rollback --yes`
+        : null,
+      nextSlash: '/midas-init',
+      detail:
+        (activeRun
+          ? 'Installer journal still active — prefer `npx … --update --rollback --yes` to restore the pre-migrate tree, then re-run a pinned `--update` (#v2.9.8+).\n\n'
+          : 'No usable installer journal — restore classic/harness files with `git restore` / checkout, then re-run `npx github:okuzpe/midas-harness#v2.9.8 --update --yes` (or newer).\n\n') +
+        'Do not treat this as a fresh install unless you intend to discard the leftover `.harness/product` tree.',
+    };
+  }
 
   if (!ctx.installed) {
     if (ancestor) {
