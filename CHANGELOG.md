@@ -11,6 +11,14 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ---
 
+## [2.9.7] — 2026-08-10
+
+### Fixed
+
+- **Classic→harness migrate** — `legacy-*-amendments.md` now pass through `normalizeMigratedProjectRule` so they include `**CHECK:**` and no longer fail strict `rules:combined` (which aborted `--update` and left a broken rollback on some trees).
+
+---
+
 ## [2.9.6] — 2026-08-10
 
 ### Added
@@ -1711,7 +1719,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.9.6...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.9.7...HEAD
+[2.9.7]: https://github.com/okuzpe/midas-harness/compare/v2.9.6...v2.9.7
 [2.9.6]: https://github.com/okuzpe/midas-harness/compare/v2.9.5...v2.9.6
 [2.9.5]: https://github.com/okuzpe/midas-harness/compare/v2.9.4...v2.9.5
 [2.9.4]: https://github.com/okuzpe/midas-harness/compare/v2.9.3...v2.9.4

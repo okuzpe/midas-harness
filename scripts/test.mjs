@@ -2459,6 +2459,12 @@ check('migrate-layout:module-exists', existsSync(join(ROOT, 'scripts', 'migrate-
     check('migrate-harness:user-skill-stays', existsSync(join(migrationRoot, '.agents', 'skills', 'acme-local', 'SKILL.md')));
     check('migrate-harness:amendment-extracted', extracted.includes('.harness/rules/legacy-testing-amendments.md'));
     {
+      const amendmentBody = readFileSync(join(migrationRoot, '.harness', 'rules', 'legacy-testing-amendments.md'), 'utf8');
+      check(
+        'migrate-harness:amendment-has-check',
+        /^#\s+\S/m.test(amendmentBody) && /\*\*CHECK:\*\*/.test(amendmentBody),
+        'legacy-*-amendments.md must pass doctor rules:combined',
+      );
       const bomRule = String.fromCharCode(0xfeff) + '# Rule: bom-stack (always-on)\n\n## CHECK\n- Pass iff true.\n';
       const normalized = normalizeMigratedProjectRule('bom-stack.md', bomRule);
       check('migrate-harness:normalize-bom-rule', normalized.charCodeAt(0) !== 0xfeff && /^#\s+\S/m.test(normalized) && /\*\*CHECK:\*\*/.test(normalized));

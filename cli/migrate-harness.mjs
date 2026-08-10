@@ -376,14 +376,17 @@ export function extractLegacyRuleOverrides(projectRoot, plan, canonicalRuleNames
     if (!amendments.length) continue;
     const slug = name.replace(/\.md$/, '');
     const target = join(targetDir, `legacy-${slug}-amendments.md`);
-    const body = [
-      `# Legacy amendments — ${slug}`,
-      '',
-      '> Extracted during the harness layout migration. Review and consolidate into a project rule.',
-      '',
-      ...amendments,
-      '',
-    ].join('\n');
+    const body = normalizeMigratedProjectRule(
+      `legacy-${slug}-amendments.md`,
+      [
+        `# Legacy amendments — ${slug}`,
+        '',
+        '> Extracted during the harness layout migration. Review and consolidate into a project rule.',
+        '',
+        ...amendments,
+        '',
+      ].join('\n'),
+    );
     if (existsSync(target) && readFileSync(target, 'utf8') !== body) {
       throw new Error(`project amendment conflict: ${posix(relative(root, target))}`);
     }
