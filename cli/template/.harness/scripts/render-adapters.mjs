@@ -5,9 +5,11 @@
 // This script (re)writes the four generated tool adapters from that source:
 //   - CLAUDE.md                 -> keeps content outside markers; managed block holds the Midas note.
 //                                  Guarantees an `@AGENTS.md` import sits above the managed block.
-//   - .cursor/rules/00-midas.mdc -> Cursor frontmatter FIRST (file head), then a managed body.
-//   - harness/.windsurf/rules/00-midas.md (classic) / .harness/.windsurf/… (v2) — frontmatter FIRST, then body.
-//   - GEMINI.md                  -> Gemini CLI project memory (inlined body, no frontmatter).
+//   - .cursor/rules/00-midas.mdc -> always-on conventions (alwaysApply: true).
+//   - .cursor/rules/01-midas-checks.mdc -> on-demand CHECK digest (alwaysApply: false; ADR-014).
+//   - harness/.windsurf/rules/00-midas.md (classic) / .harness/.windsurf/… (v2) — always_on conventions.
+//   - …/01-midas-checks.md — model_decision digest (docs: https://docs.devin.ai/desktop/cascade/memories 2026-08-27).
+//   - GEMINI.md                  -> conventions + pointer to checks.json (no inline digest; ADR-014).
 //
 // Frontmatter must be at the very top of .mdc / windsurf rule files or the tool won't parse it,
 // so for those two the managed markers wrap only the BODY, never the frontmatter.
@@ -38,12 +40,18 @@ const END = '<!-- midas:end -->';
 // Tools that ship a generated adapter file. codex/copilot read AGENTS.md only (no adapter path).
 export const DEFAULT_ADAPTER_TOOLS = ['claude-code', 'cursor', 'windsurf', 'gemini'];
 
+/** Base (always-on / project-memory) adapter path per tool. Layout-aware windsurf uses adapterPathForTool. */
 export const TOOL_ADAPTER_MAP = {
   'claude-code': 'CLAUDE.md',
   cursor: '.cursor/rules/00-midas.mdc',
   windsurf: '.windsurf/rules/00-midas.md', // legacy root — use adapterPathForTool('windsurf', layout)
   gemini: 'GEMINI.md',
 };
+
+export const CURSOR_CHECKS_ADAPTER_REL = '.cursor/rules/01-midas-checks.mdc';
+
+const CHECKS_RULE_DESCRIPTION =
+  'Midas CHECK digest for Phase-8 conformance audits and rule reviews. Full always-on rule CHECKs (base + project overlays). Attach when auditing, closing a sprint, or verifying rule compliance.';
 
 /** Windsurf adapter path nested under the Midas layout root (not project root). */
 export function windsurfAdapterRel(layout = 'classic') {
@@ -60,12 +68,40 @@ export function windsurfAdapterRel(layout = 'classic') {
   }
 }
 
+/** On-demand CHECK digest sibling of the Windsurf always-on adapter (ADR-014). */
+export function windsurfChecksRel(layout = 'classic') {
+  return windsurfAdapterRel(layout).replace(/00-midas\.md$/, '01-midas-checks.md');
+}
+
 export const LEGACY_WINDSURF_ADAPTER_REL = '.windsurf/rules/00-midas.md';
+export const LEGACY_WINDSURF_CHECKS_REL = '.windsurf/rules/01-midas-checks.md';
 
 export function adapterPathForTool(tool, layout = 'classic') {
   if (tool === 'claude-code' && layout === 'harness') return '.claude/CLAUDE.md';
   if (tool === 'windsurf') return windsurfAdapterRel(layout);
   return TOOL_ADAPTER_MAP[tool];
+}
+
+/**
+ * All generated adapter paths for a tool, including on-demand CHECK files (ADR-014).
+ * @returns {string[]}
+ */
+export function adapterPathsForTool(tool, layout = 'classic') {
+  const base = adapterPathForTool(tool, layout);
+  if (!base) return [];
+  if (tool === 'cursor') return [base, CURSOR_CHECKS_ADAPTER_REL];
+  if (tool === 'windsurf') return [base, windsurfChecksRel(layout)];
+  return [base];
+}
+
+/**
+ * @returns {Array<{ path: string, role: 'base' | 'checks' }>}
+ */
+export function adapterSpecsForTool(tool, layout = 'classic') {
+  return adapterPathsForTool(tool, layout).map((path, i) => ({
+    path,
+    role: i === 0 ? 'base' : 'checks',
+  }));
 }
 
 /**
@@ -175,7 +211,7 @@ const GATE_ROWS = [
     owner: 'orchestrate',
     recorded_at: null,
     summary: 'Close blocking questions and capture the project context.',
-    evidence_required: ['{product}/open-questions.md', '.harness/state.yaml'],
+    evidence_required: ['{product}/idea.md', '{product}/open-questions.md', '.harness/state.yaml'],
   },
   {
     id: 'gate-02',
@@ -219,7 +255,17 @@ const GATE_ROWS = [
     owner: 'orchestrate',
     recorded_at: null,
     summary: 'Render rules, design tokens, and explicit CHECK coverage.',
-    evidence_required: ['.harness/engine/rules/*.md', '.harness/rules/*.md', '.claude/CLAUDE.md', '.cursor/rules/00-midas.mdc', 'GEMINI.md'],
+    evidence_required: [
+      '.harness/engine/rules/*.md',
+      '.harness/rules/*.md',
+      '{product}/conventions.md',
+      '{product}/design-system.md',
+      '{product}/playbooks/*.md',
+      '.claude/CLAUDE.md',
+      '.cursor/rules/00-midas.mdc',
+      '.cursor/rules/01-midas-checks.mdc',
+      'GEMINI.md',
+    ],
   },
   {
     id: 'gate-06',
@@ -230,7 +276,7 @@ const GATE_ROWS = [
     owner: 'orchestrate',
     recorded_at: null,
     summary: 'Plan the roadmap and give every sprint a clear definition of done.',
-    evidence_required: ['{product}/sprints/*.md', '.harness/state.yaml'],
+    evidence_required: ['{product}/sprints/*.md', '{product}/roadmap.md', '{product}/features.json', '.harness/state.yaml'],
   },
   {
     id: 'gate-07',
@@ -240,7 +286,7 @@ const GATE_ROWS = [
     state: 'active',
     owner: 'build',
     recorded_at: null,
-    summary: 'Keep the active sprint green with tests, evidence, and audit trails.',
+    summary: 'Keep the active sprint green with tests, evidence, and audit trails. `{runs}/verifications/*.md` is required for UI sprints only.',
     evidence_required: ['{runs}/sprints/*.md', '{runs}/verifications/*.md', '.harness/state.yaml'],
   },
   {
@@ -251,7 +297,7 @@ const GATE_ROWS = [
     state: 'active',
     owner: 'orchestrate',
     recorded_at: null,
-    summary: 'Freeze the conformance audit and resolve drift before advancing.',
+    summary: 'Freeze the conformance audit and resolve drift before advancing. `{runs}/verifications/*.md` is required for UI sprints only.',
     evidence_required: ['{runs}/audits/*.md', '{runs}/verifications/*.md', '.harness/state.yaml'],
   },
 ];
@@ -411,7 +457,7 @@ export function computeAdapters(root = ROOT) {
   const context7 = readMaybe(root, join(p.engine, 'rules/context7-usage.md'));
   const rules = readRulesDigest(root, p);
   const selectedTools = resolveAdapterTools(root);
-  const selectedPaths = new Set(selectedTools.map((t) => adapterPathForTool(t, p.layout)));
+  const selectedPaths = new Set(selectedTools.flatMap((t) => adapterPathsForTool(t, p.layout)));
 
   const hash = djb2(conventions + ' ' + context7 + ' ' + rules.raw);
   const conventionsBody = conventions.trim();
@@ -436,24 +482,52 @@ export function computeAdapters(root = ROOT) {
     claudeContent = `# Project memory\n\n${agentsImport}\n\n${claudeContent}`;
   }
 
-  // --- Shared generated body for Cursor + Windsurf (markers wrap the BODY only) -----------------
-  const sharedBody = [
-    BEGIN,
+  const generatedBanner = [
     `> Generated by Midas from \`${p.engine}/conventions.md\`. Do not hand-edit — run \`/midas-doctor\``,
     `> (or \`node ${p.scripts}/render-adapters.mjs\`) to re-render.`,
+  ].join('\n');
+
+  const conventionsManaged = [
+    BEGIN,
+    generatedBanner,
+    '',
+    conventionsBody,
+    '',
+    '## Fetch current docs before third-party code (Context7 recommended)',
+    context7Body,
+    END,
+    '',
+  ].join('\n');
+
+  const digestHeading = `## Always-on rules — CHECK digest (base: \`${p.engine}/rules/\`; project: \`${p.rules || `${p.engine}/rules`}/\`)`;
+  const digestManaged = [
+    BEGIN,
+    generatedBanner,
+    '',
+    digestHeading,
+    rules.body || '_No rule files found._',
+    END,
+    '',
+  ].join('\n');
+
+  const geminiPointer = [
+    BEGIN,
+    generatedBanner,
     '',
     conventionsBody,
     '',
     '## Fetch current docs before third-party code (Context7 recommended)',
     context7Body,
     '',
-    `## Always-on rules — CHECK digest (base: \`${p.engine}/rules/\`; project: \`${p.rules || `${p.engine}/rules`}/\`)`,
-    rules.body || '_No rule files found._',
+    digestHeading,
+    `Do not inline the Phase-8 CHECK list here (ADR-014).`,
+    `Load structured CHECKs from \`${p.engine}/checks.json\` and the rule files under \`${p.engine}/rules/\``,
+    `(project overlays at \`${p.rules || `${p.engine}/rules`}/\` win by slug). Cursor and Windsurf attach \`01-midas-checks\` on demand.`,
     END,
     '',
   ].join('\n');
 
-  // --- .cursor/rules/00-midas.mdc: frontmatter FIRST, then managed body -------------------------
+  // --- .cursor/rules/00-midas.mdc: always-on conventions (ADR-014) -----------------------------
   const cursorContent =
     '---\n' +
     `description: Midas base conventions (always-on project law). Generated from ${p.engine}/conventions.md.\n` +
@@ -461,26 +535,47 @@ export function computeAdapters(root = ROOT) {
     '  - "**/*"\n' +
     'alwaysApply: true\n' +
     '---\n\n' +
-    sharedBody;
+    conventionsManaged;
   const cursorAbs = join(root, '.cursor', 'rules', '00-midas.mdc');
 
-  // --- Windsurf adapter: frontmatter FIRST, then managed body (nested under layout root) ----------
+  const cursorChecksContent =
+    '---\n' +
+    `description: ${CHECKS_RULE_DESCRIPTION}\n` +
+    'alwaysApply: false\n' +
+    '---\n\n' +
+    digestManaged;
+  const cursorChecksAbs = join(root, CURSOR_CHECKS_ADAPTER_REL);
+
+  // --- Windsurf: always_on conventions + model_decision digest --------------------------------
+  // docs: Windsurf/Devin Desktop rules activation (trigger: always_on | model_decision)
+  // via https://docs.devin.ai/desktop/cascade/memories fetched 2026-08-27
   const windsurfContent =
     '---\n' +
     'trigger: always_on\n' +
     '---\n\n' +
-    sharedBody;
+    conventionsManaged;
   const windsurfRel = adapterPathForTool('windsurf', p.layout);
   const windsurfAbs = join(root, windsurfRel);
 
-  // --- GEMINI.md: Gemini CLI reads this file as project memory (inlined, no frontmatter) --------
-  const geminiContent = '# Project memory — Midas (Gemini CLI)\n\n' + sharedBody;
+  const windsurfChecksRelPath = windsurfChecksRel(p.layout);
+  const windsurfChecksContent =
+    '---\n' +
+    'trigger: model_decision\n' +
+    `description: ${CHECKS_RULE_DESCRIPTION}\n` +
+    '---\n\n' +
+    digestManaged;
+  const windsurfChecksAbs = join(root, windsurfChecksRelPath);
+
+  // --- GEMINI.md: project memory without inline digest (ADR-014) -------------------------------
+  const geminiContent = '# Project memory — Midas (Gemini CLI)\n\n' + geminiPointer;
   const geminiAbs = join(root, 'GEMINI.md');
 
   const allFiles = [
     { path: claudeRel, abs: claudeAbs, content: claudeContent },
     { path: '.cursor/rules/00-midas.mdc', abs: cursorAbs, content: cursorContent },
+    { path: CURSOR_CHECKS_ADAPTER_REL, abs: cursorChecksAbs, content: cursorChecksContent },
     { path: windsurfRel, abs: windsurfAbs, content: windsurfContent },
+    { path: windsurfChecksRelPath, abs: windsurfChecksAbs, content: windsurfChecksContent },
     { path: 'GEMINI.md', abs: geminiAbs, content: geminiContent },
   ];
 

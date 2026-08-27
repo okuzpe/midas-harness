@@ -54,7 +54,7 @@ This is an irreversible decision point; use the orchestrate tier.
 
 ## Exit gate checklist
 
-- [ ] `{product}/business-plan.md` exists with all five sections
+- [ ] `{product}/business-plan.md` exists with all six sections
 - [ ] MVP scope names features AND explicit non-goals
 - [ ] At least one measurable, time-bound success metric is defined
 - [ ] Revenue/sustainability model is named (one paragraph minimum)

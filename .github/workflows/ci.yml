@@ -53,6 +53,7 @@ jobs:
           test -f /tmp/midas-smoke/AGENTS.md
           test -f /tmp/midas-smoke/.mcp.json
           test -f /tmp/midas-smoke/.cursor/rules/00-midas.mdc
+          test -f /tmp/midas-smoke/.cursor/rules/01-midas-checks.mdc
           test -d /tmp/midas-smoke/.cursor/skills
           test -f /tmp/midas-smoke/.harness/state.yaml
           test -d /tmp/midas-smoke/.harness/product
@@ -67,6 +68,10 @@ jobs:
         run: |
           node cli/index.mjs --tools=claude-code,cursor,windsurf,gemini /tmp/midas-smoke-all
           test -f /tmp/midas-smoke-all/.claude/CLAUDE.md
+          test -f /tmp/midas-smoke-all/.cursor/rules/00-midas.mdc
+          test -f /tmp/midas-smoke-all/.cursor/rules/01-midas-checks.mdc
+          test -f /tmp/midas-smoke-all/.harness/.windsurf/rules/00-midas.md
+          test -f /tmp/midas-smoke-all/.harness/.windsurf/rules/01-midas-checks.md
           test -f /tmp/midas-smoke-all/GEMINI.md
           test -d /tmp/midas-smoke-all/.claude/skills
           node /tmp/midas-smoke-all/.harness/scripts/doctor.mjs --strict

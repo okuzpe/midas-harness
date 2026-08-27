@@ -84,7 +84,7 @@ function parseStage(yaml) {
 function findActiveSprintId(yaml) {
   const sprints = parseSprints(yaml);
   for (const [id, status] of sprints) {
-    if (status === 'active' || status === 'in_progress') return id;
+    if (status === 'active') return id;
   }
   return null;
 }

@@ -21,7 +21,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolvePaths } from './paths.mjs';
-import { parseFrontmatter } from './skill-quality-check.mjs';
+import { parseFrontmatter } from './lib/frontmatter.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..');
@@ -168,7 +168,7 @@ export function formatSkillRegistryMarkdown(rows, opts = {}) {
     '# Skill registry',
     '',
     'Machine index of Midas-owned skills. **Human router:** `docs/skills.md` (slash-name catalog).',
-    'When delegating, match against this table and pass a **subset** of exact `Path` values — never dump the whole registry into a prompt. Prefer `Delegator: yes`.',
+    'When delegating, match against this table and pass a **subset** of exact `Path` values — never dump the whole registry into a prompt. Prefer `Delegator: yes`. Descriptions live in each `SKILL.md` frontmatter (the host already injects them); this table is the routing index only.',
     '',
     '**Delegator meaning:** `yes` = parents may path-pass this `SKILL.md` for the worker to **read**. It does **not** authorize Skill-tool or auto slash invoke when `disable-model-invocation: true`. `orchestrator-only` = phase gates / install-sync / high-stakes audits — human slash or stage table only.',
     '',
@@ -178,12 +178,12 @@ export function formatSkillRegistryMarkdown(rows, opts = {}) {
     '',
     `Source: \`${engineRel}/skills/*/SKILL.md\`. v1 indexes engine skills only (no project/user overlays).`,
     '',
-    '| Skill | Trigger / description | Scope | Delegator | Surface | Path |',
-    '| --- | --- | --- | --- | --- | --- |',
+    '| Skill | Scope | Delegator | Surface | Path |',
+    '| --- | --- | --- | --- | --- |',
   ];
   for (const r of rows) {
     lines.push(
-      `| \`${escapeCell(r.name)}\` | ${escapeCell(r.description)} | ${escapeCell(r.scope)} | ${escapeCell(r.delegator)} | ${escapeCell(r.surface)} | \`${escapeCell(r.path)}\` |`,
+      `| \`${escapeCell(r.name)}\` | ${escapeCell(r.scope)} | ${escapeCell(r.delegator)} | ${escapeCell(r.surface)} | \`${escapeCell(r.path)}\` |`,
     );
   }
   lines.push('');

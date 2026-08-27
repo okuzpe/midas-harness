@@ -63,7 +63,7 @@ Step outline (Steps 0–6):
 - `{runs}/audits/audit-NN.md` frozen; `paths.state` updated.
 - A clear next step: **next sprint** or **"MVP complete"**.
 
-## Tier & cost
+## Tier & delegation
 The audit, drift decisions, and ship/continue call → **orchestrate** (Opus). Mechanical diff
 extraction → **scout** (Haiku). Step-4 conformance fixes → **build** (Sonnet); then **re-run
 `/close-sprint`** until `MIDAS_AUDIT_RESULT` shows `unresolved=0`. Only after Step 6 marks the

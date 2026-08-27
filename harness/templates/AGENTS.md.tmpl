@@ -120,6 +120,6 @@ On tools without per-agent model selection, apply as intent: fastest for researc
   `<paths.engine>/templates/skill-state-ritual.md` instead of restating stage enums or path substitution.
   Schema: `<paths.engine>/state.schema.md`.
 - Secrets only via `${ENV_VAR}`; never write a key to disk or commit one.
-- Generated adapters (`.claude/CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `GEMINI.md`) must not be
+- Generated adapters (`.claude/CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.cursor/rules/01-midas-checks.mdc`, `.windsurf/rules/00-midas.md`, `.windsurf/rules/01-midas-checks.md`, `GEMINI.md`) must not be
   hand-edited; they are re-rendered by `/midas-doctor`.
 <!-- midas:end AGENTS -->

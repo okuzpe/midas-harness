@@ -151,10 +151,15 @@ function runCanonicalUninstall(ctx, { removed, keptModified, keptUser, purged })
     '.claude/CLAUDE.md',
     'GEMINI.md',
     '.cursor/rules/00-midas.mdc',
+    '.cursor/rules/01-midas-checks.mdc',
     '.harness/.windsurf/rules/00-midas.md',
+    '.harness/.windsurf/rules/01-midas-checks.md',
     'harness/.windsurf/rules/00-midas.md',
+    'harness/.windsurf/rules/01-midas-checks.md',
     '.midas/.windsurf/rules/00-midas.md',
+    '.midas/.windsurf/rules/01-midas-checks.md',
     '.windsurf/rules/00-midas.md',
+    '.windsurf/rules/01-midas-checks.md',
   ]);
   for (const file of manifest.files) {
     if (regionManagedPaths.has(file.path)) continue;
@@ -177,10 +182,15 @@ function runCanonicalUninstall(ctx, { removed, keptModified, keptUser, purged })
     ['.claude/CLAUDE.md', '<!-- midas:begin GENERATED', '<!-- midas:end -->'],
     ['GEMINI.md', '<!-- midas:begin GENERATED', '<!-- midas:end -->'],
     ['.cursor/rules/00-midas.mdc', '<!-- midas:begin GENERATED', '<!-- midas:end -->'],
+    ['.cursor/rules/01-midas-checks.mdc', '<!-- midas:begin GENERATED', '<!-- midas:end -->'],
     ['.harness/.windsurf/rules/00-midas.md', '<!-- midas:begin GENERATED', '<!-- midas:end -->'],
+    ['.harness/.windsurf/rules/01-midas-checks.md', '<!-- midas:begin GENERATED', '<!-- midas:end -->'],
     ['harness/.windsurf/rules/00-midas.md', '<!-- midas:begin GENERATED', '<!-- midas:end -->'],
+    ['harness/.windsurf/rules/01-midas-checks.md', '<!-- midas:begin GENERATED', '<!-- midas:end -->'],
     ['.midas/.windsurf/rules/00-midas.md', '<!-- midas:begin GENERATED', '<!-- midas:end -->'],
+    ['.midas/.windsurf/rules/01-midas-checks.md', '<!-- midas:begin GENERATED', '<!-- midas:end -->'],
     ['.windsurf/rules/00-midas.md', '<!-- midas:begin GENERATED', '<!-- midas:end -->'],
+    ['.windsurf/rules/01-midas-checks.md', '<!-- midas:begin GENERATED', '<!-- midas:end -->'],
   ]) {
     const abs = join(ctx.target, rel);
     if (!existsSync(abs)) continue;
@@ -227,7 +237,7 @@ export function runUninstall(ctx) {
   const keptModified = [];
   const keptUser = [];
   const purged = [];
-  const ADAPTERS = ['CLAUDE.md', '.cursor/rules/00-midas.mdc', '.windsurf/rules/00-midas.md', 'GEMINI.md'];
+  const ADAPTERS = ['CLAUDE.md', '.cursor/rules/00-midas.mdc', '.cursor/rules/01-midas-checks.mdc', '.windsurf/rules/00-midas.md', '.windsurf/rules/01-midas-checks.md', 'GEMINI.md'];
   const layout = ctx.detectInstallLayout(ctx.target);
   if (layout === 'harness') {
     runCanonicalUninstall(ctx, { removed, keptModified, keptUser, purged });

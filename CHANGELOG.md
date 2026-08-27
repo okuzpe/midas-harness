@@ -11,6 +11,7 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ### Added
 
+- **ADR-014** — adapter CHECK digest on demand (supersedes ADR-005's inline-digest clause).
 - **Organic routing parallelism** — single-writer, read fan-out, and launch dedup in
   `harness/rules/organic-routing.md` (Gentleman Ch.20).
 - **Phase 5 Scope Rule** — 1 consumer = local, 2+ = shared, plus screaming folder names; seed
@@ -37,6 +38,15 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ### Changed
 
+- **Adapter CHECK digest on demand (ADR-014)** — Cursor/Windsurf split always-on conventions from
+  the Phase-8 CHECK digest (`01-midas-checks`); Gemini points at `checks.json` instead of inlining.
+  Context-cost sessionStart metrics are schema v2 (`by_path` + `by_bucket` + adapters sampled).
+- **`gates.json` `evidence_required`** is consumed by `gate:phase-artifacts` when a passed phase
+  lists no `artifacts:` (tokens `{product}`/`{runs}` resolve via `paths`; host adapters skipped
+  unless that tool is selected; verification globs are optional for non-UI sprints).
+- **Skill registry** drops the duplicated Trigger/description column (host already injects
+  frontmatter). `/midas-help` loads per-option copy from `response-map.md`.
+- **`MIDAS_TEST_FAST=1`** skips installer subprocess fixtures in `scripts/test.mjs`.
 - **AskQuestion is canonical** in phase skills; Claude Code falls back to `AskUserQuestion`.
 - **`user-surface`** declared on every `harness/skills/*/SKILL.md` (primary / internal / deprecated).
 - **`/midas-help`** offers `/midas-bundle`; engine-only `/midas-precommit` is named under install confusion, not as a product menu item.
@@ -49,6 +59,10 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ### Fixed
 
+- **Pipeline copy** — `/contextualize` (not `/midas-contextualize`) in `idea.md`; phases 2–3
+  checklists say six sections; Phase 7 reads product design tokens with engine fallback; lite
+  optional design-system in Phase 8 and `/start-sprint`; raw-idea heading unified.
+- **One frontmatter parser** (`scripts/lib/frontmatter.mjs`) for portable mirrors, registry, and tests.
 - **Precedence box** in `harness/conventions.md` (and `/define-conventions`) now starts with
   project rule overlays (`<paths.rules>/`), matching `docs/context-hierarchy.md`.
 - **Skill catalog counts** in `docs/skills.md` match the registry (29 primary / 5 internal /

@@ -157,3 +157,16 @@ last_capture: { at: 2026-06-15, kind: rule, target: .harness/rules/naming.md }
    decision uses, only *where* `build`/`scout` may run. `orchestrate` gate verdicts (Phase 1/3/4/8,
    code/security review) are Claude-cloud in **every** mode; under `local` they are recorded
    `un-attested` and never advance a gate. See `.harness/engine/rules/model-routing.md`.
+
+## Parser subset (`scripts/yaml-lite.mjs`)
+
+The engine reads `paths.state` with a **subset** of YAML, not a full parser. Supported:
+
+- Nested maps via 2-space indent (`paths:`, `phases:`, `enforcement:`, `sprints:`)
+- Inline lists: `tools: [a, b]` and `mcp: [a, b]` (not dash-style lists for those keys)
+- Quoted or bare scalars on a single line
+- Comments: `#` truncates the rest of a scalar value (`parsePathsBlock`)
+
+Not supported: anchors/aliases (`&`/`*`), block scalars (`|`, `>`), multiline quoted strings,
+or dash-form `tools:` / `mcp:` lists. Author `state.yaml` in this subset so doctor, installer,
+and skills see the same values.

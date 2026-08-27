@@ -115,6 +115,6 @@ MIDAS_SECURITY_RESULT: level=L2 critical=a high=b medium=c low=d verdict=pass|fi
 - [ ] `{runs}/security/security-NN.md` frozen with `MIDAS_SECURITY_RESULT`.
 - [ ] `stage` NOT advanced; no gate marked passed.
 
-## Tier & cost
+## Tier & delegation
 
 Scope/ASVS/triage/freeze → **orchestrate**. Scanners → **build**. Context7 fetches → **scout**. Prefer `security-auditor` / `penetration-tester` / `/security-review` if installed; else `midas-orchestrator` / `midas-builder`.

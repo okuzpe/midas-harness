@@ -24,8 +24,8 @@ flowchart TD
 
   Adapters["Generated adapters"]
   ClaudeMd["engine: CLAUDE.md / install: .claude/CLAUDE.md"]
-  CursorRule[".cursor/rules/00-midas.mdc"]
-  WindsurfRule[".windsurf/rules/00-midas.md"]
+  CursorRule[".cursor/rules/00-midas.mdc + 01-midas-checks.mdc"]
+  WindsurfRule[".windsurf/rules/00-midas.md + 01-midas-checks.md"]
   Gemini["GEMINI.md"]
 
   Bundles["Distribution bundles"]
@@ -66,7 +66,7 @@ flowchart TD
 
 | Area | Source files | Generated or checked outputs |
 |---|---|---|
-| Base conventions and rules | `harness/conventions.md`, `harness/rules/*` | Engine classic: repo-root `CLAUDE.md`. Product + `claude-code`: `.claude/CLAUDE.md`. Also `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `GEMINI.md` |
+| Base conventions and rules | `harness/conventions.md`, `harness/rules/*` | Engine classic: repo-root `CLAUDE.md`. Product + `claude-code`: `.claude/CLAUDE.md`. Also `.cursor/rules/00-midas.mdc` + `01-midas-checks.mdc`, `.windsurf/rules/00-midas.md` + `01-midas-checks.md`, `GEMINI.md` |
 | Skills and agents | `harness/skills/*/SKILL.md`, `harness/agents/*.md` | `.claude/*`, `.agents/skills`, plugins, installer template |
 | Stage → command + recall | `STAGE_ROWS` in `scripts/stage-command-table.mjs` | `harness/stage-command-table.yaml` (committed; runtime readers use this file) |
 | Installable project template | `harness/*`, `.mcp.json`, selected `docs/*`, selected `scripts/*` | `cli/template/*` |
@@ -234,7 +234,8 @@ Decisions about the repository itself (not about a product built with Midas) are
 | [ADR-002](adr/ADR-002-code-intelligence-mcp.md) | rejected | Optional code-intelligence MCP (code-graph) — rejected: too much install complexity for a dependency-free harness |
 | [ADR-003](adr/ADR-003-project-memory-model.md) | accepted | Project memory model — `.harness/state.yaml` spine + `.harness/runs/*` records |
 | [ADR-004](adr/ADR-004-audit-skill-surface.md) | accepted (deferred) | Audit skill surface — keep tribunal/security/close-sprint separate |
-| [ADR-005](adr/ADR-005-agents-md-generation.md) | accepted | AGENTS.md summary manual; adapter digest Option A |
+| [ADR-005](adr/ADR-005-agents-md-generation.md) | accepted (digest clause superseded) | AGENTS.md summary manual; adapter digest Option A superseded by ADR-014 |
+| [ADR-014](adr/ADR-014-adapter-digest-on-demand.md) | accepted | Adapter CHECK digest on demand (Cursor split; Gemini pointer) |
 | [ADR-008](adr/ADR-008-thin-root-allowlist.md) | accepted | Thin root allowlist for host discovery |
 | [ADR-009](adr/ADR-009-optional-autonomy-control-plane.md) | accepted | Optional autonomy control plane (`--autonomy`) |
 | [ADR-010](adr/ADR-010-harness-trace-observe.md) | accepted | Harness trace observe (engine contributors) |

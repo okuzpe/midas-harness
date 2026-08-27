@@ -116,5 +116,5 @@ Skills must name produce/fetch legs in `## Tier & delegation` — `harness-tier`
   cite `harness/templates/skill-state-ritual.md` (installed: `<paths.engine>/templates/skill-state-ritual.md`)
   instead of restating stage enums or path substitution. Schema: `harness/state.schema.md`.
 - Secrets only via `${ENV_VAR}`; never write a key to disk or commit one.
-- Generated adapters (`.claude/CLAUDE.md` in installs, `CLAUDE.md` in this engine repo, `.cursor/rules/00-midas.mdc`, `harness/.windsurf/rules/00-midas.md`, `GEMINI.md`) must not be
+- Generated adapters (`.claude/CLAUDE.md` in installs, `CLAUDE.md` in this engine repo, `.cursor/rules/00-midas.mdc`, `.cursor/rules/01-midas-checks.mdc`, `harness/.windsurf/rules/00-midas.md`, `harness/.windsurf/rules/01-midas-checks.md`, `GEMINI.md`) must not be
   hand-edited; they are re-rendered by `/midas-doctor`.

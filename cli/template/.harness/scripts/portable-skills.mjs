@@ -7,53 +7,10 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync
 import { dirname, join } from 'node:path';
 import { resolvePaths } from './paths.mjs';
 import { isHostMirrorExcluded } from './skill-registry.mjs';
+import { parseFrontmatter, splitSkillDocument } from './lib/frontmatter.mjs';
 
 const ALLOWED_FRONTMATTER_KEYS = new Set(['name', 'description', 'license', 'compatibility', 'metadata', 'allowed-tools']);
 const MIDAS_META_PREFIX = 'midas-';
-
-/** Split a skill file into frontmatter + body. */
-function splitSkillDocument(text) {
-  const match = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
-  if (!match) {
-    throw new Error('Skill file is missing YAML frontmatter');
-  }
-  return { frontmatter: match[1], body: match[2] };
-}
-
-/** Parse the flat frontmatter used by current skills. */
-function parseFrontmatter(text) {
-  const out = {};
-  const lines = text.split(/\r?\n/);
-  let currentMetadata = null;
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    if (!line.trim()) continue;
-    if (/^metadata:\s*$/.test(line)) {
-      currentMetadata = {};
-      out.metadata = currentMetadata;
-      continue;
-    }
-    const metadataLine = line.match(/^\s{2}([A-Za-z0-9_-]+):\s*(.*)$/);
-    if (currentMetadata && metadataLine) {
-      currentMetadata[metadataLine[1]] = stripQuotes(metadataLine[2]);
-      continue;
-    }
-    currentMetadata = null;
-    const top = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
-    if (!top) continue;
-    out[top[1]] = stripQuotes(top[2]);
-  }
-  return out;
-}
-
-function stripQuotes(value) {
-  const trimmed = value.trim();
-  if ((trimmed.startsWith('"') && trimmed.endsWith('"')) || (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
-    return trimmed.slice(1, -1);
-  }
-  return trimmed;
-}
 
 function quoteYaml(value) {
   const text = String(value ?? '');
@@ -111,7 +68,11 @@ function renderPortableFrontmatter(sourcePath, sourceFrontmatter) {
 }
 
 export function renderPortableSkillText(text, sourcePath = 'SKILL.md') {
-  const { frontmatter, body } = splitSkillDocument(text);
+  const parts = splitSkillDocument(text);
+  if (!parts) {
+    throw new Error('Skill file is missing YAML frontmatter');
+  }
+  const { frontmatter, body } = parts;
   const parsed = parseFrontmatter(frontmatter);
   if (!parsed.name || !parsed.description) {
     throw new Error(`Portable skill frontmatter missing name/description: ${sourcePath}`);
@@ -221,5 +182,3 @@ export function pruneObsoleteMidasSkillMirrors(
   }
   return removed;
 }
-
-export { splitSkillDocument, parseFrontmatter, renderPortableFrontmatter };

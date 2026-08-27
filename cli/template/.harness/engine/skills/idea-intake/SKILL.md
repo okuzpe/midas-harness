@@ -40,7 +40,7 @@ infer `mode` without confirming; mark inferences as **assumption**, never as fac
 ## Steps
 
 1. **Capture verbatim.** Ask for the idea in their own words (or take what they already gave). Store
-   the raw text **unedited** in `{product}/idea.md` under `"Raw idea (as given)"`. Append-only —
+   the raw text **unedited** in `{product}/idea.md` under `## Raw idea (preserved verbatim)`. Append-only —
    later phases never overwrite it.
 2. **Normalize** beside the raw capture (`<paths.engine>/templates/` → `{product}/idea.md`):
    - **one-line pitch** (≤ 20 words) a stranger could understand;
@@ -55,7 +55,7 @@ infer `mode` without confirming; mark inferences as **assumption**, never as fac
 
 Advance to Phase 1 **iff** all hold (on-disk evidence):
 
-- [ ] Raw idea preserved verbatim in `{product}/idea.md` (`Raw idea (as given)`).
+- [ ] Raw idea preserved verbatim in `{product}/idea.md` (`## Raw idea (preserved verbatim)`).
 - [ ] One-line pitch ≤ 20 words present.
 - [ ] `mode` is `greenfield` \| `brownfield` in `paths.state` (user-confirmed).
 - [ ] Inferred fields (if any) marked **assumption**, not fact.

@@ -17,7 +17,7 @@ mcp-recommended: [context7]
 
 > **Paths:** Run `node <paths.scripts>/doctor.mjs`. Adapters render from `<paths.engine>/conventions.md` + rules. Substitute `{runs}/` and `{product}/` per `AGENTS.md` § Path resolution.
 
-Generated adapters (`.claude/CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `GEMINI.md`) are
+Generated adapters (`.claude/CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.cursor/rules/01-midas-checks.mdc`, layout-nested `.windsurf/rules/00-midas.md` + `01-midas-checks.md`, `GEMINI.md`) are
 **rendered** from `<paths.engine>/conventions.md`, base rules, and project rules at `<paths.rules>` — never hand-edited. `midas-doctor` is the
 **single** path that keeps them in sync, plus a fast health check on the rest of the install. It diffs
 first and writes only with the user's go-ahead.

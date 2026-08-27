@@ -2,7 +2,7 @@
   "schema_version": 1,
   "updated": null,
   "source": "engine/methodology.md",
-  "source_digest": "91506c168570504e9c2d48e0007449a1e8485ed789132d4b989b2f7e4a6e6045",
+  "source_digest": "fc01fb76283c923afa0f97f33c79305bc841c8d414eab7c019042979a15afb66",
   "gates": [
     {
       "id": "gate-00",
@@ -28,6 +28,7 @@
       "recorded_at": null,
       "summary": "Close blocking questions and capture the project context.",
       "evidence_required": [
+        "{product}/idea.md",
         "{product}/open-questions.md",
         ".harness/state.yaml"
       ]
@@ -87,8 +88,12 @@
       "evidence_required": [
         ".harness/engine/rules/*.md",
         ".harness/rules/*.md",
+        "{product}/conventions.md",
+        "{product}/design-system.md",
+        "{product}/playbooks/*.md",
         ".claude/CLAUDE.md",
         ".cursor/rules/00-midas.mdc",
+        ".cursor/rules/01-midas-checks.mdc",
         "GEMINI.md"
       ]
     },
@@ -103,6 +108,8 @@
       "summary": "Plan the roadmap and give every sprint a clear definition of done.",
       "evidence_required": [
         "{product}/sprints/*.md",
+        "{product}/roadmap.md",
+        "{product}/features.json",
         ".harness/state.yaml"
       ]
     },
@@ -114,7 +121,7 @@
       "state": "active",
       "owner": "build",
       "recorded_at": null,
-      "summary": "Keep the active sprint green with tests, evidence, and audit trails.",
+      "summary": "Keep the active sprint green with tests, evidence, and audit trails. `{runs}/verifications/*.md` is required for UI sprints only.",
       "evidence_required": [
         "{runs}/sprints/*.md",
         "{runs}/verifications/*.md",
@@ -129,7 +136,7 @@
       "state": "active",
       "owner": "orchestrate",
       "recorded_at": null,
-      "summary": "Freeze the conformance audit and resolve drift before advancing.",
+      "summary": "Freeze the conformance audit and resolve drift before advancing. `{runs}/verifications/*.md` is required for UI sprints only.",
       "evidence_required": [
         "{runs}/audits/*.md",
         "{runs}/verifications/*.md",

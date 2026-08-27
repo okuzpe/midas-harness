@@ -105,7 +105,7 @@ npx github:okuzpe/midas-harness --diagnose --json                 # status envel
 ```bash
 npx github:okuzpe/midas-harness --tools=cursor
 ```
-Wires: `AGENTS.md` · `.agents/skills/` · `.cursor/rules/00-midas.mdc` · `.cursor/mcp.json` (mirrored from `.mcp.json`).
+Wires: `AGENTS.md` · `.agents/skills/` · `.cursor/rules/00-midas.mdc` · `.cursor/rules/01-midas-checks.mdc` · `.cursor/mcp.json` (mirrored from `.mcp.json`).
 
 **Cursor + Gemini + Codex** (recommended multi-tool stack):
 ```bash
@@ -173,9 +173,11 @@ AGENTS.md           project law (read by Cursor, Copilot, Codex, Windsurf, Gemin
 .claude/skills/     Claude native skill mirror (Claude installs only)
 .claude/agents/     Claude agent mirror (Claude installs only)
 .agents/skills/     portable Agent Skills mirror (portable hosts)
-.cursor/rules/00-midas.mdc      Cursor always-on rules
+.cursor/rules/00-midas.mdc      Cursor always-on conventions
+.cursor/rules/01-midas-checks.mdc   Cursor on-demand Phase-8 CHECK digest
 .cursor/mcp.json                Cursor MCP config (synced from .mcp.json when cursor is in tools:)
-.harness/.windsurf/rules/00-midas.md     Windsurf adapter (nested under .harness/)
+.harness/.windsurf/rules/00-midas.md     Windsurf always-on conventions (nested under .harness/)
+.harness/.windsurf/rules/01-midas-checks.md  Windsurf on-demand CHECK digest
 GEMINI.md           Gemini CLI adapter (generated)
 ```
 
@@ -390,7 +392,7 @@ npx github:okuzpe/midas-harness --uninstall
 
 ### What it removes — and what it keeps
 - **Removes** intact manifest-owned engine/scripts and generated mirrors/regions, including
-  `.claude/CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, and `GEMINI.md`.
+  `.claude/CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.cursor/rules/01-midas-checks.mdc`, `.windsurf/rules/00-midas.md`, `.windsurf/rules/01-midas-checks.md`, and `GEMINI.md`.
 - **Keeps** anything you edited (e.g. a Phase-8-amended rule) and any file Midas didn't author (a
   pre-existing `AGENTS.md`, your own scripts) — each is reported so you can remove it by hand.
 - **Keeps your product work** (`.harness/product/`, rules, runs, state) unless you pass `--purge`.
@@ -400,5 +402,6 @@ For exact removal of a pinned install, uninstall with the same release:
 
 > Prefer to do it by hand? Delete `.harness/`, generated host mirrors, the marked block in `AGENTS.md`,
 > `.claude/CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`,
-> `.windsurf/rules/00-midas.md`, and (if appropriate for your project) `.mcp.json`.
+> `.cursor/rules/01-midas-checks.mdc`, `.windsurf/rules/00-midas.md`,
+> `.windsurf/rules/01-midas-checks.md`, and (if appropriate for your project) `.mcp.json`.
 > `{runs}/`.

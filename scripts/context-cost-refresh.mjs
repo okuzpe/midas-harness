@@ -11,6 +11,7 @@ import {
   buildSessionStartCostRecord,
   resolveContextCostPath,
 } from './lib/context-cost.mjs';
+import { adapterPathForTool, resolveAdapterTools } from './render-adapters.mjs';
 
 const HELP = `context-cost-refresh — log sessionStart context budget metrics
 
@@ -43,37 +44,53 @@ function sampleRelFile(projectRoot, relPath) {
 }
 
 /**
+ * Always-on adapter paths for the tools listed in state (or the engine default set).
+ * Uses adapterPathForTool (base/always-on file per tool) so on-demand CHECK files
+ * added later are not billed as sessionStart always-on cost.
  * @param {string} projectRoot
- * @returns {{
- *   agentsChars: number,
- *   carryoverChars: number,
- *   stateChars: number,
- *   pathsSampled: string[],
- * }}
+ * @returns {string[]}
+ */
+export function resolveAlwaysOnAdapterRels(projectRoot) {
+  const p = resolvePaths(projectRoot);
+  const tools = resolveAdapterTools(projectRoot);
+  const rels = [];
+  for (const tool of tools) {
+    const rel = adapterPathForTool(tool, p.layout);
+    if (rel) rels.push(rel.replace(/\\/g, '/'));
+  }
+  return rels;
+}
+
+/**
+ * @param {string} projectRoot
+ * @returns {{ samples: Array<{ path: string, chars: number }>, pathsSampled: string[] }}
  */
 export function sampleContextCostInputs(projectRoot) {
   const paths = resolvePaths(projectRoot);
+  /** @type {Array<{ path: string, chars: number }>} */
+  const samples = [];
   /** @type {string[]} */
   const pathsSampled = [];
 
-  const agentsRel = 'AGENTS.md';
-  const agents = sampleRelFile(projectRoot, agentsRel);
-  if (agents.present) pathsSampled.push(agents.path);
+  const candidates = [
+    'AGENTS.md',
+    relative(projectRoot, resolveCarryoverPath(projectRoot)).replace(/\\/g, '/'),
+    paths.state.replace(/\\/g, '/'),
+    ...resolveAlwaysOnAdapterRels(projectRoot),
+  ];
 
-  const carryoverRel = relative(projectRoot, resolveCarryoverPath(projectRoot)).replace(/\\/g, '/');
-  const carryover = sampleRelFile(projectRoot, carryoverRel);
-  if (carryover.present) pathsSampled.push(carryover.path);
+  const seen = new Set();
+  for (const rel of candidates) {
+    const norm = rel.replace(/\\/g, '/');
+    if (!norm || seen.has(norm)) continue;
+    seen.add(norm);
+    const sample = sampleRelFile(projectRoot, norm);
+    if (!sample.present) continue;
+    samples.push({ path: sample.path, chars: sample.chars });
+    pathsSampled.push(sample.path);
+  }
 
-  const stateRel = paths.state.replace(/\\/g, '/');
-  const state = sampleRelFile(projectRoot, stateRel);
-  if (state.present) pathsSampled.push(state.path);
-
-  return {
-    agentsChars: agents.chars,
-    carryoverChars: carryover.chars,
-    stateChars: state.chars,
-    pathsSampled,
-  };
+  return { samples, pathsSampled };
 }
 
 /**
@@ -84,9 +101,7 @@ export function refreshContextCost(projectRoot) {
   const sampled = sampleContextCostInputs(projectRoot);
   const record = buildSessionStartCostRecord({
     projectRoot,
-    agentsChars: sampled.agentsChars,
-    carryoverChars: sampled.carryoverChars,
-    stateChars: sampled.stateChars,
+    samples: sampled.samples,
     pathsSampled: sampled.pathsSampled,
   });
   const appended = appendContextCost(projectRoot, record);

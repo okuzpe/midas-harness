@@ -76,7 +76,9 @@ type size, or radius values.
 
 - [ ] `CLAUDE.md` re-rendered
 - [ ] `.cursor/rules/00-midas.mdc` re-rendered
+- [ ] `.cursor/rules/01-midas-checks.mdc` re-rendered
 - [ ] `.windsurf/rules/00-midas.md` re-rendered
+- [ ] `.windsurf/rules/01-midas-checks.md` re-rendered
 
 ---
 

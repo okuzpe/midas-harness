@@ -4,12 +4,12 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
-  readdirSync,
   statSync,
   writeFileSync,
 } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { dirname, join, relative } from 'node:path';
+import { dirname, join } from 'node:path';
+import { walkFiles as walkFilesRel } from './lib/walk.mjs';
 
 export const MANIFEST_SCHEMA_VERSION = 1;
 
@@ -38,11 +38,16 @@ const GENERATED_PREFIXES = [
   '.agents/skills/',
   '.cursor/skills/',
   '.cursor/rules/00-midas.mdc',
+  '.cursor/rules/01-midas-checks.mdc',
   '.cursor/mcp.json',
   '.harness/.windsurf/rules/00-midas.md',
+  '.harness/.windsurf/rules/01-midas-checks.md',
   'harness/.windsurf/rules/00-midas.md',
+  'harness/.windsurf/rules/01-midas-checks.md',
   '.midas/.windsurf/rules/00-midas.md',
+  '.midas/.windsurf/rules/01-midas-checks.md',
   '.windsurf/rules/00-midas.md',
+  '.windsurf/rules/01-midas-checks.md',
 ];
 
 export function sha256Buffer(value) {
@@ -54,12 +59,7 @@ export function sha256File(path) {
 }
 
 function walkFiles(root, dir, out = []) {
-  if (!existsSync(dir)) return out;
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const abs = join(dir, entry.name);
-    if (entry.isDirectory()) walkFiles(root, abs, out);
-    else if (entry.isFile()) out.push(relative(root, abs).replace(/\\/g, '/'));
-  }
+  out.push(...walkFilesRel(dir, { relativeTo: root, exclude: [] }));
   return out;
 }
 

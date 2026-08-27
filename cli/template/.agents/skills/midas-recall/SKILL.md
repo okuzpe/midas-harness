@@ -2,7 +2,7 @@
 name: midas-recall
 description: "Read-only context pack for resuming work — reads paths.state and assembles ~15 priority paths plus a 30-line brief (where am I, what matters, open gaps). Scout-tier; no writes. Use after a break, new session, or when midas-status suggests recall. Distinct from midas-status (PC only) and midas-sweep (hygiene)."
 metadata:
-  midas-argument-hint: "[phase|sprint|task] [--focus \\\"<query>\\\"]"
+  midas-argument-hint: "[phase|sprint|task] [--focus \"<query>\"]"
   midas-disable-model-invocation: false
   midas-harness-tier: scout
   midas-model: inherit

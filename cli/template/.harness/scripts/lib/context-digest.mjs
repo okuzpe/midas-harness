@@ -4,12 +4,12 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
-  readdirSync,
   statSync,
   writeFileSync,
 } from 'node:fs';
-import { extname, join } from 'node:path';
+import { extname, join, relative } from 'node:path';
 import { resolvePaths } from '../paths.mjs';
+import { walkFiles } from './walk.mjs';
 
 export const DIGEST_SCHEMA_VERSION = 1;
 export const DEFAULT_MAX_FILES = 200;
@@ -130,35 +130,25 @@ function discoverPreferredRoots(projectRoot) {
  * @param {DigestFileEntry[]} files
  * @param {number} [depth]
  */
-function walkShallow(projectRoot, dirRel, maxFiles, files, depth = 0) {
-  if (files.length >= maxFiles || depth > MAX_WALK_DEPTH) return;
-
+function collectDir(projectRoot, dirRel, maxFiles, files) {
+  const remaining = maxFiles - files.length;
+  if (remaining <= 0) return;
   const abs = join(projectRoot, dirRel);
   if (!existsSync(abs)) return;
-
-  /** @type {import('node:fs').Dirent[]} */
-  let entries;
-  try {
-    entries = readdirSync(abs, { withFileTypes: true });
-  } catch {
-    return;
-  }
-
-  for (const entry of entries) {
+  const hits = walkFiles(abs, {
+    exclude: [...SKIP_DIR_NAMES],
+    maxDepth: MAX_WALK_DEPTH,
+    maxFiles: remaining,
+    skipDir: (name, dirAbs) => shouldSkipDir(name, relative(projectRoot, dirAbs)),
+  });
+  for (const fileAbs of hits) {
     if (files.length >= maxFiles) break;
-    const childRel = normalizeRel(join(dirRel, entry.name));
-    if (entry.isDirectory()) {
-      if (shouldSkipDir(entry.name, childRel)) continue;
-      walkShallow(projectRoot, childRel, maxFiles, files, depth + 1);
-      continue;
-    }
-    if (!entry.isFile()) continue;
     try {
-      const st = statSync(join(projectRoot, childRel));
+      const st = statSync(fileAbs);
       files.push({
-        path: childRel,
+        path: normalizeRel(relative(projectRoot, fileAbs)),
         bytes: st.size,
-        ext: extname(entry.name).toLowerCase(),
+        ext: extname(fileAbs).toLowerCase(),
       });
     } catch {
       /* fail-open: skip unreadable */
@@ -200,7 +190,7 @@ export function buildDigest(projectRoot, opts = {}) {
 
   try {
     for (const root of discoverPreferredRoots(projectRoot)) {
-      walkShallow(projectRoot, root, maxFiles, files);
+      collectDir(projectRoot, root, maxFiles, files);
       if (files.length >= maxFiles) break;
     }
   } catch {

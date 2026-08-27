@@ -97,7 +97,7 @@ MAY set `last_tribunal: { n, criticals, at }` in `paths.state`. **Never advance 
 6. **No self-grading** — at `tribunal` depth, 3-seat PoLL jury + orchestrator tiebreak.
 7. **Bias hygiene** — shuffle, mask seats, distrust until scout re-opens file.
 
-## Tier & cost
+## Tier & delegation
 Verdict + freeze → **orchestrate**. Debaters → **build**. Evidence + re-verify → **scout**. Security lenses: installed specialist if present; else `midas-builder` / `midas-scout`. Respect `cost_profile`.
 `max_savings` forbids `--depth tribunal` + jury; `max_quality` defaults to `tribunal`.
 

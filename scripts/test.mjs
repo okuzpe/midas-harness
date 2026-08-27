@@ -11,6 +11,7 @@
 //   Autonomy (ADR-009)                        — fake-runner E2E
 //
 // Run: `node scripts/test.mjs`  (exit 0 = all pass, 1 = at least one failure). No npm dependencies.
+// Fast: `MIDAS_TEST_FAST=1 node scripts/test.mjs` skips installer subprocess fixtures.
 
 import { readFileSync, readdirSync, existsSync, statSync, mkdirSync, mkdtempSync, rmSync, writeFileSync, cpSync, unlinkSync } from 'node:fs';
 import { dirname, join, resolve, extname, basename } from 'node:path';
@@ -73,10 +74,14 @@ import {
   summarizeReports,
 } from './skill-quality-check.mjs';
 import { HARNESS_ENGINE_ONLY_RELS } from './engine-only.mjs';
+import { splitSkillDocument } from './lib/frontmatter.mjs';
+import { walkFiles } from './lib/walk.mjs';
+import { missingEvidenceRequired, resolveEvidencePattern } from './lib/gate-evidence.mjs';
 
 const SCRIPT_DIR = dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
 const ROOT = resolve(SCRIPT_DIR, '..');
 const PRODUCT_CLOSED = join(ROOT, 'scripts', 'fixtures', 'product-closed');
+const TEST_FAST = process.env.MIDAS_TEST_FAST === '1' || process.env.MIDAS_TEST_FAST === 'true';
 
 /** @param {string} rel path relative to harness/ */
 function isHarnessEngineOnlyRel(rel) {
@@ -96,25 +101,12 @@ function check(name, cond, detail) {
 }
 
 // --- helpers -----------------------------------------------------------------------------------
-function walk(dir, out = []) {
-  if (!existsSync(dir)) return out;
-  for (const e of readdirSync(dir, { withFileTypes: true })) {
-    if (e.name === '.git' || e.name === 'node_modules') continue;
-    const p = join(dir, e.name);
-    if (e.isDirectory()) walk(p, out);
-    else out.push(p);
-  }
-  return out;
+function walk(dir) {
+  return walkFiles(dir);
 }
 
-function walkRelativeFiles(root, base = root, out = []) {
-  if (!existsSync(root)) return out;
-  for (const e of readdirSync(root, { withFileTypes: true })) {
-    const p = join(root, e.name);
-    if (e.isDirectory()) walkRelativeFiles(p, base, out);
-    else if (e.isFile()) out.push(p.slice(base.length + 1));
-  }
-  return out.sort();
+function walkRelativeFiles(root, base = root) {
+  return walkFiles(root, { relativeTo: base, exclude: [] });
 }
 
 function treeDigest(root) {
@@ -160,44 +152,11 @@ check(
   check('cost-aware:rewrite-routing-map', !!next && /orchestrate:\s*claude-sonnet-4-6/.test(next));
 }
 
-function frontmatter(text) {
-  const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-  if (!m) return null;
-  const fm = {};
-  for (const line of m[1].split(/\r?\n/)) {
-    const i = line.indexOf(':');
-    if (i > 0 && !line.startsWith(' ')) fm[line.slice(0, i).trim()] = line.slice(i + 1).trim();
-  }
-  return fm;
-}
-
-function splitFrontmatter(text) {
-  const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
-  if (!m) return null;
-  return { frontmatter: m[1], body: m[2] };
-}
-
 function parsePortableSkill(text) {
-  const parts = splitFrontmatter(text);
+  const parts = splitSkillDocument(text);
   if (!parts) return null;
-  const out = { metadata: {} };
-  let inMetadata = false;
-  for (const line of parts.frontmatter.split(/\r?\n/)) {
-    if (!line.trim()) continue;
-    if (/^metadata:\s*$/.test(line)) {
-      inMetadata = true;
-      continue;
-    }
-    const meta = inMetadata && line.match(/^\s{2}([A-Za-z0-9_-]+):\s*(.*)$/);
-    if (meta) {
-      out.metadata[meta[1]] = normalizePortableScalar(meta[2]);
-      continue;
-    }
-    inMetadata = false;
-    const top = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
-    if (top) out[top[1]] = normalizePortableScalar(top[2]);
-  }
-  return out;
+  const parsed = parseFrontmatter(parts.frontmatter) || {};
+  return { ...parsed, metadata: parsed.metadata || {} };
 }
 
 function normalizePortableScalar(value) {
@@ -228,7 +187,7 @@ const skillsDir = join(ROOT, 'harness', 'skills');
 for (const name of dirNames(skillsDir)) {
   const file = join(skillsDir, name, 'SKILL.md');
   const text = existsSync(file) ? readFileSync(file, 'utf8') : '';
-  const fm = frontmatter(text);
+  const fm = parseFrontmatter(text);
   check(`skill:${name}:has-frontmatter`, !!fm);
   if (!fm) continue;
   check(`skill:${name}:name-matches-dir`, fm.name === name, `name=${fm.name}`);
@@ -261,6 +220,10 @@ harness-tier: scout
 `,
   });
   check('skill-quality:parse-frontmatter', !!parseFrontmatter('---\nname: x\ndescription: y\n---\n'));
+  check(
+    'frontmatter:nested-metadata',
+    parseFrontmatter('---\nname: x\nmetadata:\n  midas-tier: scout\n---\nbody\n')?.metadata?.['midas-tier'] === 'scout',
+  );
   check('skill-quality:steps-link-count', stepsMarkdownLinkCount('## Steps\n1. [a](one.md)\n2. [b](two.md)\n3. [c](three.md)\n') === 3);
   check('skill-quality:sample-no-fails', sample.fails.length === 0, sample.fails.join('; '));
 
@@ -334,7 +297,7 @@ No tier section here.
 // --- C. agent frontmatter ----------------------------------------------------------------------
 const agentsDir = join(ROOT, 'harness', 'agents');
 for (const f of walk(agentsDir).filter((p) => extname(p) === '.md')) {
-  const fm = frontmatter(readFileSync(f, 'utf8'));
+  const fm = parseFrontmatter(readFileSync(f, 'utf8'));
   const base = basename(f, '.md');
   check(`agent:${base}:has-frontmatter`, !!fm);
   if (!fm) continue;
@@ -552,13 +515,13 @@ if (existsSync(buildCreate)) {
         for (const name of sourceNames) {
           const sourceText = readFileSync(join(sourcePortableSkills, name, 'SKILL.md'), 'utf8');
           const templateText = readFileSync(join(templatePortableSkills, name, 'SKILL.md'), 'utf8');
-          const sourceParts = splitFrontmatter(sourceText);
+          const sourceParts = splitSkillDocument(sourceText);
           const templateParts = parsePortableSkill(templateText);
           sameContent = sameContent &&
             !!sourceParts &&
             !!templateParts &&
             templateParts.name === name &&
-            templateParts.description === normalizePortableScalar((frontmatter(sourceText) || {}).description) &&
+            templateParts.description === normalizePortableScalar((parseFrontmatter(sourceText) || {}).description) &&
             Object.keys(templateParts).every((k) => ['name', 'description', 'license', 'compatibility', 'allowed-tools', 'metadata'].includes(k)) &&
             templateParts.metadata['midas-harness-tier'] &&
             sourceParts.body.trim() === (templateText.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n?([\s\S]*)$/) || [])[1].trim();
@@ -599,11 +562,11 @@ if (existsSync(buildCreate)) {
         for (const name of sourceNames) {
           const src = readFileSync(join(sourcePortableSkills, name, 'SKILL.md'), 'utf8');
           const dst = readFileSync(join(bundledPortableSkills, name, 'SKILL.md'), 'utf8');
-          const srcParts = splitFrontmatter(src);
+          const srcParts = splitSkillDocument(src);
           const dstParts = parsePortableSkill(dst);
           sameContent = sameContent && !!srcParts && !!dstParts &&
             dstParts.name === name &&
-            dstParts.description === normalizePortableScalar((frontmatter(src) || {}).description) &&
+            dstParts.description === normalizePortableScalar((parseFrontmatter(src) || {}).description) &&
             Object.keys(dstParts).every((k) => ['name', 'description', 'license', 'compatibility', 'allowed-tools', 'metadata'].includes(k)) &&
             dstParts.metadata['midas-harness-tier'] &&
             srcParts.body.trim() === (dst.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n?([\s\S]*)$/) || [])[1].trim();
@@ -631,11 +594,11 @@ if (existsSync(buildCreate)) {
         for (const name of sourceNames) {
           const src = readFileSync(join(sourcePortableSkills, name, 'SKILL.md'), 'utf8');
           const dst = readFileSync(join(cursorPortableSkills, name, 'SKILL.md'), 'utf8');
-          const srcParts = splitFrontmatter(src);
+          const srcParts = splitSkillDocument(src);
           const dstParts = parsePortableSkill(dst);
           sameContent = sameContent && !!srcParts && !!dstParts &&
             dstParts.name === name &&
-            dstParts.description === normalizePortableScalar((frontmatter(src) || {}).description) &&
+            dstParts.description === normalizePortableScalar((parseFrontmatter(src) || {}).description) &&
             Object.keys(dstParts).every((k) => ['name', 'description', 'license', 'compatibility', 'allowed-tools', 'metadata'].includes(k)) &&
             dstParts.metadata['midas-harness-tier'] &&
             srcParts.body.trim() === (dst.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n?([\s\S]*)$/) || [])[1].trim();
@@ -1356,13 +1319,19 @@ check(
 // --- O. tool selection + tool-aware adapter render ----------------------------------------------
 check('render:tool-aware-default', resolveAdapterTools(ROOT).join(',') === DEFAULT_ADAPTER_TOOLS.join(','));
 const defaultAdapterPaths = computeAdapters(ROOT).files.map((f) => f.path).sort();
-check('render:tool-aware-default:four-adapters', defaultAdapterPaths.length === 4, defaultAdapterPaths.join(', '));
+check('render:tool-aware-default:adapter-count', defaultAdapterPaths.length === 6, defaultAdapterPaths.join(', '));
 
 const narrowRoot = mkdtempSync(join(tmpdir(), 'midas-test-'));
 mkdirSync(join(narrowRoot, 'harness'), { recursive: true });
 writeFileSync(join(narrowRoot, 'harness', 'state.yaml'), 'tools: [cursor]\n');
-const narrowPaths = computeAdapters(narrowRoot).files.map((f) => f.path);
-check('render:tool-aware-narrow', narrowPaths.length === 1 && narrowPaths[0] === '.cursor/rules/00-midas.mdc');
+const narrowPaths = computeAdapters(narrowRoot).files.map((f) => f.path).sort();
+check(
+  'render:tool-aware-narrow',
+  narrowPaths.length === 2 &&
+    narrowPaths.includes('.cursor/rules/00-midas.mdc') &&
+    narrowPaths.includes('.cursor/rules/01-midas-checks.mdc'),
+  narrowPaths.join(', '),
+);
 check('render:tool-aware-narrow:no-claude', !narrowPaths.includes('CLAUDE.md'));
 rmSync(narrowRoot, { recursive: true, force: true });
 
@@ -1530,6 +1499,7 @@ check(
 check('installer:hasMidasInstall-compact', /libHasMidasInstall/.test(installerRuntime) || /hasMidasInstall[\s\S]*\.midas/.test(installerRuntime));
 check('installer:engine-owns-lifecycle', /runInstaller\(parsedCmd/.test(installer) && /vendor-conflicts/.test(engineSrc));
 check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bind-applies.mjs')));
+if (!TEST_FAST) {
 {
   const rollbackRoot = mkdtempSync(join(tmpdir(), 'midas-install-rollback-'));
   try {
@@ -1665,6 +1635,7 @@ check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bi
         /tools:\s*\[cursor\]/.test(state) &&
         existsSync(join(pruneRoot, '.cursor', 'skills')) &&
         existsSync(join(pruneRoot, '.cursor', 'rules', '00-midas.mdc')) &&
+        existsSync(join(pruneRoot, '.cursor', 'rules', '01-midas-checks.mdc')) &&
         !existsSync(join(pruneRoot, '.claude')) &&
         !existsSync(join(pruneRoot, '.agents')) &&
         !existsSync(join(pruneRoot, '.windsurf')) &&
@@ -1761,7 +1732,7 @@ check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bi
       fix.status === 0 &&
         strict.status === 0 &&
         treeDigest(join(projectRulesRoot, '.harness', 'engine')) === engineBefore &&
-        /Local policy/.test(readFileSync(join(projectRulesRoot, '.cursor', 'rules', '00-midas.mdc'), 'utf8')) &&
+        /Local policy/.test(readFileSync(join(projectRulesRoot, '.cursor', 'rules', '01-midas-checks.mdc'), 'utf8')) &&
         /rules:combined/.test(strict.stdout || ''),
       `${fix.stderr || fix.stdout}\n${strict.stderr || strict.stdout}`,
     );
@@ -2438,6 +2409,9 @@ check('installer:bind-applies', existsSync(join(ROOT, 'cli', 'lib', 'steps', 'bi
     rmSync(dryConflict, { recursive: true, force: true });
   }
 }
+} else {
+  check('installer:subprocess:skipped-MIDAS_TEST_FAST', true);
+}
 
 // --- M. layout resolver (ADR-001) --------------------------------------------------------------
 check('paths:module-exists', existsSync(join(ROOT, 'scripts', 'paths.mjs')));
@@ -2865,6 +2839,11 @@ if (existsSync(helpSkill)) {
     'skill:midas-help:skill-flows',
     /skill-flows\.md/.test(helpBody),
     'help should cite skill-flows.md for flow-shape questions',
+  );
+  check(
+    'skill:midas-help:response-map',
+    /response-map\.md/.test(helpBody),
+    'help must load the per-option map from L3 response-map.md',
   );
   check(
     'skill:midas-help:surface-filter',
@@ -3409,7 +3388,78 @@ if (existsSync(join(ROOT, 'harness', 'gates.json'))) {
       JSON.stringify(gates) === JSON.stringify(computeGatesIndex(ROOT, 'harness')),
       'harness/gates.json drifted from the generated registry',
     );
+    const pipelineRitual = [
+      ['gate-00', '0-idea-intake.md', 'gate-00.md'],
+      ['gate-01', '1-contextualize.md', 'gate-01.md'],
+      ['gate-02', '2-market-research.md', 'gate-02.md'],
+      ['gate-03', '3-business-case.md', 'gate-03.md'],
+      ['gate-04', '4-tech-architecture.md', 'gate-04.md'],
+      ['gate-05', '5-architecture-rules.md', 'gate-05.md'],
+      ['gate-06', '6-sprint-planning.md', 'gate-06.md'],
+    ];
+    for (const [id, file, needle] of pipelineRitual) {
+      const text = readFileSync(join(ROOT, 'harness', 'pipeline', file), 'utf8');
+      check(`harness:gates-registry:ritual:${id}`, text.includes(needle), `${file} must name ${needle}`);
+    }
+    check(
+      'harness:gates-registry:gate-07-progress',
+      /NN-progress\.md/.test(readFileSync(join(ROOT, 'harness', 'pipeline', '7-sprint-execution.md'), 'utf8')),
+      'gate-07 uses {runs}/sprints/NN-progress.md, not gate-07.md',
+    );
+    check(
+      'harness:gates-registry:gate-08-audit-nn',
+      /audit-NN\.md/.test(readFileSync(join(ROOT, 'harness', 'pipeline', '8-audit-adjust.md'), 'utf8')),
+      'gate-08 uses {runs}/audits/audit-NN.md, not gate-08.md',
+    );
+    const g01 = phases.find((g) => g.id === 'gate-01');
+    check(
+      'harness:gates-registry:gate-01-idea',
+      Array.isArray(g01?.evidence_required) && g01.evidence_required.includes('{product}/idea.md'),
+    );
+    const g06 = phases.find((g) => g.id === 'gate-06');
+    check(
+      'harness:gates-registry:gate-06-roadmap',
+      Array.isArray(g06?.evidence_required) &&
+        g06.evidence_required.includes('{product}/roadmap.md') &&
+        g06.evidence_required.includes('{product}/features.json'),
+    );
   }
+}
+{
+  check(
+    'gate-evidence:classic-state',
+    resolveEvidencePattern('.harness/state.yaml', { state: 'harness/state.yaml' }) === 'harness/state.yaml',
+  );
+  check(
+    'gate-evidence:product-token',
+    resolveEvidencePattern('{product}/idea.md', { product: '.harness/product' }) === '.harness/product/idea.md',
+  );
+  const closedPaths = resolvePaths(PRODUCT_CLOSED);
+  const missClosed = missingEvidenceRequired(
+    PRODUCT_CLOSED,
+    closedPaths,
+    ['.harness/state.yaml', '{product}/idea.md'],
+    { tools: ['claude-code'] },
+  );
+  check('gate-evidence:product-closed-core', missClosed.length === 0, missClosed.join(', '));
+  const missClaude = missingEvidenceRequired(
+    PRODUCT_CLOSED,
+    closedPaths,
+    ['.claude/CLAUDE.md'],
+    { tools: ['claude-code'] },
+  );
+  check(
+    'gate-evidence:host-adapter-when-selected',
+    missClaude.includes('.claude/CLAUDE.md'),
+    missClaude.join(', '),
+  );
+  const missCursorSkipped = missingEvidenceRequired(
+    PRODUCT_CLOSED,
+    closedPaths,
+    ['.cursor/rules/00-midas.mdc'],
+    { tools: ['claude-code'] },
+  );
+  check('gate-evidence:host-adapter-skipped', missCursorSkipped.length === 0, missCursorSkipped.join(', '));
 }
 const templateGatesIndex = join(ROOT, 'cli', 'template', '.harness', 'engine', 'gates.json');
 if (existsSync(templateGatesIndex) && existsSync(join(ROOT, 'harness', 'gates.json'))) {
@@ -3738,6 +3788,10 @@ if (existsSync(templateChecksIndex) && existsSync(join(ROOT, 'harness', 'checks.
     'skill-registry:md-has-surface-column',
     /\| Surface \|/.test(readFileSync(join(ROOT, 'harness', 'skill-registry.md'), 'utf8')),
   );
+  check(
+    'skill-registry:no-description-column',
+    !/Trigger \/ description/.test(readFileSync(join(ROOT, 'harness', 'skill-registry.md'), 'utf8')),
+  );
   for (const name of ['midas-improve-loop', 'midas-autopilot', 'midas-auto-sprints']) {
     const row = rows.find((r) => r.name === name);
     const body = existsSync(join(ROOT, 'harness', 'skills', name, 'SKILL.md'))
@@ -3796,8 +3850,10 @@ if (existsSync(templateChecksIndex) && existsSync(join(ROOT, 'harness', 'checks.
   });
   check('skills:askquestion-canonical', askOrphans.length === 0, askOrphans.join(',') || 'ok');
   const helpBodyCloseout = readFileSync(join(ROOT, 'harness', 'skills', 'midas-help', 'SKILL.md'), 'utf8');
+  const helpMap = readFileSync(join(ROOT, 'harness', 'skills', 'midas-help', 'response-map.md'), 'utf8');
+  check('help:response-map', existsSync(join(ROOT, 'harness', 'skills', 'midas-help', 'response-map.md')));
   check('help:bundle-option', /\/midas-bundle/.test(helpBodyCloseout));
-  check('help:engine-precommit-named', /\/midas-precommit/.test(helpBodyCloseout));
+  check('help:engine-precommit-named', /\/midas-precommit/.test(helpMap));
   const closeBody = readFileSync(join(ROOT, 'harness', 'skills', 'close-sprint', 'SKILL.md'), 'utf8');
   check(
     'close-sprint:exit-reads-pipeline-8',

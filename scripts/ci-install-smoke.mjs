@@ -41,8 +41,8 @@ try {
 
   const expectedByHost = {
     'claude-code': ['.claude/CLAUDE.md', '.claude/skills', '.claude/agents'],
-    cursor: ['.cursor/rules/00-midas.mdc', '.cursor/skills'],
-    windsurf: ['.harness/.windsurf/rules/00-midas.md', '.agents/skills'],
+    cursor: ['.cursor/rules/00-midas.mdc', '.cursor/rules/01-midas-checks.mdc', '.cursor/skills'],
+    windsurf: ['.harness/.windsurf/rules/00-midas.md', '.harness/.windsurf/rules/01-midas-checks.md', '.agents/skills'],
     gemini: ['GEMINI.md', '.agents/skills'],
     codex: ['.agents/skills'],
     copilot: ['.agents/skills'],

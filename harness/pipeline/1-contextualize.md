@@ -30,7 +30,7 @@ question loop with the human before advancing. Zero unresolved blockers is the g
 4. **Re-analyze.** After each answer batch, re-run the gap check.
    Repeat until the blocking list is empty.
 5. **Update `{product}/idea.md` v2.** Rewrite the document with all four fields
-   (user, problem, metric, non-goals) clearly defined. Preserve the `## Raw idea`
+   (user, problem, metric, non-goals) clearly defined. Preserve the `## Raw idea (preserved verbatim)`
    section verbatim; add a `## Contextualized` section below it.
 6. **Write `{product}/open-questions.md`.** List DEFERRED questions with owner and
    target-phase. BLOCKING questions resolved in this loop are marked `resolved`.

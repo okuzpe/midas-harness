@@ -100,6 +100,6 @@ Graded at Phase 8 via `<paths.engine>/rules/hygiene.md`:
 - **Any mode:** unresolved high `dead-flow` / `ledger-drift` rows must appear in audit as fixed, deferred, or accepted.
 - **Aging:** `needs_review` rows (rules/playbooks >180 days without Amendment) must appear in the freeze; do not silently drop them.
 
-## Tier & cost
+## Tier & delegation
 
 Indexing + greps → **scout**. Classification, report, confirmed fixes → **build**. Escalate to **orchestrate** only for scope/rule-amendment decisions — sweep reports; it does not amend rules.

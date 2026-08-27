@@ -6,7 +6,6 @@ import {
   mkdirSync,
   cpSync,
   readFileSync,
-  readdirSync,
   mkdtempSync,
   renameSync,
   rmSync,
@@ -14,6 +13,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
+import { walkFiles } from './lib/walk.mjs';
 import { pathToFileURL } from 'node:url';
 import { tmpdir } from 'node:os';
 import {
@@ -103,14 +103,8 @@ function maybeFail(step) {
   }
 }
 
-function walkMarkdownFiles(dir, out = []) {
-  if (!existsSync(dir)) return out;
-  for (const e of readdirSync(dir, { withFileTypes: true })) {
-    const p = join(dir, e.name);
-    if (e.isDirectory()) walkMarkdownFiles(p, out);
-    else if (e.name.endsWith('.md')) out.push(p);
-  }
-  return out;
+function walkMarkdownFiles(dir) {
+  return walkFiles(dir, { exclude: [], filter: (name) => name.endsWith('.md') });
 }
 
 /** Rewrite product/ prefixes in state.yaml (artifacts, enforcement, captures). */

@@ -95,5 +95,5 @@ Route each `fail` to `/close-sprint`.
 - [ ] Single `verify-NN.md` frozen with `MIDAS_VERIFY_RESULT`.
 - [ ] `paths.state` stage NOT advanced.
 
-## Tier & cost
+## Tier & delegation
 **Build** drives flows + writes record; **scout** reads criteria. Respect `cost_profile`. Skip browser MCPs when `--scope api`.

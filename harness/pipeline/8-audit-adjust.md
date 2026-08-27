@@ -21,8 +21,9 @@ or declare the MVP complete. The producer never grades its own work.
   `{product}/design-system.md`, `{product}/design-direction.md`, `{product}/business-plan.md`
 - `paths.state` (`stage: sprint_execution`; Phase 8 runs in place)
 - When `track: lite`, `{product}/market.md` is **optional** — do not fail the audit for its
-  absence. `{product}/business-plan.md` is still required (lite stub counts). See
-  `<paths.engine>/pipeline/lite.md`.
+  absence. `{product}/design-system.md` and `{product}/design-direction.md` are optional when
+  the sprint does not touch UI (record `n/a` in the audit). `{product}/business-plan.md` is still
+  required (lite stub counts). See `<paths.engine>/pipeline/lite.md`.
 
 ## Key steps
 

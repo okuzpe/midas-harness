@@ -1,7 +1,7 @@
 // tool-profiles.mjs — supported AI tools: compatibility matrix + install onboarding (dependency-free).
 
 import { resolvePaths } from './paths.mjs';
-import { adapterPathForTool, LEGACY_WINDSURF_ADAPTER_REL } from './render-adapters.mjs';
+import { adapterPathsForTool, LEGACY_WINDSURF_ADAPTER_REL, LEGACY_WINDSURF_CHECKS_REL } from './render-adapters.mjs';
 
 /** Order matches create-midas KNOWN_TOOLS. */
 export const TOOL_IDS = ['claude-code', 'cursor', 'windsurf', 'gemini', 'codex', 'copilot'];
@@ -69,7 +69,7 @@ export const TOOL_PROFILES = {
     mcp: 'project `.mcp.json`',
     routing: 'advisory',
     onboarding: [
-      'From the project root: `gemini` — GEMINI.md is project memory (rules + CHECK digest).',
+      'From the project root: `gemini` — GEMINI.md is project memory (conventions + pointer to checks.json).',
       'Register the extension once: `gemini extensions link .` (uses `gemini-extension.json`).',
       'Drive phases via natural language or paste commands from `/midas-status` output.',
     ],
@@ -212,8 +212,8 @@ export function expectedRootAllowlist(tools, layout = 'harness') {
   }
   if (plan.agents) out.push('.agents/skills');
   if (plan.cursorSkills) out.push('.cursor/skills');
-  if (tools.includes('cursor')) out.push('.cursor/rules/00-midas.mdc');
-  if (tools.includes('windsurf')) out.push(adapterPathForTool('windsurf', layout));
+  if (tools.includes('cursor')) out.push(...adapterPathsForTool('cursor', layout));
+  if (tools.includes('windsurf')) out.push(...adapterPathsForTool('windsurf', layout));
   if (tools.includes('gemini')) out.push('GEMINI.md');
   return out;
 }
@@ -231,12 +231,12 @@ export function orphanRootMidasPaths(tools, layout = 'harness') {
   }
   if (!plan.agents) orphans.push('.agents/skills');
   if (!plan.cursorSkills) orphans.push('.cursor/skills');
-  if (!tools.includes('cursor')) orphans.push('.cursor/rules/00-midas.mdc');
+  if (!tools.includes('cursor')) orphans.push(...adapterPathsForTool('cursor', layout));
   if (!tools.includes('windsurf')) {
-    orphans.push(adapterPathForTool('windsurf', layout));
-    orphans.push(LEGACY_WINDSURF_ADAPTER_REL);
+    orphans.push(...adapterPathsForTool('windsurf', layout));
+    orphans.push(LEGACY_WINDSURF_ADAPTER_REL, LEGACY_WINDSURF_CHECKS_REL);
   } else {
-    orphans.push(LEGACY_WINDSURF_ADAPTER_REL);
+    orphans.push(LEGACY_WINDSURF_ADAPTER_REL, LEGACY_WINDSURF_CHECKS_REL);
   }
   if (!tools.includes('gemini')) orphans.push('GEMINI.md');
   return orphans;

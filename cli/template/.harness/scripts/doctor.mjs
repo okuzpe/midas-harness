@@ -11,7 +11,7 @@
 // project-dependent recommendations remain advisory. Shares render logic with render-adapters.mjs.
 
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from 'node:fs';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { computeAdapters, computeChecksIndex, computeGatesIndex, renderAdapters } from './render-adapters.mjs';
 import { checkSkillRegistry, isHostMirrorExcluded } from './skill-registry.mjs';
@@ -33,6 +33,8 @@ import {
 import { readOwnershipManifest, findVendorConflicts, sha256File } from './ownership-manifest.mjs';
 import { renderPortableSkillText } from './portable-skills.mjs';
 import { orphanRootMidasPaths, resolveSkillMirrorPlan } from './tool-profiles.mjs';
+import { walkFiles } from './lib/walk.mjs';
+import { missingEvidenceRequired } from './lib/gate-evidence.mjs';
 
 let pluginHelpers = null;
 if (existsSync(join(dirname(fileURLToPath(import.meta.url)), 'build-plugin.mjs'))) {
@@ -134,17 +136,7 @@ function syncAgentPins(expected, { alsoEngine = false } = {}) {
 }
 
 function walkRelativeFiles(base) {
-  if (!existsSync(base)) return [];
-  const out = [];
-  const visit = (dir) => {
-    for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      const abs = join(dir, entry.name);
-      if (entry.isDirectory()) visit(abs);
-      else if (entry.isFile()) out.push(relative(base, abs).replace(/\\/g, '/'));
-    }
-  };
-  visit(base);
-  return out.sort();
+  return walkFiles(base, { relativeTo: base, exclude: [] });
 }
 
 function compareMirror(sourceRel, targetRel, transform = (_rel, raw) => raw, opts = {}) {
@@ -812,7 +804,28 @@ if (!stateRaw) {
     if (entry.gate !== 'passed') continue;
     scanned++;
     if (entry.assumption && entry.assumption.length > 0) continue;
+    // Listed artifacts: stay the explicit ledger (partial fixtures like product-closed).
+    // When a passed phase lists none, consume gates.json evidence_required with layout-aware paths.
     if (!entry.artifacts.length) {
+      const gatesFile = join(ROOT, paths.engine, 'gates.json');
+      let registryRow = null;
+      if (existsSync(gatesFile)) {
+        try {
+          const registry = JSON.parse(readFileSync(gatesFile, 'utf8'));
+          registryRow = (registry.gates || []).find((g) => g.phase === name);
+        } catch {
+          registryRow = null;
+        }
+      }
+      if (registryRow?.evidence_required?.length) {
+        const tools = parseToolsFromStateYaml(stateRaw) || [];
+        const missingEv = missingEvidenceRequired(ROOT, paths, registryRow.evidence_required, { tools });
+        if (missingEv.length) {
+          flagged++;
+          check(`gate:phase-${name}`, 'warn', `gate=passed but missing evidence_required: ${missingEv.join(', ')}`);
+        }
+        continue;
+      }
       flagged++;
       check(`gate:phase-${name}`, 'warn', `gate=passed but no assumption: and no artifacts: listed`);
       continue;

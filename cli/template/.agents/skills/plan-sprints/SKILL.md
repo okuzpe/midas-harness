@@ -92,6 +92,6 @@ set `stage_status: gate_pending`. Do **not** self-advance the stage.
 On pass: freeze `{runs}/audits/gate-06.md` from `<paths.engine>/templates/gate-record.md`, set gate passed; next **`/start-sprint`** on sprint 1.
 On fail: name the under-specified sprint or broken ordering.
 
-## Tier & cost
+## Tier & delegation
 Decomposition / ordering / acceptance design → **orchestrate** (`midas-orchestrator`). Draft sprint
 markdown → **build** (`midas-builder`) after the plan is fixed. No Context7 (no third-party code yet).

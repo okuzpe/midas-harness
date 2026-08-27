@@ -56,8 +56,9 @@ the Phase 8 audit references exactly these files.
    exact command (recommend-don't-wall — never a hard dependency). This makes each rule's CHECK real on
    every commit instead of only graded at Phase 8.
 7. **Render adapters.** Run `node <paths.scripts>/render-adapters.mjs` (or `/midas-doctor`) to
-   propagate the new rules into `CLAUDE.md`, `.cursor/rules/00-midas.mdc`, and
-   `.windsurf/rules/00-midas.md`. Do not hand-edit the generated adapters.
+   propagate the new rules into `CLAUDE.md`, `.cursor/rules/00-midas.mdc`,
+   `.cursor/rules/01-midas-checks.mdc`, and the layout-nested Windsurf
+   `00-midas.md` / `01-midas-checks.md` pair. Do not hand-edit the generated adapters.
 8. **Advance.** Set `stage_status: gate_pending`; run the exit gate.
    On pass, write `gate: passed` and set `stage: sprint_planning`.
 

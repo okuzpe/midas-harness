@@ -29,4 +29,4 @@
 
 ---
 
-*Next: run `/midas-contextualize` (Phase 1) to identify gaps and define user/problem/metric/non-goals.*
+*Next: run `/contextualize` (Phase 1) to identify gaps and define user/problem/metric/non-goals.*

@@ -3,7 +3,7 @@
 # Skill registry
 
 Machine index of Midas-owned skills. **Human router:** `docs/skills.md` (slash-name catalog).
-When delegating, match against this table and pass a **subset** of exact `Path` values — never dump the whole registry into a prompt. Prefer `Delegator: yes`.
+When delegating, match against this table and pass a **subset** of exact `Path` values — never dump the whole registry into a prompt. Prefer `Delegator: yes`. Descriptions live in each `SKILL.md` frontmatter (the host already injects them); this table is the routing index only.
 
 **Delegator meaning:** `yes` = parents may path-pass this `SKILL.md` for the worker to **read**. It does **not** authorize Skill-tool or auto slash invoke when `disable-model-invocation: true`. `orchestrator-only` = phase gates / install-sync / high-stakes audits — human slash or stage table only.
 
@@ -13,44 +13,44 @@ Resolve each Path as `<paths.engine>/<Path>` (e.g. `harness/skills/…` in the e
 
 Source: `harness/skills/*/SKILL.md`. v1 indexes engine skills only (no project/user overlays).
 
-| Skill | Trigger / description | Scope | Delegator | Surface | Path |
-| --- | --- | --- | --- | --- | --- |
-| `business-plan` | Phase 3 of Midas — turn the validated opportunity into a go/no-go business case. Define the value proposition, MVP scope vs explicit non-goals, the business/monetization model, and MEASURABLE success metrics (which later phase-8 audits grade against), then capture an explicit go/no-go with HUMAN sign-off into {product}/business-plan.md. Use after /market-research on full track; on lite, after idea.md (market.md optional). | engine | orchestrator-only | primary | `skills/business-plan/SKILL.md` |
-| `choose-architecture` | Phase 4 — pin stack and architecture from the business case, Context7-verify versions, write {product}/architecture.md and one ADR per decision. Use after business case gate passes (stage business_case → tech_architecture), before rules or code. | engine | orchestrator-only | primary | `skills/choose-architecture/SKILL.md` |
-| `close-sprint` | Phase 8 — per-sprint conformance and scope audit. Diff the code against every frozen rule (pass/fail with evidence), reconcile scope vs the business case, resolve drift, freeze {runs}/audits/audit-NN.md, update state, and select the next sprint or declare MVP complete. Use after a sprint's work lands (stage stays `sprint_execution`; Phase 8 runs in place). | engine | orchestrator-only | primary | `skills/close-sprint/SKILL.md` |
-| `contextualize` | Phase 1 of Midas — the gap loop. Generate and rank blocking questions, ask them in batches, fold answers into {product}/idea.md, track {product}/open-questions.md, and loop until zero blockers remain. Use after idea-intake to pin down user, problem, metric, and non-goals. | engine | orchestrator-only | primary | `skills/contextualize/SKILL.md` |
-| `define-conventions` | Phase 5 keystone — freeze architecture into checkable rules, design system, playbooks, and enforcement tooling; re-render adapters. Use once after tech_architecture passes, before sprint work. | engine | orchestrator-only | primary | `skills/define-conventions/SKILL.md` |
-| `idea-intake` | Phase 0 of Midas — capture the raw product idea verbatim, normalize it into {product}/idea.md with a one-line pitch and mode, and initialize/advance **`paths.state`**. Use to start a new product or record its founding idea. | engine | orchestrator-only | primary | `skills/idea-intake/SKILL.md` |
-| `market-research` | Phase 2 of Midas — validate the (now-clear) idea against the real market. Derive research questions, fan out web searches (optional host deep-research if installed), adversarially verify every claim with citations, and synthesize a competitor matrix + differentiation thesis + top risks into {product}/market.md. Use after /contextualize, before the business case. | engine | orchestrator-only | primary | `skills/market-research/SKILL.md` |
-| `midas-adopt` | Adopt Midas into an EXISTING (brownfield) project. Inventory the codebase, reverse-engineer the de-facto architecture and rules from the real code, backfill product context, and establish a baseline audit — writing into any pre-existing AGENTS.md/host adapter/source only after a dry-run diff you confirm. Use instead of greenfield /idea-intake when the repo already has code. | engine | orchestrator-only | primary | `skills/midas-adopt/SKILL.md` |
-| `midas-align` | Propagation alignment pass — maps what changed to downstream surfaces (adapters, bundles, version stamps, docs, tests), runs the cheapest verify ladder, and reports gaps before merge or sprint close. Use after editing skills, rules, conventions, installer, VERSION, or any generated tree source. Complements /midas-doctor (adapters only) with full repo/product sync per <paths.engine>/rules/change-propagation.md. | engine | orchestrator-only | primary | `skills/midas-align/SKILL.md` |
-| `midas-auto-pilot` | "Unified autonomy guide — ask evolve vs sprint checklist (ADR-009), then PR\|code delivery or CLI setup/status/tick. Arms Cursor /loop for continuous evolve. CLI midas-autopilot.mjs unchanged." | engine | yes | primary | `skills/midas-auto-pilot/SKILL.md` |
-| `midas-auto-sprints` | "Deprecated alias — forwards to /midas-auto-pilot (sprint checklist path). Bare invoke defaults intent=sprints. CLI remains midas-autopilot.mjs." | engine | yes | deprecated | `skills/midas-auto-sprints/SKILL.md` |
-| `midas-autopilot` | "Deprecated alias — forwards to /midas-auto-pilot (unified autonomy guide). CLI remains midas-autopilot.mjs." | engine | yes | deprecated | `skills/midas-autopilot/SKILL.md` |
-| `midas-bundle` | Export or import Midas project knowledge as portable JSON — state, product lifecycle docs, stack rules, playbooks, frozen evidence, MCP/enforcement config (no secrets), optional tests. Use to seed a new project, share a subset between repos, or backup selective memory. Complements git; does not replace it. Runs <paths.scripts>/bundle.mjs deterministically; optional brief on export. | engine | orchestrator-only | primary | `skills/midas-bundle/SKILL.md` |
-| `midas-capture` | Turn a recurring request or correction into a project rule (<paths.rules>/*), playbook ({product}/playbooks/*), or convention ({product}/conventions.md). Use when the user asks to capture a pattern, or after they confirm a propose-to-capture (~2–3 repeats). Never write silently. | engine | yes | primary | `skills/midas-capture/SKILL.md` |
-| `midas-design` | Product-authentic UI redesign — audit, three art directions, human pick, spec, then optional one-slice implement. Use when the user asks to improve, redesign, or refactor visuals/landing/UI; never jump straight to JSX. Distinct from /define-conventions (Phase 5 freeze) and /midas-verify (proof). | engine | yes | primary | `skills/midas-design/SKILL.md` |
-| `midas-diff-gates` | Run diff-scoped test/quality gate receipts into {paths.cache}/gates/<run>/; use before close-sprint when production paths changed. Does not replace close-sprint or midas-verify. | engine | yes | internal | `skills/midas-diff-gates/SKILL.md` |
-| `midas-doctor` | The sync engine and health check — re-derives the generated tool adapters from <paths.engine>/conventions.md + rules, diffs them against disk, reports drift, and offers to re-render. Run after editing conventions/rules or when adapters look stale. | engine | orchestrator-only | primary | `skills/midas-doctor/SKILL.md` |
-| `midas-explore` | Ad-hoc investigation outside the 9-phase pipeline — notes under {runs}/explore/<slug>/. Use for debugging or scoping that is not a phase gate or sprint task; close with --end. | engine | yes | primary | `skills/midas-explore/SKILL.md` |
-| `midas-help` | Interactive intent→command guide — one AskQuestion, then What/Exact command/What happens/When NOT/Next for that option only. Use on /midas-help or when the user asks which Midas command to run. Distinct from /midas-status (pipeline PC). | engine | yes | primary | `skills/midas-help/SKILL.md` |
-| `midas-hygiene` | "Product-repo hygiene orchestrator — dead flows, orphans, ledger/doc drift, and optional lean delete-list. Path-passes midas-sweep (scope product) + midas-lean-review. Not adapter/doctor sync. Use when the repo is dirty, before close on large diffs, or after brownfield adopt." | engine | orchestrator-only | primary | `skills/midas-hygiene/SKILL.md` |
-| `midas-improve-loop` | "Deprecated alias — forwards to /midas-auto-pilot (unified autonomy guide). Not a separate loop." | engine | yes | deprecated | `skills/midas-improve-loop/SKILL.md` |
-| `midas-init` | "Onboarding entry — diagnose install/setup/version, tip install or pinned --update, or run one-time adaptive intake (optional --monorepo). Use when starting a project, setup_complete is false, or engine is behind." | engine | orchestrator-only | primary | `skills/midas-init/SKILL.md` |
-| `midas-investigate` | "Root-cause investigation before bug fixes — Iron Law + 3 strikes; freeze {runs}/investigate/inv-NN.md. Use when debugging failures, after failed self-fixes, or when asked to investigate. Complements /midas-explore (open-ended) and verification.md inner loop." | engine | yes | primary | `skills/midas-investigate/SKILL.md` |
-| `midas-lean-review` | Over-engineering review — delete-list for the current diff or named paths (stdlib/native/yagni/shrink). Use before /close-sprint on a fat diff, after a feature branch, or when the user asks what to cut. Complements correctness review; does not replace /midas-sweep or /close-sprint. | engine | yes | internal | `skills/midas-lean-review/SKILL.md` |
-| `midas-precommit` | Engine-only precommit quality bar — scores architecture, security, agentic design, tests, reliability, docs, simplicity, DX, code quality, maintainability, change propagation, and methodology; requires overall >= 80 before commit. Use before committing on midas-harness. Not for product installs. | engine | orchestrator-only | primary | `skills/midas-precommit/SKILL.md` |
-| `midas-progress` | Phase 7 STM writer — updates {runs}/sprints/NN-progress.md after tasks or significant decisions (Done rows, Learned observations, Next line). Build-tier; complements read-only /midas-recall. Use mid-sprint when session-continuity rule applies. | engine | yes | internal | `skills/midas-progress/SKILL.md` |
-| `midas-qa` | Ad-hoc branch/PR QA — map diff to routes/screens, drive with agent-browser (web) or Maestro MCP (native), report in chat; optional {runs}/qa/qa-adhoc-*.md. Use during Phase 7 inner loop; does not replace /midas-verify before /close-sprint. | engine | yes | internal | `skills/midas-qa/SKILL.md` |
-| `midas-recall` | Read-only context pack for resuming work — reads paths.state and assembles ~15 priority paths plus a 30-line brief (where am I, what matters, open gaps). Scout-tier; no writes. Use after a break, new session, or when midas-status suggests recall. Distinct from midas-status (PC only) and midas-sweep (hygiene). | engine | yes | primary | `skills/midas-recall/SKILL.md` |
-| `midas-reconcile` | Read-only install/orientation check — thin guide to the deterministic diagnose CLI. Detects missing install, setup pending, version behind, or wrong cwd, and prints the single next CLI or slash command. Use when npx --update failed, you are unsure between install/init/adopt/update, or before /midas-status on a confused project. | engine | yes | primary | `skills/midas-reconcile/SKILL.md` |
-| `midas-retro` | "Read-only sprint retrospective — freeze learnings under {runs}/retros/retro-NN.md without advancing stage. Use after a sprint closes or when the team wants a gstack-/reflect-style note. Complements /close-sprint (conformance) and /midas-progress (STM)." | engine | yes | primary | `skills/midas-retro/SKILL.md` |
-| `midas-security-audit` | Deep security audit — OWASP ASVS 5.0 + Top 10 (+ LLM/Agentic when AI-bearing), STRIDE threat model, SAST/SCA/secret scanners as evidence; freeze to {runs}/security/security-NN.md. Non-advancing. Use before ship on any UI/API/data surface. | engine | orchestrator-only | primary | `skills/midas-security-audit/SKILL.md` |
-| `midas-status` | Read-only lifecycle status — reads the state file (paths.state) and prints the current phase, its gate status, and the single next action/command. Cheap; run anytime to orient or resume. | engine | yes | primary | `skills/midas-status/SKILL.md` |
-| `midas-sweep` | Hygiene and dead-flow sweep — find orphans, stale docs, ledger drift, and harness mismatches; freeze to {runs}/sweeps/sweep-NN.md. Optional --fix with explicit confirm. Use on demand, after brownfield adopt, or before closing a large sprint. | engine | yes | internal | `skills/midas-sweep/SKILL.md` |
-| `midas-tribunal` | Standing adversarial debate — Defense vs Prosecution + Catfish across idea, market, arch, scope, rules, and code; orchestrator judges per claim and freezes {runs}/debates/debate-NN.md. Use on demand or before big gates (pre-go/no-go, pre-rules-freeze, pre-ship); not a sprint gate. | engine | orchestrator-only | primary | `skills/midas-tribunal/SKILL.md` |
-| `midas-update` | "Deprecated alias — forwards to /midas-init (diagnose → tip pinned --update when version/layout behind)." | engine | orchestrator-only | deprecated | `skills/midas-update/SKILL.md` |
-| `midas-verify` | Sprint UI/API verification — drive flows, inspect runtime health, freeze per-claim verdicts to {runs}/verifications/verify-NN.md. Use after a UI-touching sprint lands, before /close-sprint; hard-skips non-UI sprints. | engine | yes | primary | `skills/midas-verify/SKILL.md` |
-| `plan-sprints` | Phase 6 — decompose the MVP scope into a dependency-ordered roadmap and per-sprint plans, each with goal, scope, tasks, acceptance criteria, and a DoD that references the frozen rules. Use after conventions and the design system are frozen (stage architecture_rules → sprint_planning), before any sprint executes. | engine | orchestrator-only | primary | `skills/plan-sprints/SKILL.md` |
-| `start-sprint` | Phase 7 kickoff — pre-sprint drift audit vs frozen rules, working plan, set sprint active. Use to begin a planned sprint (stage sprint_planning → sprint_execution). Do NOT use to close a sprint or grade conformance — that is /close-sprint after tasks, tests, and /midas-verify. | engine | orchestrator-only | primary | `skills/start-sprint/SKILL.md` |
+| Skill | Scope | Delegator | Surface | Path |
+| --- | --- | --- | --- | --- |
+| `business-plan` | engine | orchestrator-only | primary | `skills/business-plan/SKILL.md` |
+| `choose-architecture` | engine | orchestrator-only | primary | `skills/choose-architecture/SKILL.md` |
+| `close-sprint` | engine | orchestrator-only | primary | `skills/close-sprint/SKILL.md` |
+| `contextualize` | engine | orchestrator-only | primary | `skills/contextualize/SKILL.md` |
+| `define-conventions` | engine | orchestrator-only | primary | `skills/define-conventions/SKILL.md` |
+| `idea-intake` | engine | orchestrator-only | primary | `skills/idea-intake/SKILL.md` |
+| `market-research` | engine | orchestrator-only | primary | `skills/market-research/SKILL.md` |
+| `midas-adopt` | engine | orchestrator-only | primary | `skills/midas-adopt/SKILL.md` |
+| `midas-align` | engine | orchestrator-only | primary | `skills/midas-align/SKILL.md` |
+| `midas-auto-pilot` | engine | yes | primary | `skills/midas-auto-pilot/SKILL.md` |
+| `midas-auto-sprints` | engine | yes | deprecated | `skills/midas-auto-sprints/SKILL.md` |
+| `midas-autopilot` | engine | yes | deprecated | `skills/midas-autopilot/SKILL.md` |
+| `midas-bundle` | engine | orchestrator-only | primary | `skills/midas-bundle/SKILL.md` |
+| `midas-capture` | engine | yes | primary | `skills/midas-capture/SKILL.md` |
+| `midas-design` | engine | yes | primary | `skills/midas-design/SKILL.md` |
+| `midas-diff-gates` | engine | yes | internal | `skills/midas-diff-gates/SKILL.md` |
+| `midas-doctor` | engine | orchestrator-only | primary | `skills/midas-doctor/SKILL.md` |
+| `midas-explore` | engine | yes | primary | `skills/midas-explore/SKILL.md` |
+| `midas-help` | engine | yes | primary | `skills/midas-help/SKILL.md` |
+| `midas-hygiene` | engine | orchestrator-only | primary | `skills/midas-hygiene/SKILL.md` |
+| `midas-improve-loop` | engine | yes | deprecated | `skills/midas-improve-loop/SKILL.md` |
+| `midas-init` | engine | orchestrator-only | primary | `skills/midas-init/SKILL.md` |
+| `midas-investigate` | engine | yes | primary | `skills/midas-investigate/SKILL.md` |
+| `midas-lean-review` | engine | yes | internal | `skills/midas-lean-review/SKILL.md` |
+| `midas-precommit` | engine | orchestrator-only | primary | `skills/midas-precommit/SKILL.md` |
+| `midas-progress` | engine | yes | internal | `skills/midas-progress/SKILL.md` |
+| `midas-qa` | engine | yes | internal | `skills/midas-qa/SKILL.md` |
+| `midas-recall` | engine | yes | primary | `skills/midas-recall/SKILL.md` |
+| `midas-reconcile` | engine | yes | primary | `skills/midas-reconcile/SKILL.md` |
+| `midas-retro` | engine | yes | primary | `skills/midas-retro/SKILL.md` |
+| `midas-security-audit` | engine | orchestrator-only | primary | `skills/midas-security-audit/SKILL.md` |
+| `midas-status` | engine | yes | primary | `skills/midas-status/SKILL.md` |
+| `midas-sweep` | engine | yes | internal | `skills/midas-sweep/SKILL.md` |
+| `midas-tribunal` | engine | orchestrator-only | primary | `skills/midas-tribunal/SKILL.md` |
+| `midas-update` | engine | orchestrator-only | deprecated | `skills/midas-update/SKILL.md` |
+| `midas-verify` | engine | yes | primary | `skills/midas-verify/SKILL.md` |
+| `plan-sprints` | engine | orchestrator-only | primary | `skills/plan-sprints/SKILL.md` |
+| `start-sprint` | engine | orchestrator-only | primary | `skills/start-sprint/SKILL.md` |
 

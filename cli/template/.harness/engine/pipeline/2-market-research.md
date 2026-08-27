@@ -47,7 +47,7 @@ decision. Every claim must be cited; opinions must be flagged as such.
 
 ## Exit gate checklist
 
-- [ ] `{product}/market.md` exists with all five sections present
+- [ ] `{product}/market.md` exists with all six sections present
 - [ ] At least 3 named competitors with evidence (not hypothetical)
 - [ ] Differentiation thesis is present and specific (not generic)
 - [ ] `## Demand signals` present with a frank demand verdict (strong/mixed/weak) and cited evidence

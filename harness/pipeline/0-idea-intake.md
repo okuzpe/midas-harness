@@ -15,7 +15,7 @@ This is the cheapest phase; speed matters more than depth.
 
 ## Key steps
 
-1. **Record verbatim.** Write the raw idea into `{product}/idea.md` under a `## Raw idea` heading.
+1. **Record verbatim.** Write the raw idea into `{product}/idea.md` under a `## Raw idea (preserved verbatim)` heading.
    Do not paraphrase or improve it yet.
 2. **Derive a 1-line pitch.** Synthesize a single sentence: `<verb> <for whom> <so that <outcome>>`.
    Append it to `{product}/idea.md` under `## One-line pitch`.
@@ -36,7 +36,7 @@ This is the cheapest phase; speed matters more than depth.
 
 ## Exit gate checklist
 
-- [ ] `{product}/idea.md` exists and contains an unedited `## Raw idea` section
+- [ ] `{product}/idea.md` exists and contains an unedited `## Raw idea (preserved verbatim)` section
 - [ ] `## One-line pitch` is present and fits one sentence
 - [ ] `mode` is set (`greenfield` or `brownfield`) in `paths.state`
 - [ ] `paths.state` is valid against `<paths.engine>/state.schema.md`

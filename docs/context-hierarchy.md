@@ -8,7 +8,7 @@ for, who edits it, and which one wins when they conflict** — so neither you no
 | File / dir | Role | Who edits it | Read by |
 |---|---|---|---|
 | `AGENTS.md` | **Project law** — the source of truth for conventions, the fetch-current-docs rule, and model-routing intent | you / `/define-conventions` | every tool natively |
-| `.claude/CLAUDE.md` · `GEMINI.md` · `.cursor/rules/00-midas.mdc` · `.windsurf/rules/00-midas.md` | **Generated adapters** | **generated — never hand-edit** (`/midas-doctor` re-renders) | selected hosts |
+| `.claude/CLAUDE.md` · `GEMINI.md` · `.cursor/rules/00-midas.mdc` · `.cursor/rules/01-midas-checks.mdc` · `.windsurf/rules/00-midas.md` · `.windsurf/rules/01-midas-checks.md` | **Generated adapters** | **generated — never hand-edit** (`/midas-doctor` re-renders) | selected hosts |
 | `.harness/engine/conventions.md` + `.harness/engine/rules/*` | Immutable versioned base rule bodies | Midas release | inlined into adapters |
 | `.harness/rules/*` | Project-specific rule overlays; matching slug wins over base | you / `/define-conventions` / `/midas-capture` | inlined into adapters |
 | `.harness/state.yaml` | **Operational state only** — current phase, gates, routing, tools, paths, sprint pointer | skills (read first, write last) | `/midas-status`, every skill |

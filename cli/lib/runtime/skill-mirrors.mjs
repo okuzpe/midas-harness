@@ -164,21 +164,24 @@ function removeGeneratedFile(ctx, rel) {
 export function pruneOrphanAdapters(ctx, tools, layout = 'harness') {
   const list = tools || [];
   const windsurfPaths = {
-    harness: '.harness/.windsurf/rules/00-midas.md',
-    classic: 'harness/.windsurf/rules/00-midas.md',
-    compact: '.midas/.windsurf/rules/00-midas.md',
-    hub: '.midas/.windsurf/rules/00-midas.md',
+    harness: ['.harness/.windsurf/rules/00-midas.md', '.harness/.windsurf/rules/01-midas-checks.md'],
+    classic: ['harness/.windsurf/rules/00-midas.md', 'harness/.windsurf/rules/01-midas-checks.md'],
+    compact: ['.midas/.windsurf/rules/00-midas.md', '.midas/.windsurf/rules/01-midas-checks.md'],
+    hub: ['.midas/.windsurf/rules/00-midas.md', '.midas/.windsurf/rules/01-midas-checks.md'],
   };
-  const windsurfRel = windsurfPaths[layout] || windsurfPaths.harness;
-  const legacyWindsurf = '.windsurf/rules/00-midas.md';
+  const windsurfRels = windsurfPaths[layout] || windsurfPaths.harness;
+  const legacyWindsurf = ['.windsurf/rules/00-midas.md', '.windsurf/rules/01-midas-checks.md'];
   if (!list.includes('windsurf')) {
-    removeGeneratedFile(ctx, windsurfRel);
-    removeGeneratedFile(ctx, legacyWindsurf);
+    for (const rel of windsurfRels) removeGeneratedFile(ctx, rel);
+    for (const rel of legacyWindsurf) removeGeneratedFile(ctx, rel);
   } else {
-    removeGeneratedFile(ctx, legacyWindsurf);
+    for (const rel of legacyWindsurf) removeGeneratedFile(ctx, rel);
   }
   if (!list.includes('gemini')) removeGeneratedFile(ctx, 'GEMINI.md');
-  if (!list.includes('cursor')) removeGeneratedFile(ctx, '.cursor/rules/00-midas.mdc');
+  if (!list.includes('cursor')) {
+    removeGeneratedFile(ctx, '.cursor/rules/00-midas.mdc');
+    removeGeneratedFile(ctx, '.cursor/rules/01-midas-checks.mdc');
+  }
   if (!list.includes('claude-code')) removeGeneratedFile(ctx, '.claude/CLAUDE.md');
 }
 

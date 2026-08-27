@@ -49,12 +49,14 @@ proceeds on the **build** tier with Context7.
 
 ### 1. Read state + rules
 Load **`paths.state`** (sprints, routing, mode, **`track`**), the target `{product}/sprints/NN-*.md`, all
-the effective rules from `<paths.engine>/rules/*` plus `<paths.rules>/*`, `{product}/design-system.md`,
-**`{product}/design-direction.md` whenever the sprint
-touches UI** (the named references + mood + anti-references — the anchor that keeps UI off generic
-defaults), `{product}/playbooks/*`, and `{product}/business-plan.md`. The rules are **frozen** — treat
-them as law for this audit. When `track: lite`, `{product}/market.md` is optional — do not hard-stop
-if it is missing (`<paths.engine>/pipeline/lite.md`).
+the effective rules from `<paths.engine>/rules/*` plus `<paths.rules>/*`, `{product}/playbooks/*`, and
+`{product}/business-plan.md`. Load `{product}/design-system.md` and **`{product}/design-direction.md`
+whenever the sprint touches UI** (the named references + mood + anti-references — the anchor that
+keeps UI off generic defaults); on `track: full` also load `{product}/design-system.md` when it
+exists. The rules are **frozen** — treat them as law for this audit. When `track: lite`,
+`{product}/market.md` is optional, and `{product}/design-system.md` / `{product}/design-direction.md`
+are optional unless the sprint touches UI — do not hard-stop if they are missing
+(`<paths.engine>/pipeline/lite.md`).
 
 ### 2. Audit current code vs frozen rules + scope
 Diff the existing code against each checkable rule (folder-structure/boundaries, conventions, testing,

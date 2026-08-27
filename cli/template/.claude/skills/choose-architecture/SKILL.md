@@ -96,7 +96,7 @@ Full checklist: **`<paths.engine>/pipeline/4-tech-architecture.md` § Exit gate 
 
 On pass: freeze `{runs}/audits/gate-04.md`, set `phases.tech_architecture.gate: passed`, next → `/define-conventions`. On fail: report unmet item.
 
-## Tier & cost
+## Tier & delegation
 
 Reasoning/trade-offs/ADRs → **orchestrate**. Context7 fetches → **scout**. Prefer installed `code-architect` / `architect-reviewer` if present; else `midas-orchestrator`.
 Under `cost_profile: max_savings`, **escalate this Phase-4 gate to Opus** even if the default orchestrate pin is Sonnet.

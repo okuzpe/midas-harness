@@ -79,5 +79,5 @@ Full checklist: **`<paths.engine>/pipeline/5-architecture-rules.md` § Exit gate
 
 On pass: freeze `{runs}/audits/gate-05.md` from `<paths.engine>/templates/gate-record.md`, set gate passed; next → `/plan-sprints`. On fail: report uncheckable rule or unrendered adapter.
 
-## Tier & cost
+## Tier & delegation
 Rule set + playbook selection → **orchestrate**. File writes → **build**. Context7 fetches → **scout**. UI: design specialist if installed; else `midas-builder`.

@@ -14,7 +14,6 @@ import {
   lstatSync,
   mkdirSync,
   readFileSync,
-  readdirSync,
   rmSync,
   statSync,
   writeFileSync,
@@ -22,6 +21,7 @@ import {
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MIGRATION_MAP, resolvePaths } from './paths.mjs';
+import { walkFiles } from './lib/walk.mjs';
 import {
   parseEnforcement,
   parseMidasVersion,
@@ -76,17 +76,6 @@ export const VALID_PROFILES = new Set([
 
 /** Optional warn-only scan for committed secrets in bundle content (not .mcp.json). */
 const CONTENT_SECRET_RE = /(sk-[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{16,}|-----BEGIN [A-Z ]*PRIVATE KEY)/;
-
-function walkFiles(dir, out = []) {
-  if (!existsSync(dir)) return out;
-  for (const e of readdirSync(dir, { withFileTypes: true })) {
-    if (e.name === '.git' || e.name === 'node_modules') continue;
-    const p = join(dir, e.name);
-    if (e.isDirectory()) walkFiles(p, out);
-    else out.push(p);
-  }
-  return out;
-}
 
 function posix(p) {
   return p.replace(/\\/g, '/');

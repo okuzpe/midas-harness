@@ -98,7 +98,7 @@ MAY set `last_design: { n, at }` in `paths.state`. **Never** set `gate: passed` 
 - [ ] `design-NN.md` frozen with `MIDAS_DESIGN_RESULT`.
 - [ ] `stage` unchanged.
 
-## Tier & cost
+## Tier & delegation
 
 Direction + recommendation → **orchestrate**. Spec/implement writes → **build**. File/screenshot extract → **scout**. Respect `cost_profile`.
 

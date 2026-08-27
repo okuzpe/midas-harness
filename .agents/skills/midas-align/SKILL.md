@@ -107,7 +107,7 @@ Do **not** advance `stage` or mark gates passed — this is maintenance only.
 - [ ] `MIDAS_ALIGN_RESULT` line printed with honest `gaps` count.
 - [ ] User told the single next action if `verdict=gaps` (fix list, not vague "check things").
 
-## Tier & cost
+## Tier & delegation
 Diff inventory + matrix mapping → **scout** (Haiku). Running scripts + interpreting failures →
 **build** (Sonnet). Release/version judgment → **orchestrate** (Opus) only when the user is cutting a
 version boundary and asks for migration notes.

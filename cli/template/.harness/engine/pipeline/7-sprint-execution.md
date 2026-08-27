@@ -14,7 +14,8 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
 - Machine-checkable spec `{product}/features.json` (seeded at Phase 6 from the MVP scope) — the
   passing/failing ledger this sprint advances (see `<paths.engine>/templates/features.json.tmpl`)
 - `<paths.engine>/rules/*` plus `<paths.rules>/*` (project overlays win by slug) — must be respected at every step
-- `<paths.engine>/design-system/tokens.json` / `tokens.css` — all UI uses tokens
+- `{product}/design-system/tokens.json` / `tokens.css` when present (Phase 5 project tokens);
+  otherwise `<paths.engine>/design-system/tokens.json` / `tokens.css` — all UI uses tokens
 - `paths.state` (stage must be `sprint_execution`, sprint `status: active`)
 
 ## Key steps

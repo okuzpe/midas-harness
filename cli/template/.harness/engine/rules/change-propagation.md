@@ -26,11 +26,23 @@ then run the render/build path.
 
 ## Adapter digest strategy (engine repo)
 
-**Option A (active):** `render-adapters.mjs` inlines full `**CHECK:**` digests from
-`<paths.engine>/rules/` plus project overlays from `<paths.rules>/`
-into generated adapters. Dedupe overlapping CHECKs in **source rules** via cross-references (`see
-code-quality.md` § …) — do not add a parallel `_fragments/` layer (see `conventions.md` precedence).
-**Option B** (title-only digest + links) is deferred per [ADR-005](../../docs/adr/ADR-005-agents-md-generation.md).
+**Option C (active)** per [ADR-014](../../docs/adr/ADR-014-adapter-digest-on-demand.md):
+`render-adapters.mjs` puts conventions + Context7 in the always-on adapter and the **full**
+`**CHECK:**` digest (base `<paths.engine>/rules/` **plus** project overlays from `<paths.rules>/`)
+in a host on-demand file when the host supports it.
+
+- **Cursor:** `.cursor/rules/00-midas.mdc` (`alwaysApply: true`) = conventions; `.cursor/rules/01-midas-checks.mdc`
+  (`alwaysApply: false`) = full digest including overlays.
+- **Gemini:** no on-demand surface — `GEMINI.md` points at `<paths.engine>/checks.json` and `rules/`;
+  do not inline the digest.
+- **Windsurf:** split when current docs name an on-demand trigger; otherwise keep digest inline in
+  the `always_on` file.
+- **Claude Code:** unchanged (short `CLAUDE.md` pointer; native `rules/` read).
+
+Dedupe overlapping CHECKs in **source rules** via cross-references (`see code-quality.md` § …) —
+do not add a parallel `_fragments/` layer (see `conventions.md` precedence).
+**Option A** (full digest always-on) is superseded. **Option B** (title-only digest + links)
+remains rejected (drops audit text).
 
 ## Checklist
 
@@ -82,6 +94,9 @@ code-quality.md` § …) — do not add a parallel `_fragments/` layer (see `con
 
 ## Amendment
 
+- **2026-08-27** — Adapter digest strategy Option C (on-demand full CHECK digest) per ADR-014.
+  Supersedes ADR-005's inline-digest clause. Overlay CHECKs travel with the digest file, not the
+  always-on conventions file.
 - **2026-08-08** — Marketplace catalog at `harness/.claude-plugin/marketplace.json` (not repo root;
   stripped from install template with `plugins/`).
 - **2026-08-08** — Plugin bundle output lives under `harness/plugins/midas/` (generated; stripped from install template).

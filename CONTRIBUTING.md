@@ -18,7 +18,8 @@ structure changes, and what the bar is for a contribution to land.
   exact-pinned. MCP defaults and exceptions are documented in `SECURITY.md`.
 - **Edit the source; never hand-edit generated files.** Canonical skills/agents live under
   `harness/skills/` and `harness/agents/`. `CLAUDE.md`, `.cursor/rules/00-midas.mdc`,
-  `.windsurf/rules/00-midas.md`, `GEMINI.md`, `.claude/`, `.agents/`, `.cursor/skills/`,
+  `.cursor/rules/01-midas-checks.mdc`, `.windsurf/rules/00-midas.md`, `.windsurf/rules/01-midas-checks.md`,
+  `GEMINI.md`, `.claude/`, `.agents/`, `.cursor/skills/`,
   `harness/plugins/midas/**`, `harness/.claude-plugin/**`, and `cli/template/**` are rendered by `npm run render` / `npm run build`.
   Edit `harness/` or `scripts/`, then run `npm run verify`. PRs that touch generated trees directly will
   be asked to revert those edits.

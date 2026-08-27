@@ -20,6 +20,9 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { resolvePaths, resolveProjectRootFromScript } from './paths.mjs';
 import { CLAUDE_COST_PROFILE_ROUTING } from './model-profiles.mjs';
+import { parseFrontmatter } from './lib/frontmatter.mjs';
+
+export { parseFrontmatter } from './lib/frontmatter.mjs';
 
 const MAX_LINES = 500;
 const MAX_DESCRIPTION = 1024;
@@ -102,21 +105,6 @@ export function applyStrictWarns(reports, opts = {}) {
 }
 
 /**
- * @param {string} text
- * @returns {Record<string, string> | null}
- */
-export function parseFrontmatter(text) {
-  const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-  if (!m) return null;
-  const fm = {};
-  for (const line of m[1].split(/\r?\n/)) {
-    const i = line.indexOf(':');
-    if (i > 0 && !line.startsWith(' ')) fm[line.slice(0, i).trim()] = line.slice(i + 1).trim();
-  }
-  return fm;
-}
-
-/**
  * Count distinct local .md links in the ## Steps section (heuristic for hard fail #6).
  * @param {string} body
  */
@@ -176,7 +164,7 @@ export function inspectArtifact({ kind, id, relPath, text }) {
       if (!hasGuard) fails.push('disable-model-invocation skill missing ritual guard or skill-state-ritual.md cite');
     }
     if (!TIER_SECTION_RE.test(body)) {
-      warns.push('missing `## Tier & delegation` (or `## Tier & cost`) section (see rules/model-routing.md)');
+      warns.push('missing `## Tier & delegation` section (see rules/model-routing.md)');
     }
   }
 
