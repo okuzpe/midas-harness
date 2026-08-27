@@ -14,9 +14,10 @@ source and run `/midas-doctor`; installed projects run `/midas-doctor` after cha
 ## Precedence (when rules conflict, higher wins)
 
 ```
-stack-specific rules  >  {product}/conventions.md  >  {product}/design-system.md  >  these base conventions
+project rule overlay (<paths.rules>/)  >  stack-specific rules  >  {product}/conventions.md  >  {product}/design-system.md  >  these base conventions
 ```
 
+An overlay at `<paths.rules>/<slug>.md` wins over a base or stack rule with the same slug.
 Stack-specific rules are generated during Phase 5 by `/define-conventions` (docs-verified for the
 chosen framework). `{product}/conventions.md` and `{product}/design-system.md` are project overrides the
 team owns. This base file is the floor every project starts from. There is exactly **one** taxonomy —
@@ -240,6 +241,7 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `git log <base>..HEAD --format=%s | grep -iE ": (added|adding|fixed|fixing|updated|updating)\b"` → empty.
   - **CHECK:** `manual:` any commit altering a public contract carries `!` and a `BREAKING CHANGE:` footer (`git log --format=%B | grep "BREAKING CHANGE"`).
   - **CHECK:** `manual:` where a body exists, it states rationale; a body that just restates the diff is a fail.
+  - **CHECK:** `git log <base>..HEAD --format=%B | grep -iE "(co-authored-by:.*(claude|copilot|chatgpt|gemini)|generated (by|with) (claude|copilot|chatgpt|gemini)|claude code)"` → empty.
   - **CHECK:** `manual:` each commit's diff is one coherent change; a commit spanning unrelated areas is a fail.
   - **CHECK:** `manual:` no commit mixes a fix and a feature (cross-check subject type vs the files touched).
   - **CHECK:** `git log <base>..HEAD --name-only | grep -E "\.env($|\.)|\.pem$"` → empty; secret-scan the range (see `security.md`).
@@ -259,6 +261,7 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` for each feature id touched in the sprint diff, `status: passing` rows carry non-empty `evidence` (test path, route, or verify record); `failing` rows are not contradicted by shipped code in the same diff without a recorded deferral.
   - **CHECK:** `manual:` for each `{product}/playbooks/*.md` cited in the sprint or architecture, grep `<src-root>/` for the trigger predicate; a playbook with zero matches and no `## Retired` note in the sweep or audit is a warn (fail if the sprint added or edited that playbook without fixing the trigger).
   - **CHECK:** `manual:` rows in `{product}/open-questions.md` marked OPEN that are answered in `{product}/idea.md` are a fail; internal markdown links in changed `{product}/*` files that 404 on disk are a fail (grep `](` targets against the tree).
+  - **CHECK:** `manual:` when a `{runs}/sweeps/sweep-NN.md` exists for this cycle, every effective `<paths.rules>/*.md` and `{product}/playbooks/*.md` whose latest `## Amendment` date (or file mtime if no Amendment) is older than **180 days** appears as category `needs_review` (or is consciously accepted in the sweep Disposition). A sweep that ran `standard` depth and omitted such rows is a fail. Greenfield with no sweep this cycle → `n/a`.
 - **Rule: Lean solution ladder (always-on)** (`lean-ladder.md`, base)
   - **CHECK:** `manual:` for each substantial added module/abstraction in the diff, the PR/sprint notes or `/midas-lean-review` record name the rung used (or why rung 7 was required); unexplained scaffolding is a fail.
   - **CHECK:** `manual:` lockfile additions this sprint — each has a note that rungs 3–5 were considered; an unexplained new dep for a thin wrapper is a fail (pairs with `code-quality.md` Dependencies).
@@ -299,6 +302,8 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` when a Phase-7 task cluster spans ≥4 files, `{runs}/sprints/NN-progress.md` § Done (**Route** column) or § Observations names `Route: inline|delegated|plan-first`.
   - **CHECK:** `manual:` no mid-sprint `/plan-sprints` or silent planning without user acceptance noted in progress (Accepted plan-first → evidence in Learned / sprint file / ADR).
   - **CHECK:** `manual:` cost-aware tier (orchestrate/build/scout) is still applied after the route is chosen — see [`model-routing.md`](./model-routing.md).
+  - **CHECK:** `manual:` session/progress notes show at most one writing builder (or inline writer) on the same worktree at a time; two overlapping write delegations without worktree isolation is a fail.
+  - **CHECK:** `manual:` when Phase-7 progress records ≥2 `delegated` rows in one session, they name distinct scopes (or reuse an earlier summary); identical route+scope relaunch without reuse is a fail.
 - **Rule: Safety guardrails (always-on)** (`safety-guardrails.md`, base)
   - **CHECK:** `manual:` the sprint/session evidence shows no unauthorized force-push, hard reset, recursive delete of non-tmp project paths, or production destroy; if such a command ran, the human's explicit OK for that command is recorded in the session or PR notes — otherwise fail.
   - **CHECK:** `manual:` when `{paths.cache}/session/freeze-dir.txt` exists (or the human named a freeze root still in force), every path in the working-tree diff for that session lies under that root; any write outside is a fail.
@@ -330,6 +335,8 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `manual:` when the sprint diff checks off tasks in `{product}/sprints/NN-*.md`, read `{runs}/sprints/NN-progress.md` § Done — each completed row carries a non-empty **Tool** value (e.g. `test-runner`, `context7`, `playwright-mcp`); a checked-off task with proof but no Tool is a fail. Sprints with zero tasks completed this cycle → `n/a`.
   - **CHECK:** `manual:` the capture log in `state.yaml` or the amended artifact's `## Amendment` notes `no conflicts` or documents the contradiction table outcome; a silent capture against an existing CHECK is a fail.
   - **CHECK:** `manual:` the sprint diff introduces no new `*.db`, `.engram/`, or vector-store config; continuity evidence is `NN-progress.md`, `{product}/*`, or `<paths.rules>/*` only.
+  - **CHECK:** `manual:` when `{runs}/sprints/NN-progress.md` exists and `last_touched` advanced this cycle, § **Next** is non-empty *and* § Observations has a **Learned** (or explicit Session close) row covering goal / discoveries / next step. A progress file that only lists Done with a blank Next after a multi-task session is a fail.
+  - **CHECK:** `manual:` session evidence shows `/midas-recall` or a re-read of `NN-progress.md` + `paths.state` after a compaction/reset before further implementation; continuing from chat memory alone is a fail.
 - **Rule: Skill authoring quality gate (always-on)** (`skill-quality.md`, base)
   - **CHECK:** `manual:` when the PR/sprint diff touches `harness/skills/*/SKILL.md`, `harness/agents/*.md`, `.claude/skills/*/SKILL.md`, `.claude/agents/midas-*.md`, or (install) `<paths.engine>/skills|agents` beyond typos/links, the session or PR notes include the required score block from `docs/skill-quality-gate.md` (engine) or `<paths.engine>/docs/skill-quality-gate.md` (install); missing block on a behavior change is a fail.
   - **CHECK:** `manual:` score block shows `Hard fails: none`, or each fail is fixed in the same diff; any unresolved hard fail is a 🔴 Block / fail.
@@ -346,6 +353,7 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** `node <paths.scripts>/doctor.mjs --gates-only` reports `ok` (or `skip`) for `gate:sprint-continuity`. An active sprint with no progress file and absent/stale `last_touched` is a fail. See also `session-continuity.md` § STM progress log (manual twin).
 - **Rule: Testing (always-on)** (`testing.md`, base)
   - **CHECK:** `manual:` the sprint diff pairs each behavioural change with a new/updated test in the same range; a behaviour change with no test delta is a fail.
+  - **CHECK:** `manual:` for new-feature sprint tasks, `{runs}/sprints/NN-progress.md` or the sprint file names a failing test (or equivalent RED evidence) before the implementation is checked off; a feature task with only a GREEN note and no RED/exception reason is a fail.
   - **CHECK:** `manual:` when the sprint diff includes a defect fix (`fix:` commit, bug/defect sprint task, or progress note naming a bug), the same range adds or updates a test (or a verify/acceptance evidence row) that covers the formerly broken behaviour; a fix-only diff with no regression proof is a fail.
   - **CHECK:** `manual:` tests assert public outputs/effects; a test reaching into private state/mocks-everything is a fail.
   - **CHECK:** the project test command (`npm test` / `pytest` / …) exits 0 with zero failures.
@@ -376,6 +384,9 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
   - **CHECK:** verify record **`## Product authenticity`** filled for UI marketing surfaces; logo-swap "still generic" = fail (see `visual-design.md` § Product authenticity). Missing section on a landing/marketing sprint is a fail.
   - **CHECK:** `manual:` every acceptance-criterion row has a non-empty Tool value; undocumented fallback is a fail.
   - **CHECK:** the sprint's `{runs}/audits/audit-NN.md` exists and was produced by the auditor tier, not the producer; its `MIDAS_AUDIT_RESULT` tally shows `unresolved=0 verdict=pass`.
+  - **CHECK:** `manual:` each `{runs}/audits/gate-0N.md` or `audit-NN.md` with `verdict=pass` includes an Artifacts table (or equivalent path list) and every path exists; advancing with an empty list or a missing path is a fail — see `<paths.engine>/templates/phase-result.md`.
+  - **CHECK:** `manual:` when the sprint diff touches auth/payments/secrets **or** exceeds ~400 authored lines in production paths, `{runs}/audits/audit-NN.md` or progress cites `/midas-security-audit` **or** a dated skip-with-reason; silent skip is a fail. Docs-only / rename sprints must **not** be failed for skipping security-audit.
+  - **CHECK:** `manual:` when audit/progress cites ≥2 independent review lenses on one candidate, the record names a synthesis of `confirmed` | `suspect` | `escalate` for overlapping findings; two lens outputs with no synthesis is a fail.
   - **CHECK:** in `{product}/features.json`, a `status: "passing"` with empty `evidence`, or a shipped behaviour with no feature entry, is a fail; Phase 8 grades the file against the verification records.
 - **Rule: Visual design fundamentals (always-on)** (`visual-design.md`, base)
   - **CHECK:** `manual:` on each key screen, exactly one primary CTA is visually dominant; a second filled primary on the same view is a fail.

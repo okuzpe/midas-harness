@@ -15,7 +15,7 @@ paths:
 name: harness
 language: en
 created: 2026-06-29
-updated: 2026-08-08
+updated: 2026-08-27
 setup_complete: true
 mode: greenfield
 stage: shipped

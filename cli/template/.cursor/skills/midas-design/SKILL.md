@@ -9,10 +9,12 @@ metadata:
   midas-model: inherit
   midas-recommended-model: claude-opus-4-8
   midas-user-invocable: true
+  midas-user-surface: primary
 ---
 # midas-design — authentic redesign (think before JSX)
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Prompt tool:** `AskQuestion`. On Claude Code, fall back to `AskUserQuestion` if AskQuestion is not wired.
 > Read **`paths.state`**. No UI / no `{product}/` → report and stop.
 > Record shape: `<paths.engine>/templates/design-record.md`. Authenticity CHECKs:
 > `<paths.engine>/rules/visual-design.md` § Product authenticity.

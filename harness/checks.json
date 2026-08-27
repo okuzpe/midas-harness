@@ -2,7 +2,7 @@
   "schema_version": 1,
   "updated": null,
   "source": "engine/rules",
-  "source_digest": "e00707225842c5bbbe8a52de3b4fbdd29b880681dff77d880172357c4a08b0ff",
+  "source_digest": "f53c435e33807db1ba16d720233d933c392af34e9e1d3cd15b3d09bf2c035f42",
   "rules": [
     {
       "path": "engine/rules/acceptance-criteria.md",
@@ -700,7 +700,7 @@
       "title": "Rule: Git commits (always-on)",
       "owner": "orchestrate",
       "phase": 8,
-      "check_count": 18,
+      "check_count": 19,
       "checks": [
         {
           "kind": "command",
@@ -741,6 +741,14 @@
           "phase": 8,
           "owner": "orchestrate",
           "severity": "medium"
+        },
+        {
+          "kind": "command",
+          "body": "`git log <base>..HEAD --format=%B | grep -iE \"(co-authored-by:.*(claude|copilot|chatgpt|gemini)|generated (by|with) (claude|copilot|chatgpt|gemini)|claude code)\"` → empty.",
+          "section": "Checklist > Commit message format",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "high"
         },
         {
           "kind": "manual",
@@ -854,7 +862,7 @@
       "title": "Rule: Hygiene & dead-flow sweep (always-on)",
       "owner": "orchestrate",
       "phase": 8,
-      "check_count": 5,
+      "check_count": 6,
       "checks": [
         {
           "kind": "manual",
@@ -892,6 +900,14 @@
           "kind": "manual",
           "body": "`manual:` rows in `{product}/open-questions.md` marked OPEN that are answered in `{product}/idea.md` are a fail; internal markdown links in changed `{product}/*` files that 404 on disk are a fail (grep `](` targets against the tree).",
           "section": "Checklist > Stale product docs",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` when a `{runs}/sweeps/sweep-NN.md` exists for this cycle, every effective `<paths.rules>/*.md` and `{product}/playbooks/*.md` whose latest `## Amendment` date (or file mtime if no Amendment) is older than **180 days** appears as category `needs_review` (or is consciously accepted in the sweep Disposition). A sweep that ran `standard` depth and omitted such rows is a fail. Greenfield with no sweep this cycle → `n/a`.",
+          "section": "Checklist > Aging knowledge (needs_review)",
           "phase": 8,
           "owner": "orchestrate",
           "severity": "medium"
@@ -1190,7 +1206,7 @@
       "title": "Rule: Organic implementation routing (always-on)",
       "owner": "orchestrate",
       "phase": 8,
-      "check_count": 4,
+      "check_count": 6,
       "checks": [
         {
           "kind": "command",
@@ -1219,6 +1235,22 @@
         {
           "kind": "manual",
           "body": "`manual:` cost-aware tier (orchestrate/build/scout) is still applied after the route is chosen — see [`model-routing.md`](./model-routing.md).",
+          "section": "Checklist",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` session/progress notes show at most one writing builder (or inline writer) on the same worktree at a time; two overlapping write delegations without worktree isolation is a fail.",
+          "section": "Checklist",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` when Phase-7 progress records ≥2 `delegated` rows in one session, they name distinct scopes (or reuse an earlier summary); identical route+scope relaunch without reuse is a fail.",
           "section": "Checklist",
           "phase": 8,
           "owner": "orchestrate",
@@ -1444,7 +1476,7 @@
       "title": "Rule: Session continuity (always-on)",
       "owner": "orchestrate",
       "phase": 8,
-      "check_count": 4,
+      "check_count": 6,
       "checks": [
         {
           "kind": "manual",
@@ -1474,6 +1506,22 @@
           "kind": "manual",
           "body": "`manual:` the sprint diff introduces no new `*.db`, `.engram/`, or vector-store config; continuity evidence is `NN-progress.md`, `{product}/*`, or `<paths.rules>/*` only.",
           "section": "Checklist > Recall vs hidden store",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` when `{runs}/sprints/NN-progress.md` exists and `last_touched` advanced this cycle, § **Next** is non-empty *and* § Observations has a **Learned** (or explicit Session close) row covering goal / discoveries / next step. A progress file that only lists Done with a blank Next after a multi-task session is a fail.",
+          "section": "Checklist > Session protocol (open / during / close / rehydrate)",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` session evidence shows `/midas-recall` or a re-read of `NN-progress.md` + `paths.state` after a compaction/reset before further implementation; continuing from chat memory alone is a fail.",
+          "section": "Checklist > Session protocol (open / during / close / rehydrate)",
           "phase": 8,
           "owner": "orchestrate",
           "severity": "medium"
@@ -1604,11 +1652,19 @@
       "title": "Rule: Testing (always-on)",
       "owner": "build",
       "phase": 8,
-      "check_count": 19,
+      "check_count": 20,
       "checks": [
         {
           "kind": "manual",
           "body": "`manual:` the sprint diff pairs each behavioural change with a new/updated test in the same range; a behaviour change with no test delta is a fail.",
+          "section": "Checklist > Coverage contract",
+          "phase": 8,
+          "owner": "build",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` for new-feature sprint tasks, `{runs}/sprints/NN-progress.md` or the sprint file names a failing test (or equivalent RED evidence) before the implementation is checked off; a feature task with only a GREEN note and no RED/exception reason is a fail.",
           "section": "Checklist > Coverage contract",
           "phase": 8,
           "owner": "build",
@@ -1766,7 +1822,7 @@
       "title": "Rule: Verification (always-on)",
       "owner": "build",
       "phase": 8,
-      "check_count": 12,
+      "check_count": 15,
       "checks": [
         {
           "kind": "command",
@@ -1855,6 +1911,30 @@
           "phase": 8,
           "owner": "build",
           "severity": "high"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` each `{runs}/audits/gate-0N.md` or `audit-NN.md` with `verdict=pass` includes an Artifacts table (or equivalent path list) and every path exists; advancing with an empty list or a missing path is a fail — see `<paths.engine>/templates/phase-result.md`.",
+          "section": "The ladder — cheapest tool that proves the claim, first > 5. Independent review before the gate (producer never grades its own homework)",
+          "phase": 8,
+          "owner": "build",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` when the sprint diff touches auth/payments/secrets **or** exceeds ~400 authored lines in production paths, `{runs}/audits/audit-NN.md` or progress cites `/midas-security-audit` **or** a dated skip-with-reason; silent skip is a fail. Docs-only / rename sprints must **not** be failed for skipping security-audit.",
+          "section": "The ladder — cheapest tool that proves the claim, first > Risk-selected review lenses (4R — scale cost with signal)",
+          "phase": 8,
+          "owner": "build",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` when audit/progress cites ≥2 independent review lenses on one candidate, the record names a synthesis of `confirmed` | `suspect` | `escalate` for overlapping findings; two lens outputs with no synthesis is a fail.",
+          "section": "The ladder — cheapest tool that proves the claim, first > Risk-selected review lenses (4R — scale cost with signal)",
+          "phase": 8,
+          "owner": "build",
+          "severity": "medium"
         },
         {
           "kind": "command",

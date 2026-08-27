@@ -1,5 +1,6 @@
 ---
 name: midas-bundle
+user-surface: primary
 description: Export or import Midas project knowledge as portable JSON — state, product lifecycle docs, stack rules, playbooks, frozen evidence, MCP/enforcement config (no secrets), optional tests. Use to seed a new project, share a subset between repos, or backup selective memory. Complements git; does not replace it. Runs <paths.scripts>/bundle.mjs deterministically; optional brief on export.
 user-invocable: true
 disable-model-invocation: true

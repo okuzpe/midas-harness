@@ -25,7 +25,18 @@ blocker for the human — never silent planning.
 - **Incident** — wrong cwd, worktree/git accident, or confusing environment: fresh scout audit before
   continuing.
 - **Handoff / PR** — before `/close-sprint` or opening a PR after non-trivial code changes: fresh
-  orchestrate review (producer never grades its own homework).
+  orchestrate review **in a window that did not write the code** (producer never grades its own
+  homework).
+
+## Parallelism (reads fan out, writes serialize)
+
+- **Read fan-out** — N scout/explore minions on disjoint paths may run in parallel (no shared write
+  state). Return short summaries to the parent; do not paste the files they read.
+- **Single writer** — only **one** inline writer or `midas-builder` mutates the repo at a time,
+  unless writers are isolated in separate git worktrees. Two concurrent writers on the same tree is
+  a merge conflict with extra confidence.
+- **Launch dedup** — each delegated task gets a fingerprint (`route` + scope/path set). Do not
+  relaunch the same fingerprint in the same session; reuse the first summary.
 
 ## Relationship to model routing
 
@@ -47,9 +58,19 @@ blocker for the human — never silent planning.
 - [ ] Tier still applies after route choice.
       **CHECK:** `manual:` cost-aware tier (orchestrate/build/scout) is still applied after the route
       is chosen — see [`model-routing.md`](./model-routing.md).
+- [ ] Concurrent writers are serialized (or isolated).
+      **CHECK:** `manual:` session/progress notes show at most one writing builder (or inline writer)
+      on the same worktree at a time; two overlapping write delegations without worktree isolation
+      is a fail.
+- [ ] Delegated work is not relaunched blindly.
+      **CHECK:** `manual:` when Phase-7 progress records ≥2 `delegated` rows in one session, they
+      name distinct scopes (or reuse an earlier summary); identical route+scope relaunch without
+      reuse is a fail.
 
 ## Amendment
 
+- **2026-08-27** — Gentleman Ch.20 parallelism: single-writer, read fan-out, launch dedup; review
+  must run in a window that did not write the code.
 - **2026-08-06** — Adopted Gentle-AI-style implementation routing for Phase 7: inline / delegated /
   plan-first (Midas-native plan actions only). Complements model-routing; skill-registry path-passing
   on delegated legs.

@@ -7,6 +7,7 @@ metadata:
   midas-model: inherit
   midas-recommended-model: claude-opus-4-8
   midas-user-invocable: true
+  midas-user-surface: primary
 ---
 # plan-sprints (Phase 6 — Sprint Planning)
 
@@ -41,6 +42,9 @@ tasks** per sprint file unless the human accepts a written exception in the spri
 - **`paths.state`**, `{product}/business-plan.md` (MVP scope + non-goals + success metrics),
   `{product}/architecture.md`, effective rules (`<paths.engine>/rules/*` + `<paths.rules>/*`),
   `{product}/design-system.md`.
+- When `track: lite`, `{product}/market.md` is **optional** — do not hard-stop if it is missing.
+  `{product}/business-plan.md` is still **required** (Lite Idea+Plan writes a thin stub). See
+  `<paths.engine>/pipeline/lite.md`.
 
 ## Procedure
 

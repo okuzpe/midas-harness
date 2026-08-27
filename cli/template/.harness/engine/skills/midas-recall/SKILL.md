@@ -1,5 +1,6 @@
 ---
 name: midas-recall
+user-surface: primary
 description: Read-only context pack for resuming work — reads paths.state and assembles ~15 priority paths plus a 30-line brief (where am I, what matters, open gaps). Scout-tier; no writes. Use after a break, new session, or when midas-status suggests recall. Distinct from midas-status (PC only) and midas-sweep (hygiene).
 user-invocable: true
 disable-model-invocation: false
@@ -59,6 +60,8 @@ Always include when present:
 Then merge `recall:` paths from `<paths.engine>/stage-command-table.yaml` for the current `stage`
 (token-substitute `{product}/` and `{runs}/` per `paths.state`). **Do not duplicate the YAML table
 in this skill** — read it on disk each run. Stop at ~15 total paths.
+When `track: lite`, **omit `{product}/market.md` if it is missing** — do not treat it as a required
+file. `{product}/business-plan.md` stays in the pack when present (lite writes a stub).
 
 Stage-specific additions beyond the YAML list:
 

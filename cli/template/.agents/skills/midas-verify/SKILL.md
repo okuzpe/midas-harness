@@ -9,6 +9,7 @@ metadata:
   midas-model: inherit
   midas-recommended-model: claude-sonnet-4-6
   midas-user-invocable: true
+  midas-user-surface: primary
 ---
 # midas-verify — end-to-end / UI verification
 

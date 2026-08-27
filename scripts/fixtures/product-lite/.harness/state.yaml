@@ -1,0 +1,51 @@
+midas_version: 2.9.9
+layout: harness
+paths:
+  root: .harness
+  state: .harness/state.yaml
+  product: .harness/product
+  rules: .harness/rules
+  runs: .harness/runs
+  cache: .harness/cache
+name: product-lite
+mode: greenfield
+setup_complete: true
+track: lite
+stage: sprint_planning
+stage_status: not_started
+entry_stage: sprint_planning
+cost_profile: balanced
+routing_profile: claude
+routing:
+  orchestrate: claude-opus-4-8
+  build: claude-sonnet-4-6
+  scout: claude-haiku-4-5
+tools: [cursor]
+mcp: []
+phases:
+  idea_intake:
+    status: passed
+    gate: passed
+    artifacts: [.harness/product/idea.md]
+  contextualize:
+    status: skipped
+    gate: skipped
+    assumption: lite track — folded into Idea+Plan
+  market_research:
+    status: skipped
+    gate: skipped
+    assumption: lite track — {product}/market.md optional; demand unvalidated
+  business_case:
+    status: passed
+    gate: passed
+    artifacts: [.harness/product/business-plan.md]
+    assumption: lite stub — GO-assumed from idea; no Phase-2 market.md
+  tech_architecture:
+    status: passed
+    gate: passed
+    artifacts: [.harness/product/architecture.md]
+  architecture_rules:
+    status: passed
+    gate: passed
+    artifacts: [.harness/rules/folder-structure.md]
+sprints: []

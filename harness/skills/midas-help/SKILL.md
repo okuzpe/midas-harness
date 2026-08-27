@@ -1,5 +1,6 @@
 ---
 name: midas-help
+user-surface: primary
 description: Interactive intent→command guide — one AskQuestion, then What/Exact command/What happens/When NOT/Next for that option only. Use on /midas-help or when the user asks which Midas command to run. Distinct from /midas-status (pipeline PC).
 user-invocable: true
 disable-model-invocation: false
@@ -38,6 +39,7 @@ recommended-model: claude-haiku-4-5
    - **Redesign product UI** (`/midas-design`)
    - **Security or adversarial review** (`/midas-security-audit` / `/midas-tribunal`)
    - **Capture a recurring pattern** (`/midas-capture`)
+   - **Export or import project knowledge** (`/midas-bundle`)
    - **Install confusion / adapter health** (`/midas-reconcile` / `/midas-doctor`)
    - **Investigate something outside the pipeline** (`/midas-explore`)
    - **I'm not sure — show a short summary table**
@@ -135,9 +137,16 @@ recommended-model: claude-haiku-4-5
 - NOT for one-off preferences with no CHECK → say so and skip. Product hygiene → `/midas-hygiene`.
 - Next: `/midas-doctor` if a rule changed.
 
+**Export or import project knowledge**
+- What: portable JSON of state, product docs, rules, playbooks, frozen evidence (no secrets).
+- Command: `/midas-bundle`
+- Happens: runs `<paths.scripts>/bundle.mjs` export or import; checksums; conflict preview.
+- NOT a git replacement. NOT engine-contributor PR bar → `/midas-precommit` (engine repo only; not a product menu item).
+- Next: `/midas-status` after import; `/midas-align` after engine-side edits.
+
 **Install confusion / adapter health**
 - What: read-only “which command?” or adapter/engine sync (not setup/update — that is `/midas-init`).
-- Command: `/midas-reconcile` · `/midas-doctor` · `/midas-align` (engine edits)
+- Command: `/midas-reconcile` · `/midas-doctor` · `/midas-align` (engine edits). Engine contributors: `/midas-precommit`.
 - Happens: prints next CLI/slash command or re-renders adapters.
 - NOT for first-time setup or version refresh → `/midas-init`.
 - Next: the command reconcile/doctor names.

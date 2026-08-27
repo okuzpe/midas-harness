@@ -1,5 +1,6 @@
 ---
 name: midas-precommit
+user-surface: primary
 description: Engine-only precommit quality bar — scores architecture, security, agentic design, tests, reliability, docs, simplicity, DX, code quality, maintainability, change propagation, and methodology; requires overall >= 80 before commit. Use before committing on midas-harness. Not for product installs.
 user-invocable: true
 disable-model-invocation: true

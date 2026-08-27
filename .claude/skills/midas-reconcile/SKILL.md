@@ -1,5 +1,6 @@
 ---
 name: midas-reconcile
+user-surface: primary
 description: Read-only install/orientation check — thin guide to the deterministic diagnose CLI. Detects missing install, setup pending, version behind, or wrong cwd, and prints the single next CLI or slash command. Use when npx --update failed, you are unsure between install/init/adopt/update, or before /midas-status on a confused project.
 user-invocable: true
 disable-model-invocation: false

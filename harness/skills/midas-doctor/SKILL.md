@@ -1,5 +1,6 @@
 ---
 name: midas-doctor
+user-surface: primary
 description: The sync engine and health check — re-derives the generated tool adapters from <paths.engine>/conventions.md + rules, diffs them against disk, reports drift, and offers to re-render. Run after editing conventions/rules or when adapters look stale.
 user-invocable: true
 disable-model-invocation: true

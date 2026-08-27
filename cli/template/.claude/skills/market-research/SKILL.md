@@ -1,5 +1,6 @@
 ---
 name: market-research
+user-surface: primary
 description: Phase 2 of Midas — validate the (now-clear) idea against the real market. Derive research questions, fan out web searches (optional host deep-research if installed), adversarially verify every claim with citations, and synthesize a competitor matrix + differentiation thesis + top risks into {product}/market.md. Use after /contextualize, before the business case.
 user-invocable: true
 disable-model-invocation: true

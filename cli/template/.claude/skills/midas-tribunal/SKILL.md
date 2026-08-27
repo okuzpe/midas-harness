@@ -1,5 +1,6 @@
 ---
 name: midas-tribunal
+user-surface: primary
 description: Standing adversarial debate — Defense vs Prosecution + Catfish across idea, market, arch, scope, rules, and code; orchestrator judges per claim and freezes {runs}/debates/debate-NN.md. Use on demand or before big gates (pre-go/no-go, pre-rules-freeze, pre-ship); not a sprint gate.
 user-invocable: true
 disable-model-invocation: true

@@ -334,7 +334,8 @@ export function collectRecallPaths(stateYaml, root, layout) {
   }
 
   const stage = parseStateScalar(stateYaml, 'stage') || 'idea_intake';
-  for (const p of stageRecallPaths(stage)) {
+  const track = parseStateScalar(stateYaml, 'track') || 'full';
+  for (const p of stageRecallPaths(stage, undefined, { track })) {
     const canon = toCanonical(p, layout);
     if (existsSync(join(root, fromCanonical(canon, layout)))) paths.add(canon);
   }

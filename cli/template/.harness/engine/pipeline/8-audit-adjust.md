@@ -20,6 +20,9 @@ or declare the MVP complete. The producer never grades its own work.
 - `{product}/architecture.md`, `{product}/idea.md`, `{product}/conventions.md`,
   `{product}/design-system.md`, `{product}/design-direction.md`, `{product}/business-plan.md`
 - `paths.state` (`stage: sprint_execution`; Phase 8 runs in place)
+- When `track: lite`, `{product}/market.md` is **optional** — do not fail the audit for its
+  absence. `{product}/business-plan.md` is still required (lite stub counts). See
+  `<paths.engine>/pipeline/lite.md`.
 
 ## Key steps
 
@@ -76,9 +79,12 @@ amendment, re-audit affected checks. Drift is never left silent.
 
 ### 5. Freeze the audit
 
-Write `{runs}/audits/audit-NN.md` (NN = sprint id): gate-parseable tally, per-rule table with
-evidence, scope reconciliation, **§ Hygiene** (sweep path or `sweep: skipped — reason`), drift
-resolutions, overall verdict. Tally shape (also in `audit-checklists.md`):
+Write `{runs}/audits/audit-NN.md` (NN = sprint id) from
+`<paths.engine>/templates/audit-record.md`: gate-parseable tally, **Artifacts** table (every
+claimed path exists on disk — see `phase-result.md`), per-rule table with evidence, scope
+reconciliation, **§ Hygiene** (sweep path or `sweep: skipped — reason`), drift resolutions,
+overall verdict. A `verdict=pass` with an empty Artifacts table or a missing path is a fail.
+Tally shape (also in `audit-checklists.md`):
 
 ```
 MIDAS_AUDIT_RESULT: rules_failed=X unresolved=Y amended=Z verdict=pass|blocked
@@ -98,11 +104,26 @@ reconcile remaining `sprints[]`. Then **select next**:
   `/midas-tribunal` (pre-ship) — never forced.
 - **Metrics unmet and no sprints** → surface the gap to the human before deciding.
 
+### Risk-selected lenses
+
+During Step 2, select review lenses by diff **signal** — do not run every lens on a rename.
+Canonical table and CHECKs: `<paths.engine>/rules/verification.md` § Risk-selected review lenses
+(4R: security / maintainability / reliability / resilience). Short map:
+
+| Signal | Lenses | Skip |
+|---|---|---|
+| Docs-only, rename, comment | Maintainability optional | Security audit not required |
+| Mutating shell, infra, retries, queues | Reliability + resilience | — |
+| Auth, payments, secrets, or **>400** authored production lines | All four (parallel where read-only) | Documented skip with reason only |
+
+Cite which lenses ran (or a dated skip) in `{runs}/audits/audit-NN.md`. When two independent lenses
+disagree, synthesize per verification.md (`confirmed` / `suspect` / `escalate`).
+
 ## Output artifacts
 
 | File | Notes |
 |---|---|
-| `{runs}/audits/audit-NN.md` | Rule verdicts, fixes, amendments, final verdict |
+| `{runs}/audits/audit-NN.md` | Tally, Artifacts paths, rule verdicts, fixes, amendments |
 | `<paths.rules>/<slug>.md` | Overlay + dated `## Amendment` if an effective rule changed |
 
 ## Exit gate checklist

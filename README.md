@@ -52,6 +52,7 @@ on a new product (full lifecycle) or an existing repo (`/midas-adopt`).
 
 **Skip it** for a quick one-off script or when you already have an agent setup you're happy with.
 For a **fast MVP or hackathon**, choose **`track: lite`** during `/midas-init` (3 phases instead of 9).
+`/midas-status` prints `Track: lite` and never recommends `/market-research` as Next.
 Midas adds process; that's overhead you don't want for a 20-line tool.
 
 ## The 9 phases (or Lite: 3)

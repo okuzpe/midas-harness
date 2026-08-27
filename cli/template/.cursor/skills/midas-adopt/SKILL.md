@@ -8,10 +8,12 @@ metadata:
   midas-model: inherit
   midas-recommended-model: claude-opus-4-8
   midas-user-invocable: true
+  midas-user-surface: primary
 ---
 # midas-adopt — brownfield adoption (existing projects)
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Prompt tool:** `AskQuestion`. On Claude Code, fall back to `AskUserQuestion` if AskQuestion is not wired.
 > **Precondition:** brownfield (existing code). Empty/greenfield repo → `/idea-intake`.
 
 This is the **E2/E3 (partial / mature) branch of the adaptive intake**: `/midas-init` runs it

@@ -1,5 +1,6 @@
 ---
 name: midas-security-audit
+user-surface: primary
 description: Deep security audit — OWASP ASVS 5.0 + Top 10 (+ LLM/Agentic when AI-bearing), STRIDE threat model, SAST/SCA/secret scanners as evidence; freeze to {runs}/security/security-NN.md. Non-advancing. Use before ship on any UI/API/data surface.
 user-invocable: true
 disable-model-invocation: true

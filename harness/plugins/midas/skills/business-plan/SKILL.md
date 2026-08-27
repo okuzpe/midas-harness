@@ -1,5 +1,6 @@
 ---
 name: business-plan
+user-surface: primary
 description: Phase 3 of Midas — turn the validated opportunity into a go/no-go business case. Define the value proposition, MVP scope vs explicit non-goals, the business/monetization model, and MEASURABLE success metrics (which later phase-8 audits grade against), then capture an explicit go/no-go with HUMAN sign-off into {product}/business-plan.md. Use after /market-research.
 user-invocable: true
 disable-model-invocation: true
@@ -11,6 +12,7 @@ recommended-model: claude-opus-4-8
 # business-plan — Phase 3
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Prompt tool:** `AskQuestion`. On Claude Code, fall back to `AskUserQuestion` if AskQuestion is not wired.
 > **Precondition:** `market_research` passed. **Hard human checkpoint** — no engineering until go/no-go sign-off.
 > Optional: `/midas-tribunal` (pre-go/no-go) — high-leverage, never forced.
 > **Playbook:** `<paths.engine>/pipeline/3-business-case.md`

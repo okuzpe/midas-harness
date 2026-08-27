@@ -27,6 +27,7 @@ One slash: detect where the project is, then tip the install CLI, run one-time s
 | Run adaptive intake when `setup_pending` | Run intake when **not installed** (no engine on disk) |
 | Tip exact CLI for install or `--update` | Run `npx --update` without the human typing it |
 | Honor `--monorepo` / `--dry-run` on intake path | Replace `/midas-reconcile` (read-only “which command?”) |
+| Honor **`track: lite`** per `<paths.engine>/pipeline/lite.md` (Phase D Ask) | Skip `{product}/business-plan.md` on lite — write a **thin stub**; `{product}/market.md` is the optional skip |
 
 ## Procedure
 
@@ -53,7 +54,8 @@ Statuses: `not_installed` | `legacy_layout` | `setup_pending` | `version_behind`
 ### 2. Intake (`setup_pending` only)
 
 Follow **`<paths.engine>/pipeline/init-adaptive.md`** for Phase A–F bodies
-(SCAN, CLASSIFY, TRACK, PRE-FILL, SHOW+ASK, GENERATE, MONOREPO).
+(SCAN, CLASSIFY, TRACK, PRE-FILL, SHOW+ASK, GENERATE, MONOREPO). Phase D **must** Ask `track`
+(`full` \| `lite`). Lite procedure: `<paths.engine>/pipeline/lite.md`.
 
 **Intake decision tree (within setup_pending / generate path):**
 - Full intake → set `setup_complete: true`; tell user: *"Setup complete — from here, just use `/midas-status`. For later engine refresh, `/midas-init` will tip `--update`."*
@@ -74,7 +76,7 @@ Follow **`<paths.engine>/pipeline/init-adaptive.md`** for Phase A–F bodies
 - [ ] `not_installed` / wrong cwd → stopped without intake.
 - [ ] `setup_pending` → intake completed per init-adaptive (or `--monorepo` Phase F when applicable).
 - [ ] Update path → human given exact CLI; model did not shadow the installer.
-- [ ] Single next action named.
+- [ ] Single next action named (lite: `/plan-sprints` after Idea+Plan — never `/idea-intake` / `/market-research`).
 
 ## Tier & delegation
 

@@ -48,6 +48,7 @@ Copy `<paths.engine>/templates/sprint-progress.md` to
 - **Learned** — takeaway for the next session
 
 Inspired by [Engram](https://github.com/Gentleman-Programming/engram)'s observation shape — **markdown only**, no SQLite.
+Session protocol (open / during / close / rehydrate after compaction): [`session-continuity.md`](../rules/session-continuity.md).
 
 ## LTM capture
 

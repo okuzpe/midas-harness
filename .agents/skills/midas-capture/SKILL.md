@@ -8,6 +8,7 @@ metadata:
   midas-model: inherit
   midas-recommended-model: claude-sonnet-4-6
   midas-user-invocable: true
+  midas-user-surface: primary
 ---
 # midas-capture — Crystallize a recurring pattern into a rule / playbook / convention
 

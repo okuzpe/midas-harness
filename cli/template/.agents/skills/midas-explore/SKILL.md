@@ -8,6 +8,7 @@ metadata:
   midas-model: inherit
   midas-recommended-model: claude-haiku-4-5
   midas-user-invocable: true
+  midas-user-surface: primary
 ---
 # midas-explore — investigation outside the pipeline
 

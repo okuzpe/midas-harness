@@ -7,10 +7,12 @@ metadata:
   midas-model: inherit
   midas-recommended-model: claude-opus-4-8
   midas-user-invocable: true
+  midas-user-surface: primary
 ---
 # contextualize — Phase 1: the gap loop
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Prompt tool:** `AskQuestion`. On Claude Code, fall back to `AskUserQuestion` if AskQuestion is not wired.
 
 This is Midas's signature phase. A raw idea is full of unstated assumptions; building on them is the
 most expensive mistake. Phase 1 systematically surfaces every **blocking** unknown and resolves it

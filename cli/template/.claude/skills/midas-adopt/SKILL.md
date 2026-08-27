@@ -1,5 +1,6 @@
 ---
 name: midas-adopt
+user-surface: primary
 description: Adopt Midas into an EXISTING (brownfield) project. Inventory the codebase, reverse-engineer the de-facto architecture and rules from the real code, backfill product context, and establish a baseline audit — writing into any pre-existing AGENTS.md/host adapter/source only after a dry-run diff you confirm. Use instead of greenfield /idea-intake when the repo already has code.
 user-invocable: true
 disable-model-invocation: true
@@ -12,6 +13,7 @@ mcp-recommended: [context7]
 # midas-adopt — brownfield adoption (existing projects)
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Prompt tool:** `AskQuestion`. On Claude Code, fall back to `AskUserQuestion` if AskQuestion is not wired.
 > **Precondition:** brownfield (existing code). Empty/greenfield repo → `/idea-intake`.
 
 This is the **E2/E3 (partial / mature) branch of the adaptive intake**: `/midas-init` runs it

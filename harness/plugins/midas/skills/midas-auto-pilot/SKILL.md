@@ -1,5 +1,6 @@
 ---
 name: midas-auto-pilot
+user-surface: primary
 description: "Unified autonomy guide — ask evolve vs sprint checklist (ADR-009), then PR|code delivery or CLI setup/status/tick. Arms Cursor /loop for continuous evolve. CLI midas-autopilot.mjs unchanged."
 user-invocable: true
 disable-model-invocation: true
@@ -35,6 +36,13 @@ Keep the reply **≤8 lines** (≤6 when intent + delivery known). No autonomy l
 - Sprint path without `.harness/autonomy/` → `--autonomy` via `/midas-init` (tips pinned `--update --autonomy`).
 - Phase-8 gate verdict → `/close-sprint`.
 - Laptop will sleep / Cursor will quit → evolve `cloud` mode; local `/loop` dies with the session.
+
+### Host `/loop` capability
+
+| Host | Continuous evolve |
+|---|---|
+| **Cursor** | Arm `/loop` (this skill). |
+| **Claude Code, Copilot, Windsurf, Gemini** | No Cursor `/loop`. Document the tick; the human re-invokes `/midas-auto-pilot` or uses cloud Automations. |
 
 ## Arguments (short-circuit — skip Mode gate)
 

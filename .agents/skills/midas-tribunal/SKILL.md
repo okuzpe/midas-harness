@@ -9,6 +9,7 @@ metadata:
   midas-model: inherit
   midas-recommended-model: claude-opus-4-8
   midas-user-invocable: true
+  midas-user-surface: primary
 ---
 # midas-tribunal — whole-project adversarial debate
 

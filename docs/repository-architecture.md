@@ -23,7 +23,7 @@ flowchart TD
   Docs["docs/ and root docs"]
 
   Adapters["Generated adapters"]
-  ClaudeMd[".claude/CLAUDE.md"]
+  ClaudeMd["engine: CLAUDE.md / install: .claude/CLAUDE.md"]
   CursorRule[".cursor/rules/00-midas.mdc"]
   WindsurfRule[".windsurf/rules/00-midas.md"]
   Gemini["GEMINI.md"]
@@ -66,7 +66,7 @@ flowchart TD
 
 | Area | Source files | Generated or checked outputs |
 |---|---|---|
-| Base conventions and rules | `harness/conventions.md`, `harness/rules/*` | `.claude/CLAUDE.md`, `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `GEMINI.md` |
+| Base conventions and rules | `harness/conventions.md`, `harness/rules/*` | Engine classic: repo-root `CLAUDE.md`. Product + `claude-code`: `.claude/CLAUDE.md`. Also `.cursor/rules/00-midas.mdc`, `.windsurf/rules/00-midas.md`, `GEMINI.md` |
 | Skills and agents | `harness/skills/*/SKILL.md`, `harness/agents/*.md` | `.claude/*`, `.agents/skills`, plugins, installer template |
 | Stage → command + recall | `STAGE_ROWS` in `scripts/stage-command-table.mjs` | `harness/stage-command-table.yaml` (committed; runtime readers use this file) |
 | Installable project template | `harness/*`, `.mcp.json`, selected `docs/*`, selected `scripts/*` | `cli/template/*` |
@@ -82,6 +82,19 @@ flowchart TD
 | Root `AGENTS.md` | Engine-repo law (manually curated; ADR-005) |
 | `harness/templates/AGENTS.md.tmpl` | Authoring SoT for **product install** `AGENTS.md` |
 | `cli/template/AGENTS.md` | Generated install preview (from the tmpl via `build-create.mjs`) |
+
+### CLAUDE.md surfaces (engine classic vs product)
+
+| Path | Role |
+|---|---|
+| Root `CLAUDE.md` | Engine `layout: classic` generated adapter (`scripts/render-adapters.mjs`) |
+| `.claude/CLAUDE.md` | Product installs that include `claude-code` |
+
+### v1 layouts (read / migrate only)
+
+Classic, compact, and hub trees are **not** new-install targets. Intra-v1 moves use
+`scripts/migrate-layout.mjs`. v1 → v2 (`.harness/`) uses `cli/migrate-harness.mjs`. New projects
+get `layout: harness` from `create-midas`.
 
 ### Package naming triangle
 

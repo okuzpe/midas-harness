@@ -9,6 +9,58 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+### Added
+
+- **Organic routing parallelism** — single-writer, read fan-out, and launch dedup in
+  `harness/rules/organic-routing.md` (Gentleman Ch.20).
+- **Phase 5 Scope Rule** — 1 consumer = local, 2+ = shared, plus screaming folder names; seed
+  `harness/templates/folder-structure.md`.
+- **Risk-selected 4R lenses** — security / maintainability / reliability / resilience by diff
+  signal in `verification.md`; close-sprint defers to `pipeline/8-audit-adjust.md`.
+- **Judge-panel synthesis** — overlapping independent lenses record `confirmed` | `suspect` |
+  `escalate` (not a new skill; tribunal stays product-level).
+- **Phase-result artifact contract** — `harness/templates/phase-result.md`; passing gates/audits
+  must list on-disk artifact paths (`gate-record.md` + `audit-record.md`).
+- **Session protocol** — close note (Next + Learned) and rehydrate after compaction
+  (`session-continuity.md`).
+- **RED before GREEN** — new behaviour gets failing-test evidence before implementation when a
+  test runner exists (`testing.md` + Phase 7).
+- **Git hygiene** — commit subjects/bodies must not name AI vendors as co-authors or generators.
+- **Aging `needs_review`** — rules/playbooks without a fresh `## Amendment` for >180 days surface
+  in `/midas-sweep` records (`hygiene.md`).
+- **Lite program counter** — `track: lite` is a status/init overlay (not a new stage). Idea+Plan
+  writes a thin `{product}/business-plan.md` stub; `{product}/market.md` is optional.
+  `/midas-status` and `/midas-recall` print `Track: lite|full` and never recommend
+  `/market-research` or `/business-plan` on lite, including leftover `stage: market_research`.
+  Init Exit does not use the E0/E1 maturity-table Next. `/plan-sprints`, `/start-sprint`, and
+  `/close-sprint` do not hard-stop on missing `market.md`. Fixture: `scripts/fixtures/product-lite/`.
+
+### Changed
+
+- **AskQuestion is canonical** in phase skills; Claude Code falls back to `AskUserQuestion`.
+- **`user-surface`** declared on every `harness/skills/*/SKILL.md` (primary / internal / deprecated).
+- **`/midas-help`** offers `/midas-bundle`; engine-only `/midas-precommit` is named under install confusion, not as a product menu item.
+- **`/midas-auto-pilot`** states which hosts can arm Cursor `/loop` vs a documented re-invoke fallback.
+- Injected `migrate-layout` rollback messages go to **stdout** so PowerShell does not wrap expected-failure tests as `NativeCommandError`.
+
+### Deferred
+
+- **Split `scripts/test.mjs` by domain** (audit M5 / U7) remains a follow-up PR. `node scripts/test.mjs` stays the single test entry.
+
+### Fixed
+
+- **Precedence box** in `harness/conventions.md` (and `/define-conventions`) now starts with
+  project rule overlays (`<paths.rules>/`), matching `docs/context-hierarchy.md`.
+- **Skill catalog counts** in `docs/skills.md` match the registry (29 primary / 5 internal /
+  4 deprecated). Engine host-mirror sentence follows ADR-008 (no implied root `.cursor/skills`).
+  Auto-pilot unify history cites 2.9.5, not Unreleased.
+- **Comparison inventories** — `docs/muninn-comparison.md` lists 38 skills, 24 rules, and Cursor
+  hooks (not 33 / cero hooks). `docs/gstack-comparison.md` current engine points at
+  `harness/VERSION` instead of a stale 2.9.3 pin.
+- **GitHub issue #1** is superseded by 2.x: phase-skill `/midas-*` prefixes stay intentional;
+  Lite is wired; Memory Lite / `/midas-remember` stays rejected (ADR-003).
+- **`/midas-monorepo`** is historical-only — use `/midas-init --monorepo`.
+
 ---
 
 ## [2.9.9] — 2026-08-10

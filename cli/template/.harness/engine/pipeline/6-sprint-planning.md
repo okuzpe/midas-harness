@@ -13,6 +13,9 @@ Sprints cover MVP only — no scope creep. Dependencies must be ordered.
 - `{product}/business-plan.md` (Phase 3) — MVP scope and non-goals
 - `<paths.engine>/rules/*` plus `<paths.rules>/*` (Phase 5 overlays) — DoD references the combined rules
 - `paths.state` (stage must be `sprint_planning`)
+- When `track: lite`, `{product}/market.md` is **optional** — do not hard-stop if it is missing.
+  `{product}/business-plan.md` is still required (Lite writes a thin stub). See
+  `<paths.engine>/pipeline/lite.md`.
 
 ## Key steps
 

@@ -1,5 +1,6 @@
 ---
 name: midas-status
+user-surface: primary
 description: Read-only lifecycle status — reads the state file (paths.state) and prints the current phase, its gate status, and the single next action/command. Cheap; run anytime to orient or resume.
 user-invocable: true
 disable-model-invocation: false
@@ -43,6 +44,14 @@ completion — it reports the truth already on disk. Safe to run at any time, in
 
    - `(no state file)` → `/midas-init` (or diagnose per step 1)
    - `setup_complete: false` → `/midas-init` (finish one-time setup), regardless of `stage`
+   - **`track: lite` overlay** (not a second stage table — see `<paths.engine>/pipeline/lite.md`;
+     engine SoT `resolveStatusNext` in `<paths.scripts>/stage-command-table.mjs`):
+     print `Track: lite` (or `Track: full` when `track` is absent/`full`). **Never** set Next to
+     `/market-research` or `/business-plan` when `track: lite` — including when `stage` is
+     `market_research` or `business_case`. If `stage` is one of `idea_intake` …
+     `architecture_rules`, Next is **not** that row's `command`: finish Lite Idea+Plan (cite
+     `pipeline/lite.md`) or `/plan-sprints` once `{product}/idea.md`, thin architecture, lean rules,
+     and `{product}/business-plan.md` exist. Missing `{product}/market.md` is OK on lite.
    - Otherwise use the row for `paths.state → stage`:
      - default next ritual → that row's `command`
      - honor each row's `note` when present (e.g. human sign-off on `business_case`)
@@ -83,6 +92,7 @@ Keep it to ~6 lines:
 
 ```
 Midas · <name> · <mode> · profile <cost_profile>
+Track: <lite|full>
 Phase <N> — <phase title> · <stage_status>
 Gate: <X/Y satisfied> — outstanding: <items, or "none">
 Active sprint: <id title status, or "—">

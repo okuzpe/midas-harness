@@ -155,6 +155,7 @@ adopt feels heavy; record deferred packs as assumptions in `paths.state`.
 ### Lite track
 
 For hackathons/prototypes, choose `track: lite` during `/midas-init` — see `harness/pipeline/lite.md`.
+`/midas-status` then prints `Track: lite` and never recommends `/market-research` as Next.
 
 ---
 

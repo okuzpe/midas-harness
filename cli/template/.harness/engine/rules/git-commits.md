@@ -23,6 +23,8 @@ branch strategies (e.g. GitHub Flow vs trunk-based) are added by `/define-conven
       **CHECK:** `manual:` any commit altering a public contract carries `!` and a `BREAKING CHANGE:` footer (`git log --format=%B | grep "BREAKING CHANGE"`).
 - [ ] Optional body (separated by a blank line) explains the *why*, not the *what*.
       **CHECK:** `manual:` where a body exists, it states rationale; a body that just restates the diff is a fail.
+- [ ] Commit messages do not advertise AI vendors as authors or generators.
+      **CHECK:** `git log <base>..HEAD --format=%B | grep -iE "(co-authored-by:.*(claude|copilot|chatgpt|gemini)|generated (by|with) (claude|copilot|chatgpt|gemini)|claude code)"` → empty.
 
 ### Commit hygiene
 - [ ] Each commit is a single logical change — reviewable in isolation without guessing context.
@@ -66,3 +68,8 @@ branch strategies (e.g. GitHub Flow vs trunk-based) are added by `/define-conven
 - [ ] Merge commits are squashed or rebased per the strategy set in `/define-conventions`; the
       choice is consistent across the team (one strategy per project).
       **CHECK:** `manual:` merged history matches the project's single chosen strategy (no mixed merge/squash).
+
+## Amendment
+
+- **2026-08-27** — Gentleman Ch.15 git hygiene: commit subjects/bodies do not name AI vendors as
+  co-authors or generators.

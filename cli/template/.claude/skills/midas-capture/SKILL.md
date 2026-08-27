@@ -1,5 +1,6 @@
 ---
 name: midas-capture
+user-surface: primary
 description: Turn a recurring request or correction into a project rule (<paths.rules>/*), playbook ({product}/playbooks/*), or convention ({product}/conventions.md). Use when the user asks to capture a pattern, or after they confirm a propose-to-capture (~2–3 repeats). Never write silently.
 user-invocable: true
 disable-model-invocation: true

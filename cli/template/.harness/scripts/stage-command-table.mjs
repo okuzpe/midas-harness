@@ -18,6 +18,19 @@ const ROOT = resolveProjectRootFromScript(import.meta.url);
 
 /** @typedef {{ command: string|null, commandWhenDone?: string|null, verifyUi?: string|null, redesignUi?: string|null, qaInternal?: string|null, note?: string, recall: string[] }} StageEntry */
 
+/** Front-loaded stages Lite overlays — Next is not STAGE_ROWS.command. */
+export const LITE_FRONT_STAGES = [
+  'idea_intake',
+  'contextualize',
+  'market_research',
+  'business_case',
+  'tech_architecture',
+  'architecture_rules',
+];
+
+/** Commands Lite must never emit as Next (status, recall, init Exit). */
+export const LITE_FORBIDDEN_NEXT = ['/market-research', '/business-plan'];
+
 /** Authoring source of truth — regenerate YAML via doctor --fix / align. */
 const STAGE_ROWS = [
   {
@@ -219,17 +232,49 @@ export function renderStageCommandTable(root = ROOT) {
 }
 
 /**
+ * Program-counter Next for `/midas-status` and `/midas-recall`.
+ * Full track uses `STAGE_ROWS`. Lite overlays leftover front stages (not a second YAML table).
+ * Skills follow the same rules in prose (`pipeline/lite.md`); this function is the testable SoT.
+ *
+ * @param {{ stage?: string, track?: string, setupComplete?: boolean, liteStubsReady?: boolean }} input
+ * @returns {string|null}
+ */
+export function resolveStatusNext({
+  stage,
+  track = 'full',
+  setupComplete = true,
+  liteStubsReady = false,
+} = {}) {
+  if (!setupComplete) return '/midas-init';
+  const row = STAGE_ROWS.find((s) => s.name === stage);
+  const command = row ? row.command : null;
+  if (track === 'lite') {
+    if (LITE_FRONT_STAGES.includes(stage)) {
+      return liteStubsReady ? '/plan-sprints' : '/midas-init';
+    }
+    if (command && LITE_FORBIDDEN_NEXT.includes(command)) {
+      return liteStubsReady ? '/plan-sprints' : '/midas-init';
+    }
+    return command;
+  }
+  return command;
+}
+
+/**
  * Recall paths for bundle `recall` profile (canonical classic coordinates).
  * `{product}/` tokens map to `product/` canonical; `{runs}/` entries are excluded (handled in bundle).
  * @param {string} stage
  * @param {string} [root]
+ * @param {{ track?: string }} [opts]
  * @returns {string[]}
  */
-export function stageRecallPaths(stage, root = ROOT) {
+export function stageRecallPaths(stage, root = ROOT, opts = {}) {
   const { stages } = loadStageCommandTable(root);
+  const track = opts.track || 'full';
   return (stages[stage]?.recall ?? [])
     .filter((p) => !p.startsWith('{runs}'))
-    .map((p) => (p.startsWith('{product}/') ? `product/${p.slice('{product}/'.length)}` : p));
+    .map((p) => (p.startsWith('{product}/') ? `product/${p.slice('{product}/'.length)}` : p))
+    .filter((p) => track !== 'lite' || !/(^|\/)market\.md$/.test(p));
 }
 
 /**

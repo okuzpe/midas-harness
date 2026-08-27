@@ -54,6 +54,14 @@ findings were resolved or consciously deferred.
       `{product}/idea.md` are a fail; internal markdown links in changed `{product}/*` files that 404 on
       disk are a fail (grep `](` targets against the tree).
 
+### Aging knowledge (needs_review)
+- [ ] Rules and playbooks that have gone long without an amendment are flagged, not silently trusted.
+      **CHECK:** `manual:` when a `{runs}/sweeps/sweep-NN.md` exists for this cycle, every effective
+      `<paths.rules>/*.md` and `{product}/playbooks/*.md` whose latest `## Amendment` date (or file
+      mtime if no Amendment) is older than **180 days** appears as category `needs_review` (or is
+      consciously accepted in the sweep Disposition). A sweep that ran `standard` depth and omitted
+      such rows is a fail. Greenfield with no sweep this cycle → `n/a`.
+
 ## Relationship to other tools
 
 | Tool | Role |
@@ -66,5 +74,7 @@ findings were resolved or consciously deferred.
 
 ## Amendment
 
+- **2026-08-27** — Gentleman Ch.20 aging: rules/playbooks without a fresh `## Amendment` for >180
+  days surface as `needs_review` in sweep records (git-visible only; ADR-003).
 - **2026-08-10** — Mechanical pass cited as `/midas-hygiene` (product scope); sweep `harness` remains
   power-user-only, not graded under this product-hygiene rule.

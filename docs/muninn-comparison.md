@@ -423,15 +423,17 @@ Referencia rápida para la comparación (detalle completo en
 
 - **9 fases auditadas** (`harness/pipeline/0-idea-intake.md` … `8-audit-adjust.md`), máquina de
   estados en `harness/state.yaml` (`phases.*.status/gate`, `stage`, `stage_status`).
-- **33 skills** en `harness/skills/*/SKILL.md` (**32** enviados a installs + **1** solo engine: `/midas-precommit`; 9 de fase + ciclo de vida/mantenimiento/auditoría).
+- **38 skills** en `harness/skills/*/SKILL.md` — **29 primary** + **5 internal** + **4 deprecated**
+  (counts from `harness/skill-registry.md`). Installs omit internal/deprecated host mirrors (ADR-013).
+  **1 engine-only** among primary: `/midas-precommit`.
 - **3 agentes-tier**: `midas-orchestrator` (Opus), `midas-builder` (Sonnet), `midas-scout` (Haiku) — `harness/agents/*.md`.
-- **20 reglas *always-on*** en `harness/rules/*.md`, cada ítem con contrato `**CHECK:**` (`kind:
+- **24 reglas *always-on*** en `harness/rules/*.md`, cada ítem con contrato `**CHECK:**` (`kind:
   command|manual`, `severity`), digest generado a `harness/checks.json` e inyectado en los adapters.
 - **Gates de fase** en `harness/gates.json` (evidencia requerida por fase, severidad, *owner*).
-- **6 hosts** vía adapters generados (`scripts/render-adapters.mjs`): Claude Code, Cursor, Windsurf,
-  Gemini, Codex, Copilot.
-- **Cero hooks de shell** — toda la seguridad y el control de flujo son reglas markdown que un agente
-  (productor o auditor) debe leer y aplicar; no hay intercepción mecánica de *tool calls*.
+- **4 adapters generados** (`scripts/render-adapters.mjs`): Claude Code, Cursor, Windsurf, Gemini.
+  Codex/Copilot follow Agent Skills where the host supports them (not a fifth/sixth adapter file).
+- **Cursor hooks** — engine `.cursor/hooks.json` (Trace observe + optional safety; ADR-010 / ADR-012).
+  Product installs with `tools: [cursor]` may receive the same. Markdown CHECKs remain the audit law.
 - **Memoria** (`harness/research/memory-model.md`, ADR-003): PC (`state.yaml`) / STM
   (`{runs}/sprints/NN-progress.md`) / LTM (`{product}/*`, `<paths.rules>/*`, `{runs}/*` congelados) —
   deliberadamente **sin** base vectorial, sin scoring, sin decaimiento.

@@ -271,6 +271,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error(`migrate-layout: rolled back after failure — ${err.message || err}`);
+  console.log(`migrate-layout: rolled back after failure — ${err.message || err}`);
   process.exit(1);
 });

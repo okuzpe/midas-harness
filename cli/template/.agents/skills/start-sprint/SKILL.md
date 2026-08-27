@@ -8,6 +8,7 @@ metadata:
   midas-model: inherit
   midas-recommended-model: claude-opus-4-8
   midas-user-invocable: true
+  midas-user-surface: primary
 ---
 # start-sprint (Phase 7 — Sprint Execution kickoff)
 
@@ -47,12 +48,13 @@ proceeds on the **build** tier with Context7.
 ## Procedure
 
 ### 1. Read state + rules
-Load **`paths.state`** (sprints, routing, mode), the target `{product}/sprints/NN-*.md`, all
+Load **`paths.state`** (sprints, routing, mode, **`track`**), the target `{product}/sprints/NN-*.md`, all
 the effective rules from `<paths.engine>/rules/*` plus `<paths.rules>/*`, `{product}/design-system.md`,
 **`{product}/design-direction.md` whenever the sprint
 touches UI** (the named references + mood + anti-references — the anchor that keeps UI off generic
 defaults), `{product}/playbooks/*`, and `{product}/business-plan.md`. The rules are **frozen** — treat
-them as law for this audit.
+them as law for this audit. When `track: lite`, `{product}/market.md` is optional — do not hard-stop
+if it is missing (`<paths.engine>/pipeline/lite.md`).
 
 ### 2. Audit current code vs frozen rules + scope
 Diff the existing code against each checkable rule (folder-structure/boundaries, conventions, testing,
@@ -83,7 +85,9 @@ which agent/tier owns each, the **expected implementation route** per task clust
 (`inline` / `delegated` / `plan-first` per `<paths.engine>/rules/organic-routing.md` — plan-first only
 with explicit user OK later; never silent `/plan-sprints`), the Context7 libraries to fetch first,
 and the acceptance criteria + DoD to satisfy. For `delegated` clusters, note that builders/scouts
-should pass matched exact `SKILL.md` paths from `<paths.engine>/skill-registry.md`. Summarize the
+should pass matched exact `SKILL.md` paths from `<paths.engine>/skill-registry.md`. **Single writer:**
+one builder (or inline writer) per worktree; scouts may fan out (`organic-routing.md` § Parallelism).
+Summarize the
 plan for the user, then update **`paths.state`** (read-modify-write) only after
 they confirm kickoff (or the slash-command itself is the confirmation): set the sprint `status: active`,
 `stage: sprint_execution`, `stage_status: in_progress`, refresh `last_touched`. Record any logged

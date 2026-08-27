@@ -6,7 +6,7 @@
 | Campo | Valor |
 |---|---|
 | **Fecha de revisión** | 2026-06-30 |
-| **Midas analizado** | Snapshot histórico del documento: **2.2.1** (2026-06-30). Current engine: see `harness/VERSION` (today **2.9.3**). Paths below updated to v2 `.harness/runs/*` where applicable. |
+| **Midas analizado** | Snapshot histórico del documento: **2.2.1** (2026-06-30). Current engine: see `harness/VERSION` (do not pin a stale patch here). Paths below updated to v2 `.harness/runs/*` where applicable. |
 | **gstack analizado** | README público de [garrytan/gstack](https://github.com/garrytan/gstack) (landing/marketing; no se auditó el código fuente de gstack) |
 | **Tipo de documento** | Análisis comparativo — **no modifica el motor del harness** |
 

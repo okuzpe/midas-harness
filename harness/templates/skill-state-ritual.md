@@ -17,6 +17,9 @@ file**; they do not restate stage enums, path substitution, or the read/write or
 4. Stage → next-command map (runtime): `<paths.engine>/stage-command-table.yaml` (same file
    `/midas-status` / `/midas-help` read). In the engine repo the YAML is generated from
    `STAGE_ROWS` in `scripts/stage-command-table.mjs` — do not hand-edit it.
+   When `track: lite`, overlay Next per `<paths.engine>/pipeline/lite.md` (`resolveStatusNext` in
+   that script): **never** `/market-research` or `/business-plan`; leftover `idea_intake` …
+   `architecture_rules` → `/midas-init` or `/plan-sprints`.
 
 ## Read first, write last
 
@@ -31,6 +34,10 @@ file**; they do not restate stage enums, path substitution, or the read/write or
 
 Parseable `MIDAS_*_RESULT` lines:
 `<paths.engine>/templates/audit-checklists.md` § Parseable tally lines.
+
+**Phase / gate result contract** (status, summary, on-disk artifact paths, risks, next):
+`<paths.engine>/templates/phase-result.md`. Gate and audit freezes that claim `verdict=pass` must
+list existing artifact paths (or embed an equivalent Artifacts table) — do not advance on prose alone.
 
 ## Skill header (canonical cite)
 

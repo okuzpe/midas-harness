@@ -8,6 +8,7 @@ metadata:
   midas-model: inherit
   midas-recommended-model: claude-sonnet-4-6
   midas-user-invocable: true
+  midas-user-surface: primary
 ---
 # midas-auto-pilot — unified autonomy guide
 
@@ -35,6 +36,13 @@ Keep the reply **≤8 lines** (≤6 when intent + delivery known). No autonomy l
 - Sprint path without `.harness/autonomy/` → `--autonomy` via `/midas-init` (tips pinned `--update --autonomy`).
 - Phase-8 gate verdict → `/close-sprint`.
 - Laptop will sleep / Cursor will quit → evolve `cloud` mode; local `/loop` dies with the session.
+
+### Host `/loop` capability
+
+| Host | Continuous evolve |
+|---|---|
+| **Cursor** | Arm `/loop` (this skill). |
+| **Claude Code, Copilot, Windsurf, Gemini** | No Cursor `/loop`. Document the tick; the human re-invokes `/midas-auto-pilot` or uses cloud Automations. |
 
 ## Arguments (short-circuit — skip Mode gate)
 

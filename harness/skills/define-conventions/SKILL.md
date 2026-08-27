@@ -1,5 +1,6 @@
 ---
 name: define-conventions
+user-surface: primary
 description: Phase 5 keystone — freeze architecture into checkable rules, design system, playbooks, and enforcement tooling; re-render adapters. Use once after tech_architecture passes, before sprint work.
 user-invocable: true
 disable-model-invocation: true
@@ -12,6 +13,7 @@ mcp-recommended: [context7]
 # define-conventions (Phase 5 — architecture-as-rules + design system)
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Prompt tool:** `AskQuestion`. On Claude Code, fall back to `AskUserQuestion` if AskQuestion is not wired.
 > Read **`paths.state`**. Precondition: `stage: tech_architecture` passed (or `architecture_rules` resuming). Missing `{product}/architecture.md` or ADRs → stop.
 
 ## Does / Does not
@@ -36,7 +38,10 @@ mcp-recommended: [context7]
 ## Procedure (summary — detail in pipeline doc)
 
 ### 1. CHECKABLE rules → `<paths.rules>/`
-- **`folder-structure.md`** (mandatory): canonical tree + import/boundary rules.
+- **`folder-structure.md`** (mandatory): canonical tree + import/boundary rules. Feature/module
+  layouts encode **Scope Rule** (1 consumer = local, 2+ = shared) and screaming folder names
+  (user jobs, not technical-layer top-level). Layered/hexagonal ADRs win on conflict — cite the
+  ADR. Seed: `<paths.engine>/templates/folder-structure.md`.
 - **Stack rules** — Context7-verified at pinned version per `<paths.engine>/rules/context7-usage.md`; shape from `<paths.engine>/templates/stack-rule.md`. Cover canonical idiom + lint set (not naming-only). Each carries `docs: <lib>@<version> via <tool>`. Each has a **CHECK** line. Name lint plugins that mechanize them.
 - **`{product}/conventions.md`** — prose overrides only; never restate base.
 
@@ -50,7 +55,7 @@ mcp-recommended: [context7]
 
 ### 4. Precedence (single taxonomy)
 ```
-stack-specific rules  >  {product}/conventions.md  >  {product}/design-system.md  >  base conventions
+project rule overlay (<paths.rules>/)  >  stack-specific rules  >  {product}/conventions.md  >  {product}/design-system.md  >  base conventions
 ```
 
 ### 5. Enforcement scaffolding (recommend-don't-wall)
@@ -66,7 +71,7 @@ Update `paths.state`: list new rules + design-system + playbooks + tooling in `p
 
 Full checklist: **`<paths.engine>/pipeline/5-architecture-rules.md` § Exit gate checklist**. Local required:
 
-- [ ] `folder-structure.md` present; every arch decision has a CHECKABLE rule file.
+- [ ] `folder-structure.md` present with Scope Rule or ADR exception; every arch decision has a CHECKABLE rule file.
 - [ ] Stack rules Context7-verified; each has `docs: <lib>@<version> via <tool>` + a **CHECK** line.
 - [ ] Enforcement scaffolded; decision recorded in `paths.state → enforcement:`.
 - [ ] Design direction + design system present; 0–4 playbooks (anti-bloat honored).

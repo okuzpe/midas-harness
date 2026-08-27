@@ -14,7 +14,7 @@ This is an irreversible decision point; use the orchestrate tier.
 ## Inputs
 
 - `{product}/idea.md` v2 (Phase 1)
-- `{product}/market.md` (Phase 2)
+- `{product}/market.md` (Phase 2) — **optional when `track: lite`**; source value prop from `{product}/idea.md`
 - `paths.state` (stage must be `business_case`)
 
 ## Key steps
@@ -26,7 +26,8 @@ This is an irreversible decision point; use the orchestrate tier.
 3. **Sketch the revenue/sustainability model.** One paragraph: how does this sustain itself
    (freemium, subscription, open-core, grant, internal tool, etc.)? No financial projections
    are required unless the human asks — just name the model.
-4. **Identify top 3 risks** (pull from `{product}/market.md` `## Top risks`; update if needed). If
+4. **Identify top 3 risks** (pull from `{product}/market.md` `## Top risks` when present; on
+   `track: lite` without that file, derive risks from `{product}/idea.md`). If
    **field validation** (interviews / a real preorder / a paid-ad demand test) has not been done, list
    *"real-customer demand unproven — field validation deferred"* as an explicit risk + assumption. Recommend
    field validation, but do **NOT** hard-block a resource-constrained founder; the go/no-go is their call.

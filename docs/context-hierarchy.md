@@ -19,7 +19,7 @@ for, who edits it, and which one wins when they conflict** — so neither you no
 ## Precedence (when rules conflict, higher wins)
 
 ```
-project rule overlay  >  stack-specific rule  >  product/conventions.md  >  product/design-system.md  >  engine base
+project rule overlay (<paths.rules>/)  >  stack-specific rules  >  {product}/conventions.md  >  {product}/design-system.md  >  engine base
 ```
 
 Stack-specific rules are generated in Phase 5 (`/define-conventions`), with the stack's current docs fetched (Context7 or your own tool).

@@ -33,15 +33,16 @@ flowchart LR
   Init["/midas-init<br/>scan and classify"] --> Entry{"Maturity"}
   Entry -->|E0| P0["/idea-intake"]
   Entry -->|E1| P1["/contextualize"]
-  Entry -->|E2 or E3| Adopt["/midas-adopt"]
+  Entry -->|E2| AdoptE2["/midas-adopt"]
+  Entry -->|E3| AdoptE3["/midas-adopt"]
   P0 --> P1
   P1 --> P2["/market-research"]
   P2 --> P3["/business-plan<br/>human go/no-go"]
   P3 --> P4["/choose-architecture"]
   P4 --> P5["/define-conventions"]
-  Adopt --> P5
+  AdoptE2 --> P5
   P5 --> P6["/plan-sprints"]
-  Adopt --> P6
+  AdoptE3 --> P6
   P6 --> P7["/start-sprint<br/>build and prove"]
   P7 --> P8["/close-sprint<br/>independent audit"]
   P8 -->|next sprint| P7
@@ -50,6 +51,19 @@ flowchart LR
 
 Phase 8 runs **in place** while the top-level stage remains `sprint_execution`; `audit` is a ledger
 phase, not a top-level runtime stage.
+
+**Lite branch** (`track: lite` during `/midas-init` — see `<paths.engine>/pipeline/lite.md`): skip
+`/market-research` and `/business-plan` as Next (including leftover `stage: market_research`);
+Idea+Plan writes stubs including thin `business-plan.md`, then `/plan-sprints` → `/start-sprint` →
+`/close-sprint`. Init Exit does **not** use the E0/E1 maturity-table Next.
+
+```mermaid
+flowchart LR
+  LiteInit["/midas-init track: lite"] --> IdeaPlan["Idea+Plan stubs"]
+  IdeaPlan --> P6L["/plan-sprints"]
+  P6L --> P7L["/start-sprint"]
+  P7L --> P8L["/close-sprint"]
+```
 
 ## Pipeline skills
 
@@ -169,6 +183,7 @@ Except for intake/adoption placement, they do not advance lifecycle gates.
 | `/midas-hygiene` | Dirty product repo / pre-close fat diff | Path-pass sweep scope `product` + optional lean-review | `{runs}/sweeps/sweep-NN.md` (+ lean notes) | Stage unchanged; human OK for deletes |
 | `/midas-doctor` | Any installation | Check layout, routing, enforcement, gates, and adapter drift | Health report; optional regenerated managed files | Stage unchanged |
 | `/midas-align` | Substantive engine/product change | Map diff to propagation surfaces, run the alignment ladder | Alignment or gap report; regenerated mirrors as needed | Stage unchanged |
+| `/midas-precommit` | Engine-repo contributor PR (not a product menu item) | Score architecture, security, tests, DX against the engine bar | Precommit report | Engine-only; installs do not list it in `/midas-help` |
 | `/midas-bundle` | Portable knowledge needed | Select profile, export/import, verify checksums, preview conflicts | Knowledge JSON or confirmed imported files | Stage unchanged by default |
 | `/midas-tribunal` | A decision needs adversarial challenge | Argue opposing cases across evidence; independent judge rules | `debate-NN.md` | Informational; bridge actions back to work |
 | `/midas-security-audit` | Code and architecture available | Threat-model, scan, rank, and route security findings | `security-NN.md` | Sets optional pointer; never passes a gate |

@@ -8,6 +8,7 @@ metadata:
   midas-model: inherit
   midas-recommended-model: claude-haiku-4-5
   midas-user-invocable: true
+  midas-user-surface: primary
 ---
 # midas-recall — Context Pack (read-only resume)
 
@@ -59,6 +60,8 @@ Always include when present:
 Then merge `recall:` paths from `<paths.engine>/stage-command-table.yaml` for the current `stage`
 (token-substitute `{product}/` and `{runs}/` per `paths.state`). **Do not duplicate the YAML table
 in this skill** — read it on disk each run. Stop at ~15 total paths.
+When `track: lite`, **omit `{product}/market.md` if it is missing** — do not treat it as a required
+file. `{product}/business-plan.md` stays in the pack when present (lite writes a stub).
 
 Stage-specific additions beyond the YAML list:
 

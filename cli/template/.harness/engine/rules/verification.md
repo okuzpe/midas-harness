@@ -81,6 +81,37 @@ Load browser MCPs **only** when agent-browser is absent and a rendered page is r
       adversarial debate (`/midas-tribunal`).
       **CHECK:** the sprint's `{runs}/audits/audit-NN.md` exists and was produced by the auditor tier,
       not the producer; its `MIDAS_AUDIT_RESULT` tally shows `unresolved=0 verdict=pass`.
+- [ ] A passing gate or audit lists real on-disk artifacts (phase-result contract).
+      **CHECK:** `manual:` each `{runs}/audits/gate-0N.md` or `audit-NN.md` with `verdict=pass` includes
+      an Artifacts table (or equivalent path list) and every path exists; advancing with an empty list
+      or a missing path is a fail — see `<paths.engine>/templates/phase-result.md`.
+
+### Risk-selected review lenses (4R — scale cost with signal)
+
+Generic "review this" finds generic problems. Select **existing** Midas skills by risk — do not invent
+a parallel review product. Lenses: **security** (`/midas-security-audit`), **maintainability**
+(path-pass `midas-lean-review`), **reliability** (rungs 1–3 + tests), **resilience** (failure/runtime
+evidence in `/midas-verify` or investigate).
+
+| Signal | Lenses | Skip |
+|---|---|---|
+| Docs-only, rename, comment | Maintainability optional | Security audit not required |
+| Mutating shell, infra, retries, queues | Reliability + resilience | — |
+| Auth, payments, secrets, or **>400** authored production lines | All four, in parallel where read-only | Documented skip with reason only |
+
+- [ ] High-risk diffs name which lenses ran (or an explicit skip).
+      **CHECK:** `manual:` when the sprint diff touches auth/payments/secrets **or** exceeds ~400
+      authored lines in production paths, `{runs}/audits/audit-NN.md` or progress cites
+      `/midas-security-audit` **or** a dated skip-with-reason; silent skip is a fail. Docs-only /
+      rename sprints must **not** be failed for skipping security-audit.
+- [ ] When **two or more** independent lenses run on the same diff, synthesize by agreement
+      (judge panel — not a new skill; `/midas-tribunal` remains product-level debate).
+      - Both flag the same critical issue → **`confirmed`** (act; no human needed to arbitrate).
+      - Only one flags it → **`suspect`** (log; not blocking by itself).
+      - Lenses contradict → **`escalate`** to the human.
+      **CHECK:** `manual:` when audit/progress cites ≥2 independent review lenses on one candidate,
+      the record names a synthesis of `confirmed` | `suspect` | `escalate` for overlapping findings;
+      two lens outputs with no synthesis is a fail.
 
 ### The spec ledger — `{product}/features.json` (the passing/failing gate)
 The sprint's machine-checkable spec (`{product}/features.json`, seeded at Phase-6 planning from the MVP
@@ -105,6 +136,8 @@ acceptance criteria demand are green, with the proof recorded in its `evidence`.
 
 ## Amendments
 
+- **2026-08-27** — Gentleman Ch.20–21: risk-selected 4R lenses; judge-panel synthesis
+  (`confirmed` / `suspect` / `escalate`); phase-result artifact contract before gate pass.
 - **2026-08-07** — After bounded self-fix rounds fail, prefer `/midas-investigate` (Iron Law +
   freeze under `{runs}/investigate/`) before further speculative patches.
 - **2026-08-01** — Verify ladder requires Product authenticity on marketing/landing UI

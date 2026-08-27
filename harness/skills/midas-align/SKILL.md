@@ -1,5 +1,6 @@
 ---
 name: midas-align
+user-surface: primary
 description: Propagation alignment pass — maps what changed to downstream surfaces (adapters, bundles, version stamps, docs, tests), runs the cheapest verify ladder, and reports gaps before merge or sprint close. Use after editing skills, rules, conventions, installer, VERSION, or any generated tree source. Complements /midas-doctor (adapters only) with full repo/product sync per <paths.engine>/rules/change-propagation.md.
 user-invocable: true
 disable-model-invocation: true

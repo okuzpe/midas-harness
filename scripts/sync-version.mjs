@@ -54,6 +54,11 @@ plan(
   (t, v) => t.replace(/^midas_version:\s*[^\s#]+/m, `midas_version: ${v}`),
   { optional: false },
 );
+plan(
+  'scripts/fixtures/product-lite/.harness/state.yaml',
+  (t, v) => t.replace(/^midas_version:\s*[^\s#]+/m, `midas_version: ${v}`),
+  { optional: false },
+);
 plan('INSTALL.md', (t, v) => {
   let out = t.replace(/#v\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?/g, `#v${v}`);
   out = out.replace(/currently \*\*v[\d.]+(?:-[0-9A-Za-z.-]+)?\*\*/g, `currently **v${v}**`);

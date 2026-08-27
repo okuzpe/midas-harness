@@ -1,5 +1,6 @@
 ---
 name: contextualize
+user-surface: primary
 description: Phase 1 of Midas — the gap loop. Generate and rank blocking questions, ask them in batches, fold answers into {product}/idea.md, track {product}/open-questions.md, and loop until zero blockers remain. Use after idea-intake to pin down user, problem, metric, and non-goals.
 user-invocable: true
 disable-model-invocation: true
@@ -11,6 +12,7 @@ recommended-model: claude-opus-4-8
 # contextualize — Phase 1: the gap loop
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Prompt tool:** `AskQuestion`. On Claude Code, fall back to `AskUserQuestion` if AskQuestion is not wired.
 
 This is Midas's signature phase. A raw idea is full of unstated assumptions; building on them is the
 most expensive mistake. Phase 1 systematically surfaces every **blocking** unknown and resolves it

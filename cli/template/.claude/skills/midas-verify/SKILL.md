@@ -1,5 +1,6 @@
 ---
 name: midas-verify
+user-surface: primary
 description: Sprint UI/API verification — drive flows, inspect runtime health, freeze per-claim verdicts to {runs}/verifications/verify-NN.md. Use after a UI-touching sprint lands, before /close-sprint; hard-skips non-UI sprints.
 user-invocable: true
 disable-model-invocation: true

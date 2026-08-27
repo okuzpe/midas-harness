@@ -53,13 +53,14 @@ baseline audit are in place.
 
 ## Phase B2 — TRACK
 
-One question in the batched round:
+Confirm in the **Phase D** Ask batch (do not skip this question):
 
 - **`track: full`** (default) — all 9 phases.
 - **`track: lite`** — Idea+Plan → Execute → Audit; see `<paths.engine>/pipeline/lite.md`. Lite
-  checklist: (1) pre-fill `{product}/idea.md` + skipped gates in `paths.state`; (2) compressed MVP +
-  sprint outline; (3) `entry_stage: sprint_planning`; (4) Phase 7 ladder; (5) `/close-sprint` — no
-  lite bypass for Phase 8.
+  checklist: (1) write `{product}/idea.md` + thin `{product}/architecture.md` + lean rules + **thin
+  `{product}/business-plan.md` stub** (MVP + metrics + GO-assumed); (2) skip `{product}/market.md`
+  with a `market_research` assumption in `paths.state`; (3) `entry_stage: sprint_planning` after
+  Idea+Plan; (4) Phase 7 ladder; (5) `/close-sprint` — no lite bypass for Phase 8.
 
 Write `track:` to `paths.state`. Lite E0/E1 → `entry_stage: sprint_planning` after Idea+Plan.
 
@@ -71,14 +72,17 @@ from `/midas-adopt` in Phase E. Defaults: name, tools (found dirs or `claude-cod
 
 ## Phase D — SHOW + ASK (one batch; gaps only)
 
-Show maturity + entry phase + pre-fills (flag **DISPUTED**). One `AskUserQuestion` batch:
+Show maturity + entry phase + pre-fills (flag **DISPUTED**). One `AskQuestion` batch (fallback:
+`AskUserQuestion` if that is the only host tool):
 
-1. **Maturity** — confirm E-level and **gates it skips**.
-2. **Gaps** — E0/E1: operational only (product gaps → `/contextualize`); E2/E3: capture product gaps
-   here. Skip answered questions.
-3. **Operational:** tools · `cost_profile` · approved MCPs (none by default) · language. Prefer
+1. **Track** — `full` (9 phases) or `lite` (Idea+Plan → Execute → Audit; see
+   `<paths.engine>/pipeline/lite.md`). Default `full`.
+2. **Maturity** — confirm E-level and **gates it skips**.
+3. **Gaps** — E0/E1: operational only (product gaps → `/contextualize` on full; lite folds them into
+   Idea+Plan); E2/E3: capture product gaps here. Skip answered questions.
+4. **Operational:** tools · `cost_profile` · approved MCPs (none by default) · language. Prefer
    Runlayer-managed integrations; Context7 remains an optional free docs source — never ask for a key.
-4. Monorepo detected → wire now (Phase F) or defer to `/midas-init --monorepo` before `/plan-sprints`.
+5. Monorepo detected → wire now (Phase F) or defer to `/midas-init --monorepo` before `/plan-sprints`.
 
 ## Phase E — GENERATE (write last)
 

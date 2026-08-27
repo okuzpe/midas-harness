@@ -7,6 +7,7 @@ metadata:
   midas-model: inherit
   midas-recommended-model: claude-opus-4-8
   midas-user-invocable: true
+  midas-user-surface: primary
 ---
 # close-sprint (Phase 8 — Per-sprint Audit & Adjust)
 
@@ -39,8 +40,10 @@ Step outline (Steps 0–6):
   recommended; document any skip). **Do not** Skill-tool / auto-slash; power-users may still type
   `/midas-hygiene` or internals `/midas-sweep` / `/midas-lean-review`.
 - **Step 0.5 — Diff gate receipts (when production paths changed):** require `{paths.cache}/gates/<run>/test.json` and `quality.json` with **`isPassingReceipt`** semantics (`pass` or `skipped` + reason) **or** record an explicit skip with reason in `{runs}/sprints/NN-progress.md` or audit notes. Engine-only / docs-only diffs: skip OK. When receipts are missing or stale, **path-pass** `<paths.engine>/skills/midas-diff-gates/SKILL.md` and run its receipt commands in this same close run — still not Skill-tool invoke. Does **not** change `verify-NN.md` semantics — UI/API proof stays `/midas-verify` (primary; human-typed when needed).
-- **Step 1 — Read state + frozen rules:** `paths.state`, active sprint, all effective rules, architecture + idea docs, design system.
-- **Step 2 — Conformance audit:** every rule, pass/fail with on-disk evidence; confirm Context7 doc coverage; trigger every matching playbook.
+- **Step 1 — Read state + frozen rules:** `paths.state` (honor `track: lite` — `{product}/market.md`
+  optional; `{product}/business-plan.md` still required), active sprint, all effective rules,
+  architecture + idea docs, design system.
+- **Step 2 — Conformance audit:** every rule, pass/fail with on-disk evidence; confirm Context7 doc coverage; trigger every matching playbook. Risk-selected lenses: follow **`<paths.engine>/pipeline/8-audit-adjust.md`** § Risk-selected lenses (law: `<paths.engine>/rules/verification.md`).
 - **Step 3 — Scope audit:** delivered scope vs plan and business-case success metrics; no scope creep, no silent drops.
 - **Step 4 — Resolve drift:** fix now or consciously amend the rule (+ ADR); re-render adapters if amended; nothing left silent.
 - **Step 5 — Freeze the audit:** write `{runs}/audits/audit-NN.md` with `MIDAS_AUDIT_RESULT` tally; `unresolved=0` required before closing.
@@ -51,6 +54,7 @@ Step outline (Steps 0–6):
 - **Optional — capture proposals:** after `{runs}/sprints/NN-progress.md` § Learned is filled, the human may run `node <paths.scripts>/capture-candidates.mjs --progress {runs}/sprints/NN-progress.md` — propose only; never auto-write rules/playbooks.
 
 ## Exit gate
+- Full procedure taken from **`<paths.engine>/pipeline/8-audit-adjust.md`** (do not grade from memory).
 - **Every rule audited** pass/fail **with evidence**.
 - **Diff gate receipts** when production paths changed: Step 0.5 satisfied (`{paths.cache}/gates/<run>/` or documented skip).
 - **Playbook triggers honored:** any diff matching a `{product}/playbooks/*` `Trigger` shows that playbook's done-when satisfied.

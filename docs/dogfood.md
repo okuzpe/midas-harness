@@ -25,3 +25,10 @@ This repository **authors** the Midas engine (`harness/`, `scripts/`, `cli/`). I
 | Product-shaped gates | `node scripts/doctor.mjs --strict --gates-only scripts/fixtures/product-closed` |
 
 See `harness/rules/engine-repo-boundary.md`.
+
+## Dual tool shape
+
+Engine `harness/state.yaml` keeps `tools: [claude-code, cursor, windsurf, gemini]` so this repo can
+**author** all four adapters. Fresh product installs default to `tools: [cursor]` (ADR-008). Do not
+thin the engine list to match the install default — Windsurf/Gemini adapters would stop being
+maintained here.

@@ -24,6 +24,11 @@ and the per-phase playbooks in `harness/pipeline/`.
 every item is satisfied with on-disk evidence, the verdict is frozen to `.harness/runs/audits/`, and
 `state.yaml` records `gate: passed`. The producer never grades its own homework.
 
+**Lite (`track: lite`):** a 3-step overlay (Idea+Plan → Execute → Audit), not a second stage enum.
+Canonical procedure: [`harness/pipeline/lite.md`](https://github.com/okuzpe/midas-harness/blob/main/harness/pipeline/lite.md).
+`/midas-status` prints `Track: lite|full` and never recommends `/market-research` or `/business-plan`
+on lite (leftover front stages overlay to `/plan-sprints`).
+
 **Gates are mechanically checkable, not just prose.** Every `harness/rules/*` item ships a concrete
 `CHECK:` (a grep/command or a `manual:` observable). `/close-sprint` freezes a gate-parseable tally line —
 `MIDAS_AUDIT_RESULT: rules_failed=X unresolved=Y amended=Z verdict=pass|blocked` — and
@@ -33,6 +38,8 @@ lives **outside the model**.
 
 **Phase 5 also emits project playbooks:** 0–4 `product/playbooks/*` recipes (zero is valid) for the
 tasks that recur in the chosen stack — procedures the build agent follows, not new slash-commands.
+**Folder structure:** encode **Scope Rule** (1 consumer = local, 2+ = shared) and screaming names
+(job-named folders), or a Phase-4 ADR exception — see `pipeline/5-architecture-rules.md`.
 
 ---
 

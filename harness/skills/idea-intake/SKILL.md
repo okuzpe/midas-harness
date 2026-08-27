@@ -1,5 +1,6 @@
 ---
 name: idea-intake
+user-surface: primary
 description: Phase 0 of Midas — capture the raw product idea verbatim, normalize it into {product}/idea.md with a one-line pitch and mode, and initialize/advance **`paths.state`**. Use to start a new product or record its founding idea.
 user-invocable: true
 disable-model-invocation: true
@@ -11,6 +12,7 @@ recommended-model: claude-opus-4-8
 # idea-intake — Phase 0: capture the idea
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Prompt tool:** `AskQuestion`. On Claude Code, fall back to `AskUserQuestion` if AskQuestion is not wired.
 
 Phase 0 turns a raw, possibly messy idea into a normalized, preserved artifact so the rest of the
 pipeline has a stable starting point. **Preservation is sacred:** never rewrite the user's words away —
@@ -27,7 +29,8 @@ capture them verbatim, then add a normalized layer beside them. Playbook: `<path
 | Advance Phase-0 artifacts in `paths.state` (write last) | Run market/arch work or skip to later phases |
 
 ## When NOT
-- Idea already captured and Phase 0 gate passed → next is `/contextualize`, not a re-run.
+- Idea already captured and Phase 0 gate passed → next is `/contextualize` (`track: full` only).
+  When `track: lite`, next is finish Idea+Plan then `/plan-sprints` — **not** `/contextualize`.
 - Repo has substantial existing code and no Midas state → `/midas-adopt` (or `/midas-init`).
 - User only wants orientation → `/midas-status` / `/midas-help`.
 
@@ -57,8 +60,11 @@ Advance to Phase 1 **iff** all hold (on-disk evidence):
 - [ ] `mode` is `greenfield` \| `brownfield` in `paths.state` (user-confirmed).
 - [ ] Inferred fields (if any) marked **assumption**, not fact.
 
-On pass: set `phases.idea_intake` to `{ status: passed, gate: passed }`, set
+On pass (`track: full`): set `phases.idea_intake` to `{ status: passed, gate: passed }`, set
 `stage: contextualize, stage_status: not_started`, next action **`/contextualize`**.
+On pass (`track: lite`): record the same Phase-0 artifacts; next is remaining Idea+Plan stubs then
+**`/plan-sprints`** — **never `/contextualize`** (that path leads to `/market-research`). See
+`<paths.engine>/pipeline/lite.md`.
 On miss: keep `stage_status: in_progress` and name exactly what is outstanding.
 Producer never grades its own homework — the gate verdict is the orchestrator's.
 

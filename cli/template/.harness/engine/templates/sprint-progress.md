@@ -34,7 +34,11 @@ Use these strings in the **Tool** column (and in verify records). They map to `s
 
 ## Next
 
-<!-- The single next task or blocker — one line. -->
+<!-- The single next task or blocker — one line. Required after a multi-task stretch (session-continuity). -->
+
+## Session close
+
+<!-- Optional. On a long stretch or before the window dies: goal, discoveries, next step. Mirrors Next + one Learned row. -->
 
 ## Observations (What / Why / Where / Learned)
 

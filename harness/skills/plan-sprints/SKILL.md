@@ -1,5 +1,6 @@
 ---
 name: plan-sprints
+user-surface: primary
 description: Phase 6 — decompose the MVP scope into a dependency-ordered roadmap and per-sprint plans, each with goal, scope, tasks, acceptance criteria, and a DoD that references the frozen rules. Use after conventions and the design system are frozen (stage architecture_rules → sprint_planning), before any sprint executes.
 user-invocable: true
 disable-model-invocation: true
@@ -29,7 +30,10 @@ at Phase-5 rules — that is what makes the Phase-8 audit possible.
 | Seed `{product}/features.json` (`status: failing`) + `sprints[]` planned | Self-advance `stage` or start implementation (`/start-sprint` does that) |
 
 ## When NOT
-- Rules/design system not frozen → `/define-conventions` first.
+- Rules/design system not frozen (`track: full`) → `/define-conventions` first.
+- When `track: lite`, lean `<paths.rules>/` **or** engine-base rules count as frozen;
+  `{product}/design-system.md` is **optional** — do not redirect to `/define-conventions` solely
+  because design-system is missing. See `<paths.engine>/pipeline/lite.md`.
 - Sprints already planned and you only need to kick off → `/start-sprint`.
 - Mid-sprint task tracking → path-pass `midas-progress` (internal; replan only if the human explicitly asks).
 
@@ -41,6 +45,9 @@ tasks** per sprint file unless the human accepts a written exception in the spri
 - **`paths.state`**, `{product}/business-plan.md` (MVP scope + non-goals + success metrics),
   `{product}/architecture.md`, effective rules (`<paths.engine>/rules/*` + `<paths.rules>/*`),
   `{product}/design-system.md`.
+- When `track: lite`, `{product}/market.md` is **optional** — do not hard-stop if it is missing.
+  `{product}/business-plan.md` is still **required** (Lite Idea+Plan writes a thin stub). See
+  `<paths.engine>/pipeline/lite.md`.
 
 ## Procedure
 

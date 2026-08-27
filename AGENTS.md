@@ -39,7 +39,9 @@ All rules in `harness/conventions.md` apply unconditionally. Key points:
   `.agents/skills` are generated mirrors (`npm run build`) for host discovery (Claude / Codex /
   Cursor / Gemini). Never hand-edit the mirrors.
 
-Stack-specific rules (generated in Phase 5) live in `harness/rules/` and take highest precedence.
+Stack-specific rules are generated in Phase 5 on **product installs**. Project overlays at
+`<paths.rules>/` win over stack and base rules with the same slug — see `harness/conventions.md`
+precedence. In this engine repo, `harness/rules/` is the **base** set, not a stack overlay.
 
 ## Path resolution
 

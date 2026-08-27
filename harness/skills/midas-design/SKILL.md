@@ -1,5 +1,6 @@
 ---
 name: midas-design
+user-surface: primary
 description: Product-authentic UI redesign — audit, three art directions, human pick, spec, then optional one-slice implement. Use when the user asks to improve, redesign, or refactor visuals/landing/UI; never jump straight to JSX. Distinct from /define-conventions (Phase 5 freeze) and /midas-verify (proof).
 user-invocable: true
 disable-model-invocation: true
@@ -13,6 +14,7 @@ argument-hint: "[surface] [--mode audit|directions|spec|implement] [--slice hero
 # midas-design — authentic redesign (think before JSX)
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Prompt tool:** `AskQuestion`. On Claude Code, fall back to `AskUserQuestion` if AskQuestion is not wired.
 > Read **`paths.state`**. No UI / no `{product}/` → report and stop.
 > Record shape: `<paths.engine>/templates/design-record.md`. Authenticity CHECKs:
 > `<paths.engine>/rules/visual-design.md` § Product authenticity.

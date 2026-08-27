@@ -54,6 +54,7 @@ Classify every hit; cite `path` or `path:line`.
 | `orphan` | Module never imported; export only self-referenced | medium |
 | `ledger-drift` | `features.json` `passing` with empty `evidence`; code feature absent from ledger; roadmap sprint without `{product}/sprints/NN-*.md` | high |
 | `stale-doc` | OPEN question answered in `{product}/idea.md`; doc cites deleted path | medium |
+| `needs_review` | Rule or playbook with no `## Amendment` (or stale Amendment) older than **180 days** — flag for human re-check; do not auto-delete | medium |
 | `harness-drift` | `state.yaml` sprint id without file; gate disagrees with `stage` (`node <paths.scripts>/doctor.mjs --gates-only` if present); skill in docs missing under `<paths.engine>/skills/` | medium |
 | `hygiene` | Commented-out blocks; bare `TODO`; duplicate utility | low |
 | `dependency` | Manifest dep with zero imports (flag only — no remove without OK) | low |
@@ -65,6 +66,7 @@ Read **`paths.state`**. Resolve scope + depth. Allocate next `sweep-NN` under `{
 
 - **Code:** entrypoints, routes, barrel exports; grep importers; nav/sitemap vs route files; API routes vs frontend calls/tests; playbook `Trigger` vs `src/*`.
 - **Docs/harness:** `features.json` vs routes/tests; `roadmap.md` vs `{product}/sprints/`; `open-questions.md` vs `{product}/idea.md`; `state.yaml` `sprints[]` vs files; `{runs}/audits/` vs sprint status; optional `doctor.mjs --gates-only`.
+- **Aging (needs_review):** for each `<paths.rules>/*.md` and `{product}/playbooks/*.md`, read the latest `## Amendment` date (else file mtime). If older than **180 days**, emit `needs_review` (path + last date). Do not auto-edit.
 - **Hygiene greps:** commented-out code (`^\s*(//|#).*[;{}()]`), bare `TODO`, duplicate utility filenames.
 
 ### 2. Classify + rank (build)
@@ -96,6 +98,7 @@ Graded at Phase 8 via `<paths.engine>/rules/hygiene.md`:
 
 - **Brownfield:** sweep record this sprint cycle, or `sweep: skipped — reason` in audit, required before close.
 - **Any mode:** unresolved high `dead-flow` / `ledger-drift` rows must appear in audit as fixed, deferred, or accepted.
+- **Aging:** `needs_review` rows (rules/playbooks >180 days without Amendment) must appear in the freeze; do not silently drop them.
 
 ## Tier & cost
 

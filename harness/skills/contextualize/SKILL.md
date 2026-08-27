@@ -1,5 +1,6 @@
 ---
 name: contextualize
+user-surface: primary
 description: Phase 1 of Midas — the gap loop. Generate and rank blocking questions, ask them in batches, fold answers into {product}/idea.md, track {product}/open-questions.md, and loop until zero blockers remain. Use after idea-intake to pin down user, problem, metric, and non-goals.
 user-invocable: true
 disable-model-invocation: true
@@ -11,6 +12,7 @@ recommended-model: claude-opus-4-8
 # contextualize — Phase 1: the gap loop
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Prompt tool:** `AskQuestion`. On Claude Code, fall back to `AskUserQuestion` if AskQuestion is not wired.
 
 This is Midas's signature phase. A raw idea is full of unstated assumptions; building on them is the
 most expensive mistake. Phase 1 systematically surfaces every **blocking** unknown and resolves it
@@ -29,7 +31,9 @@ with the user **before** any market, business, or architecture work. Playbook:
 
 ## When NOT
 - Phase 0 incomplete (no verbatim idea / pitch / mode) → `/idea-intake`.
-- Zero blocking opens already and gate passed → next is `/market-research`.
+- Zero blocking opens already and gate passed → next is `/market-research` (`track: full` only).
+  When `track: lite`, next is `/midas-status` (overlay → remaining Idea+Plan or `/plan-sprints`) —
+  **never `/market-research`**.
 - User wants status only → `/midas-status`.
 
 **Anti-rationalization:** “we’ll figure it out in build” is **not** a deferred assumption — deferrals
@@ -66,9 +70,12 @@ Advance to Phase 2 **iff** (on-disk evidence):
 - [ ] **user, problem, success metric, and non-goals** are each defined in `{product}/idea.md` v2.
 - [ ] Phase-0 raw-idea block is still intact (untouched).
 
-On pass: record artifacts under `phases.contextualize.artifacts`, set
+On pass (`track: full`): record artifacts under `phases.contextualize.artifacts`, set
 `phases.contextualize` to `{ status: passed, gate: passed }`, advance
 `stage: market_research, stage_status: not_started`, next **`/market-research`**.
+On pass (`track: lite`): record `phases.contextualize` passed or skipped-with-assumption; do **not**
+set `stage: market_research`; continue Idea+Plan (architecture + business-plan stub) then
+**`/plan-sprints`**. Next is **never `/market-research`**. See `<paths.engine>/pipeline/lite.md`.
 On miss: keep `stage_status: in_progress` and list outstanding blockers.
 Producer never passes its own gate — the orchestrator renders it.
 

@@ -1,5 +1,6 @@
 ---
 name: midas-explore
+user-surface: primary
 description: Ad-hoc investigation outside the 9-phase pipeline — notes under {runs}/explore/<slug>/. Use for debugging or scoping that is not a phase gate or sprint task; close with --end.
 user-invocable: true
 disable-model-invocation: true

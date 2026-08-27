@@ -1,5 +1,6 @@
 ---
 name: midas-retro
+user-surface: primary
 description: "Read-only sprint retrospective — freeze learnings under {runs}/retros/retro-NN.md without advancing stage. Use after a sprint closes or when the team wants a gstack-/reflect-style note. Complements /close-sprint (conformance) and /midas-progress (STM)."
 user-invocable: true
 disable-model-invocation: true

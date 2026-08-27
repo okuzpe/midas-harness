@@ -8,6 +8,7 @@ metadata:
   midas-model: inherit
   midas-recommended-model: claude-sonnet-4-6
   midas-user-invocable: true
+  midas-user-surface: primary
 ---
 # midas-align — keep sources, bundles, docs, and versions aligned
 

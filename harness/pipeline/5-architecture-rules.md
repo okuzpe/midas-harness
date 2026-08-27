@@ -22,7 +22,12 @@ the Phase 8 audit references exactly these files.
      reading code or running a command — not a general principle.
    - Example: `no-cross-layer-imports.md` with a grep pattern to detect violations.
 2. **Write the folder-structure rule.** `<paths.rules>/folder-structure.md` is mandatory.
-   It defines the canonical directory layout for this project's codebase.
+   It defines the canonical directory layout for this project's codebase. For feature/module
+   architectures, encode **Scope Rule** (code used by **1** feature stays local; used by **2+**
+   lives in shared) and **screaming** names (folders named for user jobs, not `components/` /
+   `hooks/` as the top level). A Phase-4 ADR that chose layered/hexagonal/ports **wins** when it
+   conflicts — record that exception in the rule. Seed from
+   `<paths.engine>/templates/folder-structure.md` when useful.
 3. **Write `{product}/conventions.md`.** Project-level overrides of `<paths.engine>/conventions.md`
    (naming, error handling, test patterns specific to the chosen stack).
 4. **Set the design direction, then write the design system.**
@@ -71,7 +76,9 @@ the Phase 8 audit references exactly these files.
 
 ## Exit gate checklist
 
-- [ ] `<paths.rules>/folder-structure.md` exists and describes the real project layout
+- [ ] `<paths.rules>/folder-structure.md` exists and describes the real project layout, including
+      Scope Rule (1 = local, 2+ = shared) **or** an ADR-justified exception, and names features/jobs
+      rather than only technical layers
 - [ ] Every other architectural decision from Phase 4 has a corresponding rule file
 - [ ] Each rule is CHECKABLE (grep pattern, lint rule, or explicit verification command given)
 - [ ] **`{product}/conventions.md`** present and references the base `<paths.engine>/conventions.md`

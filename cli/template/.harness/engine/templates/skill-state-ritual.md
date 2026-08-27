@@ -32,6 +32,10 @@ file**; they do not restate stage enums, path substitution, or the read/write or
 Parseable `MIDAS_*_RESULT` lines:
 `<paths.engine>/templates/audit-checklists.md` § Parseable tally lines.
 
+**Phase / gate result contract** (status, summary, on-disk artifact paths, risks, next):
+`<paths.engine>/templates/phase-result.md`. Gate and audit freezes that claim `verdict=pass` must
+list existing artifact paths (or embed an equivalent Artifacts table) — do not advance on prose alone.
+
 ## Skill header (canonical cite)
 
 Side-effecting skills open with:

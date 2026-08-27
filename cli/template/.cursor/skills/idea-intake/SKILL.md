@@ -7,10 +7,12 @@ metadata:
   midas-model: inherit
   midas-recommended-model: claude-opus-4-8
   midas-user-invocable: true
+  midas-user-surface: primary
 ---
 # idea-intake — Phase 0: capture the idea
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Prompt tool:** `AskQuestion`. On Claude Code, fall back to `AskUserQuestion` if AskQuestion is not wired.
 
 Phase 0 turns a raw, possibly messy idea into a normalized, preserved artifact so the rest of the
 pipeline has a stable starting point. **Preservation is sacred:** never rewrite the user's words away —

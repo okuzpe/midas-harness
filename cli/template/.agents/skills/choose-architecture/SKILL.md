@@ -8,10 +8,12 @@ metadata:
   midas-model: inherit
   midas-recommended-model: claude-opus-4-8
   midas-user-invocable: true
+  midas-user-surface: primary
 ---
 # choose-architecture (Phase 4 — Tech & Architecture)
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Prompt tool:** `AskQuestion`. On Claude Code, fall back to `AskUserQuestion` if AskQuestion is not wired.
 > Read **`paths.state`** first. Precondition: `stage: business_case` `passed`, or `tech_architecture` in progress. If business case gate has not passed, stop and report missing Phase-3 items.
 
 Turn the signed-off business case into a **pinned, verifiable architecture**: exact versions, system diagram, ADR per irreversible decision. **Orchestrate-tier** — Opus reasons; scout does Context7 retrieval.

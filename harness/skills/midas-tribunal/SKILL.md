@@ -1,5 +1,6 @@
 ---
 name: midas-tribunal
+user-surface: primary
 description: Standing adversarial debate — Defense vs Prosecution + Catfish across idea, market, arch, scope, rules, and code; orchestrator judges per claim and freezes {runs}/debates/debate-NN.md. Use on demand or before big gates (pre-go/no-go, pre-rules-freeze, pre-ship); not a sprint gate.
 user-invocable: true
 disable-model-invocation: true
@@ -35,7 +36,7 @@ Activate per scope; one persona + provocation + on-disk target each:
 | Skeptic | "Why build this?" | `{product}/idea.md` |
 | Inverter | "What guarantees failure?" | `{product}/roadmap.md` |
 | Economist | "Does the model close?" | `{product}/business-plan.md` |
-| Competitor | "Why won't an incumbent crush this?" | `{product}/market.md` |
+| Competitor | "Why won't an incumbent crush this?" | `{product}/market.md` — when `track: lite` and the file is missing, skip this lens or use `{product}/idea.md` + `{product}/business-plan.md`; do not fail the skill |
 | User | "Would a real user switch?" | idea + `{product}/design-system.md` |
 | Design Critic | "Distinctive or generic slop? Logo-swap pass?" | `{product}/design-direction.md` + design-system + `<paths.engine>/rules/visual-design.md` § Product authenticity + UI `src/*` (+ `{runs}/design/` if any) |
 | ATAM | "Risks, sensitivity, tradeoffs?" | `{product}/architecture.md` + `adr/*` |
@@ -46,7 +47,7 @@ Activate per scope; one persona + provocation + on-disk target each:
 
 ## Scope & depth
 
-**Scope** (default `whole`): `whole` · `architecture` · `scope` · `idea` · `market` · `design` · `unit-economics` · `security` · `rules` — activates matching lenses (`design` → Design Critic + User).
+**Scope** (default `whole`): `whole` · `architecture` · `scope` · `idea` · `market` · `design` · `unit-economics` · `security` · `rules` — activates matching lenses (`design` → Design Critic + User). When `track: lite` and `{product}/market.md` is missing, `scope: market` / `whole` skip or substitute the Competitor lens — do not hard-stop.
 
 **Depth** (`--depth`, default `standard`, clamped by `cost_profile`):
 

@@ -1,5 +1,6 @@
 ---
 name: midas-investigate
+user-surface: primary
 description: "Root-cause investigation before bug fixes — Iron Law + 3 strikes; freeze {runs}/investigate/inv-NN.md. Use when debugging failures, after failed self-fixes, or when asked to investigate. Complements /midas-explore (open-ended) and verification.md inner loop."
 user-invocable: true
 disable-model-invocation: true

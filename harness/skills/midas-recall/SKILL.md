@@ -1,5 +1,6 @@
 ---
 name: midas-recall
+user-surface: primary
 description: Read-only context pack for resuming work — reads paths.state and assembles ~15 priority paths plus a 30-line brief (where am I, what matters, open gaps). Scout-tier; no writes. Use after a break, new session, or when midas-status suggests recall. Distinct from midas-status (PC only) and midas-sweep (hygiene).
 user-invocable: true
 disable-model-invocation: false
@@ -37,7 +38,7 @@ Full model: `<paths.engine>/research/memory-model.md`.
 
 ### 1. Read state
 Load the file at **`paths.state`**. If missing → report `/midas-init`. Parse `layout`, `paths`, `stage`, `stage_status`, `mode`,
-`entry_stage`, `sprints[]` (find `status: active`), `phases` ledger.
+`track`, `entry_stage`, `sprints[]` (find `status: active`), `phases` ledger.
 
 **Resume ladder:** cite `<paths.engine>/templates/session-resume-precedence.md` — do not restate it.
 When step 4 is fresh (`{paths.cache}/metrics/current-carryover.json`, `ok: true`, matching sprint id,
@@ -59,6 +60,9 @@ Always include when present:
 Then merge `recall:` paths from `<paths.engine>/stage-command-table.yaml` for the current `stage`
 (token-substitute `{product}/` and `{runs}/` per `paths.state`). **Do not duplicate the YAML table
 in this skill** — read it on disk each run. Stop at ~15 total paths.
+When `track: lite`, **omit `{product}/market.md` if it is missing** — do not treat it as a required
+file, including when `stage` is `market_research` or `business_case`. `{product}/business-plan.md`
+stays in the pack when present (lite writes a stub). Engine recall filter: `stageRecallPaths(stage, root, { track })`.
 
 Stage-specific additions beyond the YAML list:
 
@@ -111,7 +115,11 @@ Do not re-read: …
 
 ### 4. Suggest next command (one line)
 
-Map to the single ritual for the stage (see `<paths.engine>/stage-command-table.yaml`, same as `/midas-status`), or *continue active sprint task X*.
+Same overlay as `/midas-status` (`<paths.engine>/pipeline/lite.md`; engine SoT `resolveStatusNext`).
+When `track: lite`, **never** suggest `/market-research` or `/business-plan` — leftover
+`idea_intake` … `architecture_rules` → `/midas-init` (stubs incomplete) or `/plan-sprints` (stubs
+ready). Do **not** copy `STAGE_ROWS.command` raw on lite. Otherwise map to the stage-command-table
+row, or *continue active sprint task X*.
 
 ## Hard boundaries
 
@@ -119,7 +127,7 @@ Map to the single ritual for the stage (see `<paths.engine>/stage-command-table.
 - **ADR-003:** git-visible artifacts only; scored recall reads on-disk markdown — never build or query a
   `memory/entries` corpus, vector store, or auto-inject index.
 - Do not paste full file bodies — list paths + one-line why each matters; focus snippets use CLI excerpts only.
-- If nothing exists yet (E0 empty), say so and point at `/idea-intake`.
+- If nothing exists yet (E0 empty), say so and point at `/midas-init` when `track: lite`, else `/idea-intake`.
 
 ## Exit gate
 - [ ] Context pack listed (≤ ~15 paths) with one-line why each matters.

@@ -8,9 +8,10 @@ source and run `/midas-doctor`; installed projects run `/midas-doctor` after cha
 ## Precedence (when rules conflict, higher wins)
 
 ```
-stack-specific rules  >  {product}/conventions.md  >  {product}/design-system.md  >  these base conventions
+project rule overlay (<paths.rules>/)  >  stack-specific rules  >  {product}/conventions.md  >  {product}/design-system.md  >  these base conventions
 ```
 
+An overlay at `<paths.rules>/<slug>.md` wins over a base or stack rule with the same slug.
 Stack-specific rules are generated during Phase 5 by `/define-conventions` (docs-verified for the
 chosen framework). `{product}/conventions.md` and `{product}/design-system.md` are project overrides the
 team owns. This base file is the floor every project starts from. There is exactly **one** taxonomy —

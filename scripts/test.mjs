@@ -31,7 +31,7 @@ import { ensureMidasGitignore, GITIGNORE_BEGIN, GITIGNORE_END, auditGitignore } 
 import { detectLayout, resolvePaths, MIGRATION_MAP, MIGRATION_MAP_HUB, RUNS_SUBDIRS, hubPathsYaml, resolveProjectRootFromScript } from './paths.mjs';
 import { pathToFileURL } from 'node:url';
 import { exportBundle, applyImport, checkMcpSecrets, ENGINE_BASE_RULES, toCanonical, fromCanonical, planImport } from './bundle.mjs';
-import { loadStageCommandTable, stageRecallPaths, loadEngineBaseRules, computeStageCommandTableYaml } from './stage-command-table.mjs';
+import { loadStageCommandTable, stageRecallPaths, loadEngineBaseRules, computeStageCommandTableYaml, resolveStatusNext, LITE_FRONT_STAGES, LITE_FORBIDDEN_NEXT } from './stage-command-table.mjs';
 import { computeDesignSystemCss } from './design-system.mjs';
 import { computePluginManifest, computePluginReadme, computeMarketplaceJson } from './build-plugin.mjs';
 import { createHash } from 'node:crypto';
@@ -949,6 +949,7 @@ if (engineVersion) {
   for (const [f, re] of [
     ['harness/state.schema.md', /midas_version:\s*([0-9][^\s#]*)/],
     ['scripts/fixtures/product-closed/.harness/state.yaml', /^midas_version:\s*([0-9][^\s#]*)/m],
+    ['scripts/fixtures/product-lite/.harness/state.yaml', /^midas_version:\s*([0-9][^\s#]*)/m],
   ]) {
     const p = join(ROOT, f);
     if (existsSync(p)) {
@@ -3502,6 +3503,11 @@ if (existsSync(templateChecksIndex) && existsSync(join(ROOT, 'harness', 'checks.
     const raw = readFileSync(organicRule, 'utf8');
     check('harness:organic-routing:has-check', /\*\*CHECK:\*\*/.test(raw));
     check('harness:organic-routing:has-amendment', /## Amendment/.test(raw) && /2026-08-06/.test(raw));
+    check(
+      'harness:organic-routing:single-writer',
+      /Single writer/i.test(raw) && /Launch dedup/i.test(raw) && /Read fan-out/i.test(raw) && /2026-08-27/.test(raw),
+      'organic-routing.md must encode Gentleman parallelism (single writer, fan-out, dedup)',
+    );
   }
   {
     const testingRule = readFileSync(join(ROOT, 'harness', 'rules', 'testing.md'), 'utf8');
@@ -3520,6 +3526,116 @@ if (existsSync(templateChecksIndex) && existsSync(join(ROOT, 'harness', 'checks.
       /\*\*Bug fixes:\*\*/.test(phase7) && /regression/i.test(phase7),
       'Phase 7 must instruct regression tests on defect fixes',
     );
+    check(
+      'harness:phase7:red-before-green',
+      /failing test first/i.test(phase7) && /RED evidence/i.test(phase7),
+      'Phase 7 must instruct RED evidence before GREEN for new behaviour',
+    );
+    check(
+      'harness:testing:red-before-green-check',
+      /\*\*New behaviour\*\*/i.test(testingRule) && /RED/i.test(testingRule) && /2026-08-27/.test(testingRule),
+      'testing.md must require RED evidence for new behaviour',
+    );
+  }
+  {
+    const phase5 = readFileSync(join(ROOT, 'harness', 'pipeline', '5-architecture-rules.md'), 'utf8');
+    check(
+      'harness:phase5:scope-rule',
+      /Scope Rule/i.test(phase5) && /2\+/.test(phase5) && /screaming/i.test(phase5),
+      'Phase 5 must require Scope Rule + screaming names in folder-structure',
+    );
+    check(
+      'harness:templates:folder-structure',
+      existsSync(join(ROOT, 'harness', 'templates', 'folder-structure.md')),
+    );
+    const defineConv = readFileSync(join(ROOT, 'harness', 'skills', 'define-conventions', 'SKILL.md'), 'utf8');
+    check(
+      'harness:define-conventions:scope-rule',
+      /Scope Rule/i.test(defineConv) && /folder-structure\.md/.test(defineConv),
+      'define-conventions must seed Scope Rule into folder-structure.md',
+    );
+  }
+  {
+    const verifyRule = readFileSync(join(ROOT, 'harness', 'rules', 'verification.md'), 'utf8');
+    check(
+      'harness:verification:risk-lenses',
+      /Risk-selected review lenses/i.test(verifyRule) && /400/i.test(verifyRule) && /2026-08-27/.test(verifyRule),
+      'verification.md must select 4R lenses by risk signal',
+    );
+    const gitRule = readFileSync(join(ROOT, 'harness', 'rules', 'git-commits.md'), 'utf8');
+    check(
+      'harness:git-commits:no-ai-trailer',
+      /co-authored-by/i.test(gitRule) && /claude code/i.test(gitRule),
+      'git-commits.md must forbid AI-vendor trailers',
+    );
+    const continuity = readFileSync(join(ROOT, 'harness', 'rules', 'session-continuity.md'), 'utf8');
+    check(
+      'harness:session-continuity:close-protocol',
+      /Session protocol/i.test(continuity) && /compaction/i.test(continuity) && /2026-08-27/.test(continuity),
+      'session-continuity.md must encode open/during/close/rehydrate',
+    );
+    check(
+      'harness:verification:judge-panel',
+      /confirmed/i.test(verifyRule) && /suspect/i.test(verifyRule) && /escalate/i.test(verifyRule),
+      'verification.md must synthesize confirmed|suspect|escalate across lenses',
+    );
+    check(
+      'harness:templates:phase-result',
+      existsSync(join(ROOT, 'harness', 'templates', 'phase-result.md')),
+    );
+    {
+      const phaseResult = readFileSync(join(ROOT, 'harness', 'templates', 'phase-result.md'), 'utf8');
+      check(
+        'harness:phase-result:artifacts-check',
+        /## Artifacts/.test(phaseResult) && /\*\*CHECK:\*\*/.test(phaseResult),
+        'phase-result.md must require an Artifacts table with a CHECK',
+      );
+      const ritual = readFileSync(join(ROOT, 'harness', 'templates', 'skill-state-ritual.md'), 'utf8');
+      check(
+        'harness:skill-state-ritual:phase-result-cite',
+        /phase-result\.md/.test(ritual),
+        'skill-state-ritual.md must cite phase-result.md',
+      );
+      const auditRecord = readFileSync(join(ROOT, 'harness', 'templates', 'audit-record.md'), 'utf8');
+      check(
+        'harness:audit-record:artifacts',
+        /## Artifacts/.test(auditRecord) && /phase-result\.md/.test(auditRecord),
+        'audit-record.md must include an Artifacts table citing phase-result.md',
+      );
+    }
+    {
+      const hygiene = readFileSync(join(ROOT, 'harness', 'rules', 'hygiene.md'), 'utf8');
+      check(
+        'harness:hygiene:needs-review',
+        /needs_review/i.test(hygiene) && /180/.test(hygiene) && /2026-08-27/.test(hygiene),
+        'hygiene.md must flag rules/playbooks older than 180 days as needs_review',
+      );
+      const sweepSkill = readFileSync(join(ROOT, 'harness', 'skills', 'midas-sweep', 'SKILL.md'), 'utf8');
+      check(
+        'harness:midas-sweep:needs-review',
+        /needs_review/i.test(sweepSkill) && /180/.test(sweepSkill),
+        'midas-sweep must classify aging rules/playbooks as needs_review',
+      );
+    }
+    {
+      const phase8 = readFileSync(join(ROOT, 'harness', 'pipeline', '8-audit-adjust.md'), 'utf8');
+      check(
+        'harness:phase8:risk-lenses-section',
+        /### Risk-selected lenses/.test(phase8) && /verification\.md/.test(phase8),
+        'pipeline/8 must append Risk-selected lenses citing verification.md',
+      );
+      check(
+        'harness:phase8:audit-artifacts',
+        /Artifacts/.test(phase8) && /audit-record\.md/.test(phase8),
+        'pipeline/8 freeze step must require an Artifacts table from audit-record.md',
+      );
+      const closeSkill = readFileSync(join(ROOT, 'harness', 'skills', 'close-sprint', 'SKILL.md'), 'utf8');
+      check(
+        'harness:close-sprint:no-inline-4r-table',
+        !/>400 production lines require it/.test(closeSkill) && /pipeline\/8-audit-adjust\.md/.test(closeSkill),
+        'close-sprint must defer 4R detail to pipeline/8, not inline the table',
+      );
+    }
   }
   {
     const safetyRule = join(ROOT, 'harness', 'rules', 'safety-guardrails.md');
@@ -3569,6 +3685,55 @@ if (existsSync(templateChecksIndex) && existsSync(join(ROOT, 'harness', 'checks.
     rows.filter((r) => r.surface === 'primary').length >= 25,
     `primary=${rows.filter((r) => r.surface === 'primary').length}`,
   );
+  {
+    const nPrimary = rows.filter((r) => r.surface === 'primary').length;
+    const nInternal = rows.filter((r) => r.surface === 'internal').length;
+    const nDeprecated = rows.filter((r) => r.surface === 'deprecated').length;
+    const catalogText = existsSync(join(ROOT, 'docs', 'skills.md'))
+      ? readFileSync(join(ROOT, 'docs', 'skills.md'), 'utf8')
+      : '';
+    check(
+      'skills-catalog:surface-counts-match-registry',
+      catalogText.includes(`| ${nPrimary} |`)
+        && catalogText.includes(`| ${nInternal} |`)
+        && catalogText.includes(`| ${nDeprecated} |`)
+        && catalogText.includes(`**${nPrimary} primary**`)
+        && catalogText.includes(`**${nInternal} internal**`)
+        && catalogText.includes(`**${nDeprecated} deprecated`),
+      `registry primary=${nPrimary} internal=${nInternal} deprecated=${nDeprecated}`,
+    );
+    check(
+      'skills-catalog:no-approx-counts',
+      !/Count \(approx\.\)/.test(catalogText) && !/~31/.test(catalogText) && !/~30 primary/.test(catalogText),
+    );
+    check(
+      'skills-catalog:engine-mirrors-adr-008',
+      /ADR-008/.test(catalogText) && /not a root `\.cursor\/skills`/.test(catalogText),
+    );
+    check(
+      'skills-catalog:auto-pilot-history-not-unreleased',
+      /unified with sprint guide \(2\.9\.5\)/.test(catalogText)
+        && !/unified with sprint guide \(Unreleased\)/.test(catalogText),
+    );
+  }
+  {
+    const conv = readFileSync(join(ROOT, 'harness', 'conventions.md'), 'utf8');
+    const boxed = conv.match(/```\r?\n([\s\S]*?)```/);
+    const formula = boxed ? boxed[1] : '';
+    const overlayAt = formula.indexOf('project rule overlay');
+    const stackAt = formula.indexOf('stack-specific rules');
+    check(
+      'conventions:precedence-overlay-first',
+      overlayAt >= 0 && stackAt > overlayAt,
+      'boxed precedence in conventions.md must put project overlay before stack-specific rules',
+    );
+    const defineConv = readFileSync(join(ROOT, 'harness', 'skills', 'define-conventions', 'SKILL.md'), 'utf8');
+    check(
+      'define-conventions:precedence-overlay-first',
+      /project rule overlay \(<paths\.rules>\/\)/.test(defineConv)
+        && defineConv.indexOf('project rule overlay') < defineConv.indexOf('stack-specific rules  >  {product}/conventions.md'),
+    );
+  }
   check(
     'skill-registry:md-has-surface-column',
     /\| Surface \|/.test(readFileSync(join(ROOT, 'harness', 'skill-registry.md'), 'utf8')),
@@ -3615,7 +3780,124 @@ if (existsSync(templateChecksIndex) && existsSync(join(ROOT, 'harness', 'checks.
   }
 }
 
-check('pipeline:lite', existsSync(join(ROOT, 'harness', 'pipeline', 'lite.md')));
+{
+  const skillRoot = join(ROOT, 'harness', 'skills');
+  const missingSurface = readdirSync(skillRoot).filter((id) => {
+    const skillPath = join(skillRoot, id, 'SKILL.md');
+    if (!existsSync(skillPath)) return false;
+    return !/^user-surface:\s*(primary|internal|deprecated)\s*$/m.test(readFileSync(skillPath, 'utf8'));
+  });
+  check('skills:user-surface-all', missingSurface.length === 0, missingSurface.join(',') || 'ok');
+  const askOrphans = readdirSync(skillRoot).filter((id) => {
+    const skillPath = join(skillRoot, id, 'SKILL.md');
+    if (!existsSync(skillPath)) return false;
+    const body = readFileSync(skillPath, 'utf8');
+    return /AskUserQuestion/.test(body) && !/AskQuestion/.test(body);
+  });
+  check('skills:askquestion-canonical', askOrphans.length === 0, askOrphans.join(',') || 'ok');
+  const helpBodyCloseout = readFileSync(join(ROOT, 'harness', 'skills', 'midas-help', 'SKILL.md'), 'utf8');
+  check('help:bundle-option', /\/midas-bundle/.test(helpBodyCloseout));
+  check('help:engine-precommit-named', /\/midas-precommit/.test(helpBodyCloseout));
+  const closeBody = readFileSync(join(ROOT, 'harness', 'skills', 'close-sprint', 'SKILL.md'), 'utf8');
+  check(
+    'close-sprint:exit-reads-pipeline-8',
+    /## Exit gate/.test(closeBody) && /pipeline\/8-audit-adjust\.md/.test(closeBody),
+  );
+  const autoBody = readFileSync(join(ROOT, 'harness', 'skills', 'midas-auto-pilot', 'SKILL.md'), 'utf8');
+  check(
+    'auto-pilot:loop-host-table',
+    /Host `\/loop` capability/.test(autoBody) && /Claude Code/.test(autoBody),
+  );
+  const muninn = readFileSync(join(ROOT, 'docs', 'muninn-comparison.md'), 'utf8');
+  check(
+    'docs:muninn-inventory-current',
+    /38 skills/.test(muninn) && /24 reglas/.test(muninn) && !/33 skills/.test(muninn) && !/Cero hooks/.test(muninn),
+  );
+  const gstackDoc = readFileSync(join(ROOT, 'docs', 'gstack-comparison.md'), 'utf8');
+  check(
+    'docs:gstack-version-not-stale',
+    /harness\/VERSION/.test(gstackDoc) && !/today \*\*2\.9\.3\*\*/.test(gstackDoc),
+  );
+  const flowsDoc = readFileSync(join(ROOT, 'docs', 'skill-flows.md'), 'utf8');
+  check(
+    'docs:skill-flows-e2-e3',
+    /\|E2\|/.test(flowsDoc) && /\|E3\|/.test(flowsDoc) && !/E2 or E3/.test(flowsDoc) && /\/midas-precommit/.test(flowsDoc),
+  );
+  const dogfoodDoc = readFileSync(join(ROOT, 'docs', 'dogfood.md'), 'utf8');
+  check(
+    'docs:dogfood-dual-shape',
+    /Dual tool shape/.test(dogfoodDoc) && /tools: \[cursor\]/.test(dogfoodDoc),
+  );
+  const archDoc = readFileSync(join(ROOT, 'docs', 'repository-architecture.md'), 'utf8');
+  check(
+    'docs:architecture-engine-claude',
+    /Root `CLAUDE.md`/.test(archDoc) && /migrate-layout\.mjs/.test(archDoc) && /migrate-harness\.mjs/.test(archDoc),
+  );
+  const docsMeth = readFileSync(join(ROOT, 'docs', 'methodology.md'), 'utf8');
+  const engMeth = readFileSync(join(ROOT, 'harness', 'methodology.md'), 'utf8');
+  check('docs:methodology-scope-rule', /Scope Rule/.test(docsMeth) && /Scope Rule/.test(engMeth));
+  const unreleased = readFileSync(join(ROOT, 'CHANGELOG.md'), 'utf8').split('## [2.')[0];
+  check('changelog:issue-1-superseded', /issue #1/.test(unreleased));
+  check('changelog:monorepo-historical', /midas-monorepo/.test(unreleased) && /historical-only/.test(unreleased));
+}
+
+{
+  const litePlaybook = join(ROOT, 'harness', 'pipeline', 'lite.md');
+  const liteBody = existsSync(litePlaybook) ? readFileSync(litePlaybook, 'utf8') : '';
+  check('pipeline:lite', existsSync(litePlaybook));
+  check(
+    'pipeline:lite:stub-business-plan',
+    /thin `\{product\}\/business-plan\.md`/.test(liteBody) && /market\.md` is \*\*optional\*\*/i.test(liteBody),
+    'lite.md must require a thin business-plan stub and mark market.md optional',
+  );
+  check(
+    'pipeline:lite:status-never-market',
+    /never.*\/market-research/i.test(liteBody) && /Track: lite/.test(liteBody),
+    'lite.md must tell status never to recommend /market-research',
+  );
+  const liteFix = join(ROOT, 'scripts', 'fixtures', 'product-lite');
+  const liteState = join(liteFix, '.harness', 'state.yaml');
+  const liteBp = join(liteFix, '.harness', 'product', 'business-plan.md');
+  const liteMarket = join(liteFix, '.harness', 'product', 'market.md');
+  check('fixture:product-lite:state', existsSync(liteState) && /^track:\s*lite\s*$/m.test(readFileSync(liteState, 'utf8')));
+  check(
+    'fixture:product-lite:market-research-assumption',
+    existsSync(liteState) && /market_research:/.test(readFileSync(liteState, 'utf8')) && /assumption:/.test(readFileSync(liteState, 'utf8')),
+  );
+  check('fixture:product-lite:business-plan', existsSync(liteBp));
+  check('fixture:product-lite:no-market-md', !existsSync(liteMarket), 'lite fixture must not include market.md');
+  const planSprints = readFileSync(join(ROOT, 'harness', 'skills', 'plan-sprints', 'SKILL.md'), 'utf8');
+  const startSprint = readFileSync(join(ROOT, 'harness', 'skills', 'start-sprint', 'SKILL.md'), 'utf8');
+  const auditAdjust = readFileSync(join(ROOT, 'harness', 'pipeline', '8-audit-adjust.md'), 'utf8');
+  check(
+    'plan-sprints:lite-market-optional',
+    /track:\s*lite/.test(planSprints) && /market\.md` is \*\*optional\*\*/.test(planSprints),
+  );
+  check(
+    'start-sprint:lite-market-optional',
+    /track:\s*lite/.test(startSprint) && /market\.md` is optional/.test(startSprint),
+  );
+  check(
+    'audit-adjust:lite-market-optional',
+    /track:\s*lite/.test(auditAdjust) && /market\.md` is \*\*optional\*\*/.test(auditAdjust),
+  );
+  const statusLite = readFileSync(join(ROOT, 'harness', 'skills', 'midas-status', 'SKILL.md'), 'utf8');
+  check(
+    'midas-status:track-lite',
+    /track:\s*lite/i.test(statusLite) && /Never[\s\S]*\/market-research/.test(statusLite) && /Track: <lite\|full>/.test(statusLite),
+  );
+  const initSkill = readFileSync(join(ROOT, 'harness', 'skills', 'midas-init', 'SKILL.md'), 'utf8');
+  const initAdaptive = readFileSync(join(ROOT, 'harness', 'pipeline', 'init-adaptive.md'), 'utf8');
+  check(
+    'midas-init:track-ask',
+    /track:\s*lite/.test(initSkill) && /\*\*Track\*\*/.test(initAdaptive) && /AskQuestion/.test(initAdaptive),
+  );
+  const recallLite = readFileSync(join(ROOT, 'harness', 'skills', 'midas-recall', 'SKILL.md'), 'utf8');
+  check(
+    'recall:lite-skips-missing-market',
+    /track:\s*lite/.test(recallLite) && /omit `\{product\}\/market\.md` if it is missing/.test(recallLite),
+  );
+}
 check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'README.md')));
 
 // --- Optional autonomy (ADR-009) ---------------------------------------------------------------

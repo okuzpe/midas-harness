@@ -33,6 +33,17 @@ These rules apply from Phase 7 (Sprint Execution) onward and support **native pr
       **CHECK:** `manual:` the sprint diff introduces no new `*.db`, `.engram/`, or vector-store config;
       continuity evidence is `NN-progress.md`, `{product}/*`, or `<paths.rules>/*` only.
 
+### Session protocol (open / during / close / rehydrate)
+- [ ] A long Phase-7 stretch writes a close note before the window dies.
+      **CHECK:** `manual:` when `{runs}/sprints/NN-progress.md` exists and `last_touched` advanced this
+      cycle, § **Next** is non-empty *and* § Observations has a **Learned** (or explicit Session close)
+      row covering goal / discoveries / next step. A progress file that only lists Done with a blank
+      Next after a multi-task session is a fail.
+- [ ] After compaction or a hard context reset, the agent rehydrates from disk before more writes.
+      **CHECK:** `manual:` session evidence shows `/midas-recall` or a re-read of `NN-progress.md` +
+      `paths.state` after a compaction/reset before further implementation; continuing from chat
+      memory alone is a fail.
+
 ## Relationship to other tools
 
 | Tool | Role |
@@ -40,3 +51,8 @@ These rules apply from Phase 7 (Sprint Execution) onward and support **native pr
 | `/midas-recall` | Read-only context pack when resuming |
 | `/midas-capture` | LTM writes (rules/playbooks/conventions) |
 | `/midas-sweep` | Hygiene — orthogonal to continuity |
+
+## Amendment
+
+- **2026-08-27** — Gentleman Ch.20 session protocol: close note (Next + Learned) after a long
+  stretch; rehydrate from recall/progress after compaction — still git-visible only (ADR-003).

@@ -1,5 +1,6 @@
 ---
 name: choose-architecture
+user-surface: primary
 description: Phase 4 — pin stack and architecture from the business case, Context7-verify versions, write {product}/architecture.md and one ADR per decision. Use after business case gate passes (stage business_case → tech_architecture), before rules or code.
 user-invocable: true
 disable-model-invocation: true
@@ -12,6 +13,7 @@ mcp-recommended: [context7]
 # choose-architecture (Phase 4 — Tech & Architecture)
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Prompt tool:** `AskQuestion`. On Claude Code, fall back to `AskUserQuestion` if AskQuestion is not wired.
 > Read **`paths.state`** first. Precondition: `stage: business_case` `passed`, or `tech_architecture` in progress. If business case gate has not passed, stop and report missing Phase-3 items.
 
 Turn the signed-off business case into a **pinned, verifiable architecture**: exact versions, system diagram, ADR per irreversible decision. **Orchestrate-tier** — Opus reasons; scout does Context7 retrieval.
@@ -34,7 +36,7 @@ Turn the signed-off business case into a **pinned, verifiable architecture**: ex
 ## Inputs (read first, write last)
 
 - **`paths.state`** — stage, `routing`, `mcp`
-- `{product}/business-plan.md`, `{product}/idea.md`, `{product}/market.md`
+- `{product}/business-plan.md`, `{product}/idea.md`; `{product}/market.md` **optional when `track: lite`**
 - `<paths.engine>/rules/context7-usage.md`
 
 ## Procedure

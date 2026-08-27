@@ -37,13 +37,17 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
       and/or builder with matched `SKILL.md` paths from `<paths.engine>/skill-registry.md`), or
       *plan-first* only after explicit user OK (task-split / ADR / Learned / `/midas-explore` — never
       silent `/plan-sprints`). Then apply model-routing for tier. Record `Route:` on Done rows when
-      the cluster spans ≥4 files.
+      the cluster spans ≥4 files. **Single writer:** do not run two builders on the same worktree;
+      fan out scouts, serialize writes (`organic-routing.md` § Parallelism).
    b. Before writing code against any third-party library, call `resolve-library-id`
       then `get-library-docs` at the pinned version via Context7 (scout tier).
       Use the web fallback if Context7 is unavailable; never generate from memory.
    c. Write code that matches the conventions in `<paths.engine>/conventions.md` and
       `{product}/conventions.md`. Match surrounding style; prefer reuse over new abstractions.
-   d. Write tests alongside the feature (not after). Test behavior, not implementation.
+   d. For **new behaviour**, write the failing test first when a test runner exists (RED evidence in
+      progress), then the minimal implementation (GREEN). Test behavior, not implementation.
+      Skip RED only when there is no runner yet or the task is a spike — note the reason in
+      `{runs}/sprints/NN-progress.md`.
       **Bug fixes:** add or update a **regression** test that fails without the fix (or an equivalent
       verify/acceptance evidence row for the failure mode) in the same change — see
       [`testing.md`](../rules/testing.md) Coverage contract. Do not check off a defect task on a
@@ -72,6 +76,9 @@ library touched (Context7 recommended, or your own doc tool). The build tier dri
    **Optional (recommended for large or messy sprints):** path-pass `midas-sweep` before handing off to
    Phase 8 — surface dead flows and ledger drift so the audit grades real behaviour, not cruft.
    Prefer letting `/close-sprint` own Steps 0 / 0.5 path-pass when the human types close.
+   **Risk lenses:** before handoff, select verify/security/lean per
+   [`verification.md`](../rules/verification.md) § Risk-selected review lenses — do not run every
+   lens on a rename.
 4. **Self-check DoD.** Walk the `## Definition of Done` list:
    - Tests pass
    - No convention violations (check against the combined base and project rule patterns)

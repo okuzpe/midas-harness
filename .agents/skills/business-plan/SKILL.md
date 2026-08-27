@@ -7,10 +7,12 @@ metadata:
   midas-model: inherit
   midas-recommended-model: claude-opus-4-8
   midas-user-invocable: true
+  midas-user-surface: primary
 ---
 # business-plan — Phase 3
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
+> **Prompt tool:** `AskQuestion`. On Claude Code, fall back to `AskUserQuestion` if AskQuestion is not wired.
 > **Precondition:** `market_research` passed. **Hard human checkpoint** — no engineering until go/no-go sign-off.
 > Optional: `/midas-tribunal` (pre-go/no-go) — high-leverage, never forced.
 > **Playbook:** `<paths.engine>/pipeline/3-business-case.md`
