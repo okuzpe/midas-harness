@@ -76,7 +76,7 @@ Follow **`<paths.engine>/pipeline/init-adaptive.md`** for Phase A–F bodies
 - [ ] `not_installed` / wrong cwd → stopped without intake.
 - [ ] `setup_pending` → intake completed per init-adaptive (or `--monorepo` Phase F when applicable).
 - [ ] Update path → human given exact CLI; model did not shadow the installer.
-- [ ] Single next action named.
+- [ ] Single next action named (lite: `/plan-sprints` after Idea+Plan — never `/idea-intake` / `/market-research`).
 
 ## Tier & delegation
 

@@ -29,9 +29,12 @@ frames the questions and audits the gate — it does not rubber-stamp its own re
 | Stop if Phase-1 blockers remain | Rubber-stamp the report as the gate auditor |
 
 ## When NOT
+- **`track: lite`** → **STOP**. Market research is skipped on Lite. Point at `/midas-status`
+  (never run Phase 2 as Next; do not recover via `/market-research`). See
+  `<paths.engine>/pipeline/lite.md`.
 - Blocking open questions remain → `/contextualize`.
-- User wants go/no-go / monetization → `/business-plan` after this gate.
-- “No time to research” → still required; use scout fan-out + strike uncited claims rather than inventing.
+- User wants go/no-go / monetization → `/business-plan` after this gate (`track: full`).
+- “No time to research” → still required on **full** track; use scout fan-out + strike uncited claims rather than inventing.
 
 **Anti-rationalization:** a competitor list without a **demand verdict** (strong/mixed/weak + evidence)
 does **not** pass the exit gate.

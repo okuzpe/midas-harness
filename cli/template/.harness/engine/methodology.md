@@ -48,8 +48,9 @@ and `state.yaml` records `gate: passed`. The **producer** never grades its own h
 
 `track: lite` in `paths.state` is a **status/init overlay**, not a tenth stage. It collapses
 front-loaded phases 0–6 into one Idea+Plan pass, then uses the same Execute/Audit loop. Procedure:
-[`pipeline/lite.md`](./pipeline/lite.md). `/midas-status` prints `Track: lite|full` and never
-recommends `/market-research` as Next on lite. `{product}/business-plan.md` is still written (thin
+[`pipeline/lite.md`](./pipeline/lite.md). `/midas-status` and `/midas-recall` print `Track: lite|full`
+and never recommend `/market-research` or `/business-plan` as Next on lite (leftover front stages
+overlay to `/midas-init` or `/plan-sprints`). `{product}/business-plan.md` is still written (thin
 stub); `{product}/market.md` is optional.
 
 ## State machine

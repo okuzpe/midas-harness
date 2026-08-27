@@ -53,8 +53,9 @@ Phase 8 runs **in place** while the top-level stage remains `sprint_execution`; 
 phase, not a top-level runtime stage.
 
 **Lite branch** (`track: lite` during `/midas-init` — see `<paths.engine>/pipeline/lite.md`): skip
-`/market-research` and `/business-plan` as Next; Idea+Plan writes stubs including thin
-`business-plan.md`, then `/plan-sprints` → `/start-sprint` → `/close-sprint`.
+`/market-research` and `/business-plan` as Next (including leftover `stage: market_research`);
+Idea+Plan writes stubs including thin `business-plan.md`, then `/plan-sprints` → `/start-sprint` →
+`/close-sprint`. Init Exit does **not** use the E0/E1 maturity-table Next.
 
 ```mermaid
 flowchart LR

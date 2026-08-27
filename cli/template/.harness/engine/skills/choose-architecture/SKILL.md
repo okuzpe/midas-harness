@@ -36,7 +36,7 @@ Turn the signed-off business case into a **pinned, verifiable architecture**: ex
 ## Inputs (read first, write last)
 
 - **`paths.state`** — stage, `routing`, `mcp`
-- `{product}/business-plan.md`, `{product}/idea.md`, `{product}/market.md`
+- `{product}/business-plan.md`, `{product}/idea.md`; `{product}/market.md` **optional when `track: lite`**
 - `<paths.engine>/rules/context7-usage.md`
 
 ## Procedure

@@ -29,7 +29,8 @@ capture them verbatim, then add a normalized layer beside them. Playbook: `<path
 | Advance Phase-0 artifacts in `paths.state` (write last) | Run market/arch work or skip to later phases |
 
 ## When NOT
-- Idea already captured and Phase 0 gate passed → next is `/contextualize`, not a re-run.
+- Idea already captured and Phase 0 gate passed → next is `/contextualize` (`track: full` only).
+  When `track: lite`, next is finish Idea+Plan then `/plan-sprints` — **not** `/contextualize`.
 - Repo has substantial existing code and no Midas state → `/midas-adopt` (or `/midas-init`).
 - User only wants orientation → `/midas-status` / `/midas-help`.
 
@@ -59,8 +60,11 @@ Advance to Phase 1 **iff** all hold (on-disk evidence):
 - [ ] `mode` is `greenfield` \| `brownfield` in `paths.state` (user-confirmed).
 - [ ] Inferred fields (if any) marked **assumption**, not fact.
 
-On pass: set `phases.idea_intake` to `{ status: passed, gate: passed }`, set
+On pass (`track: full`): set `phases.idea_intake` to `{ status: passed, gate: passed }`, set
 `stage: contextualize, stage_status: not_started`, next action **`/contextualize`**.
+On pass (`track: lite`): record the same Phase-0 artifacts; next is remaining Idea+Plan stubs then
+**`/plan-sprints`** — **never `/contextualize`** (that path leads to `/market-research`). See
+`<paths.engine>/pipeline/lite.md`.
 On miss: keep `stage_status: in_progress` and name exactly what is outstanding.
 Producer never grades its own homework — the gate verdict is the orchestrator's.
 

@@ -31,10 +31,24 @@ During `/midas-init`, when the user selects `track: lite` (Phase D Ask):
    `business_case` is **not** skipped if the stub exists — list the stub path in
    `phases.business_case.artifacts`.
 4. After that pass, set `stage: sprint_planning` (`entry_stage: sprint_planning` when E0/E1 lite).
-5. `/midas-status` prints `Track: lite` and **never** recommends `/market-research` or
-   `/business-plan` as Next. While `stage` is still `idea_intake` … `architecture_rules`, Next is
-   finish Idea+Plan (`/midas-init` if `setup_complete` is not true) or `/plan-sprints` once the stubs
-   exist. At `sprint_planning` / `sprint_execution` / `shipped`, use the normal stage-table row.
+5. `/midas-status` and `/midas-recall` print `Track: lite` and **never** recommend `/market-research`
+   or `/business-plan` as Next (testable SoT: `resolveStatusNext` in
+   `<paths.scripts>/stage-command-table.mjs`). While `stage` is still `idea_intake` …
+   `architecture_rules`, Next is finish Idea+Plan (`/midas-init` if `setup_complete` is not true) or
+   `/plan-sprints` once the stubs exist. At `sprint_planning` / `sprint_execution` / `shipped`, use
+   the normal stage-table row.
+
+## Leftover front stages (must not recover via market)
+
+If `track: lite` but `stage` is still a front-loaded row (`idea_intake` … `architecture_rules`):
+
+- **Init Exit** must not use the E0/E1 maturity-table Next (`/idea-intake` / `/contextualize`).
+- `/idea-intake`, `/contextualize`, `/market-research`, and `/business-plan` must **not** send the
+  user to `/market-research` or `/contextualize`. Point at `/midas-status` or remaining stubs then
+  `/plan-sprints`.
+- `/choose-architecture` treats `{product}/market.md` as optional. `/plan-sprints` treats lean rules
+  or engine-base as frozen; `{product}/design-system.md` is optional (do not ping-pong to
+  `/define-conventions` solely for a missing design system).
 
 ## Exit
 

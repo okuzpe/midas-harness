@@ -44,9 +44,11 @@ completion — it reports the truth already on disk. Safe to run at any time, in
 
    - `(no state file)` → `/midas-init` (or diagnose per step 1)
    - `setup_complete: false` → `/midas-init` (finish one-time setup), regardless of `stage`
-   - **`track: lite` overlay** (not a second stage table — see `<paths.engine>/pipeline/lite.md`):
+   - **`track: lite` overlay** (not a second stage table — see `<paths.engine>/pipeline/lite.md`;
+     engine SoT `resolveStatusNext` in `<paths.scripts>/stage-command-table.mjs`):
      print `Track: lite` (or `Track: full` when `track` is absent/`full`). **Never** set Next to
-     `/market-research` or `/business-plan` when `track: lite`. If `stage` is one of `idea_intake` …
+     `/market-research` or `/business-plan` when `track: lite` — including when `stage` is
+     `market_research` or `business_case`. If `stage` is one of `idea_intake` …
      `architecture_rules`, Next is **not** that row's `command`: finish Lite Idea+Plan (cite
      `pipeline/lite.md`) or `/plan-sprints` once `{product}/idea.md`, thin architecture, lean rules,
      and `{product}/business-plan.md` exist. Missing `{product}/market.md` is OK on lite.

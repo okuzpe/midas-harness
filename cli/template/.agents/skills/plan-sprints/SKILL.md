@@ -30,7 +30,10 @@ at Phase-5 rules — that is what makes the Phase-8 audit possible.
 | Seed `{product}/features.json` (`status: failing`) + `sprints[]` planned | Self-advance `stage` or start implementation (`/start-sprint` does that) |
 
 ## When NOT
-- Rules/design system not frozen → `/define-conventions` first.
+- Rules/design system not frozen (`track: full`) → `/define-conventions` first.
+- When `track: lite`, lean `<paths.rules>/` **or** engine-base rules count as frozen;
+  `{product}/design-system.md` is **optional** — do not redirect to `/define-conventions` solely
+  because design-system is missing. See `<paths.engine>/pipeline/lite.md`.
 - Sprints already planned and you only need to kick off → `/start-sprint`.
 - Mid-sprint task tracking → path-pass `midas-progress` (internal; replan only if the human explicitly asks).
 

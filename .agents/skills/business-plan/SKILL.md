@@ -1,6 +1,6 @@
 ---
 name: business-plan
-description: "Phase 3 of Midas — turn the validated opportunity into a go/no-go business case. Define the value proposition, MVP scope vs explicit non-goals, the business/monetization model, and MEASURABLE success metrics (which later phase-8 audits grade against), then capture an explicit go/no-go with HUMAN sign-off into {product}/business-plan.md. Use after /market-research."
+description: "Phase 3 of Midas — turn the validated opportunity into a go/no-go business case. Define the value proposition, MVP scope vs explicit non-goals, the business/monetization model, and MEASURABLE success metrics (which later phase-8 audits grade against), then capture an explicit go/no-go with HUMAN sign-off into {product}/business-plan.md. Use after /market-research on full track; on lite, after idea.md (market.md optional)."
 metadata:
   midas-disable-model-invocation: true
   midas-harness-tier: orchestrate
@@ -13,7 +13,7 @@ metadata:
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
 > **Prompt tool:** `AskQuestion`. On Claude Code, fall back to `AskUserQuestion` if AskQuestion is not wired.
-> **Precondition:** `market_research` passed. **Hard human checkpoint** — no engineering until go/no-go sign-off.
+> **Precondition:** `market_research` passed **unless `track: lite`** (then `{product}/idea.md` + optional `{product}/market.md`; write/update the thin stub). **Hard human checkpoint** on full track — no engineering until go/no-go sign-off. On lite, Idea+Plan already GO-assumes the stub.
 > Optional: `/midas-tribunal` (pre-go/no-go) — high-leverage, never forced.
 > **Playbook:** `<paths.engine>/pipeline/3-business-case.md`
 
@@ -29,12 +29,16 @@ gate; the builder drafts the document.
 | Log deferred field validation as an explicit assumption | Rubber-stamp go/no-go without the human |
 
 ## When NOT
-- Market research gate not passed / blockers remain → `/market-research` or `/contextualize`.
+- **`track: lite`:** missing `{product}/market.md` is OK — do **not** send the user to
+  `/market-research`. If invoked, write/update the thin stub from `{product}/idea.md`, then
+  `/midas-status` (overlay → `/plan-sprints`). See `<paths.engine>/pipeline/lite.md`.
+- Market research gate not passed / blockers remain (`track: full`) → `/market-research` or `/contextualize`.
 - Human already signed no-go → stop; do not reopen without an explicit ask.
 - User only wants a decision debate → optional `/midas-tribunal` (never required).
 
 ## Steps
-1. **Value proposition** — for the target segment from `{product}/idea.md` + `{product}/market.md`.
+1. **Value proposition** — for the target segment from `{product}/idea.md` + `{product}/market.md`
+   (omit `market.md` when `track: lite` and the file is missing).
 2. **MVP scope vs non-goals** — the minimum surface that validates the core hypothesis, and an
    **explicit** list of what is out of scope for the MVP. (The Phase-8 audit checks the build against
    this scope; vague scope here weakens every later audit.)
@@ -65,7 +69,7 @@ gate; the builder drafts the document.
 ## Tier & delegation
 - **Dispatch + go/no-go / gate verdict:** `orchestrate` → `midas-orchestrator`.
 - **Draft `{product}/business-plan.md` + state writes:** `build` → `midas-builder`.
-- Evidence extraction from `{product}/market.md` → `scout` (`midas-scout`) when needed.
+- Evidence extraction from `{product}/market.md` → `scout` (`midas-scout`) when the file exists.
 - Respect `cost_profile`. Under `max_savings`, this Phase-3 gate still runs on the orchestrate pin (Sonnet); escalate to Opus only if the human asks for a deeper audit.
 
 ## Exit gate (Phase 3)
