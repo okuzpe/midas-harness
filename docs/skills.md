@@ -18,7 +18,7 @@ Orthogonal to **Delegator** (path-readability). Frontmatter `user-surface`:
 
 | Surface | Meaning | Count |
 |---|---|---|
-| **primary** | Listed in this catalog’s primary tables and `/midas-help` options | 29 |
+| **primary** | Listed in this catalog’s primary tables and `/midas-help` options | 30 |
 | **internal** | Path-pass under orchestrators (`/start-sprint`, `/close-sprint`, Phase 7 body); power-user may still type the slash | 5 |
 | **deprecated** | Alias stubs — help must not list | 4 |
 
@@ -31,7 +31,7 @@ skills (ADR-013). Bodies remain under `<paths.engine>/skills/` for path-pass.
 |---|---|---|
 | **A Orient** | Where am I / what next / resume / install confusion | `/midas-status`, `/midas-help`, `/midas-recall`, `/midas-reconcile` |
 | **B Lifecycle** | Setup + audited phase gates 0→8 | `/midas-init`, `/midas-adopt`, `/idea-intake` … `/close-sprint` |
-| **C Sync** | Adapters / propagation / engine bar | `/midas-doctor`, `/midas-align`, `/midas-precommit` *(engine only)* |
+| **C Sync** | Adapters / propagation / engine bar | `/midas-doctor`, `/midas-align`, `/midas-precommit` *(engine only)*, `/midas-sandbox` *(engine only)* |
 | **D Autonomy** | Continuous evolve + ADR-009 checklist guide | `/midas-auto-pilot` |
 | **E On-demand** | Audits, design, debug, hygiene, portability | `/midas-tribunal`, `/midas-security-audit`, `/midas-design`, `/midas-capture`, `/midas-investigate`, `/midas-explore`, `/midas-bundle`, `/midas-verify`, `/midas-retro`, `/midas-hygiene` |
 | **Internal (delegated)** | Sprint rituals owned by parents | `/midas-progress`, `/midas-qa`, `/midas-diff-gates`, `/midas-lean-review`, `/midas-sweep` |
@@ -58,7 +58,7 @@ Human catalog (this file) uses slash-names. Agents that **delegate** use the gen
 - Implementation size/ambiguity routing: `<paths.engine>/rules/organic-routing.md` (complements model-routing).
 - Phase-7 tip: parents **path-pass** matching `internal` / `Delegator: yes` procedures (`midas-progress`, `midas-diff-gates`, `midas-qa`, `midas-lean-review`, `midas-sweep`) — read the body; do not Skill-tool invoke.
 
-Catalog size: **29 primary** + **5 internal** + **4 deprecated aliases** + **1 engine-only** among primary (`/midas-precommit`). Counts must match `harness/skill-registry.md` (recomputed by `npm run align`).
+Catalog size: **30 primary** + **5 internal** + **4 deprecated aliases** + **2 engine-only** among primary (`/midas-precommit`, `/midas-sandbox`). Counts must match `harness/skill-registry.md` (recomputed by `npm run align`).
 
 For entry → decision → state → handoff, see [Skill flows](skill-flows.md).
 
@@ -156,6 +156,7 @@ Parents **path-pass** these `SKILL.md` bodies (read + execute steps in the same 
 | `/midas-doctor` | Sync | Adapter drift + install health; re-render adapters. | build |
 | `/midas-align` | Sync | Full propagation matrix (engine/product) + gap report. | build |
 | `/midas-precommit` | **Engine only** | Harness fitness scorecard; overall ≥ 80 required before commit. Not shipped to installs. | orchestrate |
+| `/midas-sandbox` | **Engine only** | Real-skill dry-run on `composer-2.5` (never `-fast`) against `sandbox/example-product/`; traced findings. Not shipped to installs. | build |
 | `/midas-bundle` | Portability | Export/import knowledge JSON via `bundle.mjs`. | build |
 | `/midas-tribunal` | Audit | Adversarial debate — decisions right? (non-advancing). | orchestrate |
 | `/midas-security-audit` | Audit | OWASP/STRIDE deep scan (non-advancing). | orchestrate |
@@ -182,6 +183,7 @@ Prefer **primary** slash names; internals are noted as parent-owned.
 | Edited conventions/rules | `/midas-doctor` |
 | Edited engine / installer / skills / VERSION | `/midas-align` then `/midas-precommit` (engine) |
 | Before commit on midas-harness | `/midas-precommit` (overall ≥ 80) |
+| Dry-run a skill/rule change against a real fixture before committing | `/midas-sandbox` (engine) |
 | Sprint UI proof (gate evidence) | `/midas-verify` |
 | Production diff test/quality receipts (before close) | `/close-sprint` (path-passes `/midas-diff-gates`) |
 | Redesign / improve UI (think before JSX) | `/midas-design` |

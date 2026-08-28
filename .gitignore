@@ -24,6 +24,11 @@ runs/cache/
 runs/*.hash
 runs/test-out*.txt
 
+# Sandbox skill-testing lab (docs/adr/ADR-015-sandbox-skill-testing.md).
+# Working copy is generated from sandbox/seed/ via `node scripts/sandbox-run.mjs reset`.
+# sandbox/findings/*.md is curated and committed.
+sandbox/example-product/
+
 # Muninn-adapt session/metrics/installer (under cache — already covered by .harness/cache/ and runs/cache/)
 #   session/commit-approved.json
 #   metrics/current-carryover.json

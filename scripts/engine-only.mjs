@@ -1,7 +1,7 @@
 // engine-only.mjs — surfaces that belong in the midas-harness contributor tree
 // but must never ship in cli/template or harness/plugins/midas.
 
-export const ENGINE_ONLY_SKILLS = Object.freeze(['midas-precommit']);
+export const ENGINE_ONLY_SKILLS = Object.freeze(['midas-precommit', 'midas-sandbox']);
 
 /** Relative paths under `harness/` to strip from the install template engine tree. */
 export const HARNESS_ENGINE_ONLY_RELS = Object.freeze([

@@ -9,9 +9,49 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+## [2.10.0] — 2026-08-29
+
 ### Added
 
+- **`update` by release channel and content hash (ADR-016)** — CI publishes `edge.json` (every push
+  to `main`) and `stable.json` (every `v*` tag) to an orphan `releases` branch, each carrying a
+  `tree_sha256` over the bundle's vendor files. `npx … update --check` answers "is there anything
+  new?" for a few KB instead of a package download, exiting **0** current / **1** available /
+  **2** undetermined. Channel is recorded in `state.channel`; `edge` stays opt-in.
+- **`update` is a real subcommand**, with `--check`, `--channel`, `--offline`, and `--manifest-file`.
+  `--update` remains a silent alias.
+- **Manifest-driven reconciliation** — `planReconcile` diffs the installed manifest × the bundle ×
+  the disk, so files and whole directories dropped from the engine are finally removed from
+  installed projects. Replaces `pruneStaleVendorTree` and the hardcoded prune lists; `--dry-run` now
+  shows the real diff, deletions included.
+- **State migrations** — `harness/state-migrations/NNNN-slug.mjs`, applied by id (never by semver
+  range, which would never fire on `edge`) and recorded in `state.migrations`.
+- **Doctor `update:*` checks** and an `update-preflight` profile run before the update writes.
+- **Engine-only `/midas-sandbox`** (ADR-015) — dry-run unmodified skills against
+  `sandbox/example-product/` on `composer-2.5` before committing harness changes.
 - **ADR-014** — adapter CHECK digest on demand (supersedes ADR-005's inline-digest clause).
+
+### Changed
+
+- **Vendor conflicts are reported, never silently discarded.** `isStaleManifestDrift` and the silent
+  manifest re-baseline are gone. The bundle still wins, but your version is copied to
+  `.harness/conflicts/<timestamp>/` first — outside the gitignored `.harness/cache/`, which rollback
+  scrubs — and the next update refuses until you clear it.
+- `.harness/engine/skill-registry.md` is now role `generated`, not `vendor`: it is re-derived per
+  install, so including it in the content hash made every fresh install look out of date.
+- **`tree_sha256` covers engine + scripts only.** Optional `--autonomy` files stay vendor in the
+  ownership list but do not move the published hash, so an autonomy install is not permanently
+  "behind" the channel.
+- **Untracked files inside a vendor root are left in place** (reported in `--dry-run`, never
+  deleted). A vendor file the bundle dropped that you had edited is copied to `.harness/conflicts/`
+  before delete.
+- **`--check` never re-execs npx.** Exit 1 prints the apply command (`stable` pins `#vX.Y.Z`;
+  `edge` pins the published commit and `--channel=edge`).
+
+### Fixed
+
+- The CLI no longer exits via `process.exit()` after a network call, which aborted on a half-closed
+  libuv handle on Windows and returned a crash code instead of the real one.
 - **Organic routing parallelism** — single-writer, read fan-out, and launch dedup in
   `harness/rules/organic-routing.md` (Gentleman Ch.20).
 - **Phase 5 Scope Rule** — 1 consumer = local, 2+ = shared, plus screaming folder names; seed
@@ -1814,7 +1854,9 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.9.9...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.10.0...HEAD
+[2.10.0]: https://github.com/okuzpe/midas-harness/compare/v2.9.9...v2.10.0
+[2.9.9]: https://github.com/okuzpe/midas-harness/compare/v2.9.8...v2.9.9
 [2.9.7]: https://github.com/okuzpe/midas-harness/compare/v2.9.6...v2.9.7
 [2.9.6]: https://github.com/okuzpe/midas-harness/compare/v2.9.5...v2.9.6
 [2.9.5]: https://github.com/okuzpe/midas-harness/compare/v2.9.4...v2.9.5

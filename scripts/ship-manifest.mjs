@@ -34,6 +34,8 @@ export const SHIPPED_SCRIPTS = Object.freeze([
   'lib/recall-score.mjs',
   'lib/frontmatter.mjs',
   'lib/walk.mjs',
+  'lib/reconcile.mjs',
+  'lib/migrate-state.mjs',
   'lib/gate-evidence.mjs',
   'lib/context-digest.mjs',
   'lib/close-ready.mjs',

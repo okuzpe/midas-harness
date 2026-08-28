@@ -1,0 +1,35 @@
+midas_version: 2.9.9
+layout: harness
+paths:
+  root: .harness
+  engine: ../../harness
+  scripts: ../../scripts
+  state: .harness/state.yaml
+  product: .harness/product
+  rules: .harness/rules
+  runs: .harness/runs
+  cache: .harness/cache
+name: sandbox-example
+mode: greenfield
+language: en
+created: 2026-08-28
+updated: 2026-08-28
+setup_complete: true
+track: full
+entry_stage: idea_intake
+stage: idea_intake
+stage_status: not_started
+cost_profile: balanced
+routing_profile: claude
+routing:
+  orchestrate: claude-opus-4-8
+  build: claude-sonnet-4-6
+  scout: claude-haiku-4-5
+execution_mode: cloud
+tools: [cursor]
+mcp: []
+phases:
+  idea_intake:
+    status: not_started
+    gate: pending
+sprints: []

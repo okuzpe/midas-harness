@@ -20,7 +20,7 @@ import { parseSprints, parseSprintLastTouched, parsePhases, parseEnforcement, pa
 import { syncCursorMcp, wrapMcpServersForWindows } from './mcp-cursor-sync.mjs';
 import { auditGitignore, ensureMidasGitignore } from './gitignore-merge.mjs';
 import { resolvePaths, detectLayout, resolveProjectRootFromScript } from './paths.mjs';
-import { formatUpdateCmd } from './lib/install-cmd.mjs';
+import { formatUpdateCmd, formatUpdateCmdFromRelease } from './lib/install-cmd.mjs';
 import { computeStageCommandTableYaml, renderStageCommandTable } from './stage-command-table.mjs';
 import { computeDesignSystemCss, renderDesignSystemTokens } from './design-system.mjs';
 import {
@@ -53,9 +53,12 @@ Usage:
   node scripts/doctor.mjs --help    show this help
 
 Profiles (with --strict):
-  full            default for humans / midas-doctor — all deterministic warns block
-  install-verify  installer post-apply — layout/version/routing/manifest/mirrors/adapters/secrets;
-                  rules:combined and mcp:governance|cursor-sync|template-sync|declared-vs-wired stay warn-only`;
+  full             default for humans / midas-doctor — all deterministic warns block
+  install-verify   installer post-apply — layout/version/routing/manifest/mirrors/adapters/secrets;
+                   rules:combined and mcp:governance|cursor-sync|template-sync|declared-vs-wired stay warn-only
+  update-preflight before an update writes — only what makes the update itself unsafe
+                   (layout/manifest integrity and unresolved vendor conflicts); everything the
+                   update is about to fix stays warn-only`;
 
 const FIX = process.argv.includes('--fix');
 const STRICT = process.argv.includes('--strict');
@@ -65,10 +68,15 @@ const profileArg = process.argv.find((a) => a.startsWith('--profile='));
 const STRICT_PROFILE = (profileArg ? profileArg.slice('--profile='.length) : 'full').trim() || 'full';
 // Optional positional project root: check THAT project instead of the engine repo. Lets `--strict` run
 // against a real install (or scripts/fixtures/product-closed) so the gate-records check is provably exercised.
+// Adapter drift before an update is expected — re-rendering them is part of what the update does —
+// so the preflight profile reports drift without letting it block.
+const PREFLIGHT = STRICT_PROFILE === 'update-preflight';
+const SKIP_ADAPTER_DRIFT = GATES_ONLY || PREFLIGHT;
 const rootArg = process.argv.slice(2).find((a) => !a.startsWith('-') && !a.startsWith('--'));
 const ROOT = rootArg ? resolve(process.cwd(), rootArg) : resolveProjectRootFromScript(import.meta.url);
 const paths = resolvePaths(ROOT);
 const doctorCmd = `node ${paths.scripts}/doctor.mjs`;
+const updateCheckCmd = 'npx github:okuzpe/midas-harness update --check';
 
 if (SHOW_HELP) {
   console.log(HELP);
@@ -262,7 +270,7 @@ if (FIX) {
 
 // --- 1. adapter drift (authoritative; affects the exit code) -----------------------------------
 let drift = false;
-if (!GATES_ONLY) {
+if (!SKIP_ADAPTER_DRIFT) {
   console.log('midas doctor — adapters');
   for (const f of computeAdapters(ROOT).files) {
     const onDisk = read(f.path);
@@ -271,7 +279,7 @@ if (!GATES_ONLY) {
     else console.log(`  ok       ${f.path}`);
   }
 } else {
-  console.log('midas doctor — adapters (skipped: --gates-only)');
+  console.log(`midas doctor — adapters (skipped: ${GATES_ONLY ? '--gates-only' : 'profile=update-preflight'})`);
 }
 
 // --- 2. health checks (strict mode promotes deterministic warnings to a failing exit) -----------
@@ -406,6 +414,71 @@ if (paths.layout === 'harness') {
       'manifest:integrity',
       problems.length ? 'warn' : 'ok',
       problems.length ? problems.join(', ') : `${manifest.files.length} owned file(s) classified`,
+    );
+  }
+
+  // --- update readiness (read-only, network-free) ---
+  // `update:remote` compares the installed tree hash against the channel manifest the CLI last
+  // cached, so doctor can say "there is something new" without spawning npx or hitting the network.
+  const channel = manifest?.channel || 'stable';
+
+  if (!manifest) {
+    check('update:remote', 'skip', 'no manifest to compare');
+  } else if (!manifest.tree_sha256) {
+    check('update:remote', 'skip', 'manifest predates content hashing — the next update records it');
+  } else {
+    const cachePath = join(ROOT, '.harness', 'cache', 'update', `${channel}.json`);
+    let published = null;
+    if (existsSync(cachePath)) {
+      try {
+        published = JSON.parse(readFileSync(cachePath, 'utf8'));
+      } catch {
+        published = null;
+      }
+    }
+    if (!published?.tree_sha256) {
+      check('update:remote', 'skip', `no cached ${channel} manifest — run ${updateCheckCmd}`);
+    } else if (published.tree_sha256 === manifest.tree_sha256) {
+      check('update:remote', 'ok', `up to date with ${channel} (${manifest.tree_sha256.slice(0, 12)})`);
+    } else {
+      check(
+        'update:remote',
+        'warn',
+        `${channel} publishes ${published.tree_sha256.slice(0, 12)}, installed ${manifest.tree_sha256.slice(0, 12)} — run ${formatUpdateCmdFromRelease(published, { channel })}`,
+      );
+    }
+  }
+
+  const conflictsDir = join(ROOT, '.harness', 'conflicts');
+  const conflicts = existsSync(conflictsDir)
+    ? walkFiles(conflictsDir, { relativeTo: ROOT }).filter((rel) => rel.endsWith('.midas-conflict'))
+    : [];
+  check(
+    'update:conflicts',
+    conflicts.length ? 'warn' : 'ok',
+    conflicts.length
+      ? `${conflicts.length} unresolved vendor edit(s) saved by a past update — review and delete .harness/conflicts/`
+      : 'no saved vendor conflicts',
+  );
+
+  const migrationsDir = join(paths.engine, 'state-migrations');
+  const shipped = existsSync(join(ROOT, migrationsDir))
+    ? readdirSync(join(ROOT, migrationsDir)).filter((n) => n.endsWith('.mjs')).map((n) => n.replace(/\.mjs$/, '')).sort()
+    : [];
+  if (!shipped.length) {
+    check('update:migrations', 'ok', 'no state migrations shipped');
+  } else {
+    const appliedMatch = (read(paths.state) || '').match(/^migrations:\s*\[([^\]]*)\]/m);
+    const applied = new Set(
+      (appliedMatch ? appliedMatch[1].split(',') : [])
+        .map((part) => part.trim().replace(/^['"]|['"]$/g, ''))
+        .filter(Boolean),
+    );
+    const pending = shipped.filter((id) => !applied.has(id));
+    check(
+      'update:migrations',
+      pending.length ? 'warn' : 'ok',
+      pending.length ? `pending: ${pending.join(', ')} — run ${formatUpdateCmd({ version: null })}` : `${shipped.length} applied`,
     );
   }
 
@@ -1179,7 +1252,22 @@ const INSTALL_VERIFY_WARN_ONLY = new Set([
   'mcp:template-sync',
 ]);
 
+/**
+ * Blocking set before an update writes. Deliberately tiny: an update exists to fix drift, so
+ * blocking on drift would make the repair tool unusable exactly when it is needed. Vendor drift and
+ * a stale version are the update's job, not a reason to refuse it — `manifest:integrity` covers
+ * both and is therefore advisory here. A missing manifest is already a hard requirement upstream.
+ *
+ * What remains: a layout that is not the canonical one (reconcile would target the wrong tree), and
+ * conflicts from a previous update the user has not looked at yet (updating again would stack them).
+ */
+const UPDATE_PREFLIGHT_BLOCKING = new Set([
+  'layout:consistent',
+  'update:conflicts',
+]);
+
 function isStrictBlockingName(name) {
+  if (PREFLIGHT) return UPDATE_PREFLIGHT_BLOCKING.has(name);
   if (GATES_ONLY) return name.startsWith('gate:');
   const core =
     name === 'version' ||
@@ -1211,10 +1299,12 @@ function isStrictBlockingName(name) {
 
 const strictBlocking = health.filter((h) => h.status === 'warn' && isStrictBlockingName(h.name));
 if (STRICT && strictBlocking.length) {
-  const profileNote = STRICT_PROFILE === 'install-verify' ? ' (profile=install-verify)' : '';
+  const profileNote = STRICT_PROFILE === 'full' ? '' : ` (profile=${STRICT_PROFILE})`;
   console.log(`\nSTRICT${profileNote}: ${strictBlocking.length} deterministic health check(s) failed: ${strictBlocking.map((h) => h.name).join(', ')}`);
   process.exit(1);
 }
-const tail = GATES_ONLY ? 'Gate checks complete.' : 'Adapters in sync.';
+const tail = SKIP_ADAPTER_DRIFT
+  ? (GATES_ONLY ? 'Gate checks complete.' : 'Update preflight clear.')
+  : 'Adapters in sync.';
 console.log(`\n${tail}` + (health.some((h) => h.status === 'warn') ? ' (review health warnings above)' : ''));
 process.exit(0);

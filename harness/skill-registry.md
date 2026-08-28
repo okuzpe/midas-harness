@@ -45,6 +45,7 @@ Source: `harness/skills/*/SKILL.md`. v1 indexes engine skills only (no project/u
 | `midas-recall` | engine | yes | primary | `skills/midas-recall/SKILL.md` |
 | `midas-reconcile` | engine | yes | primary | `skills/midas-reconcile/SKILL.md` |
 | `midas-retro` | engine | yes | primary | `skills/midas-retro/SKILL.md` |
+| `midas-sandbox` | engine | orchestrator-only | primary | `skills/midas-sandbox/SKILL.md` |
 | `midas-security-audit` | engine | orchestrator-only | primary | `skills/midas-security-audit/SKILL.md` |
 | `midas-status` | engine | yes | primary | `skills/midas-status/SKILL.md` |
 | `midas-sweep` | engine | yes | internal | `skills/midas-sweep/SKILL.md` |

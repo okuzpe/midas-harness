@@ -53,6 +53,7 @@ export const ORCHESTRATOR_ONLY_ALLOWLIST = new Set([
   'midas-doctor',
   'midas-align',
   'midas-precommit',
+  'midas-sandbox',
   'midas-bundle',
   // High-stakes standing audits (orchestrate-owned)
   'midas-tribunal',

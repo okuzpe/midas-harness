@@ -17,6 +17,9 @@ file and leaving generated trees, version stamps, or docs stale is a **gap** —
 | Behaviour in product code | Tests per `testing.md`; docs per `docs.md`; `{product}/features.json` if tracked |
 | `harness/VERSION` (engine repo) | **Mandatory:** `npm run bump -- <X.Y.Z>` writes this file only; `scripts/sync-version.mjs` propagates all mirrors (`npm run build` runs sync first). Never hand-scatter version strings. Skills/docs use `#v{VERSION}` or read VERSION at runtime. `install.sh` / `install.ps1` read `harness/VERSION` at runtime. See `VERSIONING.md` § Release checklist. |
 | Installer (`cli/index.mjs`) | `scripts/test.mjs`; smoke both layouts if layout paths touched |
+| A file's **ownership role** (`roleForPath`) | `scripts/test.mjs` role assertions **and** the tree-hash parity guard — a per-install artifact marked `vendor` makes every fresh install report itself out of date |
+| Anything under `.harness/engine/` or `.harness/scripts/` in the bundle | Nothing by hand: CI republishes `edge.json` with a new `tree_sha256`, and installed projects reconcile on `update`. Removing a file is enough to delete it everywhere — do **not** add a prune list |
+| State shape (`state.yaml` keys, directory layout) | A migration in `harness/state-migrations/NNNN-slug.mjs` (applied by id, idempotent) + the key documented in `harness/state.schema.md`. Never a loose regex in the installer |
 | `.mcp.json` or skill `mcp-required` | `state.yaml → mcp:` list; `node <paths.scripts>/mcp-drift.mjs` / doctor `mcp:*` checks |
 | Sprint behaviour / acceptance criteria | Tests; `{runs}/verifications/` if UI; `{runs}/audits/` at `/close-sprint` |
 

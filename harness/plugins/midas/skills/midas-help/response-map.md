@@ -91,12 +91,12 @@
 - What: portable JSON of state, product docs, rules, playbooks, frozen evidence (no secrets).
 - Command: `/midas-bundle`
 - Happens: runs `<paths.scripts>/bundle.mjs` export or import; checksums; conflict preview.
-- NOT a git replacement. NOT engine-contributor PR bar → `/midas-precommit` (engine repo only; not a product menu item).
+- NOT a git replacement. NOT engine-contributor PR bar → `/midas-precommit` (engine repo only; not a product menu item). NOT skill dry-run lab → `/midas-sandbox` (engine repo only).
 - Next: `/midas-status` after import; `/midas-align` after engine-side edits.
 
 **Install confusion / adapter health**
 - What: read-only “which command?” or adapter/engine sync (not setup/update — that is `/midas-init`).
-- Command: `/midas-reconcile` · `/midas-doctor` · `/midas-align` (engine edits). Engine contributors: `/midas-precommit`.
+- Command: `/midas-reconcile` · `/midas-doctor` · `/midas-align` (engine edits). Engine contributors: `/midas-precommit`. Skill/rule dry-run: `/midas-sandbox` (engine only; not a product menu item).
 - Happens: prints next CLI/slash command or re-renders adapters.
 - NOT for first-time setup or version refresh → `/midas-init`.
 - Next: the command reconcile/doctor names.

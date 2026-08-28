@@ -4,6 +4,7 @@ import { existsSync, readdirSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { createPlan } from '../core/plan.mjs';
 import { decideTemplateCopyAction } from '../core/preserve-policy.mjs';
+import { planVendorReconcile } from '../runtime/copy-tree.mjs';
 
 /**
  * Walk template and emit write/skip ops without touching the target.
@@ -73,9 +74,57 @@ export function planTemplateCopy(opts) {
       kind: 'note',
       path: '.harness/engine|.harness/scripts',
       ownership: 'vendor',
-      reason: 'execute prunes vendor files removed from the bundle (not listed as file ops)',
+      reason: 'execute reconciles the vendor roots against the installed manifest',
       dependsOn: ['phase-copy'],
     });
+    // Removals and overwritten local edits are real, destructive operations — surface them as ops
+    // so `--dry-run` shows the full picture instead of a note.
+    let reconcile = null;
+    try {
+      reconcile = planVendorReconcile({ target, template });
+    } catch {
+      reconcile = null;
+    }
+    if (reconcile) {
+      let r = 0;
+      for (const entry of reconcile.delete) {
+        r += 1;
+        ops.push({
+          id: `vendor-remove-${String(r).padStart(4, '0')}`,
+          kind: 'remove',
+          path: entry.path,
+          ownership: 'vendor',
+          reason: entry.modified
+            ? `${entry.reason} — local edit saved to .harness/conflicts/ before delete`
+            : entry.reason,
+          dependsOn: ['phase-copy'],
+        });
+      }
+      let u = 0;
+      for (const entry of reconcile.untracked) {
+        u += 1;
+        ops.push({
+          id: `vendor-untracked-${String(u).padStart(4, '0')}`,
+          kind: 'note',
+          path: entry.path,
+          ownership: 'vendor',
+          reason: `${entry.reason} — left in place`,
+          dependsOn: ['phase-copy'],
+        });
+      }
+      let c = 0;
+      for (const entry of reconcile.modified) {
+        c += 1;
+        ops.push({
+          id: `vendor-conflict-${String(c).padStart(4, '0')}`,
+          kind: 'conflict',
+          path: entry.path,
+          ownership: 'vendor',
+          reason: `${entry.reason} — bundle wins; local copy saved to .harness/conflicts/`,
+          dependsOn: ['phase-copy'],
+        });
+      }
+    }
   }
   visit(template, target);
 

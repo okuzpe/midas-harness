@@ -13,7 +13,7 @@
 
 ## When NOT
 
-- No `.harness/autonomy/` → installer: `npx … --update --autonomy` (see `/midas-init`).
+- No `.harness/autonomy/` → installer: `npx … update --autonomy` (see `/midas-init`).
 - `stage` ≠ `sprint_execution` → finish phase gates or `/start-sprint` first.
 - Blocker `no_code_task` → open items are operator/manual. Activate a **code** sprint, **or** choose Continuous product evolve on `/midas-auto-pilot`.
 - User wants a raw chat-only loop without Midas caps → Cursor `/loop`; prefer Continuous evolve when product context should drive picks.

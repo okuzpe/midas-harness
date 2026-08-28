@@ -70,7 +70,7 @@ touching anything. On decline it prints the block for manual paste. Nothing is e
 Prefer a **pinned** update. Copy the exact `#v…` command from [INSTALL.md](../INSTALL.md)
 (matches `harness/VERSION` — do not invent the tag):
 ```bash
-npx github:okuzpe/midas-harness#v{VERSION} --update
+npx github:okuzpe/midas-harness#v{VERSION} update
 ```
 `--update` refreshes manifest-owned engine/generated files and keeps your product/rules/runs. It is
 **not** the same as install-time `--force`. On vendor edits outside overlays, same-version update

@@ -1,7 +1,7 @@
 // execute.mjs — install/update/migrate/uninstall execute leg + helpers (moved from index).
 // Phase ops carry apply/verify; runPlanOps walks them. File-level copy-* ops stay informational.
 
-import { readdirSync, readFileSync, existsSync, mkdirSync, rmSync } from 'node:fs';
+import { readdirSync, readFileSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createInterface } from 'node:readline';
@@ -49,14 +49,19 @@ import {
   sessionFromJournal,
   writeActiveRun,
 } from '../core/install-journal.mjs';
-import { assessUpdateConflicts } from '../core/conflicts.mjs';
 import { runPlanOps } from '../core/runner.mjs';
 import { bindExecutableOps } from '../steps/bind-applies.mjs';
 import { mergeTraceHooks } from '../steps/trace-hooks.mjs';
 import { mergeSafetyHooks } from '../steps/safety-hooks.mjs';
 import { mergeCarryoverHooks } from '../steps/carryover-hooks.mjs';
 import { mergeContextCostHooks } from '../steps/context-cost-hooks.mjs';
-import { copyTree as copyTreeMod, resetFreshVendorTrees, pruneStaleVendorTree as pruneStaleVendorTreeMod } from './copy-tree.mjs';
+import {
+  copyTree as copyTreeMod,
+  resetFreshVendorTrees,
+  planVendorReconcile as planVendorReconcileMod,
+  preserveVendorConflicts as preserveVendorConflictsMod,
+  applyVendorRemovals as applyVendorRemovalsMod,
+} from './copy-tree.mjs';
 import {
   installAutonomyCapability as installAutonomyCapabilityMod,
   ensureAutonomyStatePointers as ensureAutonomyStatePointersMod,
@@ -120,6 +125,16 @@ export function createExecuteHandler(env) {
   let updatedTo = null;
   /** @type {string | null} tmp backup retained by applyHarnessMigration until verify ok */
   let retainedMigrateBackup = null;
+  /** @type {{ dir: string|null, paths: string[] } | null} local vendor edits saved before overwrite */
+  let vendorConflictBackup = null;
+  /** @type {string[]} vendor paths removed by reconcile this run */
+  let vendorRemovals = [];
+  /** @type {string[]} vendor-root files in neither manifest — reported, not deleted */
+  let vendorUntracked = [];
+  /** @type {{ channel: string|null, commit: string|null, ref: string|null }} release provenance to record */
+  let channelMeta = { channel: null, commit: null, ref: null };
+  /** @type {string[]} state migration ids applied this run */
+  let migrationsApplied = [];
 
   function syncEffectiveFlags(cmd) {
     update = cmd.command === 'update';
@@ -141,6 +156,9 @@ export function createExecuteHandler(env) {
       template: TEMPLATE,
       name: NAME,
       installAutonomy,
+      // Only an explicit `--channel` changes what the project tracks; an update without the flag
+      // must leave a project that opted into `edge` on `edge`.
+      channel: parsedCmd.channel || null,
       skipped,
       readMaybe,
     };
@@ -225,22 +243,6 @@ async function executeInstallerCommand(cmd, hooks) {
       };
     }
 
-    // Rebaseline stale manifest hashes only after confirm (never during dry-run/checks).
-    if (cmd.command === 'update' && hooks.needsRebaseline && !cmd.dryRun) {
-      const assessment = assessUpdateConflicts(TARGET);
-      if (assessment.needsRebaseline && assessment.manifest) {
-        console.warn('create-midas: manifest hash drift — re-baselining before refresh');
-        writeOwnershipManifest(TARGET, assessment.manifest.midas_version || '0.0.0');
-        const again = assessUpdateConflicts(TARGET);
-        if (again.vendorConflicts.length || again.mirrorConflicts.length) {
-          const paths = [...again.vendorConflicts, ...again.mirrorConflicts];
-          throw new Error(
-            `vendor/mirror conflicts remain after rebaseline: ${paths.join(', ')}`,
-          );
-        }
-      }
-    }
-
     written = [];
     skipped = [];
     gitignoreResult = null;
@@ -249,6 +251,17 @@ async function executeInstallerCommand(cmd, hooks) {
     verifyResult = null;
     updatedTo = null;
     retainedMigrateBackup = null;
+    vendorConflictBackup = null;
+    vendorRemovals = [];
+    vendorUntracked = [];
+    migrationsApplied = [];
+    // The tree hash is always recomputed from disk; commit/ref are provenance claims, so record
+    // them only when the bundle actually matches what the channel published.
+    channelMeta = {
+      channel: hooks.channelStatus?.channel ?? parsedCmd.channel ?? 'stable',
+      commit: hooks.channelStatus?.integrity?.ok ? hooks.channelStatus.fetched.manifest.commit : null,
+      ref: hooks.channelStatus?.integrity?.ok ? hooks.channelStatus.fetched.manifest.ref : null,
+    };
 
     let migrationPlan = null;
     let migrationOuterRollback = null;
@@ -502,15 +515,25 @@ async function executeInstallerCommand(cmd, hooks) {
 
       async applyPhaseCopy() {
         mkdirSync(TARGET, { recursive: true });
+        if (update && !migrate) await runUpdatePreflight();
         resetFreshVendorTreesLocal();
+        // Reconcile is planned before the copy (it needs the pre-copy disk state) and its removals
+        // are applied after, so the bundle copy cannot resurrect a file the bundle dropped.
+        const reconcilePlan = update ? planVendorReconcile() : null;
+        if (reconcilePlan) {
+          const preserved = preserveVendorConflicts(reconcilePlan);
+          if (preserved.dir) {
+            vendorConflictBackup = preserved;
+            console.warn(
+              `create-midas: ${preserved.paths.length} locally-modified vendor file(s) saved to ${preserved.dir}`,
+            );
+          }
+        }
         copyTree(TEMPLATE, TARGET);
         maybeFail('after-copy-tree');
-        if (installAutonomy && !update && !migrate) {
-          // autonomy op may also run; for update/migrate autonomy is after or via install-refresh
-        }
-        if (update) {
-          pruneStaleVendorTree('.harness/engine', '.harness/engine');
-          pruneStaleVendorTree('.harness/scripts', '.harness/scripts');
+        if (reconcilePlan) {
+          vendorRemovals = applyVendorRemovals(reconcilePlan);
+          vendorUntracked = (reconcilePlan.untracked || []).map((entry) => entry.path);
           if (installAutonomy) pruneStaleAutonomyVendor();
         }
         maybeFail('after-layout');
@@ -541,6 +564,7 @@ async function executeInstallerCommand(cmd, hooks) {
         }
         session.activeTools = session.selectedTools || readToolsFromState(session.paths) || DEFAULT_TOOLS;
         await syncSkillMirrors(session.activeTools, session.paths, { merge: !update });
+        await runStateMigrations(session.paths);
       },
 
       async applyRenderAdapters() {
@@ -605,7 +629,7 @@ async function executeInstallerCommand(cmd, hooks) {
         // Always align preserved state.yaml with the engine we just laid down (re-install without --update).
         updatedTo = bumpVersionStamp(paths);
         const installedVersion = (readMaybe(join(TARGET, paths.version)) || '0.0.0').trim();
-        writeOwnershipManifest(TARGET, installedVersion);
+        writeOwnershipManifest(TARGET, installedVersion, channelMeta);
       },
 
       async applyVerifyDoctor() {
@@ -783,8 +807,50 @@ async function syncSkillMirrors(tools, paths, { merge = true } = {}) {
   await syncSkillMirrorsMod(skillCtx(), tools, paths, { merge });
 }
 
-function pruneStaleVendorTree(installedRel, templateRel) {
-  pruneStaleVendorTreeMod(copyCtx(), installedRel, templateRel);
+/**
+ * Apply state migrations shipped with the engine we just laid down.
+ *
+ * A fresh install has no legacy shape to migrate, so it records every shipped id as a baseline —
+ * otherwise the first update would replay years of historical migrations against a modern tree.
+ */
+async function runStateMigrations(paths) {
+  let mod;
+  try {
+    mod = await importTrustedScript('lib/migrate-state.mjs');
+  } catch {
+    return;
+  }
+  const opts = { engineDir: paths.engine, statePath: paths.state };
+  if (update || migrate) {
+    const result = await mod.applyStateMigrations(TARGET, opts);
+    migrationsApplied = result.applied;
+    if (result.applied.length) {
+      written.push(...result.applied.map((id) => `migration:${id}`));
+    }
+    return;
+  }
+  const statePath = join(TARGET, paths.state);
+  if (!existsSync(statePath)) return;
+  const shipped = await mod.loadMigrations(join(TARGET, paths.engine));
+  if (!shipped.length) return;
+  const yaml = readFileSync(statePath, 'utf8');
+  const known = mod.parseAppliedMigrations(yaml);
+  const ids = [...new Set([...known, ...shipped.map((m) => m.id)])].sort();
+  if (ids.length !== known.length) {
+    writeFileSync(statePath, mod.writeAppliedMigrations(yaml, ids), 'utf8');
+  }
+}
+
+function planVendorReconcile() {
+  return planVendorReconcileMod(copyCtx());
+}
+
+function preserveVendorConflicts(plan) {
+  return preserveVendorConflictsMod(copyCtx(), plan);
+}
+
+function applyVendorRemovals(plan) {
+  return applyVendorRemovalsMod(copyCtx(), plan);
 }
 
 function installAutonomyCapability() {
@@ -884,15 +950,56 @@ async function ensureGitignore(paths) {
 }
 
 /** Run midas-doctor on the target project; auto --fix once on adapter drift, then re-check. */
-function runDoctor(target, paths, fix = false) {
+function runDoctor(target, paths, fix = false, profile = 'install-verify') {
   const doctorScript = join(target, paths.scripts, 'doctor.mjs');
   if (!existsSync(doctorScript)) return { ok: false, missing: true, out: '' };
   const args = fix
     ? [doctorScript, '--fix']
-    : [doctorScript, '--strict', '--profile=install-verify'];
+    : [doctorScript, '--strict', `--profile=${profile}`];
   const r = spawnSync(process.execPath, args, { cwd: target, encoding: 'utf8' });
   const out = `${r.stdout || ''}${r.stderr || ''}`;
   return { ok: r.status === 0, missing: false, out };
+}
+
+/**
+ * Pre-apply gate for update. Runs the **bundled** doctor (not the installed one — an older install
+ * would not know this profile and would apply full strictness, blocking the very update meant to
+ * fix it) with the narrow `update-preflight` set: only states that make the update itself unsafe
+ * stop it, never the drift the update is about to repair.
+ */
+async function runUpdatePreflight() {
+  const paths = await loadPaths(TARGET);
+  let doctorScript;
+  try {
+    doctorScript = trustedScriptPath('doctor.mjs');
+  } catch {
+    return;
+  }
+  const r = spawnSync(
+    process.execPath,
+    [doctorScript, '--strict', '--profile=update-preflight', TARGET],
+    { cwd: TARGET, encoding: 'utf8' },
+  );
+  if (r.status === 0) return;
+  const out = `${r.stdout || ''}${r.stderr || ''}`;
+  const reason = ((out.match(/^STRICT.*$/m) || [])[0] || 'update preflight failed').trim();
+  // The STRICT line names the checks; their own doctor lines carry the fix. Quote those, so the
+  // user is told what to do here instead of being sent to run another command to find out.
+  const failing = (reason.split(/failed:\s*/).pop() || '')
+    .split(/,\s*/)
+    .map((name) => name.trim())
+    .filter(Boolean);
+  const details = failing
+    .map((name) => (out.match(new RegExp(`^.*\\b${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b.*$`, 'm')) || [])[0])
+    .filter((line) => line && !line.startsWith('STRICT'))
+    .map((line) => `  ${line.trim()}`);
+  throw new Error(
+    [
+      reason,
+      ...details,
+      `  fix the above, then run the update again (details: \`node ${paths.scripts}/doctor.mjs\`)`,
+    ].join('\n'),
+  );
 }
 
 function verifyInstall(paths) {
@@ -951,6 +1058,19 @@ async function report(tools, paths) {
   if (update || migrate) {
     console.log(`\n  ✨ Midas ${migrate ? 'migrated' : 'updated'} in ${TARGET}${updatedTo ? ` → v${updatedTo}` : ''}`);
     console.log(`     ${written.length} managed file(s) refreshed; ${paths.product}/, ${paths.rules}/, ${paths.runs}/, ${paths.state}, and .mcp.json are preserved.`);
+    if (vendorRemovals.length) {
+      console.log(`     ${vendorRemovals.length} file(s) dropped from the engine were removed.`);
+    }
+    if (vendorUntracked.length) {
+      console.log(`     ${vendorUntracked.length} untracked file(s) inside vendor roots were left in place.`);
+    }
+    if (vendorConflictBackup?.dir) {
+      console.log(`     ${vendorConflictBackup.paths.length} vendor file(s) you had edited were saved to ${vendorConflictBackup.dir}`);
+      console.log('     Vendor files are engine-owned; move project changes to your rules overlay.');
+    }
+    if (migrationsApplied.length) {
+      console.log(`     state migrations applied: ${migrationsApplied.join(', ')}`);
+    }
     if (rendered) console.log(`     adapters re-rendered (per tools: in ${paths.state}).`);
     reportGitignoreLine();
     if (verifyResult?.ok) {

@@ -1,8 +1,16 @@
-// copy-tree.mjs — template → target copy + vendor prune for install/update.
+// copy-tree.mjs — template → target copy + manifest-driven vendor reconciliation for install/update.
 
-import { readdirSync, existsSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
+import { readdirSync, existsSync, mkdirSync, copyFileSync, rmSync, rmdirSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { decideTemplateCopyAction } from '../core/preserve-policy.mjs';
+import { readOwnershipManifest } from '../../template/.harness/scripts/ownership-manifest.mjs';
+import {
+  RECONCILE_ROOTS,
+  planReconcile,
+  reconcilePreservedEdits,
+  reconcileRemovals,
+  scanVendorTree,
+} from '../../template/.harness/scripts/lib/reconcile.mjs';
 
 /**
  * @typedef {{
@@ -56,22 +64,95 @@ export function copyTree(srcDir, dstDir, ctx) {
   }
 }
 
-/** Remove vendor files dropped from the bundled engine since the last install. */
-export function pruneStaleVendorTree(ctx, installedRel, templateRel) {
-  const installed = join(ctx.target, installedRel);
-  const template = join(ctx.template, templateRel);
-  if (!existsSync(installed) || !existsSync(template)) return;
-  for (const entry of readdirSync(installed, { withFileTypes: true })) {
-    const childInstalled = join(installed, entry.name);
-    const childTemplate = join(template, entry.name);
-    const rel = join(installedRel, entry.name).replace(/\\/g, '/');
-    if (!existsSync(childTemplate)) {
-      rmSync(childInstalled, { recursive: true, force: true });
-      ctx.written.push(`removed:${rel}`);
-      continue;
-    }
-    if (entry.isDirectory()) {
-      pruneStaleVendorTree(ctx, rel, join(templateRel, entry.name).replace(/\\/g, '/'));
-    }
+/** Where a vendor file you edited is preserved when the bundle overwrites it. */
+export const VENDOR_CONFLICTS_DIR = '.harness/conflicts';
+
+/**
+ * Diff installed manifest × bundle × disk for the vendor roots.
+ * Read-only: safe to call during a dry run.
+ * @returns {ReturnType<typeof planReconcile> | null} null when there is no baseline to diff against
+ */
+export function planVendorReconcile(ctx) {
+  const oldManifest = readOwnershipManifest(ctx.target);
+  return planReconcile({
+    oldManifest,
+    newVendorFiles: scanVendorTree(ctx.template),
+    diskScan: scanVendorTree(ctx.target),
+  });
+}
+
+/**
+ * Copy locally-edited vendor files aside before the bundle overwrites or deletes them.
+ *
+ * Covers two cases: still-shipped files that will be overwritten, and files the bundle dropped
+ * whose disk bytes no longer match the last install. Untracked files are not copied and not
+ * deleted — they were never in a manifest, so they stay put.
+ *
+ * Vendor is vendor: the bundle wins. The edit lands in `.harness/conflicts/`, and `doctor` reports
+ * it until the user clears it. Deliberately *not* under `.harness/cache/`: that tree is gitignored
+ * and scrubbed on rollback.
+ *
+ * @returns {{ dir: string|null, paths: string[] }}
+ */
+export function preserveVendorConflicts(ctx, plan) {
+  const toSave = reconcilePreservedEdits(plan);
+  if (!toSave.length) return { dir: null, paths: [] };
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const dirRel = `${VENDOR_CONFLICTS_DIR}/${stamp}`;
+  const paths = [];
+  for (const entry of toSave) {
+    const src = join(ctx.target, entry.path);
+    if (!existsSync(src)) continue;
+    const dst = join(ctx.target, dirRel, `${entry.path}.midas-conflict`);
+    mkdirSync(dirname(dst), { recursive: true });
+    copyFileSync(src, dst);
+    paths.push(entry.path);
   }
+  return { dir: paths.length ? dirRel : null, paths };
+}
+
+/** Remove empty directories under the vendor roots, leaving the roots themselves in place. */
+function pruneEmptyVendorDirs(ctx, roots = RECONCILE_ROOTS) {
+  const visit = (rel) => {
+    const abs = join(ctx.target, rel);
+    if (!existsSync(abs)) return true;
+    let entries;
+    try {
+      entries = readdirSync(abs, { withFileTypes: true });
+    } catch {
+      return false;
+    }
+    let empty = true;
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        if (!visit(`${rel}/${entry.name}`)) empty = false;
+      } else {
+        empty = false;
+      }
+    }
+    if (empty && !roots.includes(rel)) {
+      try {
+        rmdirSync(abs);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+    return empty;
+  };
+  for (const root of roots) visit(root);
+}
+
+/**
+ * Delete vendor files the bundle dropped (already copied aside when they had local edits).
+ * Untracked files inside a vendor root are left in place — they were never in a manifest.
+ */
+export function applyVendorRemovals(ctx, plan) {
+  const removals = reconcileRemovals(plan);
+  for (const rel of removals) {
+    rmSync(join(ctx.target, rel), { force: true });
+    ctx.written.push(`removed:${rel}`);
+  }
+  if (removals.length) pruneEmptyVendorDirs(ctx);
+  return removals;
 }

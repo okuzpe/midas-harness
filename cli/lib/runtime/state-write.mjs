@@ -167,6 +167,7 @@ export function writeState(ctx, tools, paths, routingProfile) {
     `created: ${today}`,
     `updated: ${today}`,
     'setup_complete: false        # /midas-init sets this true; until then it is the next step',
+    `channel: ${ctx.channel || 'stable'}        # release channel \`update\` follows (stable | edge)`,
     '',
     `stage: ${stage}`,
     'stage_status: not_started',
@@ -229,6 +230,11 @@ export function bumpVersionStamp(ctx, paths) {
   let next = cur.replace(/^midas_version:\s*[^\s#]+/m, `midas_version: ${version}`);
   if (/^updated:/m.test(next)) {
     next = next.replace(/^updated:\s*[^\s#]+/m, `updated: ${today}`);
+  }
+  // An explicit `--channel` on this run becomes the channel the project tracks from now on;
+  // without it, whatever the state already records stands.
+  if (ctx.channel && /^channel:\s*[^\s#]+/m.test(next)) {
+    next = next.replace(/^channel:\s*[^\s#]+/m, `channel: ${ctx.channel}`);
   }
   if (next !== cur) writeFileSync(f, next, 'utf8');
   return version;

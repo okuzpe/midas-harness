@@ -76,14 +76,17 @@ const execute = createExecuteHandler({
   jsonOut: parsedCmd.json,
 });
 
-process.exit(await runInstaller(parsedCmd, {
+// Set the status and let the loop drain rather than calling process.exit(): once `update` can make
+// a network call, a forcible exit aborts on a half-closed libuv handle (Windows: "Assertion failed:
+// !(handle->flags & UV_HANDLE_CLOSING)") and the shell sees a crash code instead of ours.
+process.exitCode = await runInstaller(parsedCmd, {
   template: TEMPLATE,
   bundledVersion: readBundledVersion(),
   installCmd,
   planMigration: (dir) => planHarnessMigration(dir),
   formatMigrationPlan,
   execute,
-}));
+});
 
 function printHelp() {
   const pin = `v${readBundledVersion()}`;
@@ -95,9 +98,16 @@ Install:
   npx github:okuzpe/midas-harness#${pin} --tools=cursor
   npx github:okuzpe/midas-harness --layout=harness   explicit no-op; v2 has one layout
 
-Refresh (one command — v2 refresh, or auto-migrate 1.x then refresh):
-  npx github:okuzpe/midas-harness#${pin} --update --yes
-  npx github:okuzpe/midas-harness --update --yes       unpinned main (bleeding)
+Update (one command — v2 refresh, or auto-migrate 1.x then refresh):
+  npx github:okuzpe/midas-harness#${pin} update --yes
+  npx github:okuzpe/midas-harness update --check       is there anything new? (no writes; exit 1 if yes)
+  npx github:okuzpe/midas-harness update --dry-run     list every write, removal and conflict first
+  npx github:okuzpe/midas-harness update --yes         unpinned main (bleeding)
+
+  update reconciles the whole engine tree against .harness/manifest.json: new files are written,
+  dropped files and directories are removed, and vendor files you edited are overwritten with your
+  version saved to .harness/conflicts/. Your product, rules, runs and state are never touched.
+  The --update flag remains a silent alias for the update subcommand.
 
 Optional explicit migrate (preview / apply):
   npx github:okuzpe/midas-harness#${pin} --migrate          preview only; writes nothing
@@ -116,7 +126,12 @@ Options:
   --force      (install) overwrite files that already exist
   --migrate    preview a v1 → v2 migration without writing
   --apply      apply the migration plan; valid with --migrate
-  --update     refresh to this package; auto-migrates 1.x then refreshes
+  --update     alias for the update subcommand
+  --check      (update) compare hashes vs the channel and exit — 0 current, 1 available, 2 undetermined.
+               never downloads; prints the npx command to apply
+  --channel    stable (default) or edge — edge tracks every push to main
+  --offline    (update) skip the network; use the cached channel manifest
+  --manifest-file  (update) read a release manifest from disk instead of the network
   --uninstall  remove Midas instead of installing it
   --dry-run    plan only (install/update/migrate/uninstall) — write nothing
   --json       machine-readable diagnose / plan / result on stdout

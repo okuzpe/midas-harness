@@ -63,6 +63,7 @@ export function alwaysPreservePath(rel, update) {
     n.startsWith('.harness/rules/') ||
     n.startsWith('.harness/runs/') ||
     n.startsWith('.harness/cache/') ||
+    n.startsWith('.harness/conflicts/') ||
     n.startsWith('.harness/migrations/') ||
     n === '.harness/autonomy/policy.yaml' ||
     n.startsWith('.harness/autonomy/authz/') ||

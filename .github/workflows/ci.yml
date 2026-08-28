@@ -2,6 +2,8 @@ name: CI
 
 on:
   push:
+    # The release-manifest job pushes to `releases`; ignoring it here keeps CI from re-triggering itself.
+    branches-ignore: [releases]
   pull_request:
 
 permissions:
@@ -92,14 +94,70 @@ jobs:
       - name: Update smoke test (preserves cursor-only tools)
         run: |
           node cli/index.mjs --tools=cursor /tmp/midas-update-smoke
-          node cli/index.mjs --update /tmp/midas-update-smoke
+          node cli/index.mjs update /tmp/midas-update-smoke
           grep -q 'tools: \[cursor\]' /tmp/midas-update-smoke/.harness/state.yaml
           test -d /tmp/midas-update-smoke/.cursor/skills
           test ! -e /tmp/midas-update-smoke/.claude
           node /tmp/midas-update-smoke/.harness/scripts/doctor.mjs --strict
 
+      - name: Update reconciliation smoke test (channel check + prune + conflict)
+        run: |
+          node scripts/release-manifest.mjs --channel=stable --commit="$GITHUB_SHA" -o=/tmp/midas-release.json
+          # Nothing new: the installed tree hashes to exactly what we just published.
+          node cli/index.mjs update --check --manifest-file=/tmp/midas-release.json /tmp/midas-update-smoke
+          # A file the bundle no longer ships must be deleted, an edited vendor file saved aside,
+          # and user-owned rules left alone.
+          echo '# dropped by a later bundle' > /tmp/midas-update-smoke/.harness/engine/dropped.md
+          echo '# local rule' > /tmp/midas-update-smoke/.harness/rules/mine.md
+          echo 'local vendor edit' >> /tmp/midas-update-smoke/.harness/engine/conventions.md
+          echo 'untracked note' > /tmp/midas-update-smoke/.harness/engine/stray.md
+          node -e '
+            const fs = require("fs"), crypto = require("crypto");
+            const root = "/tmp/midas-update-smoke";
+            const p = root + "/.harness/manifest.json";
+            const m = JSON.parse(fs.readFileSync(p, "utf8"));
+            const rel = ".harness/engine/dropped.md";
+            const sha = crypto.createHash("sha256").update(fs.readFileSync(root + "/" + rel)).digest("hex");
+            m.files.push({ path: rel, role: "vendor", sha256: sha, size: 1 });
+            fs.writeFileSync(p, JSON.stringify(m, null, 2));
+          '
+          echo 'I edited this before it was dropped' >> /tmp/midas-update-smoke/.harness/engine/dropped.md
+          node cli/index.mjs update --yes /tmp/midas-update-smoke
+          test ! -e /tmp/midas-update-smoke/.harness/engine/dropped.md
+          test -f /tmp/midas-update-smoke/.harness/engine/stray.md
+          test -f /tmp/midas-update-smoke/.harness/rules/mine.md
+          grep -q 'local vendor edit' /tmp/midas-update-smoke/.harness/rules/mine.md && exit 1 || true
+          ! grep -q 'local vendor edit' /tmp/midas-update-smoke/.harness/engine/conventions.md
+          find /tmp/midas-update-smoke/.harness/conflicts -name '*.midas-conflict' | grep -q conventions
+          find /tmp/midas-update-smoke/.harness/conflicts -name 'dropped.md.midas-conflict' | grep -q dropped
+          rm -rf /tmp/midas-update-smoke/.harness/conflicts
+          node /tmp/midas-update-smoke/.harness/scripts/doctor.mjs --strict
+
       - name: npm pack dry-run
         run: npm pack --dry-run 2>&1 | grep -q cli
+
+  release-manifest:
+    # Publish the content hash of this build so installed projects can discover it with
+    # `midas update --check` without downloading the bundle (ADR-016).
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'okuzpe/midas-harness'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: release-manifest-edge
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "24"
+
+      - name: Publish edge channel manifest
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        run: node scripts/publish-release-manifest.mjs --channel=edge --commit="$GITHUB_SHA"
 
   host-smoke:
     runs-on: ${{ matrix.os }}

@@ -11,7 +11,7 @@ When delegating, match against this table and pass a **subset** of exact `Path` 
 
 Resolve each Path as `<paths.engine>/<Path>` (e.g. `harness/skills/…` in the engine repo, `.harness/engine/skills/…` in installs).
 
-Source: `harness/skills/*/SKILL.md`. v1 indexes engine skills only (no project/user overlays).
+Source: `.harness/engine/skills/*/SKILL.md`. v1 indexes engine skills only (no project/user overlays).
 
 | Skill | Scope | Delegator | Surface | Path |
 | --- | --- | --- | --- | --- |
@@ -39,7 +39,6 @@ Source: `harness/skills/*/SKILL.md`. v1 indexes engine skills only (no project/u
 | `midas-init` | engine | orchestrator-only | primary | `skills/midas-init/SKILL.md` |
 | `midas-investigate` | engine | yes | primary | `skills/midas-investigate/SKILL.md` |
 | `midas-lean-review` | engine | yes | internal | `skills/midas-lean-review/SKILL.md` |
-| `midas-precommit` | engine | orchestrator-only | primary | `skills/midas-precommit/SKILL.md` |
 | `midas-progress` | engine | yes | internal | `skills/midas-progress/SKILL.md` |
 | `midas-qa` | engine | yes | internal | `skills/midas-qa/SKILL.md` |
 | `midas-recall` | engine | yes | primary | `skills/midas-recall/SKILL.md` |

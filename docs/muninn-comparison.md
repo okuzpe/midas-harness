@@ -423,9 +423,9 @@ Referencia rápida para la comparación (detalle completo en
 
 - **9 fases auditadas** (`harness/pipeline/0-idea-intake.md` … `8-audit-adjust.md`), máquina de
   estados en `harness/state.yaml` (`phases.*.status/gate`, `stage`, `stage_status`).
-- **38 skills** en `harness/skills/*/SKILL.md` — **29 primary** + **5 internal** + **4 deprecated**
+- **39 skills** en `harness/skills/*/SKILL.md` — **30 primary** + **5 internal** + **4 deprecated**
   (counts from `harness/skill-registry.md`). Installs omit internal/deprecated host mirrors (ADR-013).
-  **1 engine-only** among primary: `/midas-precommit`.
+  **2 engine-only** among primary: `/midas-precommit`, `/midas-sandbox`.
 - **3 agentes-tier**: `midas-orchestrator` (Opus), `midas-builder` (Sonnet), `midas-scout` (Haiku) — `harness/agents/*.md`.
 - **24 reglas *always-on*** en `harness/rules/*.md`, cada ítem con contrato `**CHECK:**` (`kind:
   command|manual`, `severity`), digest generado a `harness/checks.json` e inyectado en los adapters.

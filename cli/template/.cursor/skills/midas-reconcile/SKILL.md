@@ -17,7 +17,7 @@ metadata:
 > **Read-only.** Never installs, never updates, never advances `stage`. Prints the **one** next step from the diagnose CLI — do not re-implement detection in the model.
 
 Use when:
-- `npx ... --update` failed with "no existing Midas install"
+- `npx ... update` failed with "no existing Midas install"
 - You are not sure whether to run `/midas-init` or `/midas-adopt`
 - You might be in a subfolder instead of the project root
 
@@ -54,9 +54,9 @@ Do not invent a different command unless the script is missing (fallback below).
 | Observation | Next step |
 |-------------|-------------|
 | No `.harness/engine/VERSION`, `harness/VERSION`, or `.midas/engine/VERSION` | `npx github:okuzpe/midas-harness#v{VERSION} --tools=cursor` then `/midas-init` |
-| `harness/VERSION` or `.midas/engine/VERSION` exists but canonical engine does not | `npx …#v{VERSION} --update --yes` (auto-migrates 1.x) |
+| `harness/VERSION` or `.midas/engine/VERSION` exists but canonical engine does not | `npx …#v{VERSION} update --yes` (auto-migrates 1.x) |
 | Engine present, `setup_complete: false` | `/midas-init` |
-| v2 `midas_version` ≠ engine `VERSION` | Same: `npx …#v{VERSION} --update --yes` (or `/midas-init` for the tip) |
+| v2 `midas_version` ≠ engine `VERSION` | Same: `npx …#v{VERSION} update --yes` (or `/midas-init` for the tip) |
 | Parent dir has Midas, this folder does not | `cd` to parent; `/midas-status` |
 | Otherwise | `/midas-status` |
 

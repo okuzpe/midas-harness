@@ -109,7 +109,7 @@ Skills must name produce/fetch legs in `## Tier & delegation` — `harness-tier`
   may still type the internal slash. Primary side-effect examples: `/midas-init`, `/define-conventions`,
   `/start-sprint`, `/close-sprint`, `/midas-doctor`, `/midas-adopt`, `/midas-hygiene`, `/midas-verify`,
   `/midas-design`, `/midas-init --monorepo`, `/midas-tribunal`, `/midas-security-audit`, `/midas-capture`,
-  `/midas-align`, `/midas-precommit`, `/midas-bundle`, `/midas-explore`, `/midas-auto-pilot`,
+  `/midas-align`, `/midas-precommit`, `/midas-sandbox`, `/midas-bundle`, `/midas-explore`, `/midas-auto-pilot`,
   `/midas-retro`, `/midas-investigate`. Deprecated aliases (`/midas-improve-loop`, `/midas-autopilot`,
   `/midas-auto-sprints`, `/midas-update`) forward to their primary — do not list in `/midas-help`.
 - **State ritual (shared):** skills read **`paths.state` first** and **write last** (read-modify-write). They

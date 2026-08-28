@@ -77,7 +77,7 @@ midas_version: 2.0.0   # engine version that wrote or last migrated this file
 
 ## Migration: CLI `--update` and `--migrate`
 
-- **Already on v2 (`.harness/`)** — `npx github:okuzpe/midas-harness#v{VERSION} --update`
+- **Already on v2 (`.harness/`)** — `npx github:okuzpe/midas-harness#v{VERSION} update`
   (pin from `harness/VERSION`; optional `--tools=…` to prune hosts) **or** `/midas-init` when
   diagnose reports `version_behind` / `legacy_layout` (tips the same CLI — pick one, not both).
   Deprecated `/midas-update` forwards to `/midas-init`. CLI update is complete when it prints

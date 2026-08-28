@@ -184,6 +184,7 @@ Except for intake/adoption placement, they do not advance lifecycle gates.
 | `/midas-doctor` | Any installation | Check layout, routing, enforcement, gates, and adapter drift | Health report; optional regenerated managed files | Stage unchanged |
 | `/midas-align` | Substantive engine/product change | Map diff to propagation surfaces, run the alignment ladder | Alignment or gap report; regenerated mirrors as needed | Stage unchanged |
 | `/midas-precommit` | Engine-repo contributor PR (not a product menu item) | Score architecture, security, tests, DX against the engine bar | Precommit report | Engine-only; installs do not list it in `/midas-help` |
+| `/midas-sandbox` | Engine-repo skill/rule dry-run (not a product menu item) | Run real skills against `sandbox/example-product/` on `composer-2.5` | `sandbox/findings/*.md` + `MIDAS_SANDBOX_RESULT` | Engine-only; isolation via `sandbox-run.mjs`; findings are proposals |
 | `/midas-bundle` | Portable knowledge needed | Select profile, export/import, verify checksums, preview conflicts | Knowledge JSON or confirmed imported files | Stage unchanged by default |
 | `/midas-tribunal` | A decision needs adversarial challenge | Argue opposing cases across evidence; independent judge rules | `debate-NN.md` | Informational; bridge actions back to work |
 | `/midas-security-audit` | Code and architecture available | Threat-model, scan, rank, and route security findings | `security-NN.md` | Sets optional pointer; never passes a gate |

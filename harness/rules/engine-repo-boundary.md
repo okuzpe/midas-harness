@@ -19,6 +19,7 @@ against the engine repository root. Never create `.harness/engine/`, `.harness/s
 | `docs/product/` | Stub README — **not** a product lifecycle tree | Yes (path token only) |
 | `runs/cache/` | Contributor Trace cache (`paths.cache`) | Yes — gitignored |
 | `runs/` (other) | Optional tooling output (adapters hash, etc.) | Not lifecycle evidence |
+| `sandbox/example-product/.harness/` | Nested skill-testing fixture (ADR-015) — same allowed pattern as `scripts/fixtures/*` | Yes — nested, not at repo root |
 | `.harness/engine/` | Product install vendor tree | **Forbidden** at repo root |
 | `.harness/state.yaml` | Product install state | **Forbidden** at repo root |
 
@@ -27,7 +28,9 @@ Installed products use **`.harness/runs/`** for lifecycle evidence (ADR-007). Th
 from `paths.runs` in each project's state file.
 
 This repository **authors** Midas; it does **not** run Phase 0–8 on itself. Lifecycle CI fixture:
-`scripts/fixtures/product-closed/`.
+`scripts/fixtures/product-closed/`. Live skill-testing fixture (contributor tool, not CI):
+`sandbox/example-product/` (ADR-015) — a real `.harness/` **nested** two levels deep, never at this
+repo's root, following the same exception already granted to `scripts/fixtures/*`.
 
 For install/migration tests use a **temp directory** or `scripts/fixtures/*` — never the engine root.
 
@@ -45,6 +48,10 @@ For install/migration tests use a **temp directory** or `scripts/fixtures/*` —
 
 ## Amendment
 
+- **2026-08-28** — Added `sandbox/example-product/.harness/` as an allowed nested fixture
+  (ADR-015): mirrors the `scripts/fixtures/*` exception. Unlike other fixtures it deliberately
+  overrides `paths.engine` / `paths.scripts` to point back at this repo's real `harness/` /
+  `scripts/` (sandbox-only pattern — a real product install must never do this).
 - **2026-08-08** — Engine dogfood evidence at root `runs/` + `runs/cache/` (`paths.runs` /
   `paths.cache`); installer folder `cli/` (npm name still `create-midas`). Product installs keep
   `.harness/runs/` (ADR-007).

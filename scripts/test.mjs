@@ -61,8 +61,11 @@ import {
   computeOwnershipManifest,
   writeOwnershipManifest,
   readOwnershipManifest,
+  treeSha256,
+  sha256File,
   MANIFEST_SCHEMA_VERSION,
 } from './ownership-manifest.mjs';
+import { scanVendorTree } from './lib/reconcile.mjs';
 import {
   applyStrictWarns,
   collectReports,
@@ -73,7 +76,8 @@ import {
   stepsMarkdownLinkCount,
   summarizeReports,
 } from './skill-quality-check.mjs';
-import { HARNESS_ENGINE_ONLY_RELS } from './engine-only.mjs';
+import { ENGINE_ONLY_SKILLS, HARNESS_ENGINE_ONLY_RELS } from './engine-only.mjs';
+import { resetSandbox, inspectSandboxEnv } from './sandbox-run.mjs';
 import { splitSkillDocument } from './lib/frontmatter.mjs';
 import { walkFiles } from './lib/walk.mjs';
 import { missingEvidenceRequired, resolveEvidencePattern } from './lib/gate-evidence.mjs';
@@ -316,10 +320,12 @@ const pluginSkills = join(ROOT, 'harness', 'plugins', 'midas', 'skills');
 const pluginAgents = join(ROOT, 'harness', 'plugins', 'midas', 'agents');
 if (existsSync(join(ROOT, 'harness', 'plugins', 'midas'))) {
   const shippedSkills = dirNames(skillsDir).filter(
-    (n) => n !== 'midas-precommit' && !isHostMirrorExcluded(n),
+    (n) => !ENGINE_ONLY_SKILLS.includes(n) && !isHostMirrorExcluded(n),
   );
   check('plugin:skills-match', JSON.stringify(dirNames(pluginSkills)) === JSON.stringify(shippedSkills), 're-run build-plugin.mjs');
-  check('plugin:excludes-midas-precommit', !existsSync(join(pluginSkills, 'midas-precommit')));
+  for (const name of ENGINE_ONLY_SKILLS) {
+    check(`plugin:excludes-${name}`, !existsSync(join(pluginSkills, name)));
+  }
   check(
     'plugin:excludes-host-picker-internal',
     [...INTERNAL_SURFACE_ALLOWLIST].every((n) => !existsSync(join(pluginSkills, n))),
@@ -374,7 +380,7 @@ if (existsSync(tplRoot)) {
   check(
     'create-template:skills-match',
     JSON.stringify(dirNames(join(tplRoot, '.claude', 'skills'))) ===
-      JSON.stringify(dirNames(skillsDir).filter((n) => n !== 'midas-precommit' && !isHostMirrorExcluded(n))),
+      JSON.stringify(dirNames(skillsDir).filter((n) => !ENGINE_ONLY_SKILLS.includes(n) && !isHostMirrorExcluded(n))),
     're-run build-create.mjs',
   );
   for (const f of ['AGENTS.md', '.mcp.json', '.harness/engine/methodology.md', '.harness/engine/conventions.md', '.harness/engine/gates.json', '.harness/engine/checks.json', '.harness/engine/skill-registry.md', '.harness/engine/stage-command-table.yaml', '.harness/scripts/render-adapters.mjs', '.harness/scripts/yaml-lite.mjs', '.harness/scripts/mcp-drift.mjs', '.harness/scripts/mcp-cursor-sync.mjs', '.harness/scripts/tool-profiles.mjs', '.harness/scripts/model-profiles.mjs', '.harness/scripts/portable-skills.mjs', '.harness/scripts/gitignore-merge.mjs', '.harness/scripts/paths.mjs', '.harness/scripts/migrate-layout.mjs', '.harness/scripts/stage-command-table.mjs', '.harness/scripts/design-system.mjs', '.harness/scripts/doctor.mjs', '.harness/scripts/status-page.mjs', '.harness/scripts/skill-quality-check.mjs', '.harness/scripts/skill-registry.mjs', '.harness/scripts/bundle.mjs', '.harness/scripts/ownership-manifest.mjs', '.harness/scripts/trace-write.mjs', '.harness/scripts/trace-inspect.mjs', '.harness/scripts/trace-hook.mjs', '.harness/scripts/lib/trace-models.mjs', '.harness/scripts/lib/trace-store.mjs', '.harness/engine/docs/agents-and-models.md', '.harness/engine/docs/skill-quality-gate.md', '.harness/engine/docs/skill-flows.md', '.harness/engine/docs/skills.md']) {
@@ -394,6 +400,36 @@ if (existsSync(tplRoot)) {
     'layout:product-closed-fixture',
     existsSync(join(PRODUCT_CLOSED, '.harness', 'state.yaml')),
   );
+  {
+    const seedState = join(ROOT, 'sandbox', 'seed', '.harness', 'state.yaml');
+    const seedYaml = existsSync(seedState) ? readFileSync(seedState, 'utf8') : '';
+    check('sandbox:seed-state', existsSync(seedState));
+    check('sandbox:seed-idea', existsSync(join(ROOT, 'sandbox', 'seed', '.harness', 'product', 'idea.md')));
+    check('sandbox:seed-name', /^name:\s*sandbox-example\s*$/m.test(seedYaml));
+    check('sandbox:seed-cost-balanced', /^cost_profile:\s*balanced\s*$/m.test(seedYaml));
+    check(
+      'sandbox:gitignore-working-copy',
+      /sandbox\/example-product\//.test(readFileSync(join(ROOT, '.gitignore'), 'utf8')),
+    );
+    check(
+      'sandbox:tally-line',
+      /MIDAS_SANDBOX_RESULT:/.test(readFileSync(join(ROOT, 'harness', 'templates', 'audit-checklists.md'), 'utf8')),
+    );
+    check(
+      'sandbox:seed-not-shipped-script',
+      !scriptBundleFiles().includes('sandbox-run.mjs'),
+    );
+    const reset = resetSandbox(ROOT);
+    check('sandbox:reset-seed', reset.ok && existsSync(join(reset.work, '.harness', 'state.yaml')), reset.error || '');
+    const env = inspectSandboxEnv(ROOT);
+    check('sandbox:env-ok', env.ok, env.error || '');
+    check('sandbox:env-name', env.name === 'sandbox-example', env.name);
+    check(
+      'sandbox:env-engine-is-repo-harness',
+      env.ok && env.engine === resolve(ROOT, 'harness'),
+      env.engine,
+    );
+  }
   check('layout:no-legacy-root-product-dir', !existsSync(join(ROOT, 'product')));
   check('layout:no-root-claude-plugin-dir', !existsSync(join(ROOT, '.claude-plugin')));
   check(
@@ -440,7 +476,10 @@ if (existsSync(buildCreate)) {
   const sourceHarness = join(ROOT, 'harness');
   const templateHarness = join(ROOT, 'cli', 'template', '.harness', 'engine');
   if (existsSync(sourceHarness) && existsSync(templateHarness)) {
-    const sourceFiles = walkRelativeFiles(sourceHarness).filter((rel) => !isHarnessEngineOnlyRel(rel));
+    const sourceFiles = walkRelativeFiles(sourceHarness).filter((rel) => {
+      const n = rel.replace(/\\/g, '/');
+      return !isHarnessEngineOnlyRel(rel) && n !== 'skill-registry.md';
+    });
     const templateFiles = walkRelativeFiles(templateHarness)
       .filter((rel) => {
         const n = rel.replace(/\\/g, '/');
@@ -448,7 +487,8 @@ if (existsSync(buildCreate)) {
           n !== 'docs/skill-quality-gate.md' &&
           n !== 'docs/skill-flows.md' &&
           n !== 'docs/skills.md' &&
-          n !== 'docs/context-digest.md';
+          n !== 'docs/context-digest.md' &&
+          n !== 'skill-registry.md';
       });
     const sameShape = JSON.stringify(sourceFiles) === JSON.stringify(templateFiles);
     const sameContent = sameShape && sourceFiles.every(
@@ -478,9 +518,8 @@ if (existsSync(buildCreate)) {
         ...walkRelativeFiles(join(sourceClaude, 'skills'))
           .map((rel) => `skills/${rel.replace(/\\/g, '/')}`)
           .filter((rel) => {
-            if (rel.startsWith('skills/midas-precommit/')) return false;
             const name = rel.split('/')[1];
-            return name && !isHostMirrorExcluded(name);
+            return name && !ENGINE_ONLY_SKILLS.includes(name) && !isHostMirrorExcluded(name);
           }),
         ...walkRelativeFiles(join(sourceClaude, 'agents')).map((rel) => `agents/${rel.replace(/\\/g, '/')}`),
       ].sort();
@@ -494,11 +533,13 @@ if (existsSync(buildCreate)) {
         sameShape && sameContent,
         'cli/template/.claude drifts from harness skills/agents (excluding engine-only + ADR-013 host exclusions)',
       );
-      check(
-        'create-template:excludes-midas-precommit',
-        !existsSync(join(templateClaude, 'skills', 'midas-precommit')),
-        'engine-only midas-precommit must not ship in cli/template',
-      );
+      for (const name of ENGINE_ONLY_SKILLS) {
+        check(
+          `create-template:excludes-${name}`,
+          !existsSync(join(templateClaude, 'skills', name)),
+          `engine-only ${name} must not ship in cli/template`,
+        );
+      }
     }
   }
   {
@@ -506,7 +547,7 @@ if (existsSync(buildCreate)) {
     const templatePortableSkills = join(ROOT, 'cli', 'template', '.agents', 'skills');
     if (existsSync(sourcePortableSkills) && existsSync(templatePortableSkills)) {
       const sourceNames = dirNames(sourcePortableSkills).filter(
-        (n) => n !== 'midas-precommit' && !isHostMirrorExcluded(n),
+        (n) => !ENGINE_ONLY_SKILLS.includes(n) && !isHostMirrorExcluded(n),
       );
       const templateNames = dirNames(templatePortableSkills);
       const sameShape = JSON.stringify(sourceNames) === JSON.stringify(templateNames);
@@ -553,7 +594,7 @@ if (existsSync(buildCreate)) {
     const bundledPortableSkills = join(ROOT, 'cli', 'template', '.agents', 'skills');
     if (existsSync(sourcePortableSkills) && existsSync(bundledPortableSkills)) {
       const sourceNames = dirNames(sourcePortableSkills).filter(
-        (n) => n !== 'midas-precommit' && !isHostMirrorExcluded(n),
+        (n) => !ENGINE_ONLY_SKILLS.includes(n) && !isHostMirrorExcluded(n),
       );
       const portableNames = dirNames(bundledPortableSkills);
       const sameShape = JSON.stringify(sourceNames) === JSON.stringify(portableNames);
@@ -585,7 +626,7 @@ if (existsSync(buildCreate)) {
     const cursorPortableSkills = join(ROOT, 'cli', 'template', '.cursor', 'skills');
     if (existsSync(sourcePortableSkills) && existsSync(cursorPortableSkills)) {
       const sourceNames = dirNames(sourcePortableSkills).filter(
-        (n) => n !== 'midas-precommit' && !isHostMirrorExcluded(n),
+        (n) => !ENGINE_ONLY_SKILLS.includes(n) && !isHostMirrorExcluded(n),
       );
       const cursorNames = dirNames(cursorPortableSkills);
       const sameShape = JSON.stringify(sourceNames) === JSON.stringify(cursorNames);
@@ -924,7 +965,7 @@ if (engineVersion) {
 
 // --- I1. install-cmd helpers (canonical npx strings) ------------------------------------------
 {
-  const { formatInstallCmd, formatUpdateCmd, npxPackageRef } = await import('./lib/install-cmd.mjs');
+  const { formatInstallCmd, formatUpdateCmd, formatUpdateCmdFromRelease, npxPackageRef } = await import('./lib/install-cmd.mjs');
   check('install-cmd:package-ref', npxPackageRef(engineVersion || '0.0.0') === `github:okuzpe/midas-harness#v${engineVersion || '0.0.0'}`);
   if (engineVersion) {
     check(
@@ -933,9 +974,19 @@ if (engineVersion) {
     );
     check(
       'install-cmd:update',
-      formatUpdateCmd({ version: engineVersion }) === `npx github:okuzpe/midas-harness#v${engineVersion} --update`,
+      formatUpdateCmd({ version: engineVersion }) === `npx github:okuzpe/midas-harness#v${engineVersion} update`,
     );
   }
+  check(
+    'install-cmd:update-edge',
+    formatUpdateCmd({ channel: 'edge', commit: 'deadbeefcafebabe' }) ===
+      'npx github:okuzpe/midas-harness#deadbeefcafebabe update --channel=edge',
+  );
+  check(
+    'install-cmd:update-from-edge-release',
+    formatUpdateCmdFromRelease({ channel: 'edge', commit: 'abc1234', version: '2.9.9' }) ===
+      'npx github:okuzpe/midas-harness#abc1234 update --channel=edge',
+  );
   check(
     'install-cmd:shipped',
     existsSync(join(ROOT, 'cli', 'lib', 'core', 'install-cmd.mjs')) &&
@@ -1062,19 +1113,29 @@ if (engineVersion) {
     }
     const installBody = readFileSync(install, 'utf8');
     check(
-      'install:update-docs:rebaseline-section',
-      /Updating an existing install/i.test(installBody) && /re-?baselin/i.test(installBody),
-      'INSTALL.md must document --update rebaseline',
+      'install:update-docs:reconcile-section',
+      /Updating an existing install/i.test(installBody) && /reconcil/i.test(installBody),
+      'INSTALL.md must document the --update reconciliation contract',
     );
     check(
-      'install:update-docs:cites-rebaseline-test',
-      installBody.includes('installer:update-stale-manifest-rebaseline'),
-      'INSTALL.md must cite installer:update-stale-manifest-rebaseline',
+      'install:update-docs:cites-stale-manifest-test',
+      installBody.includes('installer:update-stale-manifest-refresh'),
+      'INSTALL.md must cite installer:update-stale-manifest-refresh',
     );
     check(
       'install:update-docs:cites-vendor-conflict-test',
       installBody.includes('installer:update-vendor-conflict-prewrite'),
       'INSTALL.md must cite installer:update-vendor-conflict-prewrite',
+    );
+    check(
+      'install:update-docs:cites-dropped-file-test',
+      installBody.includes('installer:update-prunes-dropped-vendor-file'),
+      'INSTALL.md must cite installer:update-prunes-dropped-vendor-file',
+    );
+    check(
+      'install:update-docs:cites-untracked-file-test',
+      installBody.includes('installer:update-leaves-untracked-vendor-file'),
+      'INSTALL.md must cite installer:update-leaves-untracked-vendor-file',
     );
   }
   for (const f of [
@@ -1415,7 +1476,7 @@ check(
   'doctor:install-verify-profile',
   /--profile=install-verify/.test(readFileSync(join(ROOT, 'scripts', 'doctor.mjs'), 'utf8')) &&
     /INSTALL_VERIFY_WARN_ONLY/.test(readFileSync(join(ROOT, 'scripts', 'doctor.mjs'), 'utf8')) &&
-    /--profile=install-verify/.test(installerRuntime),
+    /install-verify/.test(installerRuntime),
   'doctor + installer must share install-verify profile',
 );
 check(
@@ -1560,23 +1621,238 @@ if (!TEST_FAST) {
     });
     check('installer:update-conflict-fixture-install', install.status === 0, install.stderr || install.stdout);
     const vendor = join(updateRoot, '.harness', 'engine', 'conventions.md');
-    const modified = `${readFileSync(vendor, 'utf8')}\nproject edit outside overlay\n`;
+    const pristine = readFileSync(vendor, 'utf8');
+    const modified = `${pristine}\nproject edit outside overlay\n`;
     writeFileSync(vendor, modified, 'utf8');
-    const before = treeDigest(updateRoot);
     const updateResult = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), '--update', updateRoot], {
       cwd: ROOT,
       encoding: 'utf8',
     });
+    // Vendor is engine-owned: the bundle wins, but the local edit is copied aside first.
+    const savedConflicts = [];
+    const conflictsRoot = join(updateRoot, '.harness', 'conflicts');
+    if (existsSync(conflictsRoot)) {
+      const walkConflicts = (dir) => {
+        for (const entry of readdirSync(dir, { withFileTypes: true })) {
+          const abs = join(dir, entry.name);
+          if (entry.isDirectory()) walkConflicts(abs);
+          else if (entry.name.endsWith('.midas-conflict')) savedConflicts.push(abs);
+        }
+      };
+      walkConflicts(conflictsRoot);
+    }
     check(
       'installer:update-vendor-conflict-prewrite',
-      updateResult.status === 1 &&
-        /vendor files were modified/.test(`${updateResult.stdout}${updateResult.stderr}`) &&
-        treeDigest(updateRoot) === before &&
-        readFileSync(vendor, 'utf8') === modified,
+      updateResult.status === 0 &&
+        readFileSync(vendor, 'utf8') === pristine &&
+        savedConflicts.some((abs) => readFileSync(abs, 'utf8') === modified),
       updateResult.stderr || updateResult.stdout,
+    );
+    // Saved edits must not live under `.harness/cache/`: rollback scrubs that tree, which would
+    // destroy the only copy of the user's work.
+    check(
+      'installer:update-conflicts-outside-cache',
+      savedConflicts.every((abs) => !abs.replace(/\\/g, '/').includes('/.harness/cache/')),
+      savedConflicts.join(', '),
+    );
+    // A second update must refuse while the saved conflict is unreviewed, and say what to clear.
+    const blocked = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), 'update', '--yes', updateRoot], {
+      cwd: ROOT,
+      encoding: 'utf8',
+    });
+    const blockedOut = `${blocked.stdout}${blocked.stderr}`;
+    check(
+      'installer:update-preflight-blocks-on-conflicts',
+      blocked.status !== 0 && /update:conflicts/.test(blockedOut) && /\.harness\/conflicts/.test(blockedOut),
+      blockedOut,
+    );
+    rmSync(conflictsRoot, { recursive: true, force: true });
+    const cleared = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), 'update', '--yes', updateRoot], {
+      cwd: ROOT,
+      encoding: 'utf8',
+    });
+    check(
+      'installer:update-proceeds-once-conflicts-cleared',
+      cleared.status === 0,
+      cleared.stderr || cleared.stdout,
     );
   } finally {
     rmSync(updateRoot, { recursive: true, force: true });
+  }
+}
+// A fresh install must hash identical to the bundle it came from, or every install reports itself
+// out of date the moment a channel exists. Guards role drift (a per-install file marked `vendor`).
+{
+  const parityRoot = mkdtempSync(join(tmpdir(), 'midas-harness-hash-parity-'));
+  try {
+    const install = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), '--tools=cursor', parityRoot], {
+      cwd: ROOT,
+      encoding: 'utf8',
+    });
+    check('installer:hash-parity-fixture-install', install.status === 0, install.stderr || install.stdout);
+    const installed = readOwnershipManifest(parityRoot);
+    const bundle = treeSha256(scanVendorTree(join(ROOT, 'cli', 'template')));
+    check(
+      'installer:tree-hash-matches-bundle',
+      installed?.tree_sha256 === bundle,
+      `installed ${installed?.tree_sha256} vs bundle ${bundle}`,
+    );
+    check(
+      'ownership:skill-registry-is-generated',
+      roleForPath('.harness/engine/skill-registry.md') === 'generated',
+      'skill-registry.md is re-derived per install and must not be inside the vendor content hash',
+    );
+  } finally {
+    rmSync(parityRoot, { recursive: true, force: true });
+  }
+}
+{
+  const autoRoot = mkdtempSync(join(tmpdir(), 'midas-harness-hash-parity-auto-'));
+  try {
+    const install = spawnSync(
+      process.execPath,
+      [join(ROOT, 'cli', 'index.mjs'), '--tools=cursor', '--autonomy', autoRoot],
+      { cwd: ROOT, encoding: 'utf8' },
+    );
+    check('installer:hash-parity-autonomy-install', install.status === 0, install.stderr || install.stdout);
+    const installed = readOwnershipManifest(autoRoot);
+    const bundle = treeSha256(scanVendorTree(join(ROOT, 'cli', 'template')));
+    check(
+      'installer:tree-hash-matches-bundle-with-autonomy',
+      installed?.tree_sha256 === bundle,
+      `installed ${installed?.tree_sha256} vs bundle ${bundle}`,
+    );
+    const autoVendor = (installed?.files || []).some(
+      (f) => f.role === 'vendor' && String(f.path).replace(/\\/g, '/').startsWith('.harness/autonomy/'),
+    );
+    check(
+      'installer:autonomy-still-vendor-in-manifest',
+      autoVendor,
+      'autonomy files stay in the ownership manifest; they just do not move the channel hash',
+    );
+  } finally {
+    rmSync(autoRoot, { recursive: true, force: true });
+  }
+}
+{
+  const checkRoot = mkdtempSync(join(tmpdir(), 'midas-harness-update-check-'));
+  try {
+    const install = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), '--tools=cursor', checkRoot], {
+      cwd: ROOT,
+      encoding: 'utf8',
+    });
+    check('installer:update-check-fixture-install', install.status === 0, install.stderr || install.stdout);
+    const installed = readOwnershipManifest(checkRoot);
+    check(
+      'installer:install-records-channel',
+      installed?.channel === 'stable',
+      `manifest.channel=${installed?.channel}`,
+    );
+    const unknown = spawnSync(
+      process.execPath,
+      [join(ROOT, 'cli', 'index.mjs'), 'update', '--check', '--offline', checkRoot],
+      { cwd: ROOT, encoding: 'utf8' },
+    );
+    check(
+      'installer:update-check-unknown',
+      unknown.status === 2 && /cannot determine/.test(`${unknown.stdout}${unknown.stderr}`),
+      unknown.stderr || unknown.stdout,
+    );
+    const edgeManifest = join(checkRoot, 'edge.json');
+    writeFileSync(
+      edgeManifest,
+      `${JSON.stringify({
+        schema_version: 1,
+        channel: 'edge',
+        version: '9.9.9',
+        ref: 'main',
+        commit: 'abc1234def567890',
+        tree_sha256: '0'.repeat(64),
+      }, null, 2)}\n`,
+      'utf8',
+    );
+    const available = spawnSync(
+      process.execPath,
+      [join(ROOT, 'cli', 'index.mjs'), 'update', '--check', '--channel=edge', `--manifest-file=${edgeManifest}`, checkRoot],
+      { cwd: ROOT, encoding: 'utf8' },
+    );
+    const availableOut = `${available.stdout}${available.stderr}`;
+    check(
+      'installer:update-check-available',
+      available.status === 1 &&
+        /--channel=edge/.test(availableOut) &&
+        /#abc1234def567890/.test(availableOut) &&
+        /never downloads/.test(availableOut),
+      availableOut,
+    );
+  } finally {
+    rmSync(checkRoot, { recursive: true, force: true });
+  }
+}
+{
+  const pruneRoot = mkdtempSync(join(tmpdir(), 'midas-harness-update-dropped-'));
+  try {
+    const install = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), '--tools=cursor', pruneRoot], {
+      cwd: ROOT,
+      encoding: 'utf8',
+    });
+    check('installer:update-dropped-fixture-install', install.status === 0, install.stderr || install.stdout);
+    const manifestPath = join(pruneRoot, '.harness', 'manifest.json');
+    const injectVendor = (rel, body) => {
+      const abs = join(pruneRoot, rel);
+      mkdirSync(dirname(abs), { recursive: true });
+      writeFileSync(abs, body, 'utf8');
+      const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+      manifest.files = (manifest.files || []).filter((f) => f.path !== rel);
+      manifest.files.push({
+        path: rel,
+        role: 'vendor',
+        sha256: sha256File(abs),
+        size: statSync(abs).size,
+      });
+      writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+    };
+    injectVendor('.harness/engine/dropped.md', 'was in the last install\n');
+    injectVendor('.harness/engine/dropped-edited.md', 'original dropped bytes\n');
+    writeFileSync(join(pruneRoot, '.harness', 'engine', 'dropped-edited.md'), 'original dropped bytes\nI edited this\n', 'utf8');
+    writeFileSync(join(pruneRoot, '.harness', 'engine', 'stray.md'), 'untracked note\n', 'utf8');
+
+    const updateResult = spawnSync(
+      process.execPath,
+      [join(ROOT, 'cli', 'index.mjs'), 'update', '--yes', pruneRoot],
+      { cwd: ROOT, encoding: 'utf8' },
+    );
+    const saved = [];
+    const conflictsRoot = join(pruneRoot, '.harness', 'conflicts');
+    const walkConflicts = (dir) => {
+      if (!existsSync(dir)) return;
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        const abs = join(dir, entry.name);
+        if (entry.isDirectory()) walkConflicts(abs);
+        else if (entry.name.endsWith('.midas-conflict')) saved.push(abs);
+      }
+    };
+    walkConflicts(conflictsRoot);
+    check(
+      'installer:update-prunes-dropped-vendor-file',
+      updateResult.status === 0 && !existsSync(join(pruneRoot, '.harness', 'engine', 'dropped.md')),
+      updateResult.stderr || updateResult.stdout,
+    );
+    check(
+      'installer:update-saves-edited-dropped-vendor-file',
+      updateResult.status === 0 &&
+        !existsSync(join(pruneRoot, '.harness', 'engine', 'dropped-edited.md')) &&
+        saved.some((abs) => readFileSync(abs, 'utf8').includes('I edited this')),
+      updateResult.stderr || updateResult.stdout,
+    );
+    check(
+      'installer:update-leaves-untracked-vendor-file',
+      updateResult.status === 0 &&
+        readFileSync(join(pruneRoot, '.harness', 'engine', 'stray.md'), 'utf8') === 'untracked note\n',
+      updateResult.stderr || updateResult.stdout,
+    );
+  } finally {
+    rmSync(pruneRoot, { recursive: true, force: true });
   }
 }
 {
@@ -1602,9 +1878,9 @@ if (!TEST_FAST) {
       encoding: 'utf8',
     });
     check(
-      'installer:update-stale-manifest-rebaseline',
+      'installer:update-stale-manifest-refresh',
       updateResult.status === 0 &&
-        /re-baselining|refreshed/.test(`${updateResult.stdout}${updateResult.stderr}`) &&
+        !/re-baselining/.test(`${updateResult.stdout}${updateResult.stderr}`) &&
         doctor.status === 0,
       updateResult.stderr || updateResult.stdout || doctor.stderr || doctor.stdout,
     );
@@ -2397,12 +2673,13 @@ if (!TEST_FAST) {
     );
     let envelope = null;
     try { envelope = JSON.parse(dry.stdout || '{}'); } catch { /* ignore */ }
+    const ops = envelope?.plan?.ops || [];
     check(
       'installer:update-dry-run-reports-vendor-conflict',
-      dry.status === 1 &&
+      dry.status === 0 &&
         treeDigest(dryConflict) === before &&
-        envelope?.ok === false &&
-        /vendor/i.test(envelope?.message || dry.stderr || dry.stdout || ''),
+        envelope?.ok === true &&
+        ops.some((op) => op.kind === 'conflict' && op.path === '.harness/engine/conventions.md'),
       dry.stderr || dry.stdout,
     );
   } finally {
@@ -3825,12 +4102,21 @@ if (existsSync(templateChecksIndex) && existsSync(join(ROOT, 'harness', 'checks.
   }
 
   const templateRegistry = join(ROOT, 'cli', 'template', '.harness', 'engine', 'skill-registry.md');
-  if (existsSync(templateRegistry) && existsSync(join(ROOT, 'harness', 'skill-registry.md'))) {
+  if (existsSync(templateRegistry)) {
+    const expectedTpl = computeSkillRegistryMarkdown(join(ROOT, 'cli', 'template'), { engine: '.harness/engine' });
     check(
       'create-template:skill-registry:match',
-      readFileSync(templateRegistry, 'utf8') === readFileSync(join(ROOT, 'harness', 'skill-registry.md'), 'utf8'),
-      'template skill-registry.md drifted from source — re-run build-create',
+      readFileSync(templateRegistry, 'utf8') === expectedTpl,
+      'template skill-registry.md drifted from stripped engine tree — re-run build-create',
     );
+    const tplReg = readFileSync(templateRegistry, 'utf8');
+    for (const name of ENGINE_ONLY_SKILLS) {
+      check(
+        `create-template:registry-omits-${name}`,
+        !tplReg.includes('`' + name + '`'),
+        `template registry must not list engine-only ${name}`,
+      );
+    }
   }
 }
 
@@ -3854,6 +4140,7 @@ if (existsSync(templateChecksIndex) && existsSync(join(ROOT, 'harness', 'checks.
   check('help:response-map', existsSync(join(ROOT, 'harness', 'skills', 'midas-help', 'response-map.md')));
   check('help:bundle-option', /\/midas-bundle/.test(helpBodyCloseout));
   check('help:engine-precommit-named', /\/midas-precommit/.test(helpMap));
+  check('help:engine-sandbox-named', /\/midas-sandbox/.test(helpMap));
   const closeBody = readFileSync(join(ROOT, 'harness', 'skills', 'close-sprint', 'SKILL.md'), 'utf8');
   check(
     'close-sprint:exit-reads-pipeline-8',
@@ -3867,7 +4154,7 @@ if (existsSync(templateChecksIndex) && existsSync(join(ROOT, 'harness', 'checks.
   const muninn = readFileSync(join(ROOT, 'docs', 'muninn-comparison.md'), 'utf8');
   check(
     'docs:muninn-inventory-current',
-    /38 skills/.test(muninn) && /24 reglas/.test(muninn) && !/33 skills/.test(muninn) && !/Cero hooks/.test(muninn),
+    /39 skills/.test(muninn) && /24 reglas/.test(muninn) && !/38 skills/.test(muninn) && !/33 skills/.test(muninn) && !/Cero hooks/.test(muninn),
   );
   const gstackDoc = readFileSync(join(ROOT, 'docs', 'gstack-comparison.md'), 'utf8');
   check(
@@ -3892,9 +4179,10 @@ if (existsSync(templateChecksIndex) && existsSync(join(ROOT, 'harness', 'checks.
   const docsMeth = readFileSync(join(ROOT, 'docs', 'methodology.md'), 'utf8');
   const engMeth = readFileSync(join(ROOT, 'harness', 'methodology.md'), 'utf8');
   check('docs:methodology-scope-rule', /Scope Rule/.test(docsMeth) && /Scope Rule/.test(engMeth));
-  const unreleased = readFileSync(join(ROOT, 'CHANGELOG.md'), 'utf8').split('## [2.')[0];
-  check('changelog:issue-1-superseded', /issue #1/.test(unreleased));
-  check('changelog:monorepo-historical', /midas-monorepo/.test(unreleased) && /historical-only/.test(unreleased));
+  const changelog = readFileSync(join(ROOT, 'CHANGELOG.md'), 'utf8');
+  const latestRelease = changelog.split('## [2.')[1] || '';
+  check('changelog:issue-1-superseded', /issue #1/.test(latestRelease));
+  check('changelog:monorepo-historical', /midas-monorepo/.test(latestRelease) && /historical-only/.test(latestRelease));
 }
 
 {
@@ -5291,6 +5579,7 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
       'cli/lib/core/tests/install-lock.test.js',
       'cli/lib/core/tests/install-execute.test.js',
       'cli/lib/core/tests/durable-transaction.test.js',
+      'cli/lib/core/tests/release-channel.test.js',
       'scripts/lib/tests/commit-receipt.test.js',
       'scripts/lib/tests/carryover.test.js',
       'scripts/lib/tests/context-cost.test.js',
@@ -5302,6 +5591,9 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
       'scripts/lib/tests/recall-score.test.js',
       'scripts/lib/tests/recall-fifo.test.js',
       'scripts/lib/tests/capture-candidates.test.js',
+      'scripts/lib/tests/reconcile.test.js',
+      'scripts/lib/tests/migrate-state.test.js',
+      'scripts/lib/tests/release-manifest.test.js',
       'scripts/safety/tests/secrets-prompt.test.js',
       'scripts/safety/tests/gate-commits.test.js',
       'scripts/safety/tests/destructive-shell.test.js',

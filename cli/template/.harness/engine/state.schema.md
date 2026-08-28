@@ -33,7 +33,7 @@ transition after that.
 ## Schema
 
 ```yaml
-midas_version: 2.9.9      # engine version that wrote this file (for /midas-init version tip)
+midas_version: 2.10.0      # engine version that wrote this file (for /midas-init version tip)
 layout: harness                # the only writable layout; classic/compact/hub are read/migrate-only
 paths:
   root: .harness
@@ -50,6 +50,14 @@ language: en                 # artifact language
 created: 2026-06-16          # ISO date (set by /midas-init; never use a live clock in scripts)
 updated: 2026-06-16
 setup_complete: false        # the installer writes false; /midas-init flips it true when setup is done
+channel: stable              # stable | edge — release channel `update` compares against and re-installs from.
+                             # Written on install, overridden per-run by `--channel`. `edge` follows every
+                             # push to main and is always opt-in.
+migrations: [0001-record-update-channel]
+                             # ids of state migrations already applied, in apply order. The updater runs
+                             # every shipped migration whose id is absent here — by id, never by version
+                             # range, because many commits share one VERSION on `edge`. Append-only;
+                             # do not hand-edit (see .harness/engine/state-migrations/README.md).
 
 track: full                  # full | lite — lite collapses phases 0–6 (see harness/pipeline/lite.md)
 routing_profile: openai-mini   # claude | openai-mini | local-hybrid (legacy `openai` accepted) — preset for the resolved routing map

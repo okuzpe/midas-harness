@@ -49,7 +49,7 @@ describe('install execute outcomes', () => {
       installCursor(root);
       const lock = acquireInstallLock(root);
       assert.equal(lock.ok, true);
-      const { status, envelope } = runInstallerJson(['--update', '--yes', root]);
+      const { status, envelope } = runInstallerJson(['update', '--offline', '--yes', root]);
       assert.equal(status, 2);
       assert.equal(envelope?.outcome, 'LOCK_HELD');
       assert.match(String(envelope?.message || ''), /installer lock held/i);
@@ -69,7 +69,7 @@ describe('install execute outcomes', () => {
         command: 'update',
         step: 'apply',
       });
-      const { status, envelope } = runInstallerJson(['--update', '--yes', root]);
+      const { status, envelope } = runInstallerJson(['update', '--offline', '--yes', root]);
       assert.equal(status, 3);
       assert.equal(envelope?.outcome, 'INCOMPLETE');
       assert.match(String(envelope?.message || ''), /incomplete installer run/i);
@@ -90,7 +90,7 @@ describe('install execute outcomes', () => {
         step: 'resume',
       });
       appendJournal(root, runId, { op: 'start', command: 'update' });
-      const { status, envelope } = runInstallerJson(['--update', '--resume', '--yes', root]);
+      const { status, envelope } = runInstallerJson(['update', '--offline', '--resume', '--yes', root]);
       assert.equal(status, 1);
       assert.equal(envelope?.outcome, 'FAILED_FATAL');
       assert.match(String(envelope?.message || ''), /no journal backups/i);

@@ -36,6 +36,14 @@ dimensions used in full audits. **Overall must be ≥ 80** or the verdict is fai
 
 ## Procedure
 
+### 0. Sandbox dry-run (proposed, not forced)
+
+If the staged diff touches `harness/skills/**` or `harness/rules/**`, `AskQuestion` once: run
+`/midas-sandbox --smoke` for the touched skill first, or skip. **Recommended:** `--smoke` (not
+skip). This is not a mechanical gate — `/midas-sandbox` is engine-only, cost-gated
+(`composer-2.5`, never `-fast`), and optional; see `sandbox/README.md`. Never block the commit on
+the user's answer.
+
 ### 1. Mechanical floor
 
 ```bash

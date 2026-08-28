@@ -54,6 +54,7 @@ nav:
     - "ADR-010 — Harness trace (observe)": adr/ADR-010-harness-trace-observe.md
     - "ADR-011 — Harness trace (installs)": adr/ADR-011-harness-trace-installs.md
     - "ADR-014 — Adapter digest on demand": adr/ADR-014-adapter-digest-on-demand.md
+    - "ADR-016 — Update release channel": adr/ADR-016-update-release-channel.md
 
 markdown_extensions:
   - pymdownx.superfences:

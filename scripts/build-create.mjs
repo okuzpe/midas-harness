@@ -19,6 +19,7 @@ import {
 import {
   INTERNAL_SURFACE_ALLOWLIST,
   DEPRECATED_SURFACE_ALLOWLIST,
+  writeSkillRegistry,
 } from './skill-registry.mjs';
 import { shippedScriptRepoPaths } from './ship-manifest.mjs';
 
@@ -103,6 +104,10 @@ renderPortableSkillsTree(TEMPLATE, {
 stripEngineOnlySkills(join(TEMPLATE, '.agents', 'skills'), { existsSync, rmSync }, { join });
 stripEngineOnlySkills(join(TEMPLATE, '.cursor', 'skills'), { existsSync, rmSync }, { join });
 // Portable trees already skip internal/deprecated; strip again for safety after engine-only prune.
+
+// Registry copied from harness/ still lists engine-only skills. Recompute from the stripped
+// template tree so doctor on an install does not see ghost rows (ADR-015).
+writeSkillRegistry(TEMPLATE, { engine: '.harness/engine' });
 
 // Render the PROJECT AGENTS.md from the template (strip the leading {{! author note }} block; keep the
 // {{PROJECT_NAME}}/{{STACK}}/{{TOOLS}} placeholders for the installer to fill).

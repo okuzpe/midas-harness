@@ -61,6 +61,9 @@ MIDAS_VERIFY_RESULT: fails=X criticals=Y runtime_errors=Z
 
 # midas-align
 MIDAS_ALIGN_RESULT: gaps=N verdict=aligned|gaps
+
+# midas-sandbox (engine only)
+MIDAS_SANDBOX_RESULT: skill=<name|list> mode=single|smoke|all verdict=pass|fail auto_decisions=N isolation=ok|fail
 ```
 
 `unresolved=0` (audit) or equivalent open criticals (security) before treating a sprint gate as pass.

@@ -55,3 +55,26 @@ jobs:
             release-notes.md
             *.tgz
             _site/
+
+  release-manifest:
+    # Publish the stable channel hash for this tag so installs on `stable` see the release (ADR-015).
+    needs: prepare
+    if: startsWith(github.ref, 'refs/tags/v') && github.repository == 'okuzpe/midas-harness'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: release-manifest-stable
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "24"
+
+      - name: Publish stable channel manifest
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          TAG: ${{ github.ref_name }}
+        run: node scripts/publish-release-manifest.mjs --channel=stable --ref="$TAG" --commit="$GITHUB_SHA"
