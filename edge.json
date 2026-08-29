@@ -1,0 +1,826 @@
+{
+  "schema_version": 1,
+  "channel": "edge",
+  "version": "2.10.3",
+  "ref": "main",
+  "commit": "f7a7826094aec5f971941946c1ad7b770eaca98a",
+  "tree_sha256": "086ad29959b14b7031a9713e124a296ff4d15295a71da1333210391371acf7df",
+  "published_at": "2026-08-29T23:31:30.535Z",
+  "migrations": [
+    "0001-record-update-channel"
+  ],
+  "files": [
+    {
+      "path": ".harness/engine/.windsurf/rules/00-midas.md",
+      "sha256": "e42f9e837ed133b5ae5989c664f178313507e1df39438af01f3ac5780f777a1a"
+    },
+    {
+      "path": ".harness/engine/.windsurf/rules/01-midas-checks.md",
+      "sha256": "86dfa64afa9ada0adbc0cde4dce59eb021e6747a6ecd3b799faf71f083175c0b"
+    },
+    {
+      "path": ".harness/engine/VERSION",
+      "sha256": "65fcc9f7f590a80170f0d1e32a706b61c8a5f64fb515f4d68cfb76edc094cc09"
+    },
+    {
+      "path": ".harness/engine/agents/midas-builder.md",
+      "sha256": "1aabe80e282bf5426c499b23fbb7dfd75639d9455c549dc21497678fa1a3b019"
+    },
+    {
+      "path": ".harness/engine/agents/midas-orchestrator.md",
+      "sha256": "42709767b4e11496bfa1961d38fdcec25d36d400f5e44d9307b8add5f04dd9f3"
+    },
+    {
+      "path": ".harness/engine/agents/midas-scout.md",
+      "sha256": "1eccd93df4a407627e9bb681d45a7d1c440abc343129271d99f1ed1a57c98637"
+    },
+    {
+      "path": ".harness/engine/checks.json",
+      "sha256": "723c1ac5eb0bf92483b9abe70808041e8302492023dfe0c03519be48011c7b25"
+    },
+    {
+      "path": ".harness/engine/conventions.md",
+      "sha256": "478f8baf249ba4b8c28382dbd35d0da1d741f598022c350da917b44f6f3dc312"
+    },
+    {
+      "path": ".harness/engine/design-system/components.md",
+      "sha256": "4451658e2895ac8b2867195c576b71c60a0e73dfdd72302b1ad90c63e89a5c89"
+    },
+    {
+      "path": ".harness/engine/design-system/tokens.css",
+      "sha256": "291c686ee626a14d671c1d854d2d2f50aeaf50ba5f243311013b194c6a581632"
+    },
+    {
+      "path": ".harness/engine/design-system/tokens.json",
+      "sha256": "9e7b76b70a2f9edc5cb28be1e366baf69130a378da975d6938e8b56a16877b41"
+    },
+    {
+      "path": ".harness/engine/docs/agents-and-models.md",
+      "sha256": "80b979a6361d88c5312546920054164165794ca35b97abf48edbeb918775e071"
+    },
+    {
+      "path": ".harness/engine/docs/context-digest.md",
+      "sha256": "65a563d1b23d3d87a6ff7730e0cdf1ff92bf4df2ad00864be9822b20706ee58b"
+    },
+    {
+      "path": ".harness/engine/docs/skill-flows.md",
+      "sha256": "aec9835fa208d3c42336ee8e5744057b9f357efb1496e13198b898b97e5498b3"
+    },
+    {
+      "path": ".harness/engine/docs/skill-quality-gate.md",
+      "sha256": "1f89dc3c704bf095992f8651f53e14a6dbaa3ea8ca89dddb0502d6b72222f7e3"
+    },
+    {
+      "path": ".harness/engine/docs/skills.md",
+      "sha256": "87ad965ac4b77d4046b0d6bff005902533724b2f181ba6fed450ab6bad5882cc"
+    },
+    {
+      "path": ".harness/engine/gates.json",
+      "sha256": "14706217ed5b4780478fb8f85c5f21a7a5d4a0a247a75d83af99a76f6d1ab90e"
+    },
+    {
+      "path": ".harness/engine/methodology.md",
+      "sha256": "ff315a237c7e17a02c4891f35750f3de99b49d5e8274c886e600496218b74c30"
+    },
+    {
+      "path": ".harness/engine/migrations/README.md",
+      "sha256": "27cc95dcfbaa1968b15171f33d0058b92d11fafa54f641d87d7979f29e3eeff8"
+    },
+    {
+      "path": ".harness/engine/migrations/auto-pilot-slash-rename.md",
+      "sha256": "b6bcc93b13d83c85372f8da573e25d7f77f3535b028f73a882de409ab0fa23a5"
+    },
+    {
+      "path": ".harness/engine/migrations/auto-pilot-unify.md",
+      "sha256": "8689b8293547829ce09ff71594d3f9591e5842d2330e4ee2dd360c87ac6bf674"
+    },
+    {
+      "path": ".harness/engine/migrations/harness-layout.md",
+      "sha256": "785355dfaa430882dc90a2ce4c197073a1eace56ab09f6c095029a0e3b9b6a7d"
+    },
+    {
+      "path": ".harness/engine/migrations/hygiene-init-entry.md",
+      "sha256": "fd2b69a2464f2b37ddeff7748fbb538d33d6ecc2806323737310ca92c6a63ae4"
+    },
+    {
+      "path": ".harness/engine/migrations/update-failure-hardening.md",
+      "sha256": "af4ded67efc2942a316269153d98e2ac83bf93f355ff6070f7ab61f443c6e68d"
+    },
+    {
+      "path": ".harness/engine/pipeline/0-idea-intake.md",
+      "sha256": "d8a2d0896667424839a83e192eb0cef33e2cc0ea71b3ea807d473a754e9226b7"
+    },
+    {
+      "path": ".harness/engine/pipeline/0b-codebase-inventory.md",
+      "sha256": "b2e511a5035dcd6691e088e02bcda6c4aa0f22f55de0b2e98d31cd7da8d4c35b"
+    },
+    {
+      "path": ".harness/engine/pipeline/1-contextualize.md",
+      "sha256": "058f2a3971c84fd0bbcd85b3783d152664c7ad0d617fe033394d6b4b44d783e3"
+    },
+    {
+      "path": ".harness/engine/pipeline/2-market-research.md",
+      "sha256": "eec80fcc602a8e032718fc7cdeb5aadb5b61f4ba616c8687c96d3ac309c61462"
+    },
+    {
+      "path": ".harness/engine/pipeline/3-business-case.md",
+      "sha256": "8da69827b600f169b3c5a06fadde36d516c84798623942aa4374f1aecdc41cf6"
+    },
+    {
+      "path": ".harness/engine/pipeline/4-tech-architecture.md",
+      "sha256": "7d236856860d4a51a61a4ad2b6a8013a09f01e29c3dd9e6759b6bce79bef7eff"
+    },
+    {
+      "path": ".harness/engine/pipeline/5-architecture-rules.md",
+      "sha256": "828bbe1a4488b0e12f3ad78b182278035d8584334d61ed7f2f589bd950f0293b"
+    },
+    {
+      "path": ".harness/engine/pipeline/6-sprint-planning.md",
+      "sha256": "10a63d087821113b16a72a752affa65861dc9e6d9b1a0773502812e481cc8040"
+    },
+    {
+      "path": ".harness/engine/pipeline/7-sprint-execution.md",
+      "sha256": "1366464513fbc76881f59e8537af9de6fd43c75ba2780bd82282af04a73e2fd2"
+    },
+    {
+      "path": ".harness/engine/pipeline/8-audit-adjust.md",
+      "sha256": "df5e223b017da0ba3284900748919985df8dc39b42439d8e1d658f548c061df0"
+    },
+    {
+      "path": ".harness/engine/pipeline/adopt-brownfield.md",
+      "sha256": "0d51532c0e147cd0f99526a2a3b9d4e943112663797d6e8edabd5782ab3e2e3e"
+    },
+    {
+      "path": ".harness/engine/pipeline/init-adaptive.md",
+      "sha256": "09575ea40818e3c833dfb8a9d37613874c5871eee140f6984da071d88cf0d38b"
+    },
+    {
+      "path": ".harness/engine/pipeline/lite.md",
+      "sha256": "298f978670b6e9cc3b56bcf96e120fdb2363948279d2c8121ee61c0bd67316e4"
+    },
+    {
+      "path": ".harness/engine/pipeline/monorepo-wiring.md",
+      "sha256": "59f4ce6dee653f81ff96932b5d8a0ee79cad4197efa6c83b9e790896ed377247"
+    },
+    {
+      "path": ".harness/engine/research/README.md",
+      "sha256": "7521670bce5e93723a760886f9d406d4b8bf806960b1060071d81b272ed3ca18"
+    },
+    {
+      "path": ".harness/engine/research/debate-method.md",
+      "sha256": "809bed693fbdd34db772a4e6ae3c14ed436ea82b05872173e30f98042a278e82"
+    },
+    {
+      "path": ".harness/engine/research/memory-model.md",
+      "sha256": "188f3078506b3ecbe65d196c7d783856a6fd496e2e24b58fa308061364bc53e3"
+    },
+    {
+      "path": ".harness/engine/rules/acceptance-criteria.md",
+      "sha256": "cba7ea40f951bacded086bcac8c23837a01f689edbe92813332b625fe9243d70"
+    },
+    {
+      "path": ".harness/engine/rules/accessibility.md",
+      "sha256": "8236e2938d13104f08276d7bae410c8ffa8ce2aaa4d51c1c903691e96cfa45d0"
+    },
+    {
+      "path": ".harness/engine/rules/change-propagation.md",
+      "sha256": "27ab895f984d415f061af4fc964a09a8a371721d73f7adebdfaa92ecda4ae296"
+    },
+    {
+      "path": ".harness/engine/rules/code-quality.md",
+      "sha256": "f0e49120f24026eeb99dbbe9aa0bfd3c35827d16f854039181a219aa78981cbf"
+    },
+    {
+      "path": ".harness/engine/rules/context7-usage.md",
+      "sha256": "7c5b8032a6faef31dcc21e334b29a06781213d00d851c2bdde01e3f4a34fd662"
+    },
+    {
+      "path": ".harness/engine/rules/cursor-safety-hooks.md",
+      "sha256": "bb34d85f7138448c64640c544df70e26b8ced453e43318414e2bec903223b756"
+    },
+    {
+      "path": ".harness/engine/rules/docs.md",
+      "sha256": "01744b64abf59085d485e66a123777a7721ff18e88ac6e8f08f78e35aa7dc410"
+    },
+    {
+      "path": ".harness/engine/rules/enforcement-state.md",
+      "sha256": "37f5d1e5eb7666c373631c6192ac9c40214208a361f54947517de6d74662fe5e"
+    },
+    {
+      "path": ".harness/engine/rules/engine-repo-boundary.md",
+      "sha256": "b5eda529afb1afb006710712c75827268b82a97acd8d4b40181c679cdf471de9"
+    },
+    {
+      "path": ".harness/engine/rules/git-commits.md",
+      "sha256": "d3dcc6213057959ec1aa8e25bef4f948c34651a7699c4c3ff4e632d63a9f8936"
+    },
+    {
+      "path": ".harness/engine/rules/hygiene.md",
+      "sha256": "14f459b58837ece7f94da49580cb0bc3d35ca225058e393f52f5418aa75b27a8"
+    },
+    {
+      "path": ".harness/engine/rules/lean-ladder.md",
+      "sha256": "6f2ae5963934080f537f3b7ce200fe9be1df0a883e4af7c5e2f9f62baa672bfb"
+    },
+    {
+      "path": ".harness/engine/rules/model-routing.md",
+      "sha256": "67d56b08e8ee8b1a6b814cac6a45377d843c8da47b9f268dc0b474fba2b1acbc"
+    },
+    {
+      "path": ".harness/engine/rules/naming.md",
+      "sha256": "0cacb33085ce6da0d79c8f247a14139e134c5829bbe0feeaadb13b8c2a53b43e"
+    },
+    {
+      "path": ".harness/engine/rules/organic-routing.md",
+      "sha256": "3e6bda7ea58fde91712878f490757f55b1187f97fc287a36cb4437d4845d1fd7"
+    },
+    {
+      "path": ".harness/engine/rules/safety-guardrails.md",
+      "sha256": "7f39048090c6e8387b9804ffdc3c8e2f6e189eb84e5968aab59875921e7341ad"
+    },
+    {
+      "path": ".harness/engine/rules/security.md",
+      "sha256": "69b79a609c7b56fc624b9c2b0c3a46a33dcbd3122d20f63900456b40cd614177"
+    },
+    {
+      "path": ".harness/engine/rules/session-continuity.md",
+      "sha256": "ed436192926773b21f0c189e1f2f2072ff57cfc4d1768238d87e560c5865f48c"
+    },
+    {
+      "path": ".harness/engine/rules/skill-quality.md",
+      "sha256": "0c8f7e22045cb3ecaf1a316cb95596f4e82aee05e3dcf7203c8b17d23ab3ea18"
+    },
+    {
+      "path": ".harness/engine/rules/soft-pass.md",
+      "sha256": "c512cb4278c32c0ce08e151554acd18afd7d891f8555d72173da1ef380d05bf2"
+    },
+    {
+      "path": ".harness/engine/rules/state-integrity.md",
+      "sha256": "14285d866d56035003766c5ab1209316af36ae4908d33ecd4d2a17d7bb3b0e69"
+    },
+    {
+      "path": ".harness/engine/rules/testing.md",
+      "sha256": "d69e5bf14f96695ae5fc27c8375823dd122fdafc2759d4a12f9a232010e96819"
+    },
+    {
+      "path": ".harness/engine/rules/verification.md",
+      "sha256": "32d0ed3d16a6b52930effdb48f7c39c684863388d95158ef6bbd9227d5b6f3c5"
+    },
+    {
+      "path": ".harness/engine/rules/visual-design.md",
+      "sha256": "17d7ebdbe15de05c0b06a3bdb97699781a1e7aa3a2c126435a9c5b3fa609933e"
+    },
+    {
+      "path": ".harness/engine/skills/business-plan/SKILL.md",
+      "sha256": "0be730c793061f60abaf63269bce3739cce3638076b2be7d61e5da434cfb03d7"
+    },
+    {
+      "path": ".harness/engine/skills/choose-architecture/SKILL.md",
+      "sha256": "a38028542dc81fe9d55a032981ed4212ca00c8562a59183600b73f0698650113"
+    },
+    {
+      "path": ".harness/engine/skills/close-sprint/SKILL.md",
+      "sha256": "b1a9a8386185ddfa46263d0c688b55442dbf651318926cf4ede8ac805a37b37a"
+    },
+    {
+      "path": ".harness/engine/skills/contextualize/SKILL.md",
+      "sha256": "82c347cd595822f22dc1a3409c8968400f7430f61f7be5e7c2eba50d7b28adc3"
+    },
+    {
+      "path": ".harness/engine/skills/define-conventions/SKILL.md",
+      "sha256": "6c861ab1e81800e0d452abec84d228e7d10ab42676ca5f8f285bb3fee03a08b6"
+    },
+    {
+      "path": ".harness/engine/skills/idea-intake/SKILL.md",
+      "sha256": "4ff7f9773f5ca3c99de91e6d4a6c21d6540100b691c7e5174f8f0d0a7a7b5554"
+    },
+    {
+      "path": ".harness/engine/skills/market-research/SKILL.md",
+      "sha256": "cefff08d72a08221f6e6f09d2d0276891e8bf133dd7fae4a4bb687830b2710b5"
+    },
+    {
+      "path": ".harness/engine/skills/midas-adopt/SKILL.md",
+      "sha256": "482545add7758778fe2513d0d9907c3d158539ff7fdece95a92e3c8cf1411de0"
+    },
+    {
+      "path": ".harness/engine/skills/midas-align/SKILL.md",
+      "sha256": "14d801ebbdefc04589ad242796627e67dc7fd4ceaf2567b22921842f1bc11a12"
+    },
+    {
+      "path": ".harness/engine/skills/midas-auto-pilot/SKILL.md",
+      "sha256": "d92f94f0e354f10a531190f9779d738618e5afa947d06b2a0369ba630985a170"
+    },
+    {
+      "path": ".harness/engine/skills/midas-auto-pilot/sprint-checklist.md",
+      "sha256": "08356c7ef40fbe2910aaaf2f9a7d9b0cf369c2c6f92ca072df7f737689c9138d"
+    },
+    {
+      "path": ".harness/engine/skills/midas-auto-sprints/SKILL.md",
+      "sha256": "19889ef9d4caf726921220f2485ed9948abc5289a9b48765291bac282423960b"
+    },
+    {
+      "path": ".harness/engine/skills/midas-autopilot/SKILL.md",
+      "sha256": "79157905ec4d6d789fe4143017ccc92d6b73753dc57bee2d02419f4d550bc761"
+    },
+    {
+      "path": ".harness/engine/skills/midas-bundle/SKILL.md",
+      "sha256": "8b95841809f3bf00381d9c5dd2d3c8ac39dd3621178416b5e8b911641468c957"
+    },
+    {
+      "path": ".harness/engine/skills/midas-capture/SKILL.md",
+      "sha256": "130e7a72701411fb64e1815dba991d2d51e73e9681513b1b659247e5c207e3c3"
+    },
+    {
+      "path": ".harness/engine/skills/midas-design/SKILL.md",
+      "sha256": "a52782973cd401ee4e65621550c45b0beb0edc7f25ffb132e91b91893c8b5713"
+    },
+    {
+      "path": ".harness/engine/skills/midas-diff-gates/SKILL.md",
+      "sha256": "5dafdc3ba1a69cf29405d5ce52f15dc76f38d8367c48f838b57db70f24196527"
+    },
+    {
+      "path": ".harness/engine/skills/midas-doctor/SKILL.md",
+      "sha256": "66c913c4bc38a8c988ccdab6ce2c5af7f2a04126e2d37330ee5ec22e97ed9a5f"
+    },
+    {
+      "path": ".harness/engine/skills/midas-explore/SKILL.md",
+      "sha256": "a7239d6ac25accf33776a234b801dab7c5d92b4020eae45ca0c2606ab06cf59d"
+    },
+    {
+      "path": ".harness/engine/skills/midas-help/SKILL.md",
+      "sha256": "ef3c45d1f5492324f322e3673bd056606531094bbe722262fb3916b4921c8c33"
+    },
+    {
+      "path": ".harness/engine/skills/midas-help/response-map.md",
+      "sha256": "bb00ab8077b13ebc84390e8c6a982bc5e29e74cdb1416a97ae1bd2edbe62c1d4"
+    },
+    {
+      "path": ".harness/engine/skills/midas-hygiene/SKILL.md",
+      "sha256": "2043d878e7f264fca07d0b26db12fb412dc3e64b8244e1c146b58bfc7f80abed"
+    },
+    {
+      "path": ".harness/engine/skills/midas-improve-loop/SKILL.md",
+      "sha256": "870de2ecf72d67116cb3272c53ec84fc83b90f74f1333bc4d27eb965bff9d12b"
+    },
+    {
+      "path": ".harness/engine/skills/midas-init/SKILL.md",
+      "sha256": "10ef1b1a32519df76013632ba0edbe7e2448ba05637d64a02b645d5dfd44c7c4"
+    },
+    {
+      "path": ".harness/engine/skills/midas-investigate/SKILL.md",
+      "sha256": "3fae4be0c2a6330b9fcaee98a6bb4f5959732629713c6c454d46ece86ddd1f20"
+    },
+    {
+      "path": ".harness/engine/skills/midas-lean-review/SKILL.md",
+      "sha256": "5e724dc6353eba4582cffb7a1de2101cb1be832a56d5417ac435bf0445e38456"
+    },
+    {
+      "path": ".harness/engine/skills/midas-progress/SKILL.md",
+      "sha256": "6700c4b13c41786a0eb6f5acd1b6c119791270989a8cb2b87a2075a652365dab"
+    },
+    {
+      "path": ".harness/engine/skills/midas-qa/SKILL.md",
+      "sha256": "3404fd364925b75a8fbfef02a930f7e2535e1567810d13ccb90756968ac910a1"
+    },
+    {
+      "path": ".harness/engine/skills/midas-recall/SKILL.md",
+      "sha256": "01d357bc883be4aabab071ab77c360bc47c197c23365af380b0b0d534f8d9223"
+    },
+    {
+      "path": ".harness/engine/skills/midas-reconcile/SKILL.md",
+      "sha256": "5c11c9c234dcd48f12cb93dbb3e434abf1e94e982d551b3ea391e53143e5d43a"
+    },
+    {
+      "path": ".harness/engine/skills/midas-retro/SKILL.md",
+      "sha256": "22d11bb1bc0c83e6fe547fa0957673ef9113d58f41479c7fc48344ebd9e0f4b2"
+    },
+    {
+      "path": ".harness/engine/skills/midas-security-audit/SKILL.md",
+      "sha256": "b81d09fb9f2c7e8470a56faeed191f6a5ea6fce122516e18ce12ef3deceb10c0"
+    },
+    {
+      "path": ".harness/engine/skills/midas-status/SKILL.md",
+      "sha256": "11d142148e16d7ba6aebd5a65f0bbe38083a081d219a94b0c44e9d19b5f5e6ad"
+    },
+    {
+      "path": ".harness/engine/skills/midas-sweep/SKILL.md",
+      "sha256": "f4183f68c4ebce7b17e5337ff784ffa483e1f64254e719c2d3ab409b9c9f51c1"
+    },
+    {
+      "path": ".harness/engine/skills/midas-tribunal/SKILL.md",
+      "sha256": "c97a85af03b7261f21ee67b75996c9a2e0ce9b4e38f4192faedde0b917f2263f"
+    },
+    {
+      "path": ".harness/engine/skills/midas-update/SKILL.md",
+      "sha256": "155eb39aae1c29077f93feaca163470f28b09c6c0d5b9754db9e6d6b8555f5db"
+    },
+    {
+      "path": ".harness/engine/skills/midas-verify/SKILL.md",
+      "sha256": "7a4039e8ef4a8d78511f24bc0e9cf51ec9395f08a074f7a00e154e4792a7045f"
+    },
+    {
+      "path": ".harness/engine/skills/plan-sprints/SKILL.md",
+      "sha256": "44b520a03e968d2e4ea79581705d9dff89e9e2d6388d92d1efe5c046f06af2ce"
+    },
+    {
+      "path": ".harness/engine/skills/start-sprint/SKILL.md",
+      "sha256": "ccd85ff897247d96e1d40d0a56fb5dcda178c02f45f3491300a8380b4a02378c"
+    },
+    {
+      "path": ".harness/engine/stage-command-table.yaml",
+      "sha256": "6d482aacec36bf27441891b17bc96938aa2d37076b2983fe7d28d824ff65b751"
+    },
+    {
+      "path": ".harness/engine/state-migrations/0001-record-update-channel.mjs",
+      "sha256": "fb1e5e821df77ef8bd0d0292088c0c4a647681d13e0890d7c884daa1f2ebbf55"
+    },
+    {
+      "path": ".harness/engine/state-migrations/README.md",
+      "sha256": "ed92a24c1f89c40ba3db4ef9915189f95a4cc0ea645156758ede2401bc34eb22"
+    },
+    {
+      "path": ".harness/engine/state.schema.md",
+      "sha256": "3968b194bea64b4c8800b2ae697e11f8284f85d7b84e95def675973804c21077"
+    },
+    {
+      "path": ".harness/engine/templates/ADR.md",
+      "sha256": "bcea9c09a9ed5d20250432560ba1e2a093e7ccd22ffc183738eda126105a0ecd"
+    },
+    {
+      "path": ".harness/engine/templates/AGENTS.md.tmpl",
+      "sha256": "ddfe90365d34ce193f3656d7512799480784ea420cef78b9a55665c3e95d390f"
+    },
+    {
+      "path": ".harness/engine/templates/CLAUDE.md.tmpl",
+      "sha256": "9208536f496c0b5ab1c3a956d64e7ac1a7a812f5b33e6468150a43457999948e"
+    },
+    {
+      "path": ".harness/engine/templates/architecture.md",
+      "sha256": "f2d819655aaa0f7c7c84fa1fe28bb7a0f3f76d05ed9770ed2918de603d189e4d"
+    },
+    {
+      "path": ".harness/engine/templates/audit-checklists.md",
+      "sha256": "b5a4217bab3692ae1c776020f88d7c38da8dc5c6f99402b1c659af65ef656b93"
+    },
+    {
+      "path": ".harness/engine/templates/audit-record.md",
+      "sha256": "78c1a5274adbf7f09b3609e3327f377512d9e724b705168234171afc95afe927"
+    },
+    {
+      "path": ".harness/engine/templates/auto-pilot-journal.md",
+      "sha256": "10db0c2aa392db9be5038bab43ada9f33e9b68c74cc0ac1b285abecf217b92e0"
+    },
+    {
+      "path": ".harness/engine/templates/auto-pilot-runbook.md.tmpl",
+      "sha256": "6d1e41ed23e901bc55fd3aabaf8a8cb6b5f5ccd414852823374ccd9428840543"
+    },
+    {
+      "path": ".harness/engine/templates/business-plan.md",
+      "sha256": "9b23157e85016fc4d7b6afd8798c929be7b067a8eb8dc8f0c2b78ce56f4a1064"
+    },
+    {
+      "path": ".harness/engine/templates/debate-record.md",
+      "sha256": "5880be83969e9b752735620e0d7cf954b262491e5e0a18bf2d62b04b8082db09"
+    },
+    {
+      "path": ".harness/engine/templates/design-direction.md",
+      "sha256": "cfc27696e77c81a93044a3d1bdf3f5b1bae72264018289d5fce7af67039294a9"
+    },
+    {
+      "path": ".harness/engine/templates/design-record.md",
+      "sha256": "293c2faac53a65e628aad5bcc5a0aaaf89f74ac327b36de18a207e236f207909"
+    },
+    {
+      "path": ".harness/engine/templates/design-system.md",
+      "sha256": "f9178b131a785e06350f7eafa1ad7b9edef915e0f6bdb6b15c0fb6015349bc18"
+    },
+    {
+      "path": ".harness/engine/templates/explore-meta.yaml",
+      "sha256": "3b789a29c5a2309136ec5b97dc5d341cf28a7308ee0cf368754c62279fdcf5e5"
+    },
+    {
+      "path": ".harness/engine/templates/explore-notes.md",
+      "sha256": "2a36470f616bae4ec857300d29e7e0703429dd4b910755094ee6c46170ff61ce"
+    },
+    {
+      "path": ".harness/engine/templates/features.json.tmpl",
+      "sha256": "bddd2139f501253f4330c9ff0aca7ec9a03a06937ed23cf96d29d7bb6083c347"
+    },
+    {
+      "path": ".harness/engine/templates/folder-structure.md",
+      "sha256": "2ba6ef1e57cfeb10d34d4837628afafe13041fc271cda41985bd10f48aa81b9d"
+    },
+    {
+      "path": ".harness/engine/templates/gate-record.md",
+      "sha256": "c1baa14a79d3d2510761afeea738567f3a5ed1937d0fa588bc4df2bd907078f2"
+    },
+    {
+      "path": ".harness/engine/templates/gitignore-midas.snippet",
+      "sha256": "6c69c52fe27f4c53b70e2ae20b49e5af07a51d24a4e8a12cbb9457701db05dbe"
+    },
+    {
+      "path": ".harness/engine/templates/idea.md",
+      "sha256": "173ed73a7c3792a7811d5f24e721360b86b0831f7fc3260b3d57721fd492bb45"
+    },
+    {
+      "path": ".harness/engine/templates/investigate-record.md",
+      "sha256": "8cca3c96f8a7c76730d1718ffb007faff113b06749ec1e41dceb54acb40bc19c"
+    },
+    {
+      "path": ".harness/engine/templates/market.md",
+      "sha256": "1eacc43d509fb6f5981f578546c7ccf205568ec093c331dfa7cf4d10b063afd2"
+    },
+    {
+      "path": ".harness/engine/templates/mcp.json.tmpl",
+      "sha256": "211acd857f09330dd92e8d7e17e6ab32223121fe464b669bcbdc02ba09693d0c"
+    },
+    {
+      "path": ".harness/engine/templates/open-questions.md",
+      "sha256": "c6f13fd9a80fa1a5d92cb36ab7f525eb710ffd602beccd2c35950ba2fbe91eca"
+    },
+    {
+      "path": ".harness/engine/templates/phase-result.md",
+      "sha256": "92bc8c11d4120b5d4f9af16755c4de06e1aa170ab4db318b11c4679b4e141259"
+    },
+    {
+      "path": ".harness/engine/templates/playbook.md",
+      "sha256": "96f10c4a12d50e0ee7b1534ea32b0d0fa1aa90402b8712693810f93f61c0f14c"
+    },
+    {
+      "path": ".harness/engine/templates/playbooks/auto-pilot-cycle.md",
+      "sha256": "ac1744047e4bc8e16817a4e73eb2b1ae6ccc2f8a7ce90efe680e23a4dca76713"
+    },
+    {
+      "path": ".harness/engine/templates/playbooks/debug-root-cause.md",
+      "sha256": "3f9294474a7f49c6aa81f3279afeceb11f25e01f6f7061e84207363744f1d9f6"
+    },
+    {
+      "path": ".harness/engine/templates/retro-record.md",
+      "sha256": "6e3825ab947dac513a5f4f033c333c9a8dffdc10cb647e053e05e390b0ca8ac9"
+    },
+    {
+      "path": ".harness/engine/templates/roadmap.md",
+      "sha256": "b9a1ccd11bd01f615512aa8557c5a3abeb370683889def907847ff1fe36058cd"
+    },
+    {
+      "path": ".harness/engine/templates/session-resume-precedence.md",
+      "sha256": "5eb47f62f9a79a608ae53d1b7f7623ffa9af0d0655a2d34e97af274b64976499"
+    },
+    {
+      "path": ".harness/engine/templates/skill-state-ritual.md",
+      "sha256": "ce0430e0edcfba13fd34f903ce87b3928ea52c625a54b014f1ac36158de7640e"
+    },
+    {
+      "path": ".harness/engine/templates/sprint-progress.md",
+      "sha256": "5adecbd28f802549fd88526f8020df9db8c92a2d8bf7e9f3d77e6aecbb3544c1"
+    },
+    {
+      "path": ".harness/engine/templates/sprint.md",
+      "sha256": "4f4ab82be146006026a19b3e78183f1cf0a0f93f23acd9db08085a86bb7dde61"
+    },
+    {
+      "path": ".harness/engine/templates/stack-rule.md",
+      "sha256": "62b4555ea2d476af8f0c74ce9fba3f5d4d09f4048698417e5e0c7fe5d21c55d7"
+    },
+    {
+      "path": ".harness/engine/templates/sweep-record.md",
+      "sha256": "23310ec04d039ed18fa0c4003fc2f25de3b4eba69c0538a24d9049948398f44f"
+    },
+    {
+      "path": ".harness/engine/templates/verify-record.md",
+      "sha256": "803691cf7711e9584f343c190e4ebc02bbd175060b934471c93fa08b3380cdb5"
+    },
+    {
+      "path": ".harness/scripts/bundle.mjs",
+      "sha256": "65789d26aaaf74cffab3de3b25b5d21d41e68967c1beaa497017281a297961b9"
+    },
+    {
+      "path": ".harness/scripts/capture-candidates.mjs",
+      "sha256": "61ecf3a8004fe483e074e624ab4a3fdf1a6c6b6095b15e7b2cd15a9406cfcd64"
+    },
+    {
+      "path": ".harness/scripts/carryover-refresh.mjs",
+      "sha256": "9b9f1cba9fb4a146b7d3fe887e792aed3ad30fb8fa67c1dba57f15b68f7f31d7"
+    },
+    {
+      "path": ".harness/scripts/close-ready.mjs",
+      "sha256": "68a3cc7f46f35fa7eb5f43d06589a26fbdcfebb09855ce92d28798d6996bb45f"
+    },
+    {
+      "path": ".harness/scripts/commit-receipt.mjs",
+      "sha256": "3c3610b9c025b14c116ed75819705ae86e8bbb696fa4a3b3a9b09d59037f5801"
+    },
+    {
+      "path": ".harness/scripts/context-cost-refresh.mjs",
+      "sha256": "438b0dd07768f3222dcc458858cdcba30f35c32f2e47610300a5885619bd2054"
+    },
+    {
+      "path": ".harness/scripts/context-digest.mjs",
+      "sha256": "3df43c06c1b06f58e7b18919e07086909d0cb1246422d3f717ec2513b3f32aad"
+    },
+    {
+      "path": ".harness/scripts/design-system.mjs",
+      "sha256": "919176cc0121acc761095b1726053d3a8d4e947b4be816c656221c5852fe1e0d"
+    },
+    {
+      "path": ".harness/scripts/doctor.mjs",
+      "sha256": "3b452fd8535871355083534226f1ea3e58d0aab7fef94bc67aa591595954d045"
+    },
+    {
+      "path": ".harness/scripts/gates/lib/diff-paths.mjs",
+      "sha256": "671c245135b40a7d48747aac16ee4181a89ab818220f80c0f22e6164d96f55d1"
+    },
+    {
+      "path": ".harness/scripts/gates/quality-gate.mjs",
+      "sha256": "baa4654de6edf6d001e9c5eaa898c71ac88281044a5dbb0dff0e40cb4e2cf52c"
+    },
+    {
+      "path": ".harness/scripts/gates/test-gate.mjs",
+      "sha256": "b943a4c10b9e0a31ec2cb399f42df0ff7a7397326070edb8d42db5d38212faf6"
+    },
+    {
+      "path": ".harness/scripts/gitignore-merge.mjs",
+      "sha256": "dee8e5fe1881a3740853026efde2c2c99dd2d7e3d73043b1041144e312ebc045"
+    },
+    {
+      "path": ".harness/scripts/install-context.mjs",
+      "sha256": "e08accc5118ed5f70a652bbadafa0d87efd1093fe6a7d3f2676b33d8f0391eaa"
+    },
+    {
+      "path": ".harness/scripts/install-diagnose.mjs",
+      "sha256": "562f955b8be4e316101a8e596bc13496a0c1d0cdbe3e2b4bad74a6665ed4c073"
+    },
+    {
+      "path": ".harness/scripts/lib/capture-candidates.mjs",
+      "sha256": "69be9a67b8a27d05074c75085f87ceeeada5eae008fb63b2a10a3f71cefd39c7"
+    },
+    {
+      "path": ".harness/scripts/lib/carryover.mjs",
+      "sha256": "4b47d37fd81d65c337b7266295f4d2368711efb621f19564314804b5f123dc67"
+    },
+    {
+      "path": ".harness/scripts/lib/close-ready.mjs",
+      "sha256": "436a07816edf9721f6e0a5d890fd874f8dc6aaec78850603057722009e9805ba"
+    },
+    {
+      "path": ".harness/scripts/lib/commit-receipt.mjs",
+      "sha256": "eaa5843dfd588a0f6cb7727b020c43ab81fdbb6dc879063803595f6ee45fc8f9"
+    },
+    {
+      "path": ".harness/scripts/lib/context-cost.mjs",
+      "sha256": "fd62e7a44fd77a723e4d8181d29325f5cb1cbf05fcc8efca83e4e7d6625a659b"
+    },
+    {
+      "path": ".harness/scripts/lib/context-digest.mjs",
+      "sha256": "2a023c7e615c5c573d117c8114df677e305bd2fddcf8dbc7a176650ddf924ae2"
+    },
+    {
+      "path": ".harness/scripts/lib/frontmatter.mjs",
+      "sha256": "89988198997f6fec4a2b63719e972b6c55e7936d34f8cc52982abbbc1f1361f4"
+    },
+    {
+      "path": ".harness/scripts/lib/gate-evidence.mjs",
+      "sha256": "26ab225e5529d1f63271007a2125cff06466fe4cc7dd2d3e4001dca0dc3f8b51"
+    },
+    {
+      "path": ".harness/scripts/lib/gate-result.mjs",
+      "sha256": "a9b383b7c9e4c64261b1f6020a50777d9822fe110c69e4f75870b786afb1ef42"
+    },
+    {
+      "path": ".harness/scripts/lib/install-cmd.mjs",
+      "sha256": "04f811f177917f8173bc31ecd3f3350599ad5d9c7d16bcd841e752c7542b0f4d"
+    },
+    {
+      "path": ".harness/scripts/lib/lifecycle-journal.mjs",
+      "sha256": "e92d4bf073b7efb2ebe7099c1d6965a111e3d106030105e966bce36fb2865caa"
+    },
+    {
+      "path": ".harness/scripts/lib/migrate-state.mjs",
+      "sha256": "1a94b96260fac49aba25158afbaa2734086549237a317a94049107d27d375b77"
+    },
+    {
+      "path": ".harness/scripts/lib/quality-log.mjs",
+      "sha256": "6a41b761d73fed9168eda578811a7f2527a6be2ccd58e73ef31db8939487ad14"
+    },
+    {
+      "path": ".harness/scripts/lib/recall-fifo.mjs",
+      "sha256": "6e2039f2156993df45b37eae4e3f576a64e38c74cf30efc16923e7068e4f83b9"
+    },
+    {
+      "path": ".harness/scripts/lib/recall-score.mjs",
+      "sha256": "e34dfea331a7a75d53d29b5d0f1125ab2260e19c3a2ff8c73c9aa6cd07eb9732"
+    },
+    {
+      "path": ".harness/scripts/lib/reconcile.mjs",
+      "sha256": "87c17d67481bb3f7c80247ebbc49ca01950ff578e01675f55da37d1dcf63f25b"
+    },
+    {
+      "path": ".harness/scripts/lib/trace-models.mjs",
+      "sha256": "460316a75d3f5c6eb8b4f63ccea4bf829632c58041f22e030027b107e6615a12"
+    },
+    {
+      "path": ".harness/scripts/lib/trace-store.mjs",
+      "sha256": "1e0cd17e9ed24f37d82fbb9f00b1128eb4dcb2eeae2a23f9a9cbb03b9f90397d"
+    },
+    {
+      "path": ".harness/scripts/lib/walk.mjs",
+      "sha256": "db8c0163efdeb2014c81344909165ef13a66c214b1593cff45eb0faf42b8b5c4"
+    },
+    {
+      "path": ".harness/scripts/lifecycle-journal.mjs",
+      "sha256": "1a0246907028b002fec223a195496de94c32f001a90a6a5a9b75fb046ee45d2a"
+    },
+    {
+      "path": ".harness/scripts/mcp-cursor-sync.mjs",
+      "sha256": "e3940abca9ab27c927f8baa424b36c50916a78c23a8714eb19f9367871c6d8d8"
+    },
+    {
+      "path": ".harness/scripts/mcp-drift.mjs",
+      "sha256": "156487d1fd1893185e2cc285459beb928951ca737335d6abfe9da5c4c3103f20"
+    },
+    {
+      "path": ".harness/scripts/migrate-layout.mjs",
+      "sha256": "5e488470ae844c35a6b1aaa5ee52f6607c15a96333a630608a9dc6e1ab9d447f"
+    },
+    {
+      "path": ".harness/scripts/model-profiles.mjs",
+      "sha256": "014891cadafc9f82d6b9ad62d56eb00542860f6775a008bf83b7315448ce4f7f"
+    },
+    {
+      "path": ".harness/scripts/ownership-manifest.mjs",
+      "sha256": "9aaba4bb7f18a2e67bafa39ab7cc7cebb5b8045dbb3d860456076430c679d6e0"
+    },
+    {
+      "path": ".harness/scripts/paths.mjs",
+      "sha256": "52213796cc290521d310f90a9ac48623df45ceb79ad21a477832ab55894464d2"
+    },
+    {
+      "path": ".harness/scripts/portable-skills.mjs",
+      "sha256": "f6ae15a513718c22c5d87f451b934e0247ac022b202f250d65ee7ce8e41a44d6"
+    },
+    {
+      "path": ".harness/scripts/quality-log.mjs",
+      "sha256": "5f2e1e7ffcfcfa1d4cc871fe9f4682aa34e8ef9f467fdf4549dd491fa492e23a"
+    },
+    {
+      "path": ".harness/scripts/recall-rank.mjs",
+      "sha256": "b0787d5b2b93cf8248875679c21a1de082c2ed3cc7fe1564eeb93a9eb8d27389"
+    },
+    {
+      "path": ".harness/scripts/render-adapters.mjs",
+      "sha256": "38a707ffc6140a148e4f6531ac5d22992b9e08092fcfc00299bca97d30dffc60"
+    },
+    {
+      "path": ".harness/scripts/safety/destructive-shell.mjs",
+      "sha256": "c57acecfce550d59199f2a1ac0c09156fab80e8b356621c7423462bc79f0553e"
+    },
+    {
+      "path": ".harness/scripts/safety/gate-commits.mjs",
+      "sha256": "016cdbbbf4264c6b6079cb1d3a004c85ccc441af9ce1428d9d6dd861ae1e18aa"
+    },
+    {
+      "path": ".harness/scripts/safety/lib/hook-io.mjs",
+      "sha256": "551b1cfeffccc6a59445de381c3e88f8402f22e5a2fd04341ae97633d287dd69"
+    },
+    {
+      "path": ".harness/scripts/safety/secrets-prompt.mjs",
+      "sha256": "cc6703b80398c481831e790cad0ab3d53a6e937f3e93051d4626f6113585881d"
+    },
+    {
+      "path": ".harness/scripts/skill-quality-check.mjs",
+      "sha256": "a8a8cddee14a7be84fe71a430c64766588ddf8a331274e556cabe1cb63097aa7"
+    },
+    {
+      "path": ".harness/scripts/skill-registry.mjs",
+      "sha256": "2a6743c1f8ac4456ce08402acbc09977bcd9f48d0e31b041e3addaa899fe1460"
+    },
+    {
+      "path": ".harness/scripts/stage-command-table.mjs",
+      "sha256": "450480fe6a6e8e2f549dcbb9ae3e0ea1268785edfa030adaa01e6d31fc9b5d51"
+    },
+    {
+      "path": ".harness/scripts/status-page.mjs",
+      "sha256": "358d9145634ad30f51edf3636aa0f2f7c4e7c3de829f182a7fa37a34642ff0c2"
+    },
+    {
+      "path": ".harness/scripts/tool-profiles.mjs",
+      "sha256": "ede1f6915a7db37ac0fa0e565e4be7d2633f0bfb15b75559e99f8664994cf9a2"
+    },
+    {
+      "path": ".harness/scripts/trace-hook.mjs",
+      "sha256": "eb843359e0408fe1cea0a1a712129d8b6bab17c621430b3ef2803fb5333e4720"
+    },
+    {
+      "path": ".harness/scripts/trace-inspect.mjs",
+      "sha256": "a67d15ef803b46eb083dd64f878fec949ad26431252a176ecc5b1d48497ffb57"
+    },
+    {
+      "path": ".harness/scripts/trace-write.mjs",
+      "sha256": "25d4e0da30e3333b2aac235d1de7808a2ef31229699fc2ac85a5641f82112c79"
+    },
+    {
+      "path": ".harness/scripts/yaml-lite.mjs",
+      "sha256": "47f021ac23a1f7e1d2101585b81e5ca026a4f75d303c7faf186e5b4eec438817"
+    }
+  ]
+}
