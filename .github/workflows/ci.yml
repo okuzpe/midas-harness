@@ -99,7 +99,7 @@ jobs:
       - name: Update smoke test (preserves cursor-only tools)
         run: |
           node cli/index.mjs --tools=cursor /tmp/midas-update-smoke
-          node cli/index.mjs update /tmp/midas-update-smoke
+          node cli/index.mjs update --offline /tmp/midas-update-smoke
           grep -q 'tools: \[cursor\]' /tmp/midas-update-smoke/.harness/state.yaml
           test -d /tmp/midas-update-smoke/.cursor/skills
           test ! -e /tmp/midas-update-smoke/.claude
@@ -133,7 +133,7 @@ jobs:
             fs.writeFileSync(p, JSON.stringify(m, null, 2));
           '
           echo 'I edited this before it was dropped' >> /tmp/midas-update-smoke/.harness/engine/dropped.md
-          node cli/index.mjs update --yes /tmp/midas-update-smoke
+          node cli/index.mjs update --yes --offline /tmp/midas-update-smoke
           test ! -e /tmp/midas-update-smoke/.harness/engine/dropped.md
           test -f /tmp/midas-update-smoke/.harness/engine/stray.md
           test -f /tmp/midas-update-smoke/.harness/rules/mine.md

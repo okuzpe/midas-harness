@@ -9,6 +9,17 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+## [2.10.3] — 2026-08-30
+
+### Fixed
+
+- **Fresh install creates `.harness/product`, `.harness/rules`, and `.harness/runs`** — those
+  user-owned dirs are empty in git so `copyTree` never made them. CI thin-root smoke was failing
+  on `test -d .harness/product` after a successful install.
+- **Stable `bundle-integrity` only fails a same-version tamper** — a project that follows `stable`
+  can still `update` from a newer local/main bundle. Tests and CI smokes pass `--offline` so they
+  do not depend on the live channel.
+
 ## [2.10.2] — 2026-08-30
 
 ### Fixed
@@ -1890,7 +1901,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.10.2...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.10.3...HEAD
+[2.10.3]: https://github.com/okuzpe/midas-harness/compare/v2.10.2...v2.10.3
 [2.10.2]: https://github.com/okuzpe/midas-harness/compare/v2.10.1...v2.10.2
 [2.10.1]: https://github.com/okuzpe/midas-harness/compare/v2.10.0...v2.10.1
 [2.10.0]: https://github.com/okuzpe/midas-harness/compare/v2.9.9...v2.10.0

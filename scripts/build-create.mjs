@@ -117,4 +117,10 @@ const tmpl = readFileSync(join(ROOT, 'harness', 'templates', 'AGENTS.md.tmpl'), 
 const projectAgents = tmpl.replace(/^[\s\S]*?\}\}\s*(?=# AGENTS\.md)/, '');
 writeFileSync(join(TEMPLATE, 'AGENTS.md'), projectAgents, 'utf8');
 
+// Empty user-owned layout dirs (git cannot store them). copyTree plus the installer mkdir them.
+for (const rel of ['.harness/product', '.harness/rules', '.harness/runs']) {
+  mkdirSync(join(TEMPLATE, rel), { recursive: true });
+  writeFileSync(join(TEMPLATE, rel, '.gitkeep'), '');
+}
+
 console.log('cli: template assembled at cli/template/ from source (project AGENTS.md rendered)');

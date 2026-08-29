@@ -1,7 +1,7 @@
 # Engine source repo — NOT a Midas product lifecycle. Lifecycle CI fixture = scripts/fixtures/product-closed/.
 # `layout: classic` here means contributor path overrides (engine authoring), NOT a v1 product install.
 # Product installs use layout: harness under .harness/state.yaml (ADR-007).
-midas_version: 2.10.2
+midas_version: 2.10.3
 layout: classic
 paths:
   engine: harness

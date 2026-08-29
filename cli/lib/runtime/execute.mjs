@@ -548,6 +548,7 @@ async function executeInstallerCommand(cmd, hooks) {
 
       async applyWriteState() {
         session.paths = await loadPaths(TARGET);
+        ensureUserLayoutDirs(session.paths);
         if ((update || migrate) && hasToolsFlag()) {
           session.selectedTools = await resolveSelectedTools();
         } else if (update || migrate) {
@@ -782,6 +783,14 @@ function detectInstallLayout(dir) {
 async function loadPaths(target) {
   const mod = await importTrustedScript('paths.mjs');
   return mod.resolvePaths(target);
+}
+
+/** User-owned layout dirs are empty in git, so copyTree never creates them — mkdir on every apply. */
+function ensureUserLayoutDirs(paths) {
+  for (const rel of [paths.product, paths.rules, paths.runs]) {
+    if (!rel) continue;
+    mkdirSync(join(TARGET, rel), { recursive: true });
+  }
 }
 
 /** Walk up from TARGET's parent to the filesystem root; return the first ancestor that holds a Midas

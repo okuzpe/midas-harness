@@ -498,11 +498,18 @@ function gatherChecks(cmd, ctx, deps, channelStatus = null) {
           : `channel ${channelStatus.channel} unavailable — ${channelStatus.fetched.error || 'no manifest'}; refreshing from the bundle`,
       });
       if (channelStatus.integrity.ok === false) {
-        const stableMismatch = channelStatus.channel === 'stable';
+        // Tamper check: only fail when this bundle claims to *be* the published stable
+        // version but the tree hash differs. A newer local/main build on a project that
+        // *follows* stable must stay advisory (otherwise every commit after a tag blocks update).
+        const publishedVer = channelStatus.fetched.manifest?.version;
+        const stableReleaseMismatch =
+          channelStatus.channel === 'stable' &&
+          publishedVer &&
+          publishedVer === deps.bundledVersion;
         out.push({
           id: 'bundle-integrity',
-          ok: !stableMismatch,
-          message: stableMismatch
+          ok: !stableReleaseMismatch,
+          message: stableReleaseMismatch
             ? `${channelStatus.integrity.reason} — this bundle is not the published stable release`
             : `${channelStatus.integrity.reason} — expected on unpinned main, edge, or a local build`,
         });

@@ -31,6 +31,9 @@ try {
     '.harness/scripts/doctor.mjs',
     '.harness/state.yaml',
     '.harness/manifest.json',
+    '.harness/product',
+    '.harness/rules',
+    '.harness/runs',
     'AGENTS.md',
   ]) {
     if (!existsSync(join(target, rel))) throw new Error(`missing ${rel}`);
@@ -65,7 +68,7 @@ try {
   const doctor = run([join(target, '.harness', 'scripts', 'doctor.mjs'), '--strict']);
   if (doctor.status !== 0) throw new Error(`doctor failed\n${doctor.stdout}\n${doctor.stderr}`);
 
-  const update = run(['cli/index.mjs', '--update', target]);
+  const update = run(['cli/index.mjs', '--update', '--offline', target]);
   if (update.status !== 0) throw new Error(`update failed\n${update.stdout}\n${update.stderr}`);
   console.log(`clean install/update/doctor ok: ${host}`);
 } finally {

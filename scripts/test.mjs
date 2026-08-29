@@ -1317,7 +1317,8 @@ if (engineVersion) {
   check('skill:midas-init:partial-migrate', /partial_migrate/.test(initSkill));
   check(
     'installer:bundle-integrity-fails-stable-mismatch',
-    /ok: !stableMismatch/.test(readFileSync(join(ROOT, 'cli', 'lib', 'workflow', 'engine.mjs'), 'utf8')),
+    /ok: !stableReleaseMismatch/.test(readFileSync(join(ROOT, 'cli', 'lib', 'workflow', 'engine.mjs'), 'utf8')) &&
+      /publishedVer === deps\.bundledVersion/.test(readFileSync(join(ROOT, 'cli', 'lib', 'workflow', 'engine.mjs'), 'utf8')),
   );
 }
 
@@ -1414,6 +1415,11 @@ check(
   'copy-tree:skips-host-discovery-mirrors',
   /isHostDiscoveryMirrorPath/.test(readFileSync(join(ROOT, 'cli', 'lib', 'runtime', 'copy-tree.mjs'), 'utf8')) &&
     /isHostDiscoveryMirrorPath/.test(installerPlanTreeSrc),
+);
+check(
+  'installer:ensures-user-layout-dirs',
+  /function ensureUserLayoutDirs/.test(installerExecuteSrc) &&
+    /ensureUserLayoutDirs\(session\.paths\)/.test(installerExecuteSrc),
 );
 
 // --- N. mcp:declared-vs-wired logic (unit + behavioral via doctor) ------------------------------
@@ -1752,7 +1758,7 @@ if (!TEST_FAST) {
     const pristine = readFileSync(vendor, 'utf8');
     const modified = `${pristine}\nproject edit outside overlay\n`;
     writeFileSync(vendor, modified, 'utf8');
-    const updateResult = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), '--update', updateRoot], {
+    const updateResult = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), '--update', '--offline', updateRoot], {
       cwd: ROOT,
       encoding: 'utf8',
     });
@@ -1784,7 +1790,7 @@ if (!TEST_FAST) {
       savedConflicts.join(', '),
     );
     // A second update must refuse while the saved conflict is unreviewed, and say what to clear.
-    const blocked = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), 'update', '--yes', updateRoot], {
+    const blocked = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), 'update', '--yes', '--offline', updateRoot], {
       cwd: ROOT,
       encoding: 'utf8',
     });
@@ -1795,7 +1801,7 @@ if (!TEST_FAST) {
       blockedOut,
     );
     rmSync(conflictsRoot, { recursive: true, force: true });
-    const cleared = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), 'update', '--yes', updateRoot], {
+    const cleared = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), 'update', '--yes', '--offline', updateRoot], {
       cwd: ROOT,
       encoding: 'utf8',
     });
@@ -1948,7 +1954,7 @@ if (!TEST_FAST) {
 
     const updateResult = spawnSync(
       process.execPath,
-      [join(ROOT, 'cli', 'index.mjs'), 'update', '--yes', pruneRoot],
+      [join(ROOT, 'cli', 'index.mjs'), 'update', '--yes', '--offline', pruneRoot],
       { cwd: ROOT, encoding: 'utf8' },
     );
     const saved = [];
@@ -2039,7 +2045,7 @@ if (!TEST_FAST) {
       if (file.role === 'vendor' && file.sha256) file.sha256 = '0'.repeat(64);
     }
     writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
-    const updateResult = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), '--update', staleRoot], {
+    const updateResult = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), '--update', '--offline', staleRoot], {
       cwd: ROOT,
       encoding: 'utf8',
     });
@@ -2069,7 +2075,7 @@ if (!TEST_FAST) {
     check('installer:update-tools-fixture-install', install.status === 0, install.stderr || install.stdout);
     const updateResult = spawnSync(
       process.execPath,
-      [join(ROOT, 'cli', 'index.mjs'), '--update', '--tools=cursor', pruneRoot],
+      [join(ROOT, 'cli', 'index.mjs'), '--update', '--offline', '--tools=cursor', pruneRoot],
       { cwd: ROOT, encoding: 'utf8' },
     );
     const state = existsSync(join(pruneRoot, '.harness', 'state.yaml'))
@@ -2256,7 +2262,7 @@ if (!TEST_FAST) {
     const before = treeDigest(legacyUpdateRoot);
     const dry = spawnSync(
       process.execPath,
-      [join(ROOT, 'cli', 'index.mjs'), '--update', '--dry-run', legacyUpdateRoot],
+      [join(ROOT, 'cli', 'index.mjs'), '--update', '--dry-run', '--offline', legacyUpdateRoot],
       { cwd: ROOT, encoding: 'utf8' },
     );
     check(
@@ -2268,7 +2274,7 @@ if (!TEST_FAST) {
     );
     const updateResult = spawnSync(
       process.execPath,
-      [join(ROOT, 'cli', 'index.mjs'), '--update', '--yes', legacyUpdateRoot],
+      [join(ROOT, 'cli', 'index.mjs'), '--update', '--yes', '--offline', legacyUpdateRoot],
       { cwd: ROOT, encoding: 'utf8' },
     );
     const out = `${updateResult.stdout}${updateResult.stderr}`;
@@ -2331,7 +2337,7 @@ if (!TEST_FAST) {
     writeFileSync(join(needsRepairRoot, 'product', 'idea.md'), '# idea\n', 'utf8');
     const updateFail = spawnSync(
       process.execPath,
-      [join(ROOT, 'cli', 'index.mjs'), '--update', '--yes', '--tools=cursor', needsRepairRoot],
+      [join(ROOT, 'cli', 'index.mjs'), '--update', '--yes', '--offline', '--tools=cursor', needsRepairRoot],
       {
         cwd: ROOT,
         encoding: 'utf8',
@@ -2371,7 +2377,7 @@ if (!TEST_FAST) {
     const before = treeDigest(updateThrowRoot);
     const thrown = spawnSync(
       process.execPath,
-      [join(ROOT, 'cli', 'index.mjs'), '--update', '--yes', updateThrowRoot],
+      [join(ROOT, 'cli', 'index.mjs'), '--update', '--yes', '--offline', updateThrowRoot],
       {
         cwd: ROOT,
         encoding: 'utf8',
@@ -2408,7 +2414,7 @@ if (!TEST_FAST) {
     writeFileSync(statePath, state, 'utf8');
     const update = spawnSync(
       process.execPath,
-      [join(ROOT, 'cli', 'index.mjs'), '--update', '--yes', harnessVerifyRoot],
+      [join(ROOT, 'cli', 'index.mjs'), '--update', '--yes', '--offline', harnessVerifyRoot],
       {
         cwd: ROOT,
         encoding: 'utf8',
@@ -2472,7 +2478,7 @@ if (!TEST_FAST) {
   const emptyUpdate = mkdtempSync(join(tmpdir(), 'midas-update-empty-'));
   try {
     const before = treeDigest(emptyUpdate);
-    const r = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), '--update', emptyUpdate], {
+    const r = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), '--update', '--offline', emptyUpdate], {
       cwd: ROOT,
       encoding: 'utf8',
     });
@@ -2548,6 +2554,9 @@ if (!TEST_FAST) {
       'installer:cursor-only-thin-root',
       r.status === 0 &&
         existsSync(join(spaced, '.cursor', 'skills')) &&
+        existsSync(join(spaced, '.harness', 'product')) &&
+        existsSync(join(spaced, '.harness', 'rules')) &&
+        existsSync(join(spaced, '.harness', 'runs')) &&
         !existsSync(join(spaced, '.agents')) &&
         !existsSync(join(spaced, '.claude')) &&
         !existsSync(join(spaced, '.windsurf')) &&
@@ -2764,7 +2773,7 @@ if (!TEST_FAST) {
     writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
     const update = spawnSync(
       process.execPath,
-      [join(ROOT, 'cli', 'index.mjs'), '--update', '--yes', upgradeRoot],
+      [join(ROOT, 'cli', 'index.mjs'), '--update', '--yes', '--offline', upgradeRoot],
       { cwd: ROOT, encoding: 'utf8' },
     );
     const newState = readFileSync(statePath, 'utf8');
@@ -2859,7 +2868,7 @@ if (!TEST_FAST) {
     const before = treeDigest(dryConflict);
     const dry = spawnSync(
       process.execPath,
-      [join(ROOT, 'cli', 'index.mjs'), '--update', '--dry-run', '--json', dryConflict],
+      [join(ROOT, 'cli', 'index.mjs'), '--update', '--dry-run', '--offline', '--json', dryConflict],
       { cwd: ROOT, encoding: 'utf8' },
     );
     let envelope = null;
