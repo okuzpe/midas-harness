@@ -5,21 +5,25 @@
 //   node scripts/sandbox-run.mjs env
 //   node scripts/sandbox-run.mjs start-run
 //   node scripts/sandbox-run.mjs finish
+//   node scripts/sandbox-run.mjs grade [--skill <name>] [--ledger]
 //
 // Not shipped to product installs (omit from ship-manifest.mjs).
 
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isEngineRepo } from './engine-only.mjs';
-import { resolvePaths } from './paths.mjs';
+import {
+  EXPECTED_NAME,
+  ROOT,
+  SEED,
+  WORK,
+  inspectSandboxEnv,
+  isPathInside,
+  resetSandbox,
+} from './lib/sandbox-env.mjs';
+import { gradeSandbox, printGrade } from './lib/sandbox-grade.mjs';
 import { runTraceWrite } from './trace-write.mjs';
-
-const HERE = dirname(fileURLToPath(import.meta.url));
-const ROOT = resolve(HERE, '..');
-const SEED = join(ROOT, 'sandbox', 'seed');
-const WORK = join(ROOT, 'sandbox', 'example-product');
-const EXPECTED_NAME = 'sandbox-example';
 
 const HELP = `sandbox-run — mechanical floor for /midas-sandbox (engine only)
 
@@ -28,87 +32,44 @@ Usage:
   node scripts/sandbox-run.mjs env        print resolved paths; exit 1 on isolation fail
   node scripts/sandbox-run.mjs start-run  trace-write start-run scoped to the working copy
   node scripts/sandbox-run.mjs finish     trace-write finish scoped to the working copy
+  node scripts/sandbox-run.mjs grade [--skill <name>] [--ledger]
+      run isolation + skill oracles against the working copy (does not reset)
   node scripts/sandbox-run.mjs --help
 `;
 
 const fsApi = { existsSync, readFileSync };
 const pathApi = { join };
 
-/**
- * @returns {string}
- */
-function readFixtureName(projectRoot) {
-  const statePath = join(projectRoot, '.harness', 'state.yaml');
-  if (!existsSync(statePath)) return '';
-  const m = readFileSync(statePath, 'utf8').match(/^name:\s*(\S+)/m);
-  return m ? m[1].trim() : '';
-}
-
-/**
- * Copy seed → working copy (wipe first).
- * @returns {{ ok: boolean, work: string, error?: string }}
- */
-export function resetSandbox(root = ROOT) {
-  const seed = join(root, 'sandbox', 'seed');
-  const work = join(root, 'sandbox', 'example-product');
-  if (!existsSync(join(seed, '.harness', 'state.yaml'))) {
-    return { ok: false, work, error: `missing seed state at ${join(seed, '.harness', 'state.yaml')}` };
-  }
-  rmSync(work, { recursive: true, force: true });
-  mkdirSync(dirname(work), { recursive: true });
-  cpSync(seed, work, { recursive: true });
-  return { ok: true, work };
-}
-
-/**
- * Resolve and validate isolation: fixture name + engine/scripts point at this repo.
- * @returns {{ ok: boolean, name: string, state: string, engine: string, scripts: string, product: string, error?: string }}
- */
-export function inspectSandboxEnv(root = ROOT) {
-  const work = join(root, 'sandbox', 'example-product');
-  if (!existsSync(join(work, '.harness', 'state.yaml'))) {
-    return {
-      ok: false,
-      name: '',
-      state: '',
-      engine: '',
-      scripts: '',
-      product: '',
-      error: 'working copy missing — run `node scripts/sandbox-run.mjs reset`',
-    };
-  }
-  const paths = resolvePaths(work);
-  const name = readFixtureName(work);
-  const engineAbs = resolve(work, paths.engine);
-  const scriptsAbs = resolve(work, paths.scripts);
-  const wantEngine = resolve(root, 'harness');
-  const wantScripts = resolve(root, 'scripts');
-  const stateAbs = resolve(work, paths.state);
-  const productAbs = resolve(work, paths.product);
-  const ok =
-    name === EXPECTED_NAME &&
-    engineAbs === wantEngine &&
-    scriptsAbs === wantScripts;
-  return {
-    ok,
-    name,
-    state: stateAbs,
-    engine: engineAbs,
-    scripts: scriptsAbs,
-    product: productAbs,
-    error: ok
-      ? undefined
-      : `isolation fail name=${name} engine=${engineAbs} scripts=${scriptsAbs} (want name=${EXPECTED_NAME} engine=${wantEngine} scripts=${wantScripts})`,
-  };
-}
-
 function printEnv(info) {
-  console.log(`name:    ${info.name}`);
-  console.log(`state:   ${info.state}`);
-  console.log(`engine:  ${info.engine}`);
-  console.log(`scripts: ${info.scripts}`);
-  console.log(`product: ${info.product}`);
+  console.log(`name:             ${info.name}`);
+  console.log(`state:            ${info.state}`);
+  console.log(`engine:           ${info.engine}`);
+  console.log(`scripts:          ${info.scripts}`);
+  console.log(`product:          ${info.product}`);
+  console.log(`MIDAS_TRACE_ROOT: ${info.midasTraceRoot}`);
   if (!info.ok) console.error(`sandbox-run env: ${info.error}`);
+}
+
+function bindTraceRoot(work) {
+  process.env.MIDAS_TRACE_ROOT = work;
+}
+
+function parseGradeArgs(argv) {
+  let skill = 'isolation';
+  let ledger = false;
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === '--ledger') {
+      ledger = true;
+      continue;
+    }
+    if (argv[i] === '--skill') {
+      skill = argv[i + 1] || skill;
+      i += 1;
+      continue;
+    }
+    if (argv[i].startsWith('--skill=')) skill = argv[i].slice('--skill='.length);
+  }
+  return { skill, ledger };
 }
 
 function main(argv) {
@@ -141,7 +102,14 @@ function main(argv) {
       console.error(`sandbox-run ${cmd}: ${info.error}`);
       return 1;
     }
-    return runTraceWrite([cmd, ...argv.slice(1)], { projectRoot: WORK });
+    bindTraceRoot(info.work);
+    return runTraceWrite([cmd, ...argv.slice(1)], { projectRoot: info.work });
+  }
+  if (cmd === 'grade') {
+    const { skill, ledger } = parseGradeArgs(argv.slice(1));
+    const result = gradeSandbox({ root: ROOT, skill, ledger });
+    printGrade(result, process.stdout, process.stderr);
+    return result.ok ? 0 : 1;
   }
   console.error(`sandbox-run: unknown command ${cmd}`);
   console.log(HELP);
@@ -155,4 +123,4 @@ if (invokedDirectly) {
   process.exit(main(process.argv.slice(2)));
 }
 
-export { EXPECTED_NAME, SEED, WORK, main };
+export { EXPECTED_NAME, SEED, WORK, ROOT, inspectSandboxEnv, isPathInside, resetSandbox, gradeSandbox, main };

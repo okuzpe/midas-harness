@@ -64,7 +64,7 @@ jobs:
           test ! -e /tmp/midas-smoke/.agents
           test ! -e /tmp/midas-smoke/.windsurf
           test ! -e /tmp/midas-smoke/GEMINI.md
-          node /tmp/midas-smoke/.harness/scripts/doctor.mjs --strict
+          node /tmp/midas-smoke/.harness/scripts/doctor.mjs --strict /tmp/midas-smoke
 
       - name: Installer smoke test (multi-host — non-default coverage)
         run: |
@@ -76,7 +76,7 @@ jobs:
           test -f /tmp/midas-smoke-all/.harness/.windsurf/rules/01-midas-checks.md
           test -f /tmp/midas-smoke-all/GEMINI.md
           test -d /tmp/midas-smoke-all/.claude/skills
-          node /tmp/midas-smoke-all/.harness/scripts/doctor.mjs --strict
+          node /tmp/midas-smoke-all/.harness/scripts/doctor.mjs --strict /tmp/midas-smoke-all
 
       - name: Diagnose smoke test (read-only CLI)
         run: |
@@ -98,13 +98,19 @@ jobs:
           grep -q 'tools: \[cursor\]' /tmp/midas-update-smoke/.harness/state.yaml
           test -d /tmp/midas-update-smoke/.cursor/skills
           test ! -e /tmp/midas-update-smoke/.claude
-          node /tmp/midas-update-smoke/.harness/scripts/doctor.mjs --strict
+          node /tmp/midas-update-smoke/.harness/scripts/doctor.mjs --strict /tmp/midas-update-smoke
 
       - name: Update reconciliation smoke test (channel check + prune + conflict)
         run: |
           node scripts/release-manifest.mjs --channel=stable --commit="$GITHUB_SHA" -o=/tmp/midas-release.json
           # Nothing new: the installed tree hashes to exactly what we just published.
+          # --check uses 0/1/2; bash -e would treat 1 (available) as a step failure.
+          set +e
           node cli/index.mjs update --check --manifest-file=/tmp/midas-release.json /tmp/midas-update-smoke
+          check_code=$?
+          set -e
+          echo "update --check exit=$check_code (want 0 = current)"
+          test "$check_code" -eq 0
           # A file the bundle no longer ships must be deleted, an edited vendor file saved aside,
           # and user-owned rules left alone.
           echo '# dropped by a later bundle' > /tmp/midas-update-smoke/.harness/engine/dropped.md
@@ -131,7 +137,7 @@ jobs:
           find /tmp/midas-update-smoke/.harness/conflicts -name '*.midas-conflict' | grep -q conventions
           find /tmp/midas-update-smoke/.harness/conflicts -name 'dropped.md.midas-conflict' | grep -q dropped
           rm -rf /tmp/midas-update-smoke/.harness/conflicts
-          node /tmp/midas-update-smoke/.harness/scripts/doctor.mjs --strict
+          node /tmp/midas-update-smoke/.harness/scripts/doctor.mjs --strict /tmp/midas-update-smoke
 
       - name: npm pack dry-run
         run: npm pack --dry-run 2>&1 | grep -q cli

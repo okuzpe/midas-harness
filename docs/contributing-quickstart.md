@@ -15,4 +15,4 @@ One page — edit the source, then align.
 
 **Before commit (engine):** `npm run align` then `/midas-precommit` (overall ≥ 80).
 
-Full map: [repository-architecture.md](./repository-architecture.md) · [CONTRIBUTING.md](../CONTRIBUTING.md) · [precommit-gate.md](./precommit-gate.md).
+Full map: [repository-architecture.md](./repository-architecture.md) · [CONTRIBUTING.md](https://github.com/okuzpe/midas-harness/blob/main/CONTRIBUTING.md) · [precommit-gate.md](./precommit-gate.md).

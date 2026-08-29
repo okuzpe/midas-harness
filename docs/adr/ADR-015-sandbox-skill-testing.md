@@ -19,9 +19,10 @@ engine repo into a product install (forbidden by `harness/rules/engine-repo-boun
 1. **New engine-only skill** `harness/skills/midas-sandbox/SKILL.md` (added to
    `scripts/engine-only.mjs` `ENGINE_ONLY_SKILLS` — stripped from `cli/template` and
    `harness/plugins/midas`, same mechanism as `midas-precommit`).
-2. **New nested fixture** `sandbox/example-product/.harness/` — a real (not vendored) product
-   install at an early stage, following the same "nested is allowed, root is not" exception already
-   granted to `scripts/fixtures/*` (`harness/rules/engine-repo-boundary.md`).
+2. **Nested fixture:** committed seed `sandbox/seed/` (product-root tree, including
+   `.harness/state.yaml`) copied onto gitignored `sandbox/example-product/` via
+   `scripts/sandbox-run.mjs reset`. Same "nested is allowed, root is not" exception as
+   `scripts/fixtures/*` (`harness/rules/engine-repo-boundary.md`).
 3. **Cross-repo path override (sandbox-only):** the fixture's `state.yaml` sets `paths.engine` /
    `paths.scripts` to `../../harness` / `../../scripts`, pointing back at this repo's real source
    instead of vendoring a copy — the only way a subagent runs the *current* skill text with zero
@@ -63,6 +64,14 @@ engine repo into a product install (forbidden by `harness/rules/engine-repo-boun
 
 ## Amendment
 
+- **2026-08-30** — Deterministic oracles (`sandbox/oracles/*.json`) + `sandbox-run grade`
+  (`MIDAS_SANDBOX_ORACLE:`). Isolation hash of engine `harness/state.yaml` at reset. Opt-in
+  `_ledger.jsonl`. Composer does not self-score.
+- **2026-08-30** — `sandbox-run env` fails unless resolved `paths.state` (and product/rules/runs/cache)
+  live under the working copy. Default / `--smoke` / `--all` always `reset` first. `env` prints
+  `MIDAS_TRACE_ROOT:`; the parent must pass that env into every Task `trace-write` (the runner
+  cannot export it to Cursor Task). Target skill runs in-process in the composer-2.5 Task — no
+  nested builder on another model.
 - **2026-08-28** — Isolation runner (`scripts/sandbox-run.mjs`: reset / env / trace wrappers).
   Working copy is gitignored and restored from `sandbox/seed/`. Findings require a class
   (`harness-gap` | `model-miss` | `fixture-limit` | `isolation-bug`). Template

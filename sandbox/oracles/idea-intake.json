@@ -1,0 +1,11 @@
+{
+  "skill": "idea-intake",
+  "checks": [
+    { "id": "idea-file", "type": "file_exists", "path": "{product}/idea.md" },
+    { "id": "raw-heading", "type": "file_contains", "path": "{product}/idea.md", "pattern": "## Raw idea (preserved verbatim)" },
+    { "id": "pitch-heading", "type": "file_contains", "path": "{product}/idea.md", "pattern": "## 1-line pitch" },
+    { "id": "pitch-not-todo", "type": "file_not_contains", "path": "{product}/idea.md", "pattern": "<!-- TODO: one sentence" },
+    { "id": "mode-heading", "type": "file_contains", "path": "{product}/idea.md", "pattern": "## Mode" },
+    { "id": "mode-state", "type": "state_match", "field": "mode", "value": "greenfield" }
+  ]
+}

@@ -527,7 +527,7 @@ export function planImport(root, bundle, opts = {}) {
     ? parseMidasVersion(readFileSync(join(root, paths.state), 'utf8'))
     : null;
   if (bundle.midas_version && destVersion && compareSemver(bundle.midas_version, destVersion) > 0) {
-    warnings.push(`bundle midas_version ${bundle.midas_version} > dest ${destVersion} — consider /midas-init (tips pinned --update)`);
+    warnings.push(`bundle midas_version ${bundle.midas_version} > dest ${destVersion} — consider /midas-init (tips pinned update)`);
   }
 
   if (bundle.state_yaml && replaceState) {

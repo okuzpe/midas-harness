@@ -25,10 +25,11 @@ Dispatches a **real** Midas skill (unmodified, from `harness/skills/`) against
 | Does | Does not |
 |---|---|
 | Abort unless cwd is midas-harness engine | Run on product installs / template trees |
-| Require `sandbox-run env` exit 0 before any Task | Read engine `harness/state.yaml` as product state |
-| Run skills on `composer-2.5` (never `-fast`) | Auto-apply findings to harness source |
-| Log `[SANDBOX AUTO-DECISION]` for every substituted AskQuestion | Touch engine contributor `harness/state.yaml` |
+| Always `reset` then require `env` exit 0 before any Task | Trust a dirty `example-product/` or engine `harness/state.yaml` |
+| Run the target skill **in** the composer-2.5 Task | Spawn nested Task / `midas-builder` on another model |
+| Log `[SANDBOX AUTO-DECISION]` for every substituted AskQuestion | Auto-apply findings to harness source |
 | Write `sandbox/findings/<date>-<mode>.md` + `MIDAS_SANDBOX_RESULT:` | Advance real engine `stage` / gates |
+| Run `sandbox-run grade` (disk oracles) after the Task | Let composer grade its own homework |
 
 ## Engine guard (hard)
 
@@ -37,32 +38,41 @@ Dispatches a **real** Midas skill (unmodified, from `harness/skills/`) against
 
 ## Isolation (step 0)
 
-1. If `sandbox/example-product/.harness/state.yaml` is missing:
-   `node scripts/sandbox-run.mjs reset`.
-2. `node scripts/sandbox-run.mjs env` — must exit 0. Non-zero → `isolation-bug`, **STOP**.
-3. Task prompt: first Read is `sandbox/example-product/.harness/state.yaml`. If `name` is not
-   `sandbox-example` → **STOP** (`isolation-bug`). Full contract: `sandbox/README.md`.
+Cursor Task has no cwd pin. The parent must make the fixture honest; the Task must not rediscover the engine repo.
 
-Trace: `node scripts/sandbox-run.mjs start-run` before the Task, `finish` after (sets
-`MIDAS_TRACE_ROOT` to the working copy). Optional `--freeze` appends full `trace-inspect` output.
+1. **Always** `node scripts/sandbox-run.mjs reset` (wipes a dirty working copy). Then
+   `node scripts/sandbox-run.mjs env` — must exit 0. Copy the `MIDAS_TRACE_ROOT:` line.
+   Non-zero after a fresh reset → `isolation-bug`, **STOP** (seed is broken; do not retry).
+2. Task prompt (mandatory lines):
+   - First Read: `sandbox/example-product/.harness/state.yaml`. If `name` is not `sandbox-example` → **STOP** (`isolation-bug`).
+   - Product root is `sandbox/example-product/` only. Never read engine `harness/state.yaml` as product state.
+   - Execute the target skill **in this Task**. Do not spawn a nested Task or `midas-builder` with another model.
+   - Every `node …/trace-write.mjs` subprocess gets env `MIDAS_TRACE_ROOT` = the value from `env`.
+     `start-run` binds it for **that** process only; it does not export it to the Task.
+3. Parent: `node scripts/sandbox-run.mjs start-run` before the Task, `finish` after.
+   Then **`node scripts/sandbox-run.mjs grade --skill <name> --ledger`**. Cite
+   `MIDAS_SANDBOX_ORACLE:` in findings Setup. Oracle `verdict=fail` ⇒ sandbox `verdict=fail`
+   even if the Task claimed pass. Optional `--freeze` appends full `trace-inspect` output.
+
+Full contract: `sandbox/README.md`.
 
 ## Modes
 
 ### `/midas-sandbox [--skill <name>]` — one skill
 
-If `--skill` omitted, next command from `<paths.engine>/stage-command-table.yaml` for the
-**fixture** `stage`. One composer-2.5 Task. Then findings + tally.
+Step 0, then one composer-2.5 Task. If `--skill` omitted, next command from
+`<paths.engine>/stage-command-table.yaml` for the **fixture** `stage`. Then findings + tally.
 
 ### `/midas-sandbox --smoke` — touched + next
 
-Run the named or staged-touched skill, then the next stage-table command. Precommit Step 0
-recommends this. **Stage mismatch:** still launch; the skill's own STOP/precondition is
-`fixture-limit` unless that abort is missing or misleading (`harness-gap`). Do not rewrite
-fixture `stage` to fake a body run.
+Step 0 once, then the named or staged-touched skill, then the next stage-table command.
+Precommit Step 0 recommends this. **Stage mismatch:** still launch; the skill's own
+STOP/precondition is `fixture-limit` unless that abort is missing or misleading (`harness-gap`).
+Do not rewrite fixture `stage` to fake a body run.
 
 ### `/midas-sandbox --all` — pipeline batch
 
-`AskQuestion` once to confirm cost. Reuse the same working copy (reset first). One continuous
+`AskQuestion` once to confirm cost. Step 0 once, then reuse that working copy. One continuous
 trace (`start-run` once, `finish` once). Tag phases 2–4 `fixture-limit` unless a procedure bug
 is obvious. Findings get `## Harness analysis`.
 
@@ -79,8 +89,8 @@ class `harness-gap` | `model-miss` | `fixture-limit` | `isolation-bug`) · Propo
 MIDAS_SANDBOX_RESULT: skill=<name|list> mode=single|smoke|all verdict=pass|fail auto_decisions=N isolation=ok|fail
 ```
 
-`verdict=fail` if isolation failed or the skill under test crashed before its own exit gate.
-`isolation=fail` is always `verdict=fail`.
+`verdict=fail` if isolation failed, the oracle failed, or the skill under test crashed before its
+own exit gate. `isolation=fail` is always `verdict=fail`.
 
 ## Scope note
 
@@ -89,9 +99,9 @@ go/no-go. Say so in findings for phases 2–4.
 
 ## Tier & delegation
 
-- **Dispatch:** `build` → `midas-builder` for the parent turn (env/reset, findings, tally).
-- **Sandbox Task:** always `model: "composer-2.5"` — never `composer-2.5-fast`. Cursor-only pin;
-  not a fourth Claude tier (`<paths.engine>/rules/model-routing.md`).
+- **Dispatch:** `build` → `midas-builder` for the **parent** turn only (reset/env, findings, tally).
+- **Sandbox Task:** always `model: "composer-2.5"` — never `composer-2.5-fast`. Run the target
+  skill in-process in that Task. Not a fourth Claude tier (`<paths.engine>/rules/model-routing.md`).
 - `--all` is opt-in and cost-confirmed; default is one skill; precommit prefers `--smoke`.
 
 ## When NOT
@@ -103,8 +113,10 @@ go/no-go. Say so in findings for phases 2–4.
 ## Exit gate
 
 - [ ] Engine guard passed (or honest ABORT).
-- [ ] `sandbox-run env` exited 0; fixture `name` is `sandbox-example`.
+- [ ] `reset` then `env` exited 0; fixture `name` is `sandbox-example`.
+- [ ] `grade --skill <name>` printed `MIDAS_SANDBOX_ORACLE:` with `verdict=pass` (or fail cited).
+- [ ] Task first-Read was the fixture state; no nested Task / other-model builder.
 - [ ] Every substituted `AskQuestion` is a `[SANDBOX AUTO-DECISION]` line.
-- [ ] Subagent model was `composer-2.5` (cited in Setup).
+- [ ] Subagent model was `composer-2.5` (cited in Setup); `MIDAS_TRACE_ROOT` passed to trace-write.
 - [ ] Findings file written; no writes under `harness/skills/*` or `harness/rules/*`.
 - [ ] `MIDAS_SANDBOX_RESULT:` printed; `--all` only after cost confirmation.

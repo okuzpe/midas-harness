@@ -173,7 +173,7 @@ the project-local `AGENTS.md`, adapters, and state file.
 
 The catalog lives under `harness/.claude-plugin/` (not repo root), so `/plugin marketplace add
 okuzpe/midas-harness` without a local clone will not find it. For a one-shot install without cloning,
-use `npx create-midas` or `npx github:okuzpe/midas-harness` — see [INSTALL.md](../INSTALL.md).
+use `npx create-midas` or `npx github:okuzpe/midas-harness` — see [INSTALL.md](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md).
 
 ## Checks and ownership
 
@@ -257,7 +257,7 @@ Default `--tools=cursor` → skills under `.cursor/skills/` only. Classic, compa
 read-only migration inputs; `--update` never relocates them. Path resolution is in
 `scripts/paths.mjs`; skills read `layout` + `paths` from state and substitute `{runs}/` and
 `{product}/` tokens. Update / conflict / ownership-manifest **reconciliation** contract:
-[INSTALL.md § Updating an existing install](../INSTALL.md#updating-an-existing-install)
+[INSTALL.md § Updating an existing install](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md#updating-an-existing-install)
 (guards: `installer:update-stale-manifest-refresh`, `installer:update-vendor-conflict-prewrite`).
 
 **Optional autonomy** (ADR-009): `create-midas --autonomy` copies `harness/autonomy/` →

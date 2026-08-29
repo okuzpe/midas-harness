@@ -15,6 +15,7 @@ import {
   writeMigrationReceipt,
 } from '../../migrate-harness.mjs';
 import {
+  bundledVendorPaths,
   readOwnershipManifest,
   sha256File,
   writeOwnershipManifest,
@@ -629,7 +630,10 @@ async function executeInstallerCommand(cmd, hooks) {
         // Always align preserved state.yaml with the engine we just laid down (re-install without --update).
         updatedTo = bumpVersionStamp(paths);
         const installedVersion = (readMaybe(join(TARGET, paths.version)) || '0.0.0').trim();
-        writeOwnershipManifest(TARGET, installedVersion, channelMeta);
+        writeOwnershipManifest(TARGET, installedVersion, {
+          ...channelMeta,
+          vendorAllowlist: bundledVendorPaths(TEMPLATE, TARGET),
+        });
       },
 
       async applyVerifyDoctor() {

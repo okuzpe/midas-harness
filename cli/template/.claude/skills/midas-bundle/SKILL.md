@@ -80,7 +80,7 @@ import `--merge` (state stays from init) → `/midas-doctor --fix`.
 ## When NOT
 
 - Sync adapters / gitignore only → `/midas-doctor`.
-- Engine version migration → `/midas-init` (diagnose tips pinned `--update`).
+- Engine version migration → `/midas-init` (diagnose tips pinned `update`).
 - Crystallize one recurring pattern → `/midas-capture` (not a full export).
 - Pipeline phase work → the matching phase skill / `/midas-status`.
 

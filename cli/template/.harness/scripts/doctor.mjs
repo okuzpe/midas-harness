@@ -1056,7 +1056,7 @@ if (!stateRaw) {
     check(
       'autonomy:capability',
       'ok',
-      'not installed — optional: npx … --update --autonomy then /midas-auto-pilot setup (CLI: midas-autopilot setup)',
+      'not installed — optional: npx … update --autonomy then /midas-auto-pilot setup (CLI: midas-autopilot setup)',
     );
   } else {
     const policyPath = join(ROOT, '.harness', 'autonomy', 'policy.yaml');

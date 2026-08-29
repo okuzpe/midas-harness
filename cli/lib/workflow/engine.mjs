@@ -494,10 +494,13 @@ function gatherChecks(cmd, ctx, deps, channelStatus = null) {
           : `channel ${channelStatus.channel} unavailable — ${channelStatus.fetched.error || 'no manifest'}; refreshing from the bundle`,
       });
       if (channelStatus.integrity.ok === false) {
+        const stableMismatch = channelStatus.channel === 'stable';
         out.push({
           id: 'bundle-integrity',
-          ok: true,
-          message: `${channelStatus.integrity.reason} — expected on unpinned main or a local build; verify the ref if you pinned a release`,
+          ok: !stableMismatch,
+          message: stableMismatch
+            ? `${channelStatus.integrity.reason} — this bundle is not the published stable release`
+            : `${channelStatus.integrity.reason} — expected on unpinned main, edge, or a local build`,
         });
       }
     }

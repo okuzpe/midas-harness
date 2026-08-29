@@ -9,6 +9,32 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+## [2.10.1] — 2026-08-30
+
+### Added
+
+- **Sandbox oracles** — `node scripts/sandbox-run.mjs grade --skill <name>` checks fixture
+  disk (isolation + per-skill JSON). `--ledger` appends `sandbox/findings/_ledger.jsonl`.
+  Tally: `MIDAS_SANDBOX_ORACLE:`.
+
+### Fixed
+
+- **Untracked vendor leftovers stay untracked** — the rewritten ownership manifest records only
+  files the bundle actually ships. A leftover under `.harness/engine` or `.harness/scripts` is no
+  longer adopted on the first `update` and then deleted on the second.
+- **Docs / CI channel publish** — MkDocs `--strict` no longer dies on links to repo-root
+  `INSTALL.md` / `CONTRIBUTING.md`. Smoke `update --check` captures exit 0/1/2 instead of treating
+  "available" as a failed step. Doctor smoke passes the install directory explicitly.
+- **Diagnose and skills speak `update`** — `relatedCli` emits the `update` subcommand; `partial_migrate`
+  no longer hardcodes `#v2.9.8 --update`. `/midas-reconcile` and `/midas-init` list `partial_migrate`
+  and only run `install-diagnose.mjs` when that file exists.
+- **Stable bundle-integrity** — a hash mismatch on `stable` fails the installer report (`ok: false`);
+  edge / unpinned main stay advisory.
+- **Sandbox isolation (ADR-015)** — `sandbox-run env` fails if lifecycle paths resolve outside
+  `sandbox/example-product/`. Default / `--smoke` always reset from `sandbox/seed/` first.
+  `env` prints `MIDAS_TRACE_ROOT:` for the Task; `start-run` no longer claims to export that
+  env to the subagent.
+
 ## [2.10.0] — 2026-08-29
 
 ### Added
@@ -1854,7 +1880,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.10.0...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.10.1...HEAD
+[2.10.1]: https://github.com/okuzpe/midas-harness/compare/v2.10.0...v2.10.1
 [2.10.0]: https://github.com/okuzpe/midas-harness/compare/v2.9.9...v2.10.0
 [2.9.9]: https://github.com/okuzpe/midas-harness/compare/v2.9.8...v2.9.9
 [2.9.7]: https://github.com/okuzpe/midas-harness/compare/v2.9.6...v2.9.7

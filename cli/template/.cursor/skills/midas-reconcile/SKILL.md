@@ -1,6 +1,6 @@
 ---
 name: midas-reconcile
-description: "Read-only install/orientation check — thin guide to the deterministic diagnose CLI. Detects missing install, setup pending, version behind, or wrong cwd, and prints the single next CLI or slash command. Use when npx --update failed, you are unsure between install/init/adopt/update, or before /midas-status on a confused project."
+description: "Read-only install/orientation check — thin guide to the deterministic diagnose CLI. Detects missing install, setup pending, version behind, or wrong cwd, and prints the single next CLI or slash command. Use when npx update failed, you are unsure between install/init/adopt/update, or before /midas-status on a confused project."
 metadata:
   midas-argument-hint: "[project-root]"
   midas-disable-model-invocation: false
@@ -25,7 +25,7 @@ Use when:
 
 ### 1. Run diagnose (source of truth)
 
-**If `paths.scripts` exists:**
+**If `<paths.scripts>/install-diagnose.mjs` exists as a file:**
 
 ```bash
 node <paths.scripts>/install-diagnose.mjs
@@ -33,19 +33,24 @@ node <paths.scripts>/install-diagnose.mjs
 npx github:okuzpe/midas-harness --diagnose --json
 ```
 
-Canonical v2: `node .harness/scripts/install-diagnose.mjs`
+Canonical v2 install: `node .harness/scripts/install-diagnose.mjs`
 
-**If Midas is not installed yet:**
+**If that file is missing** (engine sandbox seed, or `paths.scripts` points at repo `scripts/`):
 
 ```bash
+# engine repo:
+node cli/install-diagnose.mjs <product-root>
+# otherwise:
 npx github:okuzpe/midas-harness --diagnose
 ```
+
+Do **not** assume `paths.scripts` existing as a directory means `install-diagnose.mjs` is there.
 
 Run from the **project root** (or pass the path as the first argument).
 
 ### 2. Present the output verbatim
 
-Statuses: `not_installed` | `legacy_layout` | `setup_pending` | `version_behind` | `nested_or_wrong_cwd` | `ready`
+Statuses: `not_installed` | `legacy_layout` | `setup_pending` | `version_behind` | `nested_or_wrong_cwd` | `partial_migrate` | `ready`
 
 Do not invent a different command unless the script is missing (fallback below).
 
@@ -54,6 +59,7 @@ Do not invent a different command unless the script is missing (fallback below).
 | Observation | Next step |
 |-------------|-------------|
 | No `.harness/engine/VERSION`, `harness/VERSION`, or `.midas/engine/VERSION` | `npx github:okuzpe/midas-harness#v{VERSION} --tools=cursor` then `/midas-init` |
+| `.harness/product` or `state.yaml` without `.harness/engine/VERSION` | `/midas-init` (`partial_migrate`) — do not treat as a fresh install |
 | `harness/VERSION` or `.midas/engine/VERSION` exists but canonical engine does not | `npx …#v{VERSION} update --yes` (auto-migrates 1.x) |
 | Engine present, `setup_complete: false` | `/midas-init` |
 | v2 `midas_version` ≠ engine `VERSION` | Same: `npx …#v{VERSION} update --yes` (or `/midas-init` for the tip) |

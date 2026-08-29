@@ -149,11 +149,22 @@ export function roleForPath(rel) {
  *
  * @param {string} root
  * @param {string} version
- * @param {{ channel?: string|null, commit?: string|null, ref?: string|null }} [meta]
+ * @param {{
+ *   channel?: string|null,
+ *   commit?: string|null,
+ *   ref?: string|null,
+ *   vendorAllowlist?: Iterable<string>|null,
+ * }} [meta]
  *   Release provenance recorded at install time so `doctor` can compare the installed tree against
  *   a published channel manifest without downloading the bundle.
+ *   `vendorAllowlist` is the bundle's vendor paths. Dest-only leftovers (untracked files inside a
+ *   vendor root) must not enter the ledger: the next update would treat them as dropped and delete
+ *   them. Omit it only for tests that want a raw dest scan.
  */
 export function computeOwnershipManifest(root, version, meta = {}) {
+  const allow = meta.vendorAllowlist
+    ? new Set([...meta.vendorAllowlist].map((p) => String(p).replace(/\\/g, '/')))
+    : null;
   const engineSkills = join(root, '.harness', 'engine', 'skills');
   const engineAgents = join(root, '.harness', 'engine', 'agents');
   const candidates = [
@@ -181,6 +192,7 @@ export function computeOwnershipManifest(root, version, meta = {}) {
     if (seen.has(path)) continue;
     seen.add(path);
     const role = roleForPath(path);
+    if (role === 'vendor' && allow && !allow.has(path.replace(/\\/g, '/'))) continue;
     const abs = join(root, path);
     files.push({
       path,
@@ -206,10 +218,43 @@ export function computeOwnershipManifest(root, version, meta = {}) {
 }
 
 /**
+ * Vendor paths the bundled engine actually ships. Autonomy is included only when the dest
+ * already has `.harness/autonomy` (opt-in copy from `.optional/autonomy`).
+ *
+ * @param {string} templateRoot
+ * @param {string} destRoot
+ * @returns {string[]}
+ */
+export function bundledVendorPaths(templateRoot, destRoot) {
+  const out = [];
+  for (const rootRel of CHANNEL_TREE_ROOTS) {
+    for (const rel of walkFilesRel(join(templateRoot, rootRel), { relativeTo: templateRoot, exclude: [] })) {
+      const path = rel.replace(/\\/g, '/');
+      if (roleForPath(path) === 'vendor') out.push(path);
+    }
+  }
+  const autoSrc = join(templateRoot, '.optional', 'autonomy');
+  const autoDst = join(destRoot, '.harness', 'autonomy');
+  if (existsSync(autoDst) && existsSync(autoSrc)) {
+    for (const rel of walkFilesRel(autoSrc, { relativeTo: autoSrc, exclude: [] })) {
+      const path = `.harness/autonomy/${rel.replace(/\\/g, '/')}`;
+      if (roleForPath(path) === 'vendor' && existsSync(join(destRoot, path))) out.push(path);
+    }
+  }
+  return out;
+}
+
+/**
  * @param {string} root
  * @param {string} version
- * @param {{ channel?: string|null, commit?: string|null, ref?: string|null }} [meta]
+ * @param {{
+ *   channel?: string|null,
+ *   commit?: string|null,
+ *   ref?: string|null,
+ *   vendorAllowlist?: Iterable<string>|null,
+ * }} [meta]
  *   Omitted fields inherit the previous manifest, so a plain re-render never drops provenance.
+ *   `vendorAllowlist` is not inherited: each write must name the bundle that is being recorded.
  */
 export function writeOwnershipManifest(root, version, meta = {}) {
   const path = join(root, '.harness', 'manifest.json');
@@ -218,6 +263,7 @@ export function writeOwnershipManifest(root, version, meta = {}) {
     channel: meta.channel ?? prior?.channel ?? null,
     commit: meta.commit ?? prior?.commit ?? null,
     ref: meta.ref ?? prior?.ref ?? null,
+    vendorAllowlist: meta.vendorAllowlist ?? null,
   });
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, JSON.stringify(manifest, null, 2) + '\n', 'utf8');

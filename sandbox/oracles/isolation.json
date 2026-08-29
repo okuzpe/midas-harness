@@ -1,0 +1,9 @@
+{
+  "skill": "isolation",
+  "checks": [
+    { "id": "env", "type": "env_ok" },
+    { "id": "name", "type": "state_match", "field": "name", "value": "sandbox-example" },
+    { "id": "engine-name", "type": "engine_name", "value": "harness" },
+    { "id": "engine-untouched", "type": "engine_state_untouched" }
+  ]
+}

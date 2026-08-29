@@ -81,6 +81,6 @@ verify the package itself.
 
 ## References
 
-- [INSTALL.md](../../INSTALL.md) — ownership manifest, reconciliation, and conflicts contract
+- [INSTALL.md](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md) — ownership manifest, reconciliation, and conflicts contract
 - [ADR-010](ADR-010-harness-trace-observe.md) — the same fail-open posture for observation paths
 - `scripts/lib/reconcile.mjs`, `scripts/release-manifest.mjs`, `cli/lib/core/release-channel.mjs`

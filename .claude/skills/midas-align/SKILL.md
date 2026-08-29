@@ -54,7 +54,7 @@ If `--fix` and adapters drifted: `node scripts/render-adapters.mjs` then re-run 
    `node <paths.scripts>/render-adapters.mjs` or `/midas-doctor --fix`
 2. Always → `node <paths.scripts>/doctor.mjs`
 3. If product code changed → project test command (from architecture / `AGENTS.md`)
-4. If `harness/VERSION` or `midas_version` semantics changed → `/midas-init` (tips pinned `--update`; not in-place hand edits)
+4. If `harness/VERSION` or `midas_version` semantics changed → `/midas-init` (tips pinned `update`; not in-place hand edits)
 
 ### 3. Version cascade (when `harness/VERSION` or release is in scope)
 Engine repo: **must** run **`npm run bump -- <X.Y.Z>`** (`change-propagation.md` — never hand-scatter
@@ -69,7 +69,7 @@ at the start of `npm run build`). Then confirm:
 - `install.sh` / `install.ps1` read `harness/VERSION` at runtime (no baked pin)
 
 `node scripts/test.mjs` `version:*` / `version-pin:*` checks are authoritative on the engine repo.
-Product installs: `/midas-init` (version tip → CLI `--update`; not in-place hand edits of engine VERSION).
+Product installs: `/midas-init` (version tip → CLI `update`; not in-place hand edits of engine VERSION).
 
 ### 4. Docs and flow sanity (manual, quick)
 When the diff touches skills, installer, layout, or pipeline:

@@ -33,7 +33,7 @@ Keep the reply **≤8 lines** (≤6 when intent + delivery known). No autonomy l
 
 - No install / no `paths.state` → `/midas-reconcile` or install (`INSTALL.md`).
 - No product context (evolve path) → `/midas-init` or `/midas-adopt` first.
-- Sprint path without `.harness/autonomy/` → `--autonomy` via `/midas-init` (tips pinned `--update --autonomy`).
+- Sprint path without `.harness/autonomy/` → `--autonomy` via `/midas-init` (tips pinned `update --autonomy`).
 - Phase-8 gate verdict → `/close-sprint`.
 - Laptop will sleep / Cursor will quit → evolve `cloud` mode; local `/loop` dies with the session.
 

@@ -29,7 +29,7 @@ pnpm dlx github:okuzpe/midas-harness
 bunx github:okuzpe/midas-harness
 ```
 
-To **pin a release**, copy the exact `#v…` command from [INSTALL.md](../INSTALL.md)
+To **pin a release**, copy the exact `#v…` command from [INSTALL.md](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md)
 (matches `harness/VERSION` — do not invent the tag).
 
 **Not sure which command to run?** (install vs update vs init)

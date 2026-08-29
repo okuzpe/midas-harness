@@ -9,7 +9,7 @@ Accepted — 2026-08-10
 The Midas slash catalog (~36 shipped skills) lists many Phase-7 / close **rituals** as peer commands
 (`/midas-progress`, `/midas-qa`, `/midas-diff-gates`, `/midas-lean-review`, `/midas-sweep`). Those
 procedures already nest under `/start-sprint`, `/close-sprint`, and `pipeline/7-sprint-execution.md`
-([docs/skill-flows.md](../skill-flows.md), [methodology.md](../../harness/methodology.md)). Listing
+([docs/skill-flows.md](../skill-flows.md), [methodology.md](../methodology.md)). Listing
 them as primary `/midas-help` options adds noise without adding gates.
 
 ADR-004 already forbids merging `/close-sprint` with tribunal/security. Soft-pass and Muninn F-007

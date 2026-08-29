@@ -19,7 +19,7 @@ Product installs must **not** run this gate — use `/midas-align` + `/midas-doc
 | Before PR / release | `npm run verify` (`test` + `build` + `doctor`) |
 | Qualitative bar ≥ 80 | `/midas-precommit` (agent scorecard + mechanical floor) |
 
-Optional git hook: see [CONTRIBUTING.md](../CONTRIBUTING.md) § Git hooks.
+Optional git hook: see [CONTRIBUTING.md](https://github.com/okuzpe/midas-harness/blob/main/CONTRIBUTING.md) § Git hooks.
 
 ---
 

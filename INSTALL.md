@@ -27,25 +27,25 @@ Run **inside the project** you want to add Midas to. There is one installed layo
 product artifacts, rules, runs, state, cache, and migration metadata live under `.harness/`.
 Only host-required discovery surfaces stay at the repo root.
 
-**Prefer a pinned release** (matches `harness/VERSION` — currently **v2.10.0**):
+**Prefer a pinned release** (matches `harness/VERSION` — currently **v2.10.1**):
 
 **macOS / Linux**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash
-# shim defaults to github:okuzpe/midas-harness#v2.10.0
+# shim defaults to github:okuzpe/midas-harness#v2.10.1
 ```
 
 **Windows (PowerShell)**
 ```powershell
 irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | iex
-# shim defaults to #v2.10.0
+# shim defaults to #v2.10.1
 ```
 
 **Any platform, no shell script** (works with every package manager):
 ```bash
-npx  github:okuzpe/midas-harness#v2.10.0   # recommended — pinned
-pnpm dlx github:okuzpe/midas-harness#v2.10.0
-bunx github:okuzpe/midas-harness#v2.10.0
+npx  github:okuzpe/midas-harness#v2.10.1   # recommended — pinned
+pnpm dlx github:okuzpe/midas-harness#v2.10.1
+bunx github:okuzpe/midas-harness#v2.10.1
 ```
 
 Bleeding-edge (mutable `main`, not for production):
@@ -89,7 +89,7 @@ Post-install doctor: `node .harness/scripts/doctor.mjs --strict`.
 Examples:
 ```bash
 npx github:okuzpe/midas-harness --tools=cursor --dry-run --json   # plan only
-npx github:okuzpe/midas-harness#v2.10.0 update --yes             # refresh in CI
+npx github:okuzpe/midas-harness#v2.10.1 update --yes             # refresh in CI
 npx github:okuzpe/midas-harness --diagnose --json                 # status envelope
 ```
 
@@ -249,7 +249,7 @@ irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | ie
 
 **Any platform (npx):**
 ```bash
-npx github:okuzpe/midas-harness#v2.10.0 update --yes
+npx github:okuzpe/midas-harness#v2.10.1 update --yes
 ```
 
 Preview: add `--dry-run`. Explicit `--migrate` / `--migrate --apply` remain available.
@@ -258,7 +258,7 @@ Preview: add `--dry-run`. Explicit `--migrate` / `--migrate --apply` remain avai
 
 | Situation | Terminal | Then in Cursor |
 |-----------|----------|----------------|
-| **Never installed Midas** | `npx github:okuzpe/midas-harness#v2.10.0 --tools=cursor` | `/midas-init` |
+| **Never installed Midas** | `npx github:okuzpe/midas-harness#v2.10.1 --tools=cursor` | `/midas-init` |
 | **`--update` said "no existing install"** | Same as above — **drop `--update`** | `/midas-init` |
 | Installed, first time in editor | — | `/midas-init` |
 | Installed, `setup_complete: true` | — | `/midas-status` |
@@ -323,24 +323,24 @@ files stay in place and `.harness/cache/installer/active.json` remains so you ca
 
 ```bash
 # Fix the doctor findings, then finish the same run:
-npx github:okuzpe/midas-harness#v2.10.0 update --resume --yes
+npx github:okuzpe/midas-harness#v2.10.1 update --resume --yes
 
 # Or undo this run from the installer journal (migrate path restores classic when the snapshot was full):
-npx github:okuzpe/midas-harness#v2.10.0 update --rollback --yes
+npx github:okuzpe/midas-harness#v2.10.1 update --rollback --yes
 ```
 
 Do **not** pin an installer older than **2.9.8** for classic→harness migrate (releases through
 **2.9.6** could wipe `.harness/engine` without restoring classic on verify abort). Prefer
-**`#v2.10.0+`**. If diagnose reports `partial_migrate` (`.harness/product` without engine) and there
+**`#v2.10.1+`**. If diagnose reports `partial_migrate` (`.harness/product` without engine) and there
 is no journal, restore with git and re-run a pinned `--update`.
 
 **npm 11+ / explicit bin (optional):** the published package exposes one CLI bin (`midas`). The short
-`npx github:okuzpe/midas-harness#v2.10.0 --tools=cursor` form works on current releases. If npm reports
+`npx github:okuzpe/midas-harness#v2.10.1 --tools=cursor` form works on current releases. If npm reports
 `could not determine executable to run`, name the bin explicitly:
 
 ```bash
-npx -y --package=github:okuzpe/midas-harness#v2.10.0 midas --tools=cursor
-npx -y --package=github:okuzpe/midas-harness#v2.10.0 midas update --dry-run
+npx -y --package=github:okuzpe/midas-harness#v2.10.1 midas --tools=cursor
+npx -y --package=github:okuzpe/midas-harness#v2.10.1 midas update --dry-run
 ```
 
 (`midas-autopilot` is installed under `.harness/autonomy/` when you pass `--autonomy`, not as a root npx bin.)
@@ -374,7 +374,7 @@ the last install laid down, what this bundle ships, and what is actually on disk
 | **Vendor conflict** — a `vendor` file on disk no longer matches its recorded SHA (you edited engine source outside an overlay) | **The bundle wins**: your version is copied to `.harness/conflicts/<timestamp>/…​.midas-conflict` first, the file is refreshed, and the update reports it. That path is intentionally outside the gitignored `.harness/cache/` so a later rollback cannot scrub it and git shows it. Move the change into `.harness/rules/` or a product overlay — vendor edits do not survive updates | `installer:update-vendor-conflict-prewrite` in `scripts/test.mjs` |
 | **Stale manifest** — hashes drifted but files still match the engine package | Refreshes normally; there is no silent re-baseline, so drift is always visible in the report | `installer:update-stale-manifest-refresh` |
 | **Dropped file or directory** — the bundle no longer ships something the last install wrote | **Deletes it** (and prunes empty directories). If you had edited the file, the local bytes are copied to `.harness/conflicts/` first. `--rollback` covers a failed run; after a successful update the saved edit is the conflict copy | `installer:update-prunes-dropped-vendor-file`, `installer:update-saves-edited-dropped-vendor-file` |
-| **Untracked file inside a vendor root** — on disk, in neither the old nor the new manifest | **Left in place** and listed in `--dry-run` as a note. Never owned by an install, so never deleted | `installer:update-leaves-untracked-vendor-file` |
+| **Untracked file inside a vendor root** — on disk, in neither the old nor the new manifest | **Left in place** and listed in `--dry-run` as a note. Never owned by an install, so never deleted — and **not recorded** in the rewritten manifest, so a later update cannot treat it as dropped | `installer:update-leaves-untracked-vendor-file`, `installer:update-does-not-adopt-untracked-file`, `installer:update-second-leaves-untracked-vendor-file` |
 | **Version upgrade** | Refreshes the engine tree wholesale per the new pin; still preserves product/rules/runs/state | same update path + `installer:update-*` suite |
 
 `--dry-run` lists every removal and conflict as a plan op before anything is written
@@ -390,8 +390,8 @@ Related checks (all in `scripts/test.mjs`): `installer:update-honours-tools`,
 Migration is the only operation that moves legacy files. Preview first; it is byte-for-byte read-only:
 
 ```powershell
-npx github:okuzpe/midas-harness#v2.10.0 --migrate
-npx github:okuzpe/midas-harness#v2.10.0 --migrate --apply
+npx github:okuzpe/midas-harness#v2.10.1 --migrate
+npx github:okuzpe/midas-harness#v2.10.1 --migrate --apply
 node .harness/scripts/doctor.mjs --strict
 ```
 
@@ -435,7 +435,7 @@ npx github:okuzpe/midas-harness --uninstall
 - **Keeps your product work** (`.harness/product/`, rules, runs, state) unless you pass `--purge`.
 
 For exact removal of a pinned install, uninstall with the same release:
-`npx github:okuzpe/midas-harness#v2.10.0 --uninstall`.
+`npx github:okuzpe/midas-harness#v2.10.1 --uninstall`.
 
 > Prefer to do it by hand? Delete `.harness/`, generated host mirrors, the marked block in `AGENTS.md`,
 > `.claude/CLAUDE.md`, `GEMINI.md`, `.cursor/rules/00-midas.mdc`,

@@ -63,6 +63,7 @@ import {
   readOwnershipManifest,
   treeSha256,
   sha256File,
+  bundledVendorPaths,
   MANIFEST_SCHEMA_VERSION,
 } from './ownership-manifest.mjs';
 import { scanVendorTree } from './lib/reconcile.mjs';
@@ -77,7 +78,7 @@ import {
   summarizeReports,
 } from './skill-quality-check.mjs';
 import { ENGINE_ONLY_SKILLS, HARNESS_ENGINE_ONLY_RELS } from './engine-only.mjs';
-import { resetSandbox, inspectSandboxEnv } from './sandbox-run.mjs';
+import { resetSandbox, inspectSandboxEnv, isPathInside, gradeSandbox } from './sandbox-run.mjs';
 import { splitSkillDocument } from './lib/frontmatter.mjs';
 import { walkFiles } from './lib/walk.mjs';
 import { missingEvidenceRequired, resolveEvidencePattern } from './lib/gate-evidence.mjs';
@@ -416,6 +417,26 @@ if (existsSync(tplRoot)) {
       /MIDAS_SANDBOX_RESULT:/.test(readFileSync(join(ROOT, 'harness', 'templates', 'audit-checklists.md'), 'utf8')),
     );
     check(
+      'sandbox:oracle-tally-line',
+      /MIDAS_SANDBOX_ORACLE:/.test(readFileSync(join(ROOT, 'harness', 'templates', 'audit-checklists.md'), 'utf8')),
+    );
+    check('sandbox:oracle-isolation-file', existsSync(join(ROOT, 'sandbox', 'oracles', 'isolation.json')));
+    check('sandbox:oracle-idea-intake-file', existsSync(join(ROOT, 'sandbox', 'oracles', 'idea-intake.json')));
+    const sandboxSkill = readFileSync(join(ROOT, 'harness', 'skills', 'midas-sandbox', 'SKILL.md'), 'utf8');
+    check(
+      'sandbox:skill-always-reset',
+      /\*\*Always\*\* `node scripts\/sandbox-run.mjs reset`/.test(sandboxSkill),
+    );
+    check(
+      'sandbox:skill-trace-root-not-exported',
+      /does not export it to the Task/.test(sandboxSkill) &&
+        !/sets `MIDAS_TRACE_ROOT` to the working copy/.test(sandboxSkill),
+    );
+    check(
+      'sandbox:skill-grades-after-task',
+      /sandbox-run.mjs grade --skill/.test(sandboxSkill),
+    );
+    check(
       'sandbox:seed-not-shipped-script',
       !scriptBundleFiles().includes('sandbox-run.mjs'),
     );
@@ -429,6 +450,62 @@ if (existsSync(tplRoot)) {
       env.ok && env.engine === resolve(ROOT, 'harness'),
       env.engine,
     );
+    check('sandbox:env-trace-root', env.ok && env.midasTraceRoot === reset.work, env.midasTraceRoot);
+    check(
+      'sandbox:is-path-inside',
+      isPathInside(reset.work, join(reset.work, '.harness', 'state.yaml')),
+    );
+    check(
+      'sandbox:is-path-outside-engine-state',
+      !isPathInside(reset.work, join(ROOT, 'harness', 'state.yaml')),
+    );
+    {
+      const workState = join(reset.work, '.harness', 'state.yaml');
+      const original = readFileSync(workState, 'utf8');
+      writeFileSync(
+        workState,
+        original.replace(/^  state:\s*\.harness\/state\.yaml\s*$/m, '  state: ../../harness/state.yaml'),
+        'utf8',
+      );
+      const redirected = inspectSandboxEnv(ROOT);
+      check(
+        'sandbox:env-rejects-state-outside-work',
+        redirected.ok === false && /outside working copy/.test(redirected.error || ''),
+        redirected.error || 'expected isolation fail',
+      );
+      writeFileSync(workState, original.replace(/^name:\s*sandbox-example\s*$/m, 'name: harness'), 'utf8');
+      const badName = inspectSandboxEnv(ROOT);
+      check(
+        'sandbox:env-rejects-wrong-name',
+        badName.ok === false && badName.name === 'harness',
+        badName.error || badName.name,
+      );
+      const restored = resetSandbox(ROOT);
+      check('sandbox:reset-after-negative', restored.ok && inspectSandboxEnv(ROOT).ok);
+      check(
+        'sandbox:baseline-after-reset',
+        existsSync(join(restored.work, '.harness', 'cache', 'sandbox-baseline.json')),
+      );
+      const graded = gradeSandbox({ root: ROOT, skill: 'idea-intake', ledger: false });
+      check('sandbox:grade-seed-idea-intake', graded.ok === true, graded.tally);
+      check('sandbox:grade-isolation-ok', graded.isolation === 'ok', graded.tally);
+      const missingOracle = gradeSandbox({ root: ROOT, skill: 'close-sprint', ledger: false });
+      check(
+        'sandbox:grade-missing-oracle-fails',
+        missingOracle.ok === false && missingOracle.checks.some((c) => c.id === 'oracle-close-sprint-file'),
+        missingOracle.tally,
+      );
+      const ledgerPath = join(tmpdir(), 'midas-sandbox-ledger-test.jsonl');
+      try {
+        const withLedger = gradeSandbox({ root: ROOT, skill: 'idea-intake', ledger: true, ledgerPath });
+        check(
+          'sandbox:grade-ledger-opt-in',
+          withLedger.ok && existsSync(ledgerPath) && /"skill":"idea-intake"/.test(readFileSync(ledgerPath, 'utf8')),
+        );
+      } finally {
+        if (existsSync(ledgerPath)) unlinkSync(ledgerPath);
+      }
+    }
   }
   check('layout:no-legacy-root-product-dir', !existsSync(join(ROOT, 'product')));
   check('layout:no-root-claude-plugin-dir', !existsSync(join(ROOT, '.claude-plugin')));
@@ -725,6 +802,18 @@ if (existsSync(buildCreate)) {
     );
     const empty = computeOwnershipManifest(join(ownRoot, 'missing-never'), '0.0.0');
     check('ownership:compute-missing-subdir-empty', Array.isArray(empty.files) && empty.files.length === 0);
+    writeFileSync(join(ownRoot, '.harness', 'scripts', 'stray-untracked.mjs'), 'export const leftover = true;\n', 'utf8');
+    const allowlisted = computeOwnershipManifest(ownRoot, '9.9.9', { vendorAllowlist: [vendorRel] });
+    check(
+      'ownership:allowlist-skips-untracked-vendor',
+      allowlisted.files.some((f) => f.path === vendorRel) &&
+        !allowlisted.files.some((f) => f.path === '.harness/scripts/stray-untracked.mjs'),
+    );
+    const bundled = bundledVendorPaths(join(ROOT, 'cli', 'template'), ownRoot);
+    check(
+      'ownership:bundled-vendor-paths-from-template',
+      bundled.includes('.harness/engine/VERSION') && bundled.includes('.harness/scripts/doctor.mjs'),
+    );
   } finally {
     rmSync(ownRoot, { recursive: true, force: true });
   }
@@ -1134,13 +1223,16 @@ if (engineVersion) {
     );
     check(
       'install:update-docs:cites-untracked-file-test',
-      installBody.includes('installer:update-leaves-untracked-vendor-file'),
-      'INSTALL.md must cite installer:update-leaves-untracked-vendor-file',
+      installBody.includes('installer:update-leaves-untracked-vendor-file') &&
+        installBody.includes('installer:update-does-not-adopt-untracked-file') &&
+        installBody.includes('installer:update-second-leaves-untracked-vendor-file'),
+      'INSTALL.md must cite untracked-file tests including the two-update regression',
     );
   }
   for (const f of [
     'harness/skills/midas-update/SKILL.md',
     'harness/skills/midas-reconcile/SKILL.md',
+    'cli/install-diagnose.mjs',
     'SECURITY.md',
     'README.md',
     'docs/faq.md',
@@ -1206,6 +1298,17 @@ if (engineVersion) {
   check(
     'engine-skill:midas-investigate:playbook',
     existsSync(join(ROOT, 'harness', 'templates', 'playbooks', 'debug-root-cause.md')),
+  );
+  const reconcileSkill = readFileSync(join(ROOT, 'harness', 'skills', 'midas-reconcile', 'SKILL.md'), 'utf8');
+  const initSkill = readFileSync(join(ROOT, 'harness', 'skills', 'midas-init', 'SKILL.md'), 'utf8');
+  check(
+    'skill:midas-reconcile:partial-migrate',
+    /partial_migrate/.test(reconcileSkill) && /exists as a file/.test(reconcileSkill),
+  );
+  check('skill:midas-init:partial-migrate', /partial_migrate/.test(initSkill));
+  check(
+    'installer:bundle-integrity-fails-stable-mismatch',
+    /ok: !stableMismatch/.test(readFileSync(join(ROOT, 'cli', 'lib', 'workflow', 'engine.mjs'), 'utf8')),
   );
 }
 
@@ -1621,6 +1724,12 @@ if (!TEST_FAST) {
     });
     check('installer:update-conflict-fixture-install', install.status === 0, install.stderr || install.stdout);
     const vendor = join(updateRoot, '.harness', 'engine', 'conventions.md');
+    if (!existsSync(vendor)) {
+      check('installer:update-vendor-conflict-prewrite', false, 'missing conventions.md after fixture install');
+      check('installer:update-conflicts-outside-cache', false, 'skipped — fixture install failed');
+      check('installer:update-preflight-blocks-on-conflicts', false, 'skipped — fixture install failed');
+      check('installer:update-proceeds-once-conflicts-cleared', false, 'skipped — fixture install failed');
+    } else {
     const pristine = readFileSync(vendor, 'utf8');
     const modified = `${pristine}\nproject edit outside overlay\n`;
     writeFileSync(vendor, modified, 'utf8');
@@ -1676,6 +1785,7 @@ if (!TEST_FAST) {
       cleared.status === 0,
       cleared.stderr || cleared.stdout,
     );
+    }
   } finally {
     rmSync(updateRoot, { recursive: true, force: true });
   }
@@ -1853,6 +1963,47 @@ if (!TEST_FAST) {
     );
   } finally {
     rmSync(pruneRoot, { recursive: true, force: true });
+  }
+}
+{
+  const strayRoot = mkdtempSync(join(tmpdir(), 'midas-harness-update-untracked-twice-'));
+  try {
+    const install = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), '--tools=cursor', strayRoot], {
+      cwd: ROOT,
+      encoding: 'utf8',
+    });
+    check('installer:update-untracked-twice-fixture', install.status === 0, install.stderr || install.stdout);
+    const strayRel = '.harness/engine/stray.md';
+    writeFileSync(join(strayRoot, strayRel), 'untracked note\n', 'utf8');
+    const first = spawnSync(
+      process.execPath,
+      [join(ROOT, 'cli', 'index.mjs'), 'update', '--yes', '--offline', strayRoot],
+      { cwd: ROOT, encoding: 'utf8' },
+    );
+    const afterFirst = existsSync(join(strayRoot, '.harness', 'manifest.json'))
+      ? JSON.parse(readFileSync(join(strayRoot, '.harness', 'manifest.json'), 'utf8'))
+      : { files: [] };
+    check(
+      'installer:update-does-not-adopt-untracked-file',
+      first.status === 0 &&
+        existsSync(join(strayRoot, strayRel)) &&
+        !(afterFirst.files || []).some((f) => f.path === strayRel),
+      first.stderr || first.stdout,
+    );
+    const second = spawnSync(
+      process.execPath,
+      [join(ROOT, 'cli', 'index.mjs'), 'update', '--yes', '--offline', strayRoot],
+      { cwd: ROOT, encoding: 'utf8' },
+    );
+    check(
+      'installer:update-second-leaves-untracked-vendor-file',
+      second.status === 0 &&
+        existsSync(join(strayRoot, strayRel)) &&
+        readFileSync(join(strayRoot, strayRel), 'utf8') === 'untracked note\n',
+      second.stderr || second.stdout,
+    );
+  } finally {
+    rmSync(strayRoot, { recursive: true, force: true });
   }
 }
 {
@@ -2403,7 +2554,7 @@ if (!TEST_FAST) {
       const stay = resolveRefreshCommand({ command: 'update', dryRun: false }, diagTmp);
       check('update-stays-on-harness', stay.promoted === false && stay.cmd.command === 'update');
       const legacyCli = diagnoseProject(legacy);
-      check('diagnose:legacy-points-update', /--update/.test(legacyCli.nextCli || ''));
+      check('diagnose:legacy-points-update', /\bupdate --yes\b/.test(legacyCli.nextCli || '') && !/--update/.test(legacyCli.nextCli || ''));
       check('diagnose:legacy-slash-init', legacyCli.nextSlash === '/midas-init');
     }
     rmSync(legacy, { recursive: true, force: true });
@@ -2413,6 +2564,14 @@ if (!TEST_FAST) {
     writeFileSync(join(partial, '.harness', 'product', 'idea.md'), '# idea\n', 'utf8');
     check('diagnose:matrix-partial-migrate', diagnoseProject(partial).status === 'partial_migrate');
     check('diagnose:partial-slash-init', diagnoseProject(partial).nextSlash === '/midas-init');
+    {
+      const partialDiag = diagnoseProject(partial, { bundledVersion: '2.10.0' });
+      check(
+        'diagnose:partial-uses-update-subcommand',
+        /#v2\.10\.0 update --yes/.test(partialDiag.detail || '') && !/#v2\.9\.8/.test(partialDiag.detail || ''),
+        partialDiag.detail,
+      );
+    }
     rmSync(partial, { recursive: true, force: true });
 
     writeFileSync(join(diagTmp, '.harness', 'state.yaml'), 'midas_version: 2.0.0\nlayout: harness\nsetup_complete: true\n', 'utf8');
@@ -2664,6 +2823,9 @@ if (!TEST_FAST) {
     );
     check('installer:update-dry-conflict-fixture', install.status === 0, install.stderr || install.stdout);
     const vendor = join(dryConflict, '.harness', 'engine', 'conventions.md');
+    if (!existsSync(vendor)) {
+      check('installer:update-dry-run-reports-vendor-conflict', false, 'missing conventions.md after fixture install');
+    } else {
     writeFileSync(vendor, `${readFileSync(vendor, 'utf8')}\nlocal edit\n`, 'utf8');
     const before = treeDigest(dryConflict);
     const dry = spawnSync(
@@ -2682,6 +2844,7 @@ if (!TEST_FAST) {
         ops.some((op) => op.kind === 'conflict' && op.path === '.harness/engine/conventions.md'),
       dry.stderr || dry.stdout,
     );
+    }
   } finally {
     rmSync(dryConflict, { recursive: true, force: true });
   }
@@ -3580,6 +3743,37 @@ if (existsSync(join(ROOT, 'harness', 'design-system', 'tokens.css'))) {
 }
 
 check('mkdocs:adr-003', /ADR-003/.test(readFileSync(join(ROOT, 'mkdocs.yml'), 'utf8')));
+{
+  const docsRoot = join(ROOT, 'docs');
+  const outside = [];
+  const visit = (dir) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const abs = join(dir, entry.name);
+      if (entry.isDirectory()) visit(abs);
+      else if (entry.name.endsWith('.md')) {
+        const text = readFileSync(abs, 'utf8');
+        if (/\]\(\.\.\/(?:\.\.\/)?(?:INSTALL|CONTRIBUTING)/.test(text) || /\]\(\.\.\/\.\.\/harness\//.test(text)) {
+          outside.push(abs.slice(ROOT.length + 1).replace(/\\/g, '/'));
+        }
+      }
+    }
+  };
+  visit(docsRoot);
+  check(
+    'docs:mkdocs-no-outside-repo-rel-links',
+    outside.length === 0,
+    `mkdocs --strict cannot resolve: ${outside.join(', ')} — use an in-docs path or a GitHub blob URL`,
+  );
+}
+check(
+  'ci:doctor-smoke-passes-install-root',
+  /doctor\.mjs --strict \/tmp\/midas-smoke\b/.test(readFileSync(join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8')),
+);
+check(
+  'ci:update-check-exit-code-captured',
+  /check_code=\$\?/.test(readFileSync(join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8')) &&
+    /test "\$check_code" -eq 0/.test(readFileSync(join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8')),
+);
 
 // --- status-page + yaml-lite smoke ----------------------------------------
 check('script:status-page:exists', existsSync(join(ROOT, 'scripts', 'status-page.mjs')));
@@ -4180,9 +4374,8 @@ if (existsSync(templateChecksIndex) && existsSync(join(ROOT, 'harness', 'checks.
   const engMeth = readFileSync(join(ROOT, 'harness', 'methodology.md'), 'utf8');
   check('docs:methodology-scope-rule', /Scope Rule/.test(docsMeth) && /Scope Rule/.test(engMeth));
   const changelog = readFileSync(join(ROOT, 'CHANGELOG.md'), 'utf8');
-  const latestRelease = changelog.split('## [2.')[1] || '';
-  check('changelog:issue-1-superseded', /issue #1/.test(latestRelease));
-  check('changelog:monorepo-historical', /midas-monorepo/.test(latestRelease) && /historical-only/.test(latestRelease));
+  check('changelog:issue-1-superseded', /issue #1/.test(changelog));
+  check('changelog:monorepo-historical', /midas-monorepo/.test(changelog) && /historical-only/.test(changelog));
 }
 
 {

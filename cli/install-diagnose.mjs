@@ -64,8 +64,11 @@ function defaultInstallCmd(bundledVersion) {
  */
 function relatedCli(installCmd, mode) {
   const base = installCmd.replace(/\s+--tools=\S+/g, '').trim();
-  if (mode === 'migrate') return `${base} --migrate`;
-  return `${base} --update`;
+  if (mode === 'migrate') {
+    return /\s--migrate\b/.test(base) ? base : `${base} --migrate`;
+  }
+  if (/\bupdate\b/.test(base) && !/--update/.test(base)) return base;
+  return `${base.replace(/\s+--update\b/, '')} update`.replace(/\s+/g, ' ').trim();
 }
 
 /**
@@ -84,19 +87,19 @@ export function diagnoseProject(targetDir, opts = {}) {
 
   // Broken mid-migrate / failed verify+bad rollback trees (pre-2.9.8 SinFalta-shape).
   if (!hasEngine && (hasProduct || hasState)) {
-    const updateBase = relatedCli(installCmd, 'update');
+    const updateCmd = formatUpdateCmd({ version: opts.bundledVersion || null });
     return {
       status: 'partial_migrate',
       dir,
       summary: 'Partial harness migrate detected (.harness/product or state without .harness/engine).',
       nextCli: activeRun
-        ? `${updateBase} --rollback --yes`
+        ? `${updateCmd} --rollback --yes`
         : null,
       nextSlash: '/midas-init',
       detail:
         (activeRun
-          ? 'Installer journal still active — prefer `npx … --update --rollback --yes` to restore the pre-migrate tree, then re-run a pinned `--update` (#v2.9.8+).\n\n'
-          : 'No usable installer journal — restore classic/harness files with `git restore` / checkout, then re-run `npx github:okuzpe/midas-harness#v2.9.8 --update --yes` (or newer).\n\n') +
+          ? `Installer journal still active — prefer \`${updateCmd} --rollback --yes\` to restore the pre-migrate tree, then re-run a pinned \`update\`.\n\n`
+          : `No usable installer journal — restore classic/harness files with \`git restore\` / checkout, then re-run \`${updateCmd} --yes\`.\n\n`) +
         'Do not treat this as a fresh install unless you intend to discard the leftover `.harness/product` tree.',
     };
   }
@@ -122,7 +125,7 @@ export function diagnoseProject(targetDir, opts = {}) {
       nextCli: installCmd,
       nextSlash: '/midas-init',
       detail:
-        'Do not use --update on a fresh project. Install first, then run /midas-init once in your editor.',
+        'Do not use `update` on a fresh project. Install first, then run /midas-init once in your editor.',
     };
   }
 
@@ -130,11 +133,11 @@ export function diagnoseProject(targetDir, opts = {}) {
     return {
       status: 'legacy_layout',
       dir,
-      summary: 'A Midas 1.x classic/compact/hub layout was detected; --update will migrate it to the harness layout then refresh.',
+      summary: 'A Midas 1.x classic/compact/hub layout was detected; `update` will migrate it to the harness layout then refresh.',
       nextCli: `${relatedCli(installCmd, 'update')} --yes`,
       nextSlash: '/midas-init',
       detail:
-        'One command: `npx … --update --yes` auto-runs migrate+refresh. ' +
+        'One command: `npx … update --yes` auto-runs migrate+refresh. ' +
         'Optional preview: add `--dry-run` (or use explicit `--migrate` then `--migrate --apply`). ' +
         'Or run /midas-init in the editor for the same tip.',
     };
@@ -173,7 +176,7 @@ export function diagnoseProject(targetDir, opts = {}) {
       nextCli: formatUpdateCmd({ version: engineVersion }),
       nextSlash: '/midas-init',
       detail:
-        'Pick one (not both): `npx ... --update` (full refresh — done when verify ok) or `/midas-init` (interactive tip that points at the same refresh).',
+        'Pick one (not both): `npx ... update` (full refresh — done when verify ok) or `/midas-init` (interactive tip that points at the same refresh).',
     };
   }
 

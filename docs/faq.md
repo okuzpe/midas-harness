@@ -39,7 +39,7 @@ per-subagent model routing — the tiers collapse to prose intent in `AGENTS.md`
 
 Everything Midas-owned lives under `.harness/` except selected-host discovery adapters. Classic,
 compact, and hub 1.x installs remain detectable but are not updated in place. Preview migrate with
-the pinned command in [INSTALL.md](../INSTALL.md), then repeat with `--apply`; verify with
+the pinned command in [INSTALL.md](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md), then repeat with `--apply`; verify with
 `node .harness/scripts/doctor.mjs --strict`. See
 [ADR-007](adr/ADR-007-canonical-harness-layout.md).
 
@@ -67,7 +67,7 @@ touching anything. On decline it prints the block for manual paste. Nothing is e
 
 **Q: How do I update Midas to a newer version?**
 
-Prefer a **pinned** update. Copy the exact `#v…` command from [INSTALL.md](../INSTALL.md)
+Prefer a **pinned** update. Copy the exact `#v…` command from [INSTALL.md](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md)
 (matches `harness/VERSION` — do not invent the tag):
 ```bash
 npx github:okuzpe/midas-harness#v{VERSION} update
@@ -75,7 +75,7 @@ npx github:okuzpe/midas-harness#v{VERSION} update
 `--update` refreshes manifest-owned engine/generated files and keeps your product/rules/runs. It is
 **not** the same as install-time `--force`. On vendor edits outside overlays, same-version update
 **aborts** before writing; stale manifest hashes **re-baseline** after confirm. Full contract:
-[INSTALL.md § Updating an existing install](../INSTALL.md#updating-an-existing-install).
+[INSTALL.md § Updating an existing install](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md#updating-an-existing-install).
 `/midas-init` tips the same pinned CLI when diagnose reports `version_behind` / `legacy_layout`
 (deprecated `/midas-update` forwards there). After a successful CLI verify, adapters
 are already synced — `/midas-doctor` only if you still see drift. Unpinned `main` / pipe-to-shell
@@ -89,7 +89,7 @@ Run the same one command with `--uninstall`: `npx github:okuzpe/midas-harness --
 `curl -fsSL …/install.sh | bash -s -- --uninstall`). It is **surgical** — it removes only Midas's own
 engine files and **keeps your work** (`.harness/product/`, `.harness/rules/`, `.harness/runs/`, state)
 unless you pass `--purge`; use `--dry-run` to preview. Prefer to remove it by hand? Delete host
-mirrors, `.harness/`, and generated adapters per [INSTALL.md § Uninstalling](../INSTALL.md#uninstalling).
+mirrors, `.harness/`, and generated adapters per [INSTALL.md § Uninstalling](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md#uninstalling).
 Your source code is untouched.
 
 ---

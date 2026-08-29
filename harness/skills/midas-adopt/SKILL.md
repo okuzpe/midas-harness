@@ -58,7 +58,7 @@ Step outline (Steps 0–6):
 - Fresh empty repo / no real codebase yet → `/midas-init` (greenfield track).
 - Install/version/cwd confusion → `/midas-reconcile` first.
 - Already adopted (`mode: brownfield` + inventory present) and only need hygiene → `/midas-hygiene`.
-- Engine upgrade on an installed project → `/midas-init` (tips CLI `--update`).
+- Engine upgrade on an installed project → `/midas-init` (tips CLI `update`).
 
 ## Tier & delegation
 Inventory + evidence → **scout** (`midas-scout`). Architecture inference, rule derivation, baseline audit, and

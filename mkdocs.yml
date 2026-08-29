@@ -68,3 +68,6 @@ markdown_extensions:
   - admonition
   - toc:
       permalink: true
+
+exclude_docs: |
+  analisis/**

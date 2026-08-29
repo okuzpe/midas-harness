@@ -4,9 +4,9 @@
 > What / Command / Happens / NOT / Next into the ≤15-line answer. Do not load the rest.
 
 **Set up or update Midas**
-- What: single entry — diagnose install/setup/version, then tip install CLI, run intake, or tip `--update`.
+- What: single entry — diagnose install/setup/version, then tip install CLI, run intake, or tip `update`.
 - Command: `/midas-init` [`--monorepo`]
-- Happens: runs diagnose; `not_installed` → install tip + stop; `setup_pending` → adaptive intake; version behind → tip pinned `--update`.
+- Happens: runs diagnose; `not_installed` → install tip + stop; `setup_pending` → adaptive intake; version behind → tip pinned `update`.
 - NOT if you only want a read-only “which command?” print → `/midas-reconcile`.
 - Next: `/midas-status` after setup/refresh.
 

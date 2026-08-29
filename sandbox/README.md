@@ -16,7 +16,19 @@ node scripts/sandbox-run.mjs reset
 node scripts/sandbox-run.mjs env
 ```
 
-`env` must exit 0 before any skill run. Non-zero means isolation failed — stop; do not trust findings.
+Every `/midas-sandbox` invocation **always resets first** (dirty working copies are not reused),
+then `env` must exit 0. Non-zero after a fresh reset means the seed is broken — stop; do not
+trust findings. Copy the `MIDAS_TRACE_ROOT:` line into the Task: every `trace-write` subprocess
+needs that env. `start-run` binds it only for its own process.
+
+After the Task, grade the **disk** (composer does not self-score):
+
+```bash
+node scripts/sandbox-run.mjs grade --skill idea-intake --ledger
+```
+
+Oracles live in [`oracles/`](./oracles/). `MIDAS_SANDBOX_ORACLE: verdict=fail` forces the sandbox
+verdict to fail.
 
 ## Structure
 
@@ -26,6 +38,7 @@ sandbox/
   seed/                      # committed snapshot (product-root tree)
     .harness/state.yaml
     .harness/product/idea.md
+  oracles/                   # deterministic disk checks (grade)
   example-product/           # generated working copy (gitignored) — copy of seed/
   findings/
     README.md                # format + retention
@@ -34,7 +47,7 @@ sandbox/
 
 ## Subagent contract (isolation)
 
-Cursor Task has no cwd pin. The parent (`/midas-sandbox`) must run `sandbox-run env` first. The
+Cursor Task has no cwd pin. The parent (`/midas-sandbox`) must `reset` then `env` first. The
 subagent's **first Read** must be:
 
 `sandbox/example-product/.harness/state.yaml`
@@ -44,11 +57,14 @@ Then:
 1. If `name` is not `sandbox-example` → **STOP** (`isolation-bug`). That file is not the fixture
    (you probably opened the engine repo's `harness/state.yaml`).
 2. Treat `sandbox/example-product/` as the product root. Resolve `{product}/`, `{runs}/`,
-   `paths.state` from **that** state file only.
+   `paths.state` from **that** state file only. `sandbox-run env` fails if those paths resolve
+   outside the working copy.
 3. Never write `harness/state.yaml`, `docs/product/`, or anything under `harness/skills/` /
    `harness/rules/` except reading skill bodies.
 4. `paths.engine` / `paths.scripts` in the fixture point at this repo's real `harness/` and
    `scripts/` (`../../harness`, `../../scripts`). Real product installs must never do this.
+5. Execute the target skill **in this Task**. Do not spawn a nested Task or `midas-builder` on
+   another model. Pass `MIDAS_TRACE_ROOT` from `env` into every `trace-write` subprocess.
 
 ## Cost rules (non-negotiable)
 
@@ -57,7 +73,8 @@ Then:
    [`docs/muninn-comparison.md`](../docs/muninn-comparison.md) §7.
 2. **Default to one skill.** `/midas-sandbox --all` requires an explicit `AskQuestion` cost
    confirmation. Precommit prefers `--smoke` (touched skill + next stage command).
-3. **Reuse the fixture.** `example-product/` is reset from `seed/`, not recreated as a new tree.
+3. **Reset every invocation.** `example-product/` is wiped from `seed/` at the start of default,
+   `--smoke`, and `--all` (then `--all` reuses that one copy for the batch).
 4. Findings are always **proposals**. Nothing under `harness/skills/*` or `harness/rules/*` is
    edited by a sandbox run.
 
