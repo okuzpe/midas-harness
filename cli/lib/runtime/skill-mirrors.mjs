@@ -18,6 +18,15 @@ export function sameBytes(a, b) {
   return existsSync(a) && existsSync(b) && readFileSync(a).equals(readFileSync(b));
 }
 
+/** rmdir a host root when it has no remaining entries (user files keep the tree). */
+function pruneEmptyHostRoot(target, rel) {
+  const dir = join(target, rel);
+  if (!existsSync(dir)) return;
+  try {
+    if (readdirSync(dir).length === 0) rmdirSync(dir);
+  } catch { /* user content remains */ }
+}
+
 export function removeGeneratedMirror(ctx, templateRel) {
   const source = join(ctx.template, templateRel);
   const target = join(ctx.target, templateRel);
@@ -30,8 +39,10 @@ export function removeGeneratedMirror(ctx, templateRel) {
       if (entry.isDirectory()) {
         visit(a, b);
         try { if (readdirSync(b).length === 0) rmdirSync(b); } catch { /* user content remains */ }
-      } else if (sameBytes(a, b)) {
-        rmSync(b);
+      } else if (existsSync(b)) {
+        // Template-known paths are generated mirrors, even if dest bytes drifted (portable
+        // frontmatter rewrite). User skills are dest-only names and are not visited.
+        try { rmSync(b); } catch { /* keep */ }
       }
     }
   };
@@ -55,10 +66,7 @@ export async function syncSkillMirrors(ctx, tools, paths, { merge = true } = {})
   if (!plan.claude) {
     removeGeneratedMirror(ctx, '.claude/skills');
     removeGeneratedMirror(ctx, '.claude/agents');
-    try {
-      const claudeDir = join(ctx.target, '.claude');
-      if (existsSync(claudeDir) && readdirSync(claudeDir).length === 0) rmdirSync(claudeDir);
-    } catch { /* user content remains */ }
+    pruneEmptyHostRoot(ctx.target, '.claude');
   }
 
   let renderTree = null;
@@ -84,10 +92,7 @@ export async function syncSkillMirrors(ctx, tools, paths, { merge = true } = {})
     renderTree(ctx.target, { sourceDir: engineSkillsRel, targetDir: '.agents/skills', merge });
   } else if (!plan.agents) {
     removeGeneratedMirror(ctx, '.agents/skills');
-    try {
-      const agentsDir = join(ctx.target, '.agents');
-      if (existsSync(agentsDir) && readdirSync(agentsDir).length === 0) rmdirSync(agentsDir);
-    } catch { /* user content remains */ }
+    pruneEmptyHostRoot(ctx.target, '.agents');
   }
 
   if (plan.cursorSkills && typeof renderTree === 'function') {

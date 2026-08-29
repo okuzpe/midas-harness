@@ -51,19 +51,24 @@ jobs:
       - name: Installer smoke test (user shape — cursor-only thin root)
         run: |
           # Primary product shape (ADR-008): default tools=[cursor]
+          set +e
           node cli/index.mjs --tools=cursor /tmp/midas-smoke
-          test -f /tmp/midas-smoke/AGENTS.md
-          test -f /tmp/midas-smoke/.mcp.json
-          test -f /tmp/midas-smoke/.cursor/rules/00-midas.mdc
-          test -f /tmp/midas-smoke/.cursor/rules/01-midas-checks.mdc
-          test -d /tmp/midas-smoke/.cursor/skills
-          test -f /tmp/midas-smoke/.harness/state.yaml
-          test -d /tmp/midas-smoke/.harness/product
-          grep -q 'tools: \[cursor\]' /tmp/midas-smoke/.harness/state.yaml
-          test ! -e /tmp/midas-smoke/.claude
-          test ! -e /tmp/midas-smoke/.agents
-          test ! -e /tmp/midas-smoke/.windsurf
-          test ! -e /tmp/midas-smoke/GEMINI.md
+          install_code=$?
+          set -e
+          echo "installer_exit=$install_code"
+          test "$install_code" -eq 0
+          test -f /tmp/midas-smoke/AGENTS.md || { echo "::error::missing AGENTS.md"; exit 1; }
+          test -f /tmp/midas-smoke/.mcp.json || { echo "::error::missing .mcp.json"; exit 1; }
+          test -f /tmp/midas-smoke/.cursor/rules/00-midas.mdc || { echo "::error::missing cursor adapter"; exit 1; }
+          test -f /tmp/midas-smoke/.cursor/rules/01-midas-checks.mdc || { echo "::error::missing cursor checks adapter"; exit 1; }
+          test -d /tmp/midas-smoke/.cursor/skills || { echo "::error::missing .cursor/skills"; exit 1; }
+          test -f /tmp/midas-smoke/.harness/state.yaml || { echo "::error::missing state.yaml"; exit 1; }
+          test -d /tmp/midas-smoke/.harness/product || { echo "::error::missing product dir"; exit 1; }
+          grep -q 'tools: \[cursor\]' /tmp/midas-smoke/.harness/state.yaml || { echo "::error::tools not [cursor]"; exit 1; }
+          test ! -e /tmp/midas-smoke/.claude || { echo "::error::leftover .claude"; find /tmp/midas-smoke/.claude | head; exit 1; }
+          test ! -e /tmp/midas-smoke/.agents || { echo "::error::leftover .agents"; find /tmp/midas-smoke/.agents | head; exit 1; }
+          test ! -e /tmp/midas-smoke/.windsurf || { echo "::error::leftover .windsurf"; find /tmp/midas-smoke/.windsurf | head; exit 1; }
+          test ! -e /tmp/midas-smoke/GEMINI.md || { echo "::error::leftover GEMINI.md"; exit 1; }
           node /tmp/midas-smoke/.harness/scripts/doctor.mjs --strict /tmp/midas-smoke
 
       - name: Installer smoke test (multi-host — non-default coverage)

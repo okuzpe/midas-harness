@@ -1,4 +1,4 @@
-midas_version: 2.10.1
+midas_version: 2.10.2
 layout: harness
 paths:
   root: .harness

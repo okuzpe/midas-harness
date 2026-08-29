@@ -202,8 +202,12 @@ export async function runInstaller(cmd, deps) {
       channelStatus,
     });
     emitPhase('execute', { json, color, status: result.ok ? 'done' : 'failed' });
-    if (result.ok) emitPhase('verify', { json, color, status: 'done' });
-    else emitPhase('verify', { json, color, status: 'failed' });
+    if (result.ok) {
+      emitPhase('verify', { json, color, status: 'done' });
+      emitPhase('complete', { json, color, status: 'done' });
+    } else {
+      emitPhase('verify', { json, color, status: 'failed' });
+    }
 
     const envelope = buildResultEnvelope({
       ok: result.ok,

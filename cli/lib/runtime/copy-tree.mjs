@@ -2,7 +2,7 @@
 
 import { readdirSync, existsSync, mkdirSync, copyFileSync, rmSync, rmdirSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
-import { decideTemplateCopyAction } from '../core/preserve-policy.mjs';
+import { decideTemplateCopyAction, isHostDiscoveryMirrorPath } from '../core/preserve-policy.mjs';
 import { readOwnershipManifest } from '../../template/.harness/scripts/ownership-manifest.mjs';
 import {
   RECONCILE_ROOTS,
@@ -43,11 +43,13 @@ export function copyTree(srcDir, dstDir, ctx) {
     if (entry.name === '.optional') continue;
     const src = join(srcDir, entry.name);
     const dst = join(dstDir, entry.name);
+    const rel = relative(ctx.target, dst).replace(/\\/g, '/');
+    // Portable `.agents` is rendered later for peer hosts — do not mkdir a leftover tree.
+    if (isHostDiscoveryMirrorPath(rel)) continue;
     if (entry.isDirectory()) {
       mkdirSync(dst, { recursive: true });
       copyTree(src, dst, ctx);
     } else {
-      const rel = relative(ctx.target, dst).replace(/\\/g, '/');
       const decided = decideTemplateCopyAction(rel, {
         exists: existsSync(dst),
         force: ctx.force,

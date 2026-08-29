@@ -9,6 +9,16 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+## [2.10.2] — 2026-08-30
+
+### Fixed
+
+- **Cursor-only install no longer leaves `.agents`** — the portable `.agents` tree is not
+  copied from the template; `syncSkillMirrors` writes it only for portable-peer tools.
+  Unblocks the CI thin-root smoke (`test ! -e .agents`).
+- **release-prep installs MkDocs** before `mkdocs build --strict` so tagged releases can
+  publish `stable.json`.
+
 ## [2.10.1] — 2026-08-30
 
 ### Added
@@ -1880,7 +1890,8 @@ markdown/tiny-script improvements that close the self-grading gap **without addi
 - Cursor and Windsurf adapters do not yet auto-reload on `/midas-doctor`; re-open the editor after re-rendering.
 - Plugin marketplace is not yet implemented; enrichment agents are consumed ad-hoc if present.
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.10.1...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v2.10.2...HEAD
+[2.10.2]: https://github.com/okuzpe/midas-harness/compare/v2.10.1...v2.10.2
 [2.10.1]: https://github.com/okuzpe/midas-harness/compare/v2.10.0...v2.10.1
 [2.10.0]: https://github.com/okuzpe/midas-harness/compare/v2.9.9...v2.10.0
 [2.9.9]: https://github.com/okuzpe/midas-harness/compare/v2.9.8...v2.9.9

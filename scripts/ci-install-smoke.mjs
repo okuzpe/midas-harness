@@ -50,6 +50,11 @@ try {
   for (const rel of expectedByHost[host]) {
     if (!existsSync(join(target, rel))) throw new Error(`host ${host} missing ${rel}`);
   }
+  if (host === 'cursor') {
+    for (const rel of ['.agents', '.claude', '.windsurf', 'GEMINI.md']) {
+      if (existsSync(join(target, rel))) throw new Error(`cursor-only install left ${rel}`);
+    }
+  }
   if (host !== 'claude-code' && existsSync(join(target, '.claude'))) {
     throw new Error(`host ${host} received an unnecessary .claude mirror`);
   }

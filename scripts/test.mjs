@@ -821,7 +821,7 @@ if (existsSync(buildCreate)) {
 
 // --- preserve-policy + plan/copy decision parity ---------------------------------------------
 {
-  const { alwaysPreservePath, decideTemplateCopyAction, isVendorManagedPath, isConflictVendorPath } =
+  const { alwaysPreservePath, decideTemplateCopyAction, isVendorManagedPath, isConflictVendorPath, isHostDiscoveryMirrorPath } =
     await import(pathToFileURL(join(ROOT, 'cli', 'lib', 'core', 'preserve-policy.mjs')).href);
   const { ensureAutonomyStatePointers } =
     await import(pathToFileURL(join(ROOT, 'cli', 'lib', 'runtime', 'autonomy-install.mjs')).href);
@@ -832,6 +832,15 @@ if (existsSync(buildCreate)) {
   check('preserve:product-always', alwaysPreservePath('.harness/product/idea.md', true));
   check('preserve:engine-not-user', !alwaysPreservePath('.harness/engine/x.md', true));
   check('preserve:claude-fresh-only', alwaysPreservePath('.claude/skills/x/SKILL.md', false) && !alwaysPreservePath('.claude/skills/x/SKILL.md', true));
+  check(
+    'preserve:host-discovery-mirrors',
+    isHostDiscoveryMirrorPath('.agents') &&
+      isHostDiscoveryMirrorPath('.agents/skills/x/SKILL.md') &&
+      !isHostDiscoveryMirrorPath('.claude/skills/x/SKILL.md') &&
+      !isHostDiscoveryMirrorPath('.cursor/skills/x/SKILL.md') &&
+      !isHostDiscoveryMirrorPath('.cursor/rules/00-midas.mdc') &&
+      !isHostDiscoveryMirrorPath('.harness/engine/x.md'),
+  );
   check('preserve:vendor-engine', isVendorManagedPath('.harness/engine/a.md'));
   check('preserve:conflict-autonomy-bin', isConflictVendorPath('.harness/autonomy/bin/x.mjs'));
   check('preserve:conflict-autonomy-policy-user', !isConflictVendorPath('.harness/autonomy/policy.yaml'));
@@ -1323,6 +1332,11 @@ const workflowDir = join(ROOT, '.github', 'workflows');
       /harness\/VERSION/.test(text) && !/## \\\[1\\\.1\\\.3\\\]/.test(text) && !/1\\.1\\.3/.test(text),
       'release-prep must derive CHANGELOG section from harness/VERSION',
     );
+    check(
+      'workflow:release-prep:installs-mkdocs',
+      /pip install mkdocs-material==9\.7\.6/.test(text) && /setup-python@/.test(text),
+      'release-prep must install MkDocs before mkdocs build --strict',
+    );
   }
 }
 for (const f of walk(workflowDir).filter((p) => ['.yml', '.yaml'].includes(extname(p)))) {
@@ -1395,6 +1409,11 @@ check(
   /\.mcp\.json/.test(installerPreserveSrc) && /decideTemplateCopyAction/.test(installerPreserveSrc) &&
     /decideTemplateCopyAction/.test(installerPlanTreeSrc) && /copy-tree\.mjs/.test(installerExecuteSrc),
   '.mcp.json must remain user-owned on update (preserve-policy + plan-tree + copy-tree)',
+);
+check(
+  'copy-tree:skips-host-discovery-mirrors',
+  /isHostDiscoveryMirrorPath/.test(readFileSync(join(ROOT, 'cli', 'lib', 'runtime', 'copy-tree.mjs'), 'utf8')) &&
+    /isHostDiscoveryMirrorPath/.test(installerPlanTreeSrc),
 );
 
 // --- N. mcp:declared-vs-wired logic (unit + behavioral via doctor) ------------------------------
@@ -2523,6 +2542,16 @@ if (!TEST_FAST) {
     check(
       'installer:path-with-spaces',
       r.status === 0 && existsSync(join(spaced, '.harness', 'engine', 'VERSION')) && existsSync(join(spaced, '.harness', 'manifest.json')),
+      r.stderr || r.stdout,
+    );
+    check(
+      'installer:cursor-only-thin-root',
+      r.status === 0 &&
+        existsSync(join(spaced, '.cursor', 'skills')) &&
+        !existsSync(join(spaced, '.agents')) &&
+        !existsSync(join(spaced, '.claude')) &&
+        !existsSync(join(spaced, '.windsurf')) &&
+        !existsSync(join(spaced, 'GEMINI.md')),
       r.stderr || r.stdout,
     );
   } finally {

@@ -3,7 +3,7 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { createPlan } from '../core/plan.mjs';
-import { decideTemplateCopyAction } from '../core/preserve-policy.mjs';
+import { decideTemplateCopyAction, isHostDiscoveryMirrorPath } from '../core/preserve-policy.mjs';
 import { planVendorReconcile } from '../runtime/copy-tree.mjs';
 
 /**
@@ -20,11 +20,12 @@ export function planTemplateCopy(opts) {
       if (entry.name === '.optional') continue;
       const src = join(srcDir, entry.name);
       const dst = join(dstDir, entry.name);
+      const rel = relative(target, dst).replace(/\\/g, '/');
+      if (isHostDiscoveryMirrorPath(rel)) continue;
       if (entry.isDirectory()) {
         visit(src, dst);
         continue;
       }
-      const rel = relative(target, dst).replace(/\\/g, '/');
       const exists = existsSync(dst);
       const decided = decideTemplateCopyAction(rel, { exists, force, update });
       n += 1;
