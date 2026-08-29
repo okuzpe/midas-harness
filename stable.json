@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "channel": "stable",
-  "version": "2.10.2",
-  "ref": "v2.10.2",
-  "commit": "ccad49483ca4f349aefd46454db1a3e2db1c7cf2",
-  "tree_sha256": "ece3b632b4e32466e01a089f60ef9c2aba442d1ba05e5cc22a177bd63da51bfc",
-  "published_at": "2026-08-29T23:12:48.465Z",
+  "version": "2.10.3",
+  "ref": "v2.10.3",
+  "commit": "a917bade71d2e0a6f2deb24526844e2e296f6d9a",
+  "tree_sha256": "086ad29959b14b7031a9713e124a296ff4d15295a71da1333210391371acf7df",
+  "published_at": "2026-08-29T23:25:10.139Z",
   "migrations": [
     "0001-record-update-channel"
   ],
@@ -20,7 +20,7 @@
     },
     {
       "path": ".harness/engine/VERSION",
-      "sha256": "84f27c707b57cc7e76deafc6b146d42a740d60aaff92934a40c23307ecac8ab2"
+      "sha256": "65fcc9f7f590a80170f0d1e32a706b61c8a5f64fb515f4d68cfb76edc094cc09"
     },
     {
       "path": ".harness/engine/agents/midas-builder.md",
@@ -440,7 +440,7 @@
     },
     {
       "path": ".harness/engine/state.schema.md",
-      "sha256": "0dfbd364c1ec7d2e3ebe414a45b28078e322a24c39d504d80b3302fb2d34c648"
+      "sha256": "3968b194bea64b4c8800b2ae697e11f8284f85d7b84e95def675973804c21077"
     },
     {
       "path": ".harness/engine/templates/ADR.md",
