@@ -119,7 +119,13 @@ jobs:
           # A file the bundle no longer ships must be deleted, an edited vendor file saved aside,
           # and user-owned rules left alone.
           echo '# dropped by a later bundle' > /tmp/midas-update-smoke/.harness/engine/dropped.md
-          echo '# local rule' > /tmp/midas-update-smoke/.harness/rules/mine.md
+          cat > /tmp/midas-update-smoke/.harness/rules/mine.md <<'EOF'
+# Mine
+
+A project overlay left in place by update.
+
+**CHECK:** `manual:` CI smoke overlay — this file must survive update.
+EOF
           echo 'local vendor edit' >> /tmp/midas-update-smoke/.harness/engine/conventions.md
           echo 'untracked note' > /tmp/midas-update-smoke/.harness/engine/stray.md
           node -e '
