@@ -16,7 +16,7 @@ import {
 } from '../skill-registry.mjs';
 import { evaluateMcpDeclaredVsWired, evaluateMcpGovernance, evaluateSkillMcpRequired, OPTIONAL_MCP_IDS } from '../mcp-drift.mjs';
 import { ensureMidasGitignore, GITIGNORE_BEGIN, GITIGNORE_END, auditGitignore } from '../gitignore-merge.mjs';
-import { detectLayout, detectRole, isV1Install, resolvePaths, MIGRATION_MAP, MIGRATION_MAP_HUB, RUNS_SUBDIRS, hubPathsYaml, resolveProjectRootFromScript } from '../paths.mjs';
+import { detectLayout, detectRole, isV1Install, resolvePaths, RUNS_SUBDIRS, resolveProjectRootFromScript } from '../paths.mjs';
 import { exportBundle, applyImport, checkMcpSecrets, ENGINE_BASE_RULES, toCanonical, fromCanonical, planImport } from '../bundle.mjs';
 import { loadStageCommandTable, stageRecallPaths, loadEngineBaseRules, computeStageCommandTableYaml, resolveStatusNext, LITE_FRONT_STAGES, LITE_FORBIDDEN_NEXT } from '../stage-command-table.mjs';
 import { computeDesignSystemCss } from '../design-system.mjs';
@@ -58,6 +58,7 @@ import {
 } from '../skill-quality-check.mjs';
 import { ENGINE_ONLY_SKILLS, HARNESS_ENGINE_ONLY_RELS } from '../engine-only.mjs';
 import { resetSandbox, inspectSandboxEnv, isPathInside, gradeSandbox, parseGradeArgs } from '../sandbox-run.mjs';
+import { loadOracleDoc } from '../lib/sandbox-grade.mjs';
 import { splitSkillDocument } from '../lib/frontmatter.mjs';
 import { walkFiles } from '../lib/walk.mjs';
 import { missingEvidenceRequired, resolveEvidencePattern } from '../lib/gate-evidence.mjs';
@@ -218,6 +219,11 @@ if (existsSync(tplRoot)) {
     );
     check('sandbox:skill-missing-skip', /--missing skip/.test(sandboxSkill));
     check(
+      'sandbox:skill-grade-after-each',
+      /After \*\*each\*\* skill Task/.test(sandboxSkill) &&
+        /while fixture `stage` is still `contextualize`/.test(sandboxSkill),
+    );
+    check(
       'sandbox:seed-not-shipped-script',
       !scriptBundleFiles().includes('sandbox-run.mjs'),
     );
@@ -278,6 +284,15 @@ if (existsSync(tplRoot)) {
         'sandbox:baseline-rules-hash',
         typeof baselineJson.engineRulesSha256 === 'string' && baselineJson.engineRulesSha256.length === 64,
       );
+      check(
+        'sandbox:baseline-fixture-updated',
+        baselineJson.fixtureUpdated === '2026-08-28',
+        String(baselineJson.fixtureUpdated),
+      );
+      check(
+        'sandbox:baseline-fixture-state-hash',
+        typeof baselineJson.fixtureStateSha256 === 'string' && baselineJson.fixtureStateSha256.length === 64,
+      );
       const isolationGrade = gradeSandbox({ root: ROOT, skill: 'isolation', ledger: false });
       check(
         'sandbox:grade-isolation-ok',
@@ -289,6 +304,16 @@ if (existsSync(tplRoot)) {
       check(
         'sandbox:grade-seed-idea-intake-stage',
         graded.checks.some((c) => c.id === 'stage-advanced' && !c.ok),
+        graded.tally,
+      );
+      check(
+        'sandbox:grade-seed-idea-intake-artifacts',
+        graded.checks.some((c) => c.id === 'idea-artifact' && !c.ok),
+        graded.tally,
+      );
+      check(
+        'sandbox:grade-seed-idea-intake-state-hash',
+        graded.checks.some((c) => c.id === 'state-not-seed' && !c.ok),
         graded.tally,
       );
       const slashSkill = gradeSandbox({ root: ROOT, skill: '/idea-intake', ledger: false });
@@ -312,12 +337,39 @@ if (existsSync(tplRoot)) {
         skipMissing.tally,
       );
       {
+        const brokenDir = mkdtempSync(join(tmpdir(), 'midas-sandbox-oracle-'));
+        const bogusOracle = join(ROOT, 'sandbox', 'oracles', '_grade-invalid.json');
+        try {
+          writeFileSync(join(brokenDir, 'broken.json'), '{', 'utf8');
+          const broken = loadOracleDoc('broken', brokenDir);
+          check('sandbox:oracle-invalid-not-missing', broken.invalid === true && broken.missing === false);
+          writeFileSync(bogusOracle, '{', 'utf8');
+          const skipBroken = gradeSandbox({ root: ROOT, skill: '_grade-invalid', missing: 'skip', ledger: false });
+          check(
+            'sandbox:grade-invalid-oracle-not-skipped',
+            skipBroken.ok === false && skipBroken.checks.some((c) => c.id === 'oracle-_grade-invalid-file' && !c.ok),
+            skipBroken.tally,
+          );
+        } finally {
+          if (existsSync(bogusOracle)) unlinkSync(bogusOracle);
+          rmSync(brokenDir, { recursive: true, force: true });
+        }
+      }
+      {
         const simState = join(restored.work, '.harness', 'state.yaml');
         let sim = readFileSync(simState, 'utf8');
         sim = sim.replace(/^updated:\s*2026-08-28\s*$/m, 'updated: 2026-08-30');
         sim = sim.replace(/^stage:\s*idea_intake\s*$/m, 'stage: contextualize');
         sim = sim.replace(/^    status:\s*not_started\s*$/m, '    status: passed');
         sim = sim.replace(/^    gate:\s*pending\s*$/m, '    gate: passed');
+        writeFileSync(simState, sim, 'utf8');
+        const stageOnly = gradeSandbox({ root: ROOT, skill: 'idea-intake', ledger: false });
+        check(
+          'sandbox:grade-idea-intake-stage-only-fails',
+          stageOnly.ok === false && stageOnly.checks.some((c) => c.id === 'idea-artifact' && !c.ok),
+          stageOnly.tally,
+        );
+        sim = sim.replace(/^    gate:\s*passed\s*$/m, '    gate: passed\n    artifacts: [.harness/product/idea.md]');
         writeFileSync(simState, sim, 'utf8');
         const afterGate = gradeSandbox({ root: ROOT, skill: 'idea-intake', ledger: false });
         check('sandbox:grade-idea-intake-after-gate', afterGate.ok === true, afterGate.tally);

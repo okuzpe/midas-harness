@@ -49,14 +49,16 @@ Cursor Task has no cwd pin. The parent must make the fixture honest; the Task mu
    - Execute the target skill **in this Task**. Do not spawn a nested Task or `midas-builder` with another model.
    - Every `node …/trace-write.mjs` subprocess gets env `MIDAS_TRACE_ROOT` = the value from `env`.
      `start-run` binds it for **that** process only; it does not export it to the Task.
-3. Parent: `node scripts/sandbox-run.mjs start-run` before the Task, `finish` after.
-   Then **`node scripts/sandbox-run.mjs grade --skill <name> --ledger`**. Cite
+3. Trace: `start-run` **once** before the first Task; `finish` **once** after the last Task.
+   After **each** skill Task — immediately, before launching the next skill — run
+   `node scripts/sandbox-run.mjs grade --skill <that-skill> --ledger`. Cite each
    `MIDAS_SANDBOX_ORACLE:` in findings Setup. Oracle `verdict=fail` ⇒ sandbox `verdict=fail`
    even if the Task claimed pass. Optional `--freeze` appends full `trace-inspect` output.
-   `--smoke` / `--all`: grade each launched skill; if that skill has no oracle YAML, add
-   `--missing skip` (isolation still fail-closes). Default `--missing fail`.
+   `--missing skip` only when **that** skill has no oracle YAML (isolation still fail-closes).
+   Default `--missing fail`. Do not wait until `--smoke` / `--all` finish to grade:
+   `idea-intake` must be graded while fixture `stage` is still `contextualize`.
    Do not run `doctor --fix` (or otherwise edit `harness/skills` / `harness/rules`) between
-   reset and grade — that is an isolation fail.
+   reset and the last grade — that is an isolation fail.
 
 Full contract: `sandbox/README.md`.
 
@@ -64,22 +66,24 @@ Full contract: `sandbox/README.md`.
 
 ### `/midas-sandbox [--skill <name>]` — one skill
 
-Step 0, then one composer-2.5 Task. If `--skill` omitted, next command from
-`<paths.engine>/stage-command-table.yaml` for the **fixture** `stage`. Then findings + tally.
+Reset + `env` + `start-run`, then one composer-2.5 Task, then `grade --skill <name> --ledger`,
+then `finish`, then findings. If `--skill` omitted, next command from
+`<paths.engine>/stage-command-table.yaml` for the **fixture** `stage`.
 
 ### `/midas-sandbox --smoke` — touched + next
 
-Step 0 once, then the named or staged-touched skill, then the next stage-table command.
+Step 0 once (one reset, one `start-run`). Then the named or staged-touched skill, **grade it**,
+then the next stage-table command, **grade that** (`--missing skip` if it has no oracle).
 Precommit Step 0 recommends this. **Stage mismatch:** still launch; the skill's own
 STOP/precondition is `fixture-limit` unless that abort is missing or misleading (`harness-gap`).
-Do not rewrite fixture `stage` to fake a body run. Grade the touched skill fail-closed; grade
-the next with `--missing skip` when it has no oracle.
+Do not rewrite fixture `stage` to fake a body run. `finish` once after the last grade.
 
 ### `/midas-sandbox --all` — pipeline batch
 
 `AskQuestion` once to confirm cost. Step 0 once, then reuse that working copy. One continuous
-trace (`start-run` once, `finish` once). Tag phases 2–4 `fixture-limit` unless a procedure bug
-is obvious. Findings get `## Harness analysis`.
+trace (`start-run` once, `finish` once). After **each** skill, grade that skill before the
+next. Tag phases 2–4 `fixture-limit` unless a procedure bug is obvious. Findings get
+`## Harness analysis`.
 
 **Human-gate substitution:** wherever the real skill would `AskQuestion`, pick
 recommended/first option and log `[SANDBOX AUTO-DECISION] <question> -> <choice> (<why>)`.
@@ -119,8 +123,9 @@ go/no-go. Say so in findings for phases 2–4.
 
 - [ ] Engine guard passed (or honest ABORT).
 - [ ] `reset` then `env` exited 0; fixture `name` is `sandbox-example`.
-- [ ] `grade --skill <name>` printed `MIDAS_SANDBOX_ORACLE:` with `verdict=pass` (or fail cited).
-      After reset, `idea-intake` is expected **fail** until the Task advances fixture `stage`.
+- [ ] After **each** skill, `grade --skill <that-skill>` printed `MIDAS_SANDBOX_ORACLE:`
+      (or `--missing skip` cited). After reset, `idea-intake` is expected **fail** until
+      the Task advances fixture `stage` **and** lists `{product}/idea.md` in phase artifacts.
 - [ ] Task first-Read was the fixture state; no nested Task / other-model builder.
 - [ ] Every substituted `AskQuestion` is a `[SANDBOX AUTO-DECISION]` line.
 - [ ] Subagent model was `composer-2.5` (cited in Setup); `MIDAS_TRACE_ROOT` passed to trace-write.

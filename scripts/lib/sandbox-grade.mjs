@@ -11,6 +11,7 @@ import {
   sha256Tree,
 } from './sandbox-env.mjs';
 import { resolvePaths } from '../paths.mjs';
+import { parsePhases } from '../yaml-lite.mjs';
 
 export const LEDGER_REL = join('sandbox', 'findings', '_ledger.jsonl');
 
@@ -32,6 +33,11 @@ export function normalizeSkillName(raw) {
  * @param {string} field dotted path (`mode`, `phases.idea_intake.status`)
  */
 export function yamlPathScalar(yaml, field) {
+  const phase = /^phases\.([^.]+)\.(gate|status|assumption)$/.exec(String(field || ''));
+  if (phase) {
+    const entry = parsePhases(yaml).get(phase[1]);
+    return entry ? String(entry[phase[2]] || '') : '';
+  }
   const parts = String(field || '')
     .split('.')
     .filter(Boolean);
@@ -63,18 +69,30 @@ export function yamlPathScalar(yaml, field) {
 }
 
 /**
+ * True when `listed` is the same artifact as `want` (`{product}/idea.md` or resolved path).
+ * @param {string[]} listed
+ * @param {string} wantSubst
+ * @param {string} wantRaw
+ */
+function listContainsArtifact(listed, wantSubst, wantRaw) {
+  const norm = (s) => String(s || '').replace(/\\/g, '/').replace(/^["']|["']$/g, '');
+  const candidates = new Set([norm(wantSubst), norm(wantRaw)].filter(Boolean));
+  return listed.some((a) => candidates.has(norm(a)));
+}
+
+/**
  * @param {string} skill
  * @param {string} oracleRoot
  */
 export function loadOracleDoc(skill, oracleRoot) {
   const abs = join(oracleRoot, `${skill}.json`);
-  if (!existsSync(abs)) return { skill, checks: [], missing: true, path: abs };
+  if (!existsSync(abs)) return { skill, checks: [], missing: true, invalid: false, path: abs };
   try {
     const doc = JSON.parse(readFileSync(abs, 'utf8'));
     const checks = Array.isArray(doc.checks) ? doc.checks : [];
-    return { skill: doc.skill || skill, checks, missing: false, path: abs };
+    return { skill: doc.skill || skill, checks, missing: false, invalid: false, path: abs };
   } catch (err) {
-    return { skill, checks: [], missing: true, path: abs, error: String(err) };
+    return { skill, checks: [], missing: false, invalid: true, path: abs, error: String(err) };
   }
 }
 
@@ -84,7 +102,7 @@ export function loadOracleDoc(skill, oracleRoot) {
  */
 export function isolationCheckIds(isolationDoc) {
   const ids = new Set();
-  if (isolationDoc.missing) {
+  if (isolationDoc.missing || isolationDoc.invalid) {
     ids.add(ISOLATION_FILE_ID);
     return ids;
   }
@@ -159,6 +177,52 @@ function runCheck(check, ctx) {
       const ok = type === 'state_match' ? equal : Boolean(field) && !equal;
       return { id, ok, detail: `${field}=${got} want${type === 'state_not_match' ? '≠' : '='}${want}` };
     }
+    if (type === 'fixture_file_changed') {
+      const rel = subst(check.path || '{state}', ctx.tokens);
+      const abs = resolve(ctx.work, rel);
+      if (!isPathInside(ctx.work, abs)) {
+        return { id, ok: false, detail: `path escapes working copy: ${abs}` };
+      }
+      const seedHash = String(ctx.baseline?.fixtureStateSha256 || '');
+      if (!seedHash) {
+        return { id, ok: false, detail: 'missing fixtureStateSha256 in sandbox-baseline.json — run reset' };
+      }
+      const now = sha256File(abs);
+      const ok = now !== '' && now !== seedHash;
+      return {
+        id,
+        ok,
+        detail: ok ? `${rel} hash differs from reset` : `${rel} still matches reset snapshot`,
+      };
+    }
+    if (type === 'fixture_field_changed') {
+      const field = String(check.field || 'updated');
+      const seedVal = field === 'updated' ? String(ctx.baseline?.fixtureUpdated || '') : '';
+      if (!seedVal) {
+        return { id, ok: false, detail: 'missing fixtureUpdated in sandbox-baseline.json — run reset' };
+      }
+      const got = yamlPathScalar(ctx.fixtureYaml, field);
+      const ok = got !== '' && got !== seedVal;
+      return { id, ok, detail: ok ? `${field} changed from seed ${seedVal}` : `${field}=${got} still seed ${seedVal}` };
+    }
+    if (type === 'state_list_contains') {
+      const field = String(check.field || '');
+      const phaseM = /^phases\.([^.]+)\.artifacts$/.exec(field);
+      if (!phaseM) {
+        return { id, ok: false, detail: `unsupported list field ${field}` };
+      }
+      const wantRaw = String(check.value ?? '');
+      const wantSubst = subst(wantRaw, ctx.tokens);
+      const listed = parsePhases(ctx.fixtureYaml).get(phaseM[1])?.artifacts || [];
+      const ok = listContainsArtifact(listed, wantSubst, wantRaw);
+      return {
+        id,
+        ok,
+        detail: ok
+          ? `found ${wantSubst} in ${field}`
+          : `missing ${wantSubst} in ${field} (have ${JSON.stringify(listed)})`,
+      };
+    }
     if (type === 'file_exists' || type === 'file_contains' || type === 'file_not_contains') {
       const rel = subst(check.path, ctx.tokens);
       const abs = resolve(ctx.work, rel);
@@ -213,16 +277,26 @@ export function gradeSandbox(opts) {
   const ctx = { root, env, work, baseline, engineStateAbs, fixtureYaml, engineYaml, tokens };
   const oracleRoot = join(root, 'sandbox', 'oracles');
   const isolationDoc = loadOracleDoc('isolation', oracleRoot);
-  const skillDoc = skill === 'isolation' ? { checks: [], missing: false } : loadOracleDoc(skill, oracleRoot);
+  const skillDoc = skill === 'isolation' ? { checks: [], missing: false, invalid: false } : loadOracleDoc(skill, oracleRoot);
   const isolationIds = isolationCheckIds(isolationDoc);
   const checks = [];
-  if (isolationDoc.missing) {
-    checks.push({ id: ISOLATION_FILE_ID, ok: false, detail: `missing ${isolationDoc.path}` });
+  if (isolationDoc.missing || isolationDoc.invalid) {
+    checks.push({
+      id: ISOLATION_FILE_ID,
+      ok: false,
+      detail: isolationDoc.error || `missing ${isolationDoc.path}`,
+    });
   } else {
     for (const c of isolationDoc.checks) checks.push(runCheck(c, ctx));
   }
   if (skill !== 'isolation') {
-    if (skillDoc.missing) {
+    if (skillDoc.invalid) {
+      checks.push({
+        id: `oracle-${skill}-file`,
+        ok: false,
+        detail: skillDoc.error || `invalid oracle JSON for skill ${skill} at ${skillDoc.path}`,
+      });
+    } else if (skillDoc.missing) {
       if (missingMode === 'skip') {
         checks.push({
           id: `oracle-${skill}-file`,
@@ -233,7 +307,7 @@ export function gradeSandbox(opts) {
         checks.push({
           id: `oracle-${skill}-file`,
           ok: false,
-          detail: skillDoc.error || `no oracle for skill ${skill} at ${skillDoc.path}`,
+          detail: `no oracle for skill ${skill} at ${skillDoc.path}`,
         });
       }
     } else {

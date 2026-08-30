@@ -110,7 +110,7 @@ export function parseSprintLastTouched(yaml) {
 }
 
 /**
- * Parse the phases block → Map(phaseName → { gate, artifacts, assumption }).
+ * Parse the phases block → Map(phaseName → { gate, status, artifacts, assumption }).
  * Supports inline flow-maps (`phase: { gate: passed, assumption: "…" }`) and
  * multi-line blocks with `artifacts:` as an inline list or dashed list.
  */
@@ -122,7 +122,7 @@ export function parsePhases(yaml) {
   let inArtifacts = false;
 
   const ensure = (name) => {
-    if (!out.has(name)) out.set(name, { gate: null, artifacts: [], assumption: null });
+    if (!out.has(name)) out.set(name, { gate: null, status: null, artifacts: [], assumption: null });
     return out.get(name);
   };
 
@@ -146,6 +146,8 @@ export function parsePhases(yaml) {
         const body = rest.slice(1, -1);
         const gateM = body.match(/gate:\s*([^,}]+)/);
         if (gateM) entry.gate = stripQuotes(gateM[1].trim());
+        const statusM = body.match(/status:\s*([^,}]+)/);
+        if (statusM) entry.status = stripQuotes(statusM[1].trim());
         const assM = body.match(/assumption:\s*"([^"]*)"|assumption:\s*'([^']*)'|assumption:\s*([^,}]+)/);
         if (assM) entry.assumption = stripQuotes((assM[1] ?? assM[2] ?? assM[3] ?? '').trim());
         const artM = body.match(/artifacts:\s*\[([^\]]*)\]/);
@@ -161,6 +163,11 @@ export function parsePhases(yaml) {
 
     if (/^\s+gate:\s*/.test(line)) {
       entry.gate = stripQuotes(line.replace(/^\s+gate:\s*/, '').replace(/#.*$/, '').trim());
+      inArtifacts = false;
+      continue;
+    }
+    if (/^\s+status:\s*/.test(line)) {
+      entry.status = stripQuotes(line.replace(/^\s+status:\s*/, '').replace(/#.*$/, '').trim());
       inArtifacts = false;
       continue;
     }

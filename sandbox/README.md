@@ -21,18 +21,20 @@ then `env` must exit 0. Non-zero after a fresh reset means the seed is broken �
 trust findings. Copy the `MIDAS_TRACE_ROOT:` line into the Task: every `trace-write` subprocess
 needs that env. `start-run` binds it only for its own process.
 
-After the Task, grade the **disk** (composer does not self-score):
+After the Task, grade the **disk** (composer does not self-score). Grade **immediately after
+each skill**, before the next one — not once at the end of `--smoke` / `--all`:
 
 ```bash
 node scripts/sandbox-run.mjs grade --skill idea-intake --ledger
 ```
 
-After `reset`, that command **must fail** (`stage` still `idea_intake`). A pass without a Task
-means the oracle is grading the seed, not the skill. `--skill /idea-intake` is the same JSON.
-`--smoke` / `--all` next skills without an oracle YAML: `--missing skip`.
+After `reset`, that command **must fail** (`stage` still `idea_intake`, no phase artifacts).
+A pass without a Task means the oracle is grading the seed, not the skill.
+`--skill /idea-intake` is the same JSON. `--smoke` / `--all` next skills without an oracle
+YAML: `--missing skip` (broken JSON is still a fail).
 
 Do not run `doctor --fix` or edit `harness/skills/` / `harness/rules/` between `reset` and
-`grade` — isolation hashes those trees.
+the last `grade` — isolation hashes those trees.
 
 Oracles live in [`oracles/`](./oracles/). `MIDAS_SANDBOX_ORACLE: verdict=fail` forces the sandbox
 verdict to fail.

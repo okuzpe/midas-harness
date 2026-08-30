@@ -64,6 +64,10 @@ engine repo into a product install (forbidden by `harness/rules/engine-repo-boun
 
 ## Amendment
 
+- **2026-08-30** — Grade **after each** skill Task (not once at the end of `--smoke` / `--all`).
+  `idea-intake` requires `phases.idea_intake.artifacts` to list `{product}/idea.md`; fixture
+  `state.yaml` hash and `updated` are compared to the reset baseline, not a hardcoded date.
+  `--missing skip` ignores only a missing oracle file — invalid JSON still fails.
 - **2026-08-30** — Isolation hashes `harness/skills` and `harness/rules` (not only
   `harness/state.yaml`). `idea-intake` oracle is a **delta** vs seed (Phase-0 gate / `stage`),
   so `reset` + `grade --skill idea-intake` fails until the skill advances fixture state.

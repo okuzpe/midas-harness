@@ -5,6 +5,7 @@ import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } fr
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolvePaths } from '../paths.mjs';
+import { parseStateScalar } from '../yaml-lite.mjs';
 import { walkFiles } from './walk.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -66,10 +67,14 @@ function readNameFromStateFile(statePath) {
  */
 export function writeSandboxBaseline(root, work) {
   mkdirSync(join(work, '.harness', 'cache'), { recursive: true });
+  const fixtureState = join(work, '.harness', 'state.yaml');
+  const fixtureYaml = existsSync(fixtureState) ? readFileSync(fixtureState, 'utf8') : '';
   const payload = {
     engineStateSha256: sha256File(join(root, 'harness', 'state.yaml')),
     engineSkillsSha256: sha256Tree(join(root, 'harness', 'skills')),
     engineRulesSha256: sha256Tree(join(root, 'harness', 'rules')),
+    fixtureUpdated: parseStateScalar(fixtureYaml, 'updated') || '',
+    fixtureStateSha256: sha256File(fixtureState),
     resetAt: new Date().toISOString(),
   };
   writeFileSync(join(work, BASELINE_REL), `${JSON.stringify(payload)}\n`, 'utf8');
@@ -81,6 +86,8 @@ export function writeSandboxBaseline(root, work) {
  *   engineStateSha256?: string,
  *   engineSkillsSha256?: string,
  *   engineRulesSha256?: string,
+ *   fixtureUpdated?: string,
+ *   fixtureStateSha256?: string,
  *   resetAt?: string,
  * } | null}
  */
