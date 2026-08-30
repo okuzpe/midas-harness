@@ -61,10 +61,14 @@ gate; the builder drafts the document.
      go/no-go is the human's informed risk call, not a lock.
 7. **Go / no-go** — render an explicit recommendation with rationale, then obtain **human sign-off**
    via `AskQuestion`. A valid verdict is **GO with field validation deferred (assumption logged)**
-   when desk demand is at least *mixed* and the human accepts the unproven-demand risk. Record the
-   decision + who signed off + the date in the document and in **`paths.state`**. On "no-go", stop and log why.
-8. **Write `{product}/business-plan.md`** from `<paths.engine>/templates/business-plan.md`; update
-   **`paths.state`** (gate verdict by the orchestrator).
+   when desk demand is at least *mixed* and the human accepts the unproven-demand risk. Record name +
+   date under `## Human sign-off` in `{product}/business-plan.md`. Do **not** invent a
+   `human_approved` state key (not in the schema). Gate pass is the state record. On "no-go", stop
+   and log why.
+8. **Write `{product}/business-plan.md`** from `<paths.engine>/templates/business-plan.md` — keep those
+   headings (`## MVP scope`, `## MVP non-goals (explicit exclusions)`, `## Success metrics`,
+   `## Revenue / cost model`, `## Validation status`, `## Go / no-go recommendation`,
+   `## Human sign-off`). Update **`paths.state`** (gate verdict by the orchestrator).
 
 ## Tier & delegation
 - **Dispatch + go/no-go / gate verdict:** `orchestrate` → `midas-orchestrator`.
@@ -73,13 +77,16 @@ gate; the builder drafts the document.
 - Respect `cost_profile`. Under `max_savings`, this Phase-3 gate still runs on the orchestrate pin (Sonnet); escalate to Opus only if the human asks for a deeper audit.
 
 ## Exit gate (Phase 3)
+- [ ] `{product}/business-plan.md` uses the template headings (`## MVP scope`,
+      `## MVP non-goals (explicit exclusions)`, `## Success metrics`, `## Revenue / cost model`,
+      `## Validation status`, `## Go / no-go recommendation`, `## Human sign-off`).
 - [ ] MVP scope defined with **explicit** non-goals.
 - [ ] ≥ 2 measurable success metrics, each with target + measurement method + window.
-- [ ] Business/monetization model stated.
+- [ ] Business/monetization model stated under `## Revenue / cost model`.
 - [ ] **Validation status** recorded: the desk demand verdict + field-validation status (done, or
       **deferred with a logged assumption**). The founder is not hard-walled — go/no-go is their informed call.
-- [ ] Explicit go/no-go recorded **with human sign-off** (name + date) in the doc and **`paths.state`**.
-- [ ] `{product}/business-plan.md` written.
+- [ ] Explicit go/no-go plus **human sign-off** (name + date) under `## Human sign-off` after `AskQuestion`.
+      No `human_approved` state key.
 - [ ] Gate verdict written to `{runs}/audits/gate-03.md`.
 
 On pass: freeze `{runs}/audits/gate-03.md` from `<paths.engine>/templates/gate-record.md`, set

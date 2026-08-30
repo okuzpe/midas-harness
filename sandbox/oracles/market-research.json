@@ -1,0 +1,21 @@
+{
+  "skill": "market-research",
+  "checks": [
+    { "id": "market-file", "type": "file_exists", "path": "{product}/market.md" },
+    { "id": "overview-heading", "type": "file_contains", "path": "{product}/market.md", "pattern": "## Market overview" },
+    { "id": "landscape-heading", "type": "file_contains", "path": "{product}/market.md", "pattern": "## Competitive landscape" },
+    { "id": "diff-heading", "type": "file_contains", "path": "{product}/market.md", "pattern": "## Differentiation thesis" },
+    { "id": "demand-heading", "type": "file_contains", "path": "{product}/market.md", "pattern": "## Demand signals" },
+    { "id": "risks-heading", "type": "file_contains", "path": "{product}/market.md", "pattern": "## Top 3 risks" },
+    { "id": "sources-heading", "type": "file_contains", "path": "{product}/market.md", "pattern": "## Sources" },
+    { "id": "no-snapshot-alias", "type": "file_not_contains", "path": "{product}/market.md", "pattern": "## Market snapshot" },
+    { "id": "gate-passed", "type": "state_match", "field": "phases.market_research.gate", "value": "passed" },
+    { "id": "phase-passed", "type": "state_match", "field": "phases.market_research.status", "value": "passed" },
+    { "id": "stage-advanced", "type": "state_match", "field": "stage", "value": "business_case" },
+    { "id": "market-artifact", "type": "state_list_contains", "field": "phases.market_research.artifacts", "value": "{product}/market.md" },
+    { "id": "updated-not-seed", "type": "fixture_field_changed", "field": "updated" },
+    { "id": "state-not-seed", "type": "fixture_file_changed", "path": "{state}" },
+    { "id": "gate-record", "type": "file_exists", "path": "{runs}/audits/gate-02.md" },
+    { "id": "gate-record-verdict", "type": "file_contains", "path": "{runs}/audits/gate-02.md", "pattern": "MIDAS_GATE_RESULT: verdict=pass" }
+  ]
+}

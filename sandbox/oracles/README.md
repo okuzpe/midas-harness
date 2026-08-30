@@ -24,6 +24,11 @@ reset snapshot in `sandbox-baseline.json`.
 artifacts, `stage: market_research`, `gate-01.md` with a pass verdict. After `reset` that grade
 **must fail**.
 
+`market-research.json` and `business-plan.json` grade procedure fidelity against
+`templates/market.md` / `templates/business-plan.md` headings plus `gate-02.md` / `gate-03.md`.
+Cheap-model judgment on the toy idea is not the oracle — headings, artifacts, and gate freeze are.
+After `reset` those grades **must fail**.
+
 `{product}` `{state}` `{runs}` `{rules}` `{cache}` expand from the fixture `paths.*`.
 Paths that resolve outside `sandbox/example-product/` fail closed.
 

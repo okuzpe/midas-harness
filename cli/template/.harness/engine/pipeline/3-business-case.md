@@ -31,20 +31,23 @@ This is an irreversible decision point; use the orchestrate tier.
    **field validation** (interviews / a real preorder / a paid-ad demand test) has not been done, list
    *"real-customer demand unproven — field validation deferred"* as an explicit risk + assumption. Recommend
    field validation, but do **NOT** hard-block a resource-constrained founder; the go/no-go is their call.
-5. **Draft `{product}/business-plan.md`** with sections:
-   - `## MVP scope` — feature list + explicit non-goals
-   - `## Success metrics` — primary + secondary + health
-   - `## Revenue / sustainability model`
-   - `## Top risks & mitigations`
+5. **Draft `{product}/business-plan.md`** from `<paths.engine>/templates/business-plan.md`. Headings
+   are those of the template — not a parallel outline:
+   - `## MVP scope` — feature list
+   - `## MVP non-goals (explicit exclusions)`
+   - `## Success metrics` — target + measurement method + window
+   - `## Revenue / cost model`
    - `## Validation status` — desk demand verdict (from Phase 2) + field-validation status (done, or
      deferred with a logged assumption)
-   - `## Go / No-go recommendation` — orchestrator's recommendation with reasoning (a valid verdict is
+   - `## Go / no-go recommendation` — orchestrator's recommendation with reasoning (a valid verdict is
      **GO with field validation deferred** when desk demand is ≥ mixed and the human accepts the risk)
-6. **HUMAN SIGN-OFF.** Present the plan to the user. Wait for explicit approval
-   (`go`, `approved`, `proceed`, or equivalent). Do not advance on silence.
-   Record the approval in `paths.state` under `phases.business_case.human_approved: true`.
+   - `## Human sign-off` — name + date (filled after the ask)
+6. **HUMAN SIGN-OFF.** Present the plan via `AskQuestion` (`go` | `go with field validation deferred`
+   | `no-go`). Do not advance on silence. Record name + date under `## Human sign-off` in the doc.
+   Do **not** invent a `human_approved` state key — it is not in `<paths.engine>/state.schema.md`.
+   Gate pass (`phases.business_case.gate: passed`) is the state record.
 7. **Advance.** Set `stage_status: gate_pending`; run the exit gate.
-   On pass, write `gate: passed` and set `stage: tech_architecture`.
+   On pass, freeze `{runs}/audits/gate-03.md`, write `gate: passed`, and set `stage: tech_architecture`.
 
 ## Output artifacts
 
@@ -55,13 +58,15 @@ This is an irreversible decision point; use the orchestrate tier.
 
 ## Exit gate checklist
 
-- [ ] `{product}/business-plan.md` exists with all six sections
+- [ ] `{product}/business-plan.md` exists with the template headings (`## MVP scope`,
+      `## MVP non-goals (explicit exclusions)`, `## Success metrics`, `## Revenue / cost model`,
+      `## Validation status`, `## Go / no-go recommendation`, `## Human sign-off`)
 - [ ] MVP scope names features AND explicit non-goals
 - [ ] At least one measurable, time-bound success metric is defined
-- [ ] Revenue/sustainability model is named (one paragraph minimum)
+- [ ] Revenue/cost model is named (one paragraph minimum)
 - [ ] `## Validation status` present: desk demand verdict + field-validation status (done / deferred-with-assumption); founder not hard-walled
 - [ ] Go/no-go recommendation is present with explicit reasoning
-- [ ] Human sign-off is recorded (`human_approved: true` in `paths.state`)
+- [ ] `## Human sign-off` records name + date (after `AskQuestion`; no `human_approved` state key)
 - [ ] Gate verdict written to `{runs}/audits/gate-03.md`
 
 ## Recommended tier + agents

@@ -26,14 +26,16 @@ decision. Every claim must be cited; opinions must be flagged as such.
 2. **Run research.** Invoke `midas-scout` with `WebSearch` + `WebFetch` to gather raw evidence.
    If an external deep-research skill is installed in the host tool, you may delegate the fan-out.
    Collect at minimum 3 distinct competitors with public evidence.
-3. **Write `{product}/market.md`.** Build uses the template below:
-   - `## Market snapshot` — size estimate with source and date
-   - `## Competitors` — table: name | segment | key differentiator | weakness (one row per competitor)
-   - `## Differentiation thesis` — 2–4 sentences; what Midas enables that incumbents cannot
-   - `## Demand signals` — evidence the problem is real and paid-for (traction, complaints, search
-     interest, willingness-to-pay), ending in a frank **demand verdict**: strong / mixed / weak
-   - `## Top risks` — exactly 3 ordered risks with mitigation note
-   - `## Sources` — numbered citation list; all URLs with access date
+3. **Write `{product}/market.md`** from `<paths.engine>/templates/market.md`. Headings are those
+   of the template — not a parallel outline:
+   - `## Market overview` — size / growth / tailwinds with citations
+   - `## Target segment` — ICP narrowed from Phase 1
+   - `## Competitive landscape` — table, ≥3 named competitors, cited
+   - `## Differentiation thesis` — 1 paragraph grounded in the gap
+   - `## Demand signals` — traction / complaints / search / willingness-to-pay, ending in a frank
+     **demand verdict**: strong / mixed / weak
+   - `## Top 3 risks` — likelihood, impact, mitigation
+   - `## Sources` — numbered list; every URL with access date
 4. **Cite everything.** Inline citation format: `[N]` pointing to the `## Sources` list.
    No uncited factual claim is acceptable.
 5. **Advance.** Set `stage_status: gate_pending`; run the exit gate.
@@ -48,11 +50,13 @@ decision. Every claim must be cited; opinions must be flagged as such.
 
 ## Exit gate checklist
 
-- [ ] `{product}/market.md` exists with all six sections present
+- [ ] `{product}/market.md` exists with the template headings (`## Market overview`, `## Target segment`,
+      `## Competitive landscape`, `## Differentiation thesis`, `## Demand signals`, `## Top 3 risks`,
+      `## Sources`)
 - [ ] At least 3 named competitors with evidence (not hypothetical)
 - [ ] Differentiation thesis is present and specific (not generic)
 - [ ] `## Demand signals` present with a frank demand verdict (strong/mixed/weak) and cited evidence
-- [ ] Exactly 3 top risks are listed with mitigation notes
+- [ ] `## Top 3 risks` lists exactly 3 risks with mitigation notes
 - [ ] Every factual claim has an inline citation `[N]`
 - [ ] `## Sources` list contains at least 3 URLs with access dates
 - [ ] Gate verdict written to `{runs}/audits/gate-02.md`

@@ -1,0 +1,22 @@
+{
+  "skill": "business-plan",
+  "checks": [
+    { "id": "plan-file", "type": "file_exists", "path": "{product}/business-plan.md" },
+    { "id": "mvp-heading", "type": "file_contains", "path": "{product}/business-plan.md", "pattern": "## MVP scope" },
+    { "id": "nongoals-heading", "type": "file_contains", "path": "{product}/business-plan.md", "pattern": "## MVP non-goals (explicit exclusions)" },
+    { "id": "metrics-heading", "type": "file_contains", "path": "{product}/business-plan.md", "pattern": "## Success metrics" },
+    { "id": "revenue-heading", "type": "file_contains", "path": "{product}/business-plan.md", "pattern": "## Revenue / cost model" },
+    { "id": "validation-heading", "type": "file_contains", "path": "{product}/business-plan.md", "pattern": "## Validation status" },
+    { "id": "gongo-heading", "type": "file_contains", "path": "{product}/business-plan.md", "pattern": "## Go / no-go recommendation" },
+    { "id": "signoff-heading", "type": "file_contains", "path": "{product}/business-plan.md", "pattern": "## Human sign-off" },
+    { "id": "no-sustainability-alias", "type": "file_not_contains", "path": "{product}/business-plan.md", "pattern": "## Revenue / sustainability model" },
+    { "id": "gate-passed", "type": "state_match", "field": "phases.business_case.gate", "value": "passed" },
+    { "id": "phase-passed", "type": "state_match", "field": "phases.business_case.status", "value": "passed" },
+    { "id": "stage-advanced", "type": "state_match", "field": "stage", "value": "tech_architecture" },
+    { "id": "plan-artifact", "type": "state_list_contains", "field": "phases.business_case.artifacts", "value": "{product}/business-plan.md" },
+    { "id": "updated-not-seed", "type": "fixture_field_changed", "field": "updated" },
+    { "id": "state-not-seed", "type": "fixture_file_changed", "path": "{state}" },
+    { "id": "gate-record", "type": "file_exists", "path": "{runs}/audits/gate-03.md" },
+    { "id": "gate-record-verdict", "type": "file_contains", "path": "{runs}/audits/gate-03.md", "pattern": "MIDAS_GATE_RESULT: verdict=pass" }
+  ]
+}

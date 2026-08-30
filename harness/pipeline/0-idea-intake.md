@@ -19,13 +19,13 @@ This is the cheapest phase; speed matters more than depth.
    Do not paraphrase or improve it yet.
 2. **Derive a 1-line pitch.** Synthesize a single sentence: `<verb> <for whom> <so that <outcome>>`.
    Append it to `{product}/idea.md` under `## 1-line pitch`.
-3. **Identify mode.** Ask: is this greenfield (empty repo) or brownfield (existing code)?
-   Record `mode: greenfield|brownfield` in `paths.state`.
-4. **Seed state.** Create or overwrite `paths.state` with the schema from
-   `<paths.engine>/state.schema.md`: set `stage: idea_intake`, `stage_status: in_progress`,
-   `entry_stage: idea_intake`, and an empty `phases` ledger.
+3. **Identify mode.** Confirm via `AskQuestion`: is this greenfield (empty repo) or brownfield
+   (existing code)? Record `mode: greenfield|brownfield` in `paths.state`.
+4. **Advance state (write last).** `paths.state` already exists from `/midas-init`. Read-modify-write
+   only this phase: list `{product}/idea.md` under `phases.idea_intake.artifacts`; set `mode` if
+   confirmed/changed; refresh `updated`. Do not create a blank ledger or overwrite routing/tools.
 5. **Advance.** Set `stage_status: gate_pending`; run the exit gate below.
-   On pass, write `gate: passed` and set `stage: contextualize` to trigger Phase 1.
+   On pass, freeze `{runs}/audits/gate-00.md`, write `gate: passed`, and set `stage: contextualize`.
 
 ## Output artifacts
 

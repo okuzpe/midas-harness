@@ -229,6 +229,39 @@ if (existsSync(tplRoot)) {
       /## 1-line pitch/.test(playbook0) && !/## One-line pitch/.test(playbook0),
     );
     check(
+      'playbook-0:no-blank-state-overwrite',
+      /already exists from `\/midas-init`/.test(playbook0) &&
+        !/Create or overwrite `paths\.state`/.test(playbook0),
+    );
+    const playbook2 = readFileSync(join(ROOT, 'harness', 'pipeline', '2-market-research.md'), 'utf8');
+    const marketSkill = readFileSync(join(ROOT, 'harness', 'skills', 'market-research', 'SKILL.md'), 'utf8');
+    check(
+      'playbook-2:template-headings',
+      /## Market overview/.test(playbook2) &&
+        /## Competitive landscape/.test(playbook2) &&
+        /## Top 3 risks/.test(playbook2) &&
+        !/## Market snapshot/.test(playbook2),
+    );
+    check(
+      'market-research:template-headings',
+      /## Market overview/.test(marketSkill) &&
+        /## Competitive landscape/.test(marketSkill) &&
+        !/## Market snapshot/.test(marketSkill),
+    );
+    const playbook3 = readFileSync(join(ROOT, 'harness', 'pipeline', '3-business-case.md'), 'utf8');
+    check(
+      'playbook-3:template-headings',
+      /## Revenue \/ cost model/.test(playbook3) &&
+        /## Human sign-off/.test(playbook3) &&
+        /via `AskQuestion`/.test(playbook3) &&
+        !/human_approved: true/.test(playbook3) &&
+        !/## Revenue \/ sustainability model/.test(playbook3),
+    );
+    check(
+      'business-plan:no-human-approved-key',
+      /## Human sign-off/.test(businessPlanSkill) && !/human_approved: true/.test(businessPlanSkill),
+    );
+    check(
       'sandbox:gitignore-active-run',
       /sandbox\/findings\/_active-run\.json/.test(readFileSync(join(ROOT, '.gitignore'), 'utf8')),
     );
@@ -243,6 +276,8 @@ if (existsSync(tplRoot)) {
     check('sandbox:oracle-isolation-file', existsSync(join(ROOT, 'sandbox', 'oracles', 'isolation.json')));
     check('sandbox:oracle-idea-intake-file', existsSync(join(ROOT, 'sandbox', 'oracles', 'idea-intake.json')));
     check('sandbox:oracle-contextualize-file', existsSync(join(ROOT, 'sandbox', 'oracles', 'contextualize.json')));
+    check('sandbox:oracle-market-research-file', existsSync(join(ROOT, 'sandbox', 'oracles', 'market-research.json')));
+    check('sandbox:oracle-business-plan-file', existsSync(join(ROOT, 'sandbox', 'oracles', 'business-plan.json')));
     const sandboxSkill = readFileSync(join(ROOT, 'harness', 'skills', 'midas-sandbox', 'SKILL.md'), 'utf8');
     check(
       'sandbox:skill-always-reset',
@@ -390,6 +425,18 @@ if (existsSync(tplRoot)) {
         'sandbox:grade-seed-contextualize-fails',
         gradedCtx.ok === false && gradedCtx.checks.some((c) => c.id === 'stage-advanced' && !c.ok),
         gradedCtx.tally,
+      );
+      const gradedMarket = gradeSandbox({ root: ROOT, skill: 'market-research', ledger: false });
+      check(
+        'sandbox:grade-seed-market-research-fails',
+        gradedMarket.ok === false && gradedMarket.checks.some((c) => c.id === 'market-file' && !c.ok),
+        gradedMarket.tally,
+      );
+      const gradedPlan = gradeSandbox({ root: ROOT, skill: 'business-plan', ledger: false });
+      check(
+        'sandbox:grade-seed-business-plan-fails',
+        gradedPlan.ok === false && gradedPlan.checks.some((c) => c.id === 'plan-file' && !c.ok),
+        gradedPlan.tally,
       );
       check(
         'sandbox:grade-seed-idea-intake-stage',

@@ -55,8 +55,11 @@ does **not** pass the exit gate.
    **demand verdict** — *strong / mixed / weak* desk-signal — citing the evidence behind it (traction,
    pain complaints, search interest, willingness-to-pay). State plainly what the desk can and **cannot**
    prove: it shows a market exists, not that *these* customers will pay — that is field validation (Phase 3).
-5. **Write `{product}/market.md`** from `<paths.engine>/templates/market.md`. Update **`paths.state`** (read-modify-write)
-   (`market_research: in_progress` → leave the gate verdict to the orchestrator).
+5. **Write `{product}/market.md`** from `<paths.engine>/templates/market.md` — keep those headings
+   (`## Market overview`, `## Target segment`, `## Competitive landscape`, `## Differentiation thesis`,
+   `## Demand signals`, `## Top 3 risks`, `## Sources`). Do not invent a parallel outline. Update
+   **`paths.state`** (read-modify-write) (`market_research: in_progress` → leave the gate verdict to
+   the orchestrator).
 
 ## Cost / tiers
 Orchestrate (Opus) frames the questions and audits the gate. Scout (Haiku) does the bulk
@@ -69,13 +72,15 @@ search/extraction. Build (Sonnet) writes the synthesis.
 - Respect `paths.state → cost_profile`. On non-Claude hosts, apply as intent (fastest for search, strongest for the gate).
 
 ## Exit gate (Phase 2)
-- [ ] ≥ 3 competitors/alternatives analyzed (or a justified "no direct competitor" finding).
+- [ ] `{product}/market.md` uses the template headings (`## Market overview`, `## Target segment`,
+      `## Competitive landscape`, `## Differentiation thesis`, `## Demand signals`, `## Top 3 risks`,
+      `## Sources`).
+- [ ] ≥ 3 competitors/alternatives in `## Competitive landscape` (or a justified "no direct competitor" finding).
 - [ ] A differentiation thesis is stated explicitly.
-- [ ] Every material claim carries a citation (source URL).
-- [ ] Top 3 market risks named, each with an early signal.
+- [ ] Every material claim carries a citation (source URL) in `## Sources`.
+- [ ] `## Top 3 risks` names three risks, each with an early signal.
 - [ ] **Demand signals** assessed with a frank desk-demand verdict (strong/mixed/weak) and evidence —
       not just a competitor list. (Whether *these* customers pay is field validation, weighed in Phase 3.)
-- [ ] `{product}/market.md` written.
 - [ ] Gate verdict written to `{runs}/audits/gate-02.md`.
 
 On pass: freeze `{runs}/audits/gate-02.md` from `<paths.engine>/templates/gate-record.md`, set

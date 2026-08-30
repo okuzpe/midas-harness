@@ -16,10 +16,14 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
   `{runs}/audits/gate-04.md`…`gate-06.md`. `/midas-design` and `/midas-adopt` match.
 - **Phase 1** — playbook asks BLOCKING questions in `AskQuestion` batches (same as the skill);
   `## Contextualized` + `open-questions.md` headings match the skill. Sandbox oracle
-  `contextualize.json` added.
-- **Phase 1 heading + sandbox oracle** — `contextualize` writes `## Contextualized`; playbook asks in
-  batches; `sandbox/oracles/contextualize.json` grades the Phase-1 delta. `idea-intake` requires
-  `MIDAS_GATE_RESULT: verdict=pass` on `gate-00.md`.
+  `contextualize.json` added. `idea-intake` requires `MIDAS_GATE_RESULT: verdict=pass` on
+  `gate-00.md`.
+- **Phases 0–3 playbook vs template** — Phase 0 no longer tells the agent to overwrite a blank
+  `paths.state` (init already wrote it). Phase 2 headings match `templates/market.md` (`## Market
+  overview`, `## Competitive landscape`, `## Top 3 risks` — not `## Market snapshot`). Phase 3
+  headings match `templates/business-plan.md`; sign-off is `AskQuestion` + `## Human sign-off`
+  (no invented `human_approved` state key). Sandbox oracles `market-research.json` and
+  `business-plan.json` grade those headings + `gate-02.md` / `gate-03.md`.
 
 ## [3.0.1] — 2026-08-30
 
