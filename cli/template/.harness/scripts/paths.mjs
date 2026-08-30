@@ -160,12 +160,6 @@ export function resolvePaths(root = '.', forced) {
   };
 }
 
-/** @deprecated empty — v1 layout maps removed in 3.0 */
-export const MIGRATION_MAP = [];
-export const MIGRATION_MAP_HUB = [];
-export const HUB_PRODUCT_MOVE = { from: 'product', to: '.midas/product', type: 'dir' };
-export const LEGACY_LAYOUTS = [];
-
 export function harnessPathsYaml() {
   return {
     root: PRODUCT_DEFAULTS.root,
@@ -177,14 +171,6 @@ export function harnessPathsYaml() {
     runs: PRODUCT_DEFAULTS.runs,
     cache: PRODUCT_DEFAULTS.cache,
   };
-}
-
-export function compactPathsYaml() {
-  return harnessPathsYaml();
-}
-
-export function hubPathsYaml() {
-  return harnessPathsYaml();
 }
 
 export function resolveProjectRootFromScript(metaUrl) {

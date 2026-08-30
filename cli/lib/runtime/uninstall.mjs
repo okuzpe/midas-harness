@@ -1,8 +1,7 @@
-// uninstall.mjs — surgical Midas uninstall for harness + legacy layouts.
+// uninstall.mjs — surgical Midas uninstall for v2 `.harness/` installs.
 
 import { readdirSync, readFileSync, writeFileSync, existsSync, rmSync, rmdirSync } from 'node:fs';
-import { join, relative } from 'node:path';
-import { toPosixRel } from '../shared/posix.mjs';
+import { join } from 'node:path';
 import {
   readOwnershipManifest,
   sha256File,
@@ -11,7 +10,7 @@ import { stripTraceHooks } from '../steps/trace-hooks.mjs';
 import { stripSafetyHooks } from '../steps/safety-hooks.mjs';
 import { stripCarryoverHooks } from '../steps/carryover-hooks.mjs';
 import { stripContextCostHooks } from '../steps/context-cost-hooks.mjs';
-import { V1_REFUSE_MESSAGE } from '../core/context.mjs';
+import { V1_REFUSE_MESSAGE, isV1Install } from '../core/context.mjs';
 
 /**
  * @typedef {{
@@ -22,15 +21,6 @@ import { V1_REFUSE_MESSAGE } from '../core/context.mjs';
  *   detectInstallLayout: (dir: string) => string|null,
  * }} UninstallCtx
  */
-
-function listTemplateFiles(dir, base = dir, out = []) {
-  for (const e of readdirSync(dir, { withFileTypes: true })) {
-    const p = join(dir, e.name);
-    if (e.isDirectory()) listTemplateFiles(p, base, out);
-    else out.push(toPosixRel(relative(base, p)));
-  }
-  return out;
-}
 
 function rmFile(ctx, rel) {
   if (ctx.dryRun) return;
@@ -64,14 +54,6 @@ function pruneEmptyTree(dir) {
   }
 }
 
-function templateToInstalledRel(rel, layout) {
-  if (layout !== 'compact' && layout !== 'hub') return rel;
-  if (rel.startsWith('harness/')) return rel.replace(/^harness\//, '.midas/engine/');
-  if (rel.startsWith('scripts/')) return rel.replace(/^scripts\//, '.midas/scripts/');
-  if (rel === 'docs/agents-and-models.md') return '.midas/docs/agents-and-models.md';
-  return rel;
-}
-
 function stripManagedBlock(text, begin, end) {
   const bi = text.indexOf(begin);
   const ei = text.indexOf(end);
@@ -81,9 +63,9 @@ function stripManagedBlock(text, begin, end) {
     .trim();
 }
 
-function pruneEmptyDirs(ctx, layout) {
+function pruneEmptyDirs(ctx) {
   if (ctx.dryRun) return;
-  const roots = ['.claude', '.agents', '.cursor', '.windsurf', '.harness', 'harness', 'docs', 'scripts', '.midas'];
+  const roots = ['.claude', '.agents', '.cursor', '.windsurf', '.harness'];
   for (const root of roots) pruneEmptyTree(join(ctx.target, root));
 }
 
@@ -231,7 +213,7 @@ function runCanonicalUninstall(ctx, { removed, keptModified, keptUser, purged })
   }
   if (!ctx.dryRun) rmSync(join(ctx.target, '.harness', 'cache'), { recursive: true, force: true });
   if (!ctx.dryRun) rmSync(join(ctx.target, '.harness', 'manifest.json'), { force: true });
-  pruneEmptyDirs(ctx, 'harness');
+  pruneEmptyDirs(ctx);
 }
 
 /**
@@ -244,7 +226,7 @@ export function runUninstall(ctx) {
   const keptUser = [];
   const purged = [];
   const layout = ctx.detectInstallLayout(ctx.target);
-  if (layout !== 'harness') {
+  if (isV1Install(ctx.target) || layout !== 'harness') {
     throw new Error(V1_REFUSE_MESSAGE);
   }
   runCanonicalUninstall(ctx, { removed, keptModified, keptUser, purged });

@@ -34,7 +34,7 @@ if (paths.layoutConflict) {
 } else if (detected !== 'harness' && existsSync(join(ROOT, '.harness', 'engine'))) {
   check('layout:consistent', 'warn', `installed engine must use layout=harness, found ${detected || 'unknown'}`);
 } else {
-  check('layout:consistent', 'ok', declaredLayout || detected || paths.layout);
+  check('layout:consistent', 'ok', `role=${paths.role} (${declaredLayout || detected || paths.layout})`);
 }
 
 if (paths.role === 'product') {

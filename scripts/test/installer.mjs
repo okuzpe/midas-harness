@@ -16,7 +16,7 @@ import {
 } from '../skill-registry.mjs';
 import { evaluateMcpDeclaredVsWired, evaluateMcpGovernance, evaluateSkillMcpRequired, OPTIONAL_MCP_IDS } from '../mcp-drift.mjs';
 import { ensureMidasGitignore, GITIGNORE_BEGIN, GITIGNORE_END, auditGitignore } from '../gitignore-merge.mjs';
-import { detectLayout, detectRole, isV1Install, resolvePaths, MIGRATION_MAP, MIGRATION_MAP_HUB, RUNS_SUBDIRS, hubPathsYaml, resolveProjectRootFromScript } from '../paths.mjs';
+import { detectLayout, detectRole, isV1Install, resolvePaths, RUNS_SUBDIRS, resolveProjectRootFromScript } from '../paths.mjs';
 import { exportBundle, applyImport, checkMcpSecrets, ENGINE_BASE_RULES, toCanonical, fromCanonical, planImport } from '../bundle.mjs';
 import { loadStageCommandTable, stageRecallPaths, loadEngineBaseRules, computeStageCommandTableYaml, resolveStatusNext, LITE_FRONT_STAGES, LITE_FORBIDDEN_NEXT } from '../stage-command-table.mjs';
 import { computeDesignSystemCss } from '../design-system.mjs';
@@ -1216,6 +1216,18 @@ if (!TEST_FAST) {
         treeDigest(legacyUpdateRoot) === before &&
         !existsSync(join(legacyUpdateRoot, '.harness', 'engine', 'VERSION')),
       out.slice(0, 800),
+    );
+    const uninstallV1 = spawnSync(
+      process.execPath,
+      [join(ROOT, 'cli', 'index.mjs'), '--uninstall', legacyUpdateRoot],
+      { cwd: ROOT, encoding: 'utf8' },
+    );
+    check(
+      'installer:uninstall-v1-refuses',
+      uninstallV1.status === 1 &&
+        /does not support 1\.x/i.test(`${uninstallV1.stdout}${uninstallV1.stderr}`) &&
+        treeDigest(legacyUpdateRoot) === before,
+      (uninstallV1.stderr || uninstallV1.stdout || '').slice(0, 800),
     );
   } finally {
     rmSync(legacyUpdateRoot, { recursive: true, force: true });

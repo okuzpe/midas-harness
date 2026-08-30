@@ -11,6 +11,7 @@ export const UNIT_TEST_FILES = Object.freeze([
   'cli/lib/core/tests/walk-template.test.js',
   'cli/lib/core/tests/durable-transaction.test.js',
   'cli/lib/core/tests/release-channel.test.js',
+  'cli/lib/runtime/tests/uninstall.test.js',
   'scripts/lib/tests/commit-receipt.test.js',
   'scripts/lib/tests/carryover.test.js',
   'scripts/lib/tests/context-cost.test.js',

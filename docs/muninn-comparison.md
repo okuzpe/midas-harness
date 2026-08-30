@@ -563,7 +563,7 @@ portabilidad multi-tool, sin store oculto). **Esfuerzo** = bajo / medio / alto.
 | Mapa de contexto/símbolos indexado y consultable | Grep/Glob nativo + reglas de capas | Medio | Medio-alto en monorepos grandes | Alto | **Evaluar** — posible futuro MCP opcional (nota: ADR-002 ya rechazó un MCP de code-intelligence por complejidad — revisar si las condiciones cambiaron) |
 | Preferencias de estilo separadas del conocimiento de producto | Todo pasa por `/midas-capture` | Medio | Bajo-medio | Bajo | **Evaluar** |
 | *Staleness nudges* de una línea por sesión | No existe (recall es manual/sugerido por `/midas-status`) | Alto | Medio | Bajo | **Adoptar** — pequeña extensión de `/midas-status` |
-| *Fixture* de instalación desactualizada para probar `update`/`migrate` en CI | Ya cubierto por suite `migrate-harness` en `scripts/test.mjs` (~temp dirs v1.1.4 classic/compact/hub) | Alto | Medio (confianza en migraciones) | Bajo | **Ya cubierto** — ver §7.8 |
+| *Fixture* de instalación desactualizada para probar `update` en CI | 3.x **rehúsa** árboles 1.x (`unsupported_v1`, cero escrituras). Tests en `scripts/test/installer.mjs` + `cli/lib/runtime/tests/uninstall.test.js`. Migrar con create-midas@2.10.x, luego upgrade | Alto | Medio | Bajo | **Cubierto (3.0)** — ver §7.8 |
 | Camino explícito memoria → regla siempre activa (`share: workspace\|team` + `/refresh-memory --consolidate`) | Solo vía `/midas-capture` manual | Medio | Medio | Bajo | **Evaluar** |
 | Export/import de conocimiento portable | Ya existe (`/midas-bundle`) | — | — | — | Empate, sin acción |
 | *Fail-closed* explícito y documentado por hook | Reglas sin modo de fallo declarado | Alto | Alto (higiene de reglas) | Bajo | **Adoptar** — anotar `fail-open`/`fail-closed` en cada CHECK crítico de seguridad |
@@ -652,12 +652,12 @@ del auditor `orchestrate`, estos lentes solo alimentan evidencia adicional.
 primitiva de Task/subagente en el propio harness de Cursor y en Claude Code) más una sección de
 síntesis en `8-audit-adjust.md`.
 
-### 7.8 Ya cubierto — fixture de migración / update en CI
+### 7.8 Cubierto — rechazo 1.x en 3.0 (antes: migradores)
 
-**Corrección (2026-07-29):** `scripts/test.mjs` ya simula instalaciones legacy (`midas_version:
-1.1.4`, layouts `classic`/`compact`/`hub`) en temp dirs y ejecuta `migrate-layout.mjs --apply`
-(sección `migrate-harness`, ~líneas 1215–1330). No hace falta un `fixtures/workspace-stale/` adicional
-para cerrar esta brecha; el patrón muninn ya está cubierto por tests deterministas.
+**Corrección (2026-08-30):** Midas 3.0 **no** ejecuta `migrate-layout.mjs` ni `migrate-harness`.
+`update` / `--migrate` / uninstall sobre classic/compact/hub salen no-cero, imprimen el pin 2.10.x
+y **no escriben**. La suite está en `scripts/test/installer.mjs` (`installer:update-v1-refuses`,
+`installer:uninstall-v1-refuses`) y en `cli/lib/runtime/tests/uninstall.test.js`.
 
 ### 7.9 Evaluar — camino automático memoria → regla (paralelo a `/midas-capture`)
 
@@ -758,8 +758,8 @@ flowchart TB
 ### 9.3 Próximo paso sugerido
 
 **Ya shippeado (2026-07-29):** §7.3 (doctor `gate:phase-*` / `gate:sprint-continuity` + `state-integrity.md`),
-`/midas-help`, `/midas-explore`, y el pase de concisión de skills. §7.4 queda en **monitorizar**; §7.8 ya
-estaba cubierto por la suite `migrate-harness`.
+`/midas-help`, `/midas-explore`, y el pase de concisión de skills. §7.4 queda en **monitorizar**; §7.8
+es rechazo duro 1.x en 3.0 (ya no hay suite `migrate-harness`).
 
 **Siguiente sprint del motor (si el equipo prioriza):** ADR + plantilla de hooks mecánicos opcionales
 por host (§7.1) — el gap de mayor impacto aún abierto. Después: filas "Evaluar" de §7 (recall con

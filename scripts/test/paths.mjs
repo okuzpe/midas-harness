@@ -16,7 +16,7 @@ import {
 } from '../skill-registry.mjs';
 import { evaluateMcpDeclaredVsWired, evaluateMcpGovernance, evaluateSkillMcpRequired, OPTIONAL_MCP_IDS } from '../mcp-drift.mjs';
 import { ensureMidasGitignore, GITIGNORE_BEGIN, GITIGNORE_END, auditGitignore } from '../gitignore-merge.mjs';
-import { detectLayout, detectRole, isV1Install, resolvePaths, MIGRATION_MAP, MIGRATION_MAP_HUB, RUNS_SUBDIRS, hubPathsYaml, resolveProjectRootFromScript } from '../paths.mjs';
+import { detectLayout, detectRole, isV1Install, resolvePaths, RUNS_SUBDIRS, harnessPathsYaml, resolveProjectRootFromScript } from '../paths.mjs';
 import { exportBundle, applyImport, checkMcpSecrets, ENGINE_BASE_RULES, toCanonical, fromCanonical, planImport } from '../bundle.mjs';
 import { loadStageCommandTable, stageRecallPaths, loadEngineBaseRules, computeStageCommandTableYaml, resolveStatusNext, LITE_FRONT_STAGES, LITE_FORBIDDEN_NEXT } from '../stage-command-table.mjs';
 import { computeDesignSystemCss } from '../design-system.mjs';
@@ -100,8 +100,8 @@ check('paths:module-exists', existsSync(join(ROOT, 'scripts', 'paths.mjs')));
   check('paths:engine-runs', engine.runs === 'runs');
   check('paths:engine-product', engine.product === 'docs/product');
   check('paths:runs-subdirs', RUNS_SUBDIRS.includes('sprints') && RUNS_SUBDIRS.includes('sweeps') && RUNS_SUBDIRS.includes('lean') && RUNS_SUBDIRS.includes('retros') && RUNS_SUBDIRS.includes('investigate') && RUNS_SUBDIRS.includes('auto-pilot'));
-  check('paths:migration-map-empty', MIGRATION_MAP.length === 0 && MIGRATION_MAP_HUB.length === 0);
-  check('paths:hub-yaml-aliases-product', hubPathsYaml().product === '.harness/product');
+  check('paths:harness-yaml-product', harnessPathsYaml().product === '.harness/product');
+  check('paths:no-migration-map-export', !Object.hasOwn(await import('../paths.mjs'), 'MIGRATION_MAP'));
   check('paths:detect-role-engine', detectRole(ROOT) === 'engine');
   check('paths:detect-layout-engine-alias', detectLayout(ROOT) === 'classic');
 }
