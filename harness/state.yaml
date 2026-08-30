@@ -1,6 +1,6 @@
 # Engine source repo — NOT a Midas product lifecycle. Lifecycle CI fixture = scripts/fixtures/product-closed/.
 # `role: engine` is the 3.0 discriminator (contributor path map). Product installs use `role: product`.
-midas_version: 3.0.0
+midas_version: 3.0.1
 role: engine
 layout: classic
 paths:
