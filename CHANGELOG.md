@@ -9,20 +9,6 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
-### Changed
-
-- Removed empty v1 path-map exports (`MIGRATION_MAP`, `compactPathsYaml` / `hubPathsYaml`).
-- Doctor `layout:consistent` reports `role=` plus the derived layout alias.
-- CI runs a full `skill-quality-check` scan (not only empty `--staged` on a clean checkout).
-- Uninstall drops unused compact/hub remappers; unit tests cover 1.x refuse with zero writes.
-
-### Fixed
-
-- **Sandbox grade requires phase artifacts, not a `stage` patch** — `idea-intake` lists
-  `{product}/idea.md` under `phases.idea_intake.artifacts`; fixture `state.yaml` and
-  `updated` must differ from the reset baseline. `/midas-sandbox` grades after **each**
-  skill Task. `--missing skip` ignores only a missing oracle file (invalid JSON still fails).
-
 ## [3.0.0] — 2026-08-30
 
 ### Added
@@ -49,9 +35,11 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 - MkDocs nav includes ADR-012, ADR-013, and ADR-015.
 - Dead installer wrappers (`compareVersions` / `hasMidasInstall` / `findAncestorMidasRoot` /
   `pruneHostMirrors`) and unused `renameSync` import removed; autonomy pipeline link depth fixed.
-- **Sandbox grade no longer certifies the seed** — `idea-intake` oracle requires Phase-0
-  gate/`stage` advance. Isolation hashes `harness/skills` and `harness/rules`. `--skill /name`
-  normalizes; `--missing skip` keeps `--smoke` from failing on a missing next-skill YAML.
+- **Sandbox grade requires phase artifacts, not a `stage` patch** — `idea-intake` lists
+  `{product}/idea.md` under `phases.idea_intake.artifacts`; fixture `state.yaml` and
+  `updated` must differ from the reset baseline. `/midas-sandbox` grades after **each**
+  skill Task. Isolation hashes `harness/skills` and `harness/rules`. `--skill /name`
+  normalizes; `--missing skip` ignores only a missing oracle file (invalid JSON still fails).
 
 ### Changed
 
@@ -74,6 +62,10 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
   Doctor health checks live in `scripts/doctor/checks/*.mjs` (registry + profiles).
   `scripts/gates/conformance-gate.mjs` executes `kind: command` CHECKs and writes
   `MIDAS_CONFORMANCE_RESULT` under `{runs}/gates/`.
+- Empty v1 path-map exports (`MIGRATION_MAP`, `compactPathsYaml` / `hubPathsYaml`) removed.
+  Doctor `layout:consistent` reports `role=` plus the derived layout alias. CI runs a full
+  `skill-quality-check` scan. Uninstall drops unused compact/hub remappers; unit tests cover
+  1.x refuse with zero writes.
 
 Prior 2.x / 1.x / 0.x history: [docs/changelog-archive/2.x-and-earlier.md](docs/changelog-archive/2.x-and-earlier.md)
 
