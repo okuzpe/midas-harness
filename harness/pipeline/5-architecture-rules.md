@@ -35,7 +35,7 @@ the Phase 8 audit references exactly these files.
      should feel**, **first-viewport product evidence**, **2–3 real products to
      emulate** (+ what to borrow), mood keywords, **anti-references** (include the default SaaS landing
      stack unless justified). **Capture it from the human** (their
-     taste is the input) — a concrete reference + metaphor is what stops generic, default-looking UI. Prefer a design
+     taste is the input, via `AskQuestion`) — a concrete reference + metaphor is what stops generic, default-looking UI. Prefer a design
      specialist (`voltagent-core-dev:ui-designer` / `design-bridge`) if installed. Mid-project redesigns use
      `/midas-design` against this file.
    - `{product}/design-system.md` — human-readable reference: color palette, spacing scale, typography,
@@ -52,7 +52,7 @@ the Phase 8 audit references exactly these files.
 6. **Scaffold the enforcement tooling.** Generate the stack-standard linter + formatter
    (ESLint+Prettier / Biome / Ruff) wired to the rules, git hooks (Husky/lefthook/pre-commit) +
    lint-staged, commit-msg lint, and a CI lint job — Context7-verified. Show the configs, then
-   **ask the user** whether to install: on yes, run the install; on no, leave the configs and print the
+   **ask the user via `AskQuestion`** whether to install: on yes, run the install; on no, leave the configs and print the
    exact command (recommend-don't-wall — never a hard dependency). This makes each rule's CHECK real on
    every commit instead of only graded at Phase 8.
 7. **Render adapters.** Run `node <paths.scripts>/render-adapters.mjs` (or `/midas-doctor`) to
@@ -74,6 +74,7 @@ the Phase 8 audit references exactly these files.
 | `{product}/design-system/tokens.json` | Project token map |
 | `{product}/design-system/tokens.css` | Project CSS custom properties |
 | linter/formatter + git-hook + CI config | Enforcement scaffolding wired to the rules (installed on the user's OK) |
+| `{runs}/audits/gate-05.md` | Phase-5 gate freeze |
 
 ## Exit gate checklist
 

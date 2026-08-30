@@ -16,8 +16,13 @@ node scripts/sandbox-run.mjs grade --skill idea-intake --ledger
 | `<skill>.json` | When `--skill <skill>` (`/idea-intake` normalizes to `idea-intake`) |
 
 `idea-intake.json` requires the Phase-0 **exit gate** (`stage: contextualize`,
-`phases.idea_intake` passed, `{product}/idea.md` listed in `artifacts`) and fixture
-`state.yaml` / `updated` different from the reset snapshot in `sandbox-baseline.json`.
+`phases.idea_intake` passed, `{product}/idea.md` listed in `artifacts`, `{runs}/audits/gate-00.md`
+with `MIDAS_GATE_RESULT: verdict=pass`) and fixture `state.yaml` / `updated` different from the
+reset snapshot in `sandbox-baseline.json`.
+
+`contextualize.json` is the Phase-1 delta: `## Contextualized`, `{product}/open-questions.md` in
+artifacts, `stage: market_research`, `gate-01.md` with a pass verdict. After `reset` that grade
+**must fail**.
 
 `{product}` `{state}` `{runs}` `{rules}` `{cache}` expand from the fixture `paths.*`.
 Paths that resolve outside `sandbox/example-product/` fail closed.

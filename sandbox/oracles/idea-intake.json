@@ -13,6 +13,7 @@
     { "id": "idea-artifact", "type": "state_list_contains", "field": "phases.idea_intake.artifacts", "value": "{product}/idea.md" },
     { "id": "updated-not-seed", "type": "fixture_field_changed", "field": "updated" },
     { "id": "state-not-seed", "type": "fixture_file_changed", "path": "{state}" },
-    { "id": "gate-record", "type": "file_exists", "path": "{runs}/audits/gate-00.md" }
+    { "id": "gate-record", "type": "file_exists", "path": "{runs}/audits/gate-00.md" },
+    { "id": "gate-record-verdict", "type": "file_contains", "path": "{runs}/audits/gate-00.md", "pattern": "MIDAS_GATE_RESULT: verdict=pass" }
   ]
 }

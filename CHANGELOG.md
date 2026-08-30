@@ -9,6 +9,18 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+### Fixed
+
+- **Phases 4–6** — `choose-architecture`, `define-conventions`, and `plan-sprints` procedure bodies
+  use `AskQuestion` (Claude fallback stays in the skill header). Playbooks list
+  `{runs}/audits/gate-04.md`…`gate-06.md`. `/midas-design` and `/midas-adopt` match.
+- **Phase 1** — playbook asks BLOCKING questions in `AskQuestion` batches (same as the skill);
+  `## Contextualized` + `open-questions.md` headings match the skill. Sandbox oracle
+  `contextualize.json` added.
+- **Phase 1 heading + sandbox oracle** — `contextualize` writes `## Contextualized`; playbook asks in
+  batches; `sandbox/oracles/contextualize.json` grades the Phase-1 delta. `idea-intake` requires
+  `MIDAS_GATE_RESULT: verdict=pass` on `gate-00.md`.
+
 ## [3.0.1] — 2026-08-30
 
 ### Fixed

@@ -25,8 +25,8 @@ question loop with the human before advancing. Zero unresolved blockers is the g
 2. **Classify gaps.** For each missing field, decide:
    - `BLOCKING` — cannot advance without it (e.g. no identifiable user)
    - `DEFERRED` — nice-to-know; record as an open question and move on
-3. **Ask the human.** Present all BLOCKING questions in a single numbered list.
-   Wait for answers. Do not advance until every BLOCKING item is resolved.
+3. **Ask the human.** Use `AskQuestion` to ask the highest-severity BLOCKING questions in small
+   batches (≈3-4 at a time). Do not dump 20 questions at once. Wait for answers before the next batch.
 4. **Re-analyze.** After each answer batch, re-run the gap check.
    Repeat until the blocking list is empty.
 5. **Update `{product}/idea.md` v2.** Rewrite the document with all four fields

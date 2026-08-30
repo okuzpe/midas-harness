@@ -56,7 +56,7 @@ Default: **monolith-first + built-in auth** for ~90% of products; decouple/auth-
 Per layer (frontend, backend, data, infra, key libs): **2–3 candidates** with one-line trade-off. Prefer boring, well-supported tech. Survivors need ADRs.
 
 ### 3. Recommend, then let the user choose (recommend-don't-wall)
-**Ask macro forks FIRST**, then per-layer picks. Recommend industry-standard default; ask via `AskUserQuestion`, recommended option marked *(Recommended)*.
+**Ask macro forks FIRST**, then per-layer picks. Recommend industry-standard default; ask via `AskQuestion`, recommended option marked *(Recommended)*.
 
 **Macro forks — plain, founder-facing language:**
 
@@ -64,7 +64,7 @@ Per layer (frontend, backend, data, infra, key libs): **2–3 candidates** with 
 - **Auth:** *"Login inside our app vs dedicated provider? Who logs in — enterprise buyers?"* Plus: *"Should tokens live in the browser?"* → no ▸ BFF when security matters.
 - **Lock-in:** *"How hard to switch providers later?"* — record in ADR.
 
-**Per-layer:** name current industry default for this product type, grounded in **current docs** (Context7), not memory. `AskUserQuestion` with *(Recommended)*. No preference → default stands. Override → honor; ADR records human decision. Ask only **consequential** layers; trivial picks go straight to ADR.
+**Per-layer:** name current industry default for this product type, grounded in **current docs** (Context7), not memory. `AskQuestion` with *(Recommended)*. No preference → default stands. Override → honor; ADR records human decision. Ask only **consequential** layers; trivial picks go straight to ADR.
 
 ### 4. PIN versions (mandatory; Context7 recommended)
 Per `<paths.engine>/rules/context7-usage.md`: `resolve-library-id` → `get-library-docs` at intended pin. Route fetches to **scout**. Record exact version + verification. Context7 unreachable → web fallback + visible note — never pin from memory.
@@ -93,8 +93,9 @@ Full checklist: **`<paths.engine>/pipeline/4-tech-architecture.md` § Exit gate 
 - System **diagram** present; **one ADR per decision** under `{product}/adr/`.
 - **Every Step-1 requirement covered**; scope matches business-case MVP.
 - If the client includes **native or hybrid mobile**, `{product}/architecture.md` § Client names the verify tool (Maestro MCP / agent-browser) and emulator/simulator prerequisites.
+- Gate verdict written to `{runs}/audits/gate-04.md`.
 
-On pass: freeze `{runs}/audits/gate-04.md`, set `phases.tech_architecture.gate: passed`, next → `/define-conventions`. On fail: report unmet item.
+On pass: freeze `{runs}/audits/gate-04.md` from `<paths.engine>/templates/gate-record.md`, set `phases.tech_architecture.gate: passed`, next → `/define-conventions`. On fail: report unmet item.
 
 ## Tier & delegation
 

@@ -32,7 +32,7 @@ that constrain Phase 7. Fetching current docs before pinning any library is mand
    language** tied to a business trade-off (e.g. *"login inside our app — we own it, fastest — or a
    dedicated provider with a vendor dependency? Who logs in, will we sell to enterprises?"*). Then, for each
    consequential layer, name the current industry-standard default (grounded in current docs, not memory)
-   and **ask via `AskUserQuestion`** — recommended option marked, one-line trade-off each. No preference →
+   and **ask via `AskQuestion`** — recommended option marked, one-line trade-off each. No preference →
    use the recommendation (never block); an override is the user's call, recorded in that decision's ADR.
    Only the chosen options get version-pinned. Keep it to the few decisions that truly matter.
 4. **Write `{product}/architecture.md`.** Include:
@@ -55,6 +55,7 @@ that constrain Phase 7. Fetching current docs before pinning any library is mand
 |---|---|
 | `{product}/architecture.md` | Stack, diagram, constraints |
 | `{product}/adr/ADR-NNN-<slug>.md` | One file per decision; at least one required |
+| `{runs}/audits/gate-04.md` | Phase-4 gate freeze |
 
 ## Exit gate checklist
 

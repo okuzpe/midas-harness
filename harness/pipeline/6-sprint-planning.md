@@ -56,6 +56,7 @@ Sprints cover MVP only — no scope creep. Dependencies must be ordered.
 | `{product}/roadmap.md` | Full MVP sprint table |
 | `{product}/sprints/NN-<slug>.md` | One file per sprint |
 | `{product}/features.json` | MVP feature ledger (seeded from business-plan scope) |
+| `{runs}/audits/gate-06.md` | Phase-6 gate freeze |
 
 ## Exit gate checklist
 

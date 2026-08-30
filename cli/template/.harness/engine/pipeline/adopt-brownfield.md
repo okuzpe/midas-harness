@@ -16,7 +16,7 @@ Bring Midas to a project that already has code **without trampling what's there*
 
 > **Dry-run + diff-confirm.** Never write into a pre-existing `AGENTS.md`, `.claude/CLAUDE.md`, rule
 > file, or any source file without first showing the exact diff and getting explicit confirmation
-> (via `AskUserQuestion`). New files may be written directly. Only *add* or *append inside managed
+> (via `AskQuestion`). New files may be written directly. Only *add* or *append inside managed
 > `<!-- midas:begin -->` markers* — never rewrite hand-authored content.
 
 ## Step 0 — Preflight (read-only; optional `--preflight`)
@@ -78,7 +78,7 @@ For each file:
 
 - **New file** (`paths.state`, `{product}/*`, missing adapter) → write directly.
 - **Pre-existing `AGENTS.md` / `.claude/CLAUDE.md` / `.mcp.json`** → show managed-marker diff;
-  `AskUserQuestion` before write. On decline, print the block for manual paste.
+  `AskQuestion` before write. On decline, print the block for manual paste.
 - Generate adapters via `/midas-doctor` (single render path).
 
 Set `paths.state`: `mode: brownfield` and `entry_stage` by maturity —

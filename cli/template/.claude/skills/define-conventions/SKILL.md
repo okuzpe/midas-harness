@@ -46,7 +46,7 @@ mcp-recommended: [context7]
 - **`{product}/conventions.md`** — prose overrides only; never restate base.
 
 ### 2. Design direction → design system
-**Direction first** (`{product}/design-direction.md` from template): brand, **metaphor / how it should feel**, **first-viewport product evidence**, **2–3 real references**, anti-references (include the default SaaS landing stack unless this product is that archetype). **Ask human via `AskUserQuestion`** — do not invent taste. If human defers → propose ≥2 domain-appropriate references marked **`assumed (confirm)`**; concrete anchor mandatory. Mid-project redesigns later use `/midas-design` — do not skip direction here.
+**Direction first** (`{product}/design-direction.md` from template): brand, **metaphor / how it should feel**, **first-viewport product evidence**, **2–3 real references**, anti-references (include the default SaaS landing stack unless this product is that archetype). **Ask human via `AskQuestion`** — do not invent taste. If human defers → propose ≥2 domain-appropriate references marked **`assumed (confirm)`**; concrete anchor mandatory. Mid-project redesigns later use `/midas-design` — do not skip direction here.
 
 **Then `{product}/design-system.md`** — references `<paths.engine>/design-system/tokens.{json,css}`; token choices trace to direction. UI framework docs-verified. All UI uses tokens — never hardcoded values. Accessibility floor: `<paths.engine>/rules/accessibility.md` (starter `tokens.css` ships AA-verified pairs). Populate stale/missing token files from direction + arch.
 
@@ -59,7 +59,7 @@ project rule overlay (<paths.rules>/)  >  stack-specific rules  >  {product}/con
 ```
 
 ### 5. Enforcement scaffolding (recommend-don't-wall)
-Generate linter+formatter, git hooks + lint-staged, commit-msg lint, CI job — Context7-verify configs. Show configs → `AskUserQuestion` install yes/no. Record in **`paths.state` → `enforcement:`** per `<paths.engine>/rules/enforcement-state.md`. `node <paths.scripts>/doctor.mjs` warns on missing configs.
+Generate linter+formatter, git hooks + lint-staged, commit-msg lint, CI job — Context7-verify configs. Show configs → `AskQuestion` install yes/no. Record in **`paths.state` → `enforcement:`** per `<paths.engine>/rules/enforcement-state.md`. `node <paths.scripts>/doctor.mjs` warns on missing configs.
 
 ### 6. Re-render adapters
 `node <paths.scripts>/render-adapters.mjs` or `/midas-doctor`. **Never** hand-edit generated adapters. Confirm no drift.
@@ -76,6 +76,7 @@ Full checklist: **`<paths.engine>/pipeline/5-architecture-rules.md` § Exit gate
 - [ ] Enforcement scaffolded; decision recorded in `paths.state → enforcement:`.
 - [ ] Design direction + design system present; 0–4 playbooks (anti-bloat honored).
 - [ ] Adapters rendered (`node <paths.scripts>/doctor.mjs` / `/midas-doctor` reports no drift).
+- [ ] Gate verdict written to `{runs}/audits/gate-05.md`.
 
 On pass: freeze `{runs}/audits/gate-05.md` from `<paths.engine>/templates/gate-record.md`, set gate passed; next → `/plan-sprints`. On fail: report uncheckable rule or unrendered adapter.
 

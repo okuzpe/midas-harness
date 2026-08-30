@@ -52,12 +52,13 @@ Repeat until there are **zero blocking** open questions:
 3. **Ask in batches.** Use `AskQuestion` to ask the highest-severity blockers in small batches
    (≈3-4 at a time), each with a crisp default/option set so the user can answer fast. Do not dump 20
    questions at once.
-4. **Fold answers in.** Update `{product}/idea.md` (v2) with the resolved facts — sharpening the user,
-   problem, metric, and non-goals sections. Keep the verbatim raw-idea block from Phase 0 intact.
-5. **Maintain the ledger.** Keep `{product}/open-questions.md` current: each question with its status
-   (`open` / `answered` / `deferred`), severity, the answer or the recorded assumption, and the date.
-   A **deferred** blocker is only allowed if the user explicitly accepts a written assumption in its
-   place — that assumption is logged here and surfaced by `/midas-status`.
+4. **Fold answers in.** Update `{product}/idea.md` (v2) under `## Contextualized` with the resolved
+   facts — sharpening the user, problem, metric, and non-goals sections. Keep the verbatim raw-idea
+   block from Phase 0 intact.
+5. **Maintain the ledger.** Keep `{product}/open-questions.md` current from
+   `<paths.engine>/templates/open-questions.md`: headings `### BLOCKING` / `### DEFERRED` /
+   `### RESOLVED`. A **deferred** blocker is only allowed if the user explicitly accepts a written
+   assumption in its place — that assumption is logged here and surfaced by `/midas-status`.
 6. **Re-rank and loop.** New answers often spawn new questions. Regenerate, re-rank, and continue until
    no `blocking` question remains `open`.
 
@@ -65,9 +66,9 @@ Repeat until there are **zero blocking** open questions:
 
 Advance to Phase 2 **iff** (on-disk evidence):
 
-- [ ] **0 blocking** questions remain `open` in `{product}/open-questions.md`.
+- [ ] **0 blocking** questions remain under `### BLOCKING` in `{product}/open-questions.md` (section empty or no open items).
 - [ ] Every deferred blocker has an explicit, user-accepted assumption (dated).
-- [ ] **user, problem, success metric, and non-goals** are each defined in `{product}/idea.md` v2.
+- [ ] **user, problem, success metric, and non-goals** are each defined in `{product}/idea.md` under `## Contextualized`.
 - [ ] Phase-0 raw-idea block is still intact (untouched).
 - [ ] Gate verdict written to `{runs}/audits/gate-01.md`.
 

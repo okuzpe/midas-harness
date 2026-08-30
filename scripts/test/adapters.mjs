@@ -210,8 +210,19 @@ if (existsSync(tplRoot)) {
       /Use `AskQuestion`/.test(contextualizeSkill) && !/Use `AskUserQuestion`/.test(contextualizeSkill),
     );
     check(
-      'business-plan:askquestion-gng',
-      /via `AskQuestion`/.test(businessPlanSkill) && !/via `AskUserQuestion`/.test(businessPlanSkill),
+      'choose-architecture:askquestion-forks',
+      /ask via `AskQuestion`/.test(readFileSync(join(ROOT, 'harness', 'skills', 'choose-architecture', 'SKILL.md'), 'utf8')) &&
+        !/ask via `AskUserQuestion`/.test(readFileSync(join(ROOT, 'harness', 'skills', 'choose-architecture', 'SKILL.md'), 'utf8')),
+    );
+    check(
+      'define-conventions:askquestion-direction',
+      /Ask human via `AskQuestion`/.test(readFileSync(join(ROOT, 'harness', 'skills', 'define-conventions', 'SKILL.md'), 'utf8')) &&
+        !/Ask human via `AskUserQuestion`/.test(readFileSync(join(ROOT, 'harness', 'skills', 'define-conventions', 'SKILL.md'), 'utf8')),
+    );
+    check(
+      'playbook-4:askquestion',
+      /ask via `AskQuestion`/.test(readFileSync(join(ROOT, 'harness', 'pipeline', '4-tech-architecture.md'), 'utf8')) &&
+        !/ask via `AskUserQuestion`/.test(readFileSync(join(ROOT, 'harness', 'pipeline', '4-tech-architecture.md'), 'utf8')),
     );
     check(
       'playbook-0:pitch-heading',
@@ -231,6 +242,7 @@ if (existsSync(tplRoot)) {
     );
     check('sandbox:oracle-isolation-file', existsSync(join(ROOT, 'sandbox', 'oracles', 'isolation.json')));
     check('sandbox:oracle-idea-intake-file', existsSync(join(ROOT, 'sandbox', 'oracles', 'idea-intake.json')));
+    check('sandbox:oracle-contextualize-file', existsSync(join(ROOT, 'sandbox', 'oracles', 'contextualize.json')));
     const sandboxSkill = readFileSync(join(ROOT, 'harness', 'skills', 'midas-sandbox', 'SKILL.md'), 'utf8');
     check(
       'sandbox:skill-always-reset',
@@ -373,6 +385,12 @@ if (existsSync(tplRoot)) {
       }
       const graded = gradeSandbox({ root: ROOT, skill: 'idea-intake', ledger: false });
       check('sandbox:grade-seed-idea-intake-fails', graded.ok === false, graded.tally);
+      const gradedCtx = gradeSandbox({ root: ROOT, skill: 'contextualize', ledger: false });
+      check(
+        'sandbox:grade-seed-contextualize-fails',
+        gradedCtx.ok === false && gradedCtx.checks.some((c) => c.id === 'stage-advanced' && !c.ok),
+        gradedCtx.tally,
+      );
       check(
         'sandbox:grade-seed-idea-intake-stage',
         graded.checks.some((c) => c.id === 'stage-advanced' && !c.ok),

@@ -61,7 +61,7 @@ Produce **A / B / C** that a reviewer would not confuse with each other (e.g. ed
 
 Each direction **must** include: name, metaphor/feel, personality, composition (first viewport), type, colour, imagery, motion, product fit, risks. **No JSX.**
 
-Recommend one. **Ask the human to pick** (`AskUserQuestion` when available). Do not implement before pick unless `--mode implement` and the user already named the direction in the same message.
+Recommend one. **Ask the human to pick** (`AskQuestion`). Do not implement before pick unless `--mode implement` and the user already named the direction in the same message.
 
 ### 4. Spec (after pick)
 Convert the chosen direction into concrete decisions: wireframe (desktop + mobile), hero, section list (one job each), tokens, components, states, responsive notes, authenticity pass criteria. Align with `<paths.engine>/rules/visual-design.md` + `accessibility.md`.

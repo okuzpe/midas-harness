@@ -23,7 +23,7 @@ Bring Midas to a project that already has code, **without trampling what's there
 
 > **Dry-run + diff-confirm.** Never write into a pre-existing `AGENTS.md`, `.claude/CLAUDE.md`, rule
 > file, or any source file without first showing the exact diff and getting explicit confirmation (via
-> `AskUserQuestion`). New files may be written directly. You only ever *add* or *append inside managed
+> `AskQuestion`). New files may be written directly. You only ever *add* or *append inside managed
 > `<!-- midas:begin -->` markers* — you never rewrite hand-authored content.
 
 ## Procedure

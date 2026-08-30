@@ -396,6 +396,14 @@ export async function run() {
     return /AskUserQuestion/.test(body) && !/AskQuestion/.test(body);
   });
   check('skills:askquestion-canonical', askOrphans.length === 0, askOrphans.join(',') || 'ok');
+  const askBodyOrphans = readdirSync(skillRoot).filter((id) => {
+    const skillPath = join(skillRoot, id, 'SKILL.md');
+    if (!existsSync(skillPath)) return false;
+    const body = readFileSync(skillPath, 'utf8');
+    const withoutFallback = body.replace(/^> \*\*Prompt tool:\*\*.*$/gm, '');
+    return /AskUserQuestion/.test(withoutFallback);
+  });
+  check('skills:askquestion-body', askBodyOrphans.length === 0, askBodyOrphans.join(',') || 'ok');
   const helpBodyCloseout = readFileSync(join(ROOT, 'harness', 'skills', 'midas-help', 'SKILL.md'), 'utf8');
   const helpMap = readFileSync(join(ROOT, 'harness', 'skills', 'midas-help', 'response-map.md'), 'utf8');
   check('help:response-map', existsSync(join(ROOT, 'harness', 'skills', 'midas-help', 'response-map.md')));
