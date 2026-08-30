@@ -42,6 +42,9 @@ jobs:
       - name: Precommit mechanical floor
         run: node scripts/precommit-eval.mjs
 
+      - name: Skill quality (full engine scan)
+        run: node scripts/skill-quality-check.mjs
+
       - name: Conformance gate (product-closed)
         run: node scripts/gates/conformance-gate.mjs --root scripts/fixtures/product-closed --run ci
 
