@@ -3,6 +3,7 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync, unlinkSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { hooksJsonPath } from './cursor-hooks.mjs';
 
 export const CARRYOVER_HOOK_MARKER = 'carryover-refresh.mjs';
 
@@ -21,13 +22,7 @@ export function isMidasCarryoverHookCommand(command) {
   return typeof command === 'string' && command.includes(CARRYOVER_HOOK_MARKER);
 }
 
-/**
- * @param {string} targetDir
- * @returns {string}
- */
-export function hooksJsonPath(targetDir) {
-  return join(targetDir, '.cursor', 'hooks.json');
-}
+export { hooksJsonPath };
 
 /**
  * Seed or merge Midas carryover sessionStart hook. Idempotent. Preserves Trace/safety/alien.

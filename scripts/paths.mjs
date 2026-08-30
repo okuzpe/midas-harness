@@ -1,53 +1,33 @@
-// paths.mjs — layout-aware path resolver.
+// paths.mjs — role-aware path resolver (Midas 3.0).
 //
-// Installed projects write only the `harness` layout. Legacy layouts remain readable so the
-// standalone installer can diagnose and migrate them. The engine repository itself intentionally
-// keeps its authored source in `harness/` + `scripts/`.
+// `role: engine` — contributor tree (this repo): authored source in harness/ + scripts/.
+// `role: product` — installed project: everything under .harness/.
+// v1 classic/compact/hub product trees are refused, not migrated.
 
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parsePathsBlock } from './yaml-lite.mjs';
 
-/** Fixed evidence subdirs under the runs base. Cache is deliberately separate under the harness layout. */
+/** Fixed evidence subdirs under the runs base. */
 export const RUNS_SUBDIRS = ['audits', 'verifications', 'debates', 'sprints', 'sweeps', 'lean', 'retros', 'investigate', 'auto-pilot'];
 
-export const LEGACY_LAYOUTS = ['classic', 'compact', 'hub'];
-
-const CLASSIC = {
+export const ENGINE_DEFAULTS = Object.freeze({
+  role: 'engine',
   layout: 'classic',
   engine: 'harness',
   scripts: 'scripts',
   state: 'harness/state.yaml',
   version: 'harness/VERSION',
-  runs: '.harness',
-  product: 'product',
+  runs: 'runs',
+  cache: 'runs/cache',
+  product: 'docs/product',
+  rules: 'harness/rules',
   agentsDoc: 'docs/agents-and-models.md',
-};
+});
 
-const COMPACT = {
-  layout: 'compact',
-  engine: '.midas/engine',
-  scripts: '.midas/scripts',
-  state: '.midas/state.yaml',
-  version: '.midas/engine/VERSION',
-  runs: '.midas',
-  product: 'product',
-  agentsDoc: '.midas/docs/agents-and-models.md',
-};
-
-const HUB = {
-  layout: 'hub',
-  engine: '.midas/engine',
-  scripts: '.midas/scripts',
-  state: '.midas/state.yaml',
-  version: '.midas/engine/VERSION',
-  runs: '.midas',
-  product: '.midas/product',
-  agentsDoc: '.midas/docs/agents-and-models.md',
-};
-
-const HARNESS = {
+export const PRODUCT_DEFAULTS = Object.freeze({
+  role: 'product',
   layout: 'harness',
   root: '.harness',
   engine: '.harness/engine',
@@ -61,82 +41,87 @@ const HARNESS = {
   migrations: '.harness/migrations',
   manifest: '.harness/manifest.json',
   agentsDoc: '.harness/engine/docs/agents-and-models.md',
-};
+});
 
-/** @param {string} root */
-function readLayoutFromState(root) {
+export const V1_REFUSE_MESSAGE =
+  'Midas 3.x does not support 1.x classic/compact/hub layouts. Pin create-midas@2.10.x, run update --migrate, then upgrade to 3.x.';
+
+function isEngineRepository(root) {
+  return (
+    existsSync(join(root, 'harness', 'VERSION')) &&
+    existsSync(join(root, 'cli', 'package.json')) &&
+    existsSync(join(root, 'scripts', 'build-create.mjs'))
+  );
+}
+
+function readRoleFromState(root) {
   const candidates = [
     join(root, '.harness', 'state.yaml'),
-    join(root, '.midas', 'state.yaml'),
     join(root, 'harness', 'state.yaml'),
   ];
   for (const f of candidates) {
     if (!existsSync(f)) continue;
     const raw = readFileSync(f, 'utf8');
-    const m = raw.match(/^layout:\s*(\S+)/m);
-    if (m && ['harness', ...LEGACY_LAYOUTS].includes(m[1])) return m[1];
+    const role = (raw.match(/^role:\s*(\S+)/m) || [])[1];
+    if (role === 'engine' || role === 'product') return role;
   }
   return null;
 }
 
 /**
- * Detect installed layout from disk markers.
- * @param {string} root project root
- * @returns {'harness' | 'classic' | 'compact' | 'hub' | null}
+ * True when the tree looks like a 1.x product install (not the engine repo).
+ * @param {string} root
  */
-export function detectLayout(root) {
+export function isV1Install(root) {
   const r = resolve(root);
-  const fromState = readLayoutFromState(r);
+  if (isEngineRepository(r)) return false;
+  if (existsSync(join(r, '.harness', 'state.yaml')) || existsSync(join(r, '.harness', 'engine', 'VERSION'))) {
+    return false;
+  }
+  const classic = existsSync(join(r, 'harness', 'state.yaml')) || existsSync(join(r, 'harness', 'VERSION'));
+  const midas = existsSync(join(r, '.midas', 'state.yaml')) || existsSync(join(r, '.midas', 'engine', 'VERSION'));
+  return Boolean(classic || midas);
+}
+
+/**
+ * @param {string} root
+ * @returns {'engine' | 'product' | null}
+ */
+export function detectRole(root) {
+  const r = resolve(root);
+  const fromState = readRoleFromState(r);
   if (fromState) return fromState;
-
-  const hasHarness =
-    existsSync(join(r, '.harness', 'state.yaml')) ||
-    existsSync(join(r, '.harness', 'engine', 'VERSION'));
-  const hasClassic =
-    existsSync(join(r, 'harness', 'state.yaml')) || existsSync(join(r, 'harness', 'VERSION'));
-  const hasMidas =
-    existsSync(join(r, '.midas', 'state.yaml')) || existsSync(join(r, '.midas', 'engine', 'VERSION'));
-  const hasHubProduct = existsSync(join(r, '.midas', 'product'));
-  const hasRootProduct = existsSync(join(r, 'product'));
-
-  const markerCount = [hasHarness, hasClassic, hasMidas].filter(Boolean).length;
-  if (markerCount > 1) return null;
-  if (hasHarness) return 'harness';
-  if (hasMidas && hasHubProduct) return 'hub';
-  if (hasMidas) return hasRootProduct ? 'compact' : 'hub';
-  if (hasClassic) return 'classic';
+  if (isEngineRepository(r)) return 'engine';
+  if (existsSync(join(r, '.harness', 'state.yaml')) || existsSync(join(r, '.harness', 'engine', 'VERSION'))) {
+    return 'product';
+  }
   return null;
 }
 
 /**
- * Resolve Midas path map for a project root.
- * @param {string} [root='.'] project root
- * @param {'harness' | 'classic' | 'compact' | 'hub'} [layout] force layout; default = detect or classic
- * @returns {object & { projectRoot: string, layoutConflict: boolean }}
+ * @deprecated 3.0 derived alias of detectRole. Product → harness, engine → classic, v1 → null.
+ * @param {string} root
  */
-export function resolvePaths(root = '.', layout) {
+export function detectLayout(root) {
+  if (isV1Install(root)) return null;
+  const role = detectRole(root);
+  if (role === 'product') return 'harness';
+  if (role === 'engine') return 'classic';
+  return null;
+}
+
+/**
+ * @param {string} [root='.']
+ * @param {'harness' | 'classic' | 'engine' | 'product'} [forced]
+ */
+export function resolvePaths(root = '.', forced) {
   const projectRoot = resolve(root);
-  const detected = detectLayout(projectRoot);
-  const markerGroups = [
-    existsSync(join(projectRoot, '.harness', 'state.yaml')) ||
-      existsSync(join(projectRoot, '.harness', 'engine', 'VERSION')),
-    existsSync(join(projectRoot, '.midas', 'state.yaml')) ||
-      existsSync(join(projectRoot, '.midas', 'engine', 'VERSION')),
-    existsSync(join(projectRoot, 'harness', 'state.yaml')) ||
-      existsSync(join(projectRoot, 'harness', 'VERSION')),
-  ];
-  const layoutConflict = detected === null && markerGroups.filter(Boolean).length > 1;
+  let role = detectRole(projectRoot);
+  if (forced === 'harness' || forced === 'product') role = 'product';
+  if (forced === 'classic' || forced === 'engine') role = 'engine';
+  if (!role) role = 'engine';
 
-  const chosen = layout || detected || 'classic';
-  const base =
-    chosen === 'harness'
-      ? { ...HARNESS }
-      : chosen === 'hub'
-        ? { ...HUB }
-        : chosen === 'compact'
-          ? { ...COMPACT }
-          : { ...CLASSIC, rules: 'harness/rules', cache: '.harness/cache' };
-
+  const base = { ...(role === 'engine' ? ENGINE_DEFAULTS : PRODUCT_DEFAULTS) };
   const stateFile = join(projectRoot, base.state);
   if (existsSync(stateFile)) {
     try {
@@ -145,14 +130,14 @@ export function resolvePaths(root = '.', layout) {
         if (value && key in base) base[key] = value;
       }
     } catch {
-      /* keep layout defaults */
+      /* keep defaults */
     }
   }
 
   return {
     ...base,
     projectRoot,
-    layoutConflict,
+    layoutConflict: false,
     join(...segments) {
       return join(projectRoot, ...segments);
     },
@@ -167,7 +152,7 @@ export function resolvePaths(root = '.', layout) {
       return join(projectRoot, base.scripts, 'render-adapters.mjs');
     },
     adaptersHash() {
-      if (base.layout === 'classic') {
+      if (base.role === 'engine') {
         return join(projectRoot, base.runs, 'adapters.hash');
       }
       return join(projectRoot, base.cache || join(base.runs, 'cache'), 'adapters.hash');
@@ -175,69 +160,33 @@ export function resolvePaths(root = '.', layout) {
   };
 }
 
-/** Classic → compact relocation map (repo-relative). */
-export const MIGRATION_MAP = [
-  { from: 'harness', to: '.midas/engine', type: 'dir' },
-  { from: 'harness/state.yaml', to: '.midas/state.yaml', type: 'file' },
-  { from: 'scripts', to: '.midas/scripts', type: 'dir' },
-  { from: 'docs/agents-and-models.md', to: '.midas/docs/agents-and-models.md', type: 'file' },
-  { from: '.harness/audits', to: '.midas/audits', type: 'dir' },
-  { from: '.harness/verifications', to: '.midas/verifications', type: 'dir' },
-  { from: '.harness/debates', to: '.midas/debates', type: 'dir' },
-  { from: '.harness/sprints', to: '.midas/sprints', type: 'dir' },
-  { from: '.harness/sweeps', to: '.midas/sweeps', type: 'dir' },
-  { from: '.harness/cache', to: '.midas/cache', type: 'dir' },
-  { from: '.harness/adapters.hash', to: '.midas/cache/adapters.hash', type: 'file' },
-];
-
-/** Additional moves for hub (product under .midas/). */
+/** @deprecated empty — v1 layout maps removed in 3.0 */
+export const MIGRATION_MAP = [];
+export const MIGRATION_MAP_HUB = [];
 export const HUB_PRODUCT_MOVE = { from: 'product', to: '.midas/product', type: 'dir' };
+export const LEGACY_LAYOUTS = [];
 
-/** Full classic → hub plan (compact engine moves + product). */
-export const MIGRATION_MAP_HUB = [...MIGRATION_MAP, HUB_PRODUCT_MOVE];
-
-/** YAML block for compact layout paths (for state.yaml). */
-export function compactPathsYaml() {
-  return {
-    engine: COMPACT.engine,
-    scripts: COMPACT.scripts,
-    state: COMPACT.state,
-    runs: COMPACT.runs,
-    product: COMPACT.product,
-  };
-}
-
-/** YAML block for hub layout paths (for state.yaml). */
-export function hubPathsYaml() {
-  return {
-    engine: HUB.engine,
-    scripts: HUB.scripts,
-    state: HUB.state,
-    runs: HUB.runs,
-    product: HUB.product,
-  };
-}
-
-/** YAML path map for the only writable installed-project layout. */
 export function harnessPathsYaml() {
   return {
-    root: HARNESS.root,
-    engine: HARNESS.engine,
-    scripts: HARNESS.scripts,
-    state: HARNESS.state,
-    product: HARNESS.product,
-    rules: HARNESS.rules,
-    runs: HARNESS.runs,
-    cache: HARNESS.cache,
+    root: PRODUCT_DEFAULTS.root,
+    engine: PRODUCT_DEFAULTS.engine,
+    scripts: PRODUCT_DEFAULTS.scripts,
+    state: PRODUCT_DEFAULTS.state,
+    product: PRODUCT_DEFAULTS.product,
+    rules: PRODUCT_DEFAULTS.rules,
+    runs: PRODUCT_DEFAULTS.runs,
+    cache: PRODUCT_DEFAULTS.cache,
   };
 }
 
-/**
- * Project root when a Midas script is invoked with no directory argument.
- * Engine repo: `scripts/foo.mjs` → parent; `scripts/safety/*.mjs` → grandparent;
- * v1: `.midas/scripts/foo.mjs` → grandparent; v2: `.harness/scripts/foo.mjs` → grandparent.
- * @param {string} metaUrl import.meta.url
- */
+export function compactPathsYaml() {
+  return harnessPathsYaml();
+}
+
+export function hubPathsYaml() {
+  return harnessPathsYaml();
+}
+
 export function resolveProjectRootFromScript(metaUrl) {
   const scriptDir = dirname(fileURLToPath(metaUrl));
   const norm = scriptDir.replace(/\\/g, '/');

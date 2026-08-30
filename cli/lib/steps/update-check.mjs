@@ -8,7 +8,7 @@ import {
   fetchReleaseManifest,
   resolveChannel,
 } from '../core/release-channel.mjs';
-import { readOwnershipManifest } from '../../template/.harness/scripts/ownership-manifest.mjs';
+import { readOwnershipManifest } from '../shared/ownership-manifest.mjs';
 import { formatUpdateCmdFromRelease } from '../core/install-cmd.mjs';
 
 /** Exit codes: 0 up to date, 1 update available, 2 undetermined. */

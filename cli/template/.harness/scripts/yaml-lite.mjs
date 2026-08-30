@@ -2,6 +2,9 @@
 // yaml-lite.mjs — minimal YAML helpers for Midas scripts (no npm dependency).
 // Handles the subset of YAML used in harness/state.yaml: scalars, inline lists, inline maps.
 
+import { maybeHelp } from './lib/cli-io.mjs';
+if (maybeHelp(import.meta.url)) process.exit(0);
+
 /** Strip surrounding quotes from a YAML scalar. */
 export function stripQuotes(s) {
   const t = s.trim();
@@ -245,4 +248,134 @@ export function rewriteRoutingMap(yaml, expected) {
 export function parseMidasVersion(yaml) {
   const m = yaml.match(/^midas_version:\s*([0-9][^\s#]*)/m);
   return m ? m[1] : null;
+}
+
+/** Parse a top-level scalar (`key: value`) from state.yaml. */
+export function parseStateScalar(yaml, key) {
+  const m = yaml.match(new RegExp(`^${key}:\\s*([^#\\n]+)`, 'm'));
+  return m ? stripQuotes(m[1].trim()) : null;
+}
+
+/** Artifact paths listed under a phase in state.yaml. */
+export function parsePhaseArtifacts(yaml, phase) {
+  const lines = yaml.split(/\r?\n/);
+  let inPhase = false;
+  let inArtifacts = false;
+  const out = [];
+  for (const line of lines) {
+    if (/^[A-Za-z_][\w-]*:/.test(line) && !/^\s/.test(line)) {
+      inPhase = new RegExp(`^${phase}:`).test(line);
+      inArtifacts = false;
+      continue;
+    }
+    if (!inPhase) continue;
+    if (/^\s+artifacts:/.test(line)) {
+      inArtifacts = true;
+      const inline = line.match(/artifacts:\s*\[([^\]]*)\]/);
+      if (inline) {
+        for (const part of inline[1].split(',')) {
+          const s = stripQuotes(part.trim());
+          if (s) out.push(s);
+        }
+        inArtifacts = false;
+      }
+      continue;
+    }
+    if (!inArtifacts) continue;
+    if (!/^\s+-\s+/.test(line)) {
+      inArtifacts = false;
+      continue;
+    }
+    const item = line.replace(/^\s+-\s+/, '').trim();
+    out.push(stripQuotes(item));
+  }
+  return out;
+}
+
+/** First sprint id whose status is `active`. */
+export function findActiveSprintId(yaml) {
+  const sprints = parseSprints(yaml);
+  for (const [id, status] of sprints) {
+    if (status === 'active') return id;
+  }
+  return null;
+}
+
+/**
+ * Minimal YAML parser for the flat stage-command-table shape.
+ * @param {string} text
+ * @returns {{ stages: Record<string, {
+ *   command: string | null,
+ *   recall: string[],
+ *   commandWhenDone?: string | null,
+ *   verifyUi?: string,
+ *   redesignUi?: string,
+ *   qaInternal?: string,
+ *   note?: string,
+ * }> }}
+ */
+export function parseStageCommandTableYaml(text) {
+  /** @type {Record<string, { command: string | null, recall: string[] } & Record<string, unknown>>} */
+  const stages = {};
+  let current = null;
+  let inRecall = false;
+  for (const raw of text.split('\n')) {
+    const line = raw.replace(/\r$/, '');
+    const stageMatch = line.match(/^  (\w+):$/);
+    if (stageMatch) {
+      current = stageMatch[1];
+      stages[current] = { command: null, recall: [] };
+      inRecall = false;
+      continue;
+    }
+    if (!current) continue;
+    const cmd = line.match(/^    command(_when_done)?: (.+)$/);
+    if (cmd) {
+      const val = stripQuotes(cmd[2]);
+      const parsed = val === 'null' ? null : val;
+      if (cmd[1] === '_when_done') stages[current].commandWhenDone = parsed;
+      else stages[current].command = parsed;
+      inRecall = false;
+      continue;
+    }
+    const verify = line.match(/^    verify_ui: (.+)$/);
+    if (verify) {
+      stages[current].verifyUi = stripQuotes(verify[1]);
+      inRecall = false;
+      continue;
+    }
+    const redesign = line.match(/^    redesign_ui: (.+)$/);
+    if (redesign) {
+      stages[current].redesignUi = stripQuotes(redesign[1]);
+      inRecall = false;
+      continue;
+    }
+    const qa = line.match(/^    qa_internal: (.+)$/);
+    if (qa) {
+      stages[current].qaInternal = stripQuotes(qa[1]);
+      inRecall = false;
+      continue;
+    }
+    const qaLegacy = line.match(/^    qa_adhoc: (.+)$/);
+    if (qaLegacy) {
+      stages[current].qaInternal = stripQuotes(qaLegacy[1]);
+      inRecall = false;
+      continue;
+    }
+    const note = line.match(/^    note: (.+)$/);
+    if (note) {
+      stages[current].note = stripQuotes(note[1]);
+      inRecall = false;
+      continue;
+    }
+    if (line.match(/^    recall:$/)) {
+      inRecall = true;
+      continue;
+    }
+    const recallItem = line.match(/^      - (.+)$/);
+    if (inRecall && recallItem) {
+      stages[current].recall.push(stripQuotes(recallItem[1]));
+    }
+  }
+  return { stages };
 }

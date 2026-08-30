@@ -5,7 +5,7 @@
 
 import { existsSync, mkdirSync, appendFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
-import { resolvePaths } from '../paths.mjs';
+import { resolveCacheRoot } from './cache-paths.mjs';
 
 /** @typedef {'start_sprint' | 'close_sprint' | 'explore_start' | 'explore_end' | 'verify' | 'session_note'} LifecycleEventName */
 
@@ -31,26 +31,10 @@ export const VALID_LIFECYCLE_EVENTS = Object.freeze([
 
 /**
  * @param {string} projectRoot
- * @returns {boolean}
- */
-function useHarnessCache(projectRoot) {
-  if (existsSync(join(projectRoot, '.harness'))) return true;
-  try {
-    return resolvePaths(projectRoot).layout === 'harness';
-  } catch {
-    return false;
-  }
-}
-
-/**
- * @param {string} projectRoot
  * @returns {string}
  */
 export function resolveLifecycleJournalPath(projectRoot) {
-  if (useHarnessCache(projectRoot)) {
-    return join(projectRoot, '.harness', 'cache', 'metrics', 'lifecycle.jsonl');
-  }
-  return join(projectRoot, 'runs', 'cache', 'metrics', 'lifecycle.jsonl');
+  return join(resolveCacheRoot(projectRoot), 'metrics', 'lifecycle.jsonl');
 }
 
 /**

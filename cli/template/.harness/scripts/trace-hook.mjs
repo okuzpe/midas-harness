@@ -14,6 +14,8 @@ import {
   writeCurrent,
   readCurrent,
 } from './lib/trace-store.mjs';
+import { maybeHelp } from './lib/cli-io.mjs';
+if (maybeHelp(import.meta.url)) process.exit(0);
 import { resolveProjectRootFromScript } from './paths.mjs';
 
 const DEFAULT_ROOT = resolveProjectRootFromScript(import.meta.url);

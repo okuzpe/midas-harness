@@ -52,8 +52,7 @@ leave a `// lean: <ceiling>; upgrade when <condition>` note at the site (or `# l
       considered; an unexplained new dep for a thin wrapper is a fail (pairs with `code-quality.md`
       Dependencies).
 - [ ] Diff prefers deletion / shrink over parallel implementations.
-      **CHECK:** `manual:` grep for the concept in `<src-root>/` (same as code-quality reuse CHECK);
-      a second implementation of an existing pattern is a fail.
+      See [`code-quality.md`](./code-quality.md) § Consistency (reuse existing pattern) — not restated here.
 - [ ] Safety floor intact — lean did not remove boundary validation, authz, or a11y required by
       sibling rules.
       **CHECK:** `manual:` cross-read the sprint diff against `security.md` / `accessibility.md`

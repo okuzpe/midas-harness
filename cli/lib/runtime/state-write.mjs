@@ -6,8 +6,8 @@ import {
   DEFAULT_ROUTING_PROFILE,
   normalizeRoutingProfile,
   resolveRoutingModels,
-} from '../../template/.harness/scripts/model-profiles.mjs';
-import { evaluateMcpGovernance } from '../../template/.harness/scripts/mcp-drift.mjs';
+} from '../shared/model-profiles.mjs';
+import { evaluateMcpGovernance } from '../shared/mcp-drift.mjs';
 import { DEFAULT_TOOLS } from '../cli/args.mjs';
 
 /**
@@ -146,6 +146,7 @@ export function writeState(ctx, tools, paths, routingProfile) {
   const routing = resolveRoutingModels(routingProfileName);
   const executionMode = routingProfileName === 'local-hybrid' ? 'hybrid' : 'cloud';
   const layoutLines = [
+    'role: product',
     'layout: harness',
     'paths:',
     '  root: .harness',

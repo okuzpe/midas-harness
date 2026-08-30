@@ -1,8 +1,0 @@
-# TEST FIXTURE. gate=passed with on-disk artifacts — doctor must stay quiet on gate:phase-*.
-name: fixture-consistent-phase
-stage: contextualize
-phases:
-  idea_intake:
-    status: passed
-    gate: passed
-    artifacts: [harness/state.yaml]

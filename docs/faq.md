@@ -76,8 +76,9 @@ npx github:okuzpe/midas-harness#v{VERSION} update
 **not** the same as install-time `--force`. On vendor edits outside overlays, same-version update
 **aborts** before writing; stale manifest hashes **re-baseline** after confirm. Full contract:
 [INSTALL.md § Updating an existing install](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md#updating-an-existing-install).
-`/midas-init` tips the same pinned CLI when diagnose reports `version_behind` / `legacy_layout`
-(deprecated `/midas-update` forwards there). After a successful CLI verify, adapters
+`/midas-init` tips the same pinned CLI when diagnose reports `version_behind`. 1.x
+classic/compact/hub trees are **unsupported** in 3.x (`unsupported_v1` — pin create-midas@2.10.3,
+migrate, then upgrade; see [ADR-018](adr/ADR-018-v1-layout-removal.md)). After a successful CLI verify, adapters
 are already synced — `/midas-doctor` only if you still see drift. Unpinned `main` / pipe-to-shell
 installs are higher risk (see SECURITY.md).
 

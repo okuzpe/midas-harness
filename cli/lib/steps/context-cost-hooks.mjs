@@ -3,6 +3,7 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync, unlinkSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { hooksJsonPath } from './cursor-hooks.mjs';
 
 export const CONTEXT_COST_HOOK_MARKER = 'context-cost-refresh.mjs';
 
@@ -21,13 +22,7 @@ export function isMidasContextCostHookCommand(command) {
   return typeof command === 'string' && command.includes(CONTEXT_COST_HOOK_MARKER);
 }
 
-/**
- * @param {string} targetDir
- * @returns {string}
- */
-export function hooksJsonPath(targetDir) {
-  return join(targetDir, '.cursor', 'hooks.json');
-}
+export { hooksJsonPath };
 
 /**
  * Seed or merge Midas context-cost sessionStart hook. Idempotent. Preserves Trace/safety/carryover/alien.

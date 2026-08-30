@@ -1,0 +1,18 @@
+# TEST FIXTURE (not a real project). A closed sprint whose audit record is clean. doctor's gate:records
+# must STAY QUIET here (no false positive). Exercised by scripts/test.mjs (section K).
+midas_version: 2.10.3
+role: product
+layout: harness
+paths:
+  root: .harness
+  state: .harness/state.yaml
+  product: .harness/product
+  rules: .harness/rules
+  runs: .harness/runs
+  cache: .harness/cache
+name: fixture-consistent
+stage: sprint_execution
+sprints:
+  - id: "01"
+    title: "Fixture sprint"
+    status: done

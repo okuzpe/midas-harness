@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| **Status** | **historical** — superseded for new installs by [ADR-007](./ADR-007-canonical-harness-layout.md). Hub remains a **v1 migrate input** only. |
+| **Status** | **historical** — superseded for new installs by [ADR-007](./ADR-007-canonical-harness-layout.md). 3.0 refuses remaining hub trees ([ADR-018](./ADR-018-v1-layout-removal.md)). |
 | **Date** | 2026-07-06 |
 | **Supersedes** | ADR-001 rollout step 3 (default flip) — default was `hub`, not `compact` (1.x era) |
 | **Superseded by** | ADR-007 (canonical `.harness/`), ADR-008 (thin-root allowlist) |
@@ -45,6 +45,8 @@ want `.midas/` without moving markdown artifacts. Deprecation target: v2.0 (docu
    `harness/VERSION` → `classic`.
 
 ### Migration
+
+> **3.0:** layout migrators are removed. Remaining 1.x trees are refused ([ADR-018](./ADR-018-v1-layout-removal.md)).
 
 - Never silent on `--update`.
 - `node <paths.scripts>/migrate-layout.mjs --target=hub --apply` after dry-run.

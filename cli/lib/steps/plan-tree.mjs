@@ -1,9 +1,10 @@
 // plan-tree.mjs — build a dry-run plan of template copy / preserve decisions.
 
-import { existsSync, readdirSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { createPlan } from '../core/plan.mjs';
-import { decideTemplateCopyAction, isHostDiscoveryMirrorPath } from '../core/preserve-policy.mjs';
+import { decideTemplateCopyAction } from '../core/preserve-policy.mjs';
+import { walkTemplate } from '../core/walk-template.mjs';
 import { planVendorReconcile } from '../runtime/copy-tree.mjs';
 
 /**
@@ -16,25 +17,17 @@ export function planTemplateCopy(opts) {
   let n = 0;
 
   function visit(srcDir, dstDir) {
-    for (const entry of readdirSync(srcDir, { withFileTypes: true })) {
-      if (entry.name === '.optional') continue;
-      const src = join(srcDir, entry.name);
-      const dst = join(dstDir, entry.name);
-      const rel = relative(target, dst).replace(/\\/g, '/');
-      if (isHostDiscoveryMirrorPath(rel)) continue;
-      if (entry.isDirectory()) {
-        visit(src, dst);
-        continue;
-      }
-      const exists = existsSync(dst);
-      const decided = decideTemplateCopyAction(rel, { exists, force, update });
+    walkTemplate(srcDir, dstDir, { target }, (node) => {
+      if (node.type === 'dir') return;
+      const exists = existsSync(node.dst);
+      const decided = decideTemplateCopyAction(node.rel, { exists, force, update });
       n += 1;
       const id = `copy-${String(n).padStart(4, '0')}`;
       if (decided.action === 'skip') {
         ops.push({
           id,
           kind: 'skip',
-          path: rel,
+          path: node.rel,
           ownership: decided.ownership,
           reason: decided.preserve ? 'user-owned / preserve policy' : 'already present',
           dependsOn: ['phase-copy'],
@@ -43,7 +36,7 @@ export function planTemplateCopy(opts) {
         ops.push({
           id,
           kind: decided.action,
-          path: rel,
+          path: node.rel,
           ownership: decided.ownership,
           reason: decided.mustRefreshVendor
             ? 'vendor engine/scripts'
@@ -51,7 +44,7 @@ export function planTemplateCopy(opts) {
           dependsOn: ['phase-copy'],
         });
       }
-    }
+    });
   }
 
   ops.push({

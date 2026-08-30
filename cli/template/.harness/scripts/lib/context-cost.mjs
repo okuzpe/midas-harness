@@ -4,31 +4,9 @@
 
 import { appendFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { resolvePaths } from '../paths.mjs';
+import { resolveCacheRoot } from './cache-paths.mjs';
 
 export const CONTEXT_COST_SCHEMA_VERSION = 2;
-
-/**
- * @param {string} projectRoot
- * @returns {boolean}
- */
-function useHarnessCache(projectRoot) {
-  if (existsSync(join(projectRoot, '.harness'))) return true;
-  const layout = resolvePaths(projectRoot).layout;
-  return layout === 'harness';
-}
-
-/**
- * Engine repo → `runs/cache/metrics/`; install → `.harness/cache/metrics/`.
- * @param {string} projectRoot
- * @returns {string}
- */
-function resolveCacheRoot(projectRoot) {
-  if (useHarnessCache(projectRoot)) {
-    return join(projectRoot, '.harness', 'cache');
-  }
-  return join(projectRoot, 'runs', 'cache');
-}
 
 /**
  * @param {string} projectRoot

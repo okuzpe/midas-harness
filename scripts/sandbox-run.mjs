@@ -5,7 +5,7 @@
 //   node scripts/sandbox-run.mjs env
 //   node scripts/sandbox-run.mjs start-run
 //   node scripts/sandbox-run.mjs finish
-//   node scripts/sandbox-run.mjs grade [--skill <name>] [--ledger]
+//   node scripts/sandbox-run.mjs grade [--skill <name>] [--ledger] [--missing fail|skip]
 //
 // Not shipped to product installs (omit from ship-manifest.mjs).
 
@@ -22,7 +22,7 @@ import {
   isPathInside,
   resetSandbox,
 } from './lib/sandbox-env.mjs';
-import { gradeSandbox, printGrade } from './lib/sandbox-grade.mjs';
+import { gradeSandbox, printGrade, normalizeSkillName } from './lib/sandbox-grade.mjs';
 import { runTraceWrite } from './trace-write.mjs';
 
 const HELP = `sandbox-run — mechanical floor for /midas-sandbox (engine only)
@@ -32,8 +32,9 @@ Usage:
   node scripts/sandbox-run.mjs env        print resolved paths; exit 1 on isolation fail
   node scripts/sandbox-run.mjs start-run  trace-write start-run scoped to the working copy
   node scripts/sandbox-run.mjs finish     trace-write finish scoped to the working copy
-  node scripts/sandbox-run.mjs grade [--skill <name>] [--ledger]
+  node scripts/sandbox-run.mjs grade [--skill <name>] [--ledger] [--missing fail|skip]
       run isolation + skill oracles against the working copy (does not reset)
+      --missing skip: absent skill oracle is not a fail (for --smoke / --all next skills)
   node scripts/sandbox-run.mjs --help
 `;
 
@@ -57,19 +58,36 @@ function bindTraceRoot(work) {
 function parseGradeArgs(argv) {
   let skill = 'isolation';
   let ledger = false;
+  let missing = 'fail';
   for (let i = 0; i < argv.length; i++) {
-    if (argv[i] === '--ledger') {
+    const arg = argv[i];
+    if (arg === '--ledger') {
       ledger = true;
       continue;
     }
-    if (argv[i] === '--skill') {
-      skill = argv[i + 1] || skill;
-      i += 1;
+    if (arg === '--missing') {
+      const v = argv[i + 1];
+      if (v && !v.startsWith('--')) {
+        missing = v === 'skip' ? 'skip' : 'fail';
+        i += 1;
+      }
       continue;
     }
-    if (argv[i].startsWith('--skill=')) skill = argv[i].slice('--skill='.length);
+    if (arg.startsWith('--missing=')) {
+      missing = arg.slice('--missing='.length) === 'skip' ? 'skip' : 'fail';
+      continue;
+    }
+    if (arg === '--skill') {
+      const v = argv[i + 1];
+      if (v && !v.startsWith('--')) {
+        skill = v;
+        i += 1;
+      }
+      continue;
+    }
+    if (arg.startsWith('--skill=')) skill = arg.slice('--skill='.length);
   }
-  return { skill, ledger };
+  return { skill: normalizeSkillName(skill) || 'isolation', ledger, missing };
 }
 
 function main(argv) {
@@ -106,8 +124,8 @@ function main(argv) {
     return runTraceWrite([cmd, ...argv.slice(1)], { projectRoot: info.work });
   }
   if (cmd === 'grade') {
-    const { skill, ledger } = parseGradeArgs(argv.slice(1));
-    const result = gradeSandbox({ root: ROOT, skill, ledger });
+    const { skill, ledger, missing } = parseGradeArgs(argv.slice(1));
+    const result = gradeSandbox({ root: ROOT, skill, ledger, missing });
     printGrade(result, process.stdout, process.stderr);
     return result.ok ? 0 : 1;
   }
@@ -123,4 +141,4 @@ if (invokedDirectly) {
   process.exit(main(process.argv.slice(2)));
 }
 
-export { EXPECTED_NAME, SEED, WORK, ROOT, inspectSandboxEnv, isPathInside, resetSandbox, gradeSandbox, main };
+export { EXPECTED_NAME, SEED, WORK, ROOT, inspectSandboxEnv, isPathInside, resetSandbox, gradeSandbox, main, parseGradeArgs, normalizeSkillName };

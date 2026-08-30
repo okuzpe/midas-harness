@@ -147,6 +147,11 @@ export function inspectArtifact({ kind, id, relPath, text }) {
   if (lines > MAX_LINES) fails.push(`entry file ${lines} lines (> ${MAX_LINES})`);
 
   if (kind === 'skill') {
+    const surface = fm['user-surface'];
+    if (!surface) fails.push('missing frontmatter `user-surface`');
+    else if (!['primary', 'internal', 'deprecated', 'engine-only'].includes(surface)) {
+      fails.push(`unknown user-surface "${surface}"`);
+    }
     if (!fm['harness-tier']) warns.push('missing `harness-tier`');
     else if (!TIERS.has(fm['harness-tier'])) warns.push(`unknown harness-tier "${fm['harness-tier']}"`);
     else if (!fm['recommended-model']) {

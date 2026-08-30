@@ -23,6 +23,8 @@ import {
   INTERNAL_SURFACE_ALLOWLIST,
   DEPRECATED_SURFACE_ALLOWLIST,
 } from './skill-registry.mjs';
+import { maybeHelp } from './lib/cli-io.mjs';
+if (maybeHelp(import.meta.url)) process.exit(0);
 
 const SCRIPT_DIR = dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
 const ROOT = resolve(SCRIPT_DIR, '..');

@@ -2,6 +2,7 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync, unlinkSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { hooksJsonPath, readHooksJson, writeHooksJson, removeHooksJsonIfEmpty } from './cursor-hooks.mjs';
 
 export const TRACE_HOOK_MARKER = 'trace-hook.mjs';
 
@@ -25,13 +26,7 @@ export function isMidasTraceHookCommand(command) {
   return typeof command === 'string' && command.includes(TRACE_HOOK_MARKER);
 }
 
-/**
- * @param {string} targetDir project root
- * @returns {string}
- */
-export function hooksJsonPath(targetDir) {
-  return join(targetDir, '.cursor', 'hooks.json');
-}
+export { hooksJsonPath };
 
 /**
  * Seed or merge Midas trace hooks. Idempotent. Does not remove non-Midas entries.

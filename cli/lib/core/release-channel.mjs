@@ -7,8 +7,8 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { MIDAS_REPO } from './install-cmd.mjs';
-import { treeSha256 } from '../../template/.harness/scripts/ownership-manifest.mjs';
-import { scanVendorTree } from '../../template/.harness/scripts/lib/reconcile.mjs';
+import { treeSha256 } from '../shared/ownership-manifest.mjs';
+import { scanVendorTree } from '../shared/lib/reconcile.mjs';
 
 export const CHANNELS = Object.freeze(['stable', 'edge']);
 export const DEFAULT_CHANNEL = 'stable';

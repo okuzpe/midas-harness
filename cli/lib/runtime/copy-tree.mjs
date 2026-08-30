@@ -1,16 +1,17 @@
 // copy-tree.mjs — template → target copy + manifest-driven vendor reconciliation for install/update.
 
-import { readdirSync, existsSync, mkdirSync, copyFileSync, rmSync, rmdirSync } from 'node:fs';
-import { dirname, join, relative } from 'node:path';
-import { decideTemplateCopyAction, isHostDiscoveryMirrorPath } from '../core/preserve-policy.mjs';
-import { readOwnershipManifest } from '../../template/.harness/scripts/ownership-manifest.mjs';
+import { existsSync, mkdirSync, copyFileSync, rmSync, rmdirSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { decideTemplateCopyAction } from '../core/preserve-policy.mjs';
+import { walkTemplate } from '../core/walk-template.mjs';
+import { readOwnershipManifest } from '../shared/ownership-manifest.mjs';
 import {
   RECONCILE_ROOTS,
   planReconcile,
   reconcilePreservedEdits,
   reconcileRemovals,
   scanVendorTree,
-} from '../../template/.harness/scripts/lib/reconcile.mjs';
+} from '../shared/lib/reconcile.mjs';
 
 /**
  * @typedef {{
@@ -39,31 +40,24 @@ export function resetFreshVendorTrees(ctx) {
  * @param {CopyCtx} ctx
  */
 export function copyTree(srcDir, dstDir, ctx) {
-  for (const entry of readdirSync(srcDir, { withFileTypes: true })) {
-    if (entry.name === '.optional') continue;
-    const src = join(srcDir, entry.name);
-    const dst = join(dstDir, entry.name);
-    const rel = relative(ctx.target, dst).replace(/\\/g, '/');
-    // Portable `.agents` is rendered later for peer hosts — do not mkdir a leftover tree.
-    if (isHostDiscoveryMirrorPath(rel)) continue;
-    if (entry.isDirectory()) {
-      mkdirSync(dst, { recursive: true });
-      copyTree(src, dst, ctx);
-    } else {
-      const decided = decideTemplateCopyAction(rel, {
-        exists: existsSync(dst),
-        force: ctx.force,
-        update: ctx.update,
-      });
-      if (decided.action === 'skip') {
-        ctx.skipped.push(rel);
-        continue;
-      }
-      mkdirSync(dirname(dst), { recursive: true });
-      copyFileSync(src, dst);
-      ctx.written.push(rel);
+  walkTemplate(srcDir, dstDir, { target: ctx.target }, (node) => {
+    if (node.type === 'dir') {
+      mkdirSync(node.dst, { recursive: true });
+      return;
     }
-  }
+    const decided = decideTemplateCopyAction(node.rel, {
+      exists: existsSync(node.dst),
+      force: ctx.force,
+      update: ctx.update,
+    });
+    if (decided.action === 'skip') {
+      ctx.skipped.push(node.rel);
+      return;
+    }
+    mkdirSync(dirname(node.dst), { recursive: true });
+    copyFileSync(node.src, node.dst);
+    ctx.written.push(node.rel);
+  });
 }
 
 /** Where a vendor file you edited is preserved when the bundle overwrites it. */

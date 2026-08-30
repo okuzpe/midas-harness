@@ -7,7 +7,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
-import { resolvePaths } from '../paths.mjs';
+import { resolveCacheRoot } from './cache-paths.mjs';
 
 export const FIFO_SCHEMA_VERSION = 1;
 export const FIFO_INJECTED_CAP = 50;
@@ -16,23 +16,10 @@ export const FIFO_INJECTED_CAP = 50;
 
 /**
  * @param {string} projectRoot
- * @returns {boolean}
- */
-function useHarnessCache(projectRoot) {
-  if (existsSync(join(projectRoot, '.harness'))) return true;
-  const layout = resolvePaths(projectRoot).layout;
-  return layout === 'harness';
-}
-
-/**
- * @param {string} projectRoot
  * @returns {string}
  */
 export function resolveFifoPath(projectRoot) {
-  if (useHarnessCache(projectRoot)) {
-    return join(projectRoot, '.harness', 'cache', 'session', 'recall-fifo.json');
-  }
-  return join(projectRoot, 'runs', 'cache', 'session', 'recall-fifo.json');
+  return join(resolveCacheRoot(projectRoot), 'session', 'recall-fifo.json');
 }
 
 /**

@@ -4,11 +4,14 @@
 //   node scripts/bundle.mjs export [--profile full] [-o out.json] [--only a,b] [--include-tests] [--include-src]
 //   node scripts/bundle.mjs import bundle.json [--dry-run] [--merge|--replace] [--replace-state]
 //
-// Paths in bundles use classic canonical coordinates (harness/, .harness/). Import remaps for compact.
+// Paths in bundles use classic canonical coordinates (harness/, .harness/).
+// Product installs (layout harness) remap .harness/{product,rules,runs,state}.
 
 import {
   createHash,
 } from 'node:crypto';
+import { maybeHelp } from './lib/cli-io.mjs';
+if (maybeHelp(import.meta.url)) process.exit(0);
 import {
   existsSync,
   lstatSync,
@@ -20,14 +23,18 @@ import {
 } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { MIGRATION_MAP, resolvePaths } from './paths.mjs';
+import { resolvePaths } from './paths.mjs';
 import { walkFiles } from './lib/walk.mjs';
 import {
   parseEnforcement,
   parseMidasVersion,
-  parseSprints,
+  parseStateScalar,
+  parsePhaseArtifacts,
+  findActiveSprintId,
   stripQuotes,
 } from './yaml-lite.mjs';
+
+export { parseStateScalar, parsePhaseArtifacts, findActiveSprintId } from './yaml-lite.mjs';
 
 export const MIDAS_BUNDLE_VERSION = '1';
 
@@ -133,21 +140,6 @@ export function toCanonical(rel, layout) {
     if (p === '.harness/runs') return '.harness';
     if (p.startsWith('.harness/runs/')) return '.harness' + p.slice('.harness/runs'.length);
   }
-  if (layout === 'hub') {
-    if (p === '.midas/product') return 'product';
-    if (p.startsWith('.midas/product/')) return 'product' + p.slice('.midas/product'.length);
-  }
-  if (layout === 'compact' || layout === 'hub') {
-    const fileMaps = MIGRATION_MAP.filter((m) => m.type === 'file').sort((a, b) => b.to.length - a.to.length);
-    for (const { from, to } of fileMaps) {
-      if (p === to) return from;
-    }
-    const sorted = [...MIGRATION_MAP].sort((a, b) => b.to.length - a.to.length);
-    for (const { from, to } of sorted) {
-      if (p === to) return from;
-      if (p.startsWith(to + '/')) return from + p.slice(to.length);
-    }
-  }
   return p;
 }
 
@@ -163,71 +155,7 @@ export function fromCanonical(canonical, layout) {
     if (p === '.harness') return '.harness/runs';
     if (p.startsWith('.harness/')) return '.harness/runs' + p.slice('.harness'.length);
   }
-  if (layout === 'hub') {
-    if (p === 'product') return '.midas/product';
-    if (p.startsWith('product/')) return '.midas/product' + p.slice('product'.length);
-  }
-  if (layout === 'compact' || layout === 'hub') {
-    const fileMaps = MIGRATION_MAP.filter((m) => m.type === 'file').sort((a, b) => b.from.length - a.from.length);
-    for (const { from, to } of fileMaps) {
-      if (p === from) return to;
-    }
-    const sorted = [...MIGRATION_MAP].sort((a, b) => b.from.length - a.from.length);
-    for (const { from, to } of sorted) {
-      if (p === from) return to;
-      if (p.startsWith(from + '/')) return to + p.slice(from.length);
-    }
-  }
   return p;
-}
-
-export function parseStateScalar(yaml, key) {
-  const m = yaml.match(new RegExp(`^${key}:\\s*([^#\\n]+)`, 'm'));
-  return m ? stripQuotes(m[1].trim()) : null;
-}
-
-/** Artifact paths listed under a phase in state.yaml. */
-export function parsePhaseArtifacts(yaml, phase) {
-  const lines = yaml.split(/\r?\n/);
-  let inPhase = false;
-  let inArtifacts = false;
-  const out = [];
-  for (const line of lines) {
-    if (/^[A-Za-z_][\w-]*:/.test(line) && !/^\s/.test(line)) {
-      inPhase = new RegExp(`^${phase}:`).test(line);
-      inArtifacts = false;
-      continue;
-    }
-    if (!inPhase) continue;
-    if (/^\s+artifacts:/.test(line)) {
-      inArtifacts = true;
-      const inline = line.match(/artifacts:\s*\[([^\]]*)\]/);
-      if (inline) {
-        for (const part of inline[1].split(',')) {
-          const s = stripQuotes(part.trim());
-          if (s) out.push(s);
-        }
-        inArtifacts = false;
-      }
-      continue;
-    }
-    if (!inArtifacts) continue;
-    if (!/^\s+-\s+/.test(line)) {
-      inArtifacts = false;
-      continue;
-    }
-    const item = line.replace(/^\s+-\s+/, '').trim();
-    out.push(stripQuotes(item));
-  }
-  return out;
-}
-
-export function findActiveSprintId(yaml) {
-  const sprints = parseSprints(yaml);
-  for (const [id, status] of sprints) {
-    if (status === 'active') return id;
-  }
-  return null;
 }
 
 function globExists(root, pattern) {

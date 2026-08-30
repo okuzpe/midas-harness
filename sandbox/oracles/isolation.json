@@ -4,6 +4,8 @@
     { "id": "env", "type": "env_ok" },
     { "id": "name", "type": "state_match", "field": "name", "value": "sandbox-example" },
     { "id": "engine-name", "type": "engine_name", "value": "harness" },
-    { "id": "engine-untouched", "type": "engine_state_untouched" }
+    { "id": "engine-untouched", "type": "engine_state_untouched" },
+    { "id": "skills-untouched", "type": "engine_tree_untouched", "tree": "skills" },
+    { "id": "rules-untouched", "type": "engine_tree_untouched", "tree": "rules" }
   ]
 }

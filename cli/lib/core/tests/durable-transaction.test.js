@@ -95,7 +95,6 @@ describe('durable transaction + journal', () => {
     try {
       appendJournal(root, 'run-x', { op: 'start' });
       assert.equal(sessionFromJournal(root, 'run-x'), null);
-      assert.equal(sessionFromJournal(root, 'run-x', ['.harness/engine']), null);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

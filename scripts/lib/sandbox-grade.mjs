@@ -8,20 +8,58 @@ import {
   isPathInside,
   readSandboxBaseline,
   sha256File,
+  sha256Tree,
 } from './sandbox-env.mjs';
 import { resolvePaths } from '../paths.mjs';
 
 export const LEDGER_REL = join('sandbox', 'findings', '_ledger.jsonl');
 
+const ISOLATION_FILE_ID = 'oracle-isolation-file';
+
+/**
+ * Strip a leading slash so `--skill /idea-intake` matches `idea-intake.json`.
+ * @param {string} raw
+ * @returns {string}
+ */
+export function normalizeSkillName(raw) {
+  return String(raw || '')
+    .trim()
+    .replace(/^\/+/, '');
+}
+
 /**
  * @param {string} yaml
- * @param {string} field
+ * @param {string} field dotted path (`mode`, `phases.idea_intake.status`)
  */
-function topLevelScalar(yaml, field) {
-  const re = new RegExp(`^${field}:\\s*(.+)\\s*$`, 'm');
-  const m = yaml.match(re);
-  if (!m) return '';
-  return m[1].replace(/#.*$/, '').trim().replace(/^["']|["']$/g, '');
+export function yamlPathScalar(yaml, field) {
+  const parts = String(field || '')
+    .split('.')
+    .filter(Boolean);
+  if (parts.length === 0) return '';
+  const lines = yaml.split(/\r?\n/);
+  let start = 0;
+  for (let p = 0; p < parts.length; p++) {
+    const wantIndent = p * 2;
+    const key = parts[p].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const keyRe = new RegExp(`^ {${wantIndent}}${key}:\\s*(.*)$`);
+    let found = false;
+    for (let i = start; i < lines.length; i++) {
+      const line = lines[i];
+      if (!line.trim() || /^\s*#/.test(line)) continue;
+      const indent = (line.match(/^ */) || [''])[0].length;
+      if (indent < wantIndent) break;
+      if (indent !== wantIndent) continue;
+      const m = line.match(keyRe);
+      if (!m) continue;
+      found = true;
+      const rest = m[1].replace(/#.*$/, '').trim().replace(/^["']|["']$/g, '');
+      if (p === parts.length - 1) return rest;
+      start = i + 1;
+      break;
+    }
+    if (!found) return '';
+  }
+  return '';
 }
 
 /**
@@ -38,6 +76,22 @@ export function loadOracleDoc(skill, oracleRoot) {
   } catch (err) {
     return { skill, checks: [], missing: true, path: abs, error: String(err) };
   }
+}
+
+/**
+ * Isolation check ids from isolation.json, plus the missing-file sentinel.
+ * @param {{ missing: boolean, checks: { id?: string, type?: string }[] }} isolationDoc
+ */
+export function isolationCheckIds(isolationDoc) {
+  const ids = new Set();
+  if (isolationDoc.missing) {
+    ids.add(ISOLATION_FILE_ID);
+    return ids;
+  }
+  for (const c of isolationDoc.checks) {
+    ids.add(String(c.id || c.type || ''));
+  }
+  return ids;
 }
 
 /**
@@ -72,16 +126,38 @@ function runCheck(check, ctx) {
           : 'engine harness/state.yaml changed since reset',
       };
     }
+    if (type === 'engine_tree_untouched') {
+      const tree = String(check.tree || '');
+      const key = tree === 'skills' ? 'engineSkillsSha256' : tree === 'rules' ? 'engineRulesSha256' : '';
+      const dir = tree === 'skills' || tree === 'rules' ? join(ctx.root, 'harness', tree) : '';
+      if (!key || !dir) {
+        return { id, ok: false, detail: `unknown engine tree ${JSON.stringify(tree)}` };
+      }
+      if (!ctx.baseline?.[key]) {
+        return { id, ok: false, detail: 'missing sandbox-baseline.json tree hash — run reset' };
+      }
+      const now = sha256Tree(dir);
+      const ok = now !== '' && now === ctx.baseline[key];
+      return {
+        id,
+        ok,
+        detail: ok
+          ? `engine harness/${tree} hash matches reset`
+          : `engine harness/${tree} changed since reset`,
+      };
+    }
     if (type === 'engine_name') {
-      const name = topLevelScalar(ctx.engineYaml, 'name');
+      const name = yamlPathScalar(ctx.engineYaml, 'name');
       const want = String(check.value || 'harness');
       return { id, ok: name === want, detail: `engine name=${name} want=${want}` };
     }
-    if (type === 'state_match') {
+    if (type === 'state_match' || type === 'state_not_match') {
       const field = String(check.field || '');
       const want = String(check.value ?? '');
-      const got = topLevelScalar(ctx.fixtureYaml, field);
-      return { id, ok: Boolean(field) && got === want, detail: `${field}=${got} want=${want}` };
+      const got = yamlPathScalar(ctx.fixtureYaml, field);
+      const equal = Boolean(field) && got === want;
+      const ok = type === 'state_match' ? equal : Boolean(field) && !equal;
+      return { id, ok, detail: `${field}=${got} want${type === 'state_not_match' ? '≠' : '='}${want}` };
     }
     if (type === 'file_exists' || type === 'file_contains' || type === 'file_not_contains') {
       const rel = subst(check.path, ctx.tokens);
@@ -108,17 +184,18 @@ function runCheck(check, ctx) {
 }
 
 /**
- * Isolation ids that flip isolation=fail (not just overall verdict).
- * Keep in sync with sandbox/oracles/isolation.json `id` fields.
- */
-const ISOLATION_IDS = new Set(['env', 'engine-untouched', 'engine-name', 'name']);
-
-/**
- * @param {{ root: string, skill?: string, ledger?: boolean, ledgerPath?: string }} opts
+ * @param {{
+ *   root: string,
+ *   skill?: string,
+ *   ledger?: boolean,
+ *   ledgerPath?: string,
+ *   missing?: 'fail' | 'skip',
+ * }} opts
  */
 export function gradeSandbox(opts) {
   const root = opts.root;
-  const skill = String(opts.skill || 'isolation');
+  const skill = normalizeSkillName(opts.skill || 'isolation') || 'isolation';
+  const missingMode = opts.missing === 'skip' ? 'skip' : 'fail';
   const env = inspectSandboxEnv(root);
   const work = env.work;
   const engineStateAbs = join(root, 'harness', 'state.yaml');
@@ -133,32 +210,42 @@ export function gradeSandbox(opts) {
     rules: paths.rules || '.harness/rules',
     cache: paths.cache || '.harness/cache',
   };
-  const ctx = { env, work, baseline, engineStateAbs, fixtureYaml, engineYaml, tokens };
+  const ctx = { root, env, work, baseline, engineStateAbs, fixtureYaml, engineYaml, tokens };
   const oracleRoot = join(root, 'sandbox', 'oracles');
   const isolationDoc = loadOracleDoc('isolation', oracleRoot);
   const skillDoc = skill === 'isolation' ? { checks: [], missing: false } : loadOracleDoc(skill, oracleRoot);
+  const isolationIds = isolationCheckIds(isolationDoc);
   const checks = [];
   if (isolationDoc.missing) {
-    checks.push({ id: 'oracle-isolation-file', ok: false, detail: `missing ${isolationDoc.path}` });
+    checks.push({ id: ISOLATION_FILE_ID, ok: false, detail: `missing ${isolationDoc.path}` });
   } else {
     for (const c of isolationDoc.checks) checks.push(runCheck(c, ctx));
   }
   if (skill !== 'isolation') {
     if (skillDoc.missing) {
-      checks.push({
-        id: `oracle-${skill}-file`,
-        ok: false,
-        detail: skillDoc.error || `no oracle for skill ${skill} at ${skillDoc.path}`,
-      });
+      if (missingMode === 'skip') {
+        checks.push({
+          id: `oracle-${skill}-file`,
+          ok: true,
+          detail: `no oracle for skill ${skill} — skipped (--missing skip)`,
+        });
+      } else {
+        checks.push({
+          id: `oracle-${skill}-file`,
+          ok: false,
+          detail: skillDoc.error || `no oracle for skill ${skill} at ${skillDoc.path}`,
+        });
+      }
     } else {
       for (const c of skillDoc.checks) checks.push(runCheck(c, ctx));
     }
   }
   const pass = checks.filter((c) => c.ok).length;
   const fail = checks.length - pass;
-  const isolationFail = checks.some((c) => !c.ok && ISOLATION_IDS.has(c.id));
+  const isolationFail = checks.some((c) => !c.ok && isolationIds.has(c.id));
   const isolation = env.ok && !isolationFail ? 'ok' : 'fail';
   const ok = fail === 0 && env.ok;
+  const failIds = checks.filter((c) => !c.ok).map((c) => c.id);
   const tally =
     `MIDAS_SANDBOX_ORACLE: skill=${skill} isolation=${isolation} checks=${checks.length} ` +
     `pass=${pass} fail=${fail} verdict=${ok ? 'pass' : 'fail'}`;
@@ -175,11 +262,12 @@ export function gradeSandbox(opts) {
         pass,
         fail,
         checks: checks.length,
+        fail_ids: failIds,
       })}\n`,
       'utf8',
     );
   }
-  return { ok, isolation, skill, checks, pass, fail, tally };
+  return { ok, isolation, skill, checks, pass, fail, tally, failIds };
 }
 
 /**

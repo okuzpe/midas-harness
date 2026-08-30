@@ -17,6 +17,8 @@ import {
   readCurrent,
   digestStateYaml,
 } from './lib/trace-store.mjs';
+import { maybeHelp } from './lib/cli-io.mjs';
+if (maybeHelp(import.meta.url)) process.exit(0);
 import { detectLayout, resolvePaths, resolveProjectRootFromScript } from './paths.mjs';
 
 const DEFAULT_ROOT = resolveProjectRootFromScript(import.meta.url);
@@ -140,7 +142,7 @@ function parseAttrs(parts) {
 function loadStateDigest(projectRoot) {
   try {
     const layout = detectLayout(projectRoot);
-    const paths = resolvePaths(layout, projectRoot);
+    const paths = resolvePaths(projectRoot, layout);
     const statePath = join(projectRoot, paths.state);
     if (!existsSync(statePath)) return { state: 'missing' };
     return digestStateYaml(readFileSync(statePath, 'utf8'));

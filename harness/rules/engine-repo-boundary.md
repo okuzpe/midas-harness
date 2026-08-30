@@ -6,7 +6,7 @@ constraint on *their* trees — it protects *this* repo from nesting a second ha
 ## Law
 
 Never run `create-midas` / `npx … midas-harness` **install**, **`update`** (`--update` alias), or **`--migrate`**
-against the engine repository root. Never create `.harness/engine/`, `.harness/scripts/`, or
+against the engine repository root (3.x also **refuses** 1.x product trees anywhere — ADR-018). Never create `.harness/engine/`, `.harness/scripts/`, or
 `.harness/state.yaml` here as a product install.
 
 ## Engine root layout (this repo)

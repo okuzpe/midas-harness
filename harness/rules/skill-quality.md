@@ -31,28 +31,22 @@ Canonical source in the engine repo is `harness/skills` / `harness/agents` (mirr
 ### Score after material skill edits
 - [ ] A material skill/agent change in the diff is accompanied by a scored result
       (`Skill quality: … Score: __/40` with hard fails, core floors, and evidence cites).
-      **CHECK:** `manual:` when the PR/sprint diff touches `harness/skills/*/SKILL.md`,
-      `harness/agents/*.md`, `.claude/skills/*/SKILL.md`, `.claude/agents/midas-*.md`, or (install)
-      `<paths.engine>/skills|agents` beyond typos/links, the session or PR notes include the required
-      score block from `docs/skill-quality-gate.md` (engine) or `<paths.engine>/docs/skill-quality-gate.md`
-      (install); missing block on a behavior change is a fail.
+      **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` exits 0 when the PR/sprint diff touches authored skills/agents beyond typos/links.
 - [ ] Hard fails are absent (frontmatter, ≤500 entry lines or split plan, side-effect guards,
       no duplicated SoT, happy-path read depth ≤ SKILL → one support file, English body).
-      **CHECK:** `manual:` score block shows `Hard fails: none`, or each fail is fixed in the same
-      diff; any unresolved hard fail is a 🔴 Block / fail.
+      **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` score block shows `Hard fails: none`, or each fail is fixed in the same diff.
 - [ ] Core floors met for the claimed result (Pass: every core dim ≥ 2; Ship: every core dim ≥ 3;
       no dim at 0 on Pass; no dim &lt; 2 on Ship). Core = Trigger, Structure, Completion, Safety.
-      **CHECK:** `manual:` score block `Core floors: ok` (or names the miss); claimed 🟢/🟡 that
-      violates floors is a fail.
+      **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` reports `Core floors: ok` (or names the miss).
 - [ ] Every scored dimension has a one-line evidence cite; uncited dims count as ≤ 1.
-      **CHECK:** `manual:` `Evidence:` line cites Trigger/Structure/Completion/Safety at minimum;
-      a dim listed without a section/path/“missing” cite is treated as ≤ 1 for the total.
+      **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` `Evidence:` line cites Trigger/Structure/Completion/Safety at minimum.
 
 ### Frontmatter and catalog (user-facing)
 - [ ] Entry `SKILL.md` has valid `name` (= directory) + WHAT+WHEN(+NOT) `description` ≤ 1024 chars;
       side-effecting skills set `disable-model-invocation: true` unless ambient trigger is documented.
-      **CHECK:** `manual:` grep new/changed skill frontmatter; missing name/description, name≠dir,
-      or side-effect skill without `disable-model-invocation: true` (and no documented exception) is a fail.
+      **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` exits 0 on authored skill/agent
+      surfaces; missing name/description, name≠dir, or side-effect skill without
+      `disable-model-invocation: true` (and no documented exception) is a fail.
 - [ ] User-facing slash skills in the **engine repo** appear in `docs/skills.md` when added or when
       their one-line role changes. Product installs without a skills catalog → `n/a`.
       **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` warns `not referenced in the skills
@@ -65,8 +59,8 @@ Canonical source in the engine repo is `harness/skills` / `harness/agents` (mirr
 ### Progressive disclosure
 - [ ] Happy path does not require a mandatory A→B→C read chain; entry stays ≤ 500 lines or an
       in-tree split plan exists.
-      **CHECK:** `manual:` entry line count (`wc -l` / editor) ≤ 500, or the skill/PR names the
-      L3 split files; mandatory happy-path depth &gt; SKILL + one support file is a fail.
+      **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` exits 0; an entry over 500 lines
+      without an in-tree L3 split plan, or happy-path depth &gt; SKILL + one support file, is a fail.
 
 ## Relationship to other rules
 

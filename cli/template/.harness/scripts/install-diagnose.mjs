@@ -20,6 +20,9 @@ const {
   hasMidasInstall,
   findAncestorMidasRoot,
   yamlScalar,
+  isV1Install,
+  isMidasEngineRepository,
+  V1_REFUSE_MESSAGE,
 } = await import(pathToFileURL(contextPath).href);
 const {
   formatInstallCmd,
@@ -129,17 +132,14 @@ export function diagnoseProject(targetDir, opts = {}) {
     };
   }
 
-  if (ctx.layout !== 'harness') {
+  if (isV1Install(dir) || (ctx.layout && ctx.layout !== 'harness' && !isMidasEngineRepository(dir))) {
     return {
-      status: 'legacy_layout',
+      status: 'unsupported_v1',
       dir,
-      summary: 'A Midas 1.x classic/compact/hub layout was detected; `update` will migrate it to the harness layout then refresh.',
-      nextCli: `${relatedCli(installCmd, 'update')} --yes`,
-      nextSlash: '/midas-init',
-      detail:
-        'One command: `npx … update --yes` auto-runs migrate+refresh. ' +
-        'Optional preview: add `--dry-run` (or use explicit `--migrate` then `--migrate --apply`). ' +
-        'Or run /midas-init in the editor for the same tip.',
+      summary: 'A Midas 1.x classic/compact/hub layout was detected; 3.x refuses to write.',
+      nextCli: 'npx create-midas@2.10.3 update --yes',
+      nextSlash: '/midas-reconcile',
+      detail: V1_REFUSE_MESSAGE,
     };
   }
 

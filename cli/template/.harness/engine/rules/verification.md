@@ -62,8 +62,7 @@ Load browser MCPs **only** when agent-browser is absent and a rendered page is r
       **CHECK:** runtime-health table in verify record; Chrome DevTools, agent-browser, or Playwright
       fallback documented per row.
 - [ ] No horizontal overflow at narrow viewport; UI references design tokens per `{product}/design-system.md`.
-      **CHECK:** `manual:` no horizontal overflow on key screens (see `accessibility.md` § layout overflow);
-      `/midas-verify` automates where wired.
+      See [`accessibility.md`](./accessibility.md) § layout overflow — `/midas-verify` automates where wired.
 - [ ] Marketing/landing UI passes **Product authenticity** (not a logo-swappable SaaS template).
       **CHECK:** verify record **`## Product authenticity`** filled for UI marketing surfaces; logo-swap
       "still generic" = fail (see `visual-design.md` § Product authenticity). Missing section on a
@@ -82,9 +81,9 @@ Load browser MCPs **only** when agent-browser is absent and a rendered page is r
       **CHECK:** the sprint's `{runs}/audits/audit-NN.md` exists and was produced by the auditor tier,
       not the producer; its `MIDAS_AUDIT_RESULT` tally shows `unresolved=0 verdict=pass`.
 - [ ] A passing gate or audit lists real on-disk artifacts (phase-result contract).
-      **CHECK:** `manual:` each `{runs}/audits/gate-0N.md` or `audit-NN.md` with `verdict=pass` includes
-      an Artifacts table (or equivalent path list) and every path exists; advancing with an empty list
-      or a missing path is a fail — see `<paths.engine>/templates/phase-result.md`.
+      **CHECK:** `node <paths.scripts>/doctor.mjs --gates-only` reports `ok` or `skip` for
+      `gate:phase-artifacts`; each `{runs}/audits/audit-*.md` with `verdict=pass` lists artifact
+      paths that exist on disk.
 
 ### Risk-selected review lenses (4R — scale cost with signal)
 

@@ -9,8 +9,8 @@ description: Midas CHECK digest for Phase-8 conformance audits and rule reviews.
 
 ## Always-on rules — CHECK digest (base: `harness/rules/`; project: `harness/rules/`)
 - **Rule: Acceptance criteria (EARS) (always-on)** (`acceptance-criteria.md`, base)
-  - **CHECK:** `manual:` read `{product}/sprints/NN-*.md` § Acceptance — any line that is a goal, not an observable behaviour, is a fail.
-  - **CHECK:** `manual:` cross-read sprint acceptance table vs test files and `{runs}/verifications/` — an uncovered criterion is a fail.
+  - **CHECK:** `grep -nE "When |THEN |SHALL |WHEN " {product}/sprints` — any acceptance line that is a goal, not an observable behaviour, is a fail. Missing `{product}/sprints` → skip.
+  - **CHECK:** `node <paths.scripts>/gates/test-gate.mjs` exits 0; cross-read sprint acceptance vs tests/`{runs}/verifications/` — an uncovered criterion is a fail.
 - **Rule: Accessibility & design-system floor (always-on)** (`accessibility.md`, base)
   - **CHECK:** `grep -rniE "#[0-9a-fA-F]{3,8}|rgba?\(" <ui-src>` → every hit is a token *definition*, not an inline value in a component; an inline hex/rgb in component code is a fail.
   - **CHECK:** `manual:` a reviewer can name which reference each key screen draws from; "generic Bootstrap/Tailwind default" with no traceable anchor is a fail.
@@ -29,22 +29,21 @@ description: Midas CHECK digest for Phase-8 conformance audits and rule reviews.
   - **CHECK:** `manual:` no horizontal scrollbar (`document.documentElement.scrollWidth <= clientWidth`); buttons/inputs stay inside their parent. `/midas-verify` automates this.
   - **CHECK:** `grep -rniE "z-index:[[:space:]]*[0-9]+" <ui-src>` → each is a `var(--ds-z-*)` token; a raw integer (e.g. `9999`) is a fail.
 - **Rule: Change propagation — keep sources, bundles, docs, and versions aligned (always-on)** (`change-propagation.md`, base)
-  - **CHECK:** `manual:` the PR/sprint notes or `/midas-align` report names each downstream surface touched; an unmentioned generated tree in the diff that was hand-edited is a fail.
+  - **CHECK:** `npm run align` (engine) names each downstream surface; an unmentioned generated tree in the diff that was hand-edited is a fail.
   - **CHECK:** `npm run align` (engine) or `/midas-align` exits with `verdict=aligned` or lists only resolved gaps; exit 1 with open gaps is a fail before merge.
   - **CHECK:** `git diff --name-only` shows no lone edits under `harness/plugins/midas/`, `harness/.claude-plugin/`, `cli/template/`, or managed adapter regions without a corresponding `.claude/`, `harness/`, or `scripts/` source change.
-  - **CHECK:** `manual:` when `harness/VERSION` is in the PR/sprint diff, the session or PR notes name `npm run bump -- <ver>`; a VERSION bump done by editing mirrors/pins by hand without that command is a fail.
-  - **CHECK:** `node scripts/sync-version.mjs --check` exits 0 when `harness/VERSION` is in the diff.
+  - **CHECK:** `node <paths.scripts>/sync-version.mjs --check` exits 0 when `harness/VERSION` is in the diff.
   - **CHECK:** `node scripts/test.mjs` `version:*`, `version-pin:*`, and `version:sync-check` pass.
-  - **CHECK:** `manual:` a diff touching installer flags, layout, or skill commands also touches at least one user-facing doc; undocumented install/flow change is a fail.
+  - **CHECK:** `git diff --name-only` on a diff touching `cli/` or `harness/skills` also lists `INSTALL.md` or `docs/` — undocumented install/flow change is a fail.
   - **CHECK:** `node <paths.scripts>/doctor.mjs` reports no adapter `drift` after a `<paths.engine>/rules/` diff.
   - **CHECK:** `grep -rnE 'harness/state\.yaml' .claude/skills/` → only examples naming classic layout, not as the sole read path in ritual guards.
 - **Rule: Code quality (always-on)** (`code-quality.md`, base)
   - **CHECK:** `manual:` diff each new file against a sibling in the same directory; a naming/indent/idiom break that stands out from local style is a fail.
-  - **CHECK:** `manual:` grep the codebase for the concept (`grep -rin "<concept>" <src-root>/`); a parallel implementation of an existing pattern is a fail.
+  - **CHECK:** `grep -rin "<concept>" <src-root>/` is the review command; a parallel implementation of an existing pattern is a fail. Engine backstop: `grep -nE "function detectLegacyLayout" cli/lib cli --include "*.mjs"` has one definition.
   - **CHECK:** any rules/standards/guidelines doc outside `<paths.engine>/conventions.md`, `<paths.engine>/rules/`, and `<paths.rules>/` is a fail (`find . -iname "*standard*" -o -iname "*guideline*"` outside those paths → empty).
   - **CHECK:** `manual:` the name is a verb-phrase describing the effect; a body with multiple unrelated responsibilities (independent side effects) is a fail.
   - **CHECK:** linter (`eslint max-lines-per-function` / equivalent) reports no function over the stack limit; absent a linter, no body exceeds ~40 logical lines.
-  - **CHECK:** `manual:`/AST: no signature in the diff declares > 4 positional parameters.
+  - **CHECK:** `grep -rnE "\\([^)]*,[^)]*,[^)]*,[^)]*,[^)]*\\)" --include "*.mjs" --include "*.js" cli/lib` reviewed; no new signature in the diff declares > 4 positional parameters.
   - **CHECK:** grep imports against `<paths.rules>/folder-structure.md` (the project's Phase-5 rule; e.g. `grep -rn "from '@/db'" <src-root>/ui/` → empty); any forbidden cross-layer import is a fail.
   - **CHECK:** `eslint no-unused-vars` / `ts-prune` / `vulture` (per stack) reports zero unused or unreachable symbols in the diff.
   - **CHECK:** review for commented-out statements (`grep -nE "^\s*(//|#).*[;{}()]" <diff>`); a commented-out code block is a fail.
@@ -56,29 +55,29 @@ description: Midas CHECK digest for Phase-8 conformance audits and rule reviews.
   - **CHECK:** lockfile diff: every added dependency has a PR note covering size/maintenance/license; an unexplained addition is a fail.
   - **CHECK:** `grep -nE ":\s*[\"']?[\^~*]" package.json` (or the stack manifest) → empty; lockfile committed.
   - **CHECK:** each new third-party call site carries the Context7 (or documented web-fallback) doc note; a missing note is a fail.
-  - **CHECK:** `manual:` each boundary entry validates shape/range before use; an unvalidated external read is a fail (evidence: `file:line`).
+  - **CHECK:** `grep -rnE "catch\\s*\\([^)]*\\)\\s*\\{\\s*\\}" --include "*.mjs" --include "*.js" cli scripts` → empty (unvalidated/swallowed boundary reads are a fail; evidence: `file:line`).
   - **CHECK:** `manual:` inspect error/response paths; a message returning a raw secret or internal stack trace to a caller is a fail.
   - **CHECK:** `grep -rnE "catch\s*\([^)]*\)\s*\{\s*\}|except[^\n]*:\s*\n\s*pass"` → empty.
 - **Rule: Cursor safety hooks (always-on when installed)** (`cursor-safety-hooks.md`, base)
-  - **CHECK:** `manual:` when `.cursor/hooks.json` lists both Trace and safety commands, agents and docs treat Trace as observe-only (exit 0) and safety as optional fail-closed enforcement; citing Trace spans as proof that a destructive command was blocked is a fail.
-  - **CHECK:** `manual:` if `gate-commits.mjs` is wired, session evidence shows the human asked to commit/push before the command ran and `{paths.cache}/session/commit-approved.json` was written with `schema_version: 2` immediately prior; reuse across unrelated diffs is a fail.
+  - **CHECK:** `grep -nE "gate-commits\\.mjs|trace-hook\\.mjs" .cursor/hooks.json` — Trace commands are observe-only; citing Trace spans as proof a destructive command was blocked is a fail.
+  - **CHECK:** `grep -n gate-commits.mjs .cursor/hooks.json` present when Cursor safety hooks are installed; `{paths.cache}/session/commit-approved.json` is the receipt path (`schema_version: 2`).
   - **CHECK:** `harness/rules/cursor-safety-hooks.md` (or `<paths.engine>/rules/cursor-safety-hooks.md`) contains at least one `**CHECK:**` and a dated `## Amendment` section.
 - **Rule: Documentation (always-on)** (`docs.md`, base)
-  - **CHECK:** `manual:` each `export`ed symbol in the diff is preceded by a doc comment; an undocumented public export is a fail.
+  - **CHECK:** `grep -nE "export (async )?function |export class " --include "*.mjs" cli/lib scripts/lib` is the scan; each exported symbol in the sprint diff is preceded by a doc comment.
   - **CHECK:** `manual:` a doc comment that merely echoes the signature is a fail.
   - **CHECK:** `manual:` non-obvious params/returns (ranges, units, nullability) are documented; an undocumented constraint is a fail.
   - **CHECK:** `grep -rnE "@deprecated" <src-root>/` → each match names a reason and an alternative.
   - **CHECK:** `manual:` each workaround/non-obvious branch has a *why* comment; a comment restating the code is a fail.
   - **CHECK:** see `code-quality.md` § TODO format (not duplicated here).
-  - **CHECK:** review for commented-out statements (`grep -nE "^\s*(//|#).*[;{}()]" <diff>`) → none.
+  - **CHECK:** `grep -nE "^\\s*(//|#).*[;{}()]" --include "*.mjs" --include "*.js" cli/lib scripts/lib` → empty of commented-out statements.
   - **CHECK:** `manual:` a comment citing a spec/issue/paper includes its URL or issue id.
   - **CHECK:** the active sprint file's acceptance/Tasks table has no `todo`/`in-progress` rows at audit time.
-  - **CHECK:** `manual:` each rule changed this sprint carries a dated `## Amendment` entry; a silent rule edit is a fail.
+  - **CHECK:** `grep -nE "^## Amendment" <paths.engine>/rules/*.md` → each rule file has a dated Amendment section.
   - **CHECK:** each ADR has Context/Decision/Consequences sections; `git log --diff-filter=D -- {product}/adr/` shows no deleted ADR.
   - **CHECK:** `grep -iE "getting started|quickstart|setup" README.md` present, and the steps run from a clean checkout.
   - **CHECK:** `.env.example` (or equivalent) exists and lists every env var the code reads, with placeholder values only.
   - **CHECK:** `manual:` each non-obvious CI/deploy step has a doc reference; an undocumented deploy step is a fail.
-  - **CHECK:** `manual:` a behaviour change whose docs are untouched in the same commit is a fail.
+  - **CHECK:** `git diff --name-only HEAD` — a behaviour change whose docs (`README.md`, `docs/`, `INSTALL.md`) are untouched in the same commit is a fail.
   - **CHECK:** a link-checker over changed docs returns no 4xx/5xx; a broken link is a fail.
   - **CHECK:** `manual:` cross-read changed docs against `harness/conventions.md` + rules; a contradiction is a fail (harness file wins).
 - **Rule: Enforcement state is recorded and honest (always-on)** (`enforcement-state.md`, base)
@@ -92,20 +91,19 @@ description: Midas CHECK digest for Phase-8 conformance audits and rule reviews.
   - **CHECK:** `git log <base>..HEAD --format=%s | grep -vE "^(feat|fix|docs|refactor|test|chore|perf|style|ci)(\(.+\))?!?: .{1,62}$"` → empty.
   - **CHECK:** same `git log` scan as above; any subject whose type is outside the allowed set is a fail.
   - **CHECK:** `git log <base>..HEAD --format=%s | grep -iE ": (added|adding|fixed|fixing|updated|updating)\b"` → empty.
-  - **CHECK:** `manual:` any commit altering a public contract carries `!` and a `BREAKING CHANGE:` footer (`git log --format=%B | grep "BREAKING CHANGE"`).
+  - **CHECK:** `git log HEAD --format=%B -n 50 | grep -E "^BREAKING CHANGE:"` is present whenever `git log HEAD --format=%s -n 50 | grep -E "^[a-z]+(\(.+\))?!:"` matches; a `!` subject without a `BREAKING CHANGE:` footer is a fail.
   - **CHECK:** `manual:` where a body exists, it states rationale; a body that just restates the diff is a fail.
   - **CHECK:** `git log <base>..HEAD --format=%B | grep -iE "(co-authored-by:.*(claude|copilot|chatgpt|gemini)|generated (by|with) (claude|copilot|chatgpt|gemini)|claude code)"` → empty.
-  - **CHECK:** `manual:` each commit's diff is one coherent change; a commit spanning unrelated areas is a fail.
-  - **CHECK:** `manual:` no commit mixes a fix and a feature (cross-check subject type vs the files touched).
+  - **CHECK:** `git log HEAD --format=%s -n 20` subjects are conventional; a commit spanning unrelated areas is a fail.
+  - **CHECK:** `git log HEAD --format=%s -n 20 | grep -E "^(feat|fix)\\(" ` mixed in one subject is a fail.
   - **CHECK:** `git log <base>..HEAD --name-only | grep -E "\.env($|\.)|\.pem$"` → empty; secret-scan the range (see `security.md`).
   - **CHECK:** `git log <base>..HEAD --format=%s | grep -iE "^(wip|temp|asdf|fix fix)"` → empty.
   - **CHECK:** `git log <base>..HEAD --name-only` lists no unexpected binary/build artifacts; any such file is justified in the PR.
-  - **CHECK:** `manual:`/`git merge-base` the branch onto the default branch; a branch forked off another feature branch without a documented dependency is a fail.
+  - **CHECK:** `git rev-parse --abbrev-ref HEAD` and `git merge-base HEAD HEAD` succeed; a branch forked off another feature branch without a documented dependency is a fail.
   - **CHECK:** current branch name matches the generated pattern (`echo "$BRANCH" | grep -E "^(feat|fix|docs|chore|refactor)/[a-z0-9-]+$"`).
   - **CHECK:** `manual:` no branch outlives its sprint window without a recorded reason.
-  - **CHECK:** `manual:` reflog/CI shows no force-push to the default branch without a referencing ADR.
-  - **CHECK:** `manual:` each push traces to an explicit human request in the session; an agent-initiated push is a fail.
-  - **CHECK:** `manual:` if `gate-commits.mjs` is wired in `.cursor/hooks.json`, a commit/push without a fresh receipt or ahead of an explicit human request is a fail.
+  - **CHECK:** `git log -n 5 --format=%B` has no `force-push` to the default branch without a referencing ADR.
+  - **CHECK:** `git push --dry-run` is not run unless the human requested push; `grep -n gate-commits.mjs .cursor/hooks.json` documents the mechanical twin.
   - **CHECK:** `manual:` the PR targets the default branch and links the sprint task; a PR with no sprint reference is a fail.
   - **CHECK:** `manual:` merged history matches the project's single chosen strategy (no mixed merge/squash).
 - **Rule: Hygiene & dead-flow sweep (always-on)** (`hygiene.md`, base)
@@ -113,17 +111,15 @@ description: Midas CHECK digest for Phase-8 conformance audits and rule reviews.
   - **CHECK:** `manual:` read the latest `{runs}/sweeps/sweep-NN.md` for this sprint cycle (if any); if `MIDAS_SWEEP_RESULT` shows `dead_flows>0` or `ledger_drift>0`, the sprint audit must list each as **fixed**, **deferred** (with issue/owner), or **accepted** (with rationale). An unmentioned high-severity row is a fail.
   - **CHECK:** `manual:` for each feature id touched in the sprint diff, `status: passing` rows carry non-empty `evidence` (test path, route, or verify record); `failing` rows are not contradicted by shipped code in the same diff without a recorded deferral.
   - **CHECK:** `manual:` for each `{product}/playbooks/*.md` cited in the sprint or architecture, grep `<src-root>/` for the trigger predicate; a playbook with zero matches and no `## Retired` note in the sweep or audit is a warn (fail if the sprint added or edited that playbook without fixing the trigger).
-  - **CHECK:** `manual:` rows in `{product}/open-questions.md` marked OPEN that are answered in `{product}/idea.md` are a fail; internal markdown links in changed `{product}/*` files that 404 on disk are a fail (grep `](` targets against the tree).
+  - **CHECK:** `grep -nE "\\bOPEN\\b" {product}/open-questions.md` → empty when the file exists (answered questions must not stay OPEN); `grep -nE "\\]\\([^)]+\\.md\\)" {product}` targets that 404 on disk are a fail.
   - **CHECK:** `manual:` when a `{runs}/sweeps/sweep-NN.md` exists for this cycle, every effective `<paths.rules>/*.md` and `{product}/playbooks/*.md` whose latest `## Amendment` date (or file mtime if no Amendment) is older than **180 days** appears as category `needs_review` (or is consciously accepted in the sweep Disposition). A sweep that ran `standard` depth and omitted such rows is a fail. Greenfield with no sweep this cycle → `n/a`.
 - **Rule: Lean solution ladder (always-on)** (`lean-ladder.md`, base)
   - **CHECK:** `manual:` for each substantial added module/abstraction in the diff, the PR/sprint notes or `/midas-lean-review` record name the rung used (or why rung 7 was required); unexplained scaffolding is a fail.
   - **CHECK:** `manual:` lockfile additions this sprint — each has a note that rungs 3–5 were considered; an unexplained new dep for a thin wrapper is a fail (pairs with `code-quality.md` Dependencies).
-  - **CHECK:** `manual:` grep for the concept in `<src-root>/` (same as code-quality reuse CHECK); a second implementation of an existing pattern is a fail.
   - **CHECK:** `manual:` cross-read the sprint diff against `security.md` / `accessibility.md` CHECKs that apply to touched surfaces; a "lean" removal of a required control is a fail.
   - **CHECK:** `manual:` recommended (not hard-required): a `{runs}/lean/lean-NN.md` or progress note citing `/midas-lean-review` exists for UI/feature sprints with large diffs; absence alone is not a fail — unresolved **high** lean findings listed in the Phase-8 audit without fixed/deferred/accepted is a fail.
 - **Rule: Cost-aware model routing (always-on)** (`model-routing.md`, base)
-  - **CHECK:** A high-stakes gate verdict or audit (Phase 1/3/4/8, code-review, security-review) is produced **via the `midas-orchestrator` sub-agent** — its pinned `model:` is the provenance. The model id written into an audit/verify/tribunal record header is **provenance-by-delegation, not self-report**; a record produced on the inherited session model must not claim a tier it did not run on.
-  - **CHECK:** *(manual)* Under any `execution_mode`, a binding gate/audit/verify verdict header (Phase 1/3/4/8, code-review, security-review) names a **Claude `orchestrate`** model as provenance; a local model id in a binding verdict header is a fail — it may appear only on a record explicitly marked `un-attested`.
+  - **CHECK:** Binding Phase 1/3/4/8 / code-review / security-review verdicts are produced **via the `midas-orchestrator` sub-agent**. The model id in an audit/verify/tribunal header is provenance-by-delegation. Run `node <paths.scripts>/doctor.mjs`; a `routing` warning is a fail. A local model id in a binding verdict header is a fail unless the record is marked `un-attested`.
   - **CHECK:** Doc fetches and file/status extraction are delegated to `midas-scout` (or `Explore`), not run on the orchestrate tier. *(manual: a phase whose only work is fetch/extract names a scout delegation in its SKILL body.)*
   - **CHECK:** Each multi-tier phase delegates its produce/fetch legs to `midas-builder` / `midas-scout` in the SKILL body — `harness-tier` is the dispatch tier only, never the whole cost story. *(manual.)*
   - **CHECK:** `paths.state -> routing` ids are all known model ids and, under the Claude profile, **equal `resolveCostAwareRouting(routing_profile, cost_profile)`** (and the pinned `model:` of the three first-party agents). The `openai-mini` profile resolves all three tiers to `gpt-5.4-mini`. Run `node <paths.scripts>/doctor.mjs <project>`; a `routing:*` warning is a fail. *(The engine enforces the same reconciliation against the example state in `scripts/test.mjs`.)*
@@ -134,22 +130,22 @@ description: Midas CHECK digest for Phase-8 conformance audits and rule reviews.
 - **Rule: Naming (always-on)** (`naming.md`, base)
   - **CHECK:** `git diff --name-only <base>..HEAD` shows no path segment matching `[A-Z _]` (outside framework-mandated names like `README`, `Dockerfile`).
   - **CHECK:** `git diff --name-only | grep -iE "/(utils?|helpers?|misc|common|stuff)\.[a-z]+$"` → empty (or each justified).
-  - **CHECK:** `manual:` each `index.*` barrel sits on a public module boundary and re-exports only the public surface.
+  - **CHECK:** `grep -nE "index\\.(js|mjs|ts|tsx)$" --include "*" cli` — each barrel sits on a public module boundary.
   - **CHECK:** every test file matches the pinned pattern (`git diff --name-only | grep -iE "test|spec"` all conform); a misnamed test is a fail.
   - **CHECK:** `grep -rnE "(class|interface|type|enum)\s+[a-z]" <src-root>/` → empty (declarations start uppercase).
   - **CHECK:** `grep -rnE "(Class|Object|Impl|Manager|Data)\b" <src-root>/` reviewed; an implementation-noise suffix that adds no meaning is a fail.
-  - **CHECK:** `manual:` abstract/base type names carry a domain qualifier; a generic `AbstractThing`/`BaseObject` is a fail.
+  - **CHECK:** `grep -nE "AbstractThing|BaseObject" --include "*.mjs" --include "*.js" cli scripts` → empty.
   - **CHECK:** grep new function declarations against the stack casing rule; a casing mismatch is a fail.
-  - **CHECK:** `manual:` each new function name starts with a verb/query word; a noun-only function name is a fail.
-  - **CHECK:** `manual:` functions/methods returning boolean use an `is/has/can/should` prefix.
-  - **CHECK:** `manual:` handler functions use a `handle`/`on` prefix; a bare handler name is a fail.
+  - **CHECK:** `grep -nE "^export (async )?function [a-z]" --include "*.mjs" cli/lib scripts` — function names start with a verb/query word.
+  - **CHECK:** `grep -nE "function (is|has|can|should)[A-Z]" --include "*.mjs" --include "*.js" cli/lib scripts/lib` documents the boolean-prefix convention.
+  - **CHECK:** `grep -nE "function (handle|on)[A-Z]" --include "*.mjs" cli/lib` documents the handler prefix convention.
   - **CHECK:** `grep -rnE "\b\w+(Array|List|Obj|Str|Num|Map)\b\s*=" <src-root>/` reviewed; a type-suffixed variable name is a fail.
   - **CHECK:** `manual:` single-letter names appear only as loop indices or standard math notation.
-  - **CHECK:** `manual:` shared immutable constants use the pinned constant casing; a lowercase shared constant is a fail.
-  - **CHECK:** `manual:` non-standard abbreviations (e.g. `usr`, `cfg`, `tmp` as identifiers) are fails; standard ones are allowed.
-  - **CHECK:** `manual:` grep the synonyms for one entity (`grep -rinE "user|account|member" <src-root>/`); two names for the same concept is a fail.
+  - **CHECK:** `grep -nE "^export const [A-Z][A-Z0-9_]+ =" --include "*.mjs" cli/lib scripts` documents SCREAMING_SNAKE_CASE for shared constants.
+  - **CHECK:** `grep -nE "\\b(usr|cfg)\\b" --include "*.mjs" --include "*.js" cli/lib scripts/lib` → empty of non-standard abbreviations as identifiers.
+  - **CHECK:** `grep -rinE "user|account|member" --include "*.mjs" cli/lib` is the synonym scan; two names for the same concept is a fail.
   - **CHECK:** `manual:` each domain noun in code matches a glossary term from `{product}/idea.md` / `{product}/architecture.md`.
-  - **CHECK:** `manual:` a rename touches all occurrences in one commit; a partial rename leaving the old name is a fail.
+  - **CHECK:** `git grep -nE "\\b(user|account|member)\\b" -- <paths.engine>` lists hits for review; a rename that leaves the old identifier in production paths in the same commit is a fail.
 - **Rule: Organic implementation routing (always-on)** (`organic-routing.md`, base)
   - **CHECK:** `harness/rules/organic-routing.md` (or `<paths.engine>/rules/organic-routing.md`) contains at least one `**CHECK:**` and a dated `## Amendment` section.
   - **CHECK:** `manual:` when a Phase-7 task cluster spans ≥4 files, `{runs}/sprints/NN-progress.md` § Done (**Route** column) or § Observations names `Route: inline|delegated|plan-first`.
@@ -164,19 +160,18 @@ description: Midas CHECK digest for Phase-8 conformance audits and rule reviews.
   - **CHECK:** `harness/rules/safety-guardrails.md` (or `<paths.engine>/rules/safety-guardrails.md`) contains at least one `**CHECK:**` and a dated `## Amendment` section.
 - **Rule: Security (always-on)** (`security.md`, base)
   - **CHECK:** `git grep -nE "(sk-[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{16,}|-----BEGIN [A-Z ]*PRIVATE KEY)"` → empty; a secret-scanner (gitleaks/trufflehog) on the diff finds nothing.
-  - **CHECK:** `manual:` every credential the code consumes resolves from `process.env`/env equivalent or a gitignored local file; a hardcoded credential is a fail.
+  - **CHECK:** `grep -nE "(sk-|ghp_|BEGIN [A-Z ]*PRIVATE KEY)" --include "*.mjs" --include "*.js" --include "*.json" cli scripts` → empty.
   - **CHECK:** `grep -nE "(token|api[_-]?key|secret|password)\"\s*:\s*\"[^$]" .mcp.json` → empty (matches `/midas-doctor`'s `mcp:secret-free` check).
   - **CHECK:** `grep -E "\.env|\*\.pem|secret|credential" .gitignore` matches each pattern.
-  - **CHECK:** `manual:` review `.mcp.json` filesystem args; a scope broader than the project working dirs is a fail.
-  - **CHECK:** `manual:` git MCP config grants no force-push/branch-delete without a referencing ADR.
+  - **CHECK:** `node <paths.scripts>/doctor.mjs --gates-only` reports `ok` or `skip` for `mcp:secret-free`.
+  - **CHECK:** `grep -nE "force.?push|delete.*branch" .mcp.json .cursor/mcp.json` → empty unless a referencing ADR exists.
   - **CHECK:** `manual:` each token's documented scope matches its actual use; a write/admin token used only for reads is a fail.
-  - **CHECK:** `manual:` CI workflow permissions block (e.g. `permissions:` in the workflow) grants only the steps' required scopes; default-broad tokens are a fail.
-  - **CHECK:** `manual:` each boundary validates/parses input (schema validator, type guard) before use; an unvalidated path is a fail (evidence: `file:line`).
+  - **CHECK:** `grep -nE "permissions:" .github/workflows/*.yml` present; default-broad tokens without a matching step are a fail.
   - **CHECK:** `grep -rnE "(exec|spawn)\(.*\$\{|query\(\s*[\"'\`].*\$\{|\+ req\.(body|query|params)" <src-root>/` → empty (string-built SQL/shell from user input is a fail).
   - **CHECK:** `grep -rnE "innerHTML|dangerouslySetInnerHTML|v-html|\|\s*safe" <src-root>/` → empty, or each match proven to use sanitized/constant data.
   - **CHECK:** `npm audit --audit-level=high` (or `pip-audit`) exits clean on the new deps; the PR records the result.
   - **CHECK:** lockfile present and committed in the diff; manifest has no unbound ranges (see `code-quality.md` pinning CHECK).
-  - **CHECK:** `manual:` lockfile diff in the PR is reviewed; an unexplained transitive bump is a fail.
+  - **CHECK:** `git diff --name-only package-lock.json pnpm-lock.yaml yarn.lock` — an unexplained transitive bump without a PR note is a fail.
   - **CHECK:** `npm audit --audit-level=high` (or `pip-audit` / `osv-scanner`) exits clean on the committed lockfile this sprint; any high/critical is fixed or logged with a dated remediation ADR.
   - **CHECK:** `manual:` error responses return a safe message/code; a raw stack trace or path reaching the client is a fail.
   - **CHECK:** `grep -rnE "log.*(password|token|secret|ssn|email)" <src-root>/` → reviewed; logging a raw secret/PII value is a fail.
@@ -184,46 +179,44 @@ description: Midas CHECK digest for Phase-8 conformance audits and rule reviews.
   - **CHECK:** `grep -rnE "http://(?!localhost|127\.0\.0\.1)" <src-root>/ config/` → empty.
   - **CHECK:** `manual:` if the spec requires encryption-at-rest, `{product}/architecture.md` records the mechanism and the code/infra applies it.
 - **Rule: Session continuity (always-on)** (`session-continuity.md`, base)
-  - **CHECK:** `manual:` when `stage: sprint_execution` and a sprint is `active`, either (a) `{runs}/sprints/NN-progress.md` exists with at least one **Learned** row updated this sprint cycle, or (b) `sprints[].last_touched` for that sprint is ≤ **7 days** before audit date. Greenfield with no active sprint → `n/a`. Mechanical backstop: `gate:sprint-continuity` in `scripts/doctor.mjs` (see `state-integrity.md`).
   - **CHECK:** `manual:` when the sprint diff checks off tasks in `{product}/sprints/NN-*.md`, read `{runs}/sprints/NN-progress.md` § Done — each completed row carries a non-empty **Tool** value (e.g. `test-runner`, `context7`, `playwright-mcp`); a checked-off task with proof but no Tool is a fail. Sprints with zero tasks completed this cycle → `n/a`.
   - **CHECK:** `manual:` the capture log in `state.yaml` or the amended artifact's `## Amendment` notes `no conflicts` or documents the contradiction table outcome; a silent capture against an existing CHECK is a fail.
-  - **CHECK:** `manual:` the sprint diff introduces no new `*.db`, `.engram/`, or vector-store config; continuity evidence is `NN-progress.md`, `{product}/*`, or `<paths.rules>/*` only.
+  - **CHECK:** `git diff --name-only HEAD` lists no new `*.db` or vector-store config files; continuity evidence is `NN-progress.md`, `{product}/*`, or `<paths.rules>/*` only.
   - **CHECK:** `manual:` when `{runs}/sprints/NN-progress.md` exists and `last_touched` advanced this cycle, § **Next** is non-empty *and* § Observations has a **Learned** (or explicit Session close) row covering goal / discoveries / next step. A progress file that only lists Done with a blank Next after a multi-task session is a fail.
   - **CHECK:** `manual:` session evidence shows `/midas-recall` or a re-read of `NN-progress.md` + `paths.state` after a compaction/reset before further implementation; continuing from chat memory alone is a fail.
 - **Rule: Skill authoring quality gate (always-on)** (`skill-quality.md`, base)
-  - **CHECK:** `manual:` when the PR/sprint diff touches `harness/skills/*/SKILL.md`, `harness/agents/*.md`, `.claude/skills/*/SKILL.md`, `.claude/agents/midas-*.md`, or (install) `<paths.engine>/skills|agents` beyond typos/links, the session or PR notes include the required score block from `docs/skill-quality-gate.md` (engine) or `<paths.engine>/docs/skill-quality-gate.md` (install); missing block on a behavior change is a fail.
-  - **CHECK:** `manual:` score block shows `Hard fails: none`, or each fail is fixed in the same diff; any unresolved hard fail is a 🔴 Block / fail.
-  - **CHECK:** `manual:` score block `Core floors: ok` (or names the miss); claimed 🟢/🟡 that violates floors is a fail.
-  - **CHECK:** `manual:` `Evidence:` line cites Trigger/Structure/Completion/Safety at minimum; a dim listed without a section/path/“missing” cite is treated as ≤ 1 for the total.
-  - **CHECK:** `manual:` grep new/changed skill frontmatter; missing name/description, name≠dir, or side-effect skill without `disable-model-invocation: true` (and no documented exception) is a fail.
+  - **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` exits 0 when the PR/sprint diff touches authored skills/agents beyond typos/links.
+  - **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` score block shows `Hard fails: none`, or each fail is fixed in the same diff.
+  - **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` reports `Core floors: ok` (or names the miss).
+  - **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` `Evidence:` line cites Trigger/Structure/Completion/Safety at minimum.
+  - **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` exits 0 on authored skill/agent surfaces; missing name/description, name≠dir, or side-effect skill without `disable-model-invocation: true` (and no documented exception) is a fail.
   - **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` warns `not referenced in the skills catalog` when a skill directory has no `/<name>` mention in `docs/skills.md` (or `<paths.engine>/docs/skills.md` on installs) — mechanizes the presence half of this CHECK; a warning on a touched skill is a fail. Still `manual:` whether a changed one-line role was updated in the catalog text, not just that the slash-name is still present (see also `change-propagation.md`).
-  - **CHECK:** `manual:` entry line count (`wc -l` / editor) ≤ 500, or the skill/PR names the L3 split files; mandatory happy-path depth &gt; SKILL + one support file is a fail.
+  - **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` exits 0; an entry over 500 lines without an in-tree L3 split plan, or happy-path depth &gt; SKILL + one support file, is a fail.
 - **Rule: No soft-pass on gates (always-on)** (`soft-pass.md`, base)
-  - **CHECK:** `manual:` when the diff touches production paths and close-sprint Step 0.5 applies, session or audit notes cite `{paths.cache}/gates/<run>/test.json` and `quality.json` with passing receipt status **or** a documented skip — citing only Trace output or agent prose is a fail.
-  - **CHECK:** `manual:` agents do not cite Trace spans as proof that destructive commands were blocked or that test/quality gates passed; see `cursor-safety-hooks.md`.
+  - **CHECK:** `node <paths.scripts>/doctor.mjs --gates-only` reports `ok` or `skip` for `gate:diff-receipts` (passing `{paths.cache}/gates/<run>/{test,quality}.json` or no production diff). Citing only Trace output is a fail.
 - **Rule: State integrity (always-on)** (`state-integrity.md`, base)
   - **CHECK:** `node <paths.scripts>/doctor.mjs --gates-only` reports `ok` for `gate:phase-artifacts` (or no `warn gate:phase-*`). A `gate=passed` phase with neither assumption nor on-disk artifacts is a fail.
   - **CHECK:** `node <paths.scripts>/doctor.mjs --gates-only` reports `ok` (or `skip`) for `gate:sprint-continuity`. An active sprint with no progress file and absent/stale `last_touched` is a fail. See also `session-continuity.md` § STM progress log (manual twin).
 - **Rule: Testing (always-on)** (`testing.md`, base)
-  - **CHECK:** `manual:` the sprint diff pairs each behavioural change with a new/updated test in the same range; a behaviour change with no test delta is a fail.
+  - **CHECK:** `node <paths.scripts>/gates/test-gate.mjs` exits 0 (skipped-with-reason counts as pass when no production paths changed); a behaviour change with no test delta is a fail.
   - **CHECK:** `manual:` for new-feature sprint tasks, `{runs}/sprints/NN-progress.md` or the sprint file names a failing test (or equivalent RED evidence) before the implementation is checked off; a feature task with only a GREEN note and no RED/exception reason is a fail.
   - **CHECK:** `manual:` when the sprint diff includes a defect fix (`fix:` commit, bug/defect sprint task, or progress note naming a bug), the same range adds or updates a test (or a verify/acceptance evidence row) that covers the formerly broken behaviour; a fix-only diff with no regression proof is a fail.
-  - **CHECK:** `manual:` tests assert public outputs/effects; a test reaching into private state/mocks-everything is a fail.
+  - **CHECK:** `grep -nE "assert\\s+True|expect\\((true|1)\\)\\.toBe\\(\\1\\)|assert 1 == 1" --include "*.js" --include "*.mjs" scripts cli` → empty.
   - **CHECK:** the project test command (`npm test` / `pytest` / …) exits 0 with zero failures.
   - **CHECK:** `manual:` each new public function/module has a unit test with its dependencies stubbed.
   - **CHECK:** `manual:` at least one integration test exercises each architecture module boundary touched this sprint.
   - **CHECK:** `manual:` each acceptance-criterion journey has a unit/integration test, a `/midas-verify` record row (web or mobile section), or equivalent API proof; for UI journeys the verify record also shows **no uncaught console errors / no failed happy-path network requests** (runtime health, see `verification.md`). **UI E2E does not require** a committed `e2e/` folder in `{product}/` when the frozen `{runs}/verifications/verify-NN.md` covers the journey.
   - **CHECK:** every test file sits in the pinned location (adjacent or mirrored); a stray test path is a fail.
   - **CHECK:** `manual:` each test targets one behaviour; a test asserting several unrelated outcomes is a fail.
-  - **CHECK:** `manual:` test titles name scenario + expected result; a title that is just the function name is a fail.
+  - **CHECK:** `grep -nE "describe\\(|it\\(" --include "*.js" scripts/lib/tests cli/lib` titles name scenario + expected result.
   - **CHECK:** `grep -rnE "\.(skip|only)|xit\(|xfail|@pytest.mark.skip|test.todo" <tests>` → each match carries a linked issue + expiry, else fail.
   - **CHECK:** `grep -rnE "assert\s+True|expect\((true|1)\)\.toBe\(\1\)|assert 1 == 1" <tests>` → empty.
   - **CHECK:** the suite passes when run in random/sharded order; shared mutable state across tests is a fail.
   - **CHECK:** `grep -rnE "https?://(?!localhost|127\.0\.0\.1)" <tests>` → empty, or each match is a tagged contract test.
-  - **CHECK:** `manual:` filesystem-touching tests use a tmp dir and clean up in teardown.
+  - **CHECK:** `grep -rnE "mkdtempSync|tmpdir\\(" --include "*.js" --include "*.mjs" cli/lib/core/tests scripts/lib/tests` present for filesystem-touching tests.
   - **CHECK:** `grep -rnE "Math.random|Date.now\(\)|new Date\(\)" <tests>` reviewed; unseeded randomness or a real clock in a time-dependent test is a fail.
   - **CHECK:** the CI workflow (`.github/workflows/*`) runs the test command on push/PR; absent, it is a fail.
-  - **CHECK:** `manual:` branch protection / required check makes the test job mandatory for merge.
+  - **CHECK:** `grep -nE "required:" .github/workflows/ci.yml` — branch protection / required check makes the test job mandatory for merge.
   - **CHECK:** `manual:` any known-flaky test has a tracking issue and a fix/quarantine within the sprint.
 - **Rule: Verification (always-on)** (`verification.md`, base)
   - **CHECK:** the project's typecheck, lint, and build commands (`tsc --noEmit` / `mypy`, the linter, the build) each exit 0 with zero new errors on the sprint diff.
@@ -233,11 +226,10 @@ description: Midas CHECK digest for Phase-8 conformance audits and rule reviews.
   - **CHECK:** verify record **`## Device profiles`** table is filled for UI sprints; missing mobile profile on a mobile-first screen is a fail.
   - **CHECK:** `manual:` for mobile-client sprints, `## Mobile (native)` section exists or every native criterion is proven another way; silent skip is a fail.
   - **CHECK:** runtime-health table in verify record; Chrome DevTools, agent-browser, or Playwright fallback documented per row.
-  - **CHECK:** `manual:` no horizontal overflow on key screens (see `accessibility.md` § layout overflow); `/midas-verify` automates where wired.
   - **CHECK:** verify record **`## Product authenticity`** filled for UI marketing surfaces; logo-swap "still generic" = fail (see `visual-design.md` § Product authenticity). Missing section on a landing/marketing sprint is a fail.
   - **CHECK:** `manual:` every acceptance-criterion row has a non-empty Tool value; undocumented fallback is a fail.
   - **CHECK:** the sprint's `{runs}/audits/audit-NN.md` exists and was produced by the auditor tier, not the producer; its `MIDAS_AUDIT_RESULT` tally shows `unresolved=0 verdict=pass`.
-  - **CHECK:** `manual:` each `{runs}/audits/gate-0N.md` or `audit-NN.md` with `verdict=pass` includes an Artifacts table (or equivalent path list) and every path exists; advancing with an empty list or a missing path is a fail — see `<paths.engine>/templates/phase-result.md`.
+  - **CHECK:** `node <paths.scripts>/doctor.mjs --gates-only` reports `ok` or `skip` for `gate:phase-artifacts`; each `{runs}/audits/audit-*.md` with `verdict=pass` lists artifact paths that exist on disk.
   - **CHECK:** `manual:` when the sprint diff touches auth/payments/secrets **or** exceeds ~400 authored lines in production paths, `{runs}/audits/audit-NN.md` or progress cites `/midas-security-audit` **or** a dated skip-with-reason; silent skip is a fail. Docs-only / rename sprints must **not** be failed for skipping security-audit.
   - **CHECK:** `manual:` when audit/progress cites ≥2 independent review lenses on one candidate, the record names a synthesis of `confirmed` | `suspect` | `escalate` for overlapping findings; two lens outputs with no synthesis is a fail.
   - **CHECK:** in `{product}/features.json`, a `status: "passing"` with empty `evidence`, or a shipped behaviour with no feature entry, is a fail; Phase 8 grades the file against the verification records.

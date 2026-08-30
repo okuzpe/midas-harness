@@ -10,7 +10,8 @@ import {
 } from 'node:fs';
 import { join } from 'node:path';
 import { resolvePaths } from '../paths.mjs';
-import { parseSprints } from '../yaml-lite.mjs';
+import { findActiveSprintId } from '../yaml-lite.mjs';
+import { resolveCacheRoot } from './cache-paths.mjs';
 
 export const CARRYOVER_SCHEMA_VERSION = 1;
 export const MAX_SPRINT_FILES = 12;
@@ -29,27 +30,6 @@ export const MAX_SPRINT_FILES = 12;
  *   approx_tokens: number,
  *   notes?: string,
  * }} CarryoverSnapshot */
-
-/**
- * @param {string} projectRoot
- * @returns {boolean}
- */
-function useHarnessCache(projectRoot) {
-  if (existsSync(join(projectRoot, '.harness'))) return true;
-  const layout = resolvePaths(projectRoot).layout;
-  return layout === 'harness';
-}
-
-/**
- * @param {string} projectRoot
- * @returns {string}
- */
-function resolveCacheRoot(projectRoot) {
-  if (useHarnessCache(projectRoot)) {
-    return join(projectRoot, '.harness', 'cache');
-  }
-  return join(projectRoot, 'runs', 'cache');
-}
 
 /**
  * @param {string} projectRoot
@@ -75,18 +55,6 @@ function parseStage(yaml) {
   const m = yaml.match(/^stage:\s*(.+)$/m);
   if (!m) return null;
   return m[1].trim().replace(/^["']|["']$/g, '');
-}
-
-/**
- * @param {string} yaml
- * @returns {string | null}
- */
-function findActiveSprintId(yaml) {
-  const sprints = parseSprints(yaml);
-  for (const [id, status] of sprints) {
-    if (status === 'active') return id;
-  }
-  return null;
 }
 
 /**

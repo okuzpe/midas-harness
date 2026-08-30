@@ -64,6 +64,10 @@ engine repo into a product install (forbidden by `harness/rules/engine-repo-boun
 
 ## Amendment
 
+- **2026-08-30** — Isolation hashes `harness/skills` and `harness/rules` (not only
+  `harness/state.yaml`). `idea-intake` oracle is a **delta** vs seed (Phase-0 gate / `stage`),
+  so `reset` + `grade --skill idea-intake` fails until the skill advances fixture state.
+  `--skill /idea-intake` normalizes; `--missing skip` for `--smoke` skills without YAML.
 - **2026-08-30** — Deterministic oracles (`sandbox/oracles/*.json`) + `sandbox-run grade`
   (`MIDAS_SANDBOX_ORACLE:`). Isolation hash of engine `harness/state.yaml` at reset. Opt-in
   `_ledger.jsonl`. Composer does not self-score.

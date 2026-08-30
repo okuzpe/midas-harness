@@ -14,7 +14,7 @@ adequate docs and that no stale or contradictory docs were introduced. Stack-spe
 ### Public API surface
 - [ ] Every public function, class, method, and module-level constant exported by a module has
       at least a one-line doc comment stating *what it does* and any non-obvious preconditions.
-      **CHECK:** `manual:` each `export`ed symbol in the diff is preceded by a doc comment; an undocumented public export is a fail.
+      **CHECK:** `grep -nE "export (async )?function |export class " --include "*.mjs" cli/lib scripts/lib` is the scan; each exported symbol in the sprint diff is preceded by a doc comment.
 - [ ] Doc comments describe the *why/what*, not a restatement of the signature
       (`// returns user` is not a doc comment; `// Returns the authenticated user for the current session` is).
       **CHECK:** `manual:` a doc comment that merely echoes the signature is a fail.
@@ -30,7 +30,7 @@ adequate docs and that no stale or contradictory docs were introduced. Stack-spe
 - [ ] Every `TODO` follows the format in `code-quality.md`: `TODO(<owner>|<issue>): <condition>`.
       **CHECK:** see `code-quality.md` § TODO format (not duplicated here).
 - [ ] No commented-out code blocks (use git history or a branch for that).
-      **CHECK:** review for commented-out statements (`grep -nE "^\s*(//|#).*[;{}()]" <diff>`) → none.
+      **CHECK:** `grep -nE "^\\s*(//|#).*[;{}()]" --include "*.mjs" --include "*.js" cli/lib scripts/lib` → empty of commented-out statements.
 - [ ] Inline comments that reference an external resource (spec, issue, paper) include the URL.
       **CHECK:** `manual:` a comment citing a spec/issue/paper includes its URL or issue id.
 
@@ -40,7 +40,7 @@ adequate docs and that no stale or contradictory docs were introduced. Stack-spe
       **CHECK:** the active sprint file's acceptance/Tasks table has no `todo`/`in-progress` rows at audit time.
 - [ ] Any project overlay in `<paths.rules>/` that is consciously amended during a sprint includes a
       `## Amendment` entry at the bottom with date, reason, and who decided.
-      **CHECK:** `manual:` each rule changed this sprint carries a dated `## Amendment` entry; a silent rule edit is a fail.
+      **CHECK:** `grep -nE "^## Amendment" <paths.engine>/rules/*.md` → each rule file has a dated Amendment section.
 - [ ] ADRs (`{product}/adr/ADR-*.md`) follow the template: Context, Decision, Consequences.
       An ADR is never deleted — superseded ADRs are marked `[SUPERSEDED by ADR-N]`.
       **CHECK:** each ADR has Context/Decision/Consequences sections; `git log --diff-filter=D -- {product}/adr/` shows no deleted ADR.
@@ -59,7 +59,7 @@ adequate docs and that no stale or contradictory docs were introduced. Stack-spe
 ### Accuracy
 - [ ] Docs are updated in the same commit as the code change they describe — stale docs are
       treated as a bug, not a backlog item.
-      **CHECK:** `manual:` a behaviour change whose docs are untouched in the same commit is a fail.
+      **CHECK:** `git diff --name-only HEAD` — a behaviour change whose docs (`README.md`, `docs/`, `INSTALL.md`) are untouched in the same commit is a fail.
 - [ ] External links in docs are verified reachable before merging (broken links are replaced
       or removed).
       **CHECK:** a link-checker over changed docs returns no 4xx/5xx; a broken link is a fail.

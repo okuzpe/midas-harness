@@ -43,13 +43,13 @@ them.
 
 ## Options
 - `--force` — overwrite files that already exist.
-- `--migrate` — preview a v1 classic/compact/hub migration; add `--apply` to execute transactionally.
-- `--update` — refresh a v2 engine; preserves state, product, rules, runs, and user-owned config.
+- `--update` — refresh a v2/v3 engine; preserves state, product, rules, runs, and user-owned config.
+- `--migrate` — refused in 3.x (pin create-midas@2.10.x to migrate a 1.x tree).
 - `--uninstall` — remove Midas-installed files (with confirmation on TTY).
 - `--tools=<list>` — e.g. `cursor`, `cursor,gemini,codex`, or `claude-code,cursor,windsurf,gemini`.
-- `--dry-run` — plan only for install / update / migrate / uninstall — write nothing.
+- `--dry-run` — plan only for install / update / uninstall — write nothing.
 - `--json` — machine-readable diagnose / plan / result envelope on stdout.
-- `--yes` / `-y` — skip TTY confirmation for update / migrate --apply / uninstall.
+- `--yes` / `-y` — skip TTY confirmation for update / uninstall.
 - `--purge` — with `--uninstall`, also remove product artifacts and audit trail.
 - `--diagnose` — read-only install status + single next command.
 - `-h`, `--help` — show usage.

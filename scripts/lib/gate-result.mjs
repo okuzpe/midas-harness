@@ -8,7 +8,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
-import { resolvePaths } from '../paths.mjs';
+import { resolveCacheRoot } from './cache-paths.mjs';
 
 /** @typedef {'test' | 'quality' | 'security'} GateKind */
 /** @typedef {'pass' | 'fail' | 'skipped' | 'blocked'} GateStatus */
@@ -36,30 +36,6 @@ export const VALID_GATES = Object.freeze(['test', 'quality', 'security']);
 
 /** @type {readonly GateStatus[]} */
 export const VALID_STATUSES = Object.freeze(['pass', 'fail', 'skipped', 'blocked']);
-
-/**
- * @param {string} projectRoot
- * @returns {boolean}
- */
-function useHarnessCache(projectRoot) {
-  if (existsSync(join(projectRoot, '.harness'))) return true;
-  try {
-    return resolvePaths(projectRoot).layout === 'harness';
-  } catch {
-    return false;
-  }
-}
-
-/**
- * @param {string} projectRoot
- * @returns {string}
- */
-function resolveCacheRoot(projectRoot) {
-  if (useHarnessCache(projectRoot)) {
-    return join(projectRoot, '.harness', 'cache');
-  }
-  return join(projectRoot, 'runs', 'cache');
-}
 
 /**
  * @param {string} projectRoot

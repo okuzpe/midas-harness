@@ -8,29 +8,14 @@ import { createInterface } from 'node:readline';
 import { stdin as input, stdout as output } from 'node:process';
 import { spawnSync } from 'node:child_process';
 import {
-  applyHarnessMigration,
-  extractLegacyRuleOverrides,
-  formatMigrationPlan,
-  planHarnessMigration,
-  writeMigrationReceipt,
-} from '../../migrate-harness.mjs';
-import {
-  bundledVendorPaths,
-  readOwnershipManifest,
-  sha256File,
-  writeOwnershipManifest,
-} from '../../template/.harness/scripts/ownership-manifest.mjs';
-import {
   KNOWN_TOOLS,
   DEFAULT_TOOLS,
   ALL_ADAPTER_TOOLS,
   parseToolsList,
 } from '../cli/args.mjs';
 import {
-  hasMidasInstall as libHasMidasInstall,
-  findAncestorMidasRoot as libFindAncestorMidasRoot,
   detectInstallLayout as libDetectInstallLayout,
-  compareVersions as libCompareVersions,
+  V1_REFUSE_MESSAGE,
 } from '../core/context.mjs';
 import {
   beginRollbackSession as libBeginRollbackSession,
@@ -51,6 +36,12 @@ import {
   writeActiveRun,
 } from '../core/install-journal.mjs';
 import { runPlanOps } from '../core/runner.mjs';
+import { INSTALL_OUTCOMES } from './outcomes.mjs';
+import { applyPhaseCopy } from './phases/copy.mjs';
+import { applyWriteState } from './phases/write-state.mjs';
+import { applyRenderAdapters } from './phases/render-adapters.mjs';
+import { applyOwnershipManifest } from './phases/ownership-manifest.mjs';
+import { applyVerifyDoctor, verifyDoctorOk } from './phases/verify.mjs';
 import { bindExecutableOps } from '../steps/bind-applies.mjs';
 import { mergeTraceHooks } from '../steps/trace-hooks.mjs';
 import { mergeSafetyHooks } from '../steps/safety-hooks.mjs';
@@ -82,7 +73,6 @@ import {
   syncSkillMirrors as syncSkillMirrorsMod,
   pruneOrphanAdapters as pruneOrphanAdaptersMod,
   pruneLegacyRootArtifacts as pruneLegacyRootArtifactsMod,
-  pruneHostMirrors as pruneHostMirrorsMod,
 } from './skill-mirrors.mjs';
 
 /**
@@ -199,10 +189,8 @@ async function executeInstallerCommand(cmd, hooks) {
       return { ok: true, message: cmd.dryRun ? 'uninstall dry-run' : 'uninstall complete' };
     }
 
-    if (cmd.command === 'migrate' && !cmd.apply && !cmd.rollback && !cmd.resume) {
-      const migrationPlan = planHarnessMigration(TARGET);
-      if (!jsonOut) console.log(formatMigrationPlan(migrationPlan));
-      return { ok: true, message: 'migrate preview — pass --apply to write' };
+    if (cmd.command === 'migrate') {
+      return { ok: false, exitCode: 1, message: `create-midas: ${V1_REFUSE_MESSAGE}` };
     }
 
     // Intentional journal rollback (crash recovery) — no re-apply.
@@ -220,7 +208,7 @@ async function executeInstallerCommand(cmd, hooks) {
         migrate: active.command === 'migrate',
         update: active.command === 'update',
       };
-      const durable = sessionFromJournal(TARGET, active.run_id, installRollbackPaths(pathOpts));
+      const durable = sessionFromJournal(TARGET, active.run_id);
       if (!durable) {
         return {
           ok: false,
@@ -275,7 +263,7 @@ async function executeInstallerCommand(cmd, hooks) {
         const holder = lock.holder;
         return {
           ok: false,
-          exitCode: 2,
+          exitCode: INSTALL_OUTCOMES.LOCK_HELD,
           outcome: 'LOCK_HELD',
           message:
             `create-midas: installer lock held by pid ${holder?.pid} on ${holder?.hostname}` +
@@ -308,7 +296,7 @@ async function executeInstallerCommand(cmd, hooks) {
         lockHeld = false;
         return {
           ok: false,
-          exitCode: 3,
+          exitCode: INSTALL_OUTCOMES.INCOMPLETE,
           outcome: 'INCOMPLETE',
           message:
             `create-midas: incomplete installer run ${prior.run_id} (step=${prior.step})` +
@@ -328,7 +316,7 @@ async function executeInstallerCommand(cmd, hooks) {
 
     let rollbackSession;
     if (cmd.resume && runId) {
-      const durable = sessionFromJournal(TARGET, runId, installRollbackPaths());
+      const durable = sessionFromJournal(TARGET, runId);
       if (!durable) {
         releaseInstallLock(TARGET);
         lockHeld = false;
@@ -384,10 +372,6 @@ async function executeInstallerCommand(cmd, hooks) {
         throw new Error('no executable plan ops ran — bindExecutableOps failed to attach apply handlers');
       }
 
-      if (migrate && migrationPlan) {
-        const installedVersion = (readMaybe(join(TARGET, session.paths.version)) || '0.0.0').trim();
-        writeMigrationReceipt(TARGET, migrationPlan, installedVersion);
-      }
       if (!jsonOut) await report(session.selectedTools, session.paths);
 
       const ok = !(verifyResult && !verifyResult.ok);
@@ -430,7 +414,7 @@ async function executeInstallerCommand(cmd, hooks) {
 
       return {
         ok,
-        exitCode: ok ? 0 : 6,
+        exitCode: ok ? INSTALL_OUTCOMES.COMPLETED : INSTALL_OUTCOMES.NEEDS_REPAIR,
         outcome: ok ? 'COMPLETED' : 'NEEDS_REPAIR',
         verify: verifyResult ? { ok: !!verifyResult.ok } : null,
         written: [...written],
@@ -468,7 +452,7 @@ async function executeInstallerCommand(cmd, hooks) {
       }
       return {
         ok: false,
-        exitCode: 5,
+        exitCode: INSTALL_OUTCOMES.ROLLED_BACK,
         outcome: 'ROLLED_BACK',
         error: err,
         message: msg,
@@ -492,6 +476,67 @@ async function executeInstallerCommand(cmd, hooks) {
     }
   }
 
+  function phaseBag() {
+    return {
+      TARGET,
+      TEMPLATE,
+      get update() { return update; },
+      get migrate() { return migrate; },
+      installAutonomy,
+      installRoutingProfile,
+      DEFAULT_TOOLS,
+      written,
+      get rendered() { return rendered; },
+      set rendered(v) { rendered = v; },
+      get stateMode() { return stateMode; },
+      set stateMode(v) { stateMode = v; },
+      get updatedTo() { return updatedTo; },
+      set updatedTo(v) { updatedTo = v; },
+      get verifyResult() { return verifyResult; },
+      set verifyResult(v) { verifyResult = v; },
+      get gitignoreResult() { return gitignoreResult; },
+      set gitignoreResult(v) { gitignoreResult = v; },
+      get vendorConflictBackup() { return vendorConflictBackup; },
+      set vendorConflictBackup(v) { vendorConflictBackup = v; },
+      get vendorRemovals() { return vendorRemovals; },
+      set vendorRemovals(v) { vendorRemovals = v; },
+      get vendorUntracked() { return vendorUntracked; },
+      set vendorUntracked(v) { vendorUntracked = v; },
+      channelMeta,
+      runUpdatePreflight,
+      resetFreshVendorTreesLocal,
+      planVendorReconcile,
+      preserveVendorConflicts,
+      copyTree,
+      maybeFail,
+      applyVendorRemovals,
+      pruneStaleAutonomyVendor,
+      loadPaths,
+      ensureUserLayoutDirs,
+      hasToolsFlag,
+      resolveSelectedTools,
+      writeState,
+      ensureMigratedStateShape,
+      rewriteStateTools,
+      readToolsFromState,
+      syncSkillMirrors,
+      runStateMigrations,
+      importTrustedScript,
+      trustedScriptPath,
+      pruneOrphanAdapters,
+      pruneLegacyRootArtifacts,
+      fillAgents,
+      mergeTraceHooks,
+      mergeSafetyHooks,
+      mergeCarryoverHooks,
+      mergeContextCostHooks,
+      ensureGitignore,
+      bumpVersionStamp,
+      readMaybe,
+      verifyInstall,
+    };
+  }
+
   /** Session object exposing phase apply methods for runPlanOps. */
   function makeSession(extra = {}) {
     const session = {
@@ -501,43 +546,11 @@ async function executeInstallerCommand(cmd, hooks) {
       ...extra,
 
       async applyMigration() {
-        const plan = planHarnessMigration(TARGET);
-        if (!jsonOut) console.log(formatMigrationPlan(plan));
-        if (plan.from_layout === 'harness') return;
-        if (extra.setMigrationPlan) extra.setMigrationPlan(plan);
-        else session.migrationPlan = plan;
-        const result = applyHarnessMigration(TARGET, plan, { retainBackup: true });
-        if (result?.retainedBackup) retainedMigrateBackup = result.retainedBackup;
-        const canonicalNames = existsSync(join(TEMPLATE, '.harness', 'engine', 'rules'))
-          ? readdirSync(join(TEMPLATE, '.harness', 'engine', 'rules')).filter((name) => name.endsWith('.md'))
-          : [];
-        extractLegacyRuleOverrides(TARGET, plan, canonicalNames);
+        throw new Error(V1_REFUSE_MESSAGE);
       },
 
       async applyPhaseCopy() {
-        mkdirSync(TARGET, { recursive: true });
-        if (update && !migrate) await runUpdatePreflight();
-        resetFreshVendorTreesLocal();
-        // Reconcile is planned before the copy (it needs the pre-copy disk state) and its removals
-        // are applied after, so the bundle copy cannot resurrect a file the bundle dropped.
-        const reconcilePlan = update ? planVendorReconcile() : null;
-        if (reconcilePlan) {
-          const preserved = preserveVendorConflicts(reconcilePlan);
-          if (preserved.dir) {
-            vendorConflictBackup = preserved;
-            console.warn(
-              `create-midas: ${preserved.paths.length} locally-modified vendor file(s) saved to ${preserved.dir}`,
-            );
-          }
-        }
-        copyTree(TEMPLATE, TARGET);
-        maybeFail('after-copy-tree');
-        if (reconcilePlan) {
-          vendorRemovals = applyVendorRemovals(reconcilePlan);
-          vendorUntracked = (reconcilePlan.untracked || []).map((entry) => entry.path);
-          if (installAutonomy) pruneStaleAutonomyVendor();
-        }
-        maybeFail('after-layout');
+        await applyPhaseCopy(phaseBag(session));
       },
 
       async applyAutonomy() {
@@ -547,108 +560,23 @@ async function executeInstallerCommand(cmd, hooks) {
       },
 
       async applyWriteState() {
-        session.paths = await loadPaths(TARGET);
-        ensureUserLayoutDirs(session.paths);
-        if ((update || migrate) && hasToolsFlag()) {
-          session.selectedTools = await resolveSelectedTools();
-        } else if (update || migrate) {
-          session.selectedTools = null;
-        } else {
-          session.selectedTools = await resolveSelectedTools();
-        }
-        stateMode = writeState(session.selectedTools, session.paths, installRoutingProfile);
-        maybeFail('after-state');
-        if (migrate) ensureMigratedStateShape(session.paths);
-        if ((update || migrate) && session.selectedTools) {
-          rewriteStateTools(session.paths, session.selectedTools);
-        } else if (migrate && !(readToolsFromState(session.paths)?.length)) {
-          rewriteStateTools(session.paths, DEFAULT_TOOLS);
-        }
-        session.activeTools = session.selectedTools || readToolsFromState(session.paths) || DEFAULT_TOOLS;
-        await syncSkillMirrors(session.activeTools, session.paths, { merge: !update });
-        await runStateMigrations(session.paths);
+        await applyWriteState(phaseBag(session), session);
       },
 
       async applyRenderAdapters() {
-        const paths = session.paths || await loadPaths(TARGET);
-        session.paths = paths;
-        const activeTools = session.activeTools || session.selectedTools || readToolsFromState(paths) || DEFAULT_TOOLS;
-        session.activeTools = activeTools;
-        try {
-          const mod = await importTrustedScript('render-adapters.mjs');
-          if (typeof mod.renderAdapters === 'function') {
-            mod.renderAdapters(TARGET);
-            rendered = true;
-          }
-          if (typeof mod.writeEngineRegistries === 'function') {
-            const reg = mod.writeEngineRegistries(TARGET, paths.engine);
-            written.push(reg.gates, reg.checks);
-          }
-        } catch (err) {
-          throw new Error(`adapter render failed: ${err.message || err}`);
-        }
-        pruneOrphanAdapters(activeTools, paths.layout);
-        pruneLegacyRootArtifacts(activeTools);
-        fillAgents(session.selectedTools, paths);
-        {
-          const mcpSyncPath = trustedScriptPath('mcp-cursor-sync.mjs');
-          if (existsSync(mcpSyncPath)) {
-            const { fixMcpFileForWindows, syncCursorMcp } = await importTrustedScript('mcp-cursor-sync.mjs');
-            const rootMcp = join(TARGET, '.mcp.json');
-            if (existsSync(rootMcp) && written.includes('.mcp.json')) {
-              if (fixMcpFileForWindows(rootMcp)) written.push('.mcp.json');
-            }
-            const priorManifest = readOwnershipManifest(TARGET);
-            const priorCursorMcp = priorManifest?.files?.find((file) => file.path === '.cursor/mcp.json');
-            const ownedCursorMcp = priorCursorMcp &&
-              existsSync(join(TARGET, '.cursor', 'mcp.json')) &&
-              sha256File(join(TARGET, '.cursor', 'mcp.json')) === priorCursorMcp.sha256;
-            const r = syncCursorMcp(TARGET, activeTools, {
-              wrapRoot: written.includes('.mcp.json'),
-              preserveExisting: !ownedCursorMcp,
-            });
-            if (r.conflict) {
-              throw new Error(
-                '.cursor/mcp.json differs from .mcp.json; reconcile the user-owned Cursor config before installing',
-              );
-            }
-            if (r.synced && !written.includes('.cursor/mcp.json')) written.push('.cursor/mcp.json');
-          }
-        }
-        // User-owned merge (ADR-011/012): seed/upsert only — never count as vendor "managed" files.
-        if (activeTools.includes('cursor')) {
-          mergeTraceHooks(TARGET);
-          mergeSafetyHooks(TARGET);
-          mergeCarryoverHooks(TARGET);
-          mergeContextCostHooks(TARGET);
-        }
-        gitignoreResult = await ensureGitignore(paths);
+        await applyRenderAdapters(phaseBag(session), session);
       },
 
       async applyOwnershipManifest() {
-        const paths = session.paths || await loadPaths(TARGET);
-        session.paths = paths;
-        // Always align preserved state.yaml with the engine we just laid down (re-install without --update).
-        updatedTo = bumpVersionStamp(paths);
-        const installedVersion = (readMaybe(join(TARGET, paths.version)) || '0.0.0').trim();
-        writeOwnershipManifest(TARGET, installedVersion, {
-          ...channelMeta,
-          vendorAllowlist: bundledVendorPaths(TEMPLATE, TARGET),
-        });
+        await applyOwnershipManifest(phaseBag(session), session);
       },
 
       async applyVerifyDoctor() {
-        const paths = session.paths || await loadPaths(TARGET);
-        session.paths = paths;
-        verifyResult = update || migrate || rendered ? verifyInstall(paths) : null;
+        await applyVerifyDoctor(phaseBag(session), session);
       },
 
       async verifyDoctorOk() {
-        // Do not throw — NEEDS_REPAIR path after runPlanOps must run (docs/installer-outcomes.md).
-        // Missing doctor script is still a hard apply failure.
-        if (verifyResult?.missing) {
-          throw new Error(`strict doctor missing at ${session.paths.scripts}/doctor.mjs`);
-        }
+        await verifyDoctorOk(phaseBag(session), session);
       },
 
       applyUninstall() {
@@ -683,11 +611,6 @@ async function executeInstallerCommand(cmd, hooks) {
   }
 
 // --- helpers -----------------------------------------------------------------------------------
-
-/** Semver-ish compare including `-rc.N` pre-release tails. Returns <0 when a<b. */
-function compareVersions(a, b) {
-  return libCompareVersions(a, b);
-}
 
 function resetFreshVendorTreesLocal() {
   resetFreshVendorTrees(copyCtx());
@@ -770,11 +693,6 @@ function readMaybe(p) {
   try { return readFileSync(p, 'utf8'); } catch { return null; }
 }
 
-/** True if `dir` already holds a Midas install — classic or compact markers. */
-function hasMidasInstall(dir) {
-  return libHasMidasInstall(dir);
-}
-
 function detectInstallLayout(dir) {
   return libDetectInstallLayout(dir);
 }
@@ -791,12 +709,6 @@ function ensureUserLayoutDirs(paths) {
     if (!rel) continue;
     mkdirSync(join(TARGET, rel), { recursive: true });
   }
-}
-
-/** Walk up from TARGET's parent to the filesystem root; return the first ancestor that holds a Midas
- *  install, or null. Used to refuse a nested/duplicate install. */
-function findAncestorMidasRoot(startDir) {
-  return libFindAncestorMidasRoot(startDir);
 }
 
 function fillAgents(tools, paths) {
@@ -884,11 +796,6 @@ function pruneLegacyRootArtifacts(tools) {
 
 function pruneOrphanAdapters(tools, layout = 'harness') {
   pruneOrphanAdaptersMod(skillCtx(), tools, layout);
-}
-
-/** @deprecated name kept for grep/tests — use syncSkillMirrors */
-function pruneHostMirrors(tools) {
-  pruneHostMirrorsMod(skillCtx(), tools);
 }
 
 function readToolsFromState(paths) {

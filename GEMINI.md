@@ -148,7 +148,9 @@ rule) and stated in `AGENTS.md`, so the habit fires regardless of the agent — 
 ## Audit checks
 
 - [ ] Every new or changed third-party call site in the diff carries a doc note (`// docs: <lib>@<version> via <tool>` or PR note citing the fetched docs URL).
-      **CHECK:** `manual:` grep the sprint diff for imports/requires of non-stdlib packages — each site has a doc note or linked PR evidence; a missing note is a fail.
+      **CHECK:** `grep -nE "// docs:" <paths.engine>/../cli <paths.engine>/../scripts` is the
+      mechanical half — each new third-party import in the sprint diff must sit next to a
+      `// docs: <lib>@<version> via <tool>` note (or a PR URL). A missing note is a fail.
 - [ ] Lockfile/manifest version used for the fetch matches the dependency actually installed (no floating range without a lockfile entry).
       **CHECK:** `grep -nE ":\s*[\"']?[\^~*]" package.json` (or stack manifest) in projects with third-party changes → empty unless lockfile proves the resolved version.
 - [ ] Doc fetches for multi-file research are delegated to scout tier when an agent router is available.

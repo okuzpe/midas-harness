@@ -18,7 +18,7 @@ extension under `<paths.rules>/` that overrides or supplements the items here. F
 - [ ] New code matches the surrounding style: naming, indentation, comment density, idioms.
       **CHECK:** `manual:` diff each new file against a sibling in the same directory; a naming/indent/idiom break that stands out from local style is a fail.
 - [ ] No second way of doing something that already has a project pattern — reuse the pattern.
-      **CHECK:** `manual:` grep the codebase for the concept (`grep -rin "<concept>" <src-root>/`); a parallel implementation of an existing pattern is a fail.
+      **CHECK:** `grep -rin "<concept>" <src-root>/` is the review command; a parallel implementation of an existing pattern is a fail. Engine backstop: `grep -nE "function detectLegacyLayout" cli/lib cli --include "*.mjs"` has one definition.
 - [ ] No parallel "standards" layer introduced outside `harness/conventions.md` and its extensions.
       **CHECK:** any rules/standards/guidelines doc outside `<paths.engine>/conventions.md`, `<paths.engine>/rules/`, and `<paths.rules>/` is a fail (`find . -iname "*standard*" -o -iname "*guideline*"` outside those paths → empty).
 
@@ -29,7 +29,7 @@ extension under `<paths.rules>/` that overrides or supplements the items here. F
       `/define-conventions` sets the stack-specific hard limit).
       **CHECK:** linter (`eslint max-lines-per-function` / equivalent) reports no function over the stack limit; absent a linter, no body exceeds ~40 logical lines.
 - [ ] No function has more than 3–4 parameters; group related params into a named object/struct.
-      **CHECK:** `manual:`/AST: no signature in the diff declares > 4 positional parameters.
+      **CHECK:** `grep -rnE "\\([^)]*,[^)]*,[^)]*,[^)]*,[^)]*\\)" --include "*.mjs" --include "*.js" cli/lib` reviewed; no new signature in the diff declares > 4 positional parameters.
 - [ ] Module/layer boundaries defined in `{product}/architecture.md` are respected — no
       cross-layer imports.
       **CHECK:** grep imports against `<paths.rules>/folder-structure.md` (the project's Phase-5 rule; e.g. `grep -rn "from '@/db'" <src-root>/ui/` → empty); any forbidden cross-layer import is a fail.
@@ -68,7 +68,7 @@ extension under `<paths.rules>/` that overrides or supplements the items here. F
 ### Error handling
 - [ ] All external inputs (HTTP requests, file reads, CLI args, env vars) are validated at the
       boundary before use.
-      **CHECK:** `manual:` each boundary entry validates shape/range before use; an unvalidated external read is a fail (evidence: `file:line`).
+      **CHECK:** `grep -rnE "catch\\s*\\([^)]*\\)\\s*\\{\\s*\\}" --include "*.mjs" --include "*.js" cli scripts` → empty (unvalidated/swallowed boundary reads are a fail; evidence: `file:line`).
 - [ ] Errors propagate with actionable messages; error messages never include raw secrets or
       internal stack details exposed to end users.
       **CHECK:** `manual:` inspect error/response paths; a message returning a raw secret or internal stack trace to a caller is a fail.

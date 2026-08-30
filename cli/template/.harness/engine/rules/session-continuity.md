@@ -10,11 +10,8 @@ These rules apply from Phase 7 (Sprint Execution) onward and support **native pr
 
 ### STM progress log
 - [ ] An active sprint maintains a cross-session progress file with structured observations.
-      **CHECK:** `manual:` when `stage: sprint_execution` and a sprint is `active`, either (a)
-      `{runs}/sprints/NN-progress.md` exists with at least one **Learned** row updated this sprint
-      cycle, or (b) `sprints[].last_touched` for that sprint is ≤ **7 days** before audit date.
-      Greenfield with no active sprint → `n/a`. Mechanical backstop: `gate:sprint-continuity` in
-      `scripts/doctor.mjs` (see `state-integrity.md`).
+      See [`state-integrity.md`](./state-integrity.md) § Active-sprint STM continuity
+      (`gate:sprint-continuity` via `node <paths.scripts>/doctor.mjs --gates-only`).
 - [ ] Completed tasks in the progress log name the **tool/MCP** that proved each item (git-visible
       traceability aligned with Phase 7 and `verification.md`).
       **CHECK:** `manual:` when the sprint diff checks off tasks in `{product}/sprints/NN-*.md`, read
@@ -30,7 +27,7 @@ These rules apply from Phase 7 (Sprint Execution) onward and support **native pr
 
 ### Recall vs hidden store
 - [ ] Session continuity uses git-visible files only — no parallel memory DB introduced this sprint.
-      **CHECK:** `manual:` the sprint diff introduces no new `*.db`, `.engram/`, or vector-store config;
+      **CHECK:** `git diff --name-only HEAD` lists no new `*.db` or vector-store config files;
       continuity evidence is `NN-progress.md`, `{product}/*`, or `<paths.rules>/*` only.
 
 ### Session protocol (open / during / close / rehydrate)

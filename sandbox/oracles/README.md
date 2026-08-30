@@ -5,16 +5,21 @@ Deterministic disk checks for `/midas-sandbox`. The cheap Task does **not** grad
 ```bash
 node scripts/sandbox-run.mjs reset
 node scripts/sandbox-run.mjs grade --skill idea-intake
+# expected: verdict=fail (seed has not advanced Phase 0)
 # after a real skill run:
 node scripts/sandbox-run.mjs grade --skill idea-intake --ledger
 ```
 
 | File | When |
 |---|---|
-| `isolation.json` | Always (merged into every `grade`) |
-| `<skill>.json` | When `--skill <skill>` |
+| `isolation.json` | Always (merged into every `grade`) — env, fixture name, engine `state.yaml` + `harness/skills` + `harness/rules` hashes from reset |
+| `<skill>.json` | When `--skill <skill>` (`/idea-intake` normalizes to `idea-intake`) |
+
+`idea-intake.json` requires the Phase-0 **exit gate** (`stage: contextualize`, `phases.idea_intake` passed), not just that the seed's `idea.md` exists.
 
 `{product}` `{state}` `{runs}` `{rules}` `{cache}` expand from the fixture `paths.*`.
 Paths that resolve outside `sandbox/example-product/` fail closed.
 
-`--ledger` appends one JSON line to `sandbox/findings/_ledger.jsonl` (opt-in so `npm test` does not pollute it).
+`--ledger` appends one JSON line to `sandbox/findings/_ledger.jsonl` (opt-in so `npm test` does not pollute it). Lines include `fail_ids`.
+
+`--missing skip` treats a missing skill oracle as ok (isolation still fail-closes). Default is `--missing fail`.

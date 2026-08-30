@@ -5,6 +5,8 @@
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { emitPromptDecision, readHookStdin, toPromptHookOutput } from './lib/hook-io.mjs';
+import { maybeHelp } from '../lib/cli-io.mjs';
+if (maybeHelp(import.meta.url)) process.exit(0);
 
 /**
  * High-confidence secret-like patterns (small, documented list).

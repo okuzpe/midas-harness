@@ -8,7 +8,7 @@ import {
   findVendorConflicts,
   findGeneratedMirrorConflicts,
   readOwnershipManifest,
-} from '../../template/.harness/scripts/ownership-manifest.mjs';
+} from '../shared/ownership-manifest.mjs';
 
 /**
  * Read-only update conflict assessment. Never writes.

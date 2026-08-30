@@ -23,13 +23,11 @@ Pairs with [`verification.md`](./verification.md) ("blocked, never a silent pass
 ## Checklist
 
 - [ ] Production-diff gate claims cite machine evidence, not Trace or vibes.
-      **CHECK:** `manual:` when the diff touches production paths and close-sprint Step 0.5 applies,
-      session or audit notes cite `{paths.cache}/gates/<run>/test.json` and `quality.json` with
-      passing receipt status **or** a documented skip — citing only Trace output or agent prose is
-      a fail.
+      **CHECK:** `node <paths.scripts>/doctor.mjs --gates-only` reports `ok` or `skip` for
+      `gate:diff-receipts` (passing `{paths.cache}/gates/<run>/{test,quality}.json` or no production
+      diff). Citing only Trace output is a fail.
 - [ ] Trace and safety are not conflated as gate proof.
-      **CHECK:** `manual:` agents do not cite Trace spans as proof that destructive commands were
-      blocked or that test/quality gates passed; see `cursor-safety-hooks.md`.
+      See [`cursor-safety-hooks.md`](./cursor-safety-hooks.md) (Trace observe ≠ safety deny) — not restated here.
 
 ## Amendment
 

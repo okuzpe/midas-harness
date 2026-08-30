@@ -14,7 +14,7 @@ Products built with Midas maintain their own version numbers independently.
 
 ## Version scheme: `MAJOR.MINOR.PATCH`
 
-**Current line: 2.x** (stable public engine contract since `2.0.0`). Standard SemVer applies:
+**Current line: 3.x** (public engine contract since `3.0.0`). Standard SemVer applies:
 
 | Increment | Meaning |
 |---|---|
@@ -30,7 +30,8 @@ policy ended at 1.0. Do not use it for new releases.
 ### 1.x (historical)
 
 `1.0.0` froze the hub-default install (ADR-006). `2.0.0` replaced that with the canonical
-`.harness/` layout (ADR-007). Classic / compact / hub remain **read/migrate-only** inputs.
+`.harness/` layout (ADR-007). `3.0.0` removes 1.x classic / compact / hub as supported inputs
+(ADR-017, ADR-018): 3.x refuses those trees; migrate with 2.10.x first.
 
 ---
 
@@ -75,15 +76,14 @@ midas_version: 2.0.0   # engine version that wrote or last migrated this file
 
 ---
 
-## Migration: CLI `--update` and `--migrate`
+## Migration: CLI `--update` (3.x refuses 1.x)
 
-- **Already on v2 (`.harness/`)** — `npx github:okuzpe/midas-harness#v{VERSION} update`
+- **Already on v2/v3 (`.harness/`)** — `npx github:okuzpe/midas-harness#v{VERSION} update`
   (pin from `harness/VERSION`; optional `--tools=…` to prune hosts) **or** `/midas-init` when
-  diagnose reports `version_behind` / `legacy_layout` (tips the same CLI — pick one, not both).
-  Deprecated `/midas-update` forwards to `/midas-init`. CLI update is complete when it prints
-  `verify: ok`.
-- **Still on v1 classic/compact/hub** — `npx … --migrate` (preview) then `--migrate --apply`.
-  `--update` never relocates a v1 tree (ADR-007).
+  diagnose reports `version_behind` (tips the same CLI — pick one, not both).
+  CLI update is complete when it prints `verify: ok`.
+- **Still on v1 classic/compact/hub** — 3.x prints `unsupported_v1` and writes nothing.
+  Pin `create-midas@2.10.x`, run `update --yes` (2.10 auto-migrates), then upgrade to 3.x.
 
 Migration notes for breaking versions live in `harness/migrations/<slug>.md` when cut (see index in
 `harness/migrations/README.md`).
@@ -94,7 +94,7 @@ Migration notes for breaking versions live in `harness/migrations/<slug>.md` whe
 
 | Surface | Freeze criterion |
 |---------|------------------|
-| Writable install layout | `layout: harness` only (`.harness/`); classic/compact/hub = migrate inputs |
+| Writable install layout | `role: product` + `layout: harness` (`.harness/`); 1.x trees refused (ADR-018) |
 | Thin-root allowlist | ADR-008 — host discovery at root; engine under `.harness/` |
 | Ownership roles | `vendor` / `generated` / `user` in `.harness/manifest.json` |
 | `paths.state` schema | Required keys + stage enum stable; additive optional fields only in MINOR |

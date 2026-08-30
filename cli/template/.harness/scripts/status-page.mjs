@@ -3,6 +3,8 @@
 import { readFileSync, existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { resolvePaths, resolveProjectRootFromScript } from './paths.mjs';
+import { maybeHelp } from './lib/cli-io.mjs';
+if (maybeHelp(import.meta.url)) process.exit(0);
 
 const args = process.argv.slice(2);
 let rootArg = null;

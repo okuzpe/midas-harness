@@ -7,6 +7,8 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { resolvePaths, resolveProjectRootFromScript } from './paths.mjs';
+import { maybeHelp } from './lib/cli-io.mjs';
+if (maybeHelp(import.meta.url)) process.exit(0);
 
 const ROOT = resolveProjectRootFromScript(import.meta.url);
 

@@ -33,8 +33,9 @@ transition after that.
 ## Schema
 
 ```yaml
-midas_version: 2.10.3      # engine version that wrote this file (for /midas-init version tip)
-layout: harness                # the only writable layout; classic/compact/hub are read/migrate-only
+midas_version: 3.0.0      # engine version that wrote this file (for /midas-init version tip)
+role: product                  # engine | product — discriminator (ADR-017); engine repo uses role: engine
+layout: harness                # derived alias of role (product → harness, engine → classic)
 paths:
   root: .harness
   engine: .harness/engine

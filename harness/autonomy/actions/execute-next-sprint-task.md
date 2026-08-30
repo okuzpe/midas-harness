@@ -1,7 +1,7 @@
 # Action: execute-next-sprint-task
 
 **P0 only.** Implements one task from the active sprint playbook
-[`pipeline/7-sprint-execution.md`](../pipeline/7-sprint-execution.md).
+[`pipeline/7-sprint-execution.md`](../../pipeline/7-sprint-execution.md).
 
 ## Preconditions
 

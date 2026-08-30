@@ -6,6 +6,10 @@
     { "id": "pitch-heading", "type": "file_contains", "path": "{product}/idea.md", "pattern": "## 1-line pitch" },
     { "id": "pitch-not-todo", "type": "file_not_contains", "path": "{product}/idea.md", "pattern": "<!-- TODO: one sentence" },
     { "id": "mode-heading", "type": "file_contains", "path": "{product}/idea.md", "pattern": "## Mode" },
-    { "id": "mode-state", "type": "state_match", "field": "mode", "value": "greenfield" }
+    { "id": "mode-state", "type": "state_match", "field": "mode", "value": "greenfield" },
+    { "id": "gate-passed", "type": "state_match", "field": "phases.idea_intake.gate", "value": "passed" },
+    { "id": "phase-passed", "type": "state_match", "field": "phases.idea_intake.status", "value": "passed" },
+    { "id": "stage-advanced", "type": "state_match", "field": "stage", "value": "contextualize" },
+    { "id": "updated-not-seed", "type": "state_not_match", "field": "updated", "value": "2026-08-28" }
   ]
 }

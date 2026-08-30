@@ -9,9 +9,8 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { dirname, basename, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DEFAULT_ROUTING_PROFILE, isKnownRoutingProfile, normalizeRoutingProfile } from './template/.harness/scripts/model-profiles.mjs';
+import { DEFAULT_ROUTING_PROFILE, isKnownRoutingProfile, normalizeRoutingProfile } from './lib/shared/model-profiles.mjs';
 import { formatInstallCmd } from './lib/core/install-cmd.mjs';
-import { formatMigrationPlan, planHarnessMigration } from './migrate-harness.mjs';
 import {
   KNOWN_TOOLS as LIB_KNOWN_TOOLS,
   parseInstallerArgs,
@@ -83,8 +82,6 @@ process.exitCode = await runInstaller(parsedCmd, {
   template: TEMPLATE,
   bundledVersion: readBundledVersion(),
   installCmd,
-  planMigration: (dir) => planHarnessMigration(dir),
-  formatMigrationPlan,
   execute,
 });
 
@@ -98,7 +95,7 @@ Install:
   npx github:okuzpe/midas-harness#${pin} --tools=cursor
   npx github:okuzpe/midas-harness --layout=harness   explicit no-op; v2 has one layout
 
-Update (one command — v2 refresh, or auto-migrate 1.x then refresh):
+Update (v2 product refresh — 1.x trees are refused):
   npx github:okuzpe/midas-harness#${pin} update --yes
   npx github:okuzpe/midas-harness update --check       is there anything new? (no writes; exit 1 if yes)
   npx github:okuzpe/midas-harness update --dry-run     list every write, removal and conflict first
@@ -109,9 +106,8 @@ Update (one command — v2 refresh, or auto-migrate 1.x then refresh):
   version saved to .harness/conflicts/. Your product, rules, runs and state are never touched.
   The --update flag remains a silent alias for the update subcommand.
 
-Optional explicit migrate (preview / apply):
-  npx github:okuzpe/midas-harness#${pin} --migrate          preview only; writes nothing
-  npx github:okuzpe/midas-harness#${pin} --migrate --apply  same end-state as --update on 1.x
+  1.x classic/compact/hub installs: pin create-midas@2.10.x, run update --migrate, then upgrade to 3.x.
+  --migrate on 3.x exits non-zero and writes nothing.
 
 Uninstall (surgical — removes only Midas's files, keeps your work):
   npx github:okuzpe/midas-harness --uninstall             remove owned engine files; keep product, rules, runs, state
@@ -119,13 +115,13 @@ Uninstall (surgical — removes only Midas's files, keeps your work):
   npx github:okuzpe/midas-harness --uninstall --purge     also remove your .harness product, rules, runs and state
 
 Options:
-  --layout     only harness is accepted; classic/compact/hub are read-only migration inputs
+  --layout     only harness is accepted; 1.x classic/compact/hub trees are refused
   --routing    (install) claude, openai-mini, or local-hybrid (legacy openai alias accepted)
   --autonomy   (install|update) copy optional bounded-autonomy capability to .harness/autonomy
   --tools      comma-separated AI tools (e.g. cursor or cursor,claude-code)
   --force      (install) overwrite files that already exist
-  --migrate    preview a v1 → v2 migration without writing
-  --apply      apply the migration plan; valid with --migrate
+  --migrate    refused in 3.x (pin create-midas@2.10.x to migrate a 1.x tree)
+  --apply      valid only with --migrate (2.10.x); 3.x still parses then refuses
   --update     alias for the update subcommand
   --check      (update) compare hashes vs the channel and exit — 0 current, 1 available, 2 undetermined.
                never downloads; prints the npx command to apply
@@ -133,9 +129,9 @@ Options:
   --offline    (update) skip the network; use the cached channel manifest
   --manifest-file  (update) read a release manifest from disk instead of the network
   --uninstall  remove Midas instead of installing it
-  --dry-run    plan only (install/update/migrate/uninstall) — write nothing
+  --dry-run    plan only (install/update/uninstall) — write nothing
   --json       machine-readable diagnose / plan / result on stdout
-  --yes, -y    skip TTY confirmation for update / migrate --apply / uninstall
+  --yes, -y    skip TTY confirmation for update / uninstall
   --purge      (uninstall) also delete your product artifacts and audit trail
   --diagnose   read-only — print install state and the single next command (no writes)
   -h, --help   show this help

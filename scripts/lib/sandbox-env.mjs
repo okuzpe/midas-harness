@@ -5,6 +5,7 @@ import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } fr
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolvePaths } from '../paths.mjs';
+import { walkFiles } from './walk.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const ROOT = resolve(HERE, '../..');
@@ -35,6 +36,20 @@ export function sha256File(abs) {
 }
 
 /**
+ * Deterministic content hash of every file under `absDir` (posix-relative paths, sorted).
+ * Empty / missing dir → `''`.
+ * @param {string} absDir
+ * @returns {string}
+ */
+export function sha256Tree(absDir) {
+  if (!existsSync(absDir)) return '';
+  const rels = walkFiles(absDir, { relativeTo: absDir });
+  const lines = rels.map((rel) => `${rel.replace(/\\/g, '/')}\0${sha256File(join(absDir, rel))}`);
+  lines.sort();
+  return createHash('sha256').update(lines.join('\n')).digest('hex');
+}
+
+/**
  * @param {string} statePath
  * @returns {string}
  */
@@ -45,15 +60,16 @@ function readNameFromStateFile(statePath) {
 }
 
 /**
- * Snapshot engine `harness/state.yaml` so grade can detect isolation leaks.
+ * Snapshot engine state + authored skills/rules so grade can detect isolation leaks.
  * @param {string} root
  * @param {string} work
  */
 export function writeSandboxBaseline(root, work) {
-  const engineState = join(root, 'harness', 'state.yaml');
   mkdirSync(join(work, '.harness', 'cache'), { recursive: true });
   const payload = {
-    engineStateSha256: sha256File(engineState),
+    engineStateSha256: sha256File(join(root, 'harness', 'state.yaml')),
+    engineSkillsSha256: sha256Tree(join(root, 'harness', 'skills')),
+    engineRulesSha256: sha256Tree(join(root, 'harness', 'rules')),
     resetAt: new Date().toISOString(),
   };
   writeFileSync(join(work, BASELINE_REL), `${JSON.stringify(payload)}\n`, 'utf8');
@@ -61,7 +77,12 @@ export function writeSandboxBaseline(root, work) {
 
 /**
  * @param {string} work
- * @returns {{ engineStateSha256: string, resetAt?: string } | null}
+ * @returns {{
+ *   engineStateSha256?: string,
+ *   engineSkillsSha256?: string,
+ *   engineRulesSha256?: string,
+ *   resetAt?: string,
+ * } | null}
  */
 export function readSandboxBaseline(work) {
   const abs = join(work, BASELINE_REL);

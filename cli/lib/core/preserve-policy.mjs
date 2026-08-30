@@ -1,6 +1,8 @@
 // preserve-policy.mjs — shared install preserve / vendor-path rules for plan + execute + conflicts.
 // Keep plan-tree dry-run and copyTree write decisions identical.
 
+import { toPosixRel } from '../shared/posix.mjs';
+
 /** User-owned filenames under `.harness/autonomy/` (never overwritten / never hash-checked as vendor). */
 export const AUTONOMY_USER_NAMES = Object.freeze([
   'policy.yaml',
@@ -12,7 +14,7 @@ export const AUTONOMY_USER_NAMES = Object.freeze([
 
 /** Engine + scripts vendor trees refreshed on every install/update. */
 export function isEngineScriptsVendorPath(rel) {
-  const n = rel.replace(/\\/g, '/');
+  const n = toPosixRel(rel);
   return n.startsWith('.harness/engine/') || n.startsWith('.harness/scripts/');
 }
 
@@ -30,7 +32,7 @@ export function isVendorManagedPath(rel) {
  * @param {string} rel
  */
 export function isConflictVendorPath(rel) {
-  const n = rel.replace(/\\/g, '/');
+  const n = toPosixRel(rel);
   if (isEngineScriptsVendorPath(n)) return true;
   if (!n.startsWith('.harness/autonomy/')) return false;
   if (n.startsWith('.harness/autonomy/authz/')) return false;
@@ -52,7 +54,7 @@ export function isConflictVendorPath(rel) {
  * @param {string} rel POSIX path relative to project root
  */
 export function isHostDiscoveryMirrorPath(rel) {
-  const n = rel.replace(/\\/g, '/');
+  const n = toPosixRel(rel);
   return n === '.agents' || n.startsWith('.agents/');
 }
 
@@ -63,7 +65,7 @@ export function isHostDiscoveryMirrorPath(rel) {
  * @param {boolean} update true on --update / migrate refresh
  */
 export function alwaysPreservePath(rel, update) {
-  const n = rel.replace(/\\/g, '/');
+  const n = toPosixRel(rel);
   return (
     n === '.mcp.json' ||
     n === 'AGENTS.md' ||

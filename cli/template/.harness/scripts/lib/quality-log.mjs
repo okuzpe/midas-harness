@@ -2,7 +2,7 @@
 
 import { existsSync, mkdirSync, appendFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
-import { resolvePaths } from '../paths.mjs';
+import { resolveCacheRoot } from './cache-paths.mjs';
 
 /** @typedef {'gate' | 'audit' | 'verify' | 'doctor'} QualityKind */
 /** @typedef {'pass' | 'fail' | 'warn' | 'skip'} QualityStatus */
@@ -46,29 +46,13 @@ function isForbiddenDetailKey(key) {
 }
 
 /**
- * @param {string} projectRoot
- * @returns {boolean}
- */
-function useHarnessCache(projectRoot) {
-  if (existsSync(join(projectRoot, '.harness'))) return true;
-  try {
-    return resolvePaths(projectRoot).layout === 'harness';
-  } catch {
-    return false;
-  }
-}
-
-/**
  * Engine repo → `runs/cache/metrics/quality-log.jsonl`;
  * install → `.harness/cache/metrics/quality-log.jsonl`.
  * @param {string} projectRoot
  * @returns {string}
  */
 export function resolveQualityLogPath(projectRoot) {
-  if (useHarnessCache(projectRoot)) {
-    return join(projectRoot, '.harness', 'cache', 'metrics', 'quality-log.jsonl');
-  }
-  return join(projectRoot, 'runs', 'cache', 'metrics', 'quality-log.jsonl');
+  return join(resolveCacheRoot(projectRoot), 'metrics', 'quality-log.jsonl');
 }
 
 /**

@@ -35,9 +35,9 @@ All rules in `harness/conventions.md` apply unconditionally. Key points:
   (`harness/rules/change-propagation.md` + `VERSIONING.md`). Do not hand-edit version pins across the tree.
 - **Security** — secrets only in `${ENV_VAR}`; never commit them; least-privilege MCP scopes.
 - **Design system** — all UI uses `{product}/design-system.md` tokens; never hardcode colour/spacing/type.
-- **Skills portability** — `harness/skills/` is the editable source; `.claude/skills` and
-  `.agents/skills` are generated mirrors (`npm run build`) for host discovery (Claude / Codex /
-  Cursor / Gemini). Never hand-edit the mirrors.
+- **Skills portability** — `harness/skills/` is the editable source; `.claude/skills`,
+  `.agents/skills`, and `.cursor/skills` are generated mirrors (`npm run build`) for host discovery
+  (Claude / Codex / Cursor / Gemini). Never hand-edit the mirrors.
 
 Stack-specific rules are generated in Phase 5 on **product installs**. Project overlays at
 `<paths.rules>/` win over stack and base rules with the same slug — see `harness/conventions.md`
@@ -46,13 +46,13 @@ precedence. In this engine repo, `harness/rules/` is the **base** set, not a sta
 ## Path resolution
 
 The engine repository keeps authored source in `harness/` and development scripts in `scripts/`.
-Installed v2 projects read `layout` and `paths` from **`.harness/state.yaml`** first:
+Installed projects read `role` and `paths` from **`.harness/state.yaml`** first:
 
 - **`{runs}/`** — `.harness/runs/`
 - **`{product}/`** — `.harness/product/`
 
 Installed engine source lives at `.harness/engine/`; project rule overlays live at `.harness/rules/`.
-Classic, compact, and hub paths are read-only migration inputs.
+1.x classic/compact/hub trees are refused (ADR-018).
 
 ## Continuous capture of recurring patterns (always-on)
 

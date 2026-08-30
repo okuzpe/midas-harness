@@ -24,6 +24,8 @@ import { dirname, join, resolve } from 'node:path';
 import { parseToolsFromStateYaml } from './yaml-lite.mjs';
 import { resolvePaths } from './paths.mjs';
 import { writeSkillRegistry } from './skill-registry.mjs';
+import { maybeHelp } from './lib/cli-io.mjs';
+if (maybeHelp(import.meta.url)) process.exit(0);
 
 export { parseToolsFromStateYaml };
 
@@ -186,8 +188,13 @@ function checkSeverityFor(item) {
   return isManualCheckBody(item.body) ? 'medium' : 'high';
 }
 
-function isManualCheckBody(body) {
-  return /^`?manual:`?\s*/i.test(body) || /^\*\(manual(?:[:.)][^)]*)?\)\*?\s*/i.test(body);
+export function isManualCheckBody(body) {
+  const text = String(body || '').trim();
+  return (
+    /^`?manual:`?\s*/i.test(text) ||
+    /^\*\(manual(?:[:.)][^)]*)?\)\*?\s*/i.test(text) ||
+    /\*\(manual(?:[:.)][^)]*)?\)\*?\s*$/i.test(text)
+  );
 }
 
 const GATE_ROWS = [

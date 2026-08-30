@@ -9,6 +9,8 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { makeResult, writeGateResult } from '../lib/gate-result.mjs';
 import { hasProductionPaths, listChangedPaths } from './lib/diff-paths.mjs';
+import { maybeHelp } from '../lib/cli-io.mjs';
+if (maybeHelp(import.meta.url)) process.exit(0);
 
 const TEST_TIMEOUT_MS = 120_000;
 const TEST_SCRIPT_PRIORITY = ['test', 'test:unit', 'test:ci'];

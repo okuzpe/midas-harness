@@ -223,13 +223,12 @@ export function readJournal(projectRoot, runId) {
  * so `rollbackInstall` can restore after a process crash.
  * @param {string} projectRoot
  * @param {string} runId
- * @param {string[]} [fallbackRelPaths]
  * @returns {{ root: string, backupRoot: string, relPaths: string[], entries: { rel: string, kind: 'dir'|'file' }[], durable: { runId: string } } | null}
  */
-export function sessionFromJournal(projectRoot, runId, fallbackRelPaths = []) {
+export function sessionFromJournal(projectRoot, runId) {
   const events = readJournal(projectRoot, runId);
   const backups = events.filter((e) => e.op === 'backup' && typeof e.path === 'string');
-  // Never fabricate entries from fallback paths alone — rollbackInstall would
+  // Never fabricate entries from guessed paths — rollbackInstall would
   // delete those trees without any on-disk restore source (ADR-012 crash window).
   if (!backups.length) return null;
   const entries = backups.map((e) => ({
@@ -237,7 +236,6 @@ export function sessionFromJournal(projectRoot, runId, fallbackRelPaths = []) {
     kind: e.kind === 'file' ? /** @type {'file'} */ ('file') : /** @type {'dir'} */ ('dir'),
   }));
   const relPaths = [...new Set(entries.map((e) => e.rel))];
-  void fallbackRelPaths; // kept for call-site compat; ignored when no journal backups
   return {
     root: projectRoot,
     backupRoot: join(resolveInstallerCacheRoot(projectRoot), 'runs', runId, 'backups'),

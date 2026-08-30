@@ -66,6 +66,19 @@ export function isMidasEngineRepository(dir) {
   );
 }
 
+export const V1_REFUSE_MESSAGE =
+  'Midas 3.x does not support 1.x classic/compact/hub layouts. Pin create-midas@2.10.x, run update --migrate, then upgrade to 3.x.';
+
+/**
+ * True when `dir` is a 1.x product tree (classic/compact/hub), not the engine repo and not v2 .harness.
+ * @param {string} dir
+ */
+export function isV1Install(dir) {
+  if (isMidasEngineRepository(dir)) return false;
+  const layout = detectLegacyLayout(dir);
+  return layout === 'classic' || layout === 'compact' || layout === 'hub';
+}
+
 /** @param {string} startDir */
 export function findAncestorMidasRoot(startDir) {
   let dir = dirname(startDir);
@@ -153,6 +166,10 @@ export function detectContext(targetDir) {
   const versionPath = resolveEngineVersionPath(dir);
   const engineVersion = (versionPath ? readMaybe(versionPath) : null)?.trim() || null;
   const midasVersion = yamlScalar(stateRaw, 'midas_version');
+  const roleFromState = yamlScalar(stateRaw, 'role');
+  const role = roleFromState === 'engine' || roleFromState === 'product'
+    ? roleFromState
+    : (isMidasEngineRepository(dir) ? 'engine' : (layout === 'harness' ? 'product' : null));
   const setupComplete = yamlScalar(stateRaw, 'setup_complete') === 'true';
   const mode = yamlScalar(stateRaw, 'mode') || null;
   const toolsRaw = stateRaw?.match(/^tools:\s*\[([^\]]*)\]/m);
@@ -163,6 +180,8 @@ export function detectContext(targetDir) {
   return {
     dir,
     layout,
+    role,
+    isV1: isV1Install(dir),
     installed,
     isEngineRepository: isMidasEngineRepository(dir),
     ancestorRoot: ancestorRoot && ancestorRoot !== dir ? ancestorRoot : null,

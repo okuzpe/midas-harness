@@ -10,7 +10,7 @@ import {
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { resolvePaths } from '../paths.mjs';
+import { resolveCacheRoot } from './cache-paths.mjs';
 
 /** @typedef {'commit' | 'push' | 'force-with-lease' | 'git-write'} CommitOperation */
 
@@ -30,23 +30,10 @@ export const VALID_OPERATIONS = ['commit', 'push', 'force-with-lease', 'git-writ
 
 /**
  * @param {string} projectRoot
- * @returns {boolean}
- */
-function useHarnessCache(projectRoot) {
-  if (existsSync(join(projectRoot, '.harness'))) return true;
-  const layout = resolvePaths(projectRoot).layout;
-  return layout === 'harness';
-}
-
-/**
- * @param {string} projectRoot
  * @returns {string}
  */
 export function resolveReceiptPath(projectRoot) {
-  if (useHarnessCache(projectRoot)) {
-    return join(projectRoot, '.harness', 'cache', 'session', 'commit-approved.json');
-  }
-  return join(projectRoot, 'runs', 'cache', 'session', 'commit-approved.json');
+  return join(resolveCacheRoot(projectRoot), 'session', 'commit-approved.json');
 }
 
 /**

@@ -27,6 +27,13 @@ After the Task, grade the **disk** (composer does not self-score):
 node scripts/sandbox-run.mjs grade --skill idea-intake --ledger
 ```
 
+After `reset`, that command **must fail** (`stage` still `idea_intake`). A pass without a Task
+means the oracle is grading the seed, not the skill. `--skill /idea-intake` is the same JSON.
+`--smoke` / `--all` next skills without an oracle YAML: `--missing skip`.
+
+Do not run `doctor --fix` or edit `harness/skills/` / `harness/rules/` between `reset` and
+`grade` — isolation hashes those trees.
+
 Oracles live in [`oracles/`](./oracles/). `MIDAS_SANDBOX_ORACLE: verdict=fail` forces the sandbox
 verdict to fail.
 

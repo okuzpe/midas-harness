@@ -90,11 +90,11 @@ flowchart TD
 | Root `CLAUDE.md` | Engine `layout: classic` generated adapter (`scripts/render-adapters.mjs`) |
 | `.claude/CLAUDE.md` | Product installs that include `claude-code` |
 
-### v1 layouts (read / migrate only)
+### v1 layouts (unsupported in 3.x)
 
-Classic, compact, and hub trees are **not** new-install targets. Intra-v1 moves use
-`scripts/migrate-layout.mjs`. v1 → v2 (`.harness/`) uses `cli/migrate-harness.mjs`. New projects
-get `layout: harness` from `create-midas`.
+Classic, compact, and hub product trees are **refused** by 3.x (zero writes). Migrate with
+`create-midas@2.10.x`, then `update` to 3.x (ADR-018). New projects get `role: product` from
+`create-midas`.
 
 ### Package naming triangle
 
@@ -104,11 +104,11 @@ get `layout: harness` from `create-midas`.
 | `create-midas` | `cli/package.json` | Published npm installer package |
 | `midas` | Root / cli `bin` | CLI entry alias (`npx … midas`) |
 
-### Engine `layout: classic` vs product `layout: harness`
+### Engine `role: engine` vs product `role: product`
 
-`harness/state.yaml` uses `layout: classic` with path overrides for **contributor authoring**
-(engine repo). That is not a v1 product install. Product projects use `layout: harness` and
-`.harness/state.yaml` (ADR-007). Do not create `.harness/state.yaml` at the engine root
+`harness/state.yaml` uses `role: engine` (and derived `layout: classic`) with path overrides for
+**contributor authoring**. That is not a v1 product install. Product projects use `role: product`
+and `.harness/state.yaml` (ADR-007, ADR-017). Do not create `.harness/state.yaml` at the engine root
 (`engine-repo-boundary.md`).
 
 ### Test fixtures
@@ -116,7 +116,7 @@ get `layout: harness` from `create-midas`.
 | Fixture | Layout | Use |
 |---|---|---|
 | `scripts/fixtures/product-closed/` | v2 (`.harness/`) | Canonical lifecycle / closed-loop CI |
-| `scripts/fixtures/consistent-*`, `inconsistent-*` | Hybrid / classic markers | Legacy gate tests — treat as v1-era; prefer `product-closed` for new coverage |
+| `scripts/fixtures/consistent-*`, `inconsistent-*` | v2 `role: product` | Doctor gate-record / continuity / phase-evidence pairs |
 
 Generated trees are intentionally committed because users install from the repository and plugin
 marketplace paths. They are not hand-edited; CI rebuilds them and fails if they drift.
@@ -130,7 +130,7 @@ marketplace paths. They are not hand-edited; CI rebuilds them and fails if they 
 | `*midas-lock-test*/` | No (gitignored) | Accidental installer lock dirs created under the repo root — delete |
 | `*.tgz` | No (gitignored) | `npm pack` output |
 | `harness/plugins/midas/`, `harness/.claude-plugin/`, `cli/template/` | Yes (generated but committed) | Run `npm run build` after source edits |
-| Root `lefthook.yml` | N/A | Not used in the engine repo; product installs scaffold hooks in Phase 5 |
+| Root `lefthook.yml` | Optional | Contributor pre-commit when lefthook is installed globally (`lefthook install`). Not an npm dependency. Same floor: `node scripts/precommit-eval.mjs`. See CONTRIBUTING.md. |
 
 **One command before a PR:** `npm run align` (render adapters → test → build bundles → doctor).
 Rule: `<paths.engine>/rules/change-propagation.md`. Skill: `/midas-align`.
@@ -253,9 +253,9 @@ Do not confuse `npm run build` (distribution) with `node scripts/bundle.mjs expo
 ## Install layouts
 
 New **product** installs use one canonical `.harness/` tree with a **thin root** (ADR-007 + ADR-008).
-Default `--tools=cursor` → skills under `.cursor/skills/` only. Classic, compact, and hub are
-read-only migration inputs; `--update` never relocates them. Path resolution is in
-`scripts/paths.mjs`; skills read `layout` + `paths` from state and substitute `{runs}/` and
+Default `--tools=cursor` → skills under `.cursor/skills/` only. Classic, compact, and hub 1.x trees
+are **refused** in 3.x (ADR-018). Path resolution is in
+`scripts/paths.mjs`; skills read `role` + `paths` from state and substitute `{runs}/` and
 `{product}/` tokens. Update / conflict / ownership-manifest **reconciliation** contract:
 [INSTALL.md § Updating an existing install](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md#updating-an-existing-install)
 (guards: `installer:update-stale-manifest-refresh`, `installer:update-vendor-conflict-prewrite`).
@@ -264,7 +264,7 @@ read-only migration inputs; `--update` never relocates them. Path resolution is 
 `.harness/autonomy/` (bounded control plane + `midas-autopilot.mjs` CLI; editor slash `/midas-auto-pilot` Sprint checklist path). Absent the flag, installs get
 no autonomy tree and no `@cursor/sdk`. Policy/ledger/journal stay outside the lifecycle FSM.
 
-The **engine repository** (this repo) uses **classic** layout metadata in `harness/state.yaml`
+The **engine repository** (this repo) uses `role: engine` (derived `layout: classic`) in `harness/state.yaml`
 (authored source in `harness/` + `scripts/`, installer in `cli/`). It does **not** run the Midas
 lifecycle on itself — see `docs/dogfood.md`. `runs/cache/` (gitignored) is Trace observe tooling for
 contributors. Lifecycle CI fixture: `scripts/fixtures/product-closed/`.

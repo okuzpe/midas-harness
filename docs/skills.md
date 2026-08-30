@@ -18,9 +18,10 @@ Orthogonal to **Delegator** (path-readability). Frontmatter `user-surface`:
 
 | Surface | Meaning | Count |
 |---|---|---|
-| **primary** | Listed in this catalog’s primary tables and `/midas-help` options | 30 |
+| **primary** | Listed in this catalog’s primary tables and `/midas-help` options | 28 |
 | **internal** | Path-pass under orchestrators (`/start-sprint`, `/close-sprint`, Phase 7 body); power-user may still type the slash | 5 |
-| **deprecated** | Alias stubs — help must not list | 4 |
+| **deprecated** | Alias stubs — help must not list | 0 |
+| **engine-only** | Engine-repo contributors (`/midas-precommit`, `/midas-sandbox`); omitted from product installs | 2 |
 
 **v1+ host discovery:** mirrors (`.cursor` / `.claude` / `.agents`) omit `internal` + `deprecated`
 skills (ADR-013). Bodies remain under `<paths.engine>/skills/` for path-pass.
@@ -58,7 +59,7 @@ Human catalog (this file) uses slash-names. Agents that **delegate** use the gen
 - Implementation size/ambiguity routing: `<paths.engine>/rules/organic-routing.md` (complements model-routing).
 - Phase-7 tip: parents **path-pass** matching `internal` / `Delegator: yes` procedures (`midas-progress`, `midas-diff-gates`, `midas-qa`, `midas-lean-review`, `midas-sweep`) — read the body; do not Skill-tool invoke.
 
-Catalog size: **30 primary** + **5 internal** + **4 deprecated aliases** + **2 engine-only** among primary (`/midas-precommit`, `/midas-sandbox`). Counts must match `harness/skill-registry.md` (recomputed by `npm run align`).
+Catalog size: **28 primary** + **5 internal** + **0 deprecated** + **2 engine-only** (`/midas-precommit`, `/midas-sandbox`). Counts must match `harness/skill-registry.md` (recomputed by `npm run align`).
 
 For entry → decision → state → handoff, see [Skill flows](skill-flows.md).
 
@@ -138,10 +139,7 @@ Parents **path-pass** these `SKILL.md` bodies (read + execute steps in the same 
 | Token | Role |
 |---|---|
 | `/midas-auto-pilot` | Canonical unified autonomy guide |
-| `/midas-auto-sprints` | Deprecated alias → `/midas-auto-pilot` (bare defaults to sprint path) |
 | `midas-autopilot.mjs` | ADR-009 controller CLI (npm bin — **unchanged**) |
-| `/midas-improve-loop` | Deprecated alias → `/midas-auto-pilot` |
-| `/midas-autopilot` | Deprecated alias → `/midas-auto-pilot` (typo trap vs `auto-pilot`) |
 
 **Not the same:** Cursor’s native `/automate` is the Automations editor; `/midas-auto-pilot` is the Midas runbook + caps (+ sprint CLI guide). History: `/midas-automate` → `/midas-auto-pilot` (≤2.6.0) → `/midas-improve-loop` (2.6.1) → `/midas-auto-pilot` reclaimed (2.8.2) → unified with sprint guide (2.9.5).
 ---
@@ -161,7 +159,7 @@ Parents **path-pass** these `SKILL.md` bodies (read + execute steps in the same 
 | `/midas-tribunal` | Audit | Adversarial debate — decisions right? (non-advancing). | orchestrate |
 | `/midas-security-audit` | Audit | OWASP/STRIDE deep scan (non-advancing). | orchestrate |
 
-Deprecated setup alias: `/midas-update` → `/midas-init`. Hygiene / lean / progress / qa / diff-gates / sweep live under **Delegated procedures** (parents path-pass) except primary `/midas-hygiene`.
+Hygiene / lean / progress / qa / diff-gates / sweep live under **Delegated procedures** (parents path-pass) except primary `/midas-hygiene`.
 
 ---
 

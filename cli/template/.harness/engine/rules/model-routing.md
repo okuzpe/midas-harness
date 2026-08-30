@@ -49,14 +49,7 @@ every mode:
 
 ## CHECKs
 
-- **CHECK:** A high-stakes gate verdict or audit (Phase 1/3/4/8, code-review, security-review) is
-  produced **via the `midas-orchestrator` sub-agent** — its pinned `model:` is the provenance. The
-  model id written into an audit/verify/tribunal record header is **provenance-by-delegation, not
-  self-report**; a record produced on the inherited session model must not claim a tier it did not run on.
-- **CHECK:** *(manual)* Under any `execution_mode`, a binding gate/audit/verify verdict header (Phase
-  1/3/4/8, code-review, security-review) names a **Claude `orchestrate`** model as provenance; a local
-  model id in a binding verdict header is a fail — it may appear only on a record explicitly marked
-  `un-attested`.
+- **CHECK:** Binding Phase 1/3/4/8 / code-review / security-review verdicts are produced **via the `midas-orchestrator` sub-agent**. The model id in an audit/verify/tribunal header is provenance-by-delegation. Run `node <paths.scripts>/doctor.mjs`; a `routing` warning is a fail. A local model id in a binding verdict header is a fail unless the record is marked `un-attested`.
 - **CHECK:** Doc fetches and file/status extraction are delegated to `midas-scout` (or `Explore`),
   not run on the orchestrate tier. *(manual: a phase whose only work is fetch/extract names a scout
   delegation in its SKILL body.)*

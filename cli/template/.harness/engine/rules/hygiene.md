@@ -50,9 +50,9 @@ findings were resolved or consciously deferred.
 
 ### Stale product docs
 - [ ] Open questions and doc links stay honest after the sprint.
-      **CHECK:** `manual:` rows in `{product}/open-questions.md` marked OPEN that are answered in
-      `{product}/idea.md` are a fail; internal markdown links in changed `{product}/*` files that 404 on
-      disk are a fail (grep `](` targets against the tree).
+      **CHECK:** `grep -nE "\\bOPEN\\b" {product}/open-questions.md` → empty when the file exists
+      (answered questions must not stay OPEN); `grep -nE "\\]\\([^)]+\\.md\\)" {product}` targets
+      that 404 on disk are a fail.
 
 ### Aging knowledge (needs_review)
 - [ ] Rules and playbooks that have gone long without an amendment are flagged, not silently trusted.

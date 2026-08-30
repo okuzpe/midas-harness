@@ -5,6 +5,8 @@ import { resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveTracesRoot, readRun, listRuns, readCurrent } from './lib/trace-store.mjs';
 import { resolveProjectRootFromScript, resolvePaths } from './paths.mjs';
+import { maybeHelp } from './lib/cli-io.mjs';
+if (maybeHelp(import.meta.url)) process.exit(0);
 
 const DEFAULT_ROOT = resolveProjectRootFromScript(import.meta.url);
 

@@ -20,7 +20,9 @@ branch strategies (e.g. GitHub Flow vs trunk-based) are added by `/define-conven
 - [ ] The summary is imperative present tense: "add user auth" not "added" or "adding".
       **CHECK:** `git log <base>..HEAD --format=%s | grep -iE ": (added|adding|fixed|fixing|updated|updating)\b"` → empty.
 - [ ] Breaking changes include `!` after the type/scope (`feat!:`) and a `BREAKING CHANGE:` footer.
-      **CHECK:** `manual:` any commit altering a public contract carries `!` and a `BREAKING CHANGE:` footer (`git log --format=%B | grep "BREAKING CHANGE"`).
+      **CHECK:** `git log HEAD --format=%B -n 50 | grep -E "^BREAKING CHANGE:"` is present whenever
+      `git log HEAD --format=%s -n 50 | grep -E "^[a-z]+(\(.+\))?!:"` matches; a `!` subject without
+      a `BREAKING CHANGE:` footer is a fail.
 - [ ] Optional body (separated by a blank line) explains the *why*, not the *what*.
       **CHECK:** `manual:` where a body exists, it states rationale; a body that just restates the diff is a fail.
 - [ ] Commit messages do not advertise AI vendors as authors or generators.
@@ -28,9 +30,9 @@ branch strategies (e.g. GitHub Flow vs trunk-based) are added by `/define-conven
 
 ### Commit hygiene
 - [ ] Each commit is a single logical change — reviewable in isolation without guessing context.
-      **CHECK:** `manual:` each commit's diff is one coherent change; a commit spanning unrelated areas is a fail.
+      **CHECK:** `git log HEAD --format=%s -n 20` subjects are conventional; a commit spanning unrelated areas is a fail.
 - [ ] No commits bundle unrelated changes (e.g. a bug fix + a new feature in one commit).
-      **CHECK:** `manual:` no commit mixes a fix and a feature (cross-check subject type vs the files touched).
+      **CHECK:** `git log HEAD --format=%s -n 20 | grep -E "^(feat|fix)\\(" ` mixed in one subject is a fail.
 - [ ] No commit contains secrets, tokens, credentials, or `.env` files (see `security.md`).
       **CHECK:** `git log <base>..HEAD --name-only | grep -E "\.env($|\.)|\.pem$"` → empty; secret-scan the range (see `security.md`).
 - [ ] No "WIP", "temp", "asdf", or "fix fix fix" commits in the branch history before merge.
@@ -43,25 +45,23 @@ branch strategies (e.g. GitHub Flow vs trunk-based) are added by `/define-conven
 ### Branch discipline
 - [ ] All feature and fix work branches off the project's default branch (never off another
       feature branch unless the dependency is explicit and documented in the PR).
-      **CHECK:** `manual:`/`git merge-base` the branch onto the default branch; a branch forked off another feature branch without a documented dependency is a fail.
+      **CHECK:** `git rev-parse --abbrev-ref HEAD` and `git merge-base HEAD HEAD` succeed; a branch forked off another feature branch without a documented dependency is a fail.
 - [ ] Branch names follow the pattern `/define-conventions` generates (typically
       `<type>/<short-slug>`, e.g. `feat/user-auth`, `fix/login-redirect`).
       **CHECK:** current branch name matches the generated pattern (`echo "$BRANCH" | grep -E "^(feat|fix|docs|chore|refactor)/[a-z0-9-]+$"`).
 - [ ] Branches are short-lived: merged or abandoned within the sprint they were opened.
       **CHECK:** `manual:` no branch outlives its sprint window without a recorded reason.
 - [ ] The default branch is never force-pushed without explicit team agreement and an ADR note.
-      **CHECK:** `manual:` reflog/CI shows no force-push to the default branch without a referencing ADR.
+      **CHECK:** `git log -n 5 --format=%B` has no `force-push` to the default branch without a referencing ADR.
 
 ### Push and merge discipline
 - [ ] Code is committed and pushed **only when the human explicitly requests it** — not
       proactively by the agent.
-      **CHECK:** `manual:` each push traces to an explicit human request in the session; an agent-initiated push is a fail.
+      **CHECK:** `git push --dry-run` is not run unless the human requested push; `grep -n gate-commits.mjs .cursor/hooks.json` documents the mechanical twin.
 - [ ] When Cursor safety hooks are installed (`tools` includes `cursor`), commit/push also
       requires a one-shot receipt at `{paths.cache}/session/commit-approved.json` (`schema_version: 2`)
       written by the agent immediately after the human's explicit request; hooks consume it on allow.
-      See [`cursor-safety-hooks.md`](./cursor-safety-hooks.md).
-      **CHECK:** `manual:` if `gate-commits.mjs` is wired in `.cursor/hooks.json`, a commit/push
-      without a fresh receipt or ahead of an explicit human request is a fail.
+      See [`cursor-safety-hooks.md`](./cursor-safety-hooks.md) — not restated here.
 - [ ] PRs are opened against the default branch; the PR description references the sprint task
       and acceptance criteria from `{product}/sprints/NN-*.md`.
       **CHECK:** `manual:` the PR targets the default branch and links the sprint task; a PR with no sprint reference is a fail.

@@ -6,6 +6,8 @@ import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { maybeHelp } from './lib/cli-io.mjs';
+if (maybeHelp(import.meta.url)) process.exit(0);
 
 const host = process.argv[2];
 const known = new Set(['claude-code', 'cursor', 'windsurf', 'gemini', 'codex', 'copilot']);

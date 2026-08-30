@@ -14,6 +14,8 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { RELEASE_BRANCH } from './release-manifest.mjs';
+import { maybeHelp } from './lib/cli-io.mjs';
+if (maybeHelp(import.meta.url)) process.exit(0);
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 

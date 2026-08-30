@@ -1,0 +1,18 @@
+# TEST FIXTURE. gate=passed listing a missing artifact — doctor must warn gate:phase-idea_intake.
+midas_version: 2.10.3
+role: product
+layout: harness
+paths:
+  root: .harness
+  state: .harness/state.yaml
+  product: .harness/product
+  rules: .harness/rules
+  runs: .harness/runs
+  cache: .harness/cache
+name: fixture-inconsistent-phase
+stage: contextualize
+phases:
+  idea_intake:
+    status: passed
+    gate: passed
+    artifacts: [product/DOES-NOT-EXIST.md]

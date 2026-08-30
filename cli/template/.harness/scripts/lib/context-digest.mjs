@@ -10,6 +10,7 @@ import {
 import { extname, join, relative } from 'node:path';
 import { resolvePaths } from '../paths.mjs';
 import { walkFiles } from './walk.mjs';
+import { resolveCacheRoot } from './cache-paths.mjs';
 
 export const DIGEST_SCHEMA_VERSION = 1;
 export const DEFAULT_MAX_FILES = 200;
@@ -32,30 +33,6 @@ const SKIP_DIR_NAMES = new Set([
   'runs',
   'cache',
 ]);
-
-/**
- * @param {string} projectRoot
- * @returns {boolean}
- */
-function useHarnessCache(projectRoot) {
-  if (existsSync(join(projectRoot, '.harness'))) return true;
-  try {
-    return resolvePaths(projectRoot).layout === 'harness';
-  } catch {
-    return false;
-  }
-}
-
-/**
- * @param {string} projectRoot
- * @returns {string}
- */
-function resolveCacheRoot(projectRoot) {
-  if (useHarnessCache(projectRoot)) {
-    return join(projectRoot, '.harness', 'cache');
-  }
-  return join(projectRoot, 'runs', 'cache');
-}
 
 /**
  * @param {string} projectRoot

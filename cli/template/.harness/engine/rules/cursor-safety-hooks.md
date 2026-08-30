@@ -46,13 +46,9 @@ receipt is the mechanical twin when Cursor safety hooks are present.
 ## Checklist
 
 - [ ] Trace and safety hook families are not conflated.
-      **CHECK:** `manual:` when `.cursor/hooks.json` lists both Trace and safety commands, agents
-      and docs treat Trace as observe-only (exit 0) and safety as optional fail-closed enforcement;
-      citing Trace spans as proof that a destructive command was blocked is a fail.
+      **CHECK:** `grep -nE "gate-commits\\.mjs|trace-hook\\.mjs" .cursor/hooks.json` — Trace commands are observe-only; citing Trace spans as proof a destructive command was blocked is a fail.
 - [ ] Commit/push runs only with explicit human request and a valid receipt when hooks are installed.
-      **CHECK:** `manual:` if `gate-commits.mjs` is wired, session evidence shows the human asked
-      to commit/push before the command ran and `{paths.cache}/session/commit-approved.json`
-      was written with `schema_version: 2` immediately prior; reuse across unrelated diffs is a fail.
+      **CHECK:** `grep -n gate-commits.mjs .cursor/hooks.json` present when Cursor safety hooks are installed; `{paths.cache}/session/commit-approved.json` is the receipt path (`schema_version: 2`).
 - [ ] This rule is present and checkable.
       **CHECK:** `harness/rules/cursor-safety-hooks.md` (or `<paths.engine>/rules/cursor-safety-hooks.md`)
       contains at least one `**CHECK:**` and a dated `## Amendment` section.

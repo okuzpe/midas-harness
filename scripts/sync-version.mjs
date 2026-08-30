@@ -9,6 +9,8 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ENGINE_VERSION_REL, readEngineVersion } from './lib/engine-version.mjs';
+import { maybeHelp } from './lib/cli-io.mjs';
+if (maybeHelp(import.meta.url)) process.exit(0);
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CHECK = process.argv.includes('--check');
@@ -58,6 +60,11 @@ plan(
   'scripts/fixtures/product-lite/.harness/state.yaml',
   (t, v) => t.replace(/^midas_version:\s*[^\s#]+/m, `midas_version: ${v}`),
   { optional: false },
+);
+plan(
+  'sandbox/seed/.harness/state.yaml',
+  (t, v) => t.replace(/^midas_version:\s*[^\s#]+/m, `midas_version: ${v}`),
+  { optional: true },
 );
 plan('INSTALL.md', (t, v) => {
   let out = t.replace(/#v\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?/g, `#v${v}`);

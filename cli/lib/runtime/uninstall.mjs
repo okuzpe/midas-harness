@@ -2,14 +2,16 @@
 
 import { readdirSync, readFileSync, writeFileSync, existsSync, rmSync, rmdirSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { toPosixRel } from '../shared/posix.mjs';
 import {
   readOwnershipManifest,
   sha256File,
-} from '../../template/.harness/scripts/ownership-manifest.mjs';
+} from '../shared/ownership-manifest.mjs';
 import { stripTraceHooks } from '../steps/trace-hooks.mjs';
 import { stripSafetyHooks } from '../steps/safety-hooks.mjs';
 import { stripCarryoverHooks } from '../steps/carryover-hooks.mjs';
 import { stripContextCostHooks } from '../steps/context-cost-hooks.mjs';
+import { V1_REFUSE_MESSAGE } from '../core/context.mjs';
 
 /**
  * @typedef {{
@@ -25,14 +27,16 @@ function listTemplateFiles(dir, base = dir, out = []) {
   for (const e of readdirSync(dir, { withFileTypes: true })) {
     const p = join(dir, e.name);
     if (e.isDirectory()) listTemplateFiles(p, base, out);
-    else out.push(relative(base, p).replace(/\\/g, '/'));
+    else out.push(toPosixRel(relative(base, p)));
   }
   return out;
 }
 
 function rmFile(ctx, rel) {
   if (ctx.dryRun) return;
-  try { rmSync(join(ctx.target, rel)); } catch { /* already gone */ }
+  try { rmSync(join(ctx.target, rel)); } catch (err) {
+    console.error(`midas uninstall: ${rel}: ${err instanceof Error ? err.message : err}`);
+  }
 }
 
 function stripClaudeBlock(text) {
@@ -55,7 +59,9 @@ function pruneEmptyTree(dir) {
   for (const e of readdirSync(dir, { withFileTypes: true })) {
     if (e.isDirectory()) pruneEmptyTree(join(dir, e.name));
   }
-  try { if (readdirSync(dir).length === 0) rmdirSync(dir); } catch { /* ignore */ }
+  try { if (readdirSync(dir).length === 0) rmdirSync(dir); } catch (err) {
+    console.error(`midas uninstall: prune ${dir}: ${err instanceof Error ? err.message : err}`);
+  }
 }
 
 function templateToInstalledRel(rel, layout) {
@@ -82,7 +88,7 @@ function pruneEmptyDirs(ctx, layout) {
 }
 
 function reportUninstall(ctx, { removed, keptModified, keptUser, purged, layout }) {
-  const runsLabel = layout === 'harness' ? '.harness/runs/' : layout === 'classic' ? '.harness/' : '.midas/';
+  const runsLabel = '.harness/runs/';
   console.log(`\n  🧹 Midas uninstall from ${ctx.target}${ctx.dryRun ? '   (dry run — nothing deleted)' : ''}`);
   console.log(`     ${removed.length} engine file(s) ${ctx.dryRun ? 'would be removed' : 'removed'}` +
     (purged.length ? `, ${purged.length} work path(s) ${ctx.dryRun ? 'would be purged' : 'purged'}` : ''));
@@ -237,64 +243,11 @@ export function runUninstall(ctx) {
   const keptModified = [];
   const keptUser = [];
   const purged = [];
-  const ADAPTERS = ['CLAUDE.md', '.cursor/rules/00-midas.mdc', '.cursor/rules/01-midas-checks.mdc', '.windsurf/rules/00-midas.md', '.windsurf/rules/01-midas-checks.md', 'GEMINI.md'];
   const layout = ctx.detectInstallLayout(ctx.target);
-  if (layout === 'harness') {
-    runCanonicalUninstall(ctx, { removed, keptModified, keptUser, purged });
-    reportUninstall(ctx, { removed, keptModified, keptUser, purged, layout });
-    return;
+  if (layout !== 'harness') {
+    throw new Error(V1_REFUSE_MESSAGE);
   }
-
-  for (const rel of listTemplateFiles(ctx.template)) {
-    if (rel === 'AGENTS.md') continue;
-    const installedRel = templateToInstalledRel(rel, layout);
-    const abs = join(ctx.target, installedRel);
-    if (!existsSync(abs)) continue;
-    if (readFileSync(join(ctx.template, rel)).equals(readFileSync(abs))) {
-      rmFile(ctx, installedRel);
-      removed.push(installedRel);
-    } else keptModified.push(installedRel);
-  }
-
-  if (existsSync(join(ctx.target, 'AGENTS.md'))) {
-    if (readFileSync(join(ctx.target, 'AGENTS.md'), 'utf8').includes('generated** from the Midas harness')) {
-      rmFile(ctx, 'AGENTS.md'); removed.push('AGENTS.md');
-    } else keptUser.push('AGENTS.md (not Midas-generated — left untouched)');
-  }
-
-  for (const rel of ADAPTERS) {
-    const abs = join(ctx.target, rel);
-    if (!existsSync(abs)) continue;
-    const text = readFileSync(abs, 'utf8');
-    if (!text.includes('midas:begin')) { keptUser.push(`${rel} (no Midas marker — left untouched)`); continue; }
-    if (rel === 'CLAUDE.md') {
-      const rest = stripClaudeBlock(text);
-      if (rest === '') { rmFile(ctx, rel); removed.push(rel); }
-      else { if (!ctx.dryRun) writeFileSync(abs, rest + '\n', 'utf8'); keptModified.push('CLAUDE.md (removed Midas block; kept your notes)'); }
-    } else { rmFile(ctx, rel); removed.push(rel); }
-  }
-
-  const hashPaths = layout === 'classic'
-    ? ['.harness/adapters.hash']
-    : ['.midas/cache/adapters.hash'];
-  for (const hp of hashPaths) {
-    if (existsSync(join(ctx.target, hp))) { rmFile(ctx, hp); removed.push(hp); }
-  }
-
-  stripMidasCursorHooks(ctx, removed);
-
-  const workPaths = layout === 'hub'
-    ? ['.midas']
-    : layout === 'compact'
-      ? ['product', '.midas', '.midas/state.yaml']
-      : ['product', '.harness', 'harness/state.yaml'];
-  for (const rel of workPaths) {
-    if (!existsSync(join(ctx.target, rel))) continue;
-    if (ctx.purge) { if (!ctx.dryRun) rmSync(join(ctx.target, rel), { recursive: true, force: true }); purged.push(rel); }
-    else keptUser.push(`${rel} (your work — kept; re-run with --purge to remove)`);
-  }
-
-  pruneEmptyDirs(ctx, layout);
+  runCanonicalUninstall(ctx, { removed, keptModified, keptUser, purged });
   reportUninstall(ctx, { removed, keptModified, keptUser, purged, layout });
 }
 

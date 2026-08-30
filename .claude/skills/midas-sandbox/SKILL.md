@@ -1,6 +1,6 @@
 ---
 name: midas-sandbox
-user-surface: primary
+user-surface: engine-only
 description: Engine-only sandbox — dry-runs the real, unmodified harness/skills/* against a small nested example product (sandbox/example-product/) on Cursor's composer-2.5 model (never composer-2.5-fast), with a traced decision-flow log and reviewable findings under sandbox/findings/. Use before committing a skill/rule change on midas-harness, or on demand to stress-test the pipeline. Not for product installs.
 user-invocable: true
 disable-model-invocation: true
@@ -53,6 +53,10 @@ Cursor Task has no cwd pin. The parent must make the fixture honest; the Task mu
    Then **`node scripts/sandbox-run.mjs grade --skill <name> --ledger`**. Cite
    `MIDAS_SANDBOX_ORACLE:` in findings Setup. Oracle `verdict=fail` ⇒ sandbox `verdict=fail`
    even if the Task claimed pass. Optional `--freeze` appends full `trace-inspect` output.
+   `--smoke` / `--all`: grade each launched skill; if that skill has no oracle YAML, add
+   `--missing skip` (isolation still fail-closes). Default `--missing fail`.
+   Do not run `doctor --fix` (or otherwise edit `harness/skills` / `harness/rules`) between
+   reset and grade — that is an isolation fail.
 
 Full contract: `sandbox/README.md`.
 
@@ -68,7 +72,8 @@ Step 0, then one composer-2.5 Task. If `--skill` omitted, next command from
 Step 0 once, then the named or staged-touched skill, then the next stage-table command.
 Precommit Step 0 recommends this. **Stage mismatch:** still launch; the skill's own
 STOP/precondition is `fixture-limit` unless that abort is missing or misleading (`harness-gap`).
-Do not rewrite fixture `stage` to fake a body run.
+Do not rewrite fixture `stage` to fake a body run. Grade the touched skill fail-closed; grade
+the next with `--missing skip` when it has no oracle.
 
 ### `/midas-sandbox --all` — pipeline batch
 
@@ -115,6 +120,7 @@ go/no-go. Say so in findings for phases 2–4.
 - [ ] Engine guard passed (or honest ABORT).
 - [ ] `reset` then `env` exited 0; fixture `name` is `sandbox-example`.
 - [ ] `grade --skill <name>` printed `MIDAS_SANDBOX_ORACLE:` with `verdict=pass` (or fail cited).
+      After reset, `idea-intake` is expected **fail** until the Task advances fixture `stage`.
 - [ ] Task first-Read was the fixture state; no nested Task / other-model builder.
 - [ ] Every substituted `AskQuestion` is a `[SANDBOX AUTO-DECISION]` line.
 - [ ] Subagent model was `composer-2.5` (cited in Setup); `MIDAS_TRACE_ROOT` passed to trace-write.

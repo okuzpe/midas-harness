@@ -11,7 +11,7 @@
 //           only — never free-picked by builders.
 //
 // Surface column (UX catalog; orthogonal to Delegator — see ADR-013):
-//   - primary | internal | deprecated from frontmatter `user-surface` (allowlist fallback).
+//   - primary | internal | deprecated | engine-only from frontmatter `user-surface`.
 //
 // Usage:
 //   node scripts/skill-registry.mjs              # write harness/skill-registry.md
@@ -22,6 +22,8 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolvePaths } from './paths.mjs';
 import { parseFrontmatter } from './lib/frontmatter.mjs';
+import { maybeHelp } from './lib/cli-io.mjs';
+if (maybeHelp(import.meta.url)) process.exit(0);
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..');
@@ -75,12 +77,7 @@ export const INTERNAL_SURFACE_ALLOWLIST = new Set([
   'midas-sweep',
 ]);
 
-export const DEPRECATED_SURFACE_ALLOWLIST = new Set([
-  'midas-improve-loop',
-  'midas-autopilot',
-  'midas-auto-sprints',
-  'midas-update',
-]);
+export const DEPRECATED_SURFACE_ALLOWLIST = new Set([]);
 
 /**
  * Skills present under harness/skills but omitted from host discovery mirrors
@@ -91,18 +88,19 @@ export function isHostMirrorExcluded(id) {
   return INTERNAL_SURFACE_ALLOWLIST.has(id) || DEPRECATED_SURFACE_ALLOWLIST.has(id);
 }
 
-const USER_SURFACES = new Set(['primary', 'internal', 'deprecated']);
+const USER_SURFACES = new Set(['primary', 'internal', 'deprecated', 'engine-only']);
 
 /**
  * Resolve user-surface from frontmatter with allowlist fallback.
  * @param {string} id
  * @param {Record<string, string>} fm
- * @returns {'primary' | 'internal' | 'deprecated'}
+ * @returns {'primary' | 'internal' | 'deprecated' | 'engine-only'}
  */
 export function resolveUserSurface(id, fm = {}) {
   const raw = String(fm['user-surface'] || '').trim().toLowerCase();
-  if (USER_SURFACES.has(raw)) return /** @type {'primary' | 'internal' | 'deprecated'} */ (raw);
+  if (USER_SURFACES.has(raw)) return /** @type {'primary' | 'internal' | 'deprecated' | 'engine-only'} */ (raw);
   if (DEPRECATED_SURFACE_ALLOWLIST.has(id)) return 'deprecated';
+  if (id === 'midas-precommit' || id === 'midas-sandbox') return 'engine-only';
   if (INTERNAL_SURFACE_ALLOWLIST.has(id)) return 'internal';
   return 'primary';
 }

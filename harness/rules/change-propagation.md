@@ -51,8 +51,7 @@ remains rejected (drops audit text).
 
 ### After any substantive edit (before marking work done)
 - [ ] Identified which row(s) in the propagation matrix apply to this diff.
-      **CHECK:** `manual:` the PR/sprint notes or `/midas-align` report names each downstream surface
-      touched; an unmentioned generated tree in the diff that was hand-edited is a fail.
+      **CHECK:** `npm run align` (engine) names each downstream surface; an unmentioned generated tree in the diff that was hand-edited is a fail.
 - [ ] Ran the cheapest alignment ladder that proves sync (product: doctor + tests; engine: `npm run align`).
       **CHECK:** `npm run align` (engine) or `/midas-align` exits with `verdict=aligned` or lists only
       resolved gaps; exit 1 with open gaps is a fail before merge.
@@ -68,15 +67,11 @@ remains rejected (drops audit text).
       `scripts/sync-version.mjs` + `npm run build`. Do **not** hand-edit package mirrors,
       `INSTALL.md` pins, or skill `#v…` tags. Then finish CHANGELOG + `git tag`.
       Full checklist: `VERSIONING.md` § Release checklist.
-      **CHECK:** `manual:` when `harness/VERSION` is in the PR/sprint diff, the session or PR notes
-      name `npm run bump -- <ver>`; a VERSION bump done by editing mirrors/pins by hand without that
-      command is a fail.
-      **CHECK:** `node scripts/sync-version.mjs --check` exits 0 when `harness/VERSION` is in the diff.
+      **CHECK:** `node <paths.scripts>/sync-version.mjs --check` exits 0 when `harness/VERSION` is in the diff.
       **CHECK:** `node scripts/test.mjs` `version:*`, `version-pin:*`, and `version:sync-check` pass.
 - [ ] User-facing behaviour or install flow change updates `INSTALL.md`, `docs/getting-started.md`, or
       `docs/index.md` in the same change set.
-      **CHECK:** `manual:` a diff touching installer flags, layout, or skill commands also touches at least
-      one user-facing doc; undocumented install/flow change is a fail.
+      **CHECK:** `git diff --name-only` on a diff touching `cli/` or `harness/skills` also lists `INSTALL.md` or `docs/` — undocumented install/flow change is a fail.
 
 ### Product installs
 - [ ] Rule or convention edits re-render adapters before the next sprint task is marked done.

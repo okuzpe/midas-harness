@@ -14,7 +14,7 @@ argument-hint: "[--monorepo] [--dry-run]"
 # midas-init — install / setup / update tip
 
 > **Guard + state:** `<paths.engine>/templates/skill-state-ritual.md` (+ `AGENTS.md` § Safety / Path resolution).
-> **Surface:** `primary` — single human entry for onboarding. `/midas-update` is a deprecated alias here.
+> **Surface:** `primary` — single human entry for onboarding.
 > **SoT for install shape:** `node <paths.scripts>/install-diagnose.mjs` when that **file** exists (or `npx github:okuzpe/midas-harness --diagnose`). Do **not** re-implement detection in the model.
 
 One slash: detect where the project is, then tip the install CLI, run one-time setup, or tip a pinned `update`.
@@ -40,7 +40,7 @@ node <paths.scripts>/install-diagnose.mjs
 npx github:okuzpe/midas-harness --diagnose
 ```
 
-Statuses: `not_installed` | `legacy_layout` | `setup_pending` | `version_behind` | `nested_or_wrong_cwd` | `partial_migrate` | `ready`
+Statuses: `not_installed` | `unsupported_v1` | `setup_pending` | `version_behind` | `nested_or_wrong_cwd` | `partial_migrate` | `ready`
 
 ### 1. Branch (exact)
 
@@ -48,7 +48,8 @@ Statuses: `not_installed` | `legacy_layout` | `setup_pending` | `version_behind`
 |---|---|
 | `not_installed` | Print diagnose `nextCli` (**install**, never `update`). Say: *Install first, then re-run `/midas-init`.* **STOP** — do not start intake. |
 | `setup_pending` | Continue to **§ Intake** below (init-adaptive A–F). Forward `--monorepo` / `--dry-run`. |
-| `version_behind` / `legacy_layout` | Print diagnose `nextCli` (pinned `update`). Optionally mention dry-run. **Allowed even when `setup_complete: true`.** Do not invent a copy plan. **STOP** after the tip. |
+| `version_behind` | Print diagnose `nextCli` (pinned `update`). Optionally mention dry-run. **Allowed even when `setup_complete: true`.** Do not invent a copy plan. **STOP** after the tip. |
+| `unsupported_v1` | Print diagnose `nextCli` (pin `create-midas@2.10.x`, migrate, then upgrade to 3.x). **STOP.** Do not run 3.x `update` — it writes nothing. |
 | `partial_migrate` | Print diagnose `nextCli` (rollback if a journal exists) and the recover+`update` detail. **STOP**. Do not start intake or a fresh install unless the human intends to discard leftover `.harness/product`. |
 | `nested_or_wrong_cwd` | Print detail; ask human to `cd` to project root; **STOP**. |
 | `ready` | Onboarding complete — *👉 Run `/midas-status`*. If args include `--monorepo`, run **Phase F only** (see init-adaptive); do not flip `setup_complete`. Otherwise **STOP**. |

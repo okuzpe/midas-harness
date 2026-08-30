@@ -1,0 +1,18 @@
+# TEST FIXTURE. active sprint, no progress file, stale last_touched — must warn gate:sprint-continuity.
+midas_version: 2.10.3
+role: product
+layout: harness
+paths:
+  root: .harness
+  state: .harness/state.yaml
+  product: .harness/product
+  rules: .harness/rules
+  runs: .harness/runs
+  cache: .harness/cache
+name: fixture-inconsistent-sprint
+stage: sprint_execution
+sprints:
+  - id: "01"
+    title: "Fixture sprint"
+    status: active
+    last_touched: 2020-01-01

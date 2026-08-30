@@ -16,12 +16,14 @@ import {
   stripEngineOnlySkills,
   stripHostPickerExcludedSkills,
 } from './engine-only.mjs';
+import { maybeHelp } from './lib/cli-io.mjs';
+if (maybeHelp(import.meta.url)) process.exit(0);
 import {
   INTERNAL_SURFACE_ALLOWLIST,
   DEPRECATED_SURFACE_ALLOWLIST,
   writeSkillRegistry,
 } from './skill-registry.mjs';
-import { shippedScriptRepoPaths } from './ship-manifest.mjs';
+import { shippedScriptRepoPaths, shippedScriptSourcePath } from './ship-manifest.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..');
@@ -57,9 +59,10 @@ const optionalAutonomy = join(TEMPLATE, '.optional', 'autonomy');
 mkdirSync(dirname(optionalAutonomy), { recursive: true });
 cpSync(join(ROOT, 'harness', 'autonomy'), optionalAutonomy, { recursive: true });
 for (const f of FILES) {
-  const dst = join(scriptsTarget, f.replace(/^scripts\//, ''));
+  const rel = f.replace(/^scripts\//, '');
+  const dst = join(scriptsTarget, rel);
   mkdirSync(dirname(dst), { recursive: true });
-  cpSync(join(ROOT, f), dst);
+  cpSync(join(ROOT, shippedScriptSourcePath(rel)), dst);
 }
 cpSync(
   join(ROOT, 'cli', 'install-diagnose.mjs'),

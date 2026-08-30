@@ -25,8 +25,6 @@ Source: `.harness/engine/skills/*/SKILL.md`. v1 indexes engine skills only (no p
 | `midas-adopt` | engine | orchestrator-only | primary | `skills/midas-adopt/SKILL.md` |
 | `midas-align` | engine | orchestrator-only | primary | `skills/midas-align/SKILL.md` |
 | `midas-auto-pilot` | engine | yes | primary | `skills/midas-auto-pilot/SKILL.md` |
-| `midas-auto-sprints` | engine | yes | deprecated | `skills/midas-auto-sprints/SKILL.md` |
-| `midas-autopilot` | engine | yes | deprecated | `skills/midas-autopilot/SKILL.md` |
 | `midas-bundle` | engine | orchestrator-only | primary | `skills/midas-bundle/SKILL.md` |
 | `midas-capture` | engine | yes | primary | `skills/midas-capture/SKILL.md` |
 | `midas-design` | engine | yes | primary | `skills/midas-design/SKILL.md` |
@@ -35,7 +33,6 @@ Source: `.harness/engine/skills/*/SKILL.md`. v1 indexes engine skills only (no p
 | `midas-explore` | engine | yes | primary | `skills/midas-explore/SKILL.md` |
 | `midas-help` | engine | yes | primary | `skills/midas-help/SKILL.md` |
 | `midas-hygiene` | engine | orchestrator-only | primary | `skills/midas-hygiene/SKILL.md` |
-| `midas-improve-loop` | engine | yes | deprecated | `skills/midas-improve-loop/SKILL.md` |
 | `midas-init` | engine | orchestrator-only | primary | `skills/midas-init/SKILL.md` |
 | `midas-investigate` | engine | yes | primary | `skills/midas-investigate/SKILL.md` |
 | `midas-lean-review` | engine | yes | internal | `skills/midas-lean-review/SKILL.md` |
@@ -48,7 +45,6 @@ Source: `.harness/engine/skills/*/SKILL.md`. v1 indexes engine skills only (no p
 | `midas-status` | engine | yes | primary | `skills/midas-status/SKILL.md` |
 | `midas-sweep` | engine | yes | internal | `skills/midas-sweep/SKILL.md` |
 | `midas-tribunal` | engine | orchestrator-only | primary | `skills/midas-tribunal/SKILL.md` |
-| `midas-update` | engine | orchestrator-only | deprecated | `skills/midas-update/SKILL.md` |
 | `midas-verify` | engine | yes | primary | `skills/midas-verify/SKILL.md` |
 | `plan-sprints` | engine | orchestrator-only | primary | `skills/plan-sprints/SKILL.md` |
 | `start-sprint` | engine | orchestrator-only | primary | `skills/start-sprint/SKILL.md` |

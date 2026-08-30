@@ -1,0 +1,19 @@
+# TEST FIXTURE (not a real project). A sprint marked `done` whose frozen audit record shows unresolved
+# CRITs. doctor's gate:records MUST warn on this — proving the out-of-model guardrail actually fires.
+# Exercised by scripts/test.mjs (section K). Pair: ../consistent-audit (the must-stay-quiet case).
+midas_version: 2.10.3
+role: product
+layout: harness
+paths:
+  root: .harness
+  state: .harness/state.yaml
+  product: .harness/product
+  rules: .harness/rules
+  runs: .harness/runs
+  cache: .harness/cache
+name: fixture-inconsistent
+stage: sprint_execution
+sprints:
+  - id: "01"
+    title: "Fixture sprint"
+    status: done

@@ -13,6 +13,7 @@
 import { readFileSync, existsSync, readdirSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { resolvePaths, resolveProjectRootFromScript } from './paths.mjs';
+import { parseStageCommandTableYaml } from './yaml-lite.mjs';
 
 const ROOT = resolveProjectRootFromScript(import.meta.url);
 
@@ -128,92 +129,13 @@ export function computeStageCommandTableYaml() {
 }
 
 /**
- * Minimal YAML parser for our flat stage-command-table shape (no external deps).
- * @param {string} text
- * @returns {{ stages: Record<string, StageEntry> }}
- */
-function parseStageTableYaml(text) {
-  /** @type {Record<string, StageEntry>} */
-  const stages = {};
-  let current = null;
-  let inRecall = false;
-  const unquote = (value) => {
-    const trimmed = value.trim();
-    if ((trimmed.startsWith('"') && trimmed.endsWith('"')) || (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
-      return trimmed.slice(1, -1);
-    }
-    return trimmed;
-  };
-  for (const raw of text.split('\n')) {
-    const line = raw.replace(/\r$/, '');
-    const stageMatch = line.match(/^  (\w+):$/);
-    if (stageMatch) {
-      current = stageMatch[1];
-      stages[current] = { command: null, recall: [] };
-      inRecall = false;
-      continue;
-    }
-    if (!current) continue;
-    const cmd = line.match(/^    command(_when_done)?: (.+)$/);
-    if (cmd) {
-      const val = unquote(cmd[2]);
-      const parsed = val === 'null' ? null : val;
-      if (cmd[1] === '_when_done') stages[current].commandWhenDone = parsed;
-      else stages[current].command = parsed;
-      inRecall = false;
-      continue;
-    }
-    const verify = line.match(/^    verify_ui: (.+)$/);
-    if (verify) {
-      stages[current].verifyUi = unquote(verify[1]);
-      inRecall = false;
-      continue;
-    }
-    const redesign = line.match(/^    redesign_ui: (.+)$/);
-    if (redesign) {
-      stages[current].redesignUi = unquote(redesign[1]);
-      inRecall = false;
-      continue;
-    }
-    const qa = line.match(/^    qa_internal: (.+)$/);
-    if (qa) {
-      stages[current].qaInternal = unquote(qa[1]);
-      inRecall = false;
-      continue;
-    }
-    // Legacy key (pre-ADR-013 scrub) — accept and map.
-    const qaLegacy = line.match(/^    qa_adhoc: (.+)$/);
-    if (qaLegacy) {
-      stages[current].qaInternal = unquote(qaLegacy[1]);
-      inRecall = false;
-      continue;
-    }
-    const note = line.match(/^    note: (.+)$/);
-    if (note) {
-      stages[current].note = unquote(note[1]);
-      inRecall = false;
-      continue;
-    }
-    if (line.match(/^    recall:$/)) {
-      inRecall = true;
-      continue;
-    }
-    const recallItem = line.match(/^      - (.+)$/);
-    if (inRecall && recallItem) {
-      stages[current].recall.push(unquote(recallItem[1]));
-    }
-  }
-  return { stages };
-}
-
-/**
  * @param {string} [root]
  * @returns {{ stages: Record<string, StageEntry> }}
  */
 export function loadStageCommandTable(root = ROOT) {
   const path = join(root, resolvePaths(root).engine, 'stage-command-table.yaml');
   if (!existsSync(path)) throw new Error(`missing ${path}`);
-  return parseStageTableYaml(readFileSync(path, 'utf8'));
+  return parseStageCommandTableYaml(readFileSync(path, 'utf8'));
 }
 
 /**

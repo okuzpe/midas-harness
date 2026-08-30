@@ -14,6 +14,8 @@ import { fileURLToPath } from 'node:url';
 import { treeSha256 } from './ownership-manifest.mjs';
 import { scanVendorTree } from './lib/reconcile.mjs';
 import { listMigrationFiles } from './lib/migrate-state.mjs';
+import { maybeHelp } from './lib/cli-io.mjs';
+if (maybeHelp(import.meta.url)) process.exit(0);
 
 export const RELEASE_MANIFEST_SCHEMA_VERSION = 1;
 

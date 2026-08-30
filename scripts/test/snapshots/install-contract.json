@@ -1,0 +1,35 @@
+{
+  "cursor": {
+    "mustExist": [
+      "AGENTS.md",
+      ".mcp.json",
+      ".cursor/rules/00-midas.mdc",
+      ".cursor/rules/01-midas-checks.mdc",
+      ".cursor/skills",
+      ".harness/state.yaml",
+      ".harness/product",
+      ".harness/rules",
+      ".harness/runs"
+    ],
+    "mustNotExist": [
+      ".claude",
+      ".agents",
+      ".windsurf",
+      "GEMINI.md"
+    ],
+    "stateTools": ["cursor"]
+  },
+  "multihost": {
+    "mustExist": [
+      ".claude/CLAUDE.md",
+      ".cursor/rules/00-midas.mdc",
+      ".cursor/rules/01-midas-checks.mdc",
+      ".harness/.windsurf/rules/00-midas.md",
+      ".harness/.windsurf/rules/01-midas-checks.md",
+      "GEMINI.md",
+      ".claude/skills"
+    ],
+    "mustNotExist": [],
+    "stateTools": ["claude-code", "cursor", "windsurf", "gemini"]
+  }
+}

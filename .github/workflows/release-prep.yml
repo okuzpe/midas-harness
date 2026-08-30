@@ -31,7 +31,7 @@ jobs:
           node scripts/build-create.mjs
           node scripts/doctor.mjs
           pip install mkdocs-material==9.7.6
-          mkdocs build --strict
+          mkdocs build --strict --site-dir _site
 
       - name: Prepare release notes
         shell: bash
@@ -62,7 +62,7 @@ jobs:
             _site/
 
   release-manifest:
-    # Publish the stable channel hash for this tag so installs on `stable` see the release (ADR-015).
+    # Publish the stable channel hash for this tag so installs on `stable` see the release (ADR-016).
     needs: prepare
     if: startsWith(github.ref, 'refs/tags/v') && github.repository == 'okuzpe/midas-harness'
     runs-on: ubuntu-latest

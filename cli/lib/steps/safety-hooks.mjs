@@ -2,6 +2,7 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync, unlinkSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { hooksJsonPath } from './cursor-hooks.mjs';
 
 export const SAFETY_HOOK_MARKER = 'safety/';
 
@@ -54,13 +55,7 @@ const DESIRED_SAFETY_HOOKS = Object.freeze({
   beforeShellExecution: Object.freeze(['gate-commits.mjs', 'destructive-shell.mjs']),
 });
 
-/**
- * @param {string} targetDir project root
- * @returns {string}
- */
-export function hooksJsonPath(targetDir) {
-  return join(targetDir, '.cursor', 'hooks.json');
-}
+export { hooksJsonPath };
 
 /**
  * @param {unknown} entry

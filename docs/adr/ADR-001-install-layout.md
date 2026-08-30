@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| **Status** | **historical** — superseded for new installs by [ADR-007](./ADR-007-canonical-harness-layout.md) (canonical `.harness/`). Hub default was ADR-006; classic/compact/hub remain **read/migrate-only** under the harness layout. |
+| **Status** | **historical** — superseded for new installs by [ADR-007](./ADR-007-canonical-harness-layout.md) (canonical `.harness/`). 3.0 **refuses** remaining 1.x classic/compact/hub trees ([ADR-018](./ADR-018-v1-layout-removal.md)); discriminator is `role` + `paths:` ([ADR-017](./ADR-017-role-and-paths.md)). |
 | **Date** | 2026-06-29 |
 | **Deciders** | maintainer + orchestrate tier |
 | **Context7 verified** | n/a (no third-party library decision) |
@@ -12,8 +12,8 @@
 > `docs/adr/`.
 
 > **Archaeology only.** Do not treat hub/compact as the current default. New installs: ADR-007 +
-> thin-root ADR-008. Intra-legacy moves may still use `scripts/migrate-layout.mjs`; legacy→harness uses
-> `npx … --migrate`.
+> thin-root ADR-008. 3.x does not ship layout migrators; migrate 1.x with create-midas@2.10.x first
+> ([ADR-018](./ADR-018-v1-layout-removal.md)).
 
 ## Context
 

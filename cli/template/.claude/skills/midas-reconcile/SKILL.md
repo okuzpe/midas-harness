@@ -50,7 +50,7 @@ Run from the **project root** (or pass the path as the first argument).
 
 ### 2. Present the output verbatim
 
-Statuses: `not_installed` | `legacy_layout` | `setup_pending` | `version_behind` | `nested_or_wrong_cwd` | `partial_migrate` | `ready`
+Statuses: `not_installed` | `unsupported_v1` | `setup_pending` | `version_behind` | `nested_or_wrong_cwd` | `partial_migrate` | `ready`
 
 Do not invent a different command unless the script is missing (fallback below).
 
@@ -60,7 +60,7 @@ Do not invent a different command unless the script is missing (fallback below).
 |-------------|-------------|
 | No `.harness/engine/VERSION`, `harness/VERSION`, or `.midas/engine/VERSION` | `npx github:okuzpe/midas-harness#v{VERSION} --tools=cursor` then `/midas-init` |
 | `.harness/product` or `state.yaml` without `.harness/engine/VERSION` | `/midas-init` (`partial_migrate`) — do not treat as a fresh install |
-| `harness/VERSION` or `.midas/engine/VERSION` exists but canonical engine does not | `npx …#v{VERSION} update --yes` (auto-migrates 1.x) |
+| `harness/VERSION` or `.midas/engine/VERSION` exists but canonical engine does not | Pin `create-midas@2.10.x`, migrate to `.harness/`, then upgrade to 3.x. 3.x refuses 1.x trees. |
 | Engine present, `setup_complete: false` | `/midas-init` |
 | v2 `midas_version` ≠ engine `VERSION` | Same: `npx …#v{VERSION} update --yes` (or `/midas-init` for the tip) |
 | Parent dir has Midas, this folder does not | `cd` to parent; `/midas-status` |
@@ -73,7 +73,7 @@ Do not invent a different command unless the script is missing (fallback below).
 | `/midas-reconcile` | **Which command next?** (install/setup/version/cwd) — read-only |
 | `/midas-status` | **Which phase next?** (after setup is complete) |
 | `/midas-init` | **Do setup / tip update** — diagnose then intake or CLI tip |
-| Install CLI | Source of truth for install / update / migrate / uninstall / diagnose |
+| Install CLI | Source of truth for install / update / uninstall / diagnose. `--migrate` is refused in 3.x. |
 
 ## Exit gate
 - [ ] Diagnose CLI output presented (Status + Next), or fallback table used.
