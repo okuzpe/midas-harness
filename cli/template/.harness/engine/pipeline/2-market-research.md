@@ -44,6 +44,7 @@ decision. Every claim must be cited; opinions must be flagged as such.
 | File | Notes |
 |---|---|
 | `{product}/market.md` | Competitive landscape, cited |
+| `{runs}/audits/gate-02.md` | Phase-2 gate freeze |
 
 ## Exit gate checklist
 

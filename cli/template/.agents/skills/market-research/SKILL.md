@@ -65,7 +65,7 @@ search/extraction. Build (Sonnet) writes the synthesis.
 ## Tier & delegation
 - **Dispatch + gate verdict:** `orchestrate` → `midas-orchestrator`.
 - **Fan-out search / citation harvest:** `scout` → `midas-scout` (or host deep-research if installed).
-- **Draft `{product}/market.md`:** `build` → `midas-builder`.
+- **Draft `{product}/market.md` and `{runs}/audits/gate-02.md`:** `build` → `midas-builder`.
 - Respect `paths.state → cost_profile`. On non-Claude hosts, apply as intent (fastest for search, strongest for the gate).
 
 ## Exit gate (Phase 2)
@@ -75,5 +75,9 @@ search/extraction. Build (Sonnet) writes the synthesis.
 - [ ] Top 3 market risks named, each with an early signal.
 - [ ] **Demand signals** assessed with a frank desk-demand verdict (strong/mixed/weak) and evidence —
       not just a competitor list. (Whether *these* customers pay is field validation, weighed in Phase 3.)
-- [ ] `{product}/market.md` written; gate verdict rendered by the orchestrator before advancing to
-      `business_case`.
+- [ ] `{product}/market.md` written.
+- [ ] Gate verdict written to `{runs}/audits/gate-02.md`.
+
+On pass: freeze `{runs}/audits/gate-02.md` from `<paths.engine>/templates/gate-record.md`, set
+`phases.market_research` to `{ status: passed, gate: passed }`, next → `/business-plan`.
+On fail: report unmet item.

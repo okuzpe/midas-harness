@@ -43,6 +43,7 @@ question loop with the human before advancing. Zero unresolved blockers is the g
 |---|---|
 | `{product}/idea.md` | v2 — adds `## Contextualized` section |
 | `{product}/open-questions.md` | All open questions, blocking/deferred/resolved |
+| `{runs}/audits/gate-01.md` | Phase-1 gate freeze |
 
 ## Exit gate checklist
 

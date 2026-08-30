@@ -650,6 +650,23 @@ if (existsSync(join(ROOT, 'harness', 'gates.json'))) {
       const text = readFileSync(join(ROOT, 'harness', 'pipeline', file), 'utf8');
       check(`harness:gates-registry:ritual:${id}`, text.includes(needle), `${file} must name ${needle}`);
     }
+    const skillRitual = [
+      ['gate-00.md', 'idea-intake'],
+      ['gate-01.md', 'contextualize'],
+      ['gate-02.md', 'market-research'],
+      ['gate-03.md', 'business-plan'],
+      ['gate-04.md', 'choose-architecture'],
+      ['gate-05.md', 'define-conventions'],
+      ['gate-06.md', 'plan-sprints'],
+    ];
+    for (const [needle, skill] of skillRitual) {
+      const text = readFileSync(join(ROOT, 'harness', 'skills', skill, 'SKILL.md'), 'utf8');
+      check(
+        `harness:gates-registry:skill:${needle}`,
+        text.includes(needle),
+        `${skill} must freeze ${needle}`,
+      );
+    }
     check(
       'harness:gates-registry:gate-07-progress',
       /NN-progress\.md/.test(readFileSync(join(ROOT, 'harness', 'pipeline', '7-sprint-execution.md'), 'utf8')),

@@ -25,7 +25,7 @@ gate; the builder drafts the document.
 | Does | Does not |
 |---|---|
 | Draft go/no-go case with MVP scope, metrics, monetization, validation status | Start engineering or self-advance past Phase 3 without human sign-off |
-| Require **human** go/no-go via `AskUserQuestion` (name + date recorded) | Invent a hard “interview N customers or no product” wall for resource-constrained founders |
+| Require **human** go/no-go via `AskQuestion` (name + date recorded) | Invent a hard “interview N customers or no product” wall for resource-constrained founders |
 | Log deferred field validation as an explicit assumption | Rubber-stamp go/no-go without the human |
 
 ## When NOT
@@ -60,7 +60,7 @@ gate; the builder drafts the document.
      **Do NOT invent a hard "no product until you interview N people" gate that walls the founder.** The
      go/no-go is the human's informed risk call, not a lock.
 7. **Go / no-go** — render an explicit recommendation with rationale, then obtain **human sign-off**
-   via `AskUserQuestion`. A valid verdict is **GO with field validation deferred (assumption logged)**
+   via `AskQuestion`. A valid verdict is **GO with field validation deferred (assumption logged)**
    when desk demand is at least *mixed* and the human accepts the unproven-demand risk. Record the
    decision + who signed off + the date in the document and in **`paths.state`**. On "no-go", stop and log why.
 8. **Write `{product}/business-plan.md`** from `<paths.engine>/templates/business-plan.md`; update
@@ -68,7 +68,7 @@ gate; the builder drafts the document.
 
 ## Tier & delegation
 - **Dispatch + go/no-go / gate verdict:** `orchestrate` → `midas-orchestrator`.
-- **Draft `{product}/business-plan.md` + state writes:** `build` → `midas-builder`.
+- **Draft `{product}/business-plan.md`, `{runs}/audits/gate-03.md`, and state writes:** `build` → `midas-builder`.
 - Evidence extraction from `{product}/market.md` → `scout` (`midas-scout`) when the file exists.
 - Respect `cost_profile`. Under `max_savings`, this Phase-3 gate still runs on the orchestrate pin (Sonnet); escalate to Opus only if the human asks for a deeper audit.
 
@@ -79,5 +79,9 @@ gate; the builder drafts the document.
 - [ ] **Validation status** recorded: the desk demand verdict + field-validation status (done, or
       **deferred with a logged assumption**). The founder is not hard-walled — go/no-go is their informed call.
 - [ ] Explicit go/no-go recorded **with human sign-off** (name + date) in the doc and **`paths.state`**.
-- [ ] `{product}/business-plan.md` written; gate verdict rendered by the orchestrator before advancing
-      to `tech_architecture`.
+- [ ] `{product}/business-plan.md` written.
+- [ ] Gate verdict written to `{runs}/audits/gate-03.md`.
+
+On pass: freeze `{runs}/audits/gate-03.md` from `<paths.engine>/templates/gate-record.md`, set
+`phases.business_case` to `{ status: passed, gate: passed }`, next → `/choose-architecture`.
+On fail: report unmet item.

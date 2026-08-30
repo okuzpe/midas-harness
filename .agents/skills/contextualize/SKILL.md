@@ -49,7 +49,7 @@ Repeat until there are **zero blocking** open questions:
    (what the MVP deliberately won't do).
 2. **Rank by severity.** Tag each `blocking` (a later phase cannot proceed correctly without it) or
    `non-blocking` (nice to know; defer). Only `blocking` questions gate this phase.
-3. **Ask in batches.** Use `AskUserQuestion` to ask the highest-severity blockers in small batches
+3. **Ask in batches.** Use `AskQuestion` to ask the highest-severity blockers in small batches
    (≈3-4 at a time), each with a crisp default/option set so the user can answer fast. Do not dump 20
    questions at once.
 4. **Fold answers in.** Update `{product}/idea.md` (v2) with the resolved facts — sharpening the user,
@@ -69,17 +69,20 @@ Advance to Phase 2 **iff** (on-disk evidence):
 - [ ] Every deferred blocker has an explicit, user-accepted assumption (dated).
 - [ ] **user, problem, success metric, and non-goals** are each defined in `{product}/idea.md` v2.
 - [ ] Phase-0 raw-idea block is still intact (untouched).
+- [ ] Gate verdict written to `{runs}/audits/gate-01.md`.
 
-On pass (`track: full`): record artifacts under `phases.contextualize.artifacts`, set
-`phases.contextualize` to `{ status: passed, gate: passed }`, advance
+On pass (`track: full`): freeze `{runs}/audits/gate-01.md` from
+`<paths.engine>/templates/gate-record.md`, record artifacts under `phases.contextualize.artifacts`,
+set `phases.contextualize` to `{ status: passed, gate: passed }`, advance
 `stage: market_research, stage_status: not_started`, next **`/market-research`**.
-On pass (`track: lite`): record `phases.contextualize` passed or skipped-with-assumption; do **not**
-set `stage: market_research`; continue Idea+Plan (architecture + business-plan stub) then
-**`/plan-sprints`**. Next is **never `/market-research`**. See `<paths.engine>/pipeline/lite.md`.
+On pass (`track: lite`): freeze `{runs}/audits/gate-01.md` the same way; record
+`phases.contextualize` passed or skipped-with-assumption; do **not** set `stage: market_research`;
+continue Idea+Plan (architecture + business-plan stub) then **`/plan-sprints`**. Next is
+**never `/market-research`**. See `<paths.engine>/pipeline/lite.md`.
 On miss: keep `stage_status: in_progress` and list outstanding blockers.
 Producer never passes its own gate — the orchestrator renders it.
 
 ## Tier & delegation
 - **Dispatch + gate verdict:** `orchestrate` → `midas-orchestrator`.
-- **Write `{product}/idea.md`, `{product}/open-questions.md`, and `paths.state`:** `build` → `midas-builder`.
+- **Write `{product}/idea.md`, `{product}/open-questions.md`, `{runs}/audits/gate-01.md`, and `paths.state`:** `build` → `midas-builder`.
 - **Evidence extraction / file reads:** `scout` → `midas-scout` or `Explore`.

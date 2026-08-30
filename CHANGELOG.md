@@ -9,6 +9,8 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+## [3.0.1] — 2026-08-30
+
 ### Fixed
 
 - **3.x docs no longer claim auto-migrate** — `INSTALL.md`, installer outcomes, and SECURITY match
@@ -21,6 +23,9 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
   is `## 1-line pitch` (same as the template/oracle); mode confirm uses `AskQuestion`.
 - **Sandbox `finish`** — `sandbox-run finish` exits 1 on `no-active-run` (lab is not fail-open) and
   records the last `start-run` in `sandbox/findings/_active-run.json`.
+- **Phases 1–3 playbook vs skill** — `contextualize`, `market-research`, and `business-plan` freeze
+  `{runs}/audits/gate-01.md`…`gate-03.md`; prompt steps use `AskQuestion` (Claude fallback stays in
+  the skill header).
 
 ### Tests
 
@@ -87,6 +92,7 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 Prior 2.x / 1.x / 0.x history: [docs/changelog-archive/2.x-and-earlier.md](docs/changelog-archive/2.x-and-earlier.md)
 
-[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/okuzpe/midas-harness/compare/v3.0.1...HEAD
+[3.0.1]: https://github.com/okuzpe/midas-harness/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/okuzpe/midas-harness/compare/v2.10.3...v3.0.0
 

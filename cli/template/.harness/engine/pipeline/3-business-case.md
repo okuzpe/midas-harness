@@ -51,6 +51,7 @@ This is an irreversible decision point; use the orchestrate tier.
 | File | Notes |
 |---|---|
 | `{product}/business-plan.md` | MVP scope, metrics, model, go/no-go |
+| `{runs}/audits/gate-03.md` | Phase-3 gate freeze |
 
 ## Exit gate checklist
 

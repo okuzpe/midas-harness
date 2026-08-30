@@ -203,6 +203,16 @@ if (existsSync(tplRoot)) {
       'idea-intake:askquestion-mode',
       /Confirm via `AskQuestion`/.test(ideaIntakeSkill) && !/Confirm via `AskUserQuestion`/.test(ideaIntakeSkill),
     );
+    const contextualizeSkill = readFileSync(join(ROOT, 'harness', 'skills', 'contextualize', 'SKILL.md'), 'utf8');
+    const businessPlanSkill = readFileSync(join(ROOT, 'harness', 'skills', 'business-plan', 'SKILL.md'), 'utf8');
+    check(
+      'contextualize:askquestion-batches',
+      /Use `AskQuestion`/.test(contextualizeSkill) && !/Use `AskUserQuestion`/.test(contextualizeSkill),
+    );
+    check(
+      'business-plan:askquestion-gng',
+      /via `AskQuestion`/.test(businessPlanSkill) && !/via `AskUserQuestion`/.test(businessPlanSkill),
+    );
     check(
       'playbook-0:pitch-heading',
       /## 1-line pitch/.test(playbook0) && !/## One-line pitch/.test(playbook0),
