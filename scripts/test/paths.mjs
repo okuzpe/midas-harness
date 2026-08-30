@@ -134,6 +134,10 @@ check('paths:module-exists', existsSync(join(ROOT, 'scripts', 'paths.mjs')));
   }
 }
 check('migrate-layout:removed', !existsSync(join(ROOT, 'scripts', 'migrate-layout.mjs')));
+check(
+  'migrate-layout:template-removed',
+  !existsSync(join(ROOT, 'cli', 'template', '.harness', 'scripts', 'migrate-layout.mjs')),
+);
 check('migrate-harness:removed', !existsSync(join(ROOT, 'cli', 'migrate-harness.mjs')));
 check('schema:layout-field', /layout:\s*harness/.test(readFileSync(join(ROOT, 'harness', 'state.schema.md'), 'utf8')));
 check('schema:role-field', /role:\s*product/.test(readFileSync(join(ROOT, 'harness', 'state.schema.md'), 'utf8')));

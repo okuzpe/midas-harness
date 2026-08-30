@@ -8,7 +8,8 @@
 | **Superseded by** | ADR-007 (canonical `.harness/`), ADR-008 (thin-root allowlist) |
 | **Related** | ADR-001 (compact), ADR-003 (memory model) |
 
-> **Archaeology only.** New product installs do not use `layout: hub`. Detect + `--migrate` only.
+> **Archaeology only.** New product installs do not use `layout: hub`. 3.x refuses remaining hub
+> trees ([ADR-018](./ADR-018-v1-layout-removal.md)); migrate with `create-midas@2.10.x` first.
 
 ## Context
 

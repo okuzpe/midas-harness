@@ -280,6 +280,10 @@ export async function run() {
 }
 
 check('behavioral:migrate-layout-removed', !existsSync(join(ROOT, 'scripts', 'migrate-layout.mjs')));
+check(
+  'behavioral:migrate-layout-template-removed',
+  !existsSync(join(ROOT, 'cli', 'template', '.harness', 'scripts', 'migrate-layout.mjs')),
+);
 
 if (existsSync(join(ROOT, 'scripts', 'bundle.mjs'))) {
   try {

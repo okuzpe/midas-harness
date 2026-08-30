@@ -28,6 +28,9 @@ runs/test-out*.txt
 # Working copy is generated from sandbox/seed/ via `node scripts/sandbox-run.mjs reset`.
 # sandbox/findings/*.md is curated and committed.
 sandbox/example-product/
+sandbox/findings/_ledger.jsonl
+sandbox/findings/*.jsonl
+sandbox/findings/_active-run.json
 
 # Muninn-adapt session/metrics/installer (under cache — already covered by .harness/cache/ and runs/cache/)
 #   session/commit-approved.json

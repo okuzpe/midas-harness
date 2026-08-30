@@ -80,8 +80,8 @@ or `MIDAS_INSTALL_REF` overrides the tag.
 
 **Lifecycle (deterministic CLI):** requirements → checks → ordered plan → confirm → execute → verify →
 result (or rollback). `/midas-init` (when diagnose says version/layout behind) and `/midas-reconcile`
-are thin guides to the CLI; they do not re-plan installs in the model. Deprecated `/midas-update`
-forwards to `/midas-init`.
+are thin guides to the CLI; they do not re-plan installs in the model. `/midas-update` was removed in
+3.0 — use `/midas-init`.
 
 Post-install doctor: `node .harness/scripts/doctor.mjs --strict`.
 
@@ -218,7 +218,6 @@ Phase 8 (`/close-sprint`) grades `.harness/engine/rules/security.md`: `.gitignor
 3. `/midas-status` — from here on, shows the current phase and the single next command.
 4. Optional: `/midas-auto-pilot` — unified autonomy guide (Mode Ask: continuous evolve with PR|code + `/loop`,
    or ADR-009 sprint checklist → `midas-autopilot.mjs`). Evolve path does not require `--autonomy`.
-   Aliases `/midas-auto-sprints`, `/midas-autopilot`, `/midas-improve-loop` forward here.
 5. After a sprint lands: `/midas-retro` — freeze learnings under `{runs}/retros/` (non-advancing;
    does not replace `/close-sprint`).
 6. **`/midas-reconcile`** — when unsure which command to run (install vs update vs init); read-only.
@@ -232,8 +231,9 @@ Phase 8 (`/close-sprint`) grades `.harness/engine/rules/security.md`: `.gitignor
 
 ## Always refresh (one command)
 
-Run **inside the product repo**. Pins the latest release from GitHub, then refreshes.
-Works on **v2 and 1.x** — `--update` auto-migrates classic/compact/hub, then refreshes the engine.
+Run **inside the product repo**. Pins the latest release from GitHub, then refreshes a
+**v2/v3 `.harness/` install**. 1.x classic/compact/hub trees are **refused** (zero writes) —
+pin `create-midas@2.10.3`, migrate, then upgrade (see [Migrating an existing 1.x install](#migrating-an-existing-1x-install)).
 
 **macOS / Linux**
 ```bash
@@ -251,7 +251,7 @@ irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | ie
 npx github:okuzpe/midas-harness#v3.0.0 update --yes
 ```
 
-Preview: add `--dry-run`. Explicit `--migrate` / `--migrate --apply` remain available.
+Preview: add `--dry-run`. `--migrate` is refused in 3.x (pin `create-midas@2.10.x` first).
 
 ## Which command should I run? (troubleshooting)
 
@@ -262,25 +262,25 @@ Preview: add `--dry-run`. Explicit `--migrate` / `--migrate --apply` remain avai
 | Installed, first time in editor | — | `/midas-init` |
 | Installed, `setup_complete: true` | — | `/midas-status` |
 | Existing codebase, brownfield | install + | `/midas-init` (may route to `/midas-adopt`) |
-| Existing 1.x **or** engine refresh | **Always refresh** command above (`--update --yes`) | `/midas-status` when CLI prints `verify: ok` |
+| Existing 1.x classic/compact/hub | `npx create-midas@2.10.3 update --yes`, then 3.x `update` | `/midas-status` |
+| Engine refresh (already `.harness/`) | **Always refresh** command above (`update --yes`) | `/midas-status` when CLI prints `verify: ok` |
 | **Not sure** | `npx github:okuzpe/midas-harness --diagnose` | `/midas-reconcile` |
 
 `--diagnose` and `/midas-reconcile` are **read-only** — they never write files.
 
 ## Updating an existing install
 
-**Prefer the [Always refresh](#always-refresh-one-command) one-liner.** `--update` refreshes the harness layout **and**
-auto-migrates 1.x (classic/compact/hub) in one shot.
+**Prefer the [Always refresh](#always-refresh-one-command) one-liner.** `update` refreshes a v2/v3
+`.harness/` install. It does **not** migrate 1.x classic/compact/hub trees.
 
-**`--update` and `/midas-init` (version_behind path) are alternatives, not a sequence.** The CLI
+**`update` and `/midas-init` (version_behind path) are alternatives, not a sequence.** The CLI
 path is complete when it prints `verify: ok — adapters in sync`. Use `/midas-init` when you want
-diagnose + an interactive tip before the same refresh; deprecated `/midas-update` forwards there.
+diagnose + an interactive tip before the same refresh.
 
-On a harness-layout install, **`--update`** refreshes manifest-owned engine/generated files, re-renders adapters
+On a harness-layout install, **`update`** refreshes manifest-owned engine/generated files, re-renders adapters
 and skill mirrors, prunes orphan host trees, and runs doctor **`--strict --profile=install-verify`** before it
 finishes (layout/version/routing/manifest/mirrors/adapters/secrets — not full MCP governance /
-`rules:combined`). On a 1.x layout it migrates transactionally to `.harness/` first, then does the same
-refresh. It preserves product, rules, runs, state, MCP, and content outside generated markers. Pass
+`rules:combined`). It preserves product, rules, runs, state, MCP, and content outside generated markers. Pass
 **`--tools=…`** to change the host set and prune unused adapters. Full doctor remains
 `node .harness/scripts/doctor.mjs --strict` / `/midas-doctor`.
 

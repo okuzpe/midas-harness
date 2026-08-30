@@ -85,7 +85,7 @@ export function gatherRequirements(cmd, ctx, deps) {
       id: 'legacy-or-harness',
       ok: found,
       message: found
-        ? `layout=${ctx.layout || legacy}`
+        ? `layout=${ctx.layout || legacy} — 3.x refuses --migrate`
         : 'no Midas 1.x install found',
     });
   }
@@ -112,7 +112,7 @@ export function gatherChecks(cmd, ctx, deps, channelStatus = null) {
       out.push({
         id: 'git-dirty',
         ok: true,
-        message: `working tree has ${lines} dirty path(s) — commit or stash before migrate/update if you need a clean restore point (not blocking)`,
+        message: `working tree has ${lines} dirty path(s) — commit or stash before update if you need a clean restore point (not blocking)`,
       });
     }
   }
@@ -123,13 +123,15 @@ export function gatherChecks(cmd, ctx, deps, channelStatus = null) {
         id: 'layout-conflict',
         ok: false,
         message:
-          'layout markers conflict (classic/hub and .harness coexist) — resolve manually or restore from git before migrate',
+          'layout markers conflict (classic/hub and .harness coexist) — 3.x refuses --migrate; resolve manually or restore from git',
       });
     } else {
       out.push({
         id: 'layout',
         ok: true,
-        message: legacy ? `will migrate ${legacy} → harness` : 'no legacy layout markers',
+        message: legacy
+          ? `detected 1.x layout=${legacy} — 3.x refuses --migrate; pin create-midas@2.10.x`
+          : 'no legacy layout markers',
       });
     }
 
@@ -172,7 +174,7 @@ export function gatherChecks(cmd, ctx, deps, channelStatus = null) {
       ok: !!assessment.manifest,
       message: assessment.manifest
         ? `manifest midas_version=${assessment.manifest.midas_version}`
-        : 'canonical install has no valid .harness/manifest.json — run --migrate for a legacy layout, or repair the manifest before updating',
+        : 'canonical install has no valid .harness/manifest.json — repair the manifest before updating (3.x does not migrate 1.x trees)',
     });
     if (assessment.manifest) {
       const isUpgrade = compareVersions(assessment.manifest.midas_version || '0.0.0', deps.bundledVersion) < 0;

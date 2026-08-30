@@ -28,6 +28,10 @@ each skill**, before the next one — not once at the end of `--smoke` / `--all`
 node scripts/sandbox-run.mjs grade --skill idea-intake --ledger
 ```
 
+`finish` after the last grade must exit 0. `no-active-run` is an isolation fail (exit 1),
+not a quiet JSON line. The runner writes `sandbox/findings/_active-run.json` on `start-run`
+so a missing `current.json` still names the last session.
+
 After `reset`, that command **must fail** (`stage` still `idea_intake`, no phase artifacts).
 A pass without a Task means the oracle is grading the seed, not the skill.
 `--skill /idea-intake` is the same JSON. `--smoke` / `--all` next skills without an oracle

@@ -62,19 +62,6 @@ function defaultInstallCmd(bundledVersion) {
 }
 
 /**
- * @param {string} installCmd
- * @param {'migrate' | 'update'} mode
- */
-function relatedCli(installCmd, mode) {
-  const base = installCmd.replace(/\s+--tools=\S+/g, '').trim();
-  if (mode === 'migrate') {
-    return /\s--migrate\b/.test(base) ? base : `${base} --migrate`;
-  }
-  if (/\bupdate\b/.test(base) && !/--update/.test(base)) return base;
-  return `${base.replace(/\s+--update\b/, '')} update`.replace(/\s+/g, ' ').trim();
-}
-
-/**
  * @param {string} targetDir
  * @param {{ bundledVersion?: string, installCmd?: string }} [opts]
  */

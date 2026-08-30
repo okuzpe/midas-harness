@@ -57,7 +57,7 @@ import {
   summarizeReports,
 } from '../skill-quality-check.mjs';
 import { ENGINE_ONLY_SKILLS, HARNESS_ENGINE_ONLY_RELS } from '../engine-only.mjs';
-import { resetSandbox, inspectSandboxEnv, isPathInside, gradeSandbox, parseGradeArgs } from '../sandbox-run.mjs';
+import { resetSandbox, inspectSandboxEnv, isPathInside, gradeSandbox, parseGradeArgs, ACTIVE_RUN_REL } from '../sandbox-run.mjs';
 import { loadOracleDoc } from '../lib/sandbox-grade.mjs';
 import { splitSkillDocument } from '../lib/frontmatter.mjs';
 import { walkFiles } from '../lib/walk.mjs';
@@ -193,6 +193,24 @@ if (existsSync(tplRoot)) {
       'sandbox:gitignore-working-copy',
       /sandbox\/example-product\//.test(readFileSync(join(ROOT, '.gitignore'), 'utf8')),
     );
+    const ideaIntakeSkill = readFileSync(join(ROOT, 'harness', 'skills', 'idea-intake', 'SKILL.md'), 'utf8');
+    const playbook0 = readFileSync(join(ROOT, 'harness', 'pipeline', '0-idea-intake.md'), 'utf8');
+    check(
+      'idea-intake:freeze-gate-00',
+      /\{runs\}\/audits\/gate-00\.md/.test(ideaIntakeSkill),
+    );
+    check(
+      'idea-intake:askquestion-mode',
+      /Confirm via `AskQuestion`/.test(ideaIntakeSkill) && !/Confirm via `AskUserQuestion`/.test(ideaIntakeSkill),
+    );
+    check(
+      'playbook-0:pitch-heading',
+      /## 1-line pitch/.test(playbook0) && !/## One-line pitch/.test(playbook0),
+    );
+    check(
+      'sandbox:gitignore-active-run',
+      /sandbox\/findings\/_active-run\.json/.test(readFileSync(join(ROOT, '.gitignore'), 'utf8')),
+    );
     check(
       'sandbox:tally-line',
       /MIDAS_SANDBOX_RESULT:/.test(readFileSync(join(ROOT, 'harness', 'templates', 'audit-checklists.md'), 'utf8')),
@@ -299,6 +317,50 @@ if (existsSync(tplRoot)) {
         isolationGrade.ok === true && isolationGrade.isolation === 'ok',
         isolationGrade.tally,
       );
+      {
+        const start = spawnSync(process.execPath, [join(ROOT, 'scripts', 'sandbox-run.mjs'), 'start-run'], {
+          cwd: ROOT,
+          encoding: 'utf8',
+        });
+        const tracesCurrent = join(restored.work, '.harness', 'cache', 'traces', 'current.json');
+        let started = {};
+        try {
+          started = JSON.parse(String(start.stdout || '').trim().split(/\r?\n/).filter(Boolean).pop() || '{}');
+        } catch {
+          started = {};
+        }
+        check(
+          'sandbox:start-run',
+          start.status === 0 && Boolean(started.session_id && started.run_id),
+          start.stderr || start.stdout,
+        );
+        check('sandbox:start-run-current', existsSync(tracesCurrent), tracesCurrent);
+        check(
+          'sandbox:start-run-not-engine',
+          !started.session_id ||
+            !existsSync(join(ROOT, 'runs', 'cache', 'traces', `session-${started.session_id}`)),
+        );
+        check('sandbox:active-run-sidecar', existsSync(join(ROOT, ACTIVE_RUN_REL)));
+        const finish = spawnSync(process.execPath, [join(ROOT, 'scripts', 'sandbox-run.mjs'), 'finish'], {
+          cwd: ROOT,
+          encoding: 'utf8',
+        });
+        check(
+          'sandbox:finish-active',
+          finish.status === 0 && /"session_id"/.test(finish.stdout) && !/"reason":"no-active-run"/.test(finish.stdout),
+          finish.stderr || finish.stdout,
+        );
+        check('sandbox:active-run-cleared', !existsSync(join(ROOT, ACTIVE_RUN_REL)));
+        const finishIdle = spawnSync(process.execPath, [join(ROOT, 'scripts', 'sandbox-run.mjs'), 'finish'], {
+          cwd: ROOT,
+          encoding: 'utf8',
+        });
+        check(
+          'sandbox:finish-idle',
+          finishIdle.status === 1 && /no-active-run/.test(`${finishIdle.stdout}\n${finishIdle.stderr}`),
+          finishIdle.stderr || finishIdle.stdout,
+        );
+      }
       const graded = gradeSandbox({ root: ROOT, skill: 'idea-intake', ledger: false });
       check('sandbox:grade-seed-idea-intake-fails', graded.ok === false, graded.tally);
       check(
@@ -371,6 +433,18 @@ if (existsSync(tplRoot)) {
         );
         sim = sim.replace(/^    gate:\s*passed\s*$/m, '    gate: passed\n    artifacts: [.harness/product/idea.md]');
         writeFileSync(simState, sim, 'utf8');
+        const artifactsOnly = gradeSandbox({ root: ROOT, skill: 'idea-intake', ledger: false });
+        check(
+          'sandbox:grade-idea-intake-artifacts-without-gate-record',
+          artifactsOnly.ok === false && artifactsOnly.checks.some((c) => c.id === 'gate-record' && !c.ok),
+          artifactsOnly.tally,
+        );
+        mkdirSync(join(restored.work, '.harness', 'runs', 'audits'), { recursive: true });
+        writeFileSync(
+          join(restored.work, '.harness', 'runs', 'audits', 'gate-00.md'),
+          '# Phase gate gate-00 — Idea Intake\n\nMIDAS_GATE_RESULT: verdict=pass unresolved=0\n',
+          'utf8',
+        );
         const afterGate = gradeSandbox({ root: ROOT, skill: 'idea-intake', ledger: false });
         check('sandbox:grade-idea-intake-after-gate', afterGate.ok === true, afterGate.tally);
         resetSandbox(ROOT);

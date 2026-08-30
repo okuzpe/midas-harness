@@ -61,11 +61,3 @@ export function formatUpdateCheckCmd(opts = {}) {
 export function formatDiagnoseCmd() {
   return `npx ${npxPackageRef()} --diagnose`;
 }
-
-/**
- * @param {{ version?: string | null, apply?: boolean }} [opts]
- */
-export function formatMigrateCmd(opts = {}) {
-  const ref = npxPackageRef(opts.version ?? null);
-  return opts.apply ? `npx ${ref} --migrate --apply` : `npx ${ref} --migrate`;
-}

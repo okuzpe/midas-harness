@@ -316,6 +316,11 @@ if (engineVersion) {
         installBody.includes('installer:update-second-leaves-untracked-vendor-file'),
       'INSTALL.md must cite untracked-file tests including the two-update regression',
     );
+    check(
+      'install:docs:no-3x-auto-migrate',
+      !/auto-migrates 1\.x/.test(installBody) && !/Works on \*\*v2 and 1\.x\*\*/.test(installBody),
+      'INSTALL.md must not claim 3.x auto-migrates 1.x',
+    );
   }
   for (const f of [
     'harness/skills/midas-update/SKILL.md',

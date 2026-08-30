@@ -7,7 +7,7 @@
   improve via `/midas-auto-pilot` (unified Mode gate: local `/loop` evolve + optional Cursor Automations
   **or** this policy plane’s CLI guide — **not** a second lease/budget implementation; delivery `pr|code`
   caps in `templates/auto-pilot-runbook.md.tmpl`). Editor slash for both planes: `/midas-auto-pilot`
-  (CLI controller remains `midas-autopilot.mjs`; aliases `/midas-auto-sprints` etc. forward).
+  (CLI controller remains `midas-autopilot.mjs`; 3.0 removed alias slash skills).
 
 ## Context
 
@@ -65,3 +65,9 @@ they lack per-workflow budgets, durable leases, and a public quota-reset API.
   unified skill (bare `/midas-auto-sprints` defaults intent=`sprints`).
 - **Controller CLI name unchanged** (`midas-autopilot.mjs` / npm bin). Chat still never
   auto-invokes `tick`.
+
+## Amendment — 2026-08-30 (3.0)
+
+- Alias slash skills `/midas-auto-sprints`, `/midas-autopilot`, `/midas-improve-loop`, and
+  `/midas-update` were **deleted**. Type `/midas-auto-pilot` or `/midas-init`. The 2026-08-10
+  forward-stub behaviour no longer exists.

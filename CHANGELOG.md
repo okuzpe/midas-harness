@@ -9,6 +9,24 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+### Fixed
+
+- **3.x docs no longer claim auto-migrate** — `INSTALL.md`, installer outcomes, and SECURITY match
+  the refuse contract: `update` refreshes `.harness/` only; 1.x trees pin `create-midas@2.10.x` first.
+- Dead `relatedCli()` and `formatMigrateCmd()` removed. Missing-manifest preflight no longer
+  suggests `--migrate`. Alias slash skills stay deleted; `/midas-auto-pilot` no longer documents
+  forward stubs.
+- Sandbox grade ledger (`sandbox/findings/_ledger.jsonl`) is gitignored; curated `*.md` findings stay tracked.
+- **Phase 0 playbook vs skill** — `idea-intake` freezes `{runs}/audits/gate-00.md`; playbook heading
+  is `## 1-line pitch` (same as the template/oracle); mode confirm uses `AskQuestion`.
+- **Sandbox `finish`** — `sandbox-run finish` exits 1 on `no-active-run` (lab is not fail-open) and
+  records the last `start-run` in `sandbox/findings/_active-run.json`.
+
+### Tests
+
+- `yaml-lite` parsers covered as unit tests. Template asserts `migrate-layout.mjs` is gone.
+  Sandbox start-run/finish and the idea-intake `gate-record` oracle are covered.
+
 ## [3.0.0] — 2026-08-30
 
 ### Added

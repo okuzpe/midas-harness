@@ -1,7 +1,8 @@
 # Installer outcomes and exit codes
 
-Deterministic `create-midas` / `npx … --update|--migrate` lifecycle. No AI is used for install,
-update, migrate, or uninstall. See [ADR-012](./adr/ADR-012-muninn-adaptations.md) § durable installer
+Deterministic `create-midas` / `npx … update` lifecycle. `--migrate` is parsed then **refused** in 3.x
+(pin `create-midas@2.10.x` for a 1.x tree, then upgrade). No AI is used for install, update, or
+uninstall. See [ADR-012](./adr/ADR-012-muninn-adaptations.md) § durable installer
 resume (P1) and comparative notes in `docs/analisis/muninn-audit/04-install-lifecycle.md` (F-019…F-022).
 
 **Not Muninn.** Midas does **not** use `.muninn/installer/` or `.ai-flow/` install state. All durable
@@ -28,7 +29,7 @@ envelope when wired.
 |---------|-----:|---------|----------------|
 | `COMPLETED` | 0 | Apply + verify succeeded; `active.json` cleared | Yes |
 | `COMPLETED_WITH_WARNINGS` | 0 | Success; doctor reported warnings only | Reserved |
-| `DRY_RUN_COMPLETE` | 0 | `--dry-run` or migrate preview — plan only, no writes | Exit 0 (outcome label optional) |
+| `DRY_RUN_COMPLETE` | 0 | `--dry-run` — plan only, no writes | Exit 0 (outcome label optional) |
 | `CANCELLED` | 130 | User declined confirmation (TTY) | Yes |
 | `FAILED_FATAL` | 1 | Unexpected error, corrupt run state, engine-repo refuse, **or** preflight/check failure | Yes (preflight currently uses 1, not 7) |
 | `LOCK_HELD` | 2 | Another live installer holds `install.lock` | Yes |
@@ -48,8 +49,8 @@ are emitted when those paths fire. In-process rollback uses `cli/lib/core/transa
 (durable when `runId` set; tmpdir otherwise). `--rollback` requires journal `backup` ops —
 never deletes trees without restore sources.
 
-Intentional `npx … --update --rollback` (or `--migrate --apply --rollback`) restores journal backups,
-clears `active.json`, and reports `COMPLETED` (exit `0`, warning in stderr) so undo success is scriptable.
+Intentional `npx … update --rollback` restores journal backups, clears `active.json`, and reports
+`COMPLETED` (exit `0`, warning in stderr) so undo success is scriptable.
 
 ## Recovery flags
 
@@ -62,8 +63,8 @@ Wiring: `cli/lib/runtime/execute.mjs` (durable journal + lock); argv parsing: `c
 
 ```bash
 # After exit 3 or 6 with active.json present
-npx github:okuzpe/midas-harness#vX.Y.Z --update --resume --yes
-npx github:okuzpe/midas-harness#vX.Y.Z --update --rollback --yes
+npx github:okuzpe/midas-harness#vX.Y.Z update --resume --yes
+npx github:okuzpe/midas-harness#vX.Y.Z update --rollback --yes
 ```
 
 ## Preserve policy (unchanged)
@@ -71,7 +72,7 @@ npx github:okuzpe/midas-harness#vX.Y.Z --update --rollback --yes
 Durable installer state does **not** change copy/merge rules. `cli/lib/core/preserve-policy.mjs` still
 governs plan + execute: product (`{product}/`), rules, `state.yaml`, runs, cache, autonomy user files,
 and host skill mirrors on fresh install are preserved; engine + scripts vendor paths refresh on
-`--update`. See F-023 in the Muninn audit — **do not regress** when adding journal/backup I/O.
+`update`. See F-023 in the Muninn audit — **do not regress** when adding journal/backup I/O.
 
 Durable backups live under `{paths.cache}/installer/runs/<runId>/backups/`. Rollback path lists must
 **not** include `.harness` or `.harness/cache` as wholes (self-subdir `cpSync` would fail); vendor

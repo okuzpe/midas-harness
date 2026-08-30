@@ -46,7 +46,7 @@ infer `mode` without confirming; mark inferences as **assumption**, never as fac
    - **one-line pitch** (≤ 20 words) a stranger could understand;
    - apparent **user/audience**, **problem**, **hoped-for outcome** (rough OK — Phase 1 sharpens);
    - **non-goals** the user already named.
-3. **Confirm the mode.** Default from `paths.state → mode`. Confirm via `AskUserQuestion`
+3. **Confirm the mode.** Default from `paths.state → mode`. Confirm via `AskQuestion`
    (`greenfield` \| `brownfield`); if changed, record the correction.
 4. **Advance state (write last).** Read-modify-write **`paths.state`**: list `{product}/idea.md` under
    `phases.idea_intake.artifacts`; set `mode` if confirmed/changed; refresh `updated`.
@@ -56,19 +56,22 @@ infer `mode` without confirming; mark inferences as **assumption**, never as fac
 Advance to Phase 1 **iff** all hold (on-disk evidence):
 
 - [ ] Raw idea preserved verbatim in `{product}/idea.md` (`## Raw idea (preserved verbatim)`).
-- [ ] One-line pitch ≤ 20 words present.
+- [ ] One-line pitch ≤ 20 words present (`## 1-line pitch` in `{product}/idea.md`).
 - [ ] `mode` is `greenfield` \| `brownfield` in `paths.state` (user-confirmed).
 - [ ] Inferred fields (if any) marked **assumption**, not fact.
+- [ ] Gate verdict written to `{runs}/audits/gate-00.md`.
 
-On pass (`track: full`): set `phases.idea_intake` to `{ status: passed, gate: passed }`, set
-`stage: contextualize, stage_status: not_started`, next action **`/contextualize`**.
-On pass (`track: lite`): record the same Phase-0 artifacts; next is remaining Idea+Plan stubs then
-**`/plan-sprints`** — **never `/contextualize`** (that path leads to `/market-research`). See
-`<paths.engine>/pipeline/lite.md`.
+On pass (`track: full`): freeze `{runs}/audits/gate-00.md` from
+`<paths.engine>/templates/gate-record.md`, set `phases.idea_intake` to
+`{ status: passed, gate: passed }`, set `stage: contextualize, stage_status: not_started`,
+next action **`/contextualize`**.
+On pass (`track: lite`): freeze `{runs}/audits/gate-00.md` the same way; record the same
+Phase-0 artifacts; next is remaining Idea+Plan stubs then **`/plan-sprints`** — **never
+`/contextualize`** (that path leads to `/market-research`). See `<paths.engine>/pipeline/lite.md`.
 On miss: keep `stage_status: in_progress` and name exactly what is outstanding.
 Producer never grades its own homework — the gate verdict is the orchestrator's.
 
 ## Tier & delegation
 - **Dispatch + gate verdict:** `orchestrate` → `midas-orchestrator`.
-- **Write `{product}/idea.md` and update `paths.state`:** `build` → `midas-builder`.
+- **Write `{product}/idea.md`, `{runs}/audits/gate-00.md`, and update `paths.state`:** `build` → `midas-builder`.
 - Scout is read-only; do not assign file writes to `midas-scout`.

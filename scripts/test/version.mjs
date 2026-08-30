@@ -238,6 +238,16 @@ if (engineVersion) {
     existsSync(join(ROOT, 'cli', 'lib', 'core', 'install-cmd.mjs')) &&
       existsSync(join(ROOT, 'scripts', 'lib', 'install-cmd.mjs')),
   );
+  check(
+    'install-cmd:no-format-migrate',
+    !/function formatMigrateCmd/.test(
+      readFileSync(join(ROOT, 'cli', 'lib', 'core', 'install-cmd.mjs'), 'utf8'),
+    ),
+  );
+  check(
+    'install-diagnose:no-related-cli',
+    !/function relatedCli/.test(readFileSync(join(ROOT, 'cli', 'install-diagnose.mjs'), 'utf8')),
+  );
 }
 
 // --- J. referenced pipeline playbooks resolve (regression guard for the 00- vs 0- bug) ----------

@@ -59,6 +59,8 @@ Cursor Task has no cwd pin. The parent must make the fixture honest; the Task mu
    `idea-intake` must be graded while fixture `stage` is still `contextualize`.
    Do not run `doctor --fix` (or otherwise edit `harness/skills` / `harness/rules`) between
    reset and the last grade — that is an isolation fail.
+   `finish` after the last grade must exit 0. Non-zero or `no-active-run` → `isolation-bug`,
+   sandbox `verdict=fail` (the lab runner is not fail-open).
 
 Full contract: `sandbox/README.md`.
 
@@ -129,5 +131,6 @@ go/no-go. Say so in findings for phases 2–4.
 - [ ] Task first-Read was the fixture state; no nested Task / other-model builder.
 - [ ] Every substituted `AskQuestion` is a `[SANDBOX AUTO-DECISION]` line.
 - [ ] Subagent model was `composer-2.5` (cited in Setup); `MIDAS_TRACE_ROOT` passed to trace-write.
+- [ ] `finish` exited 0 (not `no-active-run`).
 - [ ] Findings file written; no writes under `harness/skills/*` or `harness/rules/*`.
 - [ ] `MIDAS_SANDBOX_RESULT:` printed; `--all` only after cost confirmation.

@@ -16,7 +16,8 @@ argument-hint: "[pr|code|local|cloud|stop|setup|status|dry-run|tick|resume] [int
 > **Evolve:** runbook/journal under `{runs}/auto-pilot/` — templates `auto-pilot-runbook.md.tmpl`, `auto-pilot-journal.md`, playbook `auto-pilot-cycle.md`.
 > **Sprint checklist (L3):** `./sprint-checklist.md` → CLI `.harness/autonomy/bin/midas-autopilot.mjs` (ADR-009).
 > **Command map:** `docs/skills.md` § Autonomy commands (install: `<paths.engine>/docs/skills.md`).
-> **Aliases (forward here):** `/midas-auto-sprints`, `/midas-autopilot`, `/midas-improve-loop`.
+> **3.0:** old slash names (`/midas-auto-sprints`, `/midas-autopilot`, `/midas-improve-loop`) were
+> removed — type `/midas-auto-pilot`.
 
 ## Response shape (always)
 
@@ -49,7 +50,7 @@ Keep the reply **≤8 lines** (≤6 when intent + delivery known). No autonomy l
 | Arg | Path |
 |---|---|
 | `pr` / `code` | Evolve — set delivery, persist, continue (local default) |
-| *(none)* | **B00 Mode gate** (unless alias default — see B00) |
+| *(none)* | **B00 Mode gate** |
 | `local` / `local 15m` / `local 1h` | Evolve — delivery gate → tick #1 → arm `/loop` (interval default **30m**) |
 | `cloud` | Evolve — delivery gate → Automations draft only |
 | `stop` | Kill armed local evolve loop |
@@ -59,9 +60,7 @@ Keep the reply **≤8 lines** (≤6 when intent + delivery known). No autonomy l
 
 ### B00. Mode gate (bare invoke only)
 
-Resolve intent from (first wins): clear arg (table above) → alias default → AskQuestion.
-
-**Alias defaults (no Ask):** bare `/midas-auto-sprints` → intent=`sprints` (then L3). Other aliases with no arg → Ask like canonical.
+Resolve intent from (first wins): clear arg (table above) → AskQuestion.
 
 If **unset**, AskQuestion **once** (exact labels, this order):
 
@@ -158,7 +157,7 @@ Follow `./sprint-checklist.md`. Never auto-`tick` from chat. Never require `MIDA
 ## Exit gate
 
 - [ ] Verdict + evidence paths; reply ≤8 lines (≤6 when intent + delivery known).
-- [ ] **Bare invoke / Mode unset:** Ask once (B00) before evolve tick or sprint CLI effects (except alias default for bare `/midas-auto-sprints`).
+- [ ] **Bare invoke / Mode unset:** Ask once (B00) before evolve tick or sprint CLI effects.
 - [ ] **Delivery unset (evolve):** Ask once + STOP (no tick, no `/loop`, no Automations draft).
 - [ ] **`local` + delivery known:** tick #1 attempted **and** `/loop` armed (or hard-blocked before start).
 - [ ] **`cloud` + delivery known:** runbook emitted; one Next toward Automations editor.

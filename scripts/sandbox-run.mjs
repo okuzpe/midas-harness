@@ -9,7 +9,7 @@
 //
 // Not shipped to product installs (omit from ship-manifest.mjs).
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isEngineRepo } from './engine-only.mjs';
@@ -23,6 +23,7 @@ import {
   resetSandbox,
 } from './lib/sandbox-env.mjs';
 import { gradeSandbox, printGrade, normalizeSkillName } from './lib/sandbox-grade.mjs';
+import { resolveTracesRoot } from './lib/trace-store.mjs';
 import { runTraceWrite } from './trace-write.mjs';
 
 const HELP = `sandbox-run — mechanical floor for /midas-sandbox (engine only)
@@ -32,6 +33,7 @@ Usage:
   node scripts/sandbox-run.mjs env        print resolved paths; exit 1 on isolation fail
   node scripts/sandbox-run.mjs start-run  trace-write start-run scoped to the working copy
   node scripts/sandbox-run.mjs finish     trace-write finish scoped to the working copy
+                              (exit 1 if no-active-run — lab is not fail-open)
   node scripts/sandbox-run.mjs grade [--skill <name>] [--ledger] [--missing fail|skip]
       run isolation + skill oracles against the working copy (does not reset)
       --missing skip: absent skill oracle is not a fail (for --smoke / --all next skills)
@@ -53,6 +55,47 @@ function printEnv(info) {
 
 function bindTraceRoot(work) {
   process.env.MIDAS_TRACE_ROOT = work;
+}
+
+const ACTIVE_RUN_REL = join('sandbox', 'findings', '_active-run.json');
+
+function activeRunPath(root = ROOT) {
+  return join(root, ACTIVE_RUN_REL);
+}
+
+function readActiveRun(root = ROOT) {
+  const abs = activeRunPath(root);
+  if (!existsSync(abs)) return null;
+  try {
+    return JSON.parse(readFileSync(abs, 'utf8'));
+  } catch {
+    return null;
+  }
+}
+
+function writeActiveRun(payload, root = ROOT) {
+  mkdirSync(join(root, 'sandbox', 'findings'), { recursive: true });
+  writeFileSync(activeRunPath(root), `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
+}
+
+function clearActiveRun(root = ROOT) {
+  const abs = activeRunPath(root);
+  if (existsSync(abs)) unlinkSync(abs);
+}
+
+function parseTracePayload(body) {
+  const line = String(body || '')
+    .trim()
+    .split(/\r?\n/)
+    .filter(Boolean)
+    .pop();
+  if (!line) return {};
+  try {
+    const j = JSON.parse(line);
+    return j && typeof j === 'object' && !Array.isArray(j) ? j : {};
+  } catch {
+    return {};
+  }
 }
 
 function parseGradeArgs(argv) {
@@ -121,7 +164,39 @@ function main(argv) {
       return 1;
     }
     bindTraceRoot(info.work);
-    return runTraceWrite([cmd, ...argv.slice(1)], { projectRoot: info.work });
+    const chunks = [];
+    const stdout = {
+      write(s) {
+        chunks.push(s);
+        return process.stdout.write(s);
+      },
+    };
+    runTraceWrite([cmd, ...argv.slice(1)], { projectRoot: info.work, stdout });
+    const payload = parseTracePayload(chunks.join(''));
+    const tracesRoot = resolveTracesRoot(info.work);
+    if (cmd === 'start-run') {
+      if (payload.session_id && payload.run_id) {
+        writeActiveRun({
+          session_id: payload.session_id,
+          run_id: payload.run_id,
+          traces_root: tracesRoot,
+          work: info.work,
+        });
+        return 0;
+      }
+      console.error('sandbox-run start-run: missing session_id/run_id');
+      return 1;
+    }
+    if (payload.ok === false || payload.reason === 'no-active-run' || !payload.run_id) {
+      const last = readActiveRun();
+      const hint = last
+        ? ` last start-run session=${last.session_id} run=${last.run_id} traces=${last.traces_root}`
+        : '';
+      console.error(`sandbox-run finish: no-active-run.${hint}`);
+      return 1;
+    }
+    clearActiveRun();
+    return 0;
   }
   if (cmd === 'grade') {
     const { skill, ledger, missing } = parseGradeArgs(argv.slice(1));
@@ -141,4 +216,17 @@ if (invokedDirectly) {
   process.exit(main(process.argv.slice(2)));
 }
 
-export { EXPECTED_NAME, SEED, WORK, ROOT, inspectSandboxEnv, isPathInside, resetSandbox, gradeSandbox, main, parseGradeArgs, normalizeSkillName };
+export {
+  EXPECTED_NAME,
+  SEED,
+  WORK,
+  ROOT,
+  ACTIVE_RUN_REL,
+  inspectSandboxEnv,
+  isPathInside,
+  resetSandbox,
+  gradeSandbox,
+  main,
+  parseGradeArgs,
+  normalizeSkillName,
+};

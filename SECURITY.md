@@ -40,8 +40,8 @@ This is *pipe-to-shell* — you run code you haven't read. Treat it like any `cu
   `npm run bump`). Override with `MIDAS_INSTALL_REF` or opt into mutable main via
   `MIDAS_BLEEDING_EDGE=1`.
 - **Prefer the pinned `npx` form** from [`INSTALL.md`](./INSTALL.md) for reproducible installs.
-- Fresh install and update preserve user-owned paths. Explicit `--migrate --apply` uses staging,
-  verified hashes, and rollback before removing proven Midas-owned legacy sources.
+- Fresh install and update preserve user-owned paths. 3.x refuses 1.x classic/compact/hub trees
+  (zero writes); pin `create-midas@2.10.x` to migrate, then upgrade.
 
 ---
 

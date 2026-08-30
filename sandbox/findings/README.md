@@ -11,7 +11,8 @@ Issue classes (see `sandbox/README.md`): `harness-gap` | `model-miss` | `fixture
 `isolation-bug` (engine state / env) or `harness-gap` (missing artifact the skill should have
 written) — never re-grade them as vibes.
 
-`_ledger.jsonl` is append-only (`grade --ledger`). Keep curated run files; fold still-actionable
+`_ledger.jsonl` is append-only (`grade --ledger`). `_active-run.json` is the live
+`start-run` pointer (gitignored). Keep curated run files; fold still-actionable
 notes into the next file or `/midas-capture` before deleting.
 
 ## Retention

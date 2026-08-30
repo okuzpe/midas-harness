@@ -134,7 +134,7 @@ After a sprint lands, optional non-advancing commands: `/midas-retro` (freeze le
 needs `--autonomy` only for the sprint path). Hygiene / STM / lean / diff-gates are **internal**
 procedures path-passed by `/close-sprint` and Phase 7 (ADR-013) — not separate menu commands.
 Do not confuse the slash `/midas-auto-pilot` with the CLI `midas-autopilot.mjs` (ADR-009 controller).
-Aliases `/midas-auto-sprints` / `/midas-autopilot` / `/midas-improve-loop` forward to the unified skill.
+Old slash names (`/midas-auto-sprints`, `/midas-autopilot`, `/midas-improve-loop`) were removed in 3.0.
 See [skills.md](skills.md) § Autonomy commands (anti-typo table).
 
 For an existing codebase, `/midas-init` classifies it as **E2/E3** and runs `/midas-adopt` for you

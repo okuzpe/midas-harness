@@ -18,7 +18,7 @@ This is the cheapest phase; speed matters more than depth.
 1. **Record verbatim.** Write the raw idea into `{product}/idea.md` under a `## Raw idea (preserved verbatim)` heading.
    Do not paraphrase or improve it yet.
 2. **Derive a 1-line pitch.** Synthesize a single sentence: `<verb> <for whom> <so that <outcome>>`.
-   Append it to `{product}/idea.md` under `## One-line pitch`.
+   Append it to `{product}/idea.md` under `## 1-line pitch`.
 3. **Identify mode.** Ask: is this greenfield (empty repo) or brownfield (existing code)?
    Record `mode: greenfield|brownfield` in `paths.state`.
 4. **Seed state.** Create or overwrite `paths.state` with the schema from
@@ -32,12 +32,13 @@ This is the cheapest phase; speed matters more than depth.
 | File | Notes |
 |---|---|
 | `{product}/idea.md` | Raw idea + 1-line pitch |
+| `{runs}/audits/gate-00.md` | Phase-0 gate freeze |
 | `paths.state` | Seeded with mode, stage, routing |
 
 ## Exit gate checklist
 
 - [ ] `{product}/idea.md` exists and contains an unedited `## Raw idea (preserved verbatim)` section
-- [ ] `## One-line pitch` is present and fits one sentence
+- [ ] `## 1-line pitch` is present and fits one sentence
 - [ ] `mode` is set (`greenfield` or `brownfield`) in `paths.state`
 - [ ] `paths.state` is valid against `<paths.engine>/state.schema.md`
 - [ ] Gate verdict written to `{runs}/audits/gate-00.md`

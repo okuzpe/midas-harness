@@ -111,7 +111,8 @@ Skills must name produce/fetch legs in `## Tier & delegation` — `harness-tier`
   `/midas-design`, `/midas-init --monorepo`, `/midas-tribunal`, `/midas-security-audit`, `/midas-capture`,
   `/midas-align`, `/midas-precommit`, `/midas-sandbox`, `/midas-bundle`, `/midas-explore`, `/midas-auto-pilot`,
   `/midas-retro`, `/midas-investigate`. Deprecated aliases (`/midas-improve-loop`, `/midas-autopilot`,
-  `/midas-auto-sprints`, `/midas-update`) forward to their primary — do not list in `/midas-help`.
+  `/midas-auto-sprints`, `/midas-update`) were removed in 3.0 — use `/midas-auto-pilot` and `/midas-init`.
+  Do not list the old names in `/midas-help`.
 - **State ritual (shared):** skills read **`paths.state` first** and **write last** (read-modify-write). They
   cite `harness/templates/skill-state-ritual.md` (installed: `<paths.engine>/templates/skill-state-ritual.md`)
   instead of restating stage enums or path substitution. Schema: `harness/state.schema.md`.

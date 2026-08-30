@@ -42,7 +42,7 @@
 - What: one slash for continuous evolve (PR|code → tick → `/loop`) **or** ADR-009 sprint checklist guide (setup/status/tick).
 - Command: `/midas-auto-pilot` (bare → Mode Ask) · `/midas-auto-pilot pr|code|local|cloud|stop` · `/midas-auto-pilot setup|status|dry-run|tick`
 - Happens: Mode gate if bare; evolve writes `{runs}/auto-pilot/runbook.md` and arms `/loop`; sprint path shells `midas-autopilot.mjs` (never auto-`tick` from chat).
-- NOT Phase-8 (`/close-sprint`). Laptop sleep → evolve `cloud` mode. Deprecated aliases forward here (not listed as options).
+- NOT Phase-8 (`/close-sprint`). Laptop sleep → evolve `cloud` mode. Old slash names were removed in 3.0 (not listed as options).
 - Next: leave Cursor open for evolve; review PRs or local diffs; `/close-sprint` when a sprint’s worth lands. Command map: `docs/skills.md` § Autonomy commands.
 
 **Verify UI before close**

@@ -220,7 +220,7 @@ export function writeState(ctx, tools, paths, routingProfile) {
   return mode;
 }
 
-/** On --update/--migrate, bump midas_version in preserved state.yaml. */
+/** On update, bump midas_version in preserved state.yaml. */
 export function bumpVersionStamp(ctx, paths) {
   const f = join(ctx.target, paths.state);
   const cur = ctx.readMaybe(f);

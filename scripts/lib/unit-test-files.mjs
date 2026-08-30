@@ -25,6 +25,7 @@ export const UNIT_TEST_FILES = Object.freeze([
   'scripts/lib/tests/capture-candidates.test.js',
   'scripts/lib/tests/reconcile.test.js',
   'scripts/lib/tests/migrate-state.test.js',
+  'scripts/lib/tests/yaml-lite.test.js',
   'scripts/lib/tests/release-manifest.test.js',
   'scripts/lib/tests/characterization.test.js',
   'scripts/lib/tests/trace-write.test.js',
