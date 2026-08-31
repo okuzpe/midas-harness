@@ -14,6 +14,9 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
   documented silent alias.
 - **CI live channel probe** — Node 24 job curls `releases/stable.json` and `edge.json`, then
   `update --check` without `--offline` (exit 0 or 1; 404/undetermined fails the job).
+- **Host skill mirrors** — `copyTree` no longer copies `.claude/skills`, `.claude/agents`, or
+  `.cursor/skills`. `syncSkillMirrors` writes those trees when `state.tools` needs them (native
+  Claude copy; portable render for `.agents` / `.cursor/skills`).
   use `AskQuestion` (Claude fallback stays in the skill header). Playbooks list
   `{runs}/audits/gate-04.md`…`gate-06.md`. `/midas-design` and `/midas-adopt` match.
 - **Phase 1** — playbook asks BLOCKING questions in `AskQuestion` batches (same as the skill);

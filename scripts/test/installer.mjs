@@ -174,8 +174,10 @@ const installer = readFileSync(join(ROOT, 'cli', 'index.mjs'), 'utf8');
     'preserve:host-discovery-mirrors',
     isHostDiscoveryMirrorPath('.agents') &&
       isHostDiscoveryMirrorPath('.agents/skills/x/SKILL.md') &&
-      !isHostDiscoveryMirrorPath('.claude/skills/x/SKILL.md') &&
-      !isHostDiscoveryMirrorPath('.cursor/skills/x/SKILL.md') &&
+      isHostDiscoveryMirrorPath('.claude/skills/x/SKILL.md') &&
+      isHostDiscoveryMirrorPath('.claude/agents/midas-scout.md') &&
+      isHostDiscoveryMirrorPath('.cursor/skills/x/SKILL.md') &&
+      !isHostDiscoveryMirrorPath('.claude/CLAUDE.md') &&
       !isHostDiscoveryMirrorPath('.cursor/rules/00-midas.mdc') &&
       !isHostDiscoveryMirrorPath('.harness/engine/x.md'),
   );

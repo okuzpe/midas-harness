@@ -48,14 +48,24 @@ export function isConflictVendorPath(rel) {
 }
 
 /**
- * Portable `.agents` discovery tree is written by `syncSkillMirrors` for windsurf/gemini/codex/copilot.
- * Copying it from the template then pruning left leftover directories on cursor-only installs
- * (CI `test ! -e .agents`). `.claude` and `.cursor/skills` still copy from the template.
+ * Host skill/agent discovery trees are written by `syncSkillMirrors`, not `copyTree`.
+ * Copying them from the template then pruning left leftovers on hosts that do not
+ * need that tree (CI `test ! -e .agents` / `test ! -e .claude`). `.claude/CLAUDE.md`
+ * and `.cursor/rules/` still copy from the template (adapters).
  * @param {string} rel POSIX path relative to project root
  */
 export function isHostDiscoveryMirrorPath(rel) {
   const n = toPosixRel(rel);
-  return n === '.agents' || n.startsWith('.agents/');
+  return (
+    n === '.agents' ||
+    n.startsWith('.agents/') ||
+    n === '.claude/skills' ||
+    n.startsWith('.claude/skills/') ||
+    n === '.claude/agents' ||
+    n.startsWith('.claude/agents/') ||
+    n === '.cursor/skills' ||
+    n.startsWith('.cursor/skills/')
+  );
 }
 
 /**

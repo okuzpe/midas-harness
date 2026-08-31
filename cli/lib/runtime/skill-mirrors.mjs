@@ -1,6 +1,6 @@
 // skill-mirrors.mjs — host skill mirrors + orphan adapter prune.
 
-import { readdirSync, readFileSync, existsSync, rmSync, rmdirSync } from 'node:fs';
+import { readdirSync, readFileSync, existsSync, rmSync, rmdirSync, mkdirSync, cpSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { toPosixRel } from '../shared/posix.mjs';
 
@@ -31,6 +31,17 @@ function pruneEmptyHostRoot(target, rel) {
   try {
     if (readdirSync(dir).length === 0) rmdirSync(dir);
   } catch (err) { logFs(rel, err); }
+}
+
+/** Copy a native (non-portable) host tree from the bundled template. */
+function copyNativeMirror(ctx, rel, { merge }) {
+  const src = join(ctx.template, rel);
+  const dst = join(ctx.target, rel);
+  if (!existsSync(src)) return;
+  if (existsSync(dst) && !merge) rmSync(dst, { recursive: true, force: true });
+  mkdirSync(dirname(dst), { recursive: true });
+  cpSync(src, dst, { recursive: true, force: true });
+  ctx.written.push(rel);
 }
 
 export function removeGeneratedMirror(ctx, templateRel) {
@@ -69,11 +80,6 @@ export function resolveSkillMirrorPlan(tools) {
 
 export async function syncSkillMirrors(ctx, tools, paths, { merge = true } = {}) {
   const plan = resolveSkillMirrorPlan(tools);
-  if (!plan.claude) {
-    removeGeneratedMirror(ctx, '.claude/skills');
-    removeGeneratedMirror(ctx, '.claude/agents');
-    pruneEmptyHostRoot(ctx.target, '.claude');
-  }
 
   let renderTree = null;
   let pruneObsolete = null;
@@ -84,6 +90,24 @@ export async function syncSkillMirrors(ctx, tools, paths, { merge = true } = {})
   } catch (err) { logFs('engine-skills', err); }
 
   const engineSkillsRel = join(paths.engine, 'skills').replace(/\\/g, '/');
+
+  if (plan.claude) {
+    if (typeof pruneObsolete === 'function') {
+      for (const rel of pruneObsolete(ctx.target, {
+        sourceDir: engineSkillsRel,
+        targetDir: '.claude/skills',
+        bundledMirrorRoot: ctx.template,
+      })) {
+        ctx.written.push(`removed:${rel}`);
+      }
+    }
+    copyNativeMirror(ctx, '.claude/skills', { merge });
+    copyNativeMirror(ctx, '.claude/agents', { merge });
+  } else {
+    removeGeneratedMirror(ctx, '.claude/skills');
+    removeGeneratedMirror(ctx, '.claude/agents');
+    pruneEmptyHostRoot(ctx.target, '.claude');
+  }
 
   if (plan.agents && typeof renderTree === 'function') {
     if (typeof pruneObsolete === 'function') {
