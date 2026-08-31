@@ -15,13 +15,18 @@ First command (creates the working copy from the seed):
 node scripts/sandbox-run.mjs reset
 node scripts/sandbox-run.mjs env
 # capture-only idea-intake (blank template, not the filled Chorechip seed):
-node scripts/sandbox-run.mjs reset --empty-idea
+node scripts/sandbox-run.mjs reset --profile capture
+# nested vendor install (reconcile/update — not pipeline oracles):
+node scripts/sandbox-run.mjs reset --profile install
+node scripts/sandbox-run.mjs env --profile install
 ```
 
 Every `/midas-sandbox` invocation **always resets first** (dirty working copies are not reused),
 then `env` must exit 0. Non-zero after a fresh reset means the seed is broken — stop; do not
 trust findings. Copy the `MIDAS_TRACE_ROOT:` line into the Task: every `trace-write` subprocess
-needs that env. `start-run` binds it only for its own process.
+needs that env. `start-run` binds it only for its own process. `reset` / `env` / `start-run` also
+write `{work}/.harness/cache/sandbox-env.json` so the Task can Read the value (Cursor Task does
+not inherit env).
 
 After the Task, grade the **disk** (composer does not self-score). Grade **immediately after
 each skill**, before the next one — not once at the end of `--smoke` / `--all`:
@@ -36,7 +41,7 @@ so a missing `current.json` still names the last session.
 
 After `reset`, that command **must fail** (`stage` still `idea_intake`, no phase artifacts).
 A pass without a Task means the oracle is grading the seed, not the skill.
-`reset --empty-idea` also leaves `<!-- TODO:` markers in `{product}/idea.md`, so `pitch-not-todo`
+`reset --profile capture` also leaves `<!-- TODO:` markers in `{product}/idea.md`, so `pitch-not-todo`
 fails until `/idea-intake` actually captures. Default `reset` keeps the filled Chorechip idea
 (gate-advance lab). `--skill /idea-intake` is the same JSON. `--smoke` / `--all` next skills without an oracle
 YAML: `--missing skip` (broken JSON is still a fail).
@@ -56,7 +61,8 @@ sandbox/
     .harness/state.yaml
     .harness/product/idea.md
   oracles/                   # deterministic disk checks (grade)
-  example-product/           # generated working copy (gitignored) — copy of seed/
+  example-product/           # generated pipeline working copy (gitignored) — copy of seed/
+  example-install/           # generated nested install (gitignored) — `reset --profile install`
   findings/
     README.md                # format + retention
     <date>-<mode>.md           # one per /midas-sandbox run (committed, curated)
@@ -82,7 +88,7 @@ Then:
    `scripts/` (`../../harness`, `../../scripts`). Real product installs must never do this.
 5. Execute the target skill **in this Task**. Do not spawn a nested Task or `midas-builder` on
    another model. Pass `MIDAS_TRACE_ROOT` from `env` into every `trace-write` subprocess.
-   If the host did not inherit that env, Read `{cache}/MIDAS_TRACE_ROOT` (written by `start-run`).
+   If the host did not inherit that env, Read `{work}/.harness/cache/sandbox-env.json`.
 
 ## Cost rules (non-negotiable)
 

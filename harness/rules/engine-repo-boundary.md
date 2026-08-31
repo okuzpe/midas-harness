@@ -21,6 +21,7 @@ against the engine repository root (3.x also **refuses** 1.x product trees anywh
 | `runs/` (other) | Optional tooling output (adapters hash, etc.) | Not lifecycle evidence |
 | `sandbox/seed/.harness/` | Committed nested skill-testing seed (ADR-015) | Yes — nested, not at repo root |
 | `sandbox/example-product/.harness/` | Generated working copy from seed (gitignored) | Yes — nested; recreate with `node scripts/sandbox-run.mjs reset` |
+| `sandbox/example-install/.harness/` | Generated nested vendor install (gitignored) | Yes — nested; recreate with `node scripts/sandbox-run.mjs reset --profile install` |
 | `.harness/engine/` | Product install vendor tree | **Forbidden** at repo root |
 | `.harness/state.yaml` | Product install state | **Forbidden** at repo root |
 
@@ -50,6 +51,9 @@ For install/migration tests use a **temp directory** or `scripts/fixtures/*` —
 
 ## Amendment
 
+- **2026-08-31** — `sandbox/example-install/` is a second allowed nested tree (`reset --profile install`):
+  a real vendor copy (`paths.engine=.harness/engine`) for reconcile/update. Pipeline fixture still
+  points `engine`/`scripts` at this repo.
 - **2026-08-30** — Seed is the committed nested fixture (`sandbox/seed/.harness/`);
   `sandbox/example-product/` is generated and gitignored. `sandbox-run env` requires lifecycle
   paths (`state`, `product`, `rules`, `runs`, `cache`) to resolve inside the working copy;

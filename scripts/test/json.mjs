@@ -91,7 +91,7 @@ import {
 
 export async function run() {
 const TRACKED = gitTrackedRelpaths();
-const JSON_WALK_SKIP = new Set(['runs/cache', 'site', '_site', 'sandbox/example-product', 'coverage']);
+const JSON_WALK_SKIP = new Set(['runs/cache', 'site', '_site', 'sandbox/example-product', 'sandbox/example-install', 'coverage']);
 for (const f of walk(ROOT).filter((p) => extname(p) === '.json')) {
   const rel = f.slice(ROOT.length + 1).replace(/\\/g, '/');
   if (TRACKED) {

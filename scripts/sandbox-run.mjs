@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 // sandbox-run.mjs — engine-only mechanical floor for /midas-sandbox (ADR-015).
 //
-//   node scripts/sandbox-run.mjs reset [--empty-idea]
-//   node scripts/sandbox-run.mjs env
-//   node scripts/sandbox-run.mjs start-run
-//   node scripts/sandbox-run.mjs finish
+//   node scripts/sandbox-run.mjs reset [--profile pipeline|capture|install] [--blank-idea]
+//   node scripts/sandbox-run.mjs env [--profile pipeline|capture|install]
+//   node scripts/sandbox-run.mjs start-run [--profile pipeline|capture|install]
+//   node scripts/sandbox-run.mjs finish [--profile pipeline|capture|install]
 //   node scripts/sandbox-run.mjs grade [--skill <name>] [--ledger] [--missing fail|skip]
 //
 // Not shipped to product installs (omit from ship-manifest.mjs).
@@ -33,15 +33,17 @@ import { runTraceWrite } from './trace-write.mjs';
 const HELP = `sandbox-run — mechanical floor for /midas-sandbox (engine only)
 
 Usage:
-  node scripts/sandbox-run.mjs reset [--empty-idea]
-                              copy sandbox/seed/ → sandbox/example-product/
-                              --empty-idea: replace idea.md with the Phase-0 template (capture, not gate-only)
-  node scripts/sandbox-run.mjs env        print resolved paths; exit 1 on isolation fail
-  node scripts/sandbox-run.mjs start-run  trace-write start-run scoped to the working copy
-  node scripts/sandbox-run.mjs finish     trace-write finish scoped to the working copy
+  node scripts/sandbox-run.mjs reset [--profile pipeline|capture|install] [--blank-idea]
+      pipeline (default): copy sandbox/seed/ → sandbox/example-product/
+      capture / --blank-idea / --empty-idea: same, then overlay blank templates/idea.md
+      install: nested create-midas --force into sandbox/example-install/
+  node scripts/sandbox-run.mjs env [--profile pipeline|capture|install]
+      print resolved paths; write .harness/cache/sandbox-env.json; exit 1 on isolation fail
+  node scripts/sandbox-run.mjs start-run [--profile pipeline|capture|install]
+  node scripts/sandbox-run.mjs finish [--profile pipeline|capture|install]
                               (exit 1 if no-active-run — lab is not fail-open)
   node scripts/sandbox-run.mjs grade [--skill <name>] [--ledger] [--missing fail|skip]
-      run isolation + skill oracles against the working copy (does not reset)
+      run isolation + skill oracles against the pipeline working copy (does not reset)
       --missing skip: absent skill oracle is not a fail (for --smoke / --all next skills)
   node scripts/sandbox-run.mjs --help
 `;
@@ -105,6 +107,21 @@ function parseTracePayload(body) {
   }
 }
 
+function stripProfileArgs(argv) {
+  const out = [];
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    if (arg === '--profile') {
+      i += 1;
+      continue;
+    }
+    if (arg.startsWith('--profile=')) continue;
+    if (arg === '--blank-idea' || arg === '--empty-idea') continue;
+    out.push(arg);
+  }
+  return out;
+}
+
 function parseGradeArgs(argv) {
   let skill = 'isolation';
   let ledger = false;
@@ -150,23 +167,23 @@ function main(argv) {
     return 2;
   }
   const cmd = argv[0];
+  const { profile } = parseSandboxProfileArgs(argv.slice(1));
   if (cmd === 'reset') {
-    const emptyIdea = argv.includes('--empty-idea');
-    const r = resetSandbox(ROOT, { emptyIdea });
+    const r = resetSandbox(ROOT, { profile });
     if (!r.ok) {
       console.error(`sandbox-run reset: ${r.error}`);
       return 1;
     }
-    console.log(`sandbox-run reset: ${r.work}`);
+    console.log(`sandbox-run reset: ${r.work}${r.profile && r.profile !== 'pipeline' ? ` profile=${r.profile}` : ''}`);
     return 0;
   }
   if (cmd === 'env') {
-    const info = inspectSandboxEnv(ROOT);
+    const info = inspectSandboxEnv(ROOT, { profile });
     printEnv(info);
     return info.ok ? 0 : 1;
   }
   if (cmd === 'start-run' || cmd === 'finish') {
-    const info = inspectSandboxEnv(ROOT);
+    const info = inspectSandboxEnv(ROOT, { profile });
     if (!info.ok) {
       console.error(`sandbox-run ${cmd}: ${info.error}`);
       return 1;
@@ -179,19 +196,22 @@ function main(argv) {
         return process.stdout.write(s);
       },
     };
-    runTraceWrite([cmd, ...argv.slice(1)], { projectRoot: info.work, stdout });
+    runTraceWrite([cmd, ...stripProfileArgs(argv.slice(1))], {
+      projectRoot: info.work,
+      stdout,
+    });
     const payload = parseTracePayload(chunks.join(''));
     const tracesRoot = resolveTracesRoot(info.work);
     if (cmd === 'start-run') {
       if (payload.session_id && payload.run_id) {
+        writeSandboxEnvPointer(info);
         writeActiveRun({
           session_id: payload.session_id,
           run_id: payload.run_id,
           traces_root: tracesRoot,
           work: info.work,
+          profile: info.profile,
         });
-        mkdirSync(join(info.work, '.harness', 'cache'), { recursive: true });
-        writeFileSync(join(info.work, '.harness', 'cache', 'MIDAS_TRACE_ROOT'), `${info.work}\n`, 'utf8');
         return 0;
       }
       console.error('sandbox-run start-run: missing session_id/run_id');

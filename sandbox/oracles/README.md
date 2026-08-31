@@ -20,7 +20,7 @@ node scripts/sandbox-run.mjs grade --skill idea-intake --ledger
 with `MIDAS_GATE_RESULT: verdict=pass`) and fixture `state.yaml` / `updated` different from the
 reset snapshot in `sandbox-baseline.json`. Template `<!-- TODO:` markers in the raw/pitch sections
 must be gone (`pitch-not-todo`, `raw-not-todo`). Default seed already has a filled idea — use
-`reset --empty-idea` when the lab should certify capture.
+`reset --profile capture` (`--blank-idea` / `--empty-idea`) when the lab should certify capture.
 
 `contextualize.json` is the Phase-1 delta: `## Contextualized`, `{product}/open-questions.md` in
 artifacts, `stage: market_research`, `gate-01.md` with a pass verdict. After `reset` that grade

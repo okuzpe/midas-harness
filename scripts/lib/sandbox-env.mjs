@@ -42,7 +42,7 @@ export function parseSandboxProfileArgs(argv) {
   let profile = 'pipeline';
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
-    if (arg === '--blank-idea') {
+    if (arg === '--blank-idea' || arg === '--empty-idea') {
       profile = 'capture';
       continue;
     }

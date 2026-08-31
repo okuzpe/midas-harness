@@ -57,7 +57,8 @@ import {
   summarizeReports,
 } from '../skill-quality-check.mjs';
 import { ENGINE_ONLY_SKILLS, HARNESS_ENGINE_ONLY_RELS } from '../engine-only.mjs';
-import { resetSandbox, inspectSandboxEnv, isPathInside, gradeSandbox, parseGradeArgs, ACTIVE_RUN_REL } from '../sandbox-run.mjs';
+import { resetSandbox, inspectSandboxEnv, isPathInside, gradeSandbox, parseGradeArgs, parseSandboxProfileArgs, ACTIVE_RUN_REL, ENV_POINTER_REL, WORK_INSTALL } from '../sandbox-run.mjs';
+import { diagnoseProject } from '../../cli/install-diagnose.mjs';
 import { loadOracleDoc } from '../lib/sandbox-grade.mjs';
 import { splitSkillDocument } from '../lib/frontmatter.mjs';
 import { walkFiles } from '../lib/walk.mjs';
@@ -193,6 +194,10 @@ if (existsSync(tplRoot)) {
       'sandbox:gitignore-working-copy',
       /sandbox\/example-product\//.test(readFileSync(join(ROOT, '.gitignore'), 'utf8')),
     );
+    check(
+      'sandbox:gitignore-example-install',
+      /sandbox\/example-install\//.test(readFileSync(join(ROOT, '.gitignore'), 'utf8')),
+    );
     const ideaIntakeSkill = readFileSync(join(ROOT, 'harness', 'skills', 'idea-intake', 'SKILL.md'), 'utf8');
     const playbook0 = readFileSync(join(ROOT, 'harness', 'pipeline', '0-idea-intake.md'), 'utf8');
     check(
@@ -314,12 +319,12 @@ if (existsSync(tplRoot)) {
       'sandbox:skill-always-reset',
       /\*\*Always\*\* `node scripts\/sandbox-run.mjs reset`/.test(sandboxSkill),
     );
-        check(
-          'sandbox:skill-trace-root-not-exported',
-          /does not export it to the Task/.test(sandboxSkill) &&
-            /\{cache\}\/MIDAS_TRACE_ROOT/.test(sandboxSkill) &&
-            !/sets `MIDAS_TRACE_ROOT` to the working copy/.test(sandboxSkill),
-        );
+    check(
+      'sandbox:skill-trace-root-not-exported',
+      /does not export it to the Task/.test(sandboxSkill) &&
+        /sandbox-env\.json/.test(sandboxSkill) &&
+        !/sets `MIDAS_TRACE_ROOT` to the working copy/.test(sandboxSkill),
+    );
     check(
       'sandbox:skill-grades-after-task',
       /sandbox-run.mjs grade --skill/.test(sandboxSkill),
@@ -327,7 +332,11 @@ if (existsSync(tplRoot)) {
     check('sandbox:skill-missing-skip', /--missing skip/.test(sandboxSkill));
     check(
       'sandbox:skill-empty-idea-flag',
-      /reset --empty-idea/.test(sandboxSkill) && /capture/.test(sandboxSkill),
+      (/reset --empty-idea/.test(sandboxSkill) || /--profile capture/.test(sandboxSkill)) && /capture/.test(sandboxSkill),
+    );
+    check(
+      'sandbox:skill-install-profile',
+      /--profile install/.test(sandboxSkill) && /example-install/.test(sandboxSkill),
     );
     check(
       'sandbox:skill-grade-after-each',
@@ -348,6 +357,21 @@ if (existsSync(tplRoot)) {
     const env = inspectSandboxEnv(ROOT);
     check('sandbox:env-ok', env.ok, env.error || '');
     check('sandbox:env-name', env.name === 'sandbox-example', env.name);
+    check('sandbox:env-profile', env.profile === 'pipeline', env.profile);
+    check(
+      'sandbox:parse-profile-capture',
+      parseSandboxProfileArgs(['--blank-idea']).profile === 'capture' &&
+        parseSandboxProfileArgs(['--empty-idea']).profile === 'capture' &&
+        parseSandboxProfileArgs(['--profile', 'capture']).profile === 'capture',
+    );
+    check(
+      'sandbox:parse-profile-install',
+      parseSandboxProfileArgs(['--profile=install']).profile === 'install',
+    );
+    check(
+      'sandbox:env-pointer-after-reset',
+      existsSync(join(reset.work, ENV_POINTER_REL)),
+    );
     check(
       'sandbox:env-engine-is-repo-harness',
       env.ok && env.engine === resolve(ROOT, 'harness'),
@@ -439,11 +463,20 @@ if (existsSync(tplRoot)) {
             !existsSync(join(ROOT, 'runs', 'cache', 'traces', `session-${started.session_id}`)),
         );
         check('sandbox:active-run-sidecar', existsSync(join(ROOT, ACTIVE_RUN_REL)));
-        check(
-          'sandbox:start-run-trace-root-file',
-          readFileSync(join(restored.work, '.harness', 'cache', 'MIDAS_TRACE_ROOT'), 'utf8').trim() ===
-            restored.work,
-        );
+        {
+          const ptrPath = join(restored.work, ENV_POINTER_REL);
+          let ptr = {};
+          try {
+            ptr = JSON.parse(readFileSync(ptrPath, 'utf8'));
+          } catch {
+            ptr = {};
+          }
+          check(
+            'sandbox:start-run-env-pointer',
+            ptr.MIDAS_TRACE_ROOT === restored.work && ptr.work === restored.work,
+            ptrPath,
+          );
+        }
         const finish = spawnSync(process.execPath, [join(ROOT, 'scripts', 'sandbox-run.mjs'), 'finish'], {
           cwd: ROOT,
           encoding: 'utf8',
@@ -472,8 +505,8 @@ if (existsSync(tplRoot)) {
         graded.tally,
       );
       {
-        const emptied = resetSandbox(ROOT, { emptyIdea: true });
-        check('sandbox:reset-empty-idea', emptied.ok, emptied.error || '');
+        const emptied = resetSandbox(ROOT, { profile: 'capture' });
+        check('sandbox:reset-empty-idea', emptied.ok && emptied.profile === 'capture', emptied.error || '');
         const blankIdea = readFileSync(join(emptied.work, '.harness', 'product', 'idea.md'), 'utf8');
         check(
           'sandbox:empty-idea-has-todos',
@@ -640,6 +673,79 @@ if (existsSync(tplRoot)) {
         );
       } finally {
         if (existsSync(ledgerPath)) unlinkSync(ledgerPath);
+      }
+      {
+        const installWork = WORK_INSTALL;
+        rmSync(installWork, { recursive: true, force: true });
+        mkdirSync(join(installWork, '.harness', 'engine'), { recursive: true });
+        mkdirSync(join(installWork, '.harness', 'scripts'), { recursive: true });
+        mkdirSync(join(installWork, '.harness', 'product'), { recursive: true });
+        mkdirSync(join(installWork, '.harness', 'rules'), { recursive: true });
+        mkdirSync(join(installWork, '.harness', 'runs'), { recursive: true });
+        mkdirSync(join(installWork, '.harness', 'cache'), { recursive: true });
+        writeFileSync(join(installWork, '.harness', 'engine', 'VERSION'), '3.0.1\n', 'utf8');
+        writeFileSync(
+          join(installWork, '.harness', 'state.yaml'),
+          [
+            'midas_version: 3.0.1',
+            'role: product',
+            'layout: harness',
+            'paths:',
+            '  root: .harness',
+            '  engine: .harness/engine',
+            '  scripts: .harness/scripts',
+            '  state: .harness/state.yaml',
+            '  product: .harness/product',
+            '  rules: .harness/rules',
+            '  runs: .harness/runs',
+            '  cache: .harness/cache',
+            'name: sandbox-example',
+            'mode: greenfield',
+            'setup_complete: true',
+            'stage: idea_intake',
+            'cost_profile: balanced',
+            '',
+          ].join('\n'),
+          'utf8',
+        );
+        const installEnv = inspectSandboxEnv(ROOT, { profile: 'install' });
+        check(
+          'sandbox:install-env-ok',
+          installEnv.ok &&
+            installEnv.profile === 'install' &&
+            isPathInside(installWork, installEnv.engine) &&
+            installEnv.engine !== resolve(ROOT, 'harness'),
+          installEnv.error || installEnv.engine,
+        );
+        const diag = diagnoseProject(installWork);
+        check(
+          'sandbox:install-not-partial-migrate',
+          diag.status !== 'partial_migrate',
+          diag.status,
+        );
+        if (!TEST_FAST) {
+          const nested = resetSandbox(ROOT, { profile: 'install' });
+          check(
+            'sandbox:reset-install',
+            nested.ok && existsSync(join(nested.work, '.harness', 'engine', 'VERSION')),
+            nested.error || '',
+          );
+          if (nested.ok) {
+            const liveEnv = inspectSandboxEnv(ROOT, { profile: 'install' });
+            const liveDiag = diagnoseProject(nested.work);
+            check(
+              'sandbox:reset-install-env',
+              liveEnv.ok && liveEnv.name === 'sandbox-example',
+              liveEnv.error || liveEnv.name,
+            );
+            check(
+              'sandbox:reset-install-diagnose',
+              liveDiag.status === 'setup_pending' || liveDiag.status === 'ready',
+              liveDiag.status,
+            );
+          }
+        }
+        resetSandbox(ROOT);
       }
     }
   }

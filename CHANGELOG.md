@@ -30,10 +30,14 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
   list or a `Scope / non-scope` heading). Phase 5 design artifacts keep template headings.
   `audit-record.md` gains `## Hygiene`. Sandbox oracles `choose-architecture.json`,
   `define-conventions.json`, and `plan-sprints.json` grade those headings + `gate-04.md`…`gate-06.md`.
-- **Sandbox capture seed + trace pointer** — `sandbox-run reset --empty-idea` overlays the Phase-0
-  idea template so idea-intake must capture (default seed stays filled). `start-run` writes
-  `{cache}/MIDAS_TRACE_ROOT` for Task subprocesses that cannot inherit env. Live autonomy/doctor
-  hints print canonical `update`, not `--update`.
+- **Sandbox capture + install profiles** — `sandbox-run reset --profile capture` overlays the
+  Phase-0 idea template so idea-intake must capture (default seed stays filled). `--profile install`
+  writes a nested vendor tree at `sandbox/example-install/` (`paths.engine=.harness/engine`) so
+  diagnose is not `partial_migrate`. `reset` / `env` / `start-run` write
+  `{work}/.harness/cache/sandbox-env.json` (`MIDAS_TRACE_ROOT`) because Cursor Task does not inherit
+  env. Live autonomy/doctor hints print canonical `update`, not `--update`. Live sandbox 2026-08-31:
+  `--profile capture` + phases 0–4 on `composer-2.5` all oracles pass; `--profile install` diagnoses
+  `setup_pending` (not `partial_migrate`).
 
 ## [3.0.1] — 2026-08-30
 
