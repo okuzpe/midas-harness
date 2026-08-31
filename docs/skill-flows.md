@@ -79,8 +79,8 @@ on-disk evidence before the lifecycle advances.
 | `/choose-architecture` | Signed GO business case | Surface hard-to-reverse forks, verify versions, record decisions | `architecture.md` + one ADR per decision | Gate pass → `architecture_rules` |
 | `/define-conventions` | Architecture and ADRs accepted | Turn architecture into checkable rules, design system, and enforcement | Rules, design docs, playbooks, rendered adapters | Gate pass → `sprint_planning` |
 | `/plan-sprints` | Rules frozen | Decompose only the MVP into dependency-ordered, shippable slices | Roadmap, sprint files, `features.json`, planned `sprints[]` | Gate pending; next `/start-sprint` |
-| `/start-sprint` | Planned sprint | Audit pre-existing drift, form working plan, activate the sprint | Drift decisions + active sprint | `sprint_planning` → `sprint_execution` |
-| `/close-sprint` | Active sprint with work proven | Independently audit rules and scope, resolve drift, freeze verdict | `{runs}/audits/audit-NN.md` + done sprint | Next sprint, or `shipped` |
+| `/start-sprint` | Planned sprint | Audit pre-existing drift, form working plan, activate the sprint | Drift decisions + active sprint; `{product}/roadmap.md` Status → `active` | `sprint_planning` → `sprint_execution` |
+| `/close-sprint` | Active sprint with work proven | Independently audit rules and scope, resolve drift, freeze verdict | `{runs}/audits/audit-NN.md` + done sprint; roadmap Status → `done` | Next sprint, or `shipped` |
 
 The front-loaded lifecycle is linear; the recurring product-development loop is:
 

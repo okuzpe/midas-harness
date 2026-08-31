@@ -76,8 +76,8 @@ For entry → decision → state → handoff, see [Skill flows](skill-flows.md).
 | `/choose-architecture` | 4 | Pin stack; write architecture + ADRs. | orchestrate |
 | `/define-conventions` | 5 | Freeze rules + design system; re-render adapters. Keystone. | orchestrate |
 | `/plan-sprints` | 6 | MVP → dependency-ordered roadmap and sprint plans. | orchestrate |
-| `/start-sprint` | 7 | Kick off sprint — pre-audit living code vs frozen rules. | orchestrate |
-| `/close-sprint` | 8 | Conformance audit; resolve drift; next sprint or ship. | orchestrate |
+| `/start-sprint` | 7 | Kick off sprint — pre-audit living code vs frozen rules; set sprint and roadmap Status `active`. | orchestrate |
+| `/close-sprint` | 8 | Conformance audit; set roadmap Status `done`; next sprint or ship. | orchestrate |
 
 Stage → command map (runtime): `<paths.engine>/stage-command-table.yaml` (generated from
 `STAGE_ROWS` in `scripts/stage-command-table.mjs`).

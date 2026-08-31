@@ -50,7 +50,8 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
   `sandbox/findings/2026-08-31-all-skills.md`.
 - **Roadmap Status dual-write** — `/start-sprint` and `/close-sprint` keep `{product}/roadmap.md`
   Status in sync with `paths.state` `sprints[].status` (`planned` → `active` → `done`). Sweep
-  classifies a mismatch as `ledger-drift`; `hygiene.md` grades it at Phase 8.
+  classifies a mismatch as `ledger-drift`; `hygiene.md` grades it at Phase 8. `docs/skills.md` and
+  `docs/skill-flows.md` name the same Status writes.
 
 ## [3.0.1] — 2026-08-30
 
