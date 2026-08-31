@@ -13,7 +13,9 @@
 ## Sprint sequence
 
 <!-- Each sprint references its detail file at {product}/sprints/NN-<slug>.md.
-     Ordering must respect technical dependencies (e.g. infra before features, auth before protected routes). -->
+     Ordering must respect technical dependencies (e.g. infra before features, auth before protected routes).
+     Status is live: planned (Phase 6) → active (`/start-sprint`) → done (`/close-sprint`).
+     Must match `paths.state` `sprints[].status` for the same id. -->
 
 | Sprint | Title | Goal | Depends on | Status |
 |---|---|---|---|---|

@@ -35,7 +35,7 @@ proceeds on the **build** tier with Context7.
 |---|---|
 | Pre-sprint audit of living code vs frozen rules + MVP scope | Render the Phase-8 conformance verdict (`/close-sprint`) |
 | Queue fix-tasks or log conscious rule amendments | Silently ignore drift |
-| Emit working plan; set sprint `active` after confirm | Implement the sprint tasks here (that is build / Phase 7 body) |
+| Emit working plan; set sprint `active` after confirm; sync `{product}/roadmap.md` Status | Implement the sprint tasks here (that is build / Phase 7 body) |
 | Cost-aware agent/tier selection + Context7 library list | Replace `/plan-sprints` (no plan yet → plan first) |
 
 ## When NOT
@@ -92,7 +92,9 @@ one builder (or inline writer) per worktree; scouts may fan out (`organic-routin
 Summarize the
 plan for the user, then update **`paths.state`** (read-modify-write) only after
 they confirm kickoff (or the slash-command itself is the confirmation): set the sprint `status: active`,
-`stage: sprint_execution`, `stage_status: in_progress`, refresh `last_touched`. Record any logged
+`stage: sprint_execution`, `stage_status: in_progress`, refresh `last_touched`. In the same write,
+set the matching `{product}/roadmap.md` **Status** cell for that sprint id to `active` (canonical
+status stays `paths.state`; the roadmap table is the human-readable copy). Record any logged
 amendments in the sprint's `audit_notes`.
 
 ### 6. Hand off to implementation
@@ -122,6 +124,7 @@ pass; **conformance to rules is verified in Phase 8** (`/close-sprint`).
 - [ ] Working plan lists tasks, owners/tiers, expected implementation routes, Context7 libs, acceptance + DoD.
 - [ ] Pre-sprint drift is queued as fix-tasks **or** logged as a conscious rule amendment (evidence cited).
 - [ ] `paths.state` shows the sprint `status: active` and `stage: sprint_execution` (write last).
+- [ ] `{product}/roadmap.md` Status for that sprint id is `active` (when the file exists).
 - [ ] User knows next close ritual is `/close-sprint` (after tests + `/midas-verify` when UI).
 - [ ] No Phase-8 `MIDAS_AUDIT_RESULT` claimed here — kickoff only.
 - **Optional — lifecycle journal:** after setting the sprint `active`,

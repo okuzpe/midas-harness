@@ -52,7 +52,7 @@ Classify every hit; cite `path` or `path:line`.
 |---|---|---|
 | `dead-flow` | Route/page with no inbound link, nav, or test caller; playbook `Trigger` never matches `src/*` | high |
 | `orphan` | Module never imported; export only self-referenced | medium |
-| `ledger-drift` | `features.json` `passing` with empty `evidence`; code feature absent from ledger; roadmap sprint without `{product}/sprints/NN-*.md` | high |
+| `ledger-drift` | `features.json` `passing` with empty `evidence`; code feature absent from ledger; roadmap sprint without `{product}/sprints/NN-*.md`; `{product}/roadmap.md` Status cell ≠ `paths.state` `sprints[].status` for the same id | high |
 | `stale-doc` | OPEN question answered in `{product}/idea.md`; doc cites deleted path | medium |
 | `needs_review` | Rule or playbook with no `## Amendment` (or stale Amendment) older than **180 days** — flag for human re-check; do not auto-delete | medium |
 | `harness-drift` | `state.yaml` sprint id without file; gate disagrees with `stage` (`node <paths.scripts>/doctor.mjs --gates-only` if present); skill in docs missing under `<paths.engine>/skills/` | medium |
@@ -65,7 +65,7 @@ Classify every hit; cite `path` or `path:line`.
 Read **`paths.state`**. Resolve scope + depth. Allocate next `sweep-NN` under `{runs}/sweeps/`. Dispatch **scout** for an **index pack** (path lists + grep hits, not whole trees):
 
 - **Code:** entrypoints, routes, barrel exports; grep importers; nav/sitemap vs route files; API routes vs frontend calls/tests; playbook `Trigger` vs `src/*`.
-- **Docs/harness:** `features.json` vs routes/tests; `roadmap.md` vs `{product}/sprints/`; `open-questions.md` vs `{product}/idea.md`; `state.yaml` `sprints[]` vs files; `{runs}/audits/` vs sprint status; optional `doctor.mjs --gates-only`.
+- **Docs/harness:** `features.json` vs routes/tests; `roadmap.md` vs `{product}/sprints/` **and** vs `paths.state` `sprints[].status`; `open-questions.md` vs `{product}/idea.md`; `state.yaml` `sprints[]` vs files; `{runs}/audits/` vs sprint status; optional `doctor.mjs --gates-only`.
 - **Aging (needs_review):** for each `<paths.rules>/*.md` and `{product}/playbooks/*.md`, read the latest `## Amendment` date (else file mtime). If older than **180 days**, emit `needs_review` (path + last date). Do not auto-edit.
 - **Hygiene greps:** commented-out code (`^\s*(//|#).*[;{}()]`), bare `TODO`, duplicate utility filenames.
 

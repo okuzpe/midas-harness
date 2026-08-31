@@ -63,7 +63,8 @@ shippable vertical slice; later sprints depend only on earlier ones.
 From `<paths.engine>/templates/roadmap.md` — keep those headings (`## MVP definition (from business-plan.md)`,
 `## Sprint sequence`, `## Dependency notes`, `## Out of scope (v1 non-goals)`,
 `## Success metrics reminder`). Ordered sprint list: one-line goal each, explicit dependency order,
-mapping to success metrics. **MVP only**.
+mapping to success metrics. Status cells start as `planned` (must match `sprints[]`);
+`/start-sprint` / `/close-sprint` keep them in sync. **MVP only**.
 
 ### 4. Write each `{product}/sprints/NN-<slug>.md`
 Zero-padded, sequential, from `<paths.engine>/templates/sprint.md`. Keep those headings:

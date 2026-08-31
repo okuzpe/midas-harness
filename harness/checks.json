@@ -2,7 +2,7 @@
   "schema_version": 1,
   "updated": null,
   "source": "engine/rules",
-  "source_digest": "f254354767e510e0514209a10c4869cc82bfe0ce06df5e50c1f0c6616b58bd78",
+  "source_digest": "2ad64f36382f57c843e4b1230b64487e07819f4c93a4dfd338caccc12c876ff8",
   "rules": [
     {
       "path": "engine/rules/acceptance-criteria.md",
@@ -846,7 +846,7 @@
       "title": "Rule: Hygiene & dead-flow sweep (always-on)",
       "owner": "orchestrate",
       "phase": 8,
-      "check_count": 6,
+      "check_count": 7,
       "checks": [
         {
           "kind": "manual",
@@ -867,6 +867,14 @@
         {
           "kind": "manual",
           "body": "`manual:` for each feature id touched in the sprint diff, `status: passing` rows carry non-empty `evidence` (test path, route, or verify record); `failing` rows are not contradicted by shipped code in the same diff without a recorded deferral.",
+          "section": "Checklist > Ledger honesty",
+          "phase": 8,
+          "owner": "orchestrate",
+          "severity": "medium"
+        },
+        {
+          "kind": "manual",
+          "body": "`manual:` when `{product}/roadmap.md` exists, each `sprints[]` id has a Status cell of `planned` \\| `active` \\| `done` equal to that row's `status`. A mismatch is `ledger-drift` (fail at Phase 8 unless the audit records a skip with reason). Missing roadmap → `n/a` (pre-Phase 6).",
           "section": "Checklist > Ledger honesty",
           "phase": 8,
           "owner": "orchestrate",

@@ -216,6 +216,16 @@ export async function run() {
         /needs_review/i.test(sweepSkill) && /180/.test(sweepSkill),
         'midas-sweep must classify aging rules/playbooks as needs_review',
       );
+      check(
+        'harness:midas-sweep:roadmap-status-ledger',
+        /roadmap\.md` Status cell/.test(sweepSkill) && /sprints\[\]\.status/.test(sweepSkill),
+        'midas-sweep ledger-drift must include roadmap Status vs paths.state',
+      );
+      check(
+        'harness:hygiene:roadmap-status',
+        /roadmap\.md/.test(hygiene) && /sprints\[\]\.status/.test(hygiene) && /2026-08-31/.test(hygiene),
+        'hygiene.md must CHECK roadmap Status against paths.state sprints[]',
+      );
     }
     {
       const phase8 = readFileSync(join(ROOT, 'harness', 'pipeline', '8-audit-adjust.md'), 'utf8');
@@ -228,6 +238,11 @@ export async function run() {
         'harness:phase8:audit-artifacts',
         /Artifacts/.test(phase8) && /audit-record\.md/.test(phase8) && /## Hygiene/.test(phase8),
         'pipeline/8 freeze step must require Artifacts + Hygiene from audit-record.md',
+      );
+      check(
+        'harness:phase8:roadmap-status-done',
+        /roadmap\.md/.test(phase8) && /Status/.test(phase8) && /done/.test(phase8),
+        'pipeline/8 Step 6 must set roadmap Status to done',
       );
       const closeSkill = readFileSync(join(ROOT, 'harness', 'skills', 'close-sprint', 'SKILL.md'), 'utf8');
       check(
@@ -501,6 +516,17 @@ export async function run() {
   check(
     'start-sprint:lite-market-optional',
     /track:\s*lite/.test(startSprint) && /market\.md` is optional/.test(startSprint),
+  );
+  check(
+    'start-sprint:roadmap-status-active',
+    /roadmap\.md/.test(startSprint) && /Status/.test(startSprint) && /`active`/.test(startSprint),
+    'start-sprint must sync roadmap.md Status to active',
+  );
+  const closeSprintSkill = readFileSync(join(ROOT, 'harness', 'skills', 'close-sprint', 'SKILL.md'), 'utf8');
+  check(
+    'close-sprint:roadmap-status-done',
+    /roadmap\.md/.test(closeSprintSkill) && /Status/.test(closeSprintSkill) && /done/.test(closeSprintSkill),
+    'close-sprint must sync roadmap.md Status to done',
   );
   check(
     'audit-adjust:lite-market-optional',

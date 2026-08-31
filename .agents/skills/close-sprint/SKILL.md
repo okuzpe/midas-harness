@@ -47,7 +47,7 @@ Step outline (Steps 0–6):
 - **Step 3 — Scope audit:** delivered scope vs plan and business-case success metrics; no scope creep, no silent drops.
 - **Step 4 — Resolve drift:** fix now or consciously amend the rule (+ ADR); re-render adapters if amended; nothing left silent.
 - **Step 5 — Freeze the audit:** write `{runs}/audits/audit-NN.md` with `MIDAS_AUDIT_RESULT` tally; `unresolved=0` required before closing.
-- **Step 6 — Plan adjustment + update state:** set sprint `status: done`; reconcile `sprints[]`; select next sprint or declare MVP complete.
+- **Step 6 — Plan adjustment + update state:** set sprint `status: done`; set the matching `{product}/roadmap.md` **Status** cell to `done`; reconcile `sprints[]`; select next sprint or declare MVP complete.
 - **Optional — lifecycle journal:** `node <paths.scripts>/lifecycle-journal.mjs close_sprint --detail "sprint-NN"` (fail-open metrics under `{paths.cache}/metrics/lifecycle.jsonl`).
 - **Optional — quality log:** `node <paths.scripts>/quality-log.mjs audit pass --detail "sprint-NN"` (metadata-only JSONL; never secrets).
 - **Optional — carryover refresh:** `node <paths.scripts>/carryover-refresh.mjs` after sprint `done` (snapshot → idle). Resume ladder: `<paths.engine>/templates/session-resume-precedence.md`.
@@ -60,7 +60,7 @@ Step outline (Steps 0–6):
 - **Playbook triggers honored:** any diff matching a `{product}/playbooks/*` `Trigger` shows that playbook's done-when satisfied.
 - **Drift fixed or the rule consciously amended** (logged) — nothing silent.
 - **Scope reconciled** against the business case.
-- `{runs}/audits/audit-NN.md` frozen; `paths.state` updated.
+- `{runs}/audits/audit-NN.md` frozen; `paths.state` updated; `{product}/roadmap.md` Status for the closed sprint is `done`.
 - A clear next step: **next sprint** or **"MVP complete"**.
 
 ## Tier & delegation

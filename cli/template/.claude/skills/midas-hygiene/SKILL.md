@@ -52,7 +52,7 @@ Standing **repo hygiene** (not a phase gate): find dead weight in the product tr
 |---|---|---|
 | dead-flow (routes, zombie playbooks) | high | sweep `code` |
 | orphan modules | medium | sweep `code` |
-| ledger-drift (`features.json`, roadmap) | high | sweep `docs` |
+| ledger-drift (`features.json`, roadmap Status vs `sprints[]`) | high | sweep `docs` |
 | stale-doc (OPEN answered, broken `{product}` links) | medium | sweep `docs` |
 | hygiene greps (commented blocks, bare TODO) | low | sweep `code` |
 | unused deps (flag only) | low | sweep `code` |

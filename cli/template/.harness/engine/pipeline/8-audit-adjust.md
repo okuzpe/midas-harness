@@ -98,7 +98,9 @@ MIDAS_AUDIT_RESULT: rules_failed=X unresolved=Y amended=Z verdict=pass|blocked
 ### 6. Plan adjustment + update state
 
 Read-modify-write `paths.state`: sprint `status: done`, `audit_notes`, `last_touched`, `last_audit`,
-reconcile remaining `sprints[]`. Then **select next**:
+reconcile remaining `sprints[]`. In the same step, set the matching `{product}/roadmap.md` **Status**
+cell for that sprint id to `done` (when the file exists). Canonical status stays `paths.state`; the
+roadmap table is the human-readable copy. Then **select next**:
 
 - **Next sprint remains** → `stage: sprint_execution`, `stage_status: not_started`; next =
   `/start-sprint`.
@@ -135,7 +137,7 @@ disagree, synthesize per verification.md (`confirmed` / `suspect` / `escalate`).
 - [ ] All `fail` verdicts fixed or consciously amended (logged)
 - [ ] Scope reconciled against the business case
 - [ ] `{runs}/audits/audit-NN.md` frozen with `verdict=pass`
-- [ ] `paths.state` updated; clear next step (next sprint or MVP complete)
+- [ ] `paths.state` updated; `{product}/roadmap.md` Status for the closed sprint is `done`; clear next step (next sprint or MVP complete)
 
 ## Recommended tier + agents
 

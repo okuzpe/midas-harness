@@ -40,6 +40,10 @@ findings were resolved or consciously deferred.
       **CHECK:** `manual:` for each feature id touched in the sprint diff, `status: passing` rows
       carry non-empty `evidence` (test path, route, or verify record); `failing` rows are not
       contradicted by shipped code in the same diff without a recorded deferral.
+- [ ] `{product}/roadmap.md` Status matches `paths.state` `sprints[].status` for each listed sprint id.
+      **CHECK:** `manual:` when `{product}/roadmap.md` exists, each `sprints[]` id has a Status cell
+      of `planned` \| `active` \| `done` equal to that row's `status`. A mismatch is `ledger-drift`
+      (fail at Phase 8 unless the audit records a skip with reason). Missing roadmap → `n/a` (pre-Phase 6).
 
 ### Playbook triggers
 - [ ] No zombie playbooks — recipes whose `Trigger` never matches the codebase are flagged or retired.
@@ -74,6 +78,8 @@ findings were resolved or consciously deferred.
 
 ## Amendment
 
+- **2026-08-31** — Roadmap Status is a live copy of `paths.state` `sprints[].status`; `/start-sprint`
+  and `/close-sprint` must write the cell; sweep classifies a mismatch as `ledger-drift`.
 - **2026-08-27** — Gentleman Ch.20 aging: rules/playbooks without a fresh `## Amendment` for >180
   days surface as `needs_review` in sweep records (git-visible only; ADR-003).
 - **2026-08-10** — Mechanical pass cited as `/midas-hygiene` (product scope); sweep `harness` remains

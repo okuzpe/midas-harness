@@ -54,7 +54,8 @@ Sprints cover MVP only — no scope creep. Dependencies must be ordered.
    with `status: planned`.
 7. **Advance.** Set `stage_status: gate_pending`; run the exit gate.
    On pass, write `gate: passed` and set `stage: sprint_execution`, `stage_status: not_started`.
-   Sprint activation happens in `/start-sprint` (Phase 7).
+   Sprint activation happens in `/start-sprint` (Phase 7), which sets `sprints[].status` and the
+   matching `{product}/roadmap.md` Status cell to `active`.
 
 ## Output artifacts
 

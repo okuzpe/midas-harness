@@ -37,7 +37,12 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
   `{work}/.harness/cache/sandbox-env.json` (`MIDAS_TRACE_ROOT`) because Cursor Task does not inherit
   env. Live autonomy/doctor hints print canonical `update`, not `--update`. Live sandbox 2026-08-31:
   `--profile capture` + phases 0–6 on `composer-2.5` all oracles pass; `--profile install` +
-  `/midas-reconcile` diagnose `setup_pending` (not `partial_migrate`).
+  `/midas-reconcile` diagnose `setup_pending` (not `partial_migrate`). Catalog `--all` 2026-08-31:
+  34/35 skills live-run (`midas-sandbox` skipped); findings in
+  `sandbox/findings/2026-08-31-all-skills.md`.
+- **Roadmap Status dual-write** — `/start-sprint` and `/close-sprint` keep `{product}/roadmap.md`
+  Status in sync with `paths.state` `sprints[].status` (`planned` → `active` → `done`). Sweep
+  classifies a mismatch as `ledger-drift`; `hygiene.md` grades it at Phase 8.
 
 ## [3.0.1] — 2026-08-30
 
