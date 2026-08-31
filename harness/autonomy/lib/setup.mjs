@@ -40,7 +40,7 @@ export function runSetup(projectRoot, opts = {}) {
       status: 'not_installed',
       steps,
       next_command:
-        'npx github:okuzpe/midas-harness#v{VERSION} --update --autonomy --tools=cursor --yes',
+        'npx github:okuzpe/midas-harness#v{VERSION} update --autonomy --tools=cursor --yes',
       message:
         'Autonomy capability missing. Re-run the installer with --autonomy (substitute {VERSION} from INSTALL.md).',
     };

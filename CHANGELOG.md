@@ -30,6 +30,10 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
   list or a `Scope / non-scope` heading). Phase 5 design artifacts keep template headings.
   `audit-record.md` gains `## Hygiene`. Sandbox oracles `choose-architecture.json`,
   `define-conventions.json`, and `plan-sprints.json` grade those headings + `gate-04.md`…`gate-06.md`.
+- **Sandbox capture seed + trace pointer** — `sandbox-run reset --empty-idea` overlays the Phase-0
+  idea template so idea-intake must capture (default seed stays filled). `start-run` writes
+  `{cache}/MIDAS_TRACE_ROOT` for Task subprocesses that cannot inherit env. Live autonomy/doctor
+  hints print canonical `update`, not `--update`.
 
 ## [3.0.1] — 2026-08-30
 

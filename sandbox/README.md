@@ -14,6 +14,8 @@ First command (creates the working copy from the seed):
 ```bash
 node scripts/sandbox-run.mjs reset
 node scripts/sandbox-run.mjs env
+# capture-only idea-intake (blank template, not the filled Chorechip seed):
+node scripts/sandbox-run.mjs reset --empty-idea
 ```
 
 Every `/midas-sandbox` invocation **always resets first** (dirty working copies are not reused),
@@ -34,7 +36,9 @@ so a missing `current.json` still names the last session.
 
 After `reset`, that command **must fail** (`stage` still `idea_intake`, no phase artifacts).
 A pass without a Task means the oracle is grading the seed, not the skill.
-`--skill /idea-intake` is the same JSON. `--smoke` / `--all` next skills without an oracle
+`reset --empty-idea` also leaves `<!-- TODO:` markers in `{product}/idea.md`, so `pitch-not-todo`
+fails until `/idea-intake` actually captures. Default `reset` keeps the filled Chorechip idea
+(gate-advance lab). `--skill /idea-intake` is the same JSON. `--smoke` / `--all` next skills without an oracle
 YAML: `--missing skip` (broken JSON is still a fail).
 
 Do not run `doctor --fix` or edit `harness/skills/` / `harness/rules/` between `reset` and
@@ -78,6 +82,7 @@ Then:
    `scripts/` (`../../harness`, `../../scripts`). Real product installs must never do this.
 5. Execute the target skill **in this Task**. Do not spawn a nested Task or `midas-builder` on
    another model. Pass `MIDAS_TRACE_ROOT` from `env` into every `trace-write` subprocess.
+   If the host did not inherit that env, Read `{cache}/MIDAS_TRACE_ROOT` (written by `start-run`).
 
 ## Cost rules (non-negotiable)
 

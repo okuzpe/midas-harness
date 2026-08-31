@@ -9,6 +9,7 @@ Columns match Node's report: **line % | branch % | function %**.
 |---|---|---|---|---|---|---|
 | 2026-08-30 | 22+ | 76.37 | 67.80 | 77.19 | 65.71 | Phase 0 floor — later phases must not regress the all-files or execute.mjs rows |
 | 2026-08-30 | 22+ | 77.04 | 67.30 | 77.33 | 67.78 | 3.0.0 cut — F0–F6 complete |
+| 2026-08-31 | 22+ | 77.80 | 67.61 | 78.90 | 67.78 | 3.0.1 follow-up — empty-idea seed, phase template oracles |
 
 Re-measure after each phase that touches `cli/lib/` or `scripts/lib/` and append a row.
 The Phase-3 gate is: `cli/lib/runtime/` coverage at or above this floor.

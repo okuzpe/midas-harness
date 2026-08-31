@@ -183,7 +183,7 @@ if (paths.role === 'product') {
     'layout:root-allowlist',
     orphans.length ? 'warn' : 'ok',
     orphans.length
-      ? `orphan Midas host paths (not justified by tools=[${tools.join(', ')}]): ${orphans.join(', ')} — run create-midas --update --tools=…`
+      ? `orphan Midas host paths (not justified by tools=[${tools.join(', ')}]): ${orphans.join(', ')} — run ${formatUpdateCmd({ flags: '--tools=…' })}`
       : `root host surfaces match tools=[${tools.join(', ') || 'none'}]`,
   );
 

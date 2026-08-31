@@ -1,5 +1,6 @@
 // sandbox-env.mjs — isolation floor for /midas-sandbox (engine only).
 
+import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
@@ -12,10 +13,61 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 export const ROOT = resolve(HERE, '../..');
 export const SEED = join(ROOT, 'sandbox', 'seed');
 export const WORK = join(ROOT, 'sandbox', 'example-product');
+export const WORK_INSTALL = join(ROOT, 'sandbox', 'example-install');
 export const EXPECTED_NAME = 'sandbox-example';
 export const BASELINE_REL = join('.harness', 'cache', 'sandbox-baseline.json');
+export const ENV_POINTER_REL = join('.harness', 'cache', 'sandbox-env.json');
 
 const INSIDE_KEYS = Object.freeze(['state', 'product', 'rules', 'runs', 'cache']);
+const PROFILES = Object.freeze(['pipeline', 'capture', 'install']);
+
+/**
+ * @param {unknown} raw
+ * @returns {'pipeline'|'capture'|'install'}
+ */
+export function normalizeSandboxProfile(raw) {
+  const p = String(raw || 'pipeline')
+    .trim()
+    .toLowerCase();
+  if (p === 'capture' || p === 'blank-idea') return 'capture';
+  if (p === 'install') return 'install';
+  return 'pipeline';
+}
+
+/**
+ * @param {string[]} argv
+ * @returns {{ profile: 'pipeline'|'capture'|'install' }}
+ */
+export function parseSandboxProfileArgs(argv) {
+  let profile = 'pipeline';
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    if (arg === '--blank-idea') {
+      profile = 'capture';
+      continue;
+    }
+    if (arg === '--profile') {
+      const v = argv[i + 1];
+      if (v && !v.startsWith('--')) {
+        profile = normalizeSandboxProfile(v);
+        i += 1;
+      }
+      continue;
+    }
+    if (arg.startsWith('--profile=')) profile = normalizeSandboxProfile(arg.slice('--profile='.length));
+  }
+  return { profile };
+}
+
+/**
+ * @param {string} root
+ * @param {string} [profile]
+ */
+export function workDirForProfile(root, profile) {
+  return normalizeSandboxProfile(profile) === 'install'
+    ? join(root, 'sandbox', 'example-install')
+    : join(root, 'sandbox', 'example-product');
+}
 
 /**
  * True when `abs` is `root` or a path under it (no `..` escape).
@@ -81,6 +133,22 @@ export function writeSandboxBaseline(root, work) {
 }
 
 /**
+ * Disk pointer for Cursor Task (no cwd/env inheritance). Residual: Task still must Read this file.
+ * @param {{ work: string, midasTraceRoot?: string, name?: string, profile?: string }} info
+ */
+export function writeSandboxEnvPointer(info) {
+  if (!info?.work) return;
+  mkdirSync(join(info.work, '.harness', 'cache'), { recursive: true });
+  const payload = {
+    MIDAS_TRACE_ROOT: info.midasTraceRoot || info.work,
+    work: info.work,
+    name: info.name || '',
+    profile: normalizeSandboxProfile(info.profile),
+  };
+  writeFileSync(join(info.work, ENV_POINTER_REL), `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
+}
+
+/**
  * @param {string} work
  * @returns {{
  *   engineStateSha256?: string,
@@ -102,30 +170,93 @@ export function readSandboxBaseline(work) {
 }
 
 /**
- * Copy seed → working copy (wipe first) and write isolation baseline.
- * @returns {{ ok: boolean, work: string, error?: string }}
+ * Overlay `{product}/idea.md` with the blank Phase-0 template (capture signal).
+ * @param {string} root
+ * @param {string} work
  */
-export function resetSandbox(root = ROOT) {
+function applyCaptureOverlay(root, work) {
+  const tmpl = join(root, 'harness', 'templates', 'idea.md');
+  if (!existsSync(tmpl)) {
+    return { ok: false, error: `missing idea template at ${tmpl}` };
+  }
+  const ideaPath = join(work, '.harness', 'product', 'idea.md');
+  mkdirSync(dirname(ideaPath), { recursive: true });
+  writeFileSync(ideaPath, readFileSync(tmpl, 'utf8').replaceAll('{{PROJECT_NAME}}', 'Chorechip'), 'utf8');
+  return { ok: true };
+}
+
+/**
+ * Installer writes `name:` from the folder basename; sandbox isolation requires sandbox-example.
+ * @param {string} work
+ */
+function overlayInstallIdentity(work) {
+  const statePath = join(work, '.harness', 'state.yaml');
+  if (!existsSync(statePath)) return;
+  const yaml = readFileSync(statePath, 'utf8').replace(/^name:\s*\S+/m, `name: ${EXPECTED_NAME}`);
+  writeFileSync(statePath, yaml, 'utf8');
+}
+
+/**
+ * Nested product install (`paths.engine=.harness/engine`) for reconcile/update — not the pipeline seed.
+ * @param {string} root
+ */
+function resetInstallSandbox(root) {
+  const work = join(root, 'sandbox', 'example-install');
+  rmSync(work, { recursive: true, force: true });
+  mkdirSync(dirname(work), { recursive: true });
+  const installer = join(root, 'cli', 'index.mjs');
+  if (!existsSync(installer)) {
+    return { ok: false, work, error: `missing installer at ${installer}` };
+  }
+  const spawned = spawnSync(process.execPath, [installer, '--yes', '--force', '--tools=cursor', work], {
+    cwd: root,
+    encoding: 'utf8',
+  });
+  if (spawned.status !== 0) {
+    const detail = `${spawned.stderr || ''}\n${spawned.stdout || ''}`.trim();
+    return {
+      ok: false,
+      work,
+      error: `nested install failed (exit ${spawned.status})${detail ? `: ${detail.slice(0, 800)}` : ''}`,
+    };
+  }
+  if (!existsSync(join(work, '.harness', 'engine', 'VERSION'))) {
+    return { ok: false, work, error: 'nested install wrote no .harness/engine/VERSION' };
+  }
+  overlayInstallIdentity(work);
+  writeSandboxBaseline(root, work);
+  writeSandboxEnvPointer({ work, midasTraceRoot: work, name: EXPECTED_NAME, profile: 'install' });
+  return { ok: true, work, profile: 'install' };
+}
+
+/**
+ * Copy seed → working copy (wipe first) and write isolation baseline.
+ * @param {string} [root]
+ * @param {{ profile?: string }} [opts]
+ * @returns {{ ok: boolean, work: string, profile?: string, error?: string }}
+ */
+export function resetSandbox(root = ROOT, opts = {}) {
+  const profile = normalizeSandboxProfile(opts.profile);
+  if (profile === 'install') return resetInstallSandbox(root);
   const seed = join(root, 'sandbox', 'seed');
   const work = join(root, 'sandbox', 'example-product');
   if (!existsSync(join(seed, '.harness', 'state.yaml'))) {
-    return { ok: false, work, error: `missing seed state at ${join(seed, '.harness', 'state.yaml')}` };
+    return { ok: false, work, profile, error: `missing seed state at ${join(seed, '.harness', 'state.yaml')}` };
   }
   rmSync(work, { recursive: true, force: true });
   mkdirSync(dirname(work), { recursive: true });
   cpSync(seed, work, { recursive: true });
+  if (profile === 'capture') {
+    const overlay = applyCaptureOverlay(root, work);
+    if (!overlay.ok) return { ok: false, work, profile, error: overlay.error };
+  }
   writeSandboxBaseline(root, work);
-  return { ok: true, work };
+  writeSandboxEnvPointer({ work, midasTraceRoot: work, name: EXPECTED_NAME, profile });
+  return { ok: true, work, profile };
 }
 
-/**
- * Resolve and validate isolation: fixture name from resolved state, lifecycle paths inside
- * the working copy, engine/scripts pointing at this repo.
- * @returns {{ ok: boolean, name: string, state: string, engine: string, scripts: string, product: string, work: string, midasTraceRoot: string, error?: string }}
- */
-export function inspectSandboxEnv(root = ROOT) {
-  const work = join(root, 'sandbox', 'example-product');
-  const empty = {
+function emptyInspect(work, profile) {
+  return {
     ok: false,
     name: '',
     state: '',
@@ -134,9 +265,28 @@ export function inspectSandboxEnv(root = ROOT) {
     product: '',
     work,
     midasTraceRoot: work,
+    profile,
   };
+}
+
+/**
+ * Resolve and validate isolation: fixture name from resolved state, lifecycle paths inside
+ * the working copy. Pipeline/capture: engine/scripts point at this repo. Install: both live
+ * inside the working copy (real nested vendor tree).
+ * @param {string} [root]
+ * @param {{ profile?: string }} [opts]
+ * @returns {{ ok: boolean, name: string, state: string, engine: string, scripts: string, product: string, work: string, midasTraceRoot: string, profile: string, error?: string }}
+ */
+export function inspectSandboxEnv(root = ROOT, opts = {}) {
+  const profile = normalizeSandboxProfile(opts.profile);
+  const work = workDirForProfile(root, profile);
+  const empty = emptyInspect(work, profile);
   if (!existsSync(join(work, '.harness', 'state.yaml'))) {
-    return { ...empty, error: 'working copy missing — run `node scripts/sandbox-run.mjs reset`' };
+    const hint =
+      profile === 'install'
+        ? 'node scripts/sandbox-run.mjs reset --profile install'
+        : 'node scripts/sandbox-run.mjs reset';
+    return { ...empty, error: `working copy missing — run \`${hint}\`` };
   }
   const paths = resolvePaths(work);
   const engineAbs = resolve(work, paths.engine);
@@ -153,22 +303,27 @@ export function inspectSandboxEnv(root = ROOT) {
   }
   const leaked = INSIDE_KEYS.filter((key) => !isPathInside(work, resolved[key]));
   const name = leaked.includes('state') ? '' : readNameFromStateFile(resolved.state);
-  const ok =
-    leaked.length === 0 &&
-    name === EXPECTED_NAME &&
-    engineAbs === wantEngine &&
-    scriptsAbs === wantScripts;
+  let ok = leaked.length === 0 && name === EXPECTED_NAME;
+  if (profile === 'install') {
+    ok = ok && isPathInside(work, engineAbs) && isPathInside(work, scriptsAbs);
+  } else {
+    ok = ok && engineAbs === wantEngine && scriptsAbs === wantScripts;
+  }
   let error;
   if (!ok) {
     if (leaked.length) {
       error = `isolation fail paths outside working copy: ${leaked.map((k) => `${k}=${resolved[k]}`).join(' ')}`;
+    } else if (profile === 'install') {
+      error =
+        `isolation fail name=${name} engine=${engineAbs} scripts=${scriptsAbs} ` +
+        `(want name=${EXPECTED_NAME} engine+scripts inside ${work})`;
     } else {
       error =
         `isolation fail name=${name} engine=${engineAbs} scripts=${scriptsAbs} ` +
         `(want name=${EXPECTED_NAME} engine=${wantEngine} scripts=${wantScripts})`;
     }
   }
-  return {
+  const info = {
     ok,
     name,
     state: resolved.state,
@@ -177,6 +332,11 @@ export function inspectSandboxEnv(root = ROOT) {
     product: resolved.product,
     work,
     midasTraceRoot: work,
+    profile,
     error,
   };
+  if (ok) writeSandboxEnvPointer(info);
+  return info;
 }
+
+export { PROFILES };

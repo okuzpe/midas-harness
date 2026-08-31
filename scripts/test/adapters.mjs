@@ -314,16 +314,21 @@ if (existsSync(tplRoot)) {
       'sandbox:skill-always-reset',
       /\*\*Always\*\* `node scripts\/sandbox-run.mjs reset`/.test(sandboxSkill),
     );
-    check(
-      'sandbox:skill-trace-root-not-exported',
-      /does not export it to the Task/.test(sandboxSkill) &&
-        !/sets `MIDAS_TRACE_ROOT` to the working copy/.test(sandboxSkill),
-    );
+        check(
+          'sandbox:skill-trace-root-not-exported',
+          /does not export it to the Task/.test(sandboxSkill) &&
+            /\{cache\}\/MIDAS_TRACE_ROOT/.test(sandboxSkill) &&
+            !/sets `MIDAS_TRACE_ROOT` to the working copy/.test(sandboxSkill),
+        );
     check(
       'sandbox:skill-grades-after-task',
       /sandbox-run.mjs grade --skill/.test(sandboxSkill),
     );
     check('sandbox:skill-missing-skip', /--missing skip/.test(sandboxSkill));
+    check(
+      'sandbox:skill-empty-idea-flag',
+      /reset --empty-idea/.test(sandboxSkill) && /capture/.test(sandboxSkill),
+    );
     check(
       'sandbox:skill-grade-after-each',
       /After \*\*each\*\* skill Task/.test(sandboxSkill) &&
@@ -335,6 +340,11 @@ if (existsSync(tplRoot)) {
     );
     const reset = resetSandbox(ROOT);
     check('sandbox:reset-seed', reset.ok && existsSync(join(reset.work, '.harness', 'state.yaml')), reset.error || '');
+    const seedIdea = readFileSync(join(reset.work, '.harness', 'product', 'idea.md'), 'utf8');
+    check(
+      'sandbox:seed-idea-filled',
+      /A single-user local chore list/.test(seedIdea) && !/<!-- TODO: one sentence/.test(seedIdea),
+    );
     const env = inspectSandboxEnv(ROOT);
     check('sandbox:env-ok', env.ok, env.error || '');
     check('sandbox:env-name', env.name === 'sandbox-example', env.name);
@@ -429,6 +439,11 @@ if (existsSync(tplRoot)) {
             !existsSync(join(ROOT, 'runs', 'cache', 'traces', `session-${started.session_id}`)),
         );
         check('sandbox:active-run-sidecar', existsSync(join(ROOT, ACTIVE_RUN_REL)));
+        check(
+          'sandbox:start-run-trace-root-file',
+          readFileSync(join(restored.work, '.harness', 'cache', 'MIDAS_TRACE_ROOT'), 'utf8').trim() ===
+            restored.work,
+        );
         const finish = spawnSync(process.execPath, [join(ROOT, 'scripts', 'sandbox-run.mjs'), 'finish'], {
           cwd: ROOT,
           encoding: 'utf8',
@@ -451,6 +466,31 @@ if (existsSync(tplRoot)) {
       }
       const graded = gradeSandbox({ root: ROOT, skill: 'idea-intake', ledger: false });
       check('sandbox:grade-seed-idea-intake-fails', graded.ok === false, graded.tally);
+      check(
+        'sandbox:grade-seed-idea-intake-pitch-already-ok',
+        graded.checks.some((c) => c.id === 'pitch-not-todo' && c.ok),
+        graded.tally,
+      );
+      {
+        const emptied = resetSandbox(ROOT, { emptyIdea: true });
+        check('sandbox:reset-empty-idea', emptied.ok, emptied.error || '');
+        const blankIdea = readFileSync(join(emptied.work, '.harness', 'product', 'idea.md'), 'utf8');
+        check(
+          'sandbox:empty-idea-has-todos',
+          /<!-- TODO: one sentence/.test(blankIdea) &&
+            /<!-- TODO: paste or transcribe/.test(blankIdea) &&
+            !/\{\{PROJECT_NAME\}\}/.test(blankIdea),
+        );
+        const gradedEmpty = gradeSandbox({ root: ROOT, skill: 'idea-intake', ledger: false });
+        check(
+          'sandbox:grade-empty-idea-pitch-todo',
+          gradedEmpty.ok === false &&
+            gradedEmpty.checks.some((c) => c.id === 'pitch-not-todo' && !c.ok) &&
+            gradedEmpty.checks.some((c) => c.id === 'raw-not-todo' && !c.ok),
+          gradedEmpty.tally,
+        );
+        resetSandbox(ROOT);
+      }
       const gradedCtx = gradeSandbox({ root: ROOT, skill: 'contextualize', ledger: false });
       check(
         'sandbox:grade-seed-contextualize-fails',

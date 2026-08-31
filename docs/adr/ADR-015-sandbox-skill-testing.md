@@ -84,6 +84,9 @@ engine repo into a product install (forbidden by `harness/rules/engine-repo-boun
   `MIDAS_TRACE_ROOT:`; the parent must pass that env into every Task `trace-write` (the runner
   cannot export it to Cursor Task). Target skill runs in-process in the composer-2.5 Task — no
   nested builder on another model.
+- **2026-08-31** — `reset --empty-idea` overlays `harness/templates/idea.md` so idea-intake must
+  capture (default seed stays filled for gate-advance / `--smoke`). `start-run` writes
+  `{cache}/MIDAS_TRACE_ROOT` for Task subprocesses that cannot inherit env.
 - **2026-08-28** — Isolation runner (`scripts/sandbox-run.mjs`: reset / env / trace wrappers).
   Working copy is gitignored and restored from `sandbox/seed/`. Findings require a class
   (`harness-gap` | `model-miss` | `fixture-limit` | `isolation-bug`). Template

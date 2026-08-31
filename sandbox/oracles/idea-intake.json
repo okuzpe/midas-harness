@@ -5,6 +5,7 @@
     { "id": "raw-heading", "type": "file_contains", "path": "{product}/idea.md", "pattern": "## Raw idea (preserved verbatim)" },
     { "id": "pitch-heading", "type": "file_contains", "path": "{product}/idea.md", "pattern": "## 1-line pitch" },
     { "id": "pitch-not-todo", "type": "file_not_contains", "path": "{product}/idea.md", "pattern": "<!-- TODO: one sentence" },
+    { "id": "raw-not-todo", "type": "file_not_contains", "path": "{product}/idea.md", "pattern": "<!-- TODO: paste or transcribe" },
     { "id": "mode-heading", "type": "file_contains", "path": "{product}/idea.md", "pattern": "## Mode" },
     { "id": "mode-state", "type": "state_match", "field": "mode", "value": "greenfield" },
     { "id": "gate-passed", "type": "state_match", "field": "phases.idea_intake.gate", "value": "passed" },

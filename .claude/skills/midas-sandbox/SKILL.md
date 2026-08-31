@@ -48,7 +48,9 @@ Cursor Task has no cwd pin. The parent must make the fixture honest; the Task mu
    - Product root is `sandbox/example-product/` only. Never read engine `harness/state.yaml` as product state.
    - Execute the target skill **in this Task**. Do not spawn a nested Task or `midas-builder` with another model.
    - Every `node …/trace-write.mjs` subprocess gets env `MIDAS_TRACE_ROOT` = the value from `env`.
-     `start-run` binds it for **that** process only; it does not export it to the Task.
+   `start-run` binds it for **that** process only; it does not export it to the Task.
+     `start-run` also writes the working-copy path to `{cache}/MIDAS_TRACE_ROOT` (one line). If the
+     host did not inherit the env, Read that file and pass it into every `trace-write` subprocess.
 3. Trace: `start-run` **once** before the first Task; `finish` **once** after the last Task.
    After **each** skill Task — immediately, before launching the next skill — run
    `node scripts/sandbox-run.mjs grade --skill <that-skill> --ledger`. Cite each
@@ -71,6 +73,10 @@ Full contract: `sandbox/README.md`.
 Reset + `env` + `start-run`, then one composer-2.5 Task, then `grade --skill <name> --ledger`,
 then `finish`, then findings. If `--skill` omitted, next command from
 `<paths.engine>/stage-command-table.yaml` for the **fixture** `stage`.
+To certify **verbatim capture** (not only gate advance) for `/idea-intake`, reset with
+`node scripts/sandbox-run.mjs reset --empty-idea` so `{product}/idea.md` is the Phase-0
+template. Do **not** pass `--empty-idea` on `--smoke` / `--all` unless idea-intake runs first
+and fills the file — later phases need a real idea.
 
 ### `/midas-sandbox --smoke` — touched + next
 
@@ -130,7 +136,8 @@ go/no-go. Say so in findings for phases 2–4.
       the Task advances fixture `stage` **and** lists `{product}/idea.md` in phase artifacts.
 - [ ] Task first-Read was the fixture state; no nested Task / other-model builder.
 - [ ] Every substituted `AskQuestion` is a `[SANDBOX AUTO-DECISION]` line.
-- [ ] Subagent model was `composer-2.5` (cited in Setup); `MIDAS_TRACE_ROOT` passed to trace-write.
+- [ ] Subagent model was `composer-2.5` (cited in Setup); `MIDAS_TRACE_ROOT` passed to trace-write
+      (env from `env`, or the path in `{cache}/MIDAS_TRACE_ROOT` after `start-run`).
 - [ ] `finish` exited 0 (not `no-active-run`).
 - [ ] Findings file written; no writes under `harness/skills/*` or `harness/rules/*`.
 - [ ] `MIDAS_SANDBOX_RESULT:` printed; `--all` only after cost confirmation.

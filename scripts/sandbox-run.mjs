@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // sandbox-run.mjs — engine-only mechanical floor for /midas-sandbox (ADR-015).
 //
-//   node scripts/sandbox-run.mjs reset
+//   node scripts/sandbox-run.mjs reset [--empty-idea]
 //   node scripts/sandbox-run.mjs env
 //   node scripts/sandbox-run.mjs start-run
 //   node scripts/sandbox-run.mjs finish
@@ -15,12 +15,16 @@ import { fileURLToPath } from 'node:url';
 import { isEngineRepo } from './engine-only.mjs';
 import {
   EXPECTED_NAME,
+  ENV_POINTER_REL,
   ROOT,
   SEED,
   WORK,
+  WORK_INSTALL,
   inspectSandboxEnv,
   isPathInside,
+  parseSandboxProfileArgs,
   resetSandbox,
+  writeSandboxEnvPointer,
 } from './lib/sandbox-env.mjs';
 import { gradeSandbox, printGrade, normalizeSkillName } from './lib/sandbox-grade.mjs';
 import { resolveTracesRoot } from './lib/trace-store.mjs';
@@ -29,7 +33,9 @@ import { runTraceWrite } from './trace-write.mjs';
 const HELP = `sandbox-run — mechanical floor for /midas-sandbox (engine only)
 
 Usage:
-  node scripts/sandbox-run.mjs reset      copy sandbox/seed/ → sandbox/example-product/
+  node scripts/sandbox-run.mjs reset [--empty-idea]
+                              copy sandbox/seed/ → sandbox/example-product/
+                              --empty-idea: replace idea.md with the Phase-0 template (capture, not gate-only)
   node scripts/sandbox-run.mjs env        print resolved paths; exit 1 on isolation fail
   node scripts/sandbox-run.mjs start-run  trace-write start-run scoped to the working copy
   node scripts/sandbox-run.mjs finish     trace-write finish scoped to the working copy
@@ -44,6 +50,7 @@ const fsApi = { existsSync, readFileSync };
 const pathApi = { join };
 
 function printEnv(info) {
+  console.log(`profile:          ${info.profile || 'pipeline'}`);
   console.log(`name:             ${info.name}`);
   console.log(`state:            ${info.state}`);
   console.log(`engine:           ${info.engine}`);
@@ -144,7 +151,8 @@ function main(argv) {
   }
   const cmd = argv[0];
   if (cmd === 'reset') {
-    const r = resetSandbox(ROOT);
+    const emptyIdea = argv.includes('--empty-idea');
+    const r = resetSandbox(ROOT, { emptyIdea });
     if (!r.ok) {
       console.error(`sandbox-run reset: ${r.error}`);
       return 1;
@@ -182,6 +190,8 @@ function main(argv) {
           traces_root: tracesRoot,
           work: info.work,
         });
+        mkdirSync(join(info.work, '.harness', 'cache'), { recursive: true });
+        writeFileSync(join(info.work, '.harness', 'cache', 'MIDAS_TRACE_ROOT'), `${info.work}\n`, 'utf8');
         return 0;
       }
       console.error('sandbox-run start-run: missing session_id/run_id');
@@ -218,12 +228,15 @@ if (invokedDirectly) {
 
 export {
   EXPECTED_NAME,
+  ENV_POINTER_REL,
   SEED,
   WORK,
+  WORK_INSTALL,
   ROOT,
   ACTIVE_RUN_REL,
   inspectSandboxEnv,
   isPathInside,
+  parseSandboxProfileArgs,
   resetSandbox,
   gradeSandbox,
   main,
