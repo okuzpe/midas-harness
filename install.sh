@@ -8,12 +8,13 @@
 #   curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash
 # Bleeding edge (mutable main):
 #   MIDAS_BLEEDING_EDGE=1 curl -fsSL …/install.sh | bash
-# Refresh existing install (v1 or v2) to the latest release pin:
-#   curl -fsSL …/install.sh | bash -s -- --update --yes
-#   # or: MIDAS_INSTALL_ARGS='--update --yes' curl -fsSL …/install.sh | bash
+# Refresh existing install (v2/v3) to the latest release pin:
+#   curl -fsSL …/install.sh | bash -s -- update --yes
+#   # alias: bash -s -- --update --yes   or  MIDAS_INSTALL_ARGS='update --yes'
+#   # or: MIDAS_INSTALL_ARGS='update --yes' curl -fsSL …/install.sh | bash
 #
 # From a local clone:
-#   bash install.sh [target-dir] [--force | --update --yes | --uninstall [--dry-run|--purge]]
+#   bash install.sh [target-dir] [--force | update --yes | --uninstall [--dry-run|--purge]]
 
 set -euo pipefail
 REPO="okuzpe/midas-harness"
@@ -66,7 +67,7 @@ if ! command -v npx >/dev/null 2>&1; then
   exit 1
 fi
 MIDAS_REF="$(resolve_midas_ref)"
-# Optional: MIDAS_INSTALL_ARGS='--update --yes' when piping (curl | bash) with no argv.
+# Optional: MIDAS_INSTALL_ARGS='update --yes' when piping (curl | bash) with no argv.
 extra=()
 if [ -n "${MIDAS_INSTALL_ARGS:-}" ]; then
   # shellcheck disable=SC2206

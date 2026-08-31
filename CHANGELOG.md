@@ -9,9 +9,9 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
-### Fixed
-
-- **Phases 4–6** — `choose-architecture`, `define-conventions`, and `plan-sprints` procedure bodies
+- **Canonical `update` copy** — NEEDS_REPAIR, INSTALL.md refresh examples, install.sh/ps1,
+  faq, skill-flows, and cli README print `npx … update`, not `--update`. The flag remains a
+  documented silent alias.
   use `AskQuestion` (Claude fallback stays in the skill header). Playbooks list
   `{runs}/audits/gate-04.md`…`gate-06.md`. `/midas-design` and `/midas-adopt` match.
 - **Phase 1** — playbook asks BLOCKING questions in `AskQuestion` batches (same as the skill);

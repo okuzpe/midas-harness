@@ -65,16 +65,17 @@ or `MIDAS_INSTALL_REF` overrides the tag.
   After install: `node .harness/autonomy/bin/midas-autopilot.mjs setup` (or `/midas-auto-pilot` Sprint checklist / `setup` in the editor).
   On a TTY the installer shows a **compatibility matrix** and accepts presets: **`c`** = cursor only
   (default), **`s`** = cursor + gemini + codex, **`a`** = all adapter tools. Non-interactive installs
-  default to **cursor**. On **`--update`**, when passed, rewrites `state.yaml` `tools:` and prunes
-  orphan Midas host mirrors/adapters; omit it to keep the existing tools list.
+  default to **cursor**. On **`update --tools=…`**, when passed, rewrites `state.yaml` `tools:` and prunes
+  orphan Midas host mirrors/adapters; omit `--tools` to keep the existing tools list.
 - `--force` — overwrite files that already exist (default: skip them).
 - `--migrate` — **refused in 3.x** (pin `create-midas@2.10.x` to migrate a 1.x tree, then upgrade).
-- `--update` — refresh a v2/v3 `.harness/` install. 1.x trees are refused (zero writes).
+- `update` — refresh a v2/v3 `.harness/` install. 1.x trees are refused (zero writes).
+  `--update` is a silent alias for this subcommand (older docs/scripts keep working).
 - `--diagnose` — read-only; print install state and the **single next command** (no writes). Works even
   when Midas is not installed yet.
 - `--dry-run` — plan only for install / update / uninstall (writes nothing). Prints the lifecycle plan.
 - `--json` — machine-readable diagnose / plan / result envelope on stdout (CI-friendly).
-- `--yes` / `-y` — skip TTY confirmation for `--update` and `--uninstall`.
+- `--yes` / `-y` — skip TTY confirmation for `update` and `--uninstall`.
 - `-h`, `--help` — usage.
 - a positional `target-dir` — install into that directory instead of the current one.
 
@@ -187,7 +188,7 @@ user-owned; updates do not replace their contents.
 
 Midas splits project memory into **auditable artifacts** (commit them) and **volatile/local** paths
 (gitignore them). The installer merges `harness/templates/gitignore-midas.snippet` into your root
-`.gitignore` via `node <paths.scripts>/gitignore-merge.mjs` (also runs on install, `--update`,
+`.gitignore` via `node <paths.scripts>/gitignore-merge.mjs` (also runs on install, `update`,
 `/midas-init`, and `doctor --fix`).
 
 | Commit to git | Do **not** commit |
@@ -237,12 +238,12 @@ pin `create-midas@2.10.3`, migrate, then upgrade (see [Migrating an existing 1.x
 
 **macOS / Linux**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash -s -- --update --yes
+curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash -s -- update --yes
 ```
 
 **Windows (PowerShell)**
 ```powershell
-$env:MIDAS_INSTALL_ARGS = '--update --yes'
+$env:MIDAS_INSTALL_ARGS = 'update --yes'
 irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | iex
 ```
 
@@ -258,7 +259,7 @@ Preview: add `--dry-run`. `--migrate` is refused in 3.x (pin `create-midas@2.10.
 | Situation | Terminal | Then in Cursor |
 |-----------|----------|----------------|
 | **Never installed Midas** | `npx github:okuzpe/midas-harness#v3.0.1 --tools=cursor` | `/midas-init` |
-| **`--update` said "no existing install"** | Same as above — **drop `--update`** | `/midas-init` |
+| **`update` said "no existing install"** | Same as above — **drop `update`** (that is install, not refresh) | `/midas-init` |
 | Installed, first time in editor | — | `/midas-init` |
 | Installed, `setup_complete: true` | — | `/midas-status` |
 | Existing codebase, brownfield | install + | `/midas-init` (may route to `/midas-adopt`) |
@@ -331,7 +332,7 @@ npx github:okuzpe/midas-harness#v3.0.1 update --rollback --yes
 Do **not** pin an installer older than **2.9.8** for classic→harness migrate (releases through
 **2.9.6** could wipe `.harness/engine` without restoring classic on verify abort). Prefer
 **`#v3.0.1+`**. If diagnose reports `partial_migrate` (`.harness/product` without engine) and there
-is no journal, restore with git and re-run a pinned `--update`.
+is no journal, restore with git and re-run a pinned `update`.
 
 **npm 11+ / explicit bin (optional):** the published package exposes one CLI bin (`midas`). The short
 `npx github:okuzpe/midas-harness#v3.0.1 --tools=cursor` form works on current releases. If npm reports
@@ -364,11 +365,11 @@ that file.
 
 ### Ownership manifest, reconciliation, and conflicts
 
-Update decisions come from `.harness/manifest.json` (written at install). `--update` reconciles
+Update decisions come from `.harness/manifest.json` (written at install). `update` reconciles
 three inputs for the vendor roots (`.harness/engine`, `.harness/scripts`): what the manifest says
 the last install laid down, what this bundle ships, and what is actually on disk. Roles matter:
 
-| Situation | What `--update` does | Structural guard |
+| Situation | What `update` does | Structural guard |
 |---|---|---|
 | **Vendor conflict** — a `vendor` file on disk no longer matches its recorded SHA (you edited engine source outside an overlay) | **The bundle wins**: your version is copied to `.harness/conflicts/<timestamp>/…​.midas-conflict` first, the file is refreshed, and the update reports it. That path is intentionally outside the gitignored `.harness/cache/` so a later rollback cannot scrub it and git shows it. Move the change into `.harness/rules/` or a product overlay — vendor edits do not survive updates | `installer:update-vendor-conflict-prewrite` in `scripts/test.mjs` |
 | **Stale manifest** — hashes drifted but files still match the engine package | Refreshes normally; there is no silent re-baseline, so drift is always visible in the report | `installer:update-stale-manifest-refresh` |
@@ -379,7 +380,7 @@ the last install laid down, what this bundle ships, and what is actually on disk
 `--dry-run` lists every removal and conflict as a plan op before anything is written
 (`installer:update-dry-run-reports-vendor-conflict`). Generated adapters and host skill mirrors are
 outside reconciliation: they are re-derived from `state.tools` on every update.
-Do not hand-edit `.harness/manifest.json` — `--update` rewrites it.
+Do not hand-edit `.harness/manifest.json` — `update` rewrites it. `--update` is the same command.
 
 Related checks (all in `scripts/test.mjs`): `installer:update-honours-tools`,
 `installer:update-tools-rewrites-and-prunes`, `installer:update-complete-hint`.

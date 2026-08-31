@@ -59,7 +59,7 @@ A change is breaking if an existing install would need a migration step to stay 
 - New fixture files under `scripts/fixtures/` when adding CI gate or bundle coverage.
 - New `harness/rules/*.md` files that are additive (existing audits pass without the new rule).
 - Thin-root host-mirror pruning / default `--tools=cursor` (ADR-008) when existing multi-tool
-  installs keep their `state.tools` until `--update --tools=…`.
+  installs keep their `state.tools` until `update --tools=…`.
 
 ---
 
@@ -76,7 +76,7 @@ midas_version: 2.0.0   # engine version that wrote or last migrated this file
 
 ---
 
-## Migration: CLI `--update` (3.x refuses 1.x)
+## Migration: CLI `update` (3.x refuses 1.x)
 
 - **Already on v2/v3 (`.harness/`)** — `npx github:okuzpe/midas-harness#v{VERSION} update`
   (pin from `harness/VERSION`; optional `--tools=…` to prune hosts) **or** `/midas-init` when

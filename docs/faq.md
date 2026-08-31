@@ -72,8 +72,8 @@ Prefer a **pinned** update. Copy the exact `#v…` command from [INSTALL.md](htt
 ```bash
 npx github:okuzpe/midas-harness#v{VERSION} update
 ```
-`--update` refreshes manifest-owned engine/generated files and keeps your product/rules/runs. It is
-**not** the same as install-time `--force`. On vendor edits outside overlays, same-version update
+`update` refreshes manifest-owned engine/generated files and keeps your product/rules/runs.
+`--update` is a silent alias. It is **not** the same as install-time `--force`. On vendor edits outside overlays, same-version update
 **aborts** before writing; stale manifest hashes **re-baseline** after confirm. Full contract:
 [INSTALL.md § Updating an existing install](https://github.com/okuzpe/midas-harness/blob/main/INSTALL.md#updating-an-existing-install).
 `/midas-init` tips the same pinned CLI when diagnose reports `version_behind`. 1.x

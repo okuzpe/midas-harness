@@ -7,12 +7,12 @@
 #   irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | iex
 # Bleeding edge (mutable main):
 #   $env:MIDAS_BLEEDING_EDGE=1; irm …/install.ps1 | iex
-# Refresh existing install (v1 or v2) to the latest release pin:
-#   $env:MIDAS_INSTALL_ARGS='--update --yes'; irm …/install.ps1 | iex
-#   # or: curl-equivalent via local clone → pwsh install.ps1 --update --yes
+# Refresh existing install (v2/v3) to the latest release pin:
+#   $env:MIDAS_INSTALL_ARGS='update --yes'; irm …/install.ps1 | iex
+#   # alias: pwsh install.ps1 --update --yes
 #
 # From a local clone:
-#   pwsh install.ps1 [target-dir] [--force | --update --yes | --uninstall [--dry-run|--purge]]
+#   pwsh install.ps1 [target-dir] [--force | update --yes | --uninstall [--dry-run|--purge]]
 
 [CmdletBinding()]
 param(
@@ -65,7 +65,7 @@ if (-not (Get-Command npx -ErrorAction SilentlyContinue)) {
   exit 1
 }
 $MidasRef = Resolve-MidasRef
-# Optional: $env:MIDAS_INSTALL_ARGS = '--update --yes' when piping (irm | iex) with no argv.
+# Optional: $env:MIDAS_INSTALL_ARGS = 'update --yes' when piping (irm | iex) with no argv.
 $extra = @()
 if ($env:MIDAS_INSTALL_ARGS) {
   $extra = @($env:MIDAS_INSTALL_ARGS -split '\s+' | Where-Object { $_ })

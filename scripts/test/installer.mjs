@@ -276,6 +276,13 @@ const installer = readFileSync(join(ROOT, 'cli', 'index.mjs'), 'utf8');
   const installerExec = readFileSync(join(ROOT, 'cli', 'lib', 'runtime', 'execute.mjs'), 'utf8');
   check('installer:fillAgents-paths-arg', /function fillAgents\(tools, paths\)/.test(installerExec));
   check('installer:no-bare-readToolsFromState', !/readToolsFromState\(\)/.test(installerExec));
+  check(
+    'installer:needs-repair-canonical-update',
+    /formatUpdateCmd\(\{ flags: '--resume --yes' \}\)/.test(installerExec) &&
+      !/--update --resume/.test(installerExec) &&
+      !/--update --rollback/.test(installerExec),
+    'NEEDS_REPAIR hints must print canonical `update --resume`, not `--update --resume`',
+  );
 }
 
 // --- L. INSTALL.md is the only user-facing #vX.Y.Z pin surface (must match harness/VERSION) -------
@@ -292,7 +299,13 @@ if (engineVersion) {
     check(
       'install:update-docs:reconcile-section',
       /Updating an existing install/i.test(installBody) && /reconcil/i.test(installBody),
-      'INSTALL.md must document the --update reconciliation contract',
+      'INSTALL.md must document the update reconciliation contract',
+    );
+    check(
+      'install:update-docs:canonical-refresh',
+      /npx github:okuzpe\/midas-harness#v[\d.]+ update --yes/.test(installBody) &&
+        /`--update` is a silent alias/.test(installBody),
+      'INSTALL.md must show canonical `update` and document `--update` once as an alias',
     );
     check(
       'install:update-docs:cites-stale-manifest-test',

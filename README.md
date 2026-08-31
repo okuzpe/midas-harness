@@ -182,7 +182,7 @@ the CI fixture at [`scripts/fixtures/product-closed/`](./scripts/fixtures/produc
 gate records and bundle export coverage.
 
 ## Status
-**Stable release** — thin-root default (Cursor) + skill quality gate + `--update --tools` prune. Most complete on **Claude Code**
+**Stable release** — thin-root default (Cursor) + skill quality gate + `update --tools` prune. Most complete on **Claude Code**
 (see [Honest scope](#supported-tools)). Current version: [`harness/VERSION`](./harness/VERSION). Details: [`CHANGELOG.md`](./CHANGELOG.md) ·
 [`VERSIONING.md`](./VERSIONING.md) · [docs site](https://okuzpe.github.io/midas-harness/).
 

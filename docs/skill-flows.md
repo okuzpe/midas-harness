@@ -178,7 +178,7 @@ Except for intake/adoption placement, they do not advance lifecycle gates.
 
 | Skill | Starts from | Core flow | Leaves behind | State effect / handoff |
 |---|---|---|---|---|
-| `/midas-init` | Installed but not initialized project, or version/layout behind | Diagnose → tip install (stop) / intake / tip `--update` / ready→status | Writable `.harness/` layout and initial state, or CLI tip | Sets `setup_complete` when intake runs; routes by maturity |
+| `/midas-init` | Installed but not initialized project, or version/layout behind | Diagnose → tip install (stop) / intake / tip `update` / ready→status | Writable `.harness/` layout and initial state, or CLI tip | Sets `setup_complete` when intake runs; routes by maturity |
 | `/midas-adopt` | E2/E3 codebase | Inventory reality, infer architecture/rules, baseline audit, confirm wiring | Inventory, as-built architecture, debt, rules, baseline audit | Places E2 at rules; E3 at sprint planning |
 | `/midas-hygiene` | Dirty product repo / pre-close fat diff | Path-pass sweep scope `product` + optional lean-review | `{runs}/sweeps/sweep-NN.md` (+ lean notes) | Stage unchanged; human OK for deletes |
 | `/midas-doctor` | Any installation | Check layout, routing, enforcement, gates, and adapter drift | Health report; optional regenerated managed files | Stage unchanged |

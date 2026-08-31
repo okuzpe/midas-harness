@@ -43,7 +43,8 @@ them.
 
 ## Options
 - `--force` — overwrite files that already exist.
-- `--update` — refresh a v2/v3 engine; preserves state, product, rules, runs, and user-owned config.
+- `update` — refresh a v2/v3 engine; preserves state, product, rules, runs, and user-owned config.
+  `--update` is a silent alias.
 - `--migrate` — refused in 3.x (pin create-midas@2.10.x to migrate a 1.x tree).
 - `--uninstall` — remove Midas-installed files (with confirmation on TTY).
 - `--tools=<list>` — e.g. `cursor`, `cursor,gemini,codex`, or `claude-code,cursor,windsurf,gemini`.

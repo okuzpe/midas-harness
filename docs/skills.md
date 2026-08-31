@@ -148,7 +148,7 @@ Parents **path-pass** these `SKILL.md` bodies (read + execute steps in the same 
 
 | Command | Role | One-line description | Tier |
 |---|---|---|---|
-| `/midas-init` | Setup | Onboarding entry — diagnose then install tip / adaptive intake / `--update` tip; optional `--monorepo`. | orchestrate |
+| `/midas-init` | Setup | Onboarding entry — diagnose then install tip / adaptive intake / `update` tip; optional `--monorepo`. | orchestrate |
 | `/midas-adopt` | Brownfield | Inventory, reverse-engineer rules, baseline audit. | orchestrate |
 | `/midas-hygiene` | Hygiene | Product-repo dead flows, ledger/doc drift, optional lean delete-list. | build |
 | `/midas-doctor` | Sync | Adapter drift + install health; re-render adapters. | build |
