@@ -3,16 +3,12 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import {
   classifyCommandCheck,
   substituteTokens,
   evaluateCheck,
 } from '../lib/conformance-eval.mjs';
 import { writeConformanceReceipt, parseConformanceArgs } from '../conformance-gate.mjs';
-
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 
 const paths = {
   scripts: 'scripts',
@@ -42,11 +38,17 @@ describe('conformance-eval', () => {
   });
 
   it('evaluates a passing grep-empty against package.json', () => {
-    const result = evaluateCheck(
-      { kind: 'command', body: '`grep THIS_STRING_DOES_NOT_EXIST package.json` → empty' },
-      { root: ROOT, paths },
-    );
-    assert.equal(result.status, 'pass');
+    const dir = mkdtempSync(join(tmpdir(), 'midas-grep-empty-'));
+    try {
+      writeFileSync(join(dir, 'package.json'), '{"name":"midas-grep-empty-fixture"}\n', 'utf8');
+      const result = evaluateCheck(
+        { kind: 'command', body: '`grep THIS_STRING_DOES_NOT_EXIST package.json` → empty' },
+        { root: dir, paths },
+      );
+      assert.equal(result.status, 'pass', result.reason || JSON.stringify(result));
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });
 

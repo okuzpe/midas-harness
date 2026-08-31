@@ -569,6 +569,12 @@ check(
   );
 }
 check(
+  'doctor:mcp-win-npx-named-off-windows',
+  /mcp:win-npx/.test(readFileSync(join(ROOT, 'scripts', 'doctor', 'checks', 'mcp.mjs'), 'utf8')) &&
+    /not Windows/.test(readFileSync(join(ROOT, 'scripts', 'doctor', 'checks', 'mcp.mjs'), 'utf8')),
+  'mcp:win-npx must stay in the doctor table on Linux (skip), not omitted',
+);
+check(
   'test:unit-suite-failure-formatter',
   /formatSpawnedTestFailure/.test(readFileSync(join(ROOT, 'scripts', 'test', 'runtime.mjs'), 'utf8')) &&
     /UNIT_TEST_SPAWN/.test(readFileSync(join(ROOT, 'scripts', 'coverage.mjs'), 'utf8')),

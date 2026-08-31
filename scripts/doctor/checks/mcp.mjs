@@ -52,15 +52,22 @@ if (mcp === null) {
     govNote = `self_managed — ${governance.note}`;
   }
   check('mcp:governance', govStatus, govNote);
-  // Windows: an MCP server launched with bare `npx` cannot be spawned (npx is a .cmd) and fails with
-  // "Connection closed". It must be wrapped in `cmd /c`. Fresh installs are fixed by the installer.
-  if (process.platform === 'win32') {
-    try {
-      const j = JSON.parse(mcp);
-      const bare = Object.entries(j.mcpServers || {}).filter(([, s]) => s && s.command === 'npx').map(([k]) => k);
-      check('mcp:win-npx', bare.length ? 'warn' : 'ok',
-        bare.length ? `${bare.join(', ')}: bare npx won't spawn on Windows — wrap in \`cmd /c\` (re-run the installer with --force)` : '');
-    } catch { /* invalid JSON is surfaced elsewhere */ }
+}
+
+// Always emit this name (characterization identity). Skip off Windows; on Windows, bare
+// `npx` cannot spawn MCP servers (npx is a .cmd) and must be wrapped in `cmd /c`.
+if (process.platform !== 'win32') {
+  check('mcp:win-npx', 'skip', 'not Windows');
+} else if (mcp === null) {
+  check('mcp:win-npx', 'skip', 'no .mcp.json');
+} else {
+  try {
+    const j = JSON.parse(mcp);
+    const bare = Object.entries(j.mcpServers || {}).filter(([, s]) => s && s.command === 'npx').map(([k]) => k);
+    check('mcp:win-npx', bare.length ? 'warn' : 'ok',
+      bare.length ? `${bare.join(', ')}: bare npx won't spawn on Windows — wrap in \`cmd /c\` (re-run the installer with --force)` : '');
+  } catch {
+    check('mcp:win-npx', 'skip', 'mcp.json not parseable');
   }
 }
 

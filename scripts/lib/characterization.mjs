@@ -128,7 +128,13 @@ export function compareCharacterizationSnapshots(root, opts = {}) {
     diffs.push(`harness/plugins/midas digest drifted (${storedTrees.plugin.fileCount} → ${payload.plugin.fileCount} files)`);
   }
   if (JSON.stringify(storedDoctor.doctorCheckNames) !== JSON.stringify(payload.doctorCheckNames)) {
-    diffs.push('doctor check names drifted');
+    const storedNames = storedDoctor.doctorCheckNames || [];
+    const liveNames = payload.doctorCheckNames || [];
+    const added = liveNames.filter((n) => !storedNames.includes(n));
+    const removed = storedNames.filter((n) => !liveNames.includes(n));
+    diffs.push(
+      `doctor check names drifted added=[${added.join(', ')}] removed=[${removed.join(', ')}]`,
+    );
   }
   return { ok: diffs.length === 0, diffs, snapshotDir: snapDir };
 }

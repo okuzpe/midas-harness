@@ -14,6 +14,9 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 - **CI setup caches** — the test job no longer sets `cache: npm` (no root lockfile) and the docs
   job no longer sets `cache: pip` (no `requirements.txt`). `safety:unit-suite` reports the failing
   test (and spawn `ENOBUFS`) instead of the first 500 characters of spec output.
+- **Linux CI unit identity** — doctor always names `mcp:win-npx` (skip off Windows) so
+  characterization snapshots match Ubuntu. The grep-empty conformance test greps a temp
+  `package.json`, not `scripts/package.json`.
 - **Canonical `update` copy** — NEEDS_REPAIR, INSTALL.md refresh examples, install.sh/ps1,
   faq, skill-flows, and cli README print `npx … update`, not `--update`. The flag remains a
   documented silent alias.
