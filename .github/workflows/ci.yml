@@ -144,6 +144,28 @@ jobs:
           rm -rf /tmp/midas-update-smoke/.harness/conflicts
           node /tmp/midas-update-smoke/.harness/scripts/doctor.mjs --strict /tmp/midas-update-smoke
 
+      - name: Live channel discovery (releases branch)
+        if: matrix.node-version == '24'
+        run: |
+          curl -fsSL --max-time 15 -o /tmp/live-stable.json \
+            https://raw.githubusercontent.com/okuzpe/midas-harness/releases/stable.json
+          curl -fsSL --max-time 15 -o /tmp/live-edge.json \
+            https://raw.githubusercontent.com/okuzpe/midas-harness/releases/edge.json
+          grep -q '"channel": "stable"' /tmp/live-stable.json
+          grep -q '"tree_sha256"' /tmp/live-stable.json
+          grep -q '"channel": "edge"' /tmp/live-edge.json
+          grep -q '"tree_sha256"' /tmp/live-edge.json
+          set +e
+          node cli/index.mjs update --check --channel=stable /tmp/midas-update-smoke
+          stable_code=$?
+          node cli/index.mjs update --check --channel=edge /tmp/midas-update-smoke
+          edge_code=$?
+          set -e
+          echo "live stable --check exit=$stable_code (want 0=current or 1=available)"
+          echo "live edge --check exit=$edge_code (want 0=current or 1=available)"
+          test "$stable_code" -eq 0 -o "$stable_code" -eq 1
+          test "$edge_code" -eq 0 -o "$edge_code" -eq 1
+
       - name: npm pack dry-run
         run: npm pack --dry-run 2>&1 | grep -q cli
 

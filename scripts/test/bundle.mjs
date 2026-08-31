@@ -552,6 +552,15 @@ check(
   /check_code=\$\?/.test(readFileSync(join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8')) &&
     /test "\$check_code" -eq 0/.test(readFileSync(join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8')),
 );
+check(
+  'ci:live-channel-discovery',
+  /raw\.githubusercontent\.com\/okuzpe\/midas-harness\/releases\/stable\.json/.test(
+    readFileSync(join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8'),
+  ) &&
+    /update --check --channel=stable/.test(readFileSync(join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8')) &&
+    /update --check --channel=edge/.test(readFileSync(join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8')),
+  'CI must probe live stable.json/edge.json so a missing releases branch fails the job',
+);
 
 // --- status-page + yaml-lite smoke ----------------------------------------
 check('script:status-page:exists', existsSync(join(ROOT, 'scripts', 'status-page.mjs')));
