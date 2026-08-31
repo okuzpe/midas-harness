@@ -314,6 +314,7 @@ if (existsSync(tplRoot)) {
     check('sandbox:oracle-choose-architecture-file', existsSync(join(ROOT, 'sandbox', 'oracles', 'choose-architecture.json')));
     check('sandbox:oracle-define-conventions-file', existsSync(join(ROOT, 'sandbox', 'oracles', 'define-conventions.json')));
     check('sandbox:oracle-plan-sprints-file', existsSync(join(ROOT, 'sandbox', 'oracles', 'plan-sprints.json')));
+    check('sandbox:oracle-start-sprint-file', existsSync(join(ROOT, 'sandbox', 'oracles', 'start-sprint.json')));
     const sandboxSkill = readFileSync(join(ROOT, 'harness', 'skills', 'midas-sandbox', 'SKILL.md'), 'utf8');
     check(
       'sandbox:skill-always-reset',
@@ -342,6 +343,10 @@ if (existsSync(tplRoot)) {
       'sandbox:skill-grade-after-each',
       /After \*\*each\*\* skill Task/.test(sandboxSkill) &&
         /while fixture `stage` is still `contextualize`/.test(sandboxSkill),
+    );
+    check(
+      'sandbox:skill-feedback-loop',
+      /Feedback loop/.test(sandboxSkill) && /re-smoke/.test(sandboxSkill) && /--smoke/.test(sandboxSkill),
     );
     check(
       'sandbox:seed-not-shipped-script',
@@ -559,6 +564,14 @@ if (existsSync(tplRoot)) {
         'sandbox:grade-seed-plan-sprints-fails',
         gradedSprints.ok === false && gradedSprints.checks.some((c) => c.id === 'roadmap-file' && !c.ok),
         gradedSprints.tally,
+      );
+      const gradedStart = gradeSandbox({ root: ROOT, skill: 'start-sprint', ledger: false });
+      check(
+        'sandbox:grade-seed-start-sprint-fails',
+        gradedStart.ok === false &&
+          gradedStart.checks.some((c) => c.id === 'working-plan' && !c.ok) &&
+          gradedStart.checks.some((c) => c.id === 'roadmap-status-active' && !c.ok),
+        gradedStart.tally,
       );
       check(
         'sandbox:grade-seed-idea-intake-stage',

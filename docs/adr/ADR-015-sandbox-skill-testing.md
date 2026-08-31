@@ -64,6 +64,10 @@ engine repo into a product install (forbidden by `harness/rules/engine-repo-boun
 
 ## Amendment
 
+- **2026-08-31** — Feedback loop is touch → `--skill` / `--smoke` → classify → patch in a later
+  turn → re-smoke. `start-sprint.json` grades kickoff (working plan, `status: active`, roadmap
+  Status `| active |`). `--all` stays a cost-confirmed census, not the daily bar. Precommit Step 0
+  still does not block the commit; skip `--smoke` only when the fixture cannot exercise the change.
 - **2026-08-30** — Grade **after each** skill Task (not once at the end of `--smoke` / `--all`).
   `idea-intake` requires `phases.idea_intake.artifacts` to list `{product}/idea.md`; fixture
   `state.yaml` hash and `updated` are compared to the reset baseline, not a hardcoded date.

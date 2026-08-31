@@ -9,6 +9,23 @@ See [`harness/skills/midas-sandbox/SKILL.md`](../harness/skills/midas-sandbox/SK
 procedure, and [`docs/adr/ADR-015-sandbox-skill-testing.md`](../docs/adr/ADR-015-sandbox-skill-testing.md)
 for why this exists and what it deliberately does not do.
 
+## Feedback loop (when you touch a skill)
+
+The daily unit is **one skill + `grade`**, not `--all`. Detect and apply stay in separate turns
+(findings are proposals; isolation hashes `harness/skills` during the run).
+
+1. **Touch** — edit `harness/skills/<name>/` or a rule that skill grades.
+2. **Detect** — `/midas-sandbox --skill <name>` (or `--smoke`: that skill + the next stage-table
+   command). Reset, composer-2.5 Task, `grade --skill <name> --ledger`.
+3. **Classify** — only `harness-gap` is a patch. `fixture-limit` and `model-miss` stay out of the
+   skill file.
+4. **Fix + re-smoke** — separate turn after human OK. Patch, `npm run align`, `--smoke` again
+   until the oracle passes.
+
+`--all` is a catalog census (cost-confirmed). Adapters / VERSION / installer → `/midas-align`, not
+this lab. Phase 7–8 **bodies** (close / verify / qa) still STOP without a landed app — kickoff is
+what `start-sprint.json` grades.
+
 First command (creates the working copy from the seed):
 
 ```bash

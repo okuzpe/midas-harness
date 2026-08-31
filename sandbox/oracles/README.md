@@ -35,6 +35,12 @@ After `reset` those grades **must fail**.
 same way against `templates/architecture.md`, `design-direction.md` / `folder-structure.md`, and
 `templates/roadmap.md` plus `gate-04.md`…`gate-06.md`. After `reset` those grades **must fail**.
 
+`start-sprint.json` grades Phase-7 **kickoff** (not implementation): `{runs}/sprints/01-working-plan.md`,
+`01-progress.md`, `paths.state` `status: active` + `stage_status: in_progress`, and
+`{product}/roadmap.md` Status cell `| active |`. After `reset` **or** after `/plan-sprints` without
+kickoff, that grade **must fail** (roadmap still `planned`, no working plan). Do not use `--missing skip`
+for this skill.
+
 `{product}` `{state}` `{runs}` `{rules}` `{cache}` expand from the fixture `paths.*`.
 Paths that resolve outside `sandbox/example-product/` fail closed.
 

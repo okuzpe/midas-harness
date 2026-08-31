@@ -31,6 +31,14 @@ Dispatches a **real** Midas skill (unmodified, from `harness/skills/`) against
 | Write `sandbox/findings/<date>-<mode>.md` + `MIDAS_SANDBOX_RESULT:` | Advance real engine `stage` / gates |
 | Run `sandbox-run grade` (disk oracles) after the Task | Let composer grade its own homework |
 
+## Feedback loop (touch → detect → classify → re-smoke)
+
+When the diff touches `harness/skills/**` or `harness/rules/**`, the default lab is **`--skill` /
+`--smoke`**, not `--all`. Findings stay proposals (no writes under `harness/skills` / `harness/rules`
+until a later turn after human OK). After a `harness-gap` patch, re-run `--smoke` until `grade`
+passes. Skip `--smoke` only when the fixture cannot exercise the change (docs-only prose,
+engine-only skill itself). Adapters / VERSION → `/midas-align`.
+
 ## Engine guard (hard)
 
 1. Confirm engine: `package.json` → `"name": "midas-harness"` **and** `scripts/test.mjs` exists.
@@ -59,7 +67,8 @@ Cursor Task has no cwd pin. The parent must make the fixture honest; the Task mu
    `node scripts/sandbox-run.mjs grade --skill <that-skill> --ledger`. Cite each
    `MIDAS_SANDBOX_ORACLE:` in findings Setup. Oracle `verdict=fail` ⇒ sandbox `verdict=fail`
    even if the Task claimed pass. Optional `--freeze` appends full `trace-inspect` output.
-   `--missing skip` only when **that** skill has no oracle YAML (isolation still fail-closes).
+   `--missing skip` only when **that** skill has no oracle JSON (isolation still fail-closes).
+   Skills with oracles (`idea-intake` … `plan-sprints`, `start-sprint`) use default `--missing fail`.
    Default `--missing fail`. Do not wait until `--smoke` / `--all` finish to grade:
    `idea-intake` must be graded while fixture `stage` is still `contextualize`.
    Do not run `doctor --fix` (or otherwise edit `harness/skills` / `harness/rules`) between

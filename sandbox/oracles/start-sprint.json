@@ -1,0 +1,13 @@
+{
+  "skill": "start-sprint",
+  "checks": [
+    { "id": "working-plan", "type": "file_exists", "path": "{runs}/sprints/01-working-plan.md" },
+    { "id": "progress-file", "type": "file_exists", "path": "{runs}/sprints/01-progress.md" },
+    { "id": "sprint-active", "type": "file_contains", "path": "{state}", "pattern": "status: active" },
+    { "id": "stage-status", "type": "state_match", "field": "stage_status", "value": "in_progress" },
+    { "id": "roadmap-file", "type": "file_exists", "path": "{product}/roadmap.md" },
+    { "id": "roadmap-status-active", "type": "file_contains", "path": "{product}/roadmap.md", "pattern": "| active |" },
+    { "id": "updated-not-seed", "type": "fixture_field_changed", "field": "updated" },
+    { "id": "state-not-seed", "type": "fixture_file_changed", "path": "{state}" }
+  ]
+}

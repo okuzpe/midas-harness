@@ -9,6 +9,13 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+### Added
+
+- **Sandbox feedback loop** — `sandbox/README.md` names touch → detect → classify → re-smoke.
+  `start-sprint.json` grades kickoff (working plan, `status: active`, roadmap Status `| active |`);
+  seed grade must fail. Precommit Step 0 defaults to `--smoke` (skip only when the fixture cannot
+  exercise the change). `--all` stays a census, not the daily bar.
+
 ### Fixed
 
 - **CI setup caches** — the test job no longer sets `cache: npm` (no root lockfile) and the docs
