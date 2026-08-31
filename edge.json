@@ -1,26 +1,26 @@
 {
   "schema_version": 1,
   "channel": "edge",
-  "version": "2.10.3",
+  "version": "3.0.1",
   "ref": "main",
-  "commit": "f7a7826094aec5f971941946c1ad7b770eaca98a",
-  "tree_sha256": "086ad29959b14b7031a9713e124a296ff4d15295a71da1333210391371acf7df",
-  "published_at": "2026-08-29T23:31:30.535Z",
+  "commit": "7f029a2814ea9073ebdd7966e4aa1e2b4cd93e88",
+  "tree_sha256": "47d64dbb948a3d90b93280c025f4931f5bf98eb491fa33448d312ad2bc86120e",
+  "published_at": "2026-08-31T14:57:37.284Z",
   "migrations": [
     "0001-record-update-channel"
   ],
   "files": [
     {
       "path": ".harness/engine/.windsurf/rules/00-midas.md",
-      "sha256": "e42f9e837ed133b5ae5989c664f178313507e1df39438af01f3ac5780f777a1a"
+      "sha256": "76e6b2d41d90946380727c55e816c2cb3c22b75c867ac0c413e22c17e97e5722"
     },
     {
       "path": ".harness/engine/.windsurf/rules/01-midas-checks.md",
-      "sha256": "86dfa64afa9ada0adbc0cde4dce59eb021e6747a6ecd3b799faf71f083175c0b"
+      "sha256": "4bf437ff9014941166fbf16f5d6bd178ef3b74560baed2b6733cf7d7eda36644"
     },
     {
       "path": ".harness/engine/VERSION",
-      "sha256": "65fcc9f7f590a80170f0d1e32a706b61c8a5f64fb515f4d68cfb76edc094cc09"
+      "sha256": "06e3fe4a7a1884d20d81cc7065ca8cfd4c394ec602c4d180ddc39bbd4f7da521"
     },
     {
       "path": ".harness/engine/agents/midas-builder.md",
@@ -36,7 +36,7 @@
     },
     {
       "path": ".harness/engine/checks.json",
-      "sha256": "723c1ac5eb0bf92483b9abe70808041e8302492023dfe0c03519be48011c7b25"
+      "sha256": "643124200cc5319e12dec4110beffca606c8c67492153926df986bdea1547d13"
     },
     {
       "path": ".harness/engine/conventions.md",
@@ -64,7 +64,7 @@
     },
     {
       "path": ".harness/engine/docs/skill-flows.md",
-      "sha256": "aec9835fa208d3c42336ee8e5744057b9f357efb1496e13198b898b97e5498b3"
+      "sha256": "a43e8f716a83ffbf6fc28774094b7da94e0436952364aab9a99db4f347b6d315"
     },
     {
       "path": ".harness/engine/docs/skill-quality-gate.md",
@@ -72,7 +72,7 @@
     },
     {
       "path": ".harness/engine/docs/skills.md",
-      "sha256": "87ad965ac4b77d4046b0d6bff005902533724b2f181ba6fed450ab6bad5882cc"
+      "sha256": "2c9f3c3b60038b484503c47400d760d3528c920c7b4e7aabe9220fea765a5894"
     },
     {
       "path": ".harness/engine/gates.json",
@@ -84,7 +84,7 @@
     },
     {
       "path": ".harness/engine/migrations/README.md",
-      "sha256": "27cc95dcfbaa1968b15171f33d0058b92d11fafa54f641d87d7979f29e3eeff8"
+      "sha256": "38d79f32a1c30d08bad7a4e1150f5ad84c018a0c07715397723342bc0c92daa5"
     },
     {
       "path": ".harness/engine/migrations/auto-pilot-slash-rename.md",
@@ -107,8 +107,12 @@
       "sha256": "af4ded67efc2942a316269153d98e2ac83bf93f355ff6070f7ab61f443c6e68d"
     },
     {
+      "path": ".harness/engine/migrations/v3.0.md",
+      "sha256": "0a795a9226b0a80480fcaff20b1caa68ba26759015f2fe1dd7dab437167f2029"
+    },
+    {
       "path": ".harness/engine/pipeline/0-idea-intake.md",
-      "sha256": "d8a2d0896667424839a83e192eb0cef33e2cc0ea71b3ea807d473a754e9226b7"
+      "sha256": "4e96a24da6f2a4ec09e90cce4104808804671cb0af6c7fefdcc274fc819fefb9"
     },
     {
       "path": ".harness/engine/pipeline/0b-codebase-inventory.md",
@@ -116,27 +120,27 @@
     },
     {
       "path": ".harness/engine/pipeline/1-contextualize.md",
-      "sha256": "058f2a3971c84fd0bbcd85b3783d152664c7ad0d617fe033394d6b4b44d783e3"
+      "sha256": "9d280a449e1eda5aa87457cb1ddcf2f4e992d18aec422ba8de06791fdcf7697b"
     },
     {
       "path": ".harness/engine/pipeline/2-market-research.md",
-      "sha256": "eec80fcc602a8e032718fc7cdeb5aadb5b61f4ba616c8687c96d3ac309c61462"
+      "sha256": "87a0d2aff08334c60adb065f4eb766c48d14e0c544998aaf79c35540342d78b1"
     },
     {
       "path": ".harness/engine/pipeline/3-business-case.md",
-      "sha256": "8da69827b600f169b3c5a06fadde36d516c84798623942aa4374f1aecdc41cf6"
+      "sha256": "08ede05c0f8e33fab18d2e6519ddbc6003f8476496a68dc9dc49a35437e6b78e"
     },
     {
       "path": ".harness/engine/pipeline/4-tech-architecture.md",
-      "sha256": "7d236856860d4a51a61a4ad2b6a8013a09f01e29c3dd9e6759b6bce79bef7eff"
+      "sha256": "14e5e2170b7290209698c882e760f163606e3a2490b817b63a8f22efb833570f"
     },
     {
       "path": ".harness/engine/pipeline/5-architecture-rules.md",
-      "sha256": "828bbe1a4488b0e12f3ad78b182278035d8584334d61ed7f2f589bd950f0293b"
+      "sha256": "9a22d9cef6fd99b02af7503a7d6ac87c09f15e2df30b74fef46f3cb266303124"
     },
     {
       "path": ".harness/engine/pipeline/6-sprint-planning.md",
-      "sha256": "10a63d087821113b16a72a752affa65861dc9e6d9b1a0773502812e481cc8040"
+      "sha256": "554392eae548a4e8dfb30e1ef13b5cbe29996380bf0808a76920795ed2890b99"
     },
     {
       "path": ".harness/engine/pipeline/7-sprint-execution.md",
@@ -144,11 +148,11 @@
     },
     {
       "path": ".harness/engine/pipeline/8-audit-adjust.md",
-      "sha256": "df5e223b017da0ba3284900748919985df8dc39b42439d8e1d658f548c061df0"
+      "sha256": "229936770fddf93bc3279a4c3f54e68c65c130298feb0108ebe2706a582723de"
     },
     {
       "path": ".harness/engine/pipeline/adopt-brownfield.md",
-      "sha256": "0d51532c0e147cd0f99526a2a3b9d4e943112663797d6e8edabd5782ab3e2e3e"
+      "sha256": "84abe45db859e3b07a8ad6cfffcb8f121d03def61005cdf050e97b0c6904e488"
     },
     {
       "path": ".harness/engine/pipeline/init-adaptive.md",
@@ -176,7 +180,7 @@
     },
     {
       "path": ".harness/engine/rules/acceptance-criteria.md",
-      "sha256": "cba7ea40f951bacded086bcac8c23837a01f689edbe92813332b625fe9243d70"
+      "sha256": "49127b4c9b8a3e36b89e47a762d9cee4eccb421aff341118d9485f5811ddd032"
     },
     {
       "path": ".harness/engine/rules/accessibility.md",
@@ -184,23 +188,23 @@
     },
     {
       "path": ".harness/engine/rules/change-propagation.md",
-      "sha256": "27ab895f984d415f061af4fc964a09a8a371721d73f7adebdfaa92ecda4ae296"
+      "sha256": "1db645d8c4f7a8fbaa3f18d614b519ff63710d62fa04eceb9da10c43cda5741c"
     },
     {
       "path": ".harness/engine/rules/code-quality.md",
-      "sha256": "f0e49120f24026eeb99dbbe9aa0bfd3c35827d16f854039181a219aa78981cbf"
+      "sha256": "a6c149860ce637c591fdf0b391aaff26a9066896ba2aa7425624693c84829b36"
     },
     {
       "path": ".harness/engine/rules/context7-usage.md",
-      "sha256": "7c5b8032a6faef31dcc21e334b29a06781213d00d851c2bdde01e3f4a34fd662"
+      "sha256": "f79ac72e27ab0e4618f5a123339781786d5bfefd3efc83f613fe0a75a677c756"
     },
     {
       "path": ".harness/engine/rules/cursor-safety-hooks.md",
-      "sha256": "bb34d85f7138448c64640c544df70e26b8ced453e43318414e2bec903223b756"
+      "sha256": "4eaa23c3f6e1e68018a35b608a46390437a76298067c062a31881d9f2d68f478"
     },
     {
       "path": ".harness/engine/rules/docs.md",
-      "sha256": "01744b64abf59085d485e66a123777a7721ff18e88ac6e8f08f78e35aa7dc410"
+      "sha256": "52af8b6a376415ca82e41c6c62c38d2271edc67f8710348397422bcc5283de56"
     },
     {
       "path": ".harness/engine/rules/enforcement-state.md",
@@ -208,27 +212,27 @@
     },
     {
       "path": ".harness/engine/rules/engine-repo-boundary.md",
-      "sha256": "b5eda529afb1afb006710712c75827268b82a97acd8d4b40181c679cdf471de9"
+      "sha256": "15142838e872e365eb21d65681c0be84aa7a2d3420fa9e644e2b81c0397b63b8"
     },
     {
       "path": ".harness/engine/rules/git-commits.md",
-      "sha256": "d3dcc6213057959ec1aa8e25bef4f948c34651a7699c4c3ff4e632d63a9f8936"
+      "sha256": "e9899d3cacd5b43fbcc4c40f81809c1de1679ad19e9bed2904e561f28cafb42f"
     },
     {
       "path": ".harness/engine/rules/hygiene.md",
-      "sha256": "14f459b58837ece7f94da49580cb0bc3d35ca225058e393f52f5418aa75b27a8"
+      "sha256": "ff24c169255fb65ba48c8fa4bacfe9949f74820ff6bccbd2eb802945299bc333"
     },
     {
       "path": ".harness/engine/rules/lean-ladder.md",
-      "sha256": "6f2ae5963934080f537f3b7ce200fe9be1df0a883e4af7c5e2f9f62baa672bfb"
+      "sha256": "c8410b252225f5040f519085ea417911aa82eb81df137dd086b6e1dd400a75ed"
     },
     {
       "path": ".harness/engine/rules/model-routing.md",
-      "sha256": "67d56b08e8ee8b1a6b814cac6a45377d843c8da47b9f268dc0b474fba2b1acbc"
+      "sha256": "336b789b34b022add6f8fe6b7175639d4bfca00a53da8f8658a60846a8afd1ed"
     },
     {
       "path": ".harness/engine/rules/naming.md",
-      "sha256": "0cacb33085ce6da0d79c8f247a14139e134c5829bbe0feeaadb13b8c2a53b43e"
+      "sha256": "9229be8d017ea33cbf0f9c7fc0621aa0d4726cfa20302d080e3d7b9124f1e8f2"
     },
     {
       "path": ".harness/engine/rules/organic-routing.md",
@@ -240,19 +244,19 @@
     },
     {
       "path": ".harness/engine/rules/security.md",
-      "sha256": "69b79a609c7b56fc624b9c2b0c3a46a33dcbd3122d20f63900456b40cd614177"
+      "sha256": "ae9cc5c7a60fb6089da2234a31f95cd3fef4c6831436b687915d6ce07cf03696"
     },
     {
       "path": ".harness/engine/rules/session-continuity.md",
-      "sha256": "ed436192926773b21f0c189e1f2f2072ff57cfc4d1768238d87e560c5865f48c"
+      "sha256": "184d74c97f5dacc74dbfa8891d9ad311f4fc8131cb3e6cb909c757bb6306f6a6"
     },
     {
       "path": ".harness/engine/rules/skill-quality.md",
-      "sha256": "0c8f7e22045cb3ecaf1a316cb95596f4e82aee05e3dcf7203c8b17d23ab3ea18"
+      "sha256": "955c2e4ddbdff6e74f6ad72544709fd36f463c15d967bb92540c06fcaad6d474"
     },
     {
       "path": ".harness/engine/rules/soft-pass.md",
-      "sha256": "c512cb4278c32c0ce08e151554acd18afd7d891f8555d72173da1ef380d05bf2"
+      "sha256": "387b5b7bee2b17a0e00387bfacf09f5e197236ebd9ccb041de464f7fb1afe764"
     },
     {
       "path": ".harness/engine/rules/state-integrity.md",
@@ -260,11 +264,11 @@
     },
     {
       "path": ".harness/engine/rules/testing.md",
-      "sha256": "d69e5bf14f96695ae5fc27c8375823dd122fdafc2759d4a12f9a232010e96819"
+      "sha256": "0192b2e7d03e9c0294b4b0094d49f1533dc13b0aad86c2eb9c9ebe447098bef0"
     },
     {
       "path": ".harness/engine/rules/verification.md",
-      "sha256": "32d0ed3d16a6b52930effdb48f7c39c684863388d95158ef6bbd9227d5b6f3c5"
+      "sha256": "56c644ec9d4100ba8da5b957093673f9a670620f02e2e30211a15233a475ea77"
     },
     {
       "path": ".harness/engine/rules/visual-design.md",
@@ -272,35 +276,35 @@
     },
     {
       "path": ".harness/engine/skills/business-plan/SKILL.md",
-      "sha256": "0be730c793061f60abaf63269bce3739cce3638076b2be7d61e5da434cfb03d7"
+      "sha256": "b29b6885bfb4944d105be9bde36a7c1db1eaa770c913acbf485dd031f7cf42da"
     },
     {
       "path": ".harness/engine/skills/choose-architecture/SKILL.md",
-      "sha256": "a38028542dc81fe9d55a032981ed4212ca00c8562a59183600b73f0698650113"
+      "sha256": "a5327b8bfa93d97cfec4e4df88f5a868937e15c90580986b916e05ce00b79cf9"
     },
     {
       "path": ".harness/engine/skills/close-sprint/SKILL.md",
-      "sha256": "b1a9a8386185ddfa46263d0c688b55442dbf651318926cf4ede8ac805a37b37a"
+      "sha256": "3b1c1ced0ab21ab2b19a0209174db98f0a631fa2567605ec6c19336aea1941d3"
     },
     {
       "path": ".harness/engine/skills/contextualize/SKILL.md",
-      "sha256": "82c347cd595822f22dc1a3409c8968400f7430f61f7be5e7c2eba50d7b28adc3"
+      "sha256": "62aec207ab4c9f82e2388ef4d469c80726c73747c70592fdba391ffc94eefa85"
     },
     {
       "path": ".harness/engine/skills/define-conventions/SKILL.md",
-      "sha256": "6c861ab1e81800e0d452abec84d228e7d10ab42676ca5f8f285bb3fee03a08b6"
+      "sha256": "1fd69b8f701205401f9e75d4321ef4dd072c39e7f012ca9333707a5252d5c7b1"
     },
     {
       "path": ".harness/engine/skills/idea-intake/SKILL.md",
-      "sha256": "4ff7f9773f5ca3c99de91e6d4a6c21d6540100b691c7e5174f8f0d0a7a7b5554"
+      "sha256": "7f2ad910dad494c4958d2adc38efb78f8c6469993eeb1cafe0cb4fc9f84f174d"
     },
     {
       "path": ".harness/engine/skills/market-research/SKILL.md",
-      "sha256": "cefff08d72a08221f6e6f09d2d0276891e8bf133dd7fae4a4bb687830b2710b5"
+      "sha256": "885cfd8770f937ccd1e40d52e2190a92d6b5d9090153e280dcbd9f56fda2d274"
     },
     {
       "path": ".harness/engine/skills/midas-adopt/SKILL.md",
-      "sha256": "482545add7758778fe2513d0d9907c3d158539ff7fdece95a92e3c8cf1411de0"
+      "sha256": "7635d8275ab2feb3a0dcb516188f8b630b4328a9a9abad8406da360b2ad07f01"
     },
     {
       "path": ".harness/engine/skills/midas-align/SKILL.md",
@@ -308,19 +312,11 @@
     },
     {
       "path": ".harness/engine/skills/midas-auto-pilot/SKILL.md",
-      "sha256": "d92f94f0e354f10a531190f9779d738618e5afa947d06b2a0369ba630985a170"
+      "sha256": "79b5d724a470e70379af10eae4c55c2e1bdad61fd2341e06ccd3affb95a08e70"
     },
     {
       "path": ".harness/engine/skills/midas-auto-pilot/sprint-checklist.md",
       "sha256": "08356c7ef40fbe2910aaaf2f9a7d9b0cf369c2c6f92ca072df7f737689c9138d"
-    },
-    {
-      "path": ".harness/engine/skills/midas-auto-sprints/SKILL.md",
-      "sha256": "19889ef9d4caf726921220f2485ed9948abc5289a9b48765291bac282423960b"
-    },
-    {
-      "path": ".harness/engine/skills/midas-autopilot/SKILL.md",
-      "sha256": "79157905ec4d6d789fe4143017ccc92d6b73753dc57bee2d02419f4d550bc761"
     },
     {
       "path": ".harness/engine/skills/midas-bundle/SKILL.md",
@@ -332,7 +328,7 @@
     },
     {
       "path": ".harness/engine/skills/midas-design/SKILL.md",
-      "sha256": "a52782973cd401ee4e65621550c45b0beb0edc7f25ffb132e91b91893c8b5713"
+      "sha256": "0e62e1b305956caf05ccb198cc699bea8b1a6ff43c0d9ec82f38a9a826c28a51"
     },
     {
       "path": ".harness/engine/skills/midas-diff-gates/SKILL.md",
@@ -352,19 +348,15 @@
     },
     {
       "path": ".harness/engine/skills/midas-help/response-map.md",
-      "sha256": "bb00ab8077b13ebc84390e8c6a982bc5e29e74cdb1416a97ae1bd2edbe62c1d4"
+      "sha256": "4958cdf8e3624bd7f6f11306d50aabe8798782839f6e89f0922ecb0ecb86e345"
     },
     {
       "path": ".harness/engine/skills/midas-hygiene/SKILL.md",
-      "sha256": "2043d878e7f264fca07d0b26db12fb412dc3e64b8244e1c146b58bfc7f80abed"
-    },
-    {
-      "path": ".harness/engine/skills/midas-improve-loop/SKILL.md",
-      "sha256": "870de2ecf72d67116cb3272c53ec84fc83b90f74f1333bc4d27eb965bff9d12b"
+      "sha256": "40c49f6e31285bd349335667ae1e0b201d7b2a60357eca5dbcd092d39a435ade"
     },
     {
       "path": ".harness/engine/skills/midas-init/SKILL.md",
-      "sha256": "10ef1b1a32519df76013632ba0edbe7e2448ba05637d64a02b645d5dfd44c7c4"
+      "sha256": "75ecfc69d7da4ad38cd373a42c8ad6ee2c64a44a608adadde26c69da6baa2d93"
     },
     {
       "path": ".harness/engine/skills/midas-investigate/SKILL.md",
@@ -388,7 +380,7 @@
     },
     {
       "path": ".harness/engine/skills/midas-reconcile/SKILL.md",
-      "sha256": "5c11c9c234dcd48f12cb93dbb3e434abf1e94e982d551b3ea391e53143e5d43a"
+      "sha256": "09681904d864bb7316bee221af2ef75b37f6b9fe484d2579ef2c61076df8d9e9"
     },
     {
       "path": ".harness/engine/skills/midas-retro/SKILL.md",
@@ -404,15 +396,11 @@
     },
     {
       "path": ".harness/engine/skills/midas-sweep/SKILL.md",
-      "sha256": "f4183f68c4ebce7b17e5337ff784ffa483e1f64254e719c2d3ab409b9c9f51c1"
+      "sha256": "6d8fd21a024112e7ced23d84235b63725f29656955c71e5070bf6496c284cb5e"
     },
     {
       "path": ".harness/engine/skills/midas-tribunal/SKILL.md",
       "sha256": "c97a85af03b7261f21ee67b75996c9a2e0ce9b4e38f4192faedde0b917f2263f"
-    },
-    {
-      "path": ".harness/engine/skills/midas-update/SKILL.md",
-      "sha256": "155eb39aae1c29077f93feaca163470f28b09c6c0d5b9754db9e6d6b8555f5db"
     },
     {
       "path": ".harness/engine/skills/midas-verify/SKILL.md",
@@ -420,11 +408,11 @@
     },
     {
       "path": ".harness/engine/skills/plan-sprints/SKILL.md",
-      "sha256": "44b520a03e968d2e4ea79581705d9dff89e9e2d6388d92d1efe5c046f06af2ce"
+      "sha256": "85f8eb5c155ec20f281200c7fc9954a31f7ee217dc6f6fb66c8260f228866be7"
     },
     {
       "path": ".harness/engine/skills/start-sprint/SKILL.md",
-      "sha256": "ccd85ff897247d96e1d40d0a56fb5dcda178c02f45f3491300a8380b4a02378c"
+      "sha256": "6db09d4d73697cf7f7d337cabec34ca2c46989f6613e9222f49982bdb12efa8c"
     },
     {
       "path": ".harness/engine/stage-command-table.yaml",
@@ -440,7 +428,7 @@
     },
     {
       "path": ".harness/engine/state.schema.md",
-      "sha256": "3968b194bea64b4c8800b2ae697e11f8284f85d7b84e95def675973804c21077"
+      "sha256": "421f09054cfdb3cb8094ba4463b478db25d9faccb9009bbaa55c601527bd1b21"
     },
     {
       "path": ".harness/engine/templates/ADR.md",
@@ -448,7 +436,7 @@
     },
     {
       "path": ".harness/engine/templates/AGENTS.md.tmpl",
-      "sha256": "ddfe90365d34ce193f3656d7512799480784ea420cef78b9a55665c3e95d390f"
+      "sha256": "a8c84ba5f6ecc036dcf1df992eb7ee5e1944b27a51449add6debdfb8d7b0da44"
     },
     {
       "path": ".harness/engine/templates/CLAUDE.md.tmpl",
@@ -464,7 +452,7 @@
     },
     {
       "path": ".harness/engine/templates/audit-record.md",
-      "sha256": "78c1a5274adbf7f09b3609e3327f377512d9e724b705168234171afc95afe927"
+      "sha256": "5558af48bd60963ac03b67868a715933d84ed688252d3d68a3ac17d50850f201"
     },
     {
       "path": ".harness/engine/templates/auto-pilot-journal.md",
@@ -560,7 +548,7 @@
     },
     {
       "path": ".harness/engine/templates/roadmap.md",
-      "sha256": "b9a1ccd11bd01f615512aa8557c5a3abeb370683889def907847ff1fe36058cd"
+      "sha256": "51394bcd7b879c1b60503711b553571112099f5aef7c49f8303dfb22d4e61974"
     },
     {
       "path": ".harness/engine/templates/session-resume-precedence.md",
@@ -592,7 +580,7 @@
     },
     {
       "path": ".harness/scripts/bundle.mjs",
-      "sha256": "65789d26aaaf74cffab3de3b25b5d21d41e68967c1beaa497017281a297961b9"
+      "sha256": "9cad4322880eaaae33a66ba7446e488a2b99baa32d83b48c7ae06af0145961dd"
     },
     {
       "path": ".harness/scripts/capture-candidates.mjs",
@@ -620,11 +608,51 @@
     },
     {
       "path": ".harness/scripts/design-system.mjs",
-      "sha256": "919176cc0121acc761095b1726053d3a8d4e947b4be816c656221c5852fe1e0d"
+      "sha256": "8d6c97399cb3ad3532b642b16041151d35a337cac7a6e18477feecd13caaf8a3"
     },
     {
       "path": ".harness/scripts/doctor.mjs",
-      "sha256": "3b452fd8535871355083534226f1ea3e58d0aab7fef94bc67aa591595954d045"
+      "sha256": "5e663d9c7cf6e70e56806345fc3e9855454ded199c52366589946cd4452849a6"
+    },
+    {
+      "path": ".harness/scripts/doctor/checks/gates.mjs",
+      "sha256": "0c44ff052a4303b9327d8f7de1a8a1ad3cb4a8d16a7fc2575397046bbf8e3e09"
+    },
+    {
+      "path": ".harness/scripts/doctor/checks/layout.mjs",
+      "sha256": "ca38b5ea36c4cfa071989c097e6759f93c317e187d0b73d2a53c48639695079c"
+    },
+    {
+      "path": ".harness/scripts/doctor/checks/mcp.mjs",
+      "sha256": "2c9d8e7a67babbe7b17c44bdfcd637cddfdd3695dc978532d772766b8599da64"
+    },
+    {
+      "path": ".harness/scripts/doctor/checks/registries.mjs",
+      "sha256": "8bf25575de99dde1b4be1f55538728f40d0d1fdd2164f8b082daacf41fe472ed"
+    },
+    {
+      "path": ".harness/scripts/doctor/checks/state.mjs",
+      "sha256": "7784436c038ae6c49800e4148e30cca7b901fb9edd0739103a60792c83c8c8a5"
+    },
+    {
+      "path": ".harness/scripts/doctor/helpers.mjs",
+      "sha256": "64d22e8a9a602eed5e89722c0e6ec7826226f8004d0ab8a57a4ea677368cb7e8"
+    },
+    {
+      "path": ".harness/scripts/doctor/profiles.mjs",
+      "sha256": "fb1288e8acee24c8973d24e46b9829a3949125b3d7dc99bcd978c83dc05a90ba"
+    },
+    {
+      "path": ".harness/scripts/doctor/registry.mjs",
+      "sha256": "a50a546fd87d423db5e414cd5420921c3c9928df96a19a4b57b5073ed5e56a2f"
+    },
+    {
+      "path": ".harness/scripts/gates/conformance-gate.mjs",
+      "sha256": "7e3583cc43fc462d7344b9e9365b1d597e2399af4106d48e2741be3761fca4e2"
+    },
+    {
+      "path": ".harness/scripts/gates/lib/conformance-eval.mjs",
+      "sha256": "f547409bcad3385a8bef5a18b131fd888083d560cf2703f9a6dc991e766e318e"
     },
     {
       "path": ".harness/scripts/gates/lib/diff-paths.mjs",
@@ -636,7 +664,7 @@
     },
     {
       "path": ".harness/scripts/gates/test-gate.mjs",
-      "sha256": "b943a4c10b9e0a31ec2cb399f42df0ff7a7397326070edb8d42db5d38212faf6"
+      "sha256": "c5c67912a1980ad636e20982a58df80897063460685eb1157fc876ee527d2a73"
     },
     {
       "path": ".harness/scripts/gitignore-merge.mjs",
@@ -644,11 +672,15 @@
     },
     {
       "path": ".harness/scripts/install-context.mjs",
-      "sha256": "e08accc5118ed5f70a652bbadafa0d87efd1093fe6a7d3f2676b33d8f0391eaa"
+      "sha256": "287dcab45f5df094ad193ba23e7df6b4ecbf0f098a19c1348926776065a719a3"
     },
     {
       "path": ".harness/scripts/install-diagnose.mjs",
-      "sha256": "562f955b8be4e316101a8e596bc13496a0c1d0cdbe3e2b4bad74a6665ed4c073"
+      "sha256": "96a741244bd2c876e88c3dcd98a68ff2e69d76513c37cac4810ab5b2d0aca284"
+    },
+    {
+      "path": ".harness/scripts/lib/cache-paths.mjs",
+      "sha256": "99ca70bb2b309f8da85c966662731c5c450772d9c2823e32b590291f2243a1f7"
     },
     {
       "path": ".harness/scripts/lib/capture-candidates.mjs",
@@ -656,7 +688,11 @@
     },
     {
       "path": ".harness/scripts/lib/carryover.mjs",
-      "sha256": "4b47d37fd81d65c337b7266295f4d2368711efb621f19564314804b5f123dc67"
+      "sha256": "3a2be826df9a31038cf1b3034a623c671235516e0272eef8b08adcb0b856f99a"
+    },
+    {
+      "path": ".harness/scripts/lib/cli-io.mjs",
+      "sha256": "338956e976c802372d438e461657b8f90f5a46f6ce01716dd1aa970224ceef7c"
     },
     {
       "path": ".harness/scripts/lib/close-ready.mjs",
@@ -664,15 +700,15 @@
     },
     {
       "path": ".harness/scripts/lib/commit-receipt.mjs",
-      "sha256": "eaa5843dfd588a0f6cb7727b020c43ab81fdbb6dc879063803595f6ee45fc8f9"
+      "sha256": "218fe2d8da4a45e5d4b321f5e539ce7ef335c8d050d21842b3d14a1e6f496c3f"
     },
     {
       "path": ".harness/scripts/lib/context-cost.mjs",
-      "sha256": "fd62e7a44fd77a723e4d8181d29325f5cb1cbf05fcc8efca83e4e7d6625a659b"
+      "sha256": "4ec6e43167f1ad76237aab37073472294cf9a95a5df7deab989e4e032d5fb024"
     },
     {
       "path": ".harness/scripts/lib/context-digest.mjs",
-      "sha256": "2a023c7e615c5c573d117c8114df677e305bd2fddcf8dbc7a176650ddf924ae2"
+      "sha256": "44edef084e634e46edec4a9bad7a14374a054d610d1faeb8564ae287bfe66700"
     },
     {
       "path": ".harness/scripts/lib/frontmatter.mjs",
@@ -684,27 +720,31 @@
     },
     {
       "path": ".harness/scripts/lib/gate-result.mjs",
-      "sha256": "a9b383b7c9e4c64261b1f6020a50777d9822fe110c69e4f75870b786afb1ef42"
+      "sha256": "7e9fb042dfa772f0e510fd4adb6fb865738e3df346817dc8188814d2df590e65"
     },
     {
       "path": ".harness/scripts/lib/install-cmd.mjs",
-      "sha256": "04f811f177917f8173bc31ecd3f3350599ad5d9c7d16bcd841e752c7542b0f4d"
+      "sha256": "2b272a2065156cc028db6b67b5085065f249599b5ffeab0f2bc0a8d56878b760"
     },
     {
       "path": ".harness/scripts/lib/lifecycle-journal.mjs",
-      "sha256": "e92d4bf073b7efb2ebe7099c1d6965a111e3d106030105e966bce36fb2865caa"
+      "sha256": "3f3ee7d06aa6b3b551c8cfb86f5685d044a1ea5c2985d771f04f9481baae6c97"
     },
     {
       "path": ".harness/scripts/lib/migrate-state.mjs",
       "sha256": "1a94b96260fac49aba25158afbaa2734086549237a317a94049107d27d375b77"
     },
     {
+      "path": ".harness/scripts/lib/posix.mjs",
+      "sha256": "fd90edc8d29cd0ceb3cb83862824f67d3caa532e800d8a7fb604acd3a9f855ea"
+    },
+    {
       "path": ".harness/scripts/lib/quality-log.mjs",
-      "sha256": "6a41b761d73fed9168eda578811a7f2527a6be2ccd58e73ef31db8939487ad14"
+      "sha256": "f5e7e897016e203b85632fabbd0f566d68de04d90c5c98733f511600c092cfe5"
     },
     {
       "path": ".harness/scripts/lib/recall-fifo.mjs",
-      "sha256": "6e2039f2156993df45b37eae4e3f576a64e38c74cf30efc16923e7068e4f83b9"
+      "sha256": "afa1ecdce90e27e9d9c5983c551f93c17de8a97a1416caca611c28b109f6c9c3"
     },
     {
       "path": ".harness/scripts/lib/recall-score.mjs",
@@ -739,20 +779,16 @@
       "sha256": "156487d1fd1893185e2cc285459beb928951ca737335d6abfe9da5c4c3103f20"
     },
     {
-      "path": ".harness/scripts/migrate-layout.mjs",
-      "sha256": "5e488470ae844c35a6b1aaa5ee52f6607c15a96333a630608a9dc6e1ab9d447f"
-    },
-    {
       "path": ".harness/scripts/model-profiles.mjs",
       "sha256": "014891cadafc9f82d6b9ad62d56eb00542860f6775a008bf83b7315448ce4f7f"
     },
     {
       "path": ".harness/scripts/ownership-manifest.mjs",
-      "sha256": "9aaba4bb7f18a2e67bafa39ab7cc7cebb5b8045dbb3d860456076430c679d6e0"
+      "sha256": "e37be3d94a365a880e835ec6d272188dd2ef18d22ad8e6c3b8ad501b74880849"
     },
     {
       "path": ".harness/scripts/paths.mjs",
-      "sha256": "52213796cc290521d310f90a9ac48623df45ceb79ad21a477832ab55894464d2"
+      "sha256": "d3a74db48a469b1a295a2d27fc60f4744d217a66a03f73699b7bea50aab46580"
     },
     {
       "path": ".harness/scripts/portable-skills.mjs",
@@ -768,7 +804,7 @@
     },
     {
       "path": ".harness/scripts/render-adapters.mjs",
-      "sha256": "38a707ffc6140a148e4f6531ac5d22992b9e08092fcfc00299bca97d30dffc60"
+      "sha256": "5fa257eb04e63bf7e33f920e43fb4af3d4ecb1697d49770f24faae3ebe6adcd4"
     },
     {
       "path": ".harness/scripts/safety/destructive-shell.mjs",
@@ -784,23 +820,23 @@
     },
     {
       "path": ".harness/scripts/safety/secrets-prompt.mjs",
-      "sha256": "cc6703b80398c481831e790cad0ab3d53a6e937f3e93051d4626f6113585881d"
+      "sha256": "59a54bd8c7d5cc7937df1e879f289789b3c083c22adc56aae319aeebc41f8045"
     },
     {
       "path": ".harness/scripts/skill-quality-check.mjs",
-      "sha256": "a8a8cddee14a7be84fe71a430c64766588ddf8a331274e556cabe1cb63097aa7"
+      "sha256": "be831b9707473b0cc29f7826a33097e28de834bd48596ac166e58b37ea2b12c5"
     },
     {
       "path": ".harness/scripts/skill-registry.mjs",
-      "sha256": "2a6743c1f8ac4456ce08402acbc09977bcd9f48d0e31b041e3addaa899fe1460"
+      "sha256": "8530839ad2889e70e13b44151c3f47989d3816024f40b88df5cc703bf3bf874a"
     },
     {
       "path": ".harness/scripts/stage-command-table.mjs",
-      "sha256": "450480fe6a6e8e2f549dcbb9ae3e0ea1268785edfa030adaa01e6d31fc9b5d51"
+      "sha256": "bc517fadef5519ce5a6326deeac9fdee80d4e24247f1f5a2aff1580e29b62d60"
     },
     {
       "path": ".harness/scripts/status-page.mjs",
-      "sha256": "358d9145634ad30f51edf3636aa0f2f7c4e7c3de829f182a7fa37a34642ff0c2"
+      "sha256": "a7d2be349bdcf0d4cf6fadd6522627d282bded492feb90965570cdcbf529b042"
     },
     {
       "path": ".harness/scripts/tool-profiles.mjs",
@@ -808,19 +844,19 @@
     },
     {
       "path": ".harness/scripts/trace-hook.mjs",
-      "sha256": "eb843359e0408fe1cea0a1a712129d8b6bab17c621430b3ef2803fb5333e4720"
+      "sha256": "dd646921225959db0de128ddeccc3a2b0a22dd5e900078da8a71be3ec0fdb37d"
     },
     {
       "path": ".harness/scripts/trace-inspect.mjs",
-      "sha256": "a67d15ef803b46eb083dd64f878fec949ad26431252a176ecc5b1d48497ffb57"
+      "sha256": "60fab91225c2178e71a58e5ff5b4bd177015dc81a1976bddba690495874655a7"
     },
     {
       "path": ".harness/scripts/trace-write.mjs",
-      "sha256": "25d4e0da30e3333b2aac235d1de7808a2ef31229699fc2ac85a5641f82112c79"
+      "sha256": "67884aa2f54d67bf8debcfc18f41f149f87c1abc44db3d6fa68f385f1b43964c"
     },
     {
       "path": ".harness/scripts/yaml-lite.mjs",
-      "sha256": "47f021ac23a1f7e1d2101585b81e5ca026a4f75d303c7faf186e5b4eec438817"
+      "sha256": "43d00573a7d0f5042ef3301f7ec6e59ca5b6fbca002615fefb0050bc1404c004"
     }
   ]
 }
