@@ -62,6 +62,7 @@ import { splitSkillDocument } from '../lib/frontmatter.mjs';
 import { walkFiles } from '../lib/walk.mjs';
 import { missingEvidenceRequired, resolveEvidencePattern } from '../lib/gate-evidence.mjs';
 import { UNIT_TEST_FILES } from '../lib/unit-test-files.mjs';
+import { formatSpawnedTestFailure, UNIT_TEST_SPAWN } from '../lib/spawn-failure.mjs';
 import {
   ROOT,
   PRODUCT_CLOSED,
@@ -1874,12 +1875,12 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
   const unit = spawnSync(
     process.execPath,
     ['--test', ...UNIT_TEST_FILES],
-    { cwd: ROOT, encoding: 'utf8' },
+    { cwd: ROOT, ...UNIT_TEST_SPAWN },
   );
   check(
     'safety:unit-suite',
-    unit.status === 0,
-    unit.status === 0 ? '' : (unit.stderr || unit.stdout || '').slice(0, 500),
+    unit.status === 0 && !unit.error,
+    unit.status === 0 && !unit.error ? '' : formatSpawnedTestFailure(unit),
   );
 
   // Wire contract: deny stdout uses Cursor snake_case message fields

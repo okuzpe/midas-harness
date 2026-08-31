@@ -11,6 +11,9 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ### Fixed
 
+- **CI setup caches** — the test job no longer sets `cache: npm` (no root lockfile) and the docs
+  job no longer sets `cache: pip` (no `requirements.txt`). `safety:unit-suite` reports the failing
+  test (and spawn `ENOBUFS`) instead of the first 500 characters of spec output.
 - **Canonical `update` copy** — NEEDS_REPAIR, INSTALL.md refresh examples, install.sh/ps1,
   faq, skill-flows, and cli README print `npx … update`, not `--update`. The flag remains a
   documented silent alias.

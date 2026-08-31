@@ -552,6 +552,28 @@ check(
   /check_code=\$\?/.test(readFileSync(join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8')) &&
     /test "\$check_code" -eq 0/.test(readFileSync(join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8')),
 );
+{
+  const ciYml = readFileSync(join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8')
+    .split(/\r?\n/)
+    .filter((line) => !/^\s*#/.test(line))
+    .join('\n');
+  check(
+    'ci:no-root-npm-cache',
+    !/cache:\s*npm/.test(ciYml),
+    'setup-node cache: npm fails without a root package-lock.json',
+  );
+  check(
+    'ci:no-docs-pip-cache',
+    !/cache:\s*pip/.test(ciYml),
+    'setup-python cache: pip fails without requirements.txt / pyproject.toml',
+  );
+}
+check(
+  'test:unit-suite-failure-formatter',
+  /formatSpawnedTestFailure/.test(readFileSync(join(ROOT, 'scripts', 'test', 'runtime.mjs'), 'utf8')) &&
+    /UNIT_TEST_SPAWN/.test(readFileSync(join(ROOT, 'scripts', 'coverage.mjs'), 'utf8')),
+  'unit-suite and coverage must use UNIT_TEST_SPAWN + formatSpawnedTestFailure',
+);
 check(
   'ci:live-channel-discovery',
   /raw\.githubusercontent\.com\/okuzpe\/midas-harness\/releases\/stable\.json/.test(

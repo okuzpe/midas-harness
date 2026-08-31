@@ -7,6 +7,7 @@ import { spawnSync } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { UNIT_TEST_FILES } from './lib/unit-test-files.mjs';
+import { UNIT_TEST_SPAWN } from './lib/spawn-failure.mjs';
 import { maybeHelp } from './lib/cli-io.mjs';
 if (maybeHelp(import.meta.url)) process.exit(0);
 
@@ -23,7 +24,7 @@ const r = spawnSync(
     '--test-coverage-lines=76',
     ...UNIT_TEST_FILES,
   ],
-  { cwd: ROOT, encoding: 'utf8' },
+  { cwd: ROOT, ...UNIT_TEST_SPAWN },
 );
 
 if (r.stdout) process.stdout.write(r.stdout);
