@@ -36,8 +36,8 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
   diagnose is not `partial_migrate`. `reset` / `env` / `start-run` write
   `{work}/.harness/cache/sandbox-env.json` (`MIDAS_TRACE_ROOT`) because Cursor Task does not inherit
   env. Live autonomy/doctor hints print canonical `update`, not `--update`. Live sandbox 2026-08-31:
-  `--profile capture` + phases 0–4 on `composer-2.5` all oracles pass; `--profile install` diagnoses
-  `setup_pending` (not `partial_migrate`).
+  `--profile capture` + phases 0–6 on `composer-2.5` all oracles pass; `--profile install` +
+  `/midas-reconcile` diagnose `setup_pending` (not `partial_migrate`).
 
 ## [3.0.1] — 2026-08-30
 
