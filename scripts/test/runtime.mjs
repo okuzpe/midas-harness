@@ -197,6 +197,11 @@ export async function run() {
         /## Artifacts/.test(auditRecord) && /phase-result\.md/.test(auditRecord),
         'audit-record.md must include an Artifacts table citing phase-result.md',
       );
+      check(
+        'harness:audit-record:hygiene',
+        /## Hygiene/.test(auditRecord),
+        'audit-record.md must include a Hygiene section (sweep path or skip reason)',
+      );
     }
     {
       const hygiene = readFileSync(join(ROOT, 'harness', 'rules', 'hygiene.md'), 'utf8');
@@ -221,8 +226,8 @@ export async function run() {
       );
       check(
         'harness:phase8:audit-artifacts',
-        /Artifacts/.test(phase8) && /audit-record\.md/.test(phase8),
-        'pipeline/8 freeze step must require an Artifacts table from audit-record.md',
+        /Artifacts/.test(phase8) && /audit-record\.md/.test(phase8) && /## Hygiene/.test(phase8),
+        'pipeline/8 freeze step must require Artifacts + Hygiene from audit-record.md',
       );
       const closeSkill = readFileSync(join(ROOT, 'harness', 'skills', 'close-sprint', 'SKILL.md'), 'utf8');
       check(

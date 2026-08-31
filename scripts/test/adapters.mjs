@@ -261,6 +261,34 @@ if (existsSync(tplRoot)) {
       'business-plan:no-human-approved-key',
       /## Human sign-off/.test(businessPlanSkill) && !/human_approved: true/.test(businessPlanSkill),
     );
+    const playbook4 = readFileSync(join(ROOT, 'harness', 'pipeline', '4-tech-architecture.md'), 'utf8');
+    const archSkill = readFileSync(join(ROOT, 'harness', 'skills', 'choose-architecture', 'SKILL.md'), 'utf8');
+    check(
+      'playbook-4:template-headings',
+      /## Architecture diagram/.test(playbook4) &&
+        /## Stack decisions/.test(playbook4) &&
+        !/## System diagram/.test(playbook4),
+    );
+    check(
+      'choose-architecture:template-headings',
+      /## Architecture diagram/.test(archSkill) &&
+        /## Stack decisions/.test(archSkill) &&
+        !/## System diagram/.test(archSkill),
+    );
+    const playbook6 = readFileSync(join(ROOT, 'harness', 'pipeline', '6-sprint-planning.md'), 'utf8');
+    const planSkill = readFileSync(join(ROOT, 'harness', 'skills', 'plan-sprints', 'SKILL.md'), 'utf8');
+    check(
+      'playbook-6:template-headings',
+      /## Definition of Done \(DoD\)/.test(playbook6) &&
+        /## Sprint sequence/.test(playbook6) &&
+        /template table/.test(playbook6) &&
+        !/checkbox list of concrete tasks/.test(playbook6),
+    );
+    check(
+      'plan-sprints:template-headings',
+      /## Definition of Done \(DoD\)/.test(planSkill) &&
+        !/Scope \/ non-scope/.test(planSkill),
+    );
     check(
       'sandbox:gitignore-active-run',
       /sandbox\/findings\/_active-run\.json/.test(readFileSync(join(ROOT, '.gitignore'), 'utf8')),
@@ -278,6 +306,9 @@ if (existsSync(tplRoot)) {
     check('sandbox:oracle-contextualize-file', existsSync(join(ROOT, 'sandbox', 'oracles', 'contextualize.json')));
     check('sandbox:oracle-market-research-file', existsSync(join(ROOT, 'sandbox', 'oracles', 'market-research.json')));
     check('sandbox:oracle-business-plan-file', existsSync(join(ROOT, 'sandbox', 'oracles', 'business-plan.json')));
+    check('sandbox:oracle-choose-architecture-file', existsSync(join(ROOT, 'sandbox', 'oracles', 'choose-architecture.json')));
+    check('sandbox:oracle-define-conventions-file', existsSync(join(ROOT, 'sandbox', 'oracles', 'define-conventions.json')));
+    check('sandbox:oracle-plan-sprints-file', existsSync(join(ROOT, 'sandbox', 'oracles', 'plan-sprints.json')));
     const sandboxSkill = readFileSync(join(ROOT, 'harness', 'skills', 'midas-sandbox', 'SKILL.md'), 'utf8');
     check(
       'sandbox:skill-always-reset',
@@ -437,6 +468,24 @@ if (existsSync(tplRoot)) {
         'sandbox:grade-seed-business-plan-fails',
         gradedPlan.ok === false && gradedPlan.checks.some((c) => c.id === 'plan-file' && !c.ok),
         gradedPlan.tally,
+      );
+      const gradedArch = gradeSandbox({ root: ROOT, skill: 'choose-architecture', ledger: false });
+      check(
+        'sandbox:grade-seed-choose-architecture-fails',
+        gradedArch.ok === false && gradedArch.checks.some((c) => c.id === 'arch-file' && !c.ok),
+        gradedArch.tally,
+      );
+      const gradedConv = gradeSandbox({ root: ROOT, skill: 'define-conventions', ledger: false });
+      check(
+        'sandbox:grade-seed-define-conventions-fails',
+        gradedConv.ok === false && gradedConv.checks.some((c) => c.id === 'folder-structure' && !c.ok),
+        gradedConv.tally,
+      );
+      const gradedSprints = gradeSandbox({ root: ROOT, skill: 'plan-sprints', ledger: false });
+      check(
+        'sandbox:grade-seed-plan-sprints-fails',
+        gradedSprints.ok === false && gradedSprints.checks.some((c) => c.id === 'roadmap-file' && !c.ok),
+        gradedSprints.tally,
       );
       check(
         'sandbox:grade-seed-idea-intake-stage',

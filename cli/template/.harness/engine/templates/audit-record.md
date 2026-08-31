@@ -18,5 +18,8 @@ MIDAS_AUDIT_RESULT: verdict=pass unresolved=0 criticals=0
 ## Scope reconciliation
 …
 
+## Hygiene
+<!-- Sweep record path, or `sweep: skipped — <reason>` (required for brownfield unless documented). -->
+
 ## Amendments
 …

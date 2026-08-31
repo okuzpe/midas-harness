@@ -31,15 +31,21 @@ the Phase 8 audit references exactly these files.
 3. **Write `{product}/conventions.md`.** Project-level overrides of `<paths.engine>/conventions.md`
    (naming, error handling, test patterns specific to the chosen stack).
 4. **Set the design direction, then write the design system.**
-   - `{product}/design-direction.md` — the aesthetic **intent**: brand personality, **metaphor / how it
-     should feel**, **first-viewport product evidence**, **2–3 real products to
-     emulate** (+ what to borrow), mood keywords, **anti-references** (include the default SaaS landing
-     stack unless justified). **Capture it from the human** (their
+   - `{product}/design-direction.md` from `<paths.engine>/templates/design-direction.md` — keep those
+     headings (`## Brand personality`, `## How it should feel (metaphor)`,
+     `## First viewport — product evidence`, `## References to emulate (2–3 real products)`,
+     `## Mood / keywords`, `## Anti-references (what to avoid)`, `## Accessibility floor`).
+     The aesthetic **intent**: brand personality, metaphor, first-viewport product evidence,
+     **2–3 real products to emulate** (+ what to borrow), mood keywords, **anti-references**
+     (include the default SaaS landing stack unless justified). **Capture it from the human** (their
      taste is the input, via `AskQuestion`) — a concrete reference + metaphor is what stops generic, default-looking UI. Prefer a design
      specialist (`voltagent-core-dev:ui-designer` / `design-bridge`) if installed. Mid-project redesigns use
      `/midas-design` against this file.
-   - `{product}/design-system.md` — human-readable reference: color palette, spacing scale, typography,
-     component vocabulary, do/don't examples — **built to the direction** (each choice traces to a reference).
+   - `{product}/design-system.md` from `<paths.engine>/templates/design-system.md` — keep those headings
+     (`## Purpose`, `## Framework`, `## Brand decisions (project-specific)`, `## Typography decisions`,
+     `## Component catalogue (Phase 5 starter)`, `## Accessibility baseline`, `## Adapter status`).
+     Human-readable reference: color palette, spacing scale, typography, component vocabulary,
+     do/don't examples — **built to the direction** (each choice traces to a reference).
    - `{product}/design-system/tokens.json` — project-owned machine-readable token map, seeded from the base.
    - `{product}/design-system/tokens.css` — CSS custom properties derived from the project token map.
 5. **Write the project playbooks.** Emit **up to 4** markdown recipes (zero is valid) to

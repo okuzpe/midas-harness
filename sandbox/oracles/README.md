@@ -29,6 +29,10 @@ artifacts, `stage: market_research`, `gate-01.md` with a pass verdict. After `re
 Cheap-model judgment on the toy idea is not the oracle — headings, artifacts, and gate freeze are.
 After `reset` those grades **must fail**.
 
+`choose-architecture.json`, `define-conventions.json`, and `plan-sprints.json` grade Phases 4–6 the
+same way against `templates/architecture.md`, `design-direction.md` / `folder-structure.md`, and
+`templates/roadmap.md` plus `gate-04.md`…`gate-06.md`. After `reset` those grades **must fail**.
+
 `{product}` `{state}` `{runs}` `{rules}` `{cache}` expand from the fixture `paths.*`.
 Paths that resolve outside `sandbox/example-product/` fail closed.
 

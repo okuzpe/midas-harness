@@ -70,15 +70,15 @@ Per layer (frontend, backend, data, infra, key libs): **2–3 candidates** with 
 Per `<paths.engine>/rules/context7-usage.md`: `resolve-library-id` → `get-library-docs` at intended pin. Route fetches to **scout**. Record exact version + verification. Context7 unreachable → web fallback + visible note — never pin from memory.
 
 ### 5. Write `{product}/architecture.md`
-- Requirements coverage (Step-1 checklist → components)
-- Stack table: layer · choice · **pinned version** · verified (✓/web-fallback) · why
-- Mermaid system diagram (components, stores, external services, request flow)
-- Key flows (2–3 critical paths)
-- Boundaries (Phase 5 import rules)
-- Risks & deferrals (MVP non-goals)
+From `<paths.engine>/templates/architecture.md` — keep those headings (`## System overview`,
+`## Client`, `## Architecture diagram`, `## Stack decisions`, `## Requirements coverage`,
+`## Non-functional requirements`, `## Open technical risks`, `## ADR index`). Do not invent a
+parallel outline.
 
 ### 6. Write one ADR per decision
-`{product}/adr/ADR-NNN-<slug>.md`: **Status** (Accepted), **Context**, **Decision** (+ pinned version), **Alternatives considered**, **Consequences**. One decision per ADR. **Each macro fork gets its own ADR** — never collapsed into alternatives.
+`{product}/adr/ADR-NNN-<slug>.md` from `<paths.engine>/templates/ADR.md`: **Status** (Accepted),
+`## Context`, `## Decision` (+ pinned version), `## Considered alternatives`, `## Consequences`.
+One decision per ADR. **Each macro fork gets its own ADR** — never collapsed into alternatives.
 
 ### 7. Record state
 Update **`paths.state`**: `phases.tech_architecture.artifacts`, `stage_status: gate_pending`. Do **not** self-advance — orchestrator runs the gate.
@@ -90,7 +90,8 @@ Full checklist: **`<paths.engine>/pipeline/4-tech-architecture.md` § Exit gate 
 - Macro forks **surfaced in plain language**; each has an ADR with choice/default + trade-off.
 - Consequential stack choices **put to the human**; selection or explicit "use the recommendation" recorded; overrides noted as human decisions.
 - Stack **pinned**; every third-party version **Context7-verified** (or web-fallback noted).
-- System **diagram** present; **one ADR per decision** under `{product}/adr/`.
+- `{product}/architecture.md` uses the template headings (including `## Architecture diagram` and
+  `## Stack decisions`); **one ADR per decision** under `{product}/adr/`.
 - **Every Step-1 requirement covered**; scope matches business-case MVP.
 - If the client includes **native or hybrid mobile**, `{product}/architecture.md` § Client names the verify tool (Maestro MCP / agent-browser) and emulator/simulator prerequisites.
 - Gate verdict written to `{runs}/audits/gate-04.md`.

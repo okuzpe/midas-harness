@@ -1,0 +1,18 @@
+{
+  "skill": "plan-sprints",
+  "checks": [
+    { "id": "roadmap-file", "type": "file_exists", "path": "{product}/roadmap.md" },
+    { "id": "mvp-heading", "type": "file_contains", "path": "{product}/roadmap.md", "pattern": "## MVP definition (from business-plan.md)" },
+    { "id": "sequence-heading", "type": "file_contains", "path": "{product}/roadmap.md", "pattern": "## Sprint sequence" },
+    { "id": "nongoals-heading", "type": "file_contains", "path": "{product}/roadmap.md", "pattern": "## Out of scope (v1 non-goals)" },
+    { "id": "features-file", "type": "file_exists", "path": "{product}/features.json" },
+    { "id": "gate-passed", "type": "state_match", "field": "phases.sprint_planning.gate", "value": "passed" },
+    { "id": "phase-passed", "type": "state_match", "field": "phases.sprint_planning.status", "value": "passed" },
+    { "id": "stage-advanced", "type": "state_match", "field": "stage", "value": "sprint_execution" },
+    { "id": "roadmap-artifact", "type": "state_list_contains", "field": "phases.sprint_planning.artifacts", "value": "{product}/roadmap.md" },
+    { "id": "updated-not-seed", "type": "fixture_field_changed", "field": "updated" },
+    { "id": "state-not-seed", "type": "fixture_file_changed", "path": "{state}" },
+    { "id": "gate-record", "type": "file_exists", "path": "{runs}/audits/gate-06.md" },
+    { "id": "gate-record-verdict", "type": "file_contains", "path": "{runs}/audits/gate-06.md", "pattern": "MIDAS_GATE_RESULT: verdict=pass" }
+  ]
+}

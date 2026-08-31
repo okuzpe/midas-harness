@@ -1,0 +1,21 @@
+{
+  "skill": "choose-architecture",
+  "checks": [
+    { "id": "arch-file", "type": "file_exists", "path": "{product}/architecture.md" },
+    { "id": "overview-heading", "type": "file_contains", "path": "{product}/architecture.md", "pattern": "## System overview" },
+    { "id": "client-heading", "type": "file_contains", "path": "{product}/architecture.md", "pattern": "## Client" },
+    { "id": "diagram-heading", "type": "file_contains", "path": "{product}/architecture.md", "pattern": "## Architecture diagram" },
+    { "id": "stack-heading", "type": "file_contains", "path": "{product}/architecture.md", "pattern": "## Stack decisions" },
+    { "id": "coverage-heading", "type": "file_contains", "path": "{product}/architecture.md", "pattern": "## Requirements coverage" },
+    { "id": "adr-index-heading", "type": "file_contains", "path": "{product}/architecture.md", "pattern": "## ADR index" },
+    { "id": "no-system-diagram-alias", "type": "file_not_contains", "path": "{product}/architecture.md", "pattern": "## System diagram" },
+    { "id": "gate-passed", "type": "state_match", "field": "phases.tech_architecture.gate", "value": "passed" },
+    { "id": "phase-passed", "type": "state_match", "field": "phases.tech_architecture.status", "value": "passed" },
+    { "id": "stage-advanced", "type": "state_match", "field": "stage", "value": "architecture_rules" },
+    { "id": "arch-artifact", "type": "state_list_contains", "field": "phases.tech_architecture.artifacts", "value": "{product}/architecture.md" },
+    { "id": "updated-not-seed", "type": "fixture_field_changed", "field": "updated" },
+    { "id": "state-not-seed", "type": "fixture_file_changed", "path": "{state}" },
+    { "id": "gate-record", "type": "file_exists", "path": "{runs}/audits/gate-04.md" },
+    { "id": "gate-record-verdict", "type": "file_contains", "path": "{runs}/audits/gate-04.md", "pattern": "MIDAS_GATE_RESULT: verdict=pass" }
+  ]
+}

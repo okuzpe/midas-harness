@@ -60,17 +60,23 @@ Dependency graph (e.g. data/auth before features that need them). **Sprint 1** =
 shippable vertical slice; later sprints depend only on earlier ones.
 
 ### 3. Write `{product}/roadmap.md`
-Ordered sprint list: one-line goal each, explicit dependency order, mapping to success metrics. **MVP only**.
+From `<paths.engine>/templates/roadmap.md` — keep those headings (`## MVP definition (from business-plan.md)`,
+`## Sprint sequence`, `## Dependency notes`, `## Out of scope (v1 non-goals)`,
+`## Success metrics reminder`). Ordered sprint list: one-line goal each, explicit dependency order,
+mapping to success metrics. **MVP only**.
 
 ### 4. Write each `{product}/sprints/NN-<slug>.md`
-Zero-padded, sequential. Each file:
-- **Goal** — one sentence; demonstrable outcome.
-- **Scope / non-scope** — in vs explicitly deferred.
-- **Tasks** — ordered concrete units (soft cap ≤ 5 unless exception noted).
-- **Acceptance criteria** — **EARS** (`WHEN <trigger>, the system SHALL <response>`; see
+Zero-padded, sequential, from `<paths.engine>/templates/sprint.md`. Keep those headings:
+- **`## Goal`** — one sentence; demonstrable outcome.
+- **`## Acceptance criteria`** — **EARS** (`WHEN <trigger>, the system SHALL <response>`; see
   `<paths.engine>/conventions.md` § Acceptance criteria), one behavior per line.
-- **Definition of Done** — names frozen rules (folder-structure, conventions, testing,
+- **`## Definition of Done (DoD)`** — names frozen rules (folder-structure, conventions, testing,
   design-system token, Context7) + “acceptance met, tests pass”. Point at rules; do not restate them.
+- **`## Tasks`** — template table (`# | Task | Tier | Status | Notes`); ordered concrete units
+  (soft cap ≤ 5 unless exception noted in Notes). Do not invent a checkbox-list outline.
+- **`## Blockers`** and **`## Phase 8 audit notes`**.
+Non-goals stay in the roadmap `## Out of scope (v1 non-goals)` — do not add a Scope heading on
+the sprint file.
 
 ### 5. Seed `{product}/features.json`
 From MVP scope via `<paths.engine>/templates/features.json.tmpl`. Each feature `status: failing`.
@@ -83,7 +89,8 @@ set `stage_status: gate_pending`. Do **not** self-advance the stage.
 
 ## Exit gate (orchestrate audits)
 - [ ] `{product}/roadmap.md` is **MVP only** (every item → metric/dependency; nothing from non-goals).
-- [ ] Each sprint has goal + scope + tasks + EARS acceptance + DoD naming frozen rules.
+- [ ] Each sprint has `## Goal` + `## Acceptance criteria` (EARS) + `## Definition of Done (DoD)`
+      naming frozen rules + `## Tasks` (template table).
 - [ ] Sprints are dependency-ordered; **sprint 1 is independently shippable**.
 - [ ] Soft task cap honored or exception noted in non-scope.
 - [ ] `{product}/features.json` seeded (every feature `status: failing`).

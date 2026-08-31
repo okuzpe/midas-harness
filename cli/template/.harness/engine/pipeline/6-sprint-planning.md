@@ -31,15 +31,22 @@ Sprints cover MVP only — no scope creep. Dependencies must be ordered.
    Each sprint should be completable in a focused session (or a defined time-box if
    the human specifies one). Sprint 01 must be independently runnable (no hard deps on
    later sprints). Name them zero-padded: `01`, `02`, …
-3. **Write `{product}/roadmap.md`.** A table: sprint | goal | key tasks | depends-on.
-   The goal row must fit one sentence.
-4. **Write one sprint file per sprint: `{product}/sprints/NN-<slug>.md`.**
-   Each file must include:
+3. **Write `{product}/roadmap.md`** from `<paths.engine>/templates/roadmap.md`. Headings are those
+   of the template — not a parallel outline:
+   - `## MVP definition (from business-plan.md)`
+   - `## Sprint sequence` — table: Sprint | Title | Goal | Depends on | Status
+   - `## Dependency notes`
+   - `## Out of scope (v1 non-goals)`
+   - `## Success metrics reminder`
+4. **Write one sprint file per sprint: `{product}/sprints/NN-<slug>.md`** from
+   `<paths.engine>/templates/sprint.md`. Each file must include:
    - `## Goal` — one sentence
-   - `## Tasks` — checkbox list of concrete tasks
-   - `## Acceptance criteria` — observable behaviors that prove the sprint is done
-   - `## Definition of Done` — references at least one applicable base or project rule;
+   - `## Acceptance criteria` — EARS (`WHEN <trigger>, the system SHALL <response>`)
+   - `## Definition of Done (DoD)` — references at least one applicable base or project rule;
      must include: tests pass, conventions followed, no new lint/rule violations
+   - `## Tasks` — table (`# | Task | Tier | Status | Notes`), not a checkbox list
+   - `## Blockers`
+   - `## Phase 8 audit notes`
 5. **Seed `{product}/features.json`.** From MVP scope in `business-plan.md`, create one entry per MVP
    feature using `<paths.engine>/templates/features.json.tmpl`. Each feature starts `status: failing`.
    Phase 7 flips only `status` and `evidence` as work lands.
@@ -62,7 +69,8 @@ Sprints cover MVP only — no scope creep. Dependencies must be ordered.
 
 - [ ] `{product}/roadmap.md` covers all MVP features from `business-plan.md`
 - [ ] No non-MVP feature appears in any sprint file
-- [ ] Each sprint file has Goal, Tasks, Acceptance criteria, and Definition of Done
+- [ ] Each sprint file has `## Goal`, `## Acceptance criteria`, `## Definition of Done (DoD)`, and
+      `## Tasks` (template table, not a checkbox list)
 - [ ] Each DoD references at least one rule file by name from the combined rule set
 - [ ] Sprint dependencies are ordered (Sprint N does not depend on Sprint N+1)
 - [ ] Sprint 01 is independently runnable (no external sprint dependencies)

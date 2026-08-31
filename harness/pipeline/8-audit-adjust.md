@@ -81,9 +81,10 @@ amendment, re-audit affected checks. Drift is never left silent.
 ### 5. Freeze the audit
 
 Write `{runs}/audits/audit-NN.md` (NN = sprint id) from
-`<paths.engine>/templates/audit-record.md`: gate-parseable tally, **Artifacts** table (every
-claimed path exists on disk — see `phase-result.md`), per-rule table with evidence, scope
-reconciliation, **§ Hygiene** (sweep path or `sweep: skipped — reason`), drift resolutions,
+`<paths.engine>/templates/audit-record.md`: keep those headings (`## Verdict tally`, `## Artifacts`,
+`## Per-rule results`, `## Scope reconciliation`, `## Hygiene`, `## Amendments`). Gate-parseable tally,
+**Artifacts** table (every claimed path exists on disk — see `phase-result.md`), per-rule table with
+evidence, scope reconciliation, hygiene (sweep path or `sweep: skipped — reason`), drift resolutions,
 overall verdict. A `verdict=pass` with an empty Artifacts table or a missing path is a fail.
 Tally shape (also in `audit-checklists.md`):
 

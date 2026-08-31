@@ -24,6 +24,12 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
   headings match `templates/business-plan.md`; sign-off is `AskQuestion` + `## Human sign-off`
   (no invented `human_approved` state key). Sandbox oracles `market-research.json` and
   `business-plan.json` grade those headings + `gate-02.md` / `gate-03.md`.
+- **Phases 4–6 playbook vs template** — `architecture.md` uses `## Architecture diagram` and
+  `## Stack decisions` (not `## System diagram` / `## Stack`). Sprint files use
+  `## Definition of Done (DoD)` and the Tasks **table** from `templates/sprint.md` (not a checkbox
+  list or a `Scope / non-scope` heading). Phase 5 design artifacts keep template headings.
+  `audit-record.md` gains `## Hygiene`. Sandbox oracles `choose-architecture.json`,
+  `define-conventions.json`, and `plan-sprints.json` grade those headings + `gate-04.md`…`gate-06.md`.
 
 ## [3.0.1] — 2026-08-30
 
