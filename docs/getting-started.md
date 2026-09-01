@@ -78,26 +78,48 @@ After installing, open the project in **Claude Code**, **Cursor**, or your chose
 /midas-init
 ```
 
-This adaptive intake **scans what the project already has** (code, manifests, README, docs),
-classifies its maturity (E0 empty → E3 mature), pre-fills what it can infer, asks only the genuine
-gaps in one batched round, and writes the state file (`.harness/state.yaml`) plus the selected host adapters (`.claude/CLAUDE.md`,
-.cursor/rules/, GEMINI.md, etc.) — placing you at the right phase.
+Adaptive intake scans what the project already has (code, manifests, README), classifies maturity
+(E0 empty → E3 mature), asks the genuine gaps once, and writes `.harness/state.yaml` plus host
+adapters. Track Ask: **full** is the overlay default. For a prototype, hackathon, or small MVP,
+choose `track: lite`. Skip lite for regulated domains, multi-team products, or brownfield E3 —
+use full track or `/midas-adopt` (`harness/pipeline/lite.md`).
+
+On lite, init writes idea + thin architecture + lean rules + a thin `business-plan.md` stub
+(`market.md` is optional). Phase 8 still runs; it does not require `market.md`. To graduate later:
+set `track: full` and run `/market-research`.
 
 ```text
 /midas-status
 ```
 
-Reads `paths.state` and prints the current phase and the single next action. Run this
-anytime to orient or resume after a break.
+Reads `paths.state` and prints the current phase and the **single** next command. Run this anytime
+to orient or resume. On lite after stubs, Next is `/plan-sprints` — never `/idea-intake` or
+`/market-research`.
 
-**After editing rules, skills, or conventions**, re-sync tool adapters:
+When status names sprint work:
+
+```text
+/plan-sprints → /start-sprint → /close-sprint
+```
+
+Tribunal, hygiene, and UI verify are not first-run commands — use them when status or the sprint
+DoD calls for them.
+
+For an existing codebase, `/midas-init` classifies E2/E3 and runs `/midas-adopt` for you. Prefer
+`/midas-adopt --preflight` first. See [skills.md](skills.md).
+
+---
+
+## If you edit rules or the harness
+
+After editing **product** rules, conventions, or design tokens, re-sync adapters:
 
 ```text
 /midas-doctor
 ```
 
-**After substantive harness or installer edits** (VERSION bump, new skills, bundle sources), run the
-full propagation pass so generated trees, version pins, and docs stay aligned:
+After substantive **engine** or installer edits (VERSION bump, new skills, bundle sources), run
+the full propagation pass:
 
 ```text
 /midas-align
@@ -111,9 +133,10 @@ run `node .harness/scripts/trace-inspect.mjs list` then `… <run-id>` (ADR-011)
 
 ---
 
-## The lifecycle
+## Full track (9 phases)
 
-Drive phases in order — each command runs when its predecessor's exit gate passes:
+Reference — drive these in order when `track: full` (the init default). Each command runs when its
+predecessor's exit gate passes:
 
 ```text
 /idea-intake          Phase 0 — capture the raw idea
@@ -137,10 +160,6 @@ Do not confuse the slash `/midas-auto-pilot` with the CLI `midas-autopilot.mjs` 
 Old slash names (`/midas-auto-sprints`, `/midas-autopilot`, `/midas-improve-loop`) were removed in 3.0.
 See [skills.md](skills.md) § Autonomy commands (anti-typo table).
 
-For an existing codebase, `/midas-init` classifies it as **E2/E3** and runs `/midas-adopt` for you
-(no need to call it manually). Run `/midas-adopt --preflight` first for a read-only fit report.
-See the [Skills Reference](skills.md) for every command.
-
 ### Brownfield step-by-step
 
 1. Install Midas into the repo root (not a subfolder).
@@ -154,8 +173,8 @@ adopt feels heavy; record deferred packs as assumptions in `paths.state`.
 
 ### Lite track
 
-For hackathons/prototypes, choose `track: lite` during `/midas-init` — see `harness/pipeline/lite.md`.
-`/midas-status` then prints `Track: lite` and never recommends `/market-research` as Next.
+Covered in [First steps](#first-steps). Spec: `harness/pipeline/lite.md`. `/midas-status` prints
+`Track: lite` and never recommends `/market-research` as Next.
 
 ---
 

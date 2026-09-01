@@ -1,6 +1,6 @@
 // copy-tree.mjs — template → target copy + manifest-driven vendor reconciliation for install/update.
 
-import { existsSync, mkdirSync, copyFileSync, rmSync, rmdirSync } from 'node:fs';
+import { existsSync, mkdirSync, copyFileSync, rmSync, rmdirSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { decideTemplateCopyAction } from '../core/preserve-policy.mjs';
 import { walkTemplate } from '../core/walk-template.mjs';
@@ -108,7 +108,7 @@ export function preserveVendorConflicts(ctx, plan) {
 }
 
 /** Remove empty directories under the vendor roots, leaving the roots themselves in place. */
-function pruneEmptyVendorDirs(ctx, roots = RECONCILE_ROOTS) {
+export function pruneEmptyVendorDirs(ctx, roots = RECONCILE_ROOTS) {
   const visit = (rel) => {
     const abs = join(ctx.target, rel);
     if (!existsSync(abs)) return true;
@@ -140,8 +140,34 @@ function pruneEmptyVendorDirs(ctx, roots = RECONCILE_ROOTS) {
 }
 
 /**
+ * Drop engine skill dirs that no longer ship a SKILL.md (e.g. deprecated aliases removed in 3.0).
+ * Runs after file-level reconcile so empty parents left by dropped vendor files are caught too.
+ */
+export function pruneOrphanEngineSkillDirs(ctx) {
+  const skillsRel = '.harness/engine/skills';
+  const abs = join(ctx.target, skillsRel);
+  if (!existsSync(abs)) return [];
+  const removed = [];
+  for (const entry of readdirSync(abs, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const skillMd = join(abs, entry.name, 'SKILL.md');
+    if (existsSync(skillMd)) continue;
+    const rel = `${skillsRel}/${entry.name}`;
+    try {
+      rmSync(join(abs, entry.name), { recursive: true, force: true });
+      removed.push(rel);
+      ctx.written.push(`removed:${rel}`);
+    } catch {
+      // leave broken dirs for doctor to report
+    }
+  }
+  return removed;
+}
+
+/**
  * Delete vendor files the bundle dropped (already copied aside when they had local edits).
  * Untracked files inside a vendor root are left in place — they were never in a manifest.
+ * On update/migrate also prunes empty vendor dirs and orphan engine skill directories.
  */
 export function applyVendorRemovals(ctx, plan) {
   const removals = reconcileRemovals(plan);
@@ -149,6 +175,11 @@ export function applyVendorRemovals(ctx, plan) {
     rmSync(join(ctx.target, rel), { force: true });
     ctx.written.push(`removed:${rel}`);
   }
-  if (removals.length) pruneEmptyVendorDirs(ctx);
+  if (ctx.update || ctx.migrate) {
+    pruneEmptyVendorDirs(ctx);
+    pruneOrphanEngineSkillDirs(ctx);
+  } else if (removals.length) {
+    pruneEmptyVendorDirs(ctx);
+  }
   return removals;
 }

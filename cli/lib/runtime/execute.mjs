@@ -257,6 +257,8 @@ async function executeInstallerCommand(cmd, hooks) {
     let migrationOuterRollback = null;
     let runId = null;
     let lockHeld = false;
+    let priorActiveRun = null;
+    let verifyOnlyResume = false;
 
     if (!cmd.dryRun) {
       const lock = acquireInstallLock(TARGET);
@@ -274,6 +276,7 @@ async function executeInstallerCommand(cmd, hooks) {
       lockHeld = true;
 
       const prior = readActiveRun(TARGET);
+      priorActiveRun = prior;
       if (cmd.resume) {
         if (!prior) {
           releaseInstallLock(TARGET);
@@ -286,9 +289,10 @@ async function executeInstallerCommand(cmd, hooks) {
           };
         }
         runId = prior.run_id;
+        verifyOnlyResume = prior.step === 'verify';
         writeActiveRun(TARGET, {
           ...prior,
-          step: 'resume',
+          step: verifyOnlyResume ? 'verify' : 'resume',
           pid: process.pid,
         });
         appendJournal(TARGET, runId, { op: 'resume', command: cmd.command });
@@ -312,6 +316,54 @@ async function executeInstallerCommand(cmd, hooks) {
           step: 'apply',
         });
         appendJournal(TARGET, runId, { op: 'start', command: cmd.command });
+      }
+    }
+
+    // NEEDS_REPAIR path: apply already finished; re-run doctor only (no rollback / re-apply).
+    if (!cmd.dryRun && verifyOnlyResume && runId) {
+      try {
+        const paths = await loadPaths(TARGET);
+        verifyResult = verifyInstall(paths);
+        const ok = !(verifyResult && !verifyResult.ok);
+        if (ok) {
+          appendJournal(TARGET, runId, { op: 'complete' });
+          clearActiveRun(TARGET);
+        } else {
+          writeActiveRun(TARGET, {
+            run_id: runId,
+            started_at: priorActiveRun?.started_at || new Date().toISOString(),
+            command: priorActiveRun?.command || cmd.command,
+            step: 'verify',
+          });
+          appendJournal(TARGET, runId, {
+            op: 'needs_repair',
+            detail: verifyResult?.missing
+              ? 'doctor script missing'
+              : 'verify failed (doctor --strict)',
+          });
+        }
+        if (!ok && !jsonOut) {
+          const detail = verifyResult?.out?.trim() || 'doctor verification failed';
+          console.error(
+            'create-midas: verify still needs repair.\n' +
+              `  Fix the doctor findings below, then: ${formatUpdateCmd({ flags: '--resume --yes' })}\n` +
+              `  Or undo this run: ${formatUpdateCmd({ flags: '--rollback --yes' })}\n` +
+              detail,
+          );
+        }
+        return {
+          ok,
+          exitCode: ok ? INSTALL_OUTCOMES.COMPLETED : INSTALL_OUTCOMES.NEEDS_REPAIR,
+          outcome: ok ? 'COMPLETED' : 'NEEDS_REPAIR',
+          verify: verifyResult ? { ok: !!verifyResult.ok } : null,
+          written: [...written],
+          skipped: [...skipped],
+          message: ok
+            ? 'verify complete — installer run finished'
+            : 'create-midas: NEEDS_REPAIR — verify failed; use --resume or --rollback',
+        };
+      } finally {
+        if (lockHeld) releaseInstallLock(TARGET);
       }
     }
 

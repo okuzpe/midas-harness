@@ -279,9 +279,10 @@ path is complete when it prints `verify: ok — adapters in sync`. Use `/midas-i
 diagnose + an interactive tip before the same refresh.
 
 On a harness-layout install, **`update`** refreshes manifest-owned engine/generated files, re-renders adapters
-and skill mirrors, prunes orphan host trees, and runs doctor **`--strict --profile=install-verify`** before it
-finishes (layout/version/routing/manifest/mirrors/adapters/secrets — not full MCP governance /
-`rules:combined`). It preserves product, rules, runs, state, MCP, and content outside generated markers. Pass
+and skill mirrors, prunes orphan host trees and empty dropped skill dirs, and runs doctor
+**`--strict --profile=install-verify`** before it finishes (layout/version/routing/manifest/mirrors/adapters/secrets
+— not full MCP governance, `rules:combined`, or product sprint lifecycle such as `gate:close-ready` /
+`gate:diff-receipts`). It preserves product, rules, runs, state, MCP, and content outside generated markers. Pass
 **`--tools=…`** to change the host set and prune unused adapters. Full doctor remains
 `node .harness/scripts/doctor.mjs --strict` / `/midas-doctor`.
 

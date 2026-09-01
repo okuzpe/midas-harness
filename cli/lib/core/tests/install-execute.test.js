@@ -98,4 +98,24 @@ describe('install execute outcomes', () => {
       rmSync(root, { recursive: true, force: true });
     }
   });
+
+  it('verify-only --resume completes without re-applying the update', () => {
+    const root = makeProject('resume-verify');
+    const runId = 'run-resume-verify';
+    try {
+      installCursor(root);
+      writeActiveRun(root, {
+        run_id: runId,
+        started_at: '2026-08-09T12:00:00.000Z',
+        command: 'update',
+        step: 'verify',
+      });
+      appendJournal(root, runId, { op: 'needs_repair', detail: 'verify failed (doctor --strict)' });
+      const { status, envelope } = runInstallerJson(['update', '--offline', '--resume', '--yes', root]);
+      assert.equal(status, 0, envelope?.message || JSON.stringify(envelope));
+      assert.equal(envelope?.outcome, 'COMPLETED');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
 });

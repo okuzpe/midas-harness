@@ -442,9 +442,34 @@ export async function run() {
     /Host `\/loop` capability/.test(autoBody) && /Claude Code/.test(autoBody),
   );
   const muninn = readFileSync(join(ROOT, 'docs', 'muninn-comparison.md'), 'utf8');
+  const muninnInventory = (() => {
+    const start = muninn.indexOf('## 3. Inventario');
+    const rest = start >= 0 ? muninn.slice(start) : muninn;
+    const next = rest.search(/\n## [^3]/);
+    return next >= 0 ? rest.slice(0, next) : rest;
+  })();
+  const muninnRows = collectSkillRegistryRows(ROOT);
+  const nMuninnPrimary = muninnRows.filter((r) => r.surface === 'primary').length;
+  const nMuninnInternal = muninnRows.filter((r) => r.surface === 'internal').length;
+  const nMuninnDeprecated = muninnRows.filter((r) => r.surface === 'deprecated').length;
+  const nEngineOnly = muninnRows.filter((r) => r.surface === 'engine-only').length;
   check(
     'docs:muninn-inventory-current',
-    /39 skills/.test(muninn) && /24 reglas/.test(muninn) && !/38 skills/.test(muninn) && !/33 skills/.test(muninn) && !/Cero hooks/.test(muninn),
+    muninnInventory.includes(`**${nMuninnPrimary} primary**`)
+      && muninnInventory.includes(`**${nMuninnInternal} internal**`)
+      && muninnInventory.includes(`**${nMuninnDeprecated} deprecated**`)
+      && muninnInventory.includes(`**${nEngineOnly} engine-only**`)
+      && /24 reglas/.test(muninnInventory)
+      && !/39 skills/.test(muninnInventory)
+      && !/4 deprecated/.test(muninnInventory)
+      && !/Cero hooks/.test(muninn),
+    `registry primary=${nMuninnPrimary} internal=${nMuninnInternal} deprecated=${nMuninnDeprecated} engine-only=${nEngineOnly}`,
+  );
+  const faqText = readFileSync(join(ROOT, 'docs', 'faq.md'), 'utf8');
+  const faqLayout = faqText.match(/\*\*Q: Where does Midas live[\s\S]*?(?=\n---\n\n\*\*Q:)/);
+  check(
+    'docs:faq-no-3x-apply',
+    !!faqLayout && !/--apply/.test(faqLayout[0]) && /unsupported/i.test(faqLayout[0]),
   );
   const gstackDoc = readFileSync(join(ROOT, 'docs', 'gstack-comparison.md'), 'utf8');
   check(

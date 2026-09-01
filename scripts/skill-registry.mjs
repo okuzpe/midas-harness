@@ -50,7 +50,6 @@ export const ORCHESTRATOR_ONLY_ALLOWLIST = new Set([
   // Install / sync / engine lifecycle
   'midas-init',
   'midas-adopt',
-  'midas-update',
   'midas-hygiene',
   'midas-doctor',
   'midas-align',

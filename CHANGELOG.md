@@ -9,6 +9,12 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ## [Unreleased]
 
+### Changed
+
+- **First-run docs** — `docs/getting-started.md` leads with `/midas-init` then `/midas-status`.
+  Full remains the init default; lite is the recommended track for a small MVP (with When-not and
+  a graduate-to-full line). `/midas-doctor` / `/midas-align` sit under "If you edit rules or the harness".
+
 ### Added
 
 - **Sandbox feedback loop** — `sandbox/README.md` names touch → detect → classify → re-smoke.
@@ -18,6 +24,14 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ### Fixed
 
+- **Installer `update` verify** — `install-verify` no longer fails because a product sprint is
+  open (`gate:close-ready`, `gate:diff-receipts`, records). Empty leftover skill dirs (dropped 3.0
+  aliases without `SKILL.md`) are pruned and ignored by `skills:frontmatter`. `--resume` after
+  `NEEDS_REPAIR` re-runs doctor only; it does not roll the tree back.
+- **FAQ 1.x migrate** — the layout answer matches 3.x refuse (pin `create-midas@2.10.x`, then
+  `update`). It no longer tells readers to preview migrate with `--apply`.
+- **Muninn inventory** — skill counts match the registry (28 primary / 5 internal / 0 deprecated /
+  2 engine-only). §7.1 is stamped shipped (Cursor safety hooks, ADR-012), not "adopt now".
 - **CI setup caches** — the test job no longer sets `cache: npm` (no root lockfile) and the docs
   job no longer sets `cache: pip` (no `requirements.txt`). `safety:unit-suite` reports the failing
   test (and spawn `ENOBUFS`) instead of the first 500 characters of spec output.

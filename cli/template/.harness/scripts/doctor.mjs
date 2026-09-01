@@ -43,14 +43,16 @@ Usage:
   node scripts/doctor.mjs --fix     re-render adapters from source
   node scripts/doctor.mjs --strict  exit 1 on deterministic install, registry, routing, or gate drift
   node scripts/doctor.mjs --strict --profile=install-verify
-      reduced blocking set for create-midas verify (omits rules:combined + mcp governance/sync)
+      reduced blocking set for create-midas verify (kit integrity only; omits rules:combined,
+      mcp governance/sync, and product sprint lifecycle such as close-ready / diff-receipts)
   node scripts/doctor.mjs --gates-only  skip adapter drift check
   node scripts/doctor.mjs --help    show this help
 
 Profiles (with --strict):
   full             default for humans / midas-doctor — all deterministic warns block
   install-verify   installer post-apply — layout/version/routing/manifest/mirrors/adapters/secrets;
-                   rules:combined and mcp:governance|cursor-sync|template-sync|declared-vs-wired stay warn-only
+                   rules:combined, mcp governance/sync, and product sprint gates (close-ready,
+                   diff-receipts, records, phase-artifacts) stay warn-only
   update-preflight before an update writes — only what makes the update itself unsafe
                    (layout/manifest integrity and unresolved vendor conflicts); everything the
                    update is about to fix stays warn-only`;

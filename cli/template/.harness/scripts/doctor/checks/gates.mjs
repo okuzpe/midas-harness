@@ -29,10 +29,11 @@ if (!existsSync(skillsDir)) {
 } else {
   let bad = 0, total = 0;
   for (const d of readdirSync(skillsDir, { withFileTypes: true }).filter((e) => e.isDirectory())) {
-    total++;
     const skillPath = join(skillsDir, d.name, 'SKILL.md');
-    const s = existsSync(skillPath) ? readFileSync(skillPath, 'utf8') : null;
-    if (!s || !/^---\r?\n[\s\S]*?\bname:\s*\S/m.test(s)) bad++;
+    if (!existsSync(skillPath)) continue;
+    total++;
+    const s = readFileSync(skillPath, 'utf8');
+    if (!/^---\r?\n[\s\S]*?\bname:\s*\S/m.test(s)) bad++;
   }
   check('skills:frontmatter', bad ? 'warn' : 'ok', `${total - bad}/${total} valid`);
 }

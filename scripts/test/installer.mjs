@@ -531,6 +531,25 @@ check(
     /install-verify/.test(installerRuntime),
   'doctor + installer must share install-verify profile',
 );
+{
+  const { isStrictBlockingName } = await import(
+    pathToFileURL(join(ROOT, 'scripts', 'doctor', 'profiles.mjs')).href
+  );
+  const iv = { profile: 'install-verify' };
+  check(
+    'doctor:install-verify-ignores-product-sprint-lifecycle',
+    isStrictBlockingName('skills:frontmatter', iv) &&
+      isStrictBlockingName('gate:safety-hooks', iv) &&
+      isStrictBlockingName('version', iv) &&
+      !isStrictBlockingName('gate:close-ready', iv) &&
+      !isStrictBlockingName('gate:diff-receipts', iv) &&
+      !isStrictBlockingName('gate:records', iv) &&
+      !isStrictBlockingName('gate:sprint-continuity', iv) &&
+      !isStrictBlockingName('gate:audit-s66', iv) &&
+      isStrictBlockingName('gate:close-ready', { profile: 'full' }),
+    'install-verify must not fail a kit refresh because a sprint is open',
+  );
+}
 check(
   'doctor:context-cost-hook-check',
   /gate:context-cost-hook/.test(readFileSync(join(ROOT, 'scripts', 'doctor', 'checks', 'mcp.mjs'), 'utf8')),
@@ -900,6 +919,7 @@ if (!TEST_FAST) {
     };
     injectVendor('.harness/engine/dropped.md', 'was in the last install\n');
     injectVendor('.harness/engine/dropped-edited.md', 'original dropped bytes\n');
+    injectVendor('.harness/engine/dropped-only/legacy.md', 'only file in a dropped dir\n');
     writeFileSync(join(pruneRoot, '.harness', 'engine', 'dropped-edited.md'), 'original dropped bytes\nI edited this\n', 'utf8');
     writeFileSync(join(pruneRoot, '.harness', 'engine', 'stray.md'), 'untracked note\n', 'utf8');
 
@@ -937,8 +957,90 @@ if (!TEST_FAST) {
         readFileSync(join(pruneRoot, '.harness', 'engine', 'stray.md'), 'utf8') === 'untracked note\n',
       updateResult.stderr || updateResult.stdout,
     );
+    check(
+      'installer:update-prunes-empty-vendor-dir',
+      updateResult.status === 0 && !existsSync(join(pruneRoot, '.harness', 'engine', 'dropped-only')),
+      updateResult.stderr || updateResult.stdout,
+    );
   } finally {
     rmSync(pruneRoot, { recursive: true, force: true });
+  }
+}
+{
+  const deprecatedSkillRoot = mkdtempSync(join(tmpdir(), 'midas-harness-update-deprecated-skill-'));
+  try {
+    const install = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), '--tools=cursor', deprecatedSkillRoot], {
+      cwd: ROOT,
+      encoding: 'utf8',
+    });
+    check('installer:update-deprecated-skill-fixture', install.status === 0, install.stderr || install.stdout);
+    const manifestPath = join(deprecatedSkillRoot, '.harness', 'manifest.json');
+    const legacySkillRel = '.harness/engine/skills/midas-update/SKILL.md';
+    const legacySkillAbs = join(deprecatedSkillRoot, legacySkillRel);
+    mkdirSync(dirname(legacySkillAbs), { recursive: true });
+    writeFileSync(
+      legacySkillAbs,
+      '---\nname: midas-update\ndescription: legacy alias\nuser-surface: deprecated\n---\n',
+      'utf8',
+    );
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+    manifest.files = (manifest.files || []).filter((f) => f.path !== legacySkillRel);
+    manifest.files.push({
+      path: legacySkillRel,
+      role: 'vendor',
+      sha256: sha256File(legacySkillAbs),
+      size: statSync(legacySkillAbs).size,
+    });
+    writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+    const updateResult = spawnSync(
+      process.execPath,
+      [join(ROOT, 'cli', 'index.mjs'), 'update', '--yes', '--offline', deprecatedSkillRoot],
+      { cwd: ROOT, encoding: 'utf8' },
+    );
+    check(
+      'installer:update-prunes-deprecated-skill-dir',
+      updateResult.status === 0 &&
+        !existsSync(join(deprecatedSkillRoot, '.harness', 'engine', 'skills', 'midas-update')),
+      updateResult.stderr || updateResult.stdout,
+    );
+  } finally {
+    rmSync(deprecatedSkillRoot, { recursive: true, force: true });
+  }
+}
+{
+  const bodegaShape = mkdtempSync(join(tmpdir(), 'midas-harness-update-verify-lifecycle-'));
+  try {
+    const install = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), '--tools=cursor', bodegaShape], {
+      cwd: ROOT,
+      encoding: 'utf8',
+    });
+    check('installer:update-verify-lifecycle-fixture', install.status === 0, install.stderr || install.stdout);
+    for (const name of ['midas-update', 'midas-autopilot', 'midas-improve-loop', 'midas-auto-sprints']) {
+      mkdirSync(join(bodegaShape, '.harness', 'engine', 'skills', name), { recursive: true });
+    }
+    const statePath = join(bodegaShape, '.harness', 'state.yaml');
+    const state = readFileSync(statePath, 'utf8');
+    writeFileSync(
+      statePath,
+      `${state}\nsprints:\n  - id: s66-audit-remediation\n    status: active\n`,
+      'utf8',
+    );
+    const updateResult = spawnSync(
+      process.execPath,
+      [join(ROOT, 'cli', 'index.mjs'), 'update', '--yes', '--offline', bodegaShape],
+      { cwd: ROOT, encoding: 'utf8' },
+    );
+    const out = `${updateResult.stdout}${updateResult.stderr}`;
+    check(
+      'installer:update-verify-passes-with-open-sprint-and-empty-skill-dirs',
+      updateResult.status === 0 &&
+        /verify: ok/.test(out) &&
+        !existsSync(join(bodegaShape, '.harness', 'engine', 'skills', 'midas-update')) &&
+        /status: active/.test(readFileSync(statePath, 'utf8')),
+      out.slice(0, 2000),
+    );
+  } finally {
+    rmSync(bodegaShape, { recursive: true, force: true });
   }
 }
 {

@@ -423,9 +423,10 @@ Referencia rápida para la comparación (detalle completo en
 
 - **9 fases auditadas** (`harness/pipeline/0-idea-intake.md` … `8-audit-adjust.md`), máquina de
   estados en `harness/state.yaml` (`phases.*.status/gate`, `stage`, `stage_status`).
-- **39 skills** en `harness/skills/*/SKILL.md` — **30 primary** + **5 internal** + **4 deprecated**
-  (counts from `harness/skill-registry.md`). Installs omit internal/deprecated host mirrors (ADR-013).
-  **2 engine-only** among primary: `/midas-precommit`, `/midas-sandbox`.
+- **35 skills** en `harness/skills/*/SKILL.md` — **28 primary** + **5 internal** + **0 deprecated**
+  + **2 engine-only** (counts from `harness/skill-registry.md`). Installs omit internal/deprecated
+  host mirrors (ADR-013). Engine-only (omitted from product installs): `/midas-precommit`,
+  `/midas-sandbox`.
 - **3 agentes-tier**: `midas-orchestrator` (Opus), `midas-builder` (Sonnet), `midas-scout` (Haiku) — `harness/agents/*.md`.
 - **24 reglas *always-on*** en `harness/rules/*.md`, cada ítem con contrato `**CHECK:**` (`kind:
   command|manual`, `severity`), digest generado a `harness/checks.json` e inyectado en los adapters.
@@ -492,7 +493,10 @@ su `/audit` critica el código y el chat de la sesión actual, no decisiones de 
 
 ### 5.1 Seguridad mecánica vs. seguridad declarativa
 
-**El hallazgo más accionable de todo este análisis.** Midas depende enteramente de que el modelo
+**Nota 2026-09-01:** Cursor safety hooks shipped — see §7.1. This subsection is the 2026-07 gap
+analysis (declarative CHECKs vs muninn's fail-closed bash hooks).
+
+**El hallazgo más accionable de todo este análisis (julio 2026).** Midas depende enteramente de que el modelo
 *decida* seguir `harness/rules/git-commits.md` ("commit/push only when the human asks") y
 `harness/rules/security.md`. muninn implementa las invariantes más peligrosas como **hooks bash
 deterministas** que interceptan la llamada a la herramienta **antes** de que se ejecute:
@@ -504,11 +508,10 @@ deterministas** que interceptan la llamada a la herramienta **antes** de que se 
 | No fugar secretos en un prompt | `security.md` (grep post-hoc en CI/PR) | `redact-secrets-prompt.sh` — bloquea **antes** de que el prompt llegue al modelo |
 | No versionar la carpeta de memoria/datos local | N/A (Midas versiona `.harness/` intencionalmente) | `protect-ai-flow.sh` |
 
-Esto **no es solo una curiosidad de Cursor**: Claude Code, Windsurf y varios de los 6 hosts que Midas
-soporta también exponen mecanismos de hooks/eventos nativos (`PreToolUse`/`PostToolUse` en Claude
-Code, hooks de Cursor, *guards* de Windsurf). Hoy Midas **no usa ninguno de ellos** — todas las
-invariantes de seguridad viven exclusivamente como texto en `harness/rules/security.md` y
-`git-commits.md`.
+Esto **no es solo una curiosidad de Cursor**. Claude Code, Windsurf y varios hosts que Midas
+soporta también exponen hooks/eventos nativos. En julio 2026 Midas **no usaba ninguno**; desde
+entonces Cursor installs pueden recibir safety hooks (§7.1). CHECKs en markdown siguen siendo la
+ley de auditoría.
 
 ### 5.2 Memoria con scoring vs. memoria de rutas fijas
 
@@ -549,7 +552,7 @@ portabilidad multi-tool, sin store oculto). **Esfuerzo** = bajo / medio / alto.
 
 | Capacidad muninn | Midas hoy | Encaje | Valor | Esfuerzo | Recomendación |
 |---|---|---|---|---|---|
-| Hooks de seguridad mecánica (commits, destructivo, secretos) | Reglas `**CHECK:**` post-hoc | Alto (si se implementa como *plantilla opcional por host*, no como motor nuevo) | **Muy alto** | Medio | **Adoptar** — ver §7.1 |
+| Hooks de seguridad mecánica (commits, destructivo, secretos) | Cursor safety hooks (ADR-012) + reglas `**CHECK:**` | Alto | **Muy alto** | Medio | **Hecho** — ver §7.1 |
 | Recall con scoring + decaimiento + BM25 | Rutas fijas por fase | Medio (cuidado con ADR-003: sin store oculto) | Alto a partir de proyectos grandes | Medio-alto | **Evaluar** — ver §7.2 |
 | Reglas de reparación determinista de `state.yaml` | `gate:records` + `gate:phase-*` + `gate:sprint-continuity` en `scripts/doctor.mjs` + `state-integrity.md` | Alto | Alto (robustez) | Bajo-medio | **Hecho** — ver §7.3 |
 | Carryover táctico por sub-fase (reduce relectura) | Playbooks ≤98 líneas; skills largas recortadas en pase 2026-07-29 | Alto | Bajo hoy | Bajo | **Monitorizar** — ver §7.4 |
@@ -579,28 +582,20 @@ portabilidad multi-tool, sin store oculto). **Esfuerzo** = bajo / medio / alto.
 > Actualizado 2026-07-29: §7.3 / help / explore **hechos**; §7.4 **monitorizar**; §7.8 **ya cubierto**.
 > El resto sigue como propuesta.
 
-### 7.1 Adoptar ya — hooks de seguridad mecánica como *plantilla opcional por host* (prioridad máxima)
+### 7.1 Hecho — hooks de seguridad mecánica (Cursor, ADR-012)
 
-**Qué**: una nueva capa `harness/hooks/` (fuente única, análoga a `harness/rules/`) con 3–4 guardas
-deterministas mínimas, portadas a **la primitiva nativa de cada host que la soporte**:
+**Estado (2026-09-01):** shipped for Cursor. Product installs with `tools: [cursor]` may receive
+fail-closed safety hooks (`harness/rules/cursor-safety-hooks.md`, `cli/lib/steps/safety-hooks.mjs`,
+[ADR-012](adr/ADR-012-muninn-adaptations.md)). Markdown CHECKs remain the audit law. Trace observe
+stays fail-open ([ADR-010](adr/ADR-010-harness-trace-observe.md)) and is not enforcement.
 
-- `gate-commits` — pedir confirmación explícita ante `git commit`/`git push` (Claude Code:
-  `PreToolUse` hook; Cursor: `hooks.json`; Windsurf: su mecanismo de *guard* equivalente).
-- `block-destructive-bash` — bloquear `rm -rf` sobre raíz/home, force-push a rama por defecto, `git
-  reset --hard` con árbol sucio.
-- `redact-secrets-prompt` — bloquear patrones de credenciales obvios antes de que lleguen al modelo.
+**Cómo encaja:** the hooks complement `harness/rules/security.md` and `git-commits.md` — they do not
+replace them. Hosts without a hook primitive still have written CHECKs only (documented gap, not
+pretend parity). The 2026-07 design note below is historical (a `harness/hooks/` source tree was not
+the shape that shipped).
 
-**Cómo encajaría en la taxonomía de Midas**: no reemplaza `harness/rules/security.md` ni
-`git-commits.md` — los **complementa** como una segunda línea de defensa mecánica. Se generaría vía
-`scripts/render-adapters.mjs` igual que las reglas, con una tabla de mapeo evento→primitiva por host
-(algunos hosts no lo soportarán; ahí la regla escrita sigue siendo la única defensa, documentado
-explícitamente como *gap conocido* en vez de fingir paridad). Requiere una nueva sección en
-`docs/repository-architecture.md` y un ADR (`docs/adr/ADR-00N-mechanical-safety-hooks.md`) porque es
-una decisión de alcance del motor, no un cambio de regla.
-
-**Por qué es la prioridad #1**: es la brecha con mayor impacto de seguridad real y el mayor gap
-"filosófico" — Midas ya tiene la cultura de *fail-closed* y *never silently skip* en sus reglas; solo
-le falta el mecanismo que haga esas invariantes **imposibles de ignorar**, no solo documentadas.
+**Qué (diseño 2026-07, histórico):** plantilla opcional por host — `gate-commits`,
+`block-destructive-bash`, `redact-secrets-prompt` — mapped onto each host's native primitive.
 
 ### 7.2 Evaluar — recall con scoring básico (sin romper ADR-003)
 
@@ -761,8 +756,9 @@ flowchart TB
 `/midas-help`, `/midas-explore`, y el pase de concisión de skills. §7.4 queda en **monitorizar**; §7.8
 es rechazo duro 1.x en 3.0 (ya no hay suite `migrate-harness`).
 
-**Siguiente sprint del motor (si el equipo prioriza):** ADR + plantilla de hooks mecánicos opcionales
-por host (§7.1) — el gap de mayor impacto aún abierto. Después: filas "Evaluar" de §7 (recall con
+**Ya shippeado (2026-09-01):** §7.1 Cursor safety hooks (ADR-012) — no longer the open #1 gap.
+
+**Siguiente sprint del motor (si el equipo prioriza):** filas "Evaluar" de §7 (recall con
 scoring ligero, API-QA desde spec, segundo lente de auditoría) según necesidad de producto.
 
 ---

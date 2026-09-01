@@ -220,10 +220,10 @@ Producer does not grade the whole program as done until U1–U6 are green; U7 ma
 
 Global:
 
-- [ ] All finding IDs mapped in Appendix are Done or Deferred (U7 only allowed deferral; H4 close on GitHub deferred until user OK).
-- [ ] `npm run align` exits aligned.
-- [ ] No generated-only diffs.
-- [ ] CHANGELOG Unreleased lists user-visible Lite + catalog/precedence if those shipped.
+- [x] All finding IDs mapped in Appendix are Done (U7 shipped in 3.0.0; H4 GitHub issue #1 closed 2026-08-27). Closed by 2.10 Lite + catalog/UX and 3.0 layout refuse / test split.
+- [x] `npm run align` exits aligned (verified at land time; re-run after later engine edits).
+- [x] No generated-only diffs (align ritual).
+- [x] CHANGELOG recorded Lite + catalog/precedence (2.10.x archive; 3.0.0 test split).
 
 Per unit: the unit’s Tests bullets pass; files in the unit’s Files list are the ones changed (no drive-by).
 

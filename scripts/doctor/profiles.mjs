@@ -6,12 +6,26 @@ export const INSTALL_VERIFY_WARN_ONLY = new Set([
   'mcp:declared-vs-wired',
   'mcp:cursor-sync',
   'mcp:template-sync',
+  // Product lifecycle — an engine refresh must not fail because a sprint is open.
+  'gate:diff-receipts',
+  'gate:close-ready',
+  'gate:sprint-continuity',
+  'gate:records',
+  'gate:phase-artifacts',
 ]);
+
+/** Per-sprint doctor rows; same product-lifecycle bucket as the names above. */
+export const INSTALL_VERIFY_WARN_ONLY_PREFIXES = ['gate:audit-', 'audit:attestation-'];
 
 export const UPDATE_PREFLIGHT_BLOCKING = new Set([
   'layout:consistent',
   'update:conflicts',
 ]);
+
+export function isInstallVerifyWarnOnly(name) {
+  if (INSTALL_VERIFY_WARN_ONLY.has(name)) return true;
+  return INSTALL_VERIFY_WARN_ONLY_PREFIXES.some((prefix) => name.startsWith(prefix));
+}
 
 /**
  * @param {string} name
@@ -45,6 +59,6 @@ export function isStrictBlockingName(name, opts = {}) {
     name === 'mcp:cursor-sync' ||
     name === 'mcp:template-sync';
   if (!core) return false;
-  if (profile === 'install-verify' && INSTALL_VERIFY_WARN_ONLY.has(name)) return false;
+  if (profile === 'install-verify' && isInstallVerifyWarnOnly(name)) return false;
   return true;
 }

@@ -9,6 +9,14 @@ import { resolvePaths } from './paths.mjs';
 import { isHostMirrorExcluded } from './skill-registry.mjs';
 import { parseFrontmatter, splitSkillDocument } from './lib/frontmatter.mjs';
 
+/** Skills removed in 3.0 — host mirrors may still carry stale dirs from older installs. */
+export const REMOVED_SKILL_ALIASES = new Set([
+  'midas-update',
+  'midas-autopilot',
+  'midas-improve-loop',
+  'midas-auto-sprints',
+]);
+
 const ALLOWED_FRONTMATTER_KEYS = new Set(['name', 'description', 'license', 'compatibility', 'metadata', 'allowed-tools']);
 const MIDAS_META_PREFIX = 'midas-';
 
@@ -169,6 +177,12 @@ export function pruneObsoleteMidasSkillMirrors(
   for (const entry of readdirSync(targetRoot, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
     const name = entry.name;
+    if (REMOVED_SKILL_ALIASES.has(name)) {
+      const abs = join(targetRoot, name);
+      rmSync(abs, { recursive: true, force: true });
+      removed.push(join(targetDir, name).replace(/\\/g, '/'));
+      continue;
+    }
     const wasMidasBundled = bundledNames.has(name);
     const surfaceExcluded = isHostMirrorExcluded(name);
     const removedFromEngine = !engineNames.has(name);
