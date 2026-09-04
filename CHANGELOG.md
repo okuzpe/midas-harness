@@ -17,6 +17,8 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ### Added
 
+- **`midas update`** — install writes `.harness/bin/midas` and `~/.midas/bin` (Windows User PATH).
+  From the product repo that command always npx-fetches **latest main** (`--channel=edge --yes`).
 - **Sandbox feedback loop** — `sandbox/README.md` names touch → detect → classify → re-smoke.
   `start-sprint.json` grades kickoff (working plan, `status: active`, roadmap Status `| active |`);
   seed grade must fail. Precommit Step 0 defaults to `--smoke` (skip only when the fixture cannot
@@ -24,9 +26,9 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ### Fixed
 
-- **Installer `update` verify** — `install-verify` no longer fails because a product sprint is
-  open (`gate:close-ready`, `gate:diff-receipts`, records). Empty leftover skill dirs (dropped 3.0
-  aliases without `SKILL.md`) are pruned and ignored by `skills:frontmatter`. `--resume` after
+- **Installer `update` verify** — leftover `.harness/conflicts/` no longer refuse the next refresh
+  (`update --yes` discards the previous archive). Empty leftover skill dirs no longer fail
+  `skills:frontmatter`. `install-verify` treats product sprint gates as warn-only. `--resume` after
   `NEEDS_REPAIR` re-runs doctor only; it does not roll the tree back.
 - **FAQ 1.x migrate** — the layout answer matches 3.x refuse (pin `create-midas@2.10.x`, then
   `update`). It no longer tells readers to preview migrate with `--apply`.

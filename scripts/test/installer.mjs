@@ -464,6 +464,16 @@ check('installer:prune-orphan-adapters', /function pruneOrphanAdapters/.test(ins
 check('installer:ops-runner', /export async function runPlanOps/.test(installerRunner));
 check('installer:thin-shim', /createExecuteHandler/.test(installer) && /runInstaller\(parsedCmd/.test(installer));
 {
+  const { parseInstallerArgs } = await import(
+    pathToFileURL(join(ROOT, 'cli', 'lib', 'cli', 'args.mjs')).href
+  );
+  const parsedUpdate = parseInstallerArgs(['update']);
+  check(
+    'installer:update-defaults-yes',
+    parsedUpdate.command === 'update' && parsedUpdate.yes === true,
+  );
+}
+{
   const { runPlanOps } = await import(pathToFileURL(join(ROOT, 'cli', 'lib', 'core', 'runner.mjs')).href);
   const log = [];
   const plan = {
@@ -548,6 +558,12 @@ check(
       !isStrictBlockingName('gate:audit-s66', iv) &&
       isStrictBlockingName('gate:close-ready', { profile: 'full' }),
     'install-verify must not fail a kit refresh because a sprint is open',
+  );
+  check(
+    'doctor:update-preflight-conflicts-are-warn-only',
+    isStrictBlockingName('layout:consistent', { preflight: true }) &&
+      !isStrictBlockingName('update:conflicts', { preflight: true }),
+    'leftover .harness/conflicts must not refuse the next update',
   );
 }
 check(
@@ -722,7 +738,7 @@ if (!TEST_FAST) {
     if (!existsSync(vendor)) {
       check('installer:update-vendor-conflict-prewrite', false, 'missing conventions.md after fixture install');
       check('installer:update-conflicts-outside-cache', false, 'skipped — fixture install failed');
-      check('installer:update-preflight-blocks-on-conflicts', false, 'skipped — fixture install failed');
+      check('installer:update-preflight-does-not-block-on-conflicts', false, 'skipped — fixture install failed');
       check('installer:update-proceeds-once-conflicts-cleared', false, 'skipped — fixture install failed');
     } else {
     const pristine = readFileSync(vendor, 'utf8');
@@ -759,16 +775,17 @@ if (!TEST_FAST) {
       savedConflicts.every((abs) => !abs.replace(/\\/g, '/').includes('/.harness/cache/')),
       savedConflicts.join(', '),
     );
-    // A second update must refuse while the saved conflict is unreviewed, and say what to clear.
+    // A second update must still succeed: leftover conflict copies are warn-only and `--yes`
+    // discards the previous archive before apply.
     const blocked = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), 'update', '--yes', '--offline', updateRoot], {
       cwd: ROOT,
       encoding: 'utf8',
     });
     const blockedOut = `${blocked.stdout}${blocked.stderr}`;
     check(
-      'installer:update-preflight-blocks-on-conflicts',
-      blocked.status !== 0 && /update:conflicts/.test(blockedOut) && /\.harness\/conflicts/.test(blockedOut),
-      blockedOut,
+      'installer:update-preflight-does-not-block-on-conflicts',
+      blocked.status === 0 && !/update-preflight[\s\S]*update:conflicts/.test(blockedOut),
+      blockedOut.slice(0, 1500),
     );
     rmSync(conflictsRoot, { recursive: true, force: true });
     const cleared = spawnSync(process.execPath, [join(ROOT, 'cli', 'index.mjs'), 'update', '--yes', '--offline', updateRoot], {
@@ -806,6 +823,11 @@ if (!TEST_FAST) {
       'ownership:skill-registry-is-generated',
       roleForPath('.harness/engine/skill-registry.md') === 'generated',
       'skill-registry.md is re-derived per install and must not be inside the vendor content hash',
+    );
+    check(
+      'installer:writes-midas-shim',
+      existsSync(join(parityRoot, '.harness', 'bin', 'midas.cmd')) ||
+        existsSync(join(parityRoot, '.harness', 'bin', 'midas')),
     );
   } finally {
     rmSync(parityRoot, { recursive: true, force: true });

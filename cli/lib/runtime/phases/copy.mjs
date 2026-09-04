@@ -1,12 +1,17 @@
 // copy.mjs — install phase: copy template + vendor reconcile.
 
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, rmSync } from 'node:fs';
+import { join } from 'node:path';
+import { VENDOR_CONFLICTS_DIR } from '../copy-tree.mjs';
 
 /**
  * @param {object} bag createExecuteHandler mutable bag
  */
 export async function applyPhaseCopy(bag) {
   mkdirSync(bag.TARGET, { recursive: true });
+  if (bag.update && bag.yes) {
+    rmSync(join(bag.TARGET, VENDOR_CONFLICTS_DIR), { recursive: true, force: true });
+  }
   if (bag.update && !bag.migrate) await bag.runUpdatePreflight();
   bag.resetFreshVendorTreesLocal();
   const reconcilePlan = bag.update ? bag.planVendorReconcile() : null;

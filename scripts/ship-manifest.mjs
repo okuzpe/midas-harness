@@ -28,6 +28,7 @@ export const SHIPPED_SCRIPTS = Object.freeze([
   'yaml-lite.mjs',
   'mcp-drift.mjs',
   'doctor.mjs',
+  'midas.mjs',
   'doctor/profiles.mjs',
   'doctor/helpers.mjs',
   'doctor/registry.mjs',

@@ -53,9 +53,8 @@ Profiles (with --strict):
   install-verify   installer post-apply — layout/version/routing/manifest/mirrors/adapters/secrets;
                    rules:combined, mcp governance/sync, and product sprint gates (close-ready,
                    diff-receipts, records, phase-artifacts) stay warn-only
-  update-preflight before an update writes — only what makes the update itself unsafe
-                   (layout/manifest integrity and unresolved vendor conflicts); everything the
-                   update is about to fix stays warn-only`;
+  update-preflight before an update writes — only layout:consistent (broken tree);
+                   leftover .harness/conflicts/ warn but do not block`;
 
 const FIX = process.argv.includes('--fix');
 const STRICT = process.argv.includes('--strict');

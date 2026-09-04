@@ -232,27 +232,30 @@ Phase 8 (`/close-sprint`) grades `.harness/engine/rules/security.md`: `.gitignor
 
 ## Always refresh (one command)
 
-Run **inside the product repo**. Pins the latest release from GitHub, then refreshes a
-**v2/v3 `.harness/` install**. 1.x classic/compact/hub trees are **refused** (zero writes) —
-pin `create-midas@2.10.3`, migrate, then upgrade (see [Migrating an existing 1.x install](#migrating-an-existing-1x-install)).
+Run **inside the product repo**. After the first install, the short command is:
 
-**macOS / Linux**
-```bash
-curl -fsSL https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.sh | bash -s -- update --yes
+```text
+midas update
 ```
 
-**Windows (PowerShell)**
+That fetches **latest `main`** (`--channel=edge`), skips confirm, and ignores leftover
+`.harness/conflicts/` from a past refresh. First-time PATH: install writes `~/.midas/bin` (Windows
+User PATH is updated; open a **new** terminal). Until then:
+
 ```powershell
-$env:MIDAS_INSTALL_ARGS = 'update --yes'
-irm https://raw.githubusercontent.com/okuzpe/midas-harness/main/install.ps1 | iex
+.\.harness\bin\midas.cmd update
 ```
 
-**Any platform (npx):**
+1.x classic/compact/hub trees are **refused** (zero writes) — pin `create-midas@2.10.3`, migrate,
+then upgrade (see [Migrating an existing 1.x install](#migrating-an-existing-1x-install)).
+
+Pinned stable (optional):
+
 ```bash
-npx github:okuzpe/midas-harness#v3.0.1 update --yes
+npx -y github:okuzpe/midas-harness#v3.0.1 update --yes
 ```
 
-Preview: add `--dry-run`. `--migrate` is refused in 3.x (pin `create-midas@2.10.x` first).
+Preview: `midas update --dry-run`. `--migrate` is refused in 3.x (pin `create-midas@2.10.x` first).
 
 ## Which command should I run? (troubleshooting)
 
@@ -264,7 +267,7 @@ Preview: add `--dry-run`. `--migrate` is refused in 3.x (pin `create-midas@2.10.
 | Installed, `setup_complete: true` | — | `/midas-status` |
 | Existing codebase, brownfield | install + | `/midas-init` (may route to `/midas-adopt`) |
 | Existing 1.x classic/compact/hub | `npx create-midas@2.10.3 update --yes`, then 3.x `update` | `/midas-status` |
-| Engine refresh (already `.harness/`) | **Always refresh** command above (`update --yes`) | `/midas-status` when CLI prints `verify: ok` |
+| Engine refresh (already `.harness/`) | `midas update` | `/midas-status` when CLI prints `verify: ok` |
 | **Not sure** | `npx github:okuzpe/midas-harness --diagnose` | `/midas-reconcile` |
 
 `--diagnose` and `/midas-reconcile` are **read-only** — they never write files.
@@ -372,7 +375,7 @@ the last install laid down, what this bundle ships, and what is actually on disk
 
 | Situation | What `update` does | Structural guard |
 |---|---|---|
-| **Vendor conflict** — a `vendor` file on disk no longer matches its recorded SHA (you edited engine source outside an overlay) | **The bundle wins**: your version is copied to `.harness/conflicts/<timestamp>/…​.midas-conflict` first, the file is refreshed, and the update reports it. That path is intentionally outside the gitignored `.harness/cache/` so a later rollback cannot scrub it and git shows it. Move the change into `.harness/rules/` or a product overlay — vendor edits do not survive updates | `installer:update-vendor-conflict-prewrite` in `scripts/test.mjs` |
+| **Vendor conflict** — a `vendor` file on disk no longer matches its recorded SHA (you edited engine source outside an overlay) | **The bundle wins**: your version is copied to `.harness/conflicts/<timestamp>/…​.midas-conflict` first, the file is refreshed, and the update reports it. A later `update --yes` discards that archive and does **not** refuse. Move the change into `.harness/rules/` — vendor edits do not survive updates | `installer:update-vendor-conflict-prewrite`, `installer:update-preflight-does-not-block-on-conflicts` |
 | **Stale manifest** — hashes drifted but files still match the engine package | Refreshes normally; there is no silent re-baseline, so drift is always visible in the report | `installer:update-stale-manifest-refresh` |
 | **Dropped file or directory** — the bundle no longer ships something the last install wrote | **Deletes it** (and prunes empty directories). If you had edited the file, the local bytes are copied to `.harness/conflicts/` first. `--rollback` covers a failed run; after a successful update the saved edit is the conflict copy | `installer:update-prunes-dropped-vendor-file`, `installer:update-saves-edited-dropped-vendor-file` |
 | **Untracked file inside a vendor root** — on disk, in neither the old nor the new manifest | **Left in place** and listed in `--dry-run` as a note. Never owned by an install, so never deleted — and **not recorded** in the rewritten manifest, so a later update cannot treat it as dropped | `installer:update-leaves-untracked-vendor-file`, `installer:update-does-not-adopt-untracked-file`, `installer:update-second-leaves-untracked-vendor-file` |

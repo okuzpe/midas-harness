@@ -75,6 +75,7 @@ import {
   pruneOrphanAdapters as pruneOrphanAdaptersMod,
   pruneLegacyRootArtifacts as pruneLegacyRootArtifactsMod,
 } from './skill-mirrors.mjs';
+import { installMidasShims } from './user-shim.mjs';
 
 /**
  * @param {{
@@ -99,6 +100,7 @@ export function createExecuteHandler(env) {
   // (so --update promoted to migrate uses migrate rollback paths + migrate bind flags).
   let update = parsedCmd.command === 'update';
   let migrate = parsedCmd.command === 'migrate';
+  let yes = parsedCmd.yes;
   const force = parsedCmd.force;
   const dryRun = parsedCmd.dryRun;
   const purge = parsedCmd.purge;
@@ -131,6 +133,7 @@ export function createExecuteHandler(env) {
   function syncEffectiveFlags(cmd) {
     update = cmd.command === 'update';
     migrate = cmd.command === 'migrate';
+    yes = !!cmd.yes;
   }
 
   function copyCtx() {
@@ -535,6 +538,7 @@ async function executeInstallerCommand(cmd, hooks) {
       TEMPLATE,
       get update() { return update; },
       get migrate() { return migrate; },
+      get yes() { return yes; },
       installAutonomy,
       installRoutingProfile,
       DEFAULT_TOOLS,
@@ -1050,6 +1054,18 @@ async function report(tools, paths) {
       console.log('     verify: ok — adapters in sync (midas-doctor passed).');
       console.log('     Update complete — no need to run /midas-init for refresh. Next: /midas-status in your editor.');
       console.log('     Reload Cursor if new slash commands do not appear.');
+      try {
+        const shim = installMidasShims({ target: TARGET });
+        if (shim.userBin && shim.pathUpdated) {
+          console.log(`     Shell: open a new terminal, then \`midas update\` (shim in ${shim.userBin}).`);
+        } else if (shim.userBin) {
+          console.log(`     Shell: add ${shim.userBin} to PATH, then \`midas update\`.`);
+        } else {
+          console.log('     Shell: `.harness/bin/midas update` (or add .harness/bin to PATH).');
+        }
+      } catch (err) {
+        console.log(`     Shell: midas shim skipped — ${err instanceof Error ? err.message : err}`);
+      }
     } else if (verifyResult && !verifyResult.missing) {
       console.log('     verify: FAILED — adapters still out of sync after auto-fix.');
       console.log(`     Run \`${doctorHint} --fix\` in the project and check the output above.`);
@@ -1078,6 +1094,16 @@ async function report(tools, paths) {
   }
   reportGitignoreLine();
   if (verifyResult?.ok) console.log('     verify: ok — adapters in sync (midas-doctor passed).');
+  try {
+    const shim = installMidasShims({ target: TARGET });
+    if (shim.pathUpdated) {
+      console.log(`     Shell: new terminal, then \`midas update\` (shim in ${shim.userBin}).`);
+    } else {
+      console.log('     Shell: `.harness/bin/midas update` — or add ~/.midas/bin to PATH.');
+    }
+  } catch (err) {
+    console.log(`     Shell: midas shim skipped — ${err instanceof Error ? err.message : err}`);
+  }
 
   const mod = await importTrustedScript('tool-profiles.mjs');
   mod.printToolOnboarding(activeTools, TARGET);

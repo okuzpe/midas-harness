@@ -189,7 +189,7 @@ function baseCommand({ command, target = '.', positionals = [], tools, toolsFlag
     subcommand,
     dryRun: !!values['dry-run'],
     json: !!values.json,
-    yes: !!values.yes,
+    yes: !!(values.yes || (command === 'update' && !values['dry-run'])),
     apply: !!values.apply,
     purge: !!values.purge,
     autonomy: !!values.autonomy,

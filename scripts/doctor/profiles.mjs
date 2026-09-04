@@ -19,7 +19,6 @@ export const INSTALL_VERIFY_WARN_ONLY_PREFIXES = ['gate:audit-', 'audit:attestat
 
 export const UPDATE_PREFLIGHT_BLOCKING = new Set([
   'layout:consistent',
-  'update:conflicts',
 ]);
 
 export function isInstallVerifyWarnOnly(name) {

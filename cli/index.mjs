@@ -96,14 +96,15 @@ Install:
   npx github:okuzpe/midas-harness --layout=harness   explicit no-op; v2 has one layout
 
 Update (v2 product refresh — 1.x trees are refused):
-  npx github:okuzpe/midas-harness#${pin} update --yes
+  midas update                                 latest main (after install puts ~/.midas/bin on PATH)
+  .harness/bin/midas update                    same, no PATH needed
+  npx -y github:okuzpe/midas-harness#${pin} update --yes
   npx github:okuzpe/midas-harness update --check       is there anything new? (no writes; exit 1 if yes)
-  npx github:okuzpe/midas-harness update --dry-run     list every write, removal and conflict first
-  npx github:okuzpe/midas-harness update --yes         unpinned main (bleeding)
 
   update reconciles the whole engine tree against .harness/manifest.json: new files are written,
   dropped files and directories are removed, and vendor files you edited are overwritten with your
-  version saved to .harness/conflicts/. Your product, rules, runs and state are never touched.
+  version saved to .harness/conflicts/. Leftover conflict copies do not block the next update.
+  Your product, rules, runs and state are never touched.
   The --update flag remains a silent alias for the update subcommand.
 
   1.x classic/compact/hub installs: pin create-midas@2.10.x, run update --migrate, then upgrade to 3.x.
