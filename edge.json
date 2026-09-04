@@ -3,9 +3,9 @@
   "channel": "edge",
   "version": "3.0.1",
   "ref": "main",
-  "commit": "7f029a2814ea9073ebdd7966e4aa1e2b4cd93e88",
-  "tree_sha256": "47d64dbb948a3d90b93280c025f4931f5bf98eb491fa33448d312ad2bc86120e",
-  "published_at": "2026-08-31T14:57:37.284Z",
+  "commit": "40f575eb2b24884ccddd2a05ef97f0558ec3432f",
+  "tree_sha256": "bdc706f7940b7748d3be4e4031456a08ebe1e175a02cd84b60fd8ffea1b308fc",
+  "published_at": "2026-09-04T20:54:27.454Z",
   "migrations": [
     "0001-record-update-channel"
   ],
@@ -612,11 +612,11 @@
     },
     {
       "path": ".harness/scripts/doctor.mjs",
-      "sha256": "5e663d9c7cf6e70e56806345fc3e9855454ded199c52366589946cd4452849a6"
+      "sha256": "8567c2bf76a2c15ddda2e507b7cac54cd62b044f174f3f27a8a3a0035ccef845"
     },
     {
       "path": ".harness/scripts/doctor/checks/gates.mjs",
-      "sha256": "0c44ff052a4303b9327d8f7de1a8a1ad3cb4a8d16a7fc2575397046bbf8e3e09"
+      "sha256": "9666ff1a54bcd87e7b16d2ed8c1819ab01a0acea1cb13cba80c765169856238e"
     },
     {
       "path": ".harness/scripts/doctor/checks/layout.mjs",
@@ -640,7 +640,7 @@
     },
     {
       "path": ".harness/scripts/doctor/profiles.mjs",
-      "sha256": "fb1288e8acee24c8973d24e46b9829a3949125b3d7dc99bcd978c83dc05a90ba"
+      "sha256": "559e171b4a4d8a3bfd300ef9d7218370513dc0b5fffbbacd733903a8c5831276"
     },
     {
       "path": ".harness/scripts/doctor/registry.mjs",
@@ -724,7 +724,7 @@
     },
     {
       "path": ".harness/scripts/lib/install-cmd.mjs",
-      "sha256": "2b272a2065156cc028db6b67b5085065f249599b5ffeab0f2bc0a8d56878b760"
+      "sha256": "493ee353a076d6143f0f0fe4ae7903fdc32aea624a6eea7ad1e87471fb000546"
     },
     {
       "path": ".harness/scripts/lib/lifecycle-journal.mjs",
@@ -779,12 +779,16 @@
       "sha256": "156487d1fd1893185e2cc285459beb928951ca737335d6abfe9da5c4c3103f20"
     },
     {
+      "path": ".harness/scripts/midas.mjs",
+      "sha256": "1bea6324f0c256210be9f2e9be36a780055b76b8764f600ecd72ce3d82f320d9"
+    },
+    {
       "path": ".harness/scripts/model-profiles.mjs",
       "sha256": "014891cadafc9f82d6b9ad62d56eb00542860f6775a008bf83b7315448ce4f7f"
     },
     {
       "path": ".harness/scripts/ownership-manifest.mjs",
-      "sha256": "e37be3d94a365a880e835ec6d272188dd2ef18d22ad8e6c3b8ad501b74880849"
+      "sha256": "ada363ed20beb6ec648bfc9855660bd8c5bff7880f70686f22bb5f9b88678ab5"
     },
     {
       "path": ".harness/scripts/paths.mjs",
@@ -792,7 +796,7 @@
     },
     {
       "path": ".harness/scripts/portable-skills.mjs",
-      "sha256": "f6ae15a513718c22c5d87f451b934e0247ac022b202f250d65ee7ce8e41a44d6"
+      "sha256": "1a99b0d3accec08478a3624d9d3393ab6c93b12f49d5dbc7b431b769016bf60e"
     },
     {
       "path": ".harness/scripts/quality-log.mjs",
@@ -828,7 +832,7 @@
     },
     {
       "path": ".harness/scripts/skill-registry.mjs",
-      "sha256": "8530839ad2889e70e13b44151c3f47989d3816024f40b88df5cc703bf3bf874a"
+      "sha256": "d23e2d49a9b2436085c037f22d668cd3650fbfe928ec81263108c774a55fbe11"
     },
     {
       "path": ".harness/scripts/stage-command-table.mjs",
