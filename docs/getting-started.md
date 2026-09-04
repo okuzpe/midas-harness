@@ -110,6 +110,20 @@ For an existing codebase, `/midas-init` classifies E2/E3 and runs `/midas-adopt`
 
 ---
 
+## Refresh the engine
+
+From the **product repo** after the first install:
+
+```text
+midas update
+```
+
+That always fetches latest `main`. Open a **new** terminal if `midas` is not on PATH yet, or run
+`.harness/bin/midas update` (Windows: `.\.harness\bin\midas.cmd update`). Diagnose before the first
+install still uses `npx github:okuzpe/midas-harness --diagnose`.
+
+---
+
 ## If you edit rules or the harness
 
 After editing **product** rules, conventions, or design tokens, re-sync adapters:

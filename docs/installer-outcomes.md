@@ -56,15 +56,15 @@ Intentional `npx … update --rollback` restores journal backups, clears `active
 
 | Flag | When |
 |------|------|
-| `--resume` | Continue the run named in `active.json` (re-apply; same `run_id`) |
+| `--resume` | `active.json` `step=verify`: re-run doctor only. `step=apply`: restore journal backups then re-apply (same `run_id`) |
 | `--rollback` | Reverse backups from `journal.ndjson`, clear `active.json`, do not re-apply |
 
 Wiring: `cli/lib/runtime/execute.mjs` (durable journal + lock); argv parsing: `cli/lib/cli/args.mjs`.
 
 ```bash
 # After exit 3 or 6 with active.json present
-npx github:okuzpe/midas-harness#vX.Y.Z update --resume --yes
-npx github:okuzpe/midas-harness#vX.Y.Z update --rollback --yes
+midas update --resume
+midas update --rollback
 ```
 
 ## Preserve policy (unchanged)

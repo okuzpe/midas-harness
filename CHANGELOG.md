@@ -17,8 +17,10 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ### Added
 
-- **`midas update`** — install writes `.harness/bin/midas` and `~/.midas/bin` (Windows User PATH).
-  From the product repo that command always npx-fetches **latest main** (`--channel=edge --yes`).
+- **`midas update`** — install writes `.harness/bin/midas` and `~/.midas/bin` (Windows User PATH,
+  case-insensitive). From the product repo that command always npx-fetches **latest main**
+  (`--channel=edge --yes`). `midas update --help` reaches the installer; uninstall removes
+  `.harness/bin`. Leftover `.harness/conflicts/` are discarded only after preflight passes.
 - **Sandbox feedback loop** — `sandbox/README.md` names touch → detect → classify → re-smoke.
   `start-sprint.json` grades kickoff (working plan, `status: active`, roadmap Status `| active |`);
   seed grade must fail. Precommit Step 0 defaults to `--smoke` (skip only when the fixture cannot
@@ -27,9 +29,11 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 ### Fixed
 
 - **Installer `update` verify** — leftover `.harness/conflicts/` no longer refuse the next refresh
-  (`update --yes` discards the previous archive). Empty leftover skill dirs no longer fail
-  `skills:frontmatter`. `install-verify` treats product sprint gates as warn-only. `--resume` after
-  `NEEDS_REPAIR` re-runs doctor only; it does not roll the tree back.
+  (`update --yes` discards the previous archive only after preflight passes). Empty leftover skill
+  dirs no longer fail `skills:frontmatter`. `install-verify` treats product sprint gates as warn-only.
+  `--resume` after `NEEDS_REPAIR` re-runs doctor only; it does not roll the tree back.
+- **`midas` launcher on Windows** — spawn `npx` via `cmd.exe /c` (no `shell: true`) so Node no longer
+  prints DEP0190 after a successful update.
 - **FAQ 1.x migrate** — the layout answer matches 3.x refuse (pin `create-midas@2.10.x`, then
   `update`). It no longer tells readers to preview migrate with `--apply`.
 - **Muninn inventory** — skill counts match the registry (28 primary / 5 internal / 0 deprecated /

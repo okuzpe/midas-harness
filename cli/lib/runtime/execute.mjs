@@ -36,7 +36,7 @@ import {
   writeActiveRun,
 } from '../core/install-journal.mjs';
 import { runPlanOps } from '../core/runner.mjs';
-import { formatUpdateCmd } from '../core/install-cmd.mjs';
+import { formatShortUpdateCmd } from '../core/install-cmd.mjs';
 import { INSTALL_OUTCOMES } from './outcomes.mjs';
 import { applyPhaseCopy } from './phases/copy.mjs';
 import { applyWriteState } from './phases/write-state.mjs';
@@ -349,10 +349,17 @@ async function executeInstallerCommand(cmd, hooks) {
           const detail = verifyResult?.out?.trim() || 'doctor verification failed';
           console.error(
             'create-midas: verify still needs repair.\n' +
-              `  Fix the doctor findings below, then: ${formatUpdateCmd({ flags: '--resume --yes' })}\n` +
-              `  Or undo this run: ${formatUpdateCmd({ flags: '--rollback --yes' })}\n` +
+              `  Fix the doctor findings below, then: ${formatShortUpdateCmd({ flags: '--resume' })}\n` +
+              `  Or undo this run: ${formatShortUpdateCmd({ flags: '--rollback' })}\n` +
               detail,
           );
+        }
+        try {
+          installMidasShims({ target: TARGET });
+        } catch (err) {
+          if (!jsonOut) {
+            console.log(`     Shell: midas shim skipped — ${err instanceof Error ? err.message : err}`);
+          }
         }
         return {
           ok,
@@ -462,8 +469,8 @@ async function executeInstallerCommand(cmd, hooks) {
         const detail = verifyResult?.out?.trim() || 'doctor verification failed';
         console.error(
           'create-midas: apply finished but verify needs repair — tree left in place.\n' +
-            `  Fix the doctor findings below, then: ${formatUpdateCmd({ flags: '--resume --yes' })}\n` +
-            `  Or undo this run: ${formatUpdateCmd({ flags: '--rollback --yes' })}\n` +
+            `  Fix the doctor findings below, then: ${formatShortUpdateCmd({ flags: '--resume' })}\n` +
+            `  Or undo this run: ${formatShortUpdateCmd({ flags: '--rollback' })}\n` +
             detail,
         );
       }

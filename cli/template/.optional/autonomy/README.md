@@ -7,7 +7,7 @@ Install with:
 ```bash
 npx github:okuzpe/midas-harness --autonomy
 # or, in an existing install:
-npx github:okuzpe/midas-harness update --autonomy
+midas update --autonomy
 ```
 
 Then run (no env export required locally — setup auto-creates `.harness/autonomy/authz/hmac`, a gitignored local secret):

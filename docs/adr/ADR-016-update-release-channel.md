@@ -54,8 +54,9 @@ deliberately *outside* the gitignored `.harness/cache/`, which `scrubNonInstalle
 rollback: the one copy of the user's work must not live in a tree designed to be disposable.
 
 **A leftover conflict archive does not refuse the next update.** Preflight only blocks
-`layout:consistent`. `update --yes` (the default for `midas update`) discards the previous
-`.harness/conflicts/` tree before apply; this run can still save a fresh copy of any vendor edits.
+`layout:consistent`. After preflight passes, `update --yes` (the default for `midas update`) discards
+the previous `.harness/conflicts/` tree; this run can still save a fresh copy of any vendor edits.
+A refused preflight never deletes that archive.
 
 **Deletion is the dangerous half.** It is bounded to `vendor` files under `.harness/engine` and
 `.harness/scripts`, it runs inside the existing lock/journal/backup transaction with `--rollback`,

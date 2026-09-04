@@ -95,6 +95,7 @@ const installer = readFileSync(join(ROOT, 'cli', 'index.mjs'), 'utf8');
   check('ownership:role:scripts-vendor', roleForPath('.harness/scripts/doctor.mjs') === 'vendor');
   check('ownership:role:autonomy-policy-user', roleForPath('.harness/autonomy/policy.yaml') === 'user');
   check('ownership:role:generated-agents', roleForPath('AGENTS.md') === 'generated');
+  check('ownership:role:generated-bin', roleForPath('.harness/bin/midas.cmd') === 'generated');
   check('ownership:role:product-user', roleForPath('.harness/product/idea.md') === 'user');
 
   const ownRoot = mkdtempSync(join(tmpdir(), 'midas-own-'));
@@ -280,10 +281,11 @@ const installer = readFileSync(join(ROOT, 'cli', 'index.mjs'), 'utf8');
   check('installer:no-bare-readToolsFromState', !/readToolsFromState\(\)/.test(installerExec));
   check(
     'installer:needs-repair-canonical-update',
-    /formatUpdateCmd\(\{ flags: '--resume --yes' \}\)/.test(installerExec) &&
+    /formatShortUpdateCmd\(\{ flags: '--resume' \}\)/.test(installerExec) &&
+      /formatShortUpdateCmd\(\{ flags: '--rollback' \}\)/.test(installerExec) &&
       !/--update --resume/.test(installerExec) &&
       !/--update --rollback/.test(installerExec),
-    'NEEDS_REPAIR hints must print canonical `update --resume`, not `--update --resume`',
+    'NEEDS_REPAIR hints must print `midas update --resume`, not `--update --resume`',
   );
 }
 
@@ -463,6 +465,72 @@ check('installer:lib-workflow-engine', existsSync(join(ROOT, 'cli', 'lib', 'work
 check('installer:prune-orphan-adapters', /function pruneOrphanAdapters/.test(installerRuntime) || /pruneOrphanAdaptersMod/.test(installerRuntime));
 check('installer:ops-runner', /export async function runPlanOps/.test(installerRunner));
 check('installer:thin-shim', /createExecuteHandler/.test(installer) && /runInstaller\(parsedCmd/.test(installer));
+check(
+  'installer:ownership-writes-midas-shim',
+  /installMidasShims/.test(installerOwnershipPhaseSrc),
+);
+{
+  const copySrc = readFileSync(join(ROOT, 'cli', 'lib', 'runtime', 'phases', 'copy.mjs'), 'utf8');
+  const body = copySrc.slice(copySrc.indexOf('export async function applyPhaseCopy'));
+  check(
+    'installer:update-preflight-before-conflict-purge',
+    body.indexOf('runUpdatePreflight') !== -1 &&
+      body.indexOf('runUpdatePreflight') < body.indexOf('rmSync(join(bag.TARGET, VENDOR_CONFLICTS_DIR)'),
+    'refused preflight must not delete .harness/conflicts/',
+  );
+}
+{
+  const { shimWantsHelp, withUpdateDefaults, quoteCmdArg } = await import(
+    pathToFileURL(join(ROOT, 'scripts', 'midas.mjs')).href
+  );
+  check('midas-shim:help-bare', shimWantsHelp([]));
+  check('midas-shim:help-flag-first', shimWantsHelp(['--help']) && shimWantsHelp(['-h']));
+  check('midas-shim:forwards-update-help', !shimWantsHelp(['update', '--help']));
+  check('midas-shim:forwards-diagnose-help', !shimWantsHelp(['diagnose', '--help']));
+  const updateArgs = withUpdateDefaults(['update']);
+  check(
+    'midas-shim:update-defaults',
+    updateArgs.includes('--channel=edge') && updateArgs.includes('--yes'),
+  );
+  check(
+    'midas-shim:update-dry-run-no-yes',
+    !withUpdateDefaults(['update', '--dry-run']).includes('--yes'),
+  );
+  check(
+    'midas-shim:update-keeps-explicit-channel',
+    withUpdateDefaults(['update', '--channel=stable']).includes('--channel=stable') &&
+      !withUpdateDefaults(['update', '--channel=stable']).includes('--channel=edge'),
+  );
+  check('midas-shim:quote-plain', quoteCmdArg('github:okuzpe/midas-harness') === 'github:okuzpe/midas-harness');
+  check('midas-shim:quote-space', quoteCmdArg('a b') === '"a b"');
+  const shimSrc = readFileSync(join(ROOT, 'scripts', 'midas.mjs'), 'utf8');
+  check(
+    'midas-shim:no-shell-true',
+    /cmd\.exe/.test(shimSrc) && !/shell:\s*process\.platform === 'win32'/.test(shimSrc),
+  );
+}
+{
+  const { pathListHasDir, isTempInstall, installMidasShims } = await import(
+    pathToFileURL(join(ROOT, 'cli', 'lib', 'runtime', 'user-shim.mjs')).href
+  );
+  check(
+    'midas-shim:path-case-insensitive',
+    pathListHasDir('C:\\Users\\Me\\.midas\\bin;C:\\Windows', 'c:\\users\\me\\.midas\\bin'),
+  );
+  const shimRoot = mkdtempSync(join(tmpdir(), 'midas-user-shim-'));
+  try {
+    check('midas-shim:temp-install', isTempInstall(shimRoot));
+    const shim = installMidasShims({ target: shimRoot });
+    check(
+      'midas-shim:writes-project-bin',
+      shim.userBin === null &&
+        (existsSync(join(shimRoot, '.harness', 'bin', 'midas.cmd')) ||
+          existsSync(join(shimRoot, '.harness', 'bin', 'midas'))),
+    );
+  } finally {
+    rmSync(shimRoot, { recursive: true, force: true });
+  }
+}
 {
   const { parseInstallerArgs } = await import(
     pathToFileURL(join(ROOT, 'cli', 'lib', 'cli', 'args.mjs')).href
@@ -1320,6 +1388,7 @@ if (!TEST_FAST) {
         existsSync(join(uninstallRoot, '.agents', 'skills', 'acme-local', 'SKILL.md')) &&
         !existsSync(join(uninstallRoot, '.harness', 'engine', 'VERSION')) &&
         !existsSync(join(uninstallRoot, '.harness', 'manifest.json')) &&
+        !existsSync(join(uninstallRoot, '.harness', 'bin')) &&
         /Existing project law/.test(agents) &&
         !/midas:begin AGENTS/.test(agents),
       uninstallResult.stderr || uninstallResult.stdout,

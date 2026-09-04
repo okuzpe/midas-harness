@@ -40,6 +40,16 @@ export function formatUpdateCmd(opts = {}) {
 }
 
 /**
+ * Short product-repo command after the install shim exists (`~/.midas/bin` or `.harness/bin`).
+ * Diagnose / first-install still print `formatUpdateCmd` (npx) so a cold machine has a runnable line.
+ */
+export function formatShortUpdateCmd(opts = {}) {
+  const channel = opts.channel && opts.channel !== 'stable' ? ` --channel=${opts.channel}` : '';
+  const flags = opts.flags ? ` ${opts.flags.trim()}` : '';
+  return `midas update${channel}${flags}`;
+}
+
+/**
  * Apply-command for a published channel manifest.
  * `stable` pins the tag; `edge` pins the commit (many commits share one VERSION).
  */

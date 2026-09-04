@@ -213,6 +213,11 @@ function runCanonicalUninstall(ctx, { removed, keptModified, keptUser, purged })
   }
   if (!ctx.dryRun) rmSync(join(ctx.target, '.harness', 'cache'), { recursive: true, force: true });
   if (!ctx.dryRun) rmSync(join(ctx.target, '.harness', 'manifest.json'), { force: true });
+  const shimDir = join(ctx.target, '.harness', 'bin');
+  if (existsSync(shimDir)) {
+    if (!ctx.dryRun) rmSync(shimDir, { recursive: true, force: true });
+    removed.push('.harness/bin (generated shim)');
+  }
   pruneEmptyDirs(ctx);
 }
 

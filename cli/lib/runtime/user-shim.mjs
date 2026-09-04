@@ -50,27 +50,42 @@ function writeBinDir(dir) {
   return dir;
 }
 
-function isTempInstall(target) {
+export function isTempInstall(target) {
   const tmp = resolve(tmpdir());
   const abs = resolve(target);
   return abs === tmp || abs.startsWith(`${tmp}\\`) || abs.startsWith(`${tmp}/`);
 }
 
+/** Case-insensitive Windows PATH membership (trailing slashes ignored). */
+export function pathListHasDir(userPath, dir) {
+  const needle = String(dir).replace(/[\\/]+$/, '').replace(/\\/g, '/').toLowerCase();
+  return String(userPath || '')
+    .split(';')
+    .map((p) => p.trim().replace(/[\\/]+$/, '').replace(/\\/g, '/').toLowerCase())
+    .filter(Boolean)
+    .includes(needle);
+}
+
 function prependWindowsUserPath(dir) {
-  const ps = [
-    `$dir = ${JSON.stringify(dir)}`,
-    `$user = [Environment]::GetEnvironmentVariable('Path', 'User')`,
-    `if (-not $user) { $user = '' }`,
-    `$parts = @($user -split ';' | Where-Object { $_ -and $_.Trim() })`,
-    `if ($parts -contains $dir) { exit 0 }`,
-    `$next = if ($user.Trim()) { "$dir;$user" } else { $dir }`,
-    `[Environment]::SetEnvironmentVariable('Path', $next, 'User')`,
-  ].join('; ');
-  const result = spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', ps], {
-    encoding: 'utf8',
-    windowsHide: true,
-  });
-  return result.status === 0;
+  const read = spawnSync(
+    'powershell.exe',
+    ['-NoProfile', '-NonInteractive', '-Command', "[Environment]::GetEnvironmentVariable('Path', 'User')"],
+    { encoding: 'utf8', windowsHide: true },
+  );
+  if (read.status !== 0) return false;
+  const user = String(read.stdout || '').replace(/^\uFEFF/, '').replace(/\r?\n/g, '').trim();
+  if (pathListHasDir(user, dir)) return true;
+  const next = user ? `${dir};${user}` : dir;
+  const write = spawnSync(
+    'powershell.exe',
+    ['-NoProfile', '-NonInteractive', '-Command', "[Environment]::SetEnvironmentVariable('Path', $env:MIDAS_NEW_PATH, 'User')"],
+    {
+      encoding: 'utf8',
+      windowsHide: true,
+      env: { ...process.env, MIDAS_NEW_PATH: next },
+    },
+  );
+  return write.status === 0;
 }
 
 /**

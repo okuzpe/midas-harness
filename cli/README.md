@@ -22,7 +22,7 @@ bunx create-midas
 ```
 
 Then open the project in **Claude Code** (or Cursor) and run `/midas-init` to configure the harness,
-followed by `/midas-status`.
+followed by `/midas-status`. Refresh later with `midas update` (latest `main`).
 
 ## Lifecycle
 

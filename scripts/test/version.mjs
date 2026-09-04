@@ -211,7 +211,7 @@ if (engineVersion) {
 
 // --- I1. install-cmd helpers (canonical npx strings) ------------------------------------------
 {
-  const { formatInstallCmd, formatUpdateCmd, formatUpdateCmdFromRelease, npxPackageRef } = await import('../lib/install-cmd.mjs');
+  const { formatInstallCmd, formatUpdateCmd, formatUpdateCmdFromRelease, formatShortUpdateCmd, npxPackageRef } = await import('../lib/install-cmd.mjs');
   check('install-cmd:package-ref', npxPackageRef(engineVersion || '0.0.0') === `github:okuzpe/midas-harness#v${engineVersion || '0.0.0'}`);
   if (engineVersion) {
     check(
@@ -227,6 +227,10 @@ if (engineVersion) {
     'install-cmd:update-edge',
     formatUpdateCmd({ channel: 'edge', commit: 'deadbeefcafebabe' }) ===
       'npx github:okuzpe/midas-harness#deadbeefcafebabe update --channel=edge',
+  );
+  check(
+    'install-cmd:short-update',
+    formatShortUpdateCmd({ flags: '--resume' }) === 'midas update --resume',
   );
   check(
     'install-cmd:update-from-edge-release',

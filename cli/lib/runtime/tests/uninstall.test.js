@@ -97,4 +97,22 @@ describe('runUninstall', () => {
       rmSync(root, { recursive: true, force: true });
     }
   });
+
+  it('removes the generated .harness/bin shim', () => {
+    const root = makeRoot('shim');
+    try {
+      mkdirSync(join(root, '.harness', 'bin'), { recursive: true });
+      writeFileSync(join(root, '.harness', 'state.yaml'), 'role: product\nlayout: harness\n', 'utf8');
+      writeFileSync(join(root, '.harness', 'bin', 'midas.cmd'), '@echo off\r\n', 'utf8');
+      writeFileSync(
+        join(root, '.harness', 'manifest.json'),
+        JSON.stringify({ schema_version: 2, layout: 'harness', files: [] }),
+        'utf8',
+      );
+      runUninstall(ctx(root));
+      assert.equal(existsSync(join(root, '.harness', 'bin')), false);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
 });

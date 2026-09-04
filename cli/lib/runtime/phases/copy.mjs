@@ -9,10 +9,11 @@ import { VENDOR_CONFLICTS_DIR } from '../copy-tree.mjs';
  */
 export async function applyPhaseCopy(bag) {
   mkdirSync(bag.TARGET, { recursive: true });
+  // Preflight first: a refused update must not delete the previous conflict archive.
+  if (bag.update && !bag.migrate) await bag.runUpdatePreflight();
   if (bag.update && bag.yes) {
     rmSync(join(bag.TARGET, VENDOR_CONFLICTS_DIR), { recursive: true, force: true });
   }
-  if (bag.update && !bag.migrate) await bag.runUpdatePreflight();
   bag.resetFreshVendorTreesLocal();
   const reconcilePlan = bag.update ? bag.planVendorReconcile() : null;
   if (reconcilePlan) {

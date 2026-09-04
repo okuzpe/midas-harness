@@ -64,6 +64,7 @@ const GENERATED_PREFIXES = [
   '.midas/.windsurf/rules/01-midas-checks.md',
   '.windsurf/rules/00-midas.md',
   '.windsurf/rules/01-midas-checks.md',
+  '.harness/bin/',
 ];
 
 export function sha256Buffer(value) {
@@ -166,6 +167,7 @@ export function computeOwnershipManifest(root, version, meta = {}) {
     ...walkFilesRel(join(root, '.harness', 'engine'), { relativeTo: root, exclude: [] }),
     ...walkFilesRel(join(root, '.harness', 'scripts'), { relativeTo: root, exclude: [] }),
     ...walkFilesRel(join(root, '.harness', 'autonomy'), { relativeTo: root, exclude: [] }),
+    ...walkFilesRel(join(root, '.harness', 'bin'), { relativeTo: root, exclude: [] }),
     ...GENERATED_PREFIXES.filter((p) => !p.endsWith('/') && existsSync(join(root, p))),
   ];
   for (const rel of walkFilesRel(engineSkills, { relativeTo: engineSkills, exclude: [] })) {
