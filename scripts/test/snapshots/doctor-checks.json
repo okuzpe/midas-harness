@@ -23,6 +23,7 @@
     "gate:safety-script:secrets-prompt.mjs",
     "gate:sprint-continuity",
     "gates:registry",
+    "gitignore:kit-not-tracked",
     "gitignore:midas-block",
     "harness/.windsurf/rules/00-midas.md",
     "harness/.windsurf/rules/01-midas-checks.md",

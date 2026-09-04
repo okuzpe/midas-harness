@@ -46,3 +46,36 @@ status.html
 .midas/cache/
 .midas/*.hash
 .midas/explore/.active
+
+# midas:kit-begin — product installs only (engine repo skips this block)
+# Vendor kit + generated adapters: restored by `midas update`. Do not commit them.
+# Keep project memory: state.yaml, product/, rules/, runs/, autonomy user files.
+# AGENTS.md and .mcp.json stay tracked (project law / user MCP).
+.harness/*
+!.harness/state.yaml
+!.harness/product/
+!.harness/product/**
+!.harness/rules/
+!.harness/rules/**
+!.harness/runs/
+!.harness/runs/**
+!.harness/autonomy/
+.harness/autonomy/**
+!.harness/autonomy/policy.yaml
+!.harness/autonomy/control.json
+!.harness/autonomy/budget-ledger.json
+!.harness/autonomy/journal-anchor.json
+.harness/runs/explore/.active
+.claude/skills/
+.claude/agents/
+.claude/CLAUDE.md
+.cursor/skills/
+.cursor/rules/00-midas.mdc
+.cursor/rules/01-midas-checks.mdc
+.cursor/mcp.json
+.agents/skills/
+GEMINI.md
+.harness/.windsurf/
+.windsurf/rules/00-midas.md
+.windsurf/rules/01-midas-checks.md
+# midas:kit-end

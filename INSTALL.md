@@ -10,8 +10,10 @@
 Midas installs **into any project** (new or existing). Every method runs the same dependency-free Node
 installer, which installs the managed engine under `.harness/`, generates only the selected host
 mirrors/adapters, writes `.harness/state.yaml` plus an ownership manifest, and merges a Midas block
-into `.gitignore` (secrets, `node_modules/` and common build dirs, volatile hashes — the harness itself stays
-committed) so the project is ready
+into `.gitignore` (secrets, `node_modules/`, common build dirs, and the **vendor kit** — `.harness/engine`,
+`.harness/scripts`, generated host mirrors — so those files are **not** committed; `midas update` restores
+them. Project memory stays tracked: `.harness/state.yaml`, `.harness/product/`, `.harness/rules/`,
+`.harness/runs/`) so the project is ready
 to use. Then run `/midas-init` once — the **one-time guided setup** (it adopts an existing repo for
 you); it retires itself afterward and `/midas-status` drives the rest. Optional later: `/midas-auto-pilot`
 (unified Mode Ask: continuous evolve with PR|code + `/loop`, or ADR-009 sprint checklist guide;
@@ -193,11 +195,16 @@ Midas splits project memory into **auditable artifacts** (commit them) and **vol
 
 | Commit to git | Do **not** commit |
 |---|---|
-| `.harness/state.yaml` and `.harness/manifest.json` | `.env`, `*.pem`, API keys, credentials |
+| `.harness/state.yaml`, `AGENTS.md`, `.mcp.json` | `.env`, `*.pem`, API keys, credentials |
 | `.harness/product/*` and `.harness/rules/*` | `node_modules/`, build dirs (`dist/`, `.next/`, …) |
-| `.harness/runs/{audits,verifications,sweeps,debates,sprints,lean,retros,investigate,auto-pilot}/` | `.harness/cache/`, `.harness/migrations/backups/`, `status.html` |
-| `.harness/engine/`, `.harness/scripts/`, selected host mirrors | Test/browser output: `coverage/`, `test-results/`, `playwright-report/` |
-| Tool adapters at repo root (`AGENTS.md`, `.cursor/rules/`, …) | Portable bundle exports: `*.midas-bundle.json` (may contain project knowledge) |
+| `.harness/runs/{audits,verifications,sweeps,debates,sprints,lean,retros,investigate,auto-pilot}/` | `.harness/engine/`, `.harness/scripts/`, `.harness/bin/`, `.harness/manifest.json`, `.harness/cache/` |
+| Autonomy user files (`policy.yaml`, `control.json`, …) | Host skill mirrors and generated adapters (`00-midas.mdc`, `GEMINI.md`, `.claude/CLAUDE.md`, `.cursor/mcp.json`) |
+| Root `.gitignore` (Midas block) + your app source | Test/browser output: `coverage/`, `test-results/`, `playwright-report/` |
+
+`update` may only add/refresh/delete **vendor kit** (`.harness/engine`, `.harness/scripts`) and re-derive
+generated adapters/mirrors. It never deletes `.harness/product/`, `.harness/rules/`, `.harness/runs/`, or
+`state.yaml`. If git still tracks kit files from an older install: `git rm -r --cached .harness/engine
+.harness/scripts .claude/skills .cursor/skills .agents/skills`.
 
 **Verify after install or update:**
 

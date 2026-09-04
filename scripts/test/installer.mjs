@@ -598,10 +598,14 @@ if (existsSync(snippetPath)) {
   check('gitignore:snippet:coverage', /\bcoverage\//.test(snippet));
   check('gitignore:snippet:playwright-report', /playwright-report\//.test(snippet));
   check('gitignore:snippet:status-html', /\bstatus\.html\b/.test(snippet));
+  check('gitignore:snippet:kit-begin', /midas:kit-begin/.test(snippet));
+  check('gitignore:snippet:unignore-state', /!\.harness\/state\.yaml/.test(snippet));
+  check('gitignore:snippet:unignore-product', /!\.harness\/product\//.test(snippet));
+  check('gitignore:snippet:ignore-claude-skills', /^\.claude\/skills\//m.test(snippet));
 }
 check('gitignore:merge-module', existsSync(join(ROOT, 'scripts', 'gitignore-merge.mjs')));
 check('gitignore:audit-export', /export function auditGitignore/.test(readFileSync(join(ROOT, 'scripts', 'gitignore-merge.mjs'), 'utf8')));
-check('doctor:gitignore-check', /gitignore:midas-block/.test(readFileSync(join(ROOT, 'scripts', 'doctor', 'checks', 'mcp.mjs'), 'utf8')));
+check('doctor:gitignore-check', /gitignore:midas-block/.test(readFileSync(join(ROOT, 'scripts', 'doctor', 'checks', 'mcp.mjs'), 'utf8')) && /gitignore:kit-not-tracked/.test(readFileSync(join(ROOT, 'scripts', 'doctor', 'checks', 'mcp.mjs'), 'utf8')));
 check(
   'doctor:install-verify-profile',
   /--profile=install-verify/.test(readFileSync(join(ROOT, 'scripts', 'doctor.mjs'), 'utf8')) &&
@@ -667,6 +671,71 @@ check(
   const r3 = ensureMidasGitignore(giRoot);
   check('gitignore:merge-upgrades-missing', r3.wrote && r3.upgraded && readFileSync(join(giRoot, '.gitignore'), 'utf8').includes('node_modules/'));
   rmSync(giRoot, { recursive: true, force: true });
+}
+{
+  const { isEngineRepoRoot, snippetForRoot, GITIGNORE_KIT_BEGIN } = await import(
+    pathToFileURL(join(ROOT, 'scripts', 'gitignore-merge.mjs')).href
+  );
+  check('gitignore:engine-repo-detected', isEngineRepoRoot(ROOT));
+  const full = readFileSync(snippetPath, 'utf8');
+  const engineSnippet = snippetForRoot(ROOT, full);
+  check(
+    'gitignore:engine-skips-kit-block',
+    full.includes(GITIGNORE_KIT_BEGIN) &&
+      !engineSnippet.includes('.claude/skills/') &&
+      engineSnippet.includes('node_modules/'),
+  );
+  const productGi = mkdtempSync(join(tmpdir(), 'midas-gi-product-'));
+  try {
+    mkdirSync(join(productGi, '.harness', 'engine', 'templates'), { recursive: true });
+    writeFileSync(join(productGi, '.harness', 'state.yaml'), 'role: product\nlayout: harness\n', 'utf8');
+    writeFileSync(
+      join(productGi, '.harness', 'engine', 'templates', 'gitignore-midas.snippet'),
+      full,
+      'utf8',
+    );
+    const wrote = ensureMidasGitignore(productGi);
+    const gi = readFileSync(join(productGi, '.gitignore'), 'utf8');
+    check(
+      'gitignore:product-ignores-kit',
+      wrote.wrote &&
+        gi.includes('.harness/*') &&
+        gi.includes('!.harness/state.yaml') &&
+        gi.includes('!.harness/product/') &&
+        gi.includes('.claude/skills/') &&
+        gi.includes('!.harness/autonomy/policy.yaml'),
+    );
+    const upgradeGi = mkdtempSync(join(tmpdir(), 'midas-gi-upgrade-'));
+    try {
+      mkdirSync(join(upgradeGi, '.harness', 'engine', 'templates'), { recursive: true });
+      writeFileSync(join(upgradeGi, '.harness', 'state.yaml'), 'role: product\nlayout: harness\n', 'utf8');
+      writeFileSync(
+        join(upgradeGi, '.harness', 'engine', 'templates', 'gitignore-midas.snippet'),
+        full,
+        'utf8',
+      );
+      writeFileSync(
+        join(upgradeGi, '.gitignore'),
+        `${GITIGNORE_BEGIN}\n.env\n.harness/runs/explore/.active\n${GITIGNORE_END}\n`,
+        'utf8',
+      );
+      const up = ensureMidasGitignore(upgradeGi);
+      const upgraded = readFileSync(join(upgradeGi, '.gitignore'), 'utf8');
+      const unignore = upgraded.lastIndexOf('!.harness/runs/**');
+      const active = upgraded.lastIndexOf('.harness/runs/explore/.active');
+      check(
+        'gitignore:kit-upgrade-keeps-active-ignored',
+        up.wrote &&
+          upgraded.includes(GITIGNORE_KIT_BEGIN) &&
+          unignore !== -1 &&
+          active > unignore,
+      );
+    } finally {
+      rmSync(upgradeGi, { recursive: true, force: true });
+    }
+  } finally {
+    rmSync(productGi, { recursive: true, force: true });
+  }
 }
 check('installer:ensure-gitignore', /async function ensureGitignore\(paths\)/.test(installerRuntime));
 check('installer:gitignore-merge', /gitignore-merge\.mjs/.test(installerRuntime));

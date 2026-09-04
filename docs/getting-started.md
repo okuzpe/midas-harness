@@ -122,6 +122,11 @@ That always fetches latest `main`. Open a **new** terminal if `midas` is not on 
 `.harness/bin/midas update` (Windows: `.\.harness\bin\midas.cmd update`). Diagnose before the first
 install still uses `npx github:okuzpe/midas-harness --diagnose`.
 
+Do **not** commit the vendor kit (`.harness/engine`, `.harness/scripts`, generated skills). Git keeps
+`.harness/state.yaml`, `.harness/product/`, `.harness/rules/`, and `.harness/runs/`. After this
+gitignore lands, untrack old kit files with `git rm -r --cached .harness/engine .harness/scripts
+.claude/skills .cursor/skills .agents/skills`.
+
 ---
 
 ## If you edit rules or the harness

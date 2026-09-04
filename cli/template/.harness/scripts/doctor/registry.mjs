@@ -16,7 +16,7 @@ import {
 } from '../model-profiles.mjs';
 import { evaluateMcpDeclaredVsWired, evaluateMcpGovernance, evaluateSkillMcpRequired, collectSkillMcpRequired } from '../mcp-drift.mjs';
 import { wrapMcpServersForWindows } from '../mcp-cursor-sync.mjs';
-import { auditGitignore } from '../gitignore-merge.mjs';
+import { auditGitignore, auditTrackedKit } from '../gitignore-merge.mjs';
 import { orphanRootMidasPaths, resolveSkillMirrorPlan } from '../tool-profiles.mjs';
 import { renderPortableSkillText } from '../portable-skills.mjs';
 import { checkSkillRegistry } from '../skill-registry.mjs';
@@ -91,6 +91,7 @@ export async function runHealthChecks(opts) {
     collectSkillMcpRequired,
     wrapMcpServersForWindows,
     auditGitignore,
+    auditTrackedKit,
     orphanRootMidasPaths,
     resolveSkillMirrorPlan,
     renderPortableSkillText,

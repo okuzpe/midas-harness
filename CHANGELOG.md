@@ -28,10 +28,11 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ### Fixed
 
-- **Installer `update` verify** — leftover `.harness/conflicts/` no longer refuse the next refresh
-  (`update --yes` discards the previous archive only after preflight passes). Empty leftover skill
-  dirs no longer fail `skills:frontmatter`. `install-verify` treats product sprint gates as warn-only.
-  `--resume` after `NEEDS_REPAIR` re-runs doctor only; it does not roll the tree back.
+- **Product gitignore kit** — install/update ignores `.harness/engine`, `.harness/scripts`, generated
+  host mirrors and adapters. Git keeps `.harness/state.yaml`, `product/`, `rules/`, `runs/`, and
+  autonomy user files. An older `.gitignore` gets the kit block as one ordered section (so
+  `!.harness/runs/**` cannot un-ignore `explore/.active`). `gitignore:kit-not-tracked` warns if an
+  older clone still tracks the kit.
 - **`midas` launcher on Windows** — spawn `npx` via `cmd.exe /c` (no `shell: true`) so Node no longer
   prints DEP0190 after a successful update.
 - **FAQ 1.x migrate** — the layout answer matches 3.x refuse (pin `create-midas@2.10.x`, then

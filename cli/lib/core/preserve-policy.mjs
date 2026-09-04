@@ -1,4 +1,6 @@
 // preserve-policy.mjs — shared install preserve / vendor-path rules for plan + execute + conflicts.
+// `update` may write vendor (`.harness/engine`, `.harness/scripts`) and re-derive generated adapters;
+// it must never overwrite or delete user paths in `alwaysPreservePath`.
 // Keep plan-tree dry-run and copyTree write decisions identical.
 
 import { toPosixRel } from '../shared/posix.mjs';

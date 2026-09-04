@@ -16,7 +16,7 @@ export async function run(ctx) {
     normalizeRoutingProfile, normalizeCostProfile, resolveRoutingModels,
     resolveCostAwareRouting, knownRoutingModelIds,
     evaluateMcpDeclaredVsWired, evaluateMcpGovernance, evaluateSkillMcpRequired,
-    collectSkillMcpRequired, wrapMcpServersForWindows, auditGitignore,
+    collectSkillMcpRequired, wrapMcpServersForWindows, auditGitignore, auditTrackedKit,
     orphanRootMidasPaths, resolveSkillMirrorPlan, renderPortableSkillText,
     checkSkillRegistry, missingEvidenceRequired,
     computeStageCommandTableYaml, computeDesignSystemCss,
@@ -30,6 +30,8 @@ for (const f of ['AGENTS.md', join(paths.engine, 'conventions.md'), join(paths.e
 {
   const gi = auditGitignore(ROOT);
   check('gitignore:midas-block', gi.status, gi.note);
+  const tracked = auditTrackedKit(ROOT);
+  check('gitignore:kit-not-tracked', tracked.status, tracked.note);
 }
 
 // .mcp.json must be secret-free (only ${ENV_VAR} placeholders)
