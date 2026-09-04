@@ -631,16 +631,43 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
     !existsSync(join(ROOT, 'harness', 'skills', 'midas-improve-loop', 'SKILL.md')),
   );
   const autoPilotTmpl = join(ROOT, 'harness', 'templates', 'auto-pilot-runbook.md.tmpl');
+  const autoPilotTmplBody = readFileSync(autoPilotTmpl, 'utf8');
   check('auto-pilot:template', existsSync(autoPilotTmpl));
   check(
     'auto-pilot:template-caps',
-    /midas-auto\//.test(readFileSync(autoPilotTmpl, 'utf8')) &&
-      /Never merge|Forbidden[\s\S]*merge/i.test(readFileSync(autoPilotTmpl, 'utf8')) &&
-      /Phase-8/.test(readFileSync(autoPilotTmpl, 'utf8')),
+    /midas-auto\//.test(autoPilotTmplBody) &&
+      /Never merge|Forbidden[\s\S]*merge/i.test(autoPilotTmplBody) &&
+      /Phase-8/.test(autoPilotTmplBody),
+  );
+  check(
+    'auto-pilot:no-invent-fallback',
+    !/one small improvement aligned/i.test(autoPilotTmplBody) &&
+      /Else \*\*idle\*\*/.test(autoPilotTmplBody),
+  );
+  check(
+    'auto-pilot:tick-template',
+    existsSync(join(ROOT, 'harness', 'templates', 'auto-pilot-tick.md')) &&
+      /source:/.test(readFileSync(join(ROOT, 'harness', 'templates', 'auto-pilot-tick.md'), 'utf8')) &&
+      /ticks\/tick-NN/.test(autoPilotTmplBody),
+  );
+  check(
+    'auto-pilot:session-branch',
+    /midas-auto\/\{\{DATE\}\}-session/.test(autoPilotTmplBody),
+  );
+  check(
+    'auto-pilot:sprint-first',
+    /If an \*\*active\*\* sprint/.test(autoPilotTmplBody) &&
+      autoPilotTmplBody.indexOf('active** sprint') < autoPilotTmplBody.indexOf('failing / lacking evidence'),
+  );
+  check(
+    'auto-pilot:no-fabricate-backlog',
+    /Do \*\*not\*\* add OPEN rows/.test(autoPilotTmplBody) &&
+      /Do \*\*not\*\* run a sweep this tick/.test(autoPilotTmplBody),
   );
   check(
     'auto-pilot:journal-template',
-    existsSync(join(ROOT, 'harness', 'templates', 'auto-pilot-journal.md')),
+    existsSync(join(ROOT, 'harness', 'templates', 'auto-pilot-journal.md')) &&
+      /idle/.test(readFileSync(join(ROOT, 'harness', 'templates', 'auto-pilot-journal.md'), 'utf8')),
   );
   check(
     'auto-pilot:playbook-template',
@@ -653,7 +680,7 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
   );
   check(
     'auto-pilot:skill-slim-response',
-    /â‰¤8 lines|â‰¤6 lines|no autonomy lecture/i.test(autoPilotSkill),
+    /≤8 lines|no autonomy lecture/i.test(autoPilotSkill),
   );
   check(
     'auto-pilot:delivery-gate',
@@ -663,13 +690,36 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
       /STOP/.test(autoPilotSkill),
   );
   check(
-    'auto-pilot:mode-gate',
-    /Mode gate|B00/i.test(autoPilotSkill) &&
-      /Continuous product evolve/.test(autoPilotSkill) &&
-      /Sprint checklist ticks/.test(autoPilotSkill) &&
-      /Stop local evolve loop/.test(autoPilotSkill) &&
-      /Sprint status \/ dry-run/.test(autoPilotSkill) &&
+    'auto-pilot:directed-path',
+    /B00\. Directed path/.test(autoPilotSkill) &&
+      /No Mode Ask/.test(autoPilotSkill) &&
+      /Intent = `directed`/.test(autoPilotSkill) &&
+      !/Continuous product evolve/.test(autoPilotSkill) &&
       /midas-autopilot\.mjs/.test(autoPilotSkill),
+  );
+  check(
+    'auto-pilot:status-is-journal',
+    /`status` \| Loop journal/.test(autoPilotSkill) &&
+      /\*\*not\*\* ADR-009 CLI/.test(autoPilotSkill),
+  );
+  check(
+    'auto-pilot:candidate-hard-block',
+    /No planned candidate/.test(autoPilotSkill) &&
+      /idea\.md` or `open-questions\.md` \*\*alone\*\*/.test(autoPilotSkill),
+  );
+  check(
+    'auto-pilot:idle-streak-stop',
+    /Two consecutive `idle`/.test(autoPilotSkill) || /two consecutive `idle`/.test(autoPilotSkill),
+  );
+  check(
+    'auto-pilot:wake-not-skill',
+    /not the full `\/midas-auto-pilot` skill/.test(autoPilotSkill) &&
+      /skip B00/.test(autoPilotSkill),
+  );
+  check(
+    'auto-pilot:runbook-refresh',
+    /one small improvement aligned/.test(autoPilotSkill) &&
+      /Refresh Choose\/Caps only/.test(autoPilotSkill),
   );
   check(
     'auto-pilot:loop-sentinel',
@@ -678,7 +728,8 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
   check(
     'auto-pilot:autonomy-map-in-docs',
     /## Autonomy commands/.test(readFileSync(join(ROOT, 'docs', 'skills.md'), 'utf8')) &&
-      /Anti-typo/.test(readFileSync(join(ROOT, 'docs', 'skills.md'), 'utf8')),
+      /Anti-typo/.test(readFileSync(join(ROOT, 'docs', 'skills.md'), 'utf8')) &&
+      /Directed loop/.test(readFileSync(join(ROOT, 'docs', 'skills.md'), 'utf8')),
   );
   check(
     'auto-pilot:skill-brownfield-context',
@@ -686,13 +737,14 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
   );
   check(
     'auto-pilot:template-brownfield-context',
-    /project-brief\.md/.test(readFileSync(autoPilotTmpl, 'utf8')) &&
-      /features\.md/.test(readFileSync(autoPilotTmpl, 'utf8')),
+    /project-brief\.md/.test(autoPilotTmplBody) &&
+      /features\.md/.test(autoPilotTmplBody),
   );
   check(
     'auto-pilot:migration-notes',
     existsSync(join(ROOT, 'harness', 'migrations', 'auto-pilot-slash-rename.md')) &&
-      existsSync(join(ROOT, 'harness', 'migrations', 'auto-pilot-unify.md')),
+      existsSync(join(ROOT, 'harness', 'migrations', 'auto-pilot-unify.md')) &&
+      existsSync(join(ROOT, 'harness', 'migrations', 'auto-pilot-directed-loop.md')),
   );
   check(
     'auto-pilot:no-legacy-templates',
@@ -703,13 +755,15 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
     'auto-pilot:code-caps',
     /delivery: code/.test(autoPilotSkill) &&
       /no `git commit`|no git commit|no `gh pr create`/i.test(autoPilotSkill) &&
-      /dirty/i.test(autoPilotSkill),
+      /dirty/i.test(autoPilotSkill) &&
+      /midas-auto\/<date>-session/.test(autoPilotSkill),
   );
   check(
     'auto-pilot:cloud-stop',
     /### C\. `cloud`/.test(autoPilotSkill) &&
       /### D\. `stop`/.test(autoPilotSkill) &&
-      /delivery gate/.test(autoPilotSkill),
+      /delivery gate/.test(autoPilotSkill) &&
+      /re-paste the current runbook/.test(autoPilotSkill),
   );
   check(
     'auto-pilot:legacy-sentinel-kill',
@@ -717,7 +771,14 @@ check('migrations:readme', existsSync(join(ROOT, 'harness', 'migrations', 'READM
   );
   check(
     'auto-pilot:migrations-index',
-    /auto-pilot-slash-rename\.md/.test(readFileSync(join(ROOT, 'harness', 'migrations', 'README.md'), 'utf8')),
+    /auto-pilot-slash-rename\.md/.test(readFileSync(join(ROOT, 'harness', 'migrations', 'README.md'), 'utf8')) &&
+      /auto-pilot-directed-loop\.md/.test(readFileSync(join(ROOT, 'harness', 'migrations', 'README.md'), 'utf8')),
+  );
+  const l3Sprint = readFileSync(join(ROOT, 'harness', 'skills', 'midas-auto-pilot', 'sprint-checklist.md'), 'utf8');
+  check(
+    'auto-pilot:l3-status-not-slash',
+    /\*\*not\*\* slash `status`/.test(l3Sprint) &&
+      /control-plane status/i.test(l3Sprint),
   );
 
   const tmp = mkdtempSync(join(tmpdir(), 'midas-autonomy-'));

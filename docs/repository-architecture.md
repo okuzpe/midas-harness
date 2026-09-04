@@ -261,7 +261,7 @@ are **refused** in 3.x (ADR-018). Path resolution is in
 (guards: `installer:update-stale-manifest-refresh`, `installer:update-vendor-conflict-prewrite`).
 
 **Optional autonomy** (ADR-009): `create-midas --autonomy` copies `harness/autonomy/` →
-`.harness/autonomy/` (bounded control plane + `midas-autopilot.mjs` CLI; editor slash `/midas-auto-pilot` Sprint checklist path). Absent the flag, installs get
+`.harness/autonomy/` (bounded control plane + `midas-autopilot.mjs` CLI; editor slash `/midas-auto-pilot` — directed `/loop` plus optional `setup`/`dry-run`/`tick`). Absent the flag, installs get
 no autonomy tree and no `@cursor/sdk`. Policy/ledger/journal stay outside the lifecycle FSM.
 
 The **engine repository** (this repo) uses `role: engine` (derived `layout: classic`) in `harness/state.yaml`

@@ -14,6 +14,7 @@ Pre-1.0: most breaking changes are documented in `CHANGELOG.md` under `### Migra
 | 2.0.0 | [`harness-layout.md`](harness-layout.md) | Historical — installer `--migrate` existed in 2.x |
 | 2.8.2 | [`auto-pilot-slash-rename.md`](auto-pilot-slash-rename.md) | Slash/path rename (auto-pilot / auto-sprints); journal migration on first `/midas-auto-pilot` |
 | 2.9.5 | [`auto-pilot-unify.md`](auto-pilot-unify.md) | Unify evolve + sprint guide under `/midas-auto-pilot`; aliases forward |
+| Unreleased | [`auto-pilot-directed-loop.md`](auto-pilot-directed-loop.md) | Directed loop; no Mode Ask; slash `status` = journal; tick-NN freeze |
 | 2.9.6 | [`hygiene-init-entry.md`](hygiene-init-entry.md) | `/midas-hygiene` + `/midas-init` setup/update entry; `/midas-update` deprecated |
 | 2.9.8 | [`update-failure-hardening.md`](update-failure-hardening.md) | Verify fail → NEEDS_REPAIR; migrate rollback paths; install-verify doctor profile |
 

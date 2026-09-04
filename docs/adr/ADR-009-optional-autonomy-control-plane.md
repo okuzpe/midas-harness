@@ -4,7 +4,7 @@
 - **Date:** 2026-08-05
 - **Extends:** ADR-003 (git-visible memory), ADR-007 (`.harness/` layout)
 - **Related:** methodology human sign-offs; model-routing provenance; complementary continuous
-  improve via `/midas-auto-pilot` (unified Mode gate: local `/loop` evolve + optional Cursor Automations
+  improve via `/midas-auto-pilot` (directed local `/loop` + optional Cursor Automations
   **or** this policy plane’s CLI guide — **not** a second lease/budget implementation; delivery `pr|code`
   caps in `templates/auto-pilot-runbook.md.tmpl`). Editor slash for both planes: `/midas-auto-pilot`
   (CLI controller remains `midas-autopilot.mjs`; 3.0 removed alias slash skills).
@@ -71,3 +71,14 @@ they lack per-workflow budgets, durable leases, and a public quota-reset API.
 - Alias slash skills `/midas-auto-sprints`, `/midas-autopilot`, `/midas-improve-loop`, and
   `/midas-update` were **deleted**. Type `/midas-auto-pilot` or `/midas-init`. The 2026-08-10
   forward-stub behaviour no longer exists.
+
+## Amendment — 2026-09-05 (directed loop)
+
+- Bare `/midas-auto-pilot` is a **directed** `/loop`: next planned code task (sprint checklist, failing
+  feature, existing OPEN, existing sweep) or `idle`. No Mode Ask (evolve vs sprint vs stop vs status).
+- Slash `status` is the loop journal + next candidate. ADR-009 control-plane status is `dry-run`
+  (or `midas-autopilot.mjs status` after the human confirmed CLI). L3: `setup` / `dry-run` / `tick` /
+  `resume` still load `sprint-checklist.md`.
+- Tick law lives in `templates/auto-pilot-runbook.md.tmpl` (freeze `tick-NN.md` before code; two
+  consecutive `idle` stop the local loop). Chat still **never** auto-invokes `midas-autopilot tick`.
+- See `harness/migrations/auto-pilot-directed-loop.md`.

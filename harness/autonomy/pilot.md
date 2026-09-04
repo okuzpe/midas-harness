@@ -26,8 +26,8 @@ Pilot target: a **scratch install** in a temp directory (not a committed fixture
 5. Run **three** ticks with `--runner=fake` (no cloud tokens).
 6. Optionally one bounded `--runner=cursor-cloud` run with a hard cost reserve.
 
-Editor guide: `/midas-auto-pilot` (Sprint checklist path; does not auto-run `tick` from chat). Quote `recommendation` only.
-CLI unchanged: `midas-autopilot.mjs`. Continuous product evolve: same slash → Continuous evolve intent.
+Editor guide: `/midas-auto-pilot setup` (does not auto-run `tick` from chat). Quote `recommendation` only.
+CLI unchanged: `midas-autopilot.mjs`. Directed loop (no lease): bare `/midas-auto-pilot`.
 
 ## Value gate (open P1 only if all hold)
 

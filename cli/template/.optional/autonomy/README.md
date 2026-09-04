@@ -43,8 +43,9 @@ start `execute-next-sprint-task` — never an ordinary chat Skill invocation.
 
 | Want… | Use |
 |---|---|
-| Continuous product evolve (Cursor `/loop`) | `/midas-auto-pilot` → Continuous evolve |
-| Next sprint checklist tick (policy/budget/lease) | `/midas-auto-pilot` → Sprint checklist → CLI `midas-autopilot.mjs` |
+| Directed loop (Cursor `/loop`, planned code only) | `/midas-auto-pilot` |
+| Loop journal / next candidate | `/midas-auto-pilot status` |
+| Next sprint checklist tick (policy/budget/lease) | `/midas-auto-pilot setup` / `dry-run` → CLI `midas-autopilot.mjs` |
 
 Do **not** confuse the hyphenated slash `/midas-auto-pilot` with the hyphenless CLI
 `midas-autopilot.mjs` (ADR-009 controller — name unchanged).

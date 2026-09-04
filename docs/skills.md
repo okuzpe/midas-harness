@@ -33,7 +33,7 @@ skills (ADR-013). Bodies remain under `<paths.engine>/skills/` for path-pass.
 | **A Orient** | Where am I / what next / resume / install confusion | `/midas-status`, `/midas-help`, `/midas-recall`, `/midas-reconcile` |
 | **B Lifecycle** | Setup + audited phase gates 0→8 | `/midas-init`, `/midas-adopt`, `/idea-intake` … `/close-sprint` |
 | **C Sync** | Adapters / propagation / engine bar | `/midas-doctor`, `/midas-align`, `/midas-precommit` *(engine only)*, `/midas-sandbox` *(engine only)* |
-| **D Autonomy** | Continuous evolve + ADR-009 checklist guide | `/midas-auto-pilot` |
+| **D Autonomy** | Directed loop (`/loop`) + optional ADR-009 CLI | `/midas-auto-pilot` |
 | **E On-demand** | Audits, design, debug, hygiene, portability | `/midas-tribunal`, `/midas-security-audit`, `/midas-design`, `/midas-capture`, `/midas-investigate`, `/midas-explore`, `/midas-bundle`, `/midas-verify`, `/midas-retro`, `/midas-hygiene` |
 | **Internal (delegated)** | Sprint rituals owned by parents | `/midas-progress`, `/midas-qa`, `/midas-diff-gates`, `/midas-lean-review`, `/midas-sweep` |
 
@@ -104,7 +104,7 @@ Stage → command map (runtime): `<paths.engine>/stage-command-table.yaml` (gene
 | `/midas-explore` | Investigation outside the pipeline → `{runs}/explore/`. | scout |
 | `/midas-investigate` | Root-cause before bug fixes (Iron Law + 3 strikes) → `{runs}/investigate/inv-NN.md`. | build |
 | `/midas-capture` | Recurring pattern → rule / playbook / convention (asks first). | build |
-| `/midas-auto-pilot` | Unified autonomy — ask evolve vs sprint checklist; PR\|code or CLI setup/status/tick; arms `/loop` for evolve. | build |
+| `/midas-auto-pilot` | Directed loop — next planned code task; PR\|code then `/loop`; `status` = journal; ADR-009 CLI via setup\|dry-run\|tick. | build |
 | `/midas-retro` | Sprint retrospective freeze → `{runs}/retros/retro-NN.md` (non-advancing). | build |
 | `/midas-hygiene` | Product-repo cleanup — path-passes sweep (`product`) + optional lean-review; not adapter/doctor sync. | build |
 
@@ -128,11 +128,11 @@ Parents **path-pass** these `SKILL.md` bodies (read + execute steps in the same 
 
 | Goal | Command | What it does |
 |---|---|---|
-| **Unified entry** (ask evolve vs sprint vs stop) | `/midas-auto-pilot` | Mode gate Ask when bare; then PR\|code or ADR-009 CLI guide. |
-| **Discover and fix** on a schedule | `/midas-auto-pilot` → Continuous evolve | Ask PR\|code once; local `/loop`; journal at `{runs}/auto-pilot/`. |
-| Cursor cloud scheduler (optional) | `/midas-auto-pilot cloud` | Emits runbook for Cursor `/automate` / cursor.com/automations. |
+| **Directed loop** (next planned code task) | `/midas-auto-pilot` | Bare: delivery Ask if unset; tick (freeze `tick-NN` or idle) + arm `/loop`. Journal at `{runs}/auto-pilot/`. |
+| Loop journal / next candidate | `/midas-auto-pilot status` | Read-only journal + idle streak + next source. **Not** ADR-009 CLI. |
+| Cursor cloud scheduler (optional) | `/midas-auto-pilot cloud` | Emits runbook for Cursor `/automate` / cursor.com/automations. **Re-paste** after runbook refresh. |
 | Stop the local loop | `/midas-auto-pilot stop` | Kills the armed `/loop` for this project. |
-| **Next sprint checklist line** (policy/budget/lease) | `/midas-auto-pilot` → Sprint checklist · or `/midas-auto-pilot setup` | Guide to ADR-009 CLI (`midas-autopilot.mjs`). Needs `--autonomy`. |
+| **ADR-009 control plane** (policy/budget/lease) | `/midas-auto-pilot setup` · `dry-run` · `tick` | Guide to CLI (`midas-autopilot.mjs`). Needs `--autonomy`. `dry-run` is control-plane status. Never auto-`tick` from chat. |
 
 **Anti-typo (do not confuse):**
 
@@ -141,7 +141,7 @@ Parents **path-pass** these `SKILL.md` bodies (read + execute steps in the same 
 | `/midas-auto-pilot` | Canonical unified autonomy guide |
 | `midas-autopilot.mjs` | ADR-009 controller CLI (npm bin — **unchanged**) |
 
-**Not the same:** Cursor’s native `/automate` is the Automations editor; `/midas-auto-pilot` is the Midas runbook + caps (+ sprint CLI guide). History: `/midas-automate` → `/midas-auto-pilot` (≤2.6.0) → `/midas-improve-loop` (2.6.1) → `/midas-auto-pilot` reclaimed (2.8.2) → unified with sprint guide (2.9.5).
+**Not the same:** Cursor’s native `/automate` is the Automations editor; `/midas-auto-pilot` is the Midas runbook + caps (+ optional sprint CLI guide). History: `/midas-automate` → `/midas-auto-pilot` (≤2.6.0) → `/midas-improve-loop` (2.6.1) → `/midas-auto-pilot` reclaimed (2.8.2) → unified with sprint guide (2.9.5) → directed loop (no Mode Ask; slash `status` = journal).
 ---
 
 ## Maintain + audit + setup — primary
@@ -188,8 +188,8 @@ Prefer **primary** slash names; internals are noted as parent-owned.
 | Quick PR/branch smoke test | Phase 7 path-pass `/midas-qa` (or type it) |
 | Dead code / ledger drift | `/midas-hygiene` (or `/close-sprint` Step 0) |
 | Over-engineered diff / what can we delete? | `/midas-hygiene lean` (or close path-pass lean-review) |
-| Bounded sprint ticks (one checklist task per tick) | `/midas-auto-pilot` (Sprint checklist / `setup`) → `node .harness/autonomy/bin/midas-autopilot.mjs setup` |
-| Continuous improve (discover → one fix → PR or local code) | `/midas-auto-pilot` (Continuous evolve; arms `/loop`) · `cloud` for Cursor Automations |
+| Bounded sprint ticks (one checklist task per tick, CI/lease) | `/midas-auto-pilot setup` → `node .harness/autonomy/bin/midas-autopilot.mjs setup` |
+| Directed loop (next planned code task → PR or local session branch) | `/midas-auto-pilot` (arms `/loop`) · `cloud` for Cursor Automations |
 | Sprint retrospective (learnings freeze) | `/midas-retro` |
 | Export/import knowledge | `/midas-bundle` or `node <paths.scripts>/bundle.mjs` |
 | Mid-sprint STM write | Phase 7 / `/start-sprint` path-pass `/midas-progress` |

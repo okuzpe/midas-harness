@@ -35,15 +35,15 @@
 - What: Phase 7 kickoff, Phase 8 audit, bounded sprint ticks, or a non-advancing retrospective.
 - Command: `/start-sprint` · `/close-sprint` · `/midas-auto-pilot` (Sprint checklist / `setup`) → `node .harness/autonomy/bin/midas-autopilot.mjs setup` · `/midas-retro` [`NN|latest`]
 - Happens: start activates sprint and path-passes STM (`midas-progress`); close path-passes hygiene/diff-gates/lean as needed then audits rules; auto-pilot sprint path guides setup/dry-run/tick CLI (requires `--autonomy` install); retro freezes `{runs}/retros/retro-NN.md` without touching stage.
-- NOT for operator-only sprint tasks (release/merge) — ADR-009 targets code checklist items. NOT for inventing continuous improve without a checklist → `/midas-auto-pilot` Continuous evolve. Retro is not a substitute for `/close-sprint`.
+- NOT for operator-only sprint tasks (release/merge) — ADR-009 targets code checklist items. NOT for inventing work without a planned source → `/plan-sprints` then `/midas-auto-pilot`. Retro is not a substitute for `/close-sprint`.
 - Next: after start → implement per Phase 7 (STM via path-pass progress); after close → next sprint; after retro → optional `/midas-capture` on recurring learnings.
 
 **Autonomy / auto-pilot**
-- What: one slash for continuous evolve (PR|code → tick → `/loop`) **or** ADR-009 sprint checklist guide (setup/status/tick).
-- Command: `/midas-auto-pilot` (bare → Mode Ask) · `/midas-auto-pilot pr|code|local|cloud|stop` · `/midas-auto-pilot setup|status|dry-run|tick`
-- Happens: Mode gate if bare; evolve writes `{runs}/auto-pilot/runbook.md` and arms `/loop`; sprint path shells `midas-autopilot.mjs` (never auto-`tick` from chat).
-- NOT Phase-8 (`/close-sprint`). Laptop sleep → evolve `cloud` mode. Old slash names were removed in 3.0 (not listed as options).
-- Next: leave Cursor open for evolve; review PRs or local diffs; `/close-sprint` when a sprint’s worth lands. Command map: `docs/skills.md` § Autonomy commands.
+- What: directed `/loop` on the next planned code task (sprint/ledger/OPEN/sweep), or ADR-009 CLI guide (`setup`/`dry-run`/`tick`).
+- Command: `/midas-auto-pilot` (bare → delivery Ask if unset, then arm) · `/midas-auto-pilot pr|code|local|cloud|stop|status` · `/midas-auto-pilot setup|dry-run|tick|resume`
+- Happens: writes `{runs}/auto-pilot/runbook.md` + `tick-NN.md` (or journal `idle`); arms `/loop`. Slash `status` = journal. L3 shells `midas-autopilot.mjs` (never auto-`tick` from chat). Two consecutive idle → stop loop.
+- NOT Phase-8 (`/close-sprint`). Laptop sleep → `cloud` mode (re-paste runbook). Old slash names were removed in 3.0 (not listed as options).
+- Next: leave Cursor open; review PRs or local diffs; `/close-sprint` when a sprint’s worth lands. Command map: `docs/skills.md` § Autonomy commands.
 
 **Verify UI before close**
 - What: gate evidence for UI/API acceptance journeys.

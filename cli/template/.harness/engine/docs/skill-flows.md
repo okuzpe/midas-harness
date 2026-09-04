@@ -130,7 +130,7 @@ skills are path-passed by parents (read body — not Skill-tool invoke).
 | `/midas-explore` | Question outside the lifecycle path | Open an append-only investigation, gather notes, close it | `{runs}/explore/<slug>/` | May propose capture; stage unchanged |
 | `/midas-capture` | A recurring, user-approved pattern | Classify as rule, playbook, or convention; amend or create | Project-owned durable guidance | Doctor after rule changes |
 | `/midas-design` | UI that needs a stronger product identity | Audit, present three directions, obtain a choice, specify one | `design-NN.md`; optional one-slice implementation | Implement or verify; stage unchanged |
-| `/midas-auto-pilot` | Product context and/or optional `--autonomy` | Bare: Mode Ask (evolve vs sprint vs stop). **Evolve:** Ask PR\|code; runbook; local tick#1+`/loop` or cloud draft. **Sprint:** guide `setup`/`dry-run`; human runs CLI `tick` | `{runs}/auto-pilot/*` and/or `{runs}/autonomy/` | Never auto-`tick` ADR-009 from chat; aliases forward here |
+| `/midas-auto-pilot` | Planned candidate (sprint/ledger/OPEN/sweep) | Bare: delivery Ask if unset; freeze `tick-NN` or idle; local tick#1+`/loop` or cloud draft. **L3:** `setup`/`dry-run`/`tick` CLI. Slash `status` = journal | `{runs}/auto-pilot/*` and/or `{runs}/autonomy/` | Never auto-`tick` ADR-009 from chat; two idle → stop loop |
 | `/midas-investigate` | Bug / failed self-fix needs root cause | Iron Law + 3 strikes; freeze symptoms→flow→hypotheses | `{runs}/investigate/inv-NN.md` | Non-advancing; then fix + regression |
 | `/midas-retro` | After a sprint lands (or on demand) | Index sprint/progress/audit excerpts; draft went-well / hurt / learned / carry | `{runs}/retros/retro-NN.md` | Non-advancing; may propose `/midas-capture` |
 
@@ -153,20 +153,20 @@ flowchart LR
   Tick --> Dry
 ```
 
-Requires `.harness/autonomy/` (`npx … --autonomy`). See `/midas-auto-pilot` (Sprint checklist) and `.harness/autonomy/README.md`.
+Requires `.harness/autonomy/` (`npx … --autonomy`). See `/midas-auto-pilot setup` and `.harness/autonomy/README.md`.
 
-Complementary continuous evolve (no `--autonomy` required):
+Directed loop (no `--autonomy` required; tick law = runbook):
 
 ```mermaid
 flowchart LR
-  Start["/midas-auto-pilot"] --> Mode["Mode Ask if bare"]
-  Mode --> Ask["Ask PR or code if unset"]
-  Ask --> Tick1["tick #1 now"]
+  Start["/midas-auto-pilot"] --> Ask["Ask PR or code if unset"]
+  Ask --> Tick1["freeze tick-NN or idle"]
   Tick1 --> Loop["arm Cursor /loop"]
-  Loop --> OneFix["each wake: one improve + verify"]
-  OneFix --> Journal["{runs}/auto-pilot/journal.md"]
-  Journal --> Close["/close-sprint when sprint ready (manual)"]
-  Start -.-> Cloud["optional: cloud → Cursor /automate"]
+  Loop --> Pick["cite existing source or idle"]
+  Pick -->|candidate| Verify["verify then journal"]
+  Verify --> Loop
+  Pick -->|idle_streak 2| StopLoop["stop /loop"]
+  Start -.-> Cloud["optional: cloud → re-paste runbook"]
 ```
 
 See `/midas-auto-pilot` and `<paths.engine>/templates/auto-pilot-runbook.md.tmpl`.

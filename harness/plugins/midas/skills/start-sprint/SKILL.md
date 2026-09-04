@@ -104,9 +104,7 @@ before coding (scout tier; read-only)."* — do **not** re-load the full rule se
 `<paths.engine>/templates/sprint-progress.md` if missing, then **path-pass**
 `<paths.engine>/skills/midas-progress/SKILL.md` after significant tasks (Done / Learned / Next) —
 do **not** Skill-tool invoke; power-users may still type `/midas-progress`.
-**Optional bounded sprint ticks:** if the user wants one code task per scheduled tick (ADR-009), point to
-`/midas-auto-pilot` (Sprint checklist / `setup`) after kickoff — requires `npx … --autonomy` install; the skill guides `setup` /
-`dry-run`; only the human or CI runs `midas-autopilot tick` (never auto-invoked from chat).
+**Optional directed loop / bounded CLI ticks:** `/midas-auto-pilot` after kickoff runs the next **planned** code task on a schedule (runbook + `/loop`). ADR-009 lease/budget ticks need `npx … --autonomy` then `/midas-auto-pilot setup` / `dry-run`; only the human or CI runs `midas-autopilot tick` (never auto-invoked from chat).
 Before writing any third-party code, follow
 `<paths.engine>/rules/context7-usage.md` (`resolve-library-id` → `get-library-docs` at the pinned version).
 **If a task matches a `{product}/playbooks/*` recipe** (one of the project's repeated procedures), the

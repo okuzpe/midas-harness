@@ -174,8 +174,8 @@ predecessor's exit gate passes:
 Run `/midas-tribunal` at any time for a whole-project adversarial debate.
 
 After a sprint lands, optional non-advancing commands: `/midas-retro` (freeze learnings),
-`/midas-auto-pilot` (unified: continuous evolve **or** ADR-009 sprint checklist;
-needs `--autonomy` only for the sprint path). Hygiene / STM / lean / diff-gates are **internal**
+`/midas-auto-pilot` (directed loop on planned code work; ADR-009 CLI via `setup`/`dry-run`/`tick`;
+needs `--autonomy` only for that CLI). Hygiene / STM / lean / diff-gates are **internal**
 procedures path-passed by `/close-sprint` and Phase 7 (ADR-013) — not separate menu commands.
 Do not confuse the slash `/midas-auto-pilot` with the CLI `midas-autopilot.mjs` (ADR-009 controller).
 Old slash names (`/midas-auto-sprints`, `/midas-autopilot`, `/midas-improve-loop`) were removed in 3.0.

@@ -16,7 +16,7 @@ them. Project memory stays tracked: `.harness/state.yaml`, `.harness/product/`, 
 `.harness/runs/`) so the project is ready
 to use. Then run `/midas-init` once — the **one-time guided setup** (it adopts an existing repo for
 you); it retires itself afterward and `/midas-status` drives the rest. Optional later: `/midas-auto-pilot`
-(unified Mode Ask: continuous evolve with PR|code + `/loop`, or ADR-009 sprint checklist guide;
+(directed loop: next planned code task with PR|code + `/loop`; ADR-009 CLI via `setup`/`dry-run`/`tick`;
 CLI `midas-autopilot.mjs` unchanged).
 
 **Requirement:** Node.js ≥ 22 (ships with `npx`). Check with `node -v`.
@@ -228,8 +228,8 @@ Phase 8 (`/close-sprint`) grades `.harness/engine/rules/security.md`: `.gitignor
 2. `/midas-init` — the **one-time guided setup** (a few questions once; for an existing repo it runs the
    brownfield adoption for you). It then retires — you won't run it again.
 3. `/midas-status` — from here on, shows the current phase and the single next command.
-4. Optional: `/midas-auto-pilot` — unified autonomy guide (Mode Ask: continuous evolve with PR|code + `/loop`,
-   or ADR-009 sprint checklist → `midas-autopilot.mjs`). Evolve path does not require `--autonomy`.
+4. Optional: `/midas-auto-pilot` — directed loop (PR|code + `/loop` on planned code work;
+   ADR-009 sprint CLI → `midas-autopilot.mjs` via `setup`/`dry-run`/`tick`). Loop path does not require `--autonomy`.
 5. After a sprint lands: `/midas-retro` — freeze learnings under `{runs}/retros/` (non-advancing;
    does not replace `/close-sprint`).
 6. **`/midas-reconcile`** — when unsure which command to run (install vs update vs init); read-only.

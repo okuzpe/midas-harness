@@ -11,6 +11,10 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ### Changed
 
+- **`/midas-auto-pilot`** — directed `/loop` on the next planned code task (sprint/ledger/OPEN/sweep);
+  freeze `tick-NN.md` before code; `idle` if none (two consecutive idle stop the loop). Bare invoke
+  no longer asks Mode (evolve vs sprint). Slash `status` is the loop journal; ADR-009 CLI stays on
+  `setup` / `dry-run` / `tick` / `resume`. See `harness/migrations/auto-pilot-directed-loop.md`.
 - **First-run docs** — `docs/getting-started.md` leads with `/midas-init` then `/midas-status`.
   Full remains the init default; lite is the recommended track for a small MVP (with When-not and
   a graduate-to-full line). `/midas-doctor` / `/midas-align` sit under "If you edit rules or the harness".

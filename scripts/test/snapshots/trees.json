@@ -1,10 +1,10 @@
 {
   "template": {
-    "digest": "4514fe1c8319b98ea3ebbd10691dc7012aac0953117bdf60a2e9717a990496ad",
-    "fileCount": 345
+    "digest": "30b2e6cbdf51b23324b3b41ce5c560739dd5828550c4c6592f3228bff7107671",
+    "fileCount": 347
   },
   "plugin": {
-    "digest": "999791a6a362eba6d7c9360791c108c6581a276294291a8c0812f3bb3a6eaebd",
+    "digest": "be645f653fd0268b39b95562af9fcbb740295f5022018cc183b1d33842ed1306",
     "fileCount": 36
   }
 }
