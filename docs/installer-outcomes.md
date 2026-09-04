@@ -50,7 +50,9 @@ are emitted when those paths fire. In-process rollback uses `cli/lib/core/transa
 never deletes trees without restore sources.
 
 Intentional `npx … update --rollback` restores journal backups, clears `active.json`, and reports
-`COMPLETED` (exit `0`, warning in stderr) so undo success is scriptable.
+`COMPLETED` (exit `0`, warning in stderr) so undo success is scriptable. Diagnose status
+`installer_incomplete` (engine present + `active.json`) points at `--resume` / `--rollback` instead
+of `/midas-status`. Uninstall and `--rollback` take the same `install.lock` as apply.
 
 ## Recovery flags
 

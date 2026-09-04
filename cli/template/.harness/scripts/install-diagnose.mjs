@@ -130,6 +130,21 @@ export function diagnoseProject(targetDir, opts = {}) {
     };
   }
 
+  if (activeRun && hasEngine) {
+    const updateCmd = formatUpdateCmd({ version: opts.bundledVersion || null });
+    return {
+      status: 'installer_incomplete',
+      dir,
+      summary: 'An installer run is still active (active.json). Resume or roll back before other work.',
+      nextCli: `${updateCmd} --resume`,
+      nextSlash: '/midas-init',
+      detail:
+        `Installer journal is still active under .harness/cache/installer/. ` +
+        `Resume with \`${updateCmd} --resume\` (verify-only if apply already finished) ` +
+        `or undo with \`${updateCmd} --rollback\`. Do not start a new update until that run is cleared.`,
+    };
+  }
+
   const setupComplete = ctx.setupComplete;
   const midasVersion = ctx.midasVersion;
   const mode = ctx.mode || 'greenfield';

@@ -34,12 +34,12 @@ Canonical source in the engine repo is `harness/skills` / `harness/agents` (mirr
       **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` exits 0 when the PR/sprint diff touches authored skills/agents beyond typos/links.
 - [ ] Hard fails are absent (frontmatter, ≤500 entry lines or split plan, side-effect guards,
       no duplicated SoT, happy-path read depth ≤ SKILL → one support file, English body).
-      **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` score block shows `Hard fails: none`, or each fail is fixed in the same diff.
+      **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` stdout contains `Hard fails: 0` (or JSON `fails: 0`), or each fail is fixed in the same diff.
 - [ ] Core floors met for the claimed result (Pass: every core dim ≥ 2; Ship: every core dim ≥ 3;
       no dim at 0 on Pass; no dim &lt; 2 on Ship). Core = Trigger, Structure, Completion, Safety.
-      **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` reports `Core floors: ok` (or names the miss).
+      **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` exits 0. Dimension floors are the agent score block in `docs/skill-quality-gate.md` (`Core floors:`); the mechanical CLI does not print that line.
 - [ ] Every scored dimension has a one-line evidence cite; uncited dims count as ≤ 1.
-      **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` `Evidence:` line cites Trigger/Structure/Completion/Safety at minimum.
+      **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` exits 0. Agent `Evidence:` cites Trigger/Structure/Completion/Safety per `docs/skill-quality-gate.md`; the mechanical CLI does not print that line.
 
 ### Frontmatter and catalog (user-facing)
 - [ ] Entry `SKILL.md` has valid `name` (= directory) + WHAT+WHEN(+NOT) `description` ≤ 1024 chars;

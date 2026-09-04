@@ -1,11 +1,15 @@
 // install-lock.mjs — exclusive installer lock (pid + host), ADR-012 P1.
 
 import {
+  closeSync,
+  constants,
   existsSync,
   mkdirSync,
+  openSync,
   readFileSync,
   unlinkSync,
   writeFileSync,
+  writeSync,
 } from 'node:fs';
 import { hostname as osHostname } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -38,8 +42,10 @@ export function isPidAlive(pid) {
   try {
     process.kill(pid, 0);
     return true;
-  } catch {
-    return false;
+  } catch (err) {
+    // Access-denied means the process exists (common on Windows). Only ESRCH is "dead".
+    const code = err && typeof err === 'object' && 'code' in err ? err.code : '';
+    return code === 'EPERM' || code === 'EACCES';
   }
 }
 
@@ -85,6 +91,28 @@ export function isLockStale(lock, nowMs = Date.now(), staleMs = DEFAULT_STALE_MS
 }
 
 /**
+ * @param {string} path
+ * @param {InstallLock} lock
+ * @returns {boolean} true when this process created the file
+ */
+function tryCreateLockFile(path, lock) {
+  const body = `${JSON.stringify(lock, null, 2)}\n`;
+  let fd;
+  try {
+    fd = openSync(path, constants.O_CREAT | constants.O_EXCL | constants.O_WRONLY);
+  } catch (err) {
+    if (err && typeof err === 'object' && 'code' in err && err.code === 'EEXIST') return false;
+    throw err;
+  }
+  try {
+    writeSync(fd, body, 'utf8');
+  } finally {
+    closeSync(fd);
+  }
+  return true;
+}
+
+/**
  * @param {string} projectRoot
  * @param {{ pid?: number, hostname?: string, staleMs?: number }} [opts]
  * @returns {{ ok: true, lock: InstallLock } | { ok: false, reason: string, holder: InstallLock | null }}
@@ -95,16 +123,6 @@ export function acquireInstallLock(projectRoot, opts = {}) {
   const pid = opts.pid ?? process.pid;
   const host = opts.hostname ?? osHostname();
   const staleMs = opts.staleMs ?? DEFAULT_STALE_MS;
-  const existing = readInstallLock(projectRoot);
-
-  if (existing) {
-    const sameOwner = existing.pid === pid && existing.hostname === host;
-    const alive = isPidAlive(existing.pid);
-    const stale = isLockStale(existing, Date.now(), staleMs);
-    if (!sameOwner && alive && !stale) {
-      return { ok: false, reason: 'lock-held', holder: existing };
-    }
-  }
 
   /** @type {InstallLock} */
   const lock = {
@@ -113,8 +131,30 @@ export function acquireInstallLock(projectRoot, opts = {}) {
     hostname: host,
     acquired_at: new Date().toISOString(),
   };
-  writeFileSync(path, `${JSON.stringify(lock, null, 2)}\n`, 'utf8');
-  return { ok: true, lock };
+
+  if (tryCreateLockFile(path, lock)) return { ok: true, lock };
+
+  const existing = readInstallLock(projectRoot);
+  if (existing) {
+    const sameOwner = existing.pid === pid && existing.hostname === host;
+    if (sameOwner) {
+      writeFileSync(path, `${JSON.stringify(lock, null, 2)}\n`, 'utf8');
+      return { ok: true, lock };
+    }
+    const alive = isPidAlive(existing.pid);
+    const stale = isLockStale(existing, Date.now(), staleMs);
+    if (alive && !stale) {
+      return { ok: false, reason: 'lock-held', holder: existing };
+    }
+  }
+
+  try {
+    unlinkSync(path);
+  } catch {
+    // Another process may have already replaced it.
+  }
+  if (tryCreateLockFile(path, lock)) return { ok: true, lock };
+  return { ok: false, reason: 'lock-held', holder: readInstallLock(projectRoot) };
 }
 
 /**

@@ -13,6 +13,7 @@ import {
 import { hostname } from 'node:os';
 import { join, normalize } from 'node:path';
 import { isMidasEngineRepository } from './context.mjs';
+import { isSafeRelPath } from '../shared/posix.mjs';
 
 /** @typedef {{
  *   run_id: string,
@@ -38,11 +39,7 @@ export function resolveInstallerCacheRoot(projectRoot) {
  * @param {string} relPath
  */
 function assertSafeRelPath(relPath) {
-  const normalized = normalize(relPath).replace(/\\/g, '/');
-  if (!normalized || normalized === '.' || normalized.startsWith('../') || normalized.includes('/../')) {
-    throw new Error('relPath must stay within the project');
-  }
-  if (normalized.startsWith('/') || /^[a-zA-Z]:/.test(normalized)) {
+  if (!isSafeRelPath(relPath)) {
     throw new Error('relPath must stay within the project');
   }
 }

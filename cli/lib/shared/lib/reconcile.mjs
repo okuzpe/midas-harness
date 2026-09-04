@@ -16,6 +16,7 @@ import {
   sha256File,
   vendorFilesOf,
 } from '../ownership-manifest.mjs';
+import { isSafeRelPath, toPosixRel } from './posix.mjs';
 import { walkFiles } from './walk.mjs';
 
 /**
@@ -27,12 +28,13 @@ import { walkFiles } from './walk.mjs';
 export const RECONCILE_ROOTS = CHANNEL_TREE_ROOTS;
 
 function normalize(rel) {
-  return String(rel).replace(/\\/g, '/');
+  return toPosixRel(rel);
 }
 
-/** True when `rel` sits under one of `roots`. */
+/** True when `rel` sits under one of `roots` and does not escape via `..`. */
 export function isUnderRoots(rel, roots = RECONCILE_ROOTS) {
   const n = normalize(rel);
+  if (!isSafeRelPath(n)) return false;
   return roots.some((root) => n === root || n.startsWith(`${root}/`));
 }
 

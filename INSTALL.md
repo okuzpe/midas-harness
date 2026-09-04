@@ -203,8 +203,12 @@ Midas splits project memory into **auditable artifacts** (commit them) and **vol
 
 `update` may only add/refresh/delete **vendor kit** (`.harness/engine`, `.harness/scripts`) and re-derive
 generated adapters/mirrors. It never deletes `.harness/product/`, `.harness/rules/`, `.harness/runs/`, or
-`state.yaml`. If git still tracks kit files from an older install: `git rm -r --cached .harness/engine
-.harness/scripts .claude/skills .cursor/skills .agents/skills`.
+`state.yaml`. Project skills under `.claude/skills/` or `.agents/skills/` stay tracked. If git still
+tracks vendor kit files from an older install:
+
+```bash
+git rm --cached --ignore-unmatch -r -- .harness/engine .harness/scripts .harness/bin .cursor/skills
+```
 
 **Verify after install or update:**
 

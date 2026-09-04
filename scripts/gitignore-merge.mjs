@@ -1,6 +1,6 @@
 // gitignore-merge.mjs — append Midas .gitignore block (secrets, deps, volatile + product kit). Dependency-free.
 
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -73,6 +73,75 @@ export function kitSectionFromSnippet(snippet) {
   return snippet.slice(start, end + GITIGNORE_KIT_END.length).trim();
 }
 
+/** Engine skill directory names under `.harness/engine/skills` or `harness/skills`. */
+export function engineSkillSlugs(root) {
+  const dirs = [join(root, '.harness', 'engine', 'skills'), join(root, 'harness', 'skills')];
+  for (const dir of dirs) {
+    if (!existsSync(dir)) continue;
+    try {
+      return readdirSync(dir, { withFileTypes: true })
+        .filter((e) => e.isDirectory() && !e.name.startsWith('.') && !e.name.includes('/'))
+        .map((e) => e.name)
+        .sort();
+    } catch {
+      continue;
+    }
+  }
+  return [];
+}
+
+function isBlanketOrEngineHostSkillIgnore(line) {
+  const t = line.trim();
+  return t === '.claude/skills/' || t === '.agents/skills/' ||
+    /^\.claude\/skills\/[^/]+\/$/.test(t) || /^\.agents\/skills\/[^/]+\/$/.test(t);
+}
+
+function hostSkillIgnoreLines(slugs) {
+  const lines = [];
+  for (const s of slugs) {
+    lines.push(`.claude/skills/${s}/`);
+    lines.push(`.agents/skills/${s}/`);
+  }
+  return lines;
+}
+
+/** Kit block with per-engine-slug host-skill ignores (project skills stay trackable). */
+export function expandKitSection(root, snippet) {
+  const kit = kitSectionFromSnippet(snippet);
+  if (!kit) return '';
+  const lines = kit.split('\n').filter((l) => !isBlanketOrEngineHostSkillIgnore(l));
+  const inject = hostSkillIgnoreLines(engineSkillSlugs(root));
+  const insertAt = lines.findIndex((l) => {
+    const t = l.trim();
+    return t === '.cursor/skills/' || t === 'GEMINI.md' || t === GITIGNORE_KIT_END;
+  });
+  const at = insertAt === -1 ? Math.max(0, lines.length - 1) : insertAt;
+  lines.splice(at, 0, ...inject);
+  return lines.join('\n');
+}
+
+export function replaceKitSection(existing, kit) {
+  const start = existing.indexOf(GITIGNORE_KIT_BEGIN);
+  const endMark = existing.indexOf(GITIGNORE_KIT_END);
+  if (start === -1 || endMark === -1 || endMark < start || !kit) return existing;
+  return `${existing.slice(0, start)}${kit}${existing.slice(endMark + GITIGNORE_KIT_END.length)}`;
+}
+
+export function expandSnippetKit(root, snippet) {
+  const kit = expandKitSection(root, snippet);
+  if (!kit) return snippet;
+  return replaceKitSection(snippet, kit);
+}
+
+/** True when a tracked path is vendor kit (not a project skill under .claude/.agents). */
+export function isVendorKitTrackedPath(rel, slugs) {
+  const f = String(rel).replace(/\\/g, '/');
+  if (AUTONOMY_USER_TRACKED.has(f) || f.startsWith('.harness/autonomy/authz/')) return false;
+  const host = f.match(/^\.(?:claude|agents)\/skills\/([^/]+)\//);
+  if (host) return slugs.includes(host[1]);
+  return true;
+}
+
 /** Drop the product-kit ignore block so the engine repo never gitignores its own skill mirrors. */
 export function snippetForRoot(root, snippet) {
   if (!isEngineRepoRoot(root)) return snippet;
@@ -96,9 +165,9 @@ export function ensureMidasGitignore(root) {
   if (!existsSync(snippetPath)) return { wrote: false, upgraded: false };
 
   const rawSnippet = readFileSync(snippetPath, 'utf8').trim();
-  const snippet = snippetForRoot(root, rawSnippet);
+  const snippet = expandSnippetKit(root, snippetForRoot(root, rawSnippet));
   const gitignorePath = join(root, '.gitignore');
-  const existing = existsSync(gitignorePath) ? readFileSync(gitignorePath, 'utf8') : '';
+  let existing = existsSync(gitignorePath) ? readFileSync(gitignorePath, 'utf8') : '';
 
   if (!existing.includes(GITIGNORE_BEGIN)) {
     const block = `${GITIGNORE_BEGIN}\n${snippet}\n${GITIGNORE_END}\n`;
@@ -115,7 +184,7 @@ export function ensureMidasGitignore(root) {
   // section before `# midas:end` instead of scattering missing lines (which would un-ignore
   // `.harness/runs/**` after an older `.harness/runs/explore/.active` and make it trackable).
   if (!isEngineRepoRoot(root) && !existing.includes(GITIGNORE_KIT_BEGIN)) {
-    const kit = kitSectionFromSnippet(rawSnippet);
+    const kit = expandKitSection(root, rawSnippet);
     if (kit) {
       const next = `${existing.slice(0, endIdx)}\n${kit}\n${existing.slice(endIdx)}`;
       writeFileSync(gitignorePath, next, 'utf8');
@@ -123,11 +192,24 @@ export function ensureMidasGitignore(root) {
     }
   }
 
-  const missing = snippetPatterns(snippet).filter((p) => !gitignoreHasPattern(existing, p));
-  if (!missing.length) return { wrote: false, upgraded: false };
+  let wrote = false;
+  if (!isEngineRepoRoot(root) && existing.includes(GITIGNORE_KIT_BEGIN)) {
+    const kit = expandKitSection(root, rawSnippet);
+    const replaced = replaceKitSection(existing, kit);
+    if (kit && replaced !== existing) {
+      existing = replaced;
+      writeFileSync(gitignorePath, existing, 'utf8');
+      wrote = true;
+    }
+  }
 
+  const missing = snippetPatterns(snippet).filter((p) => !gitignoreHasPattern(existing, p));
+  if (!missing.length) return { wrote, upgraded: wrote };
+
+  const endNow = existing.indexOf(GITIGNORE_END);
+  const insertAt = endNow === -1 ? existing.length : endNow;
   const insert = `\n# midas: amend — patterns added on install/update\n${missing.join('\n')}\n`;
-  const next = `${existing.slice(0, endIdx)}${insert}${existing.slice(endIdx)}`;
+  const next = `${existing.slice(0, insertAt)}${insert}${existing.slice(insertAt)}`;
   writeFileSync(gitignorePath, next, 'utf8');
   return { wrote: true, upgraded: true };
 }
@@ -189,7 +271,7 @@ export function auditGitignore(root) {
 
   const existing = readFileSync(gitignorePath, 'utf8');
   const hasBlock = existing.includes(GITIGNORE_BEGIN);
-  const snippet = snippetForRoot(root, readFileSync(snippetPath, 'utf8'));
+  const snippet = expandSnippetKit(root, snippetForRoot(root, readFileSync(snippetPath, 'utf8')));
   const missingSnippet = snippetPatterns(snippet).filter((pat) => !gitignoreHasPattern(existing, pat));
   const missingSecurity = GITIGNORE_SECURITY_PATTERNS.filter((pat) => !existing.includes(pat));
   const missing = [...new Set([...missingSecurity, ...missingSnippet])];
@@ -244,20 +326,21 @@ export function auditTrackedKit(root) {
     ['-C', root, 'ls-files', '-z', '--', ...GITIGNORE_KIT_TRACKED_PREFIXES],
     { encoding: 'utf8', windowsHide: true, maxBuffer: 4 * 1024 * 1024 },
   );
+  const slugs = engineSkillSlugs(root);
   const files = String(ls.stdout || '')
     .split('\0')
     .map((f) => f.replace(/\\/g, '/'))
     .filter(Boolean)
-    .filter((f) => !AUTONOMY_USER_TRACKED.has(f) && !f.startsWith('.harness/autonomy/authz/'));
+    .filter((f) => isVendorKitTrackedPath(f, slugs));
   if (!files.length) {
     return { status: 'ok', note: 'vendor kit is not tracked', files: [] };
   }
   return {
     status: 'warn',
     note:
-      `${files.length} kit file(s) still tracked — git rm -r --cached .harness/engine .harness/scripts ` +
-      '.harness/bin .claude/skills .claude/agents .cursor/skills .cursor/rules/00-midas.mdc ' +
-      '.cursor/rules/01-midas-checks.mdc .agents/skills GEMINI.md .claude/CLAUDE.md',
+      `${files.length} kit file(s) still tracked — git rm --cached --ignore-unmatch -r -- ` +
+      '.harness/engine .harness/scripts .harness/bin .harness/manifest.json .cursor/skills ' +
+      '.cursor/rules/00-midas.mdc .cursor/rules/01-midas-checks.mdc',
     files,
   };
 }

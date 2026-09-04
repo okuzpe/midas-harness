@@ -175,11 +175,21 @@ export function harnessPathsYaml() {
 
 export function resolveProjectRootFromScript(metaUrl) {
   const scriptDir = dirname(fileURLToPath(metaUrl));
+  let dir = scriptDir;
+  for (let i = 0; i < 8; i++) {
+    if (
+      (existsSync(join(dir, 'harness', 'VERSION')) && existsSync(join(dir, 'scripts', 'test.mjs'))) ||
+      existsSync(join(dir, '.harness', 'state.yaml')) ||
+      existsSync(join(dir, '.harness', 'engine', 'VERSION'))
+    ) {
+      return dir;
+    }
+    const parent = resolve(dir, '..');
+    if (parent === dir) break;
+    dir = parent;
+  }
   const norm = scriptDir.replace(/\\/g, '/');
   if (norm.endsWith('/.midas/scripts') || norm.endsWith('/.harness/scripts')) {
-    return resolve(scriptDir, '..', '..');
-  }
-  if (norm.endsWith('/scripts/safety') || norm.endsWith('/scripts/safety/lib')) {
     return resolve(scriptDir, '..', '..');
   }
   return resolve(scriptDir, '..');

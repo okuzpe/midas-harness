@@ -2,6 +2,7 @@
 
 import { readdirSync, readFileSync, writeFileSync, existsSync, rmSync, rmdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { resolveContained } from '../shared/posix.mjs';
 import {
   readOwnershipManifest,
   sha256File,
@@ -24,7 +25,7 @@ import { V1_REFUSE_MESSAGE, isV1Install } from '../core/context.mjs';
 
 function rmFile(ctx, rel) {
   if (ctx.dryRun) return;
-  try { rmSync(join(ctx.target, rel)); } catch (err) {
+  try { rmSync(resolveContained(ctx.target, rel)); } catch (err) {
     console.error(`midas uninstall: ${rel}: ${err instanceof Error ? err.message : err}`);
   }
 }

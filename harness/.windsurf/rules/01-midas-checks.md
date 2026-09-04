@@ -187,9 +187,9 @@ description: Midas CHECK digest for Phase-8 conformance audits and rule reviews.
   - **CHECK:** `manual:` session evidence shows `/midas-recall` or a re-read of `NN-progress.md` + `paths.state` after a compaction/reset before further implementation; continuing from chat memory alone is a fail.
 - **Rule: Skill authoring quality gate (always-on)** (`skill-quality.md`, base)
   - **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` exits 0 when the PR/sprint diff touches authored skills/agents beyond typos/links.
-  - **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` score block shows `Hard fails: none`, or each fail is fixed in the same diff.
-  - **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` reports `Core floors: ok` (or names the miss).
-  - **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` `Evidence:` line cites Trigger/Structure/Completion/Safety at minimum.
+  - **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` stdout contains `Hard fails: 0` (or JSON `fails: 0`), or each fail is fixed in the same diff.
+  - **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` exits 0. Dimension floors are the agent score block in `docs/skill-quality-gate.md` (`Core floors:`); the mechanical CLI does not print that line.
+  - **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` exits 0. Agent `Evidence:` cites Trigger/Structure/Completion/Safety per `docs/skill-quality-gate.md`; the mechanical CLI does not print that line.
   - **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` exits 0 on authored skill/agent surfaces; missing name/description, name≠dir, or side-effect skill without `disable-model-invocation: true` (and no documented exception) is a fail.
   - **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` warns `not referenced in the skills catalog` when a skill directory has no `/<name>` mention in `docs/skills.md` (or `<paths.engine>/docs/skills.md` on installs) — mechanizes the presence half of this CHECK; a warning on a touched skill is a fail. Still `manual:` whether a changed one-line role was updated in the catalog text, not just that the slash-name is still present (see also `change-propagation.md`).
   - **CHECK:** `node <paths.scripts>/skill-quality-check.mjs` exits 0; an entry over 500 lines without an in-tree L3 split plan, or happy-path depth &gt; SKILL + one support file, is a fail.

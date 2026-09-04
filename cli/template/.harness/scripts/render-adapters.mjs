@@ -21,6 +21,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { parseToolsFromStateYaml } from './yaml-lite.mjs';
 import { resolvePaths } from './paths.mjs';
 import { writeSkillRegistry } from './skill-registry.mjs';
@@ -30,9 +31,8 @@ if (maybeHelp(import.meta.url)) process.exit(0);
 export { parseToolsFromStateYaml };
 
 // Repo root = parent of this script's directory (scripts/..). Resolved from the script URL so the
-// script works regardless of the current working directory. The regex strips the leading slash
-// that Node puts before a Windows drive letter in a file:// pathname (/C:/... -> C:/...).
-const SCRIPT_DIR = dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
+// script works regardless of the current working directory.
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(SCRIPT_DIR, '..');
 
 // Managed-marker fences. Anything between BEGIN and END is owned by this renderer.
@@ -664,7 +664,7 @@ export function writeEngineRegistries(root, engineRel, { gatesIndex = null, chec
 // Run only when executed directly (not when imported by doctor.mjs).
 const invokedDirectly =
   process.argv[1] &&
-  resolve(process.argv[1]) === resolve(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
+  resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url));
 
 if (invokedDirectly) {
   const { hash, results } = renderAdapters();

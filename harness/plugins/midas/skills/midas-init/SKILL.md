@@ -40,7 +40,7 @@ node <paths.scripts>/install-diagnose.mjs
 npx github:okuzpe/midas-harness --diagnose
 ```
 
-Statuses: `not_installed` | `unsupported_v1` | `setup_pending` | `version_behind` | `nested_or_wrong_cwd` | `partial_migrate` | `ready`
+Statuses: `not_installed` | `unsupported_v1` | `setup_pending` | `version_behind` | `nested_or_wrong_cwd` | `partial_migrate` | `installer_incomplete` | `ready`
 
 ### 1. Branch (exact)
 
@@ -51,6 +51,7 @@ Statuses: `not_installed` | `unsupported_v1` | `setup_pending` | `version_behind
 | `version_behind` | Print diagnose `nextCli` (pinned `update`). Optionally mention dry-run. **Allowed even when `setup_complete: true`.** Do not invent a copy plan. **STOP** after the tip. |
 | `unsupported_v1` | Print diagnose `nextCli` (pin `create-midas@2.10.x`, migrate, then upgrade to 3.x). **STOP.** Do not run 3.x `update` — it writes nothing. |
 | `partial_migrate` | Print diagnose `nextCli` (rollback if a journal exists) and the recover+`update` detail. **STOP**. Do not start intake or a fresh install unless the human intends to discard leftover `.harness/product`. |
+| `installer_incomplete` | Print diagnose `nextCli` (`update --resume`) and the `--rollback` detail. **STOP**. Do not start intake or a new update until that run is cleared. |
 | `nested_or_wrong_cwd` | Print detail; ask human to `cd` to project root; **STOP**. |
 | `ready` | Onboarding complete — *👉 Run `/midas-status`*. If args include `--monorepo`, run **Phase F only** (see init-adaptive); do not flip `setup_complete`. Otherwise **STOP**. |
 

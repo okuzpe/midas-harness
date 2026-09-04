@@ -26,7 +26,7 @@ import {
 import { maybeHelp } from './lib/cli-io.mjs';
 if (maybeHelp(import.meta.url)) process.exit(0);
 
-const SCRIPT_DIR = dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(SCRIPT_DIR, '..');
 
 // --- metadata (edit these before publishing) ---------------------------------------------------

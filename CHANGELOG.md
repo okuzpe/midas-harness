@@ -28,11 +28,27 @@ Versioning follows [SemVer](https://semver.org/) as defined in [`VERSIONING.md`]
 
 ### Fixed
 
+- **Installer path containment** — manifest/reconcile deletes, uninstall, journal backups, and
+  post-apply `mkdir` refuse `..` / absolute relpaths. Update verify always runs vendor
+  `.harness/scripts/doctor.mjs`, not a `state.yaml` `paths.scripts` override.
+- **Installer lock** — `install.lock` is created with `O_EXCL`; `EPERM`/`EACCES` on pid probe count
+  as alive (Windows). Uninstall and `--rollback` acquire the lock instead of skipping or
+  force-stealing it.
+- **Diagnose incomplete runs** — a healthy tree with `active.json` is `installer_incomplete`
+  (`update --resume` / `--rollback`), not `ready`.
+- **Update rollback** — `.gitignore` is in the vendor snapshot set (merge during update is
+  restored on `--rollback`).
+- **Windows script identity** — `render-adapters`, `build-plugin`, and `design-system` resolve
+  `import.meta.url` with `fileURLToPath` (paths with spaces no longer percent-encode).
+- **Skill-quality CHECKs** — mechanical CLI output (`Hard fails: 0`) is distinct from the
+  agent-emitted score block in `docs/skill-quality-gate.md`.
 - **Product gitignore kit** — install/update ignores `.harness/engine`, `.harness/scripts`, generated
   host mirrors and adapters. Git keeps `.harness/state.yaml`, `product/`, `rules/`, `runs/`, and
-  autonomy user files. An older `.gitignore` gets the kit block as one ordered section (so
-  `!.harness/runs/**` cannot un-ignore `explore/.active`). `gitignore:kit-not-tracked` warns if an
-  older clone still tracks the kit.
+  autonomy user files. Host skill trees mix vendor mirrors with project skills: ignore engine slugs
+  only (`.claude/skills/<slug>/`), never `.claude/skills/` or `.agents/skills/` as a whole. An older
+  `.gitignore` gets the kit block as one ordered section (so `!.harness/runs/**` cannot un-ignore
+  `explore/.active`). `gitignore:kit-not-tracked` warns if an older clone still tracks the kit;
+  the hint uses `git rm --cached --ignore-unmatch` and does not name project skill trees.
 - **`midas` launcher on Windows** — spawn `npx` via `cmd.exe /c` (no `shell: true`) so Node no longer
   prints DEP0190 after a successful update.
 - **FAQ 1.x migrate** — the layout answer matches 3.x refuse (pin `create-midas@2.10.x`, then

@@ -2,6 +2,7 @@
 
 import { existsSync, mkdirSync, copyFileSync, rmSync, rmdirSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { resolveContained } from '../shared/posix.mjs';
 import { decideTemplateCopyAction } from '../core/preserve-policy.mjs';
 import { walkTemplate } from '../core/walk-template.mjs';
 import { readOwnershipManifest } from '../shared/ownership-manifest.mjs';
@@ -172,7 +173,7 @@ export function pruneOrphanEngineSkillDirs(ctx) {
 export function applyVendorRemovals(ctx, plan) {
   const removals = reconcileRemovals(plan);
   for (const rel of removals) {
-    rmSync(join(ctx.target, rel), { force: true });
+    rmSync(resolveContained(ctx.target, rel), { force: true });
     ctx.written.push(`removed:${rel}`);
   }
   if (ctx.update || ctx.migrate) {

@@ -2,9 +2,9 @@
   "adapters": {
     "CLAUDE.md": "d3bad22aef939a7b48d6987f3e97825873d2e7daf88f7029f5de535e779b92ae",
     ".cursor/rules/00-midas.mdc": "435d586d26025b86e5f19dcffd8a58eb8e2262f193922ae62611855d5c15875a",
-    ".cursor/rules/01-midas-checks.mdc": "05c57db992feab0565ec01163b210f474404e91b5cbc16d3613f00d96734b1ca",
+    ".cursor/rules/01-midas-checks.mdc": "4d52a2e3627d814a98853972980272f740f2dc1aa3adf7b538d7061631cf0638",
     "harness/.windsurf/rules/00-midas.md": "76e6b2d41d90946380727c55e816c2cb3c22b75c867ac0c413e22c17e97e5722",
-    "harness/.windsurf/rules/01-midas-checks.md": "4bf437ff9014941166fbf16f5d6bd178ef3b74560baed2b6733cf7d7eda36644",
+    "harness/.windsurf/rules/01-midas-checks.md": "5be9f229a4a5bd465f711d355116a1bc6efb975e0c682ed60961695b5f01963d",
     "GEMINI.md": "958833bd7f5298fd00ec8d20cf4a4dfc86b108f8c7dcb3862c02c66cb0a1222c"
   },
   "adapterPaths": [

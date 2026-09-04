@@ -60,6 +60,34 @@ describe('install-lock', () => {
     }
   });
 
+  it('EPERM/EACCES on pid probe counts as alive', () => {
+    const orig = process.kill;
+    process.kill = () => {
+      const err = new Error('denied');
+      err.code = 'EPERM';
+      throw err;
+    };
+    try {
+      assert.equal(isPidAlive(12345), true);
+    } finally {
+      process.kill = orig;
+    }
+  });
+
+  it('same-owner acquire refreshes the lock file', () => {
+    const root = makeProject('refresh');
+    try {
+      const first = acquireInstallLock(root);
+      assert.equal(first.ok, true);
+      const second = acquireInstallLock(root);
+      assert.equal(second.ok, true);
+      assert.equal(readInstallLock(root)?.pid, process.pid);
+    } finally {
+      releaseInstallLock(root, { force: true });
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it('dead pid lock is overwritten', () => {
     const root = makeProject('dead');
     try {

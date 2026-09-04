@@ -2,7 +2,7 @@
   "schema_version": 1,
   "updated": null,
   "source": "engine/rules",
-  "source_digest": "2ad64f36382f57c843e4b1230b64487e07819f4c93a4dfd338caccc12c876ff8",
+  "source_digest": "3e6e78d5f6695af05682a4445efd535129de6477ec727c275eb4e30d699b7b2a",
   "rules": [
     {
       "path": "engine/rules/acceptance-criteria.md",
@@ -1506,7 +1506,7 @@
         },
         {
           "kind": "command",
-          "body": "`node <paths.scripts>/skill-quality-check.mjs` score block shows `Hard fails: none`, or each fail is fixed in the same diff.",
+          "body": "`node <paths.scripts>/skill-quality-check.mjs` stdout contains `Hard fails: 0` (or JSON `fails: 0`), or each fail is fixed in the same diff.",
           "section": "Checklist > Score after material skill edits",
           "phase": 8,
           "owner": "orchestrate",
@@ -1514,7 +1514,7 @@
         },
         {
           "kind": "command",
-          "body": "`node <paths.scripts>/skill-quality-check.mjs` reports `Core floors: ok` (or names the miss).",
+          "body": "`node <paths.scripts>/skill-quality-check.mjs` exits 0. Dimension floors are the agent score block in `docs/skill-quality-gate.md` (`Core floors:`); the mechanical CLI does not print that line.",
           "section": "Checklist > Score after material skill edits",
           "phase": 8,
           "owner": "orchestrate",
@@ -1522,7 +1522,7 @@
         },
         {
           "kind": "command",
-          "body": "`node <paths.scripts>/skill-quality-check.mjs` `Evidence:` line cites Trigger/Structure/Completion/Safety at minimum.",
+          "body": "`node <paths.scripts>/skill-quality-check.mjs` exits 0. Agent `Evidence:` cites Trigger/Structure/Completion/Safety per `docs/skill-quality-gate.md`; the mechanical CLI does not print that line.",
           "section": "Checklist > Score after material skill edits",
           "phase": 8,
           "owner": "orchestrate",

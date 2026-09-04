@@ -38,6 +38,7 @@ import {
 import { runPlanOps } from '../core/runner.mjs';
 import { formatShortUpdateCmd } from '../core/install-cmd.mjs';
 import { INSTALL_OUTCOMES } from './outcomes.mjs';
+import { resolveContained } from '../shared/posix.mjs';
 import { applyPhaseCopy } from './phases/copy.mjs';
 import { applyWriteState } from './phases/write-state.mjs';
 import { applyRenderAdapters } from './phases/render-adapters.mjs';
@@ -179,18 +180,40 @@ export function createExecuteHandler(env) {
     return import(pathToFileURL(trustedScriptPath(name)).href);
   }
 
+  function lockHeldFailure(lock) {
+    const holder = lock.holder;
+    return {
+      ok: false,
+      exitCode: INSTALL_OUTCOMES.LOCK_HELD,
+      outcome: 'LOCK_HELD',
+      message:
+        `create-midas: installer lock held by pid ${holder?.pid} on ${holder?.hostname}` +
+        ' — wait or remove a stale lock after confirming the other process is dead',
+    };
+  }
+
 async function executeInstallerCommand(cmd, hooks) {
     syncEffectiveFlags(cmd);
 
     if (cmd.command === 'uninstall') {
-      const plan = hooks.plan;
-      const session = makeSession({ migrationPlan: null });
-      bindExecutableOps(plan, session, { update: false, migrate: false, autonomy: false });
-      // Ensure uninstall-engine has apply even if plan shape differs
-      const engineOp = plan.ops?.find((o) => o.id === 'uninstall-engine');
-      if (engineOp) engineOp.apply = async () => { session.applyUninstall(); };
-      await runPlanOps(plan, session);
-      return { ok: true, message: cmd.dryRun ? 'uninstall dry-run' : 'uninstall complete' };
+      let held = false;
+      if (!cmd.dryRun) {
+        const lock = acquireInstallLock(TARGET);
+        if (!lock.ok) return lockHeldFailure(lock);
+        held = true;
+      }
+      try {
+        const plan = hooks.plan;
+        const session = makeSession({ migrationPlan: null });
+        bindExecutableOps(plan, session, { update: false, migrate: false, autonomy: false });
+        // Ensure uninstall-engine has apply even if plan shape differs
+        const engineOp = plan.ops?.find((o) => o.id === 'uninstall-engine');
+        if (engineOp) engineOp.apply = async () => { session.applyUninstall(); };
+        await runPlanOps(plan, session);
+        return { ok: true, message: cmd.dryRun ? 'uninstall dry-run' : 'uninstall complete' };
+      } finally {
+        if (held) releaseInstallLock(TARGET);
+      }
     }
 
     if (cmd.command === 'migrate') {
@@ -199,41 +222,42 @@ async function executeInstallerCommand(cmd, hooks) {
 
     // Intentional journal rollback (crash recovery) — no re-apply.
     if (cmd.rollback && !cmd.dryRun) {
-      const active = readActiveRun(TARGET);
-      if (!active) {
+      const lock = acquireInstallLock(TARGET);
+      if (!lock.ok) return lockHeldFailure(lock);
+      try {
+        const active = readActiveRun(TARGET);
+        if (!active) {
+          return {
+            ok: false,
+            exitCode: 1,
+            outcome: 'FAILED_FATAL',
+            message: 'create-midas: --rollback found no active.json installer run',
+          };
+        }
+        const durable = sessionFromJournal(TARGET, active.run_id);
+        if (!durable) {
+          return {
+            ok: false,
+            exitCode: 1,
+            outcome: 'FAILED_FATAL',
+            message: `create-midas: --rollback found no journal for run ${active.run_id}`,
+          };
+        }
+        libRollbackInstall(durable);
+        clearActiveRun(TARGET);
+        appendJournal(TARGET, active.run_id, { op: 'rollback', detail: 'intentional --rollback' });
+        if (!jsonOut) {
+          console.warn(`create-midas: rolled back installer run ${active.run_id}`);
+        }
         return {
-          ok: false,
-          exitCode: 1,
-          outcome: 'FAILED_FATAL',
-          message: 'create-midas: --rollback found no active.json installer run',
+          ok: true,
+          exitCode: 0,
+          outcome: 'COMPLETED',
+          message: `create-midas: rolled back installer run ${active.run_id}`,
         };
+      } finally {
+        releaseInstallLock(TARGET);
       }
-      const pathOpts = {
-        migrate: active.command === 'migrate',
-        update: active.command === 'update',
-      };
-      const durable = sessionFromJournal(TARGET, active.run_id);
-      if (!durable) {
-        return {
-          ok: false,
-          exitCode: 1,
-          outcome: 'FAILED_FATAL',
-          message: `create-midas: --rollback found no journal for run ${active.run_id}`,
-        };
-      }
-      libRollbackInstall(durable);
-      clearActiveRun(TARGET);
-      releaseInstallLock(TARGET, { force: true });
-      appendJournal(TARGET, active.run_id, { op: 'rollback', detail: 'intentional --rollback' });
-      if (!jsonOut) {
-        console.warn(`create-midas: rolled back installer run ${active.run_id}`);
-      }
-      return {
-        ok: true,
-        exitCode: 0,
-        outcome: 'COMPLETED',
-        message: `create-midas: rolled back installer run ${active.run_id}`,
-      };
     }
 
     written = [];
@@ -265,17 +289,7 @@ async function executeInstallerCommand(cmd, hooks) {
 
     if (!cmd.dryRun) {
       const lock = acquireInstallLock(TARGET);
-      if (!lock.ok) {
-        const holder = lock.holder;
-        return {
-          ok: false,
-          exitCode: INSTALL_OUTCOMES.LOCK_HELD,
-          outcome: 'LOCK_HELD',
-          message:
-            `create-midas: installer lock held by pid ${holder?.pid} on ${holder?.hostname}` +
-            ' — wait or remove a stale lock after confirming the other process is dead',
-        };
-      }
+      if (!lock.ok) return lockHeldFailure(lock);
       lockHeld = true;
 
       const prior = readActiveRun(TARGET);
@@ -706,6 +720,7 @@ function installRollbackPaths(opts = {}) {
     '.mcp.json',
     'gemini-extension.json',
     'docs/agents-and-models.md',
+    '.gitignore',
   ];
   // Pure --update on harness layout: vendor/adapters only.
   // Migrate (including --update promote) and fresh install: full layout restore set.
@@ -721,7 +736,6 @@ function installRollbackPaths(opts = {}) {
     'scripts',
     '.midas',
     'product',
-    '.gitignore',
   ];
 }
 
@@ -771,7 +785,7 @@ async function loadPaths(target) {
 function ensureUserLayoutDirs(paths) {
   for (const rel of [paths.product, paths.rules, paths.runs]) {
     if (!rel) continue;
-    mkdirSync(join(TARGET, rel), { recursive: true });
+    mkdirSync(resolveContained(TARGET, rel), { recursive: true });
   }
 }
 
@@ -935,7 +949,9 @@ async function ensureGitignore(paths) {
 
 /** Run midas-doctor on the target project; auto --fix once on adapter drift, then re-check. */
 function runDoctor(target, paths, fix = false, profile = 'install-verify') {
-  const doctorScript = join(target, paths.scripts, 'doctor.mjs');
+  void paths;
+  // Always the vendor copy this install just laid down — never state.yaml `paths.scripts`.
+  const doctorScript = resolveContained(target, '.harness/scripts/doctor.mjs');
   if (!existsSync(doctorScript)) return { ok: false, missing: true, out: '' };
   const args = fix
     ? [doctorScript, '--fix']

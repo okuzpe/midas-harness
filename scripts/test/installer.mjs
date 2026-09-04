@@ -287,6 +287,14 @@ const installer = readFileSync(join(ROOT, 'cli', 'index.mjs'), 'utf8');
       !/--update --rollback/.test(installerExec),
     'NEEDS_REPAIR hints must print `midas update --resume`, not `--update --resume`',
   );
+  check(
+    'installer:update-rollback-snapshots-gitignore',
+    /const vendorAndAdapters = \[[\s\S]*?'\.gitignore'/.test(installerExec),
+  );
+  check(
+    'installer:verify-pins-vendor-doctor',
+    /resolveContained\(target, '\.harness\/scripts\/doctor\.mjs'\)/.test(installerExec),
+  );
 }
 
 // --- L. INSTALL.md is the only user-facing #vX.Y.Z pin surface (must match harness/VERSION) -------
@@ -416,6 +424,8 @@ if (engineVersion) {
     /partial_migrate/.test(reconcileSkill) && /exists as a file/.test(reconcileSkill),
   );
   check('skill:midas-init:partial-migrate', /partial_migrate/.test(initSkill));
+  check('skill:midas-init:installer-incomplete', /installer_incomplete/.test(initSkill));
+  check('skill:midas-reconcile:installer-incomplete', /installer_incomplete/.test(reconcileSkill));
   check(
     'installer:bundle-integrity-fails-stable-mismatch',
     /ok: !stableReleaseMismatch/.test(readFileSync(join(ROOT, 'cli', 'lib', 'workflow', 'gather-checks.mjs'), 'utf8')) &&
@@ -601,7 +611,11 @@ if (existsSync(snippetPath)) {
   check('gitignore:snippet:kit-begin', /midas:kit-begin/.test(snippet));
   check('gitignore:snippet:unignore-state', /!\.harness\/state\.yaml/.test(snippet));
   check('gitignore:snippet:unignore-product', /!\.harness\/product\//.test(snippet));
-  check('gitignore:snippet:ignore-claude-skills', /^\.claude\/skills\//m.test(snippet));
+  check(
+    'gitignore:snippet:no-blanket-host-skills',
+    !/^\.claude\/skills\/$/m.test(snippet) && !/^\.agents\/skills\/$/m.test(snippet),
+    'project skills live in .claude/skills and .agents/skills — ignore engine slugs only',
+  );
 }
 check('gitignore:merge-module', existsSync(join(ROOT, 'scripts', 'gitignore-merge.mjs')));
 check('gitignore:audit-export', /export function auditGitignore/.test(readFileSync(join(ROOT, 'scripts', 'gitignore-merge.mjs'), 'utf8')));
@@ -673,7 +687,7 @@ check(
   rmSync(giRoot, { recursive: true, force: true });
 }
 {
-  const { isEngineRepoRoot, snippetForRoot, GITIGNORE_KIT_BEGIN } = await import(
+  const { isEngineRepoRoot, snippetForRoot, GITIGNORE_KIT_BEGIN, GITIGNORE_KIT_END, gitignoreHasPattern, isVendorKitTrackedPath } = await import(
     pathToFileURL(join(ROOT, 'scripts', 'gitignore-merge.mjs')).href
   );
   check('gitignore:engine-repo-detected', isEngineRepoRoot(ROOT));
@@ -688,6 +702,7 @@ check(
   const productGi = mkdtempSync(join(tmpdir(), 'midas-gi-product-'));
   try {
     mkdirSync(join(productGi, '.harness', 'engine', 'templates'), { recursive: true });
+    mkdirSync(join(productGi, '.harness', 'engine', 'skills', 'midas-doctor'), { recursive: true });
     writeFileSync(join(productGi, '.harness', 'state.yaml'), 'role: product\nlayout: harness\n', 'utf8');
     writeFileSync(
       join(productGi, '.harness', 'engine', 'templates', 'gitignore-midas.snippet'),
@@ -702,9 +717,49 @@ check(
         gi.includes('.harness/*') &&
         gi.includes('!.harness/state.yaml') &&
         gi.includes('!.harness/product/') &&
-        gi.includes('.claude/skills/') &&
+        gi.includes('.cursor/skills/') &&
         gi.includes('!.harness/autonomy/policy.yaml'),
     );
+    check(
+      'gitignore:product-ignores-engine-skill-slug',
+      gitignoreHasPattern(gi, '.claude/skills/midas-doctor/') &&
+        gitignoreHasPattern(gi, '.agents/skills/midas-doctor/') &&
+        !gitignoreHasPattern(gi, '.claude/skills/') &&
+        !gitignoreHasPattern(gi, '.agents/skills/'),
+    );
+    check(
+      'gitignore:product-skill-not-vendor-kit',
+      isVendorKitTrackedPath('.claude/skills/midas-doctor/SKILL.md', ['midas-doctor']) &&
+        !isVendorKitTrackedPath('.claude/skills/bodegasuite-setup/SKILL.md', ['midas-doctor']) &&
+        !isVendorKitTrackedPath('.agents/skills/bodegasuite-setup/SKILL.md', ['midas-doctor']),
+    );
+    const rewriteGi = mkdtempSync(join(tmpdir(), 'midas-gi-rewrite-'));
+    try {
+      mkdirSync(join(rewriteGi, '.harness', 'engine', 'templates'), { recursive: true });
+      mkdirSync(join(rewriteGi, '.harness', 'engine', 'skills', 'midas-doctor'), { recursive: true });
+      writeFileSync(join(rewriteGi, '.harness', 'state.yaml'), 'role: product\nlayout: harness\n', 'utf8');
+      writeFileSync(
+        join(rewriteGi, '.harness', 'engine', 'templates', 'gitignore-midas.snippet'),
+        full,
+        'utf8',
+      );
+      writeFileSync(
+        join(rewriteGi, '.gitignore'),
+        `${GITIGNORE_BEGIN}\n.env\n${GITIGNORE_KIT_BEGIN}\n.claude/skills/\n.agents/skills/\n${GITIGNORE_KIT_END}\n${GITIGNORE_END}\n`,
+        'utf8',
+      );
+      const rew = ensureMidasGitignore(rewriteGi);
+      const rewritten = readFileSync(join(rewriteGi, '.gitignore'), 'utf8');
+      check(
+        'gitignore:kit-rewrites-blanket-host-skills',
+        rew.wrote &&
+          gitignoreHasPattern(rewritten, '.claude/skills/midas-doctor/') &&
+          !gitignoreHasPattern(rewritten, '.claude/skills/') &&
+          !gitignoreHasPattern(rewritten, '.agents/skills/'),
+      );
+    } finally {
+      rmSync(rewriteGi, { recursive: true, force: true });
+    }
     const upgradeGi = mkdtempSync(join(tmpdir(), 'midas-gi-upgrade-'));
     try {
       mkdirSync(join(upgradeGi, '.harness', 'engine', 'templates'), { recursive: true });
@@ -1760,6 +1815,17 @@ if (!TEST_FAST) {
 
     writeFileSync(join(diagTmp, '.harness', 'state.yaml'), 'midas_version: 2.2.1\nlayout: harness\nsetup_complete: true\n', 'utf8');
     check('diagnose:matrix-ready', diagnoseProject(diagTmp).status === 'ready');
+
+    mkdirSync(join(diagTmp, '.harness', 'cache', 'installer'), { recursive: true });
+    writeFileSync(join(diagTmp, '.harness', 'cache', 'installer', 'active.json'), '{}\n', 'utf8');
+    {
+      const incomplete = diagnoseProject(diagTmp);
+      check('diagnose:matrix-installer-incomplete', incomplete.status === 'installer_incomplete');
+      check('diagnose:incomplete-slash-init', incomplete.nextSlash === '/midas-init');
+      check('diagnose:incomplete-resume', /--resume/.test(incomplete.nextCli || ''), incomplete.nextCli);
+    }
+    rmSync(join(diagTmp, '.harness', 'cache', 'installer', 'active.json'));
+    check('diagnose:matrix-ready-after-clear', diagnoseProject(diagTmp).status === 'ready');
 
     writeFileSync(
       join(diagTmp, '.harness', 'state.yaml'),

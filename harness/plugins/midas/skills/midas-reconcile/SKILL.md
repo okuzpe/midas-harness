@@ -50,7 +50,7 @@ Run from the **project root** (or pass the path as the first argument).
 
 ### 2. Present the output verbatim
 
-Statuses: `not_installed` | `unsupported_v1` | `setup_pending` | `version_behind` | `nested_or_wrong_cwd` | `partial_migrate` | `ready`
+Statuses: `not_installed` | `unsupported_v1` | `setup_pending` | `version_behind` | `nested_or_wrong_cwd` | `partial_migrate` | `installer_incomplete` | `ready`
 
 Do not invent a different command unless the script is missing (fallback below).
 
@@ -60,6 +60,7 @@ Do not invent a different command unless the script is missing (fallback below).
 |-------------|-------------|
 | No `.harness/engine/VERSION`, `harness/VERSION`, or `.midas/engine/VERSION` | `npx github:okuzpe/midas-harness#v{VERSION} --tools=cursor` then `/midas-init` |
 | `.harness/product` or `state.yaml` without `.harness/engine/VERSION` | `/midas-init` (`partial_migrate`) — do not treat as a fresh install |
+| Engine present and `.harness/cache/installer/active.json` exists | `npx … update --resume` (or `--rollback`) — `installer_incomplete` |
 | `harness/VERSION` or `.midas/engine/VERSION` exists but canonical engine does not | Pin `create-midas@2.10.x`, migrate to `.harness/`, then upgrade to 3.x. 3.x refuses 1.x trees. |
 | Engine present, `setup_complete: false` | `/midas-init` |
 | v2 `midas_version` ≠ engine `VERSION` | Same: `npx …#v{VERSION} update --yes` (or `/midas-init` for the tip) |

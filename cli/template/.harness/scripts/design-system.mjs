@@ -6,6 +6,7 @@
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { resolvePaths, resolveProjectRootFromScript } from './paths.mjs';
 import { maybeHelp } from './lib/cli-io.mjs';
 if (maybeHelp(import.meta.url)) process.exit(0);
@@ -263,7 +264,7 @@ export function renderDesignSystemTokens(root = ROOT) {
   return { path: `${engine}/design-system/tokens.css`, status: 'written' };
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === resolve(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'))) {
+if (process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url))) {
   const result = renderDesignSystemTokens();
   console.log(`design-system: ${result.status} ${result.path}`);
 }

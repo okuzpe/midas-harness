@@ -130,6 +130,18 @@ describe('isUnderRoots', () => {
     assert.equal(isUnderRoots('.harness/engineering/a.md'), false);
     assert.equal(isUnderRoots('.harness/product/idea.md'), false);
   });
+
+  it('rejects traversal even when the string prefixes a vendor root', () => {
+    assert.equal(isUnderRoots('.harness/engine/../../package.json'), false);
+    assert.equal(isUnderRoots('../.harness/engine/rules/a.md'), false);
+    assert.equal(isUnderRoots('/etc/passwd'), false);
+    const plan = planReconcile({
+      oldManifest: manifest([file('.harness/engine/../../package.json', 'old')]),
+      newVendorFiles: [],
+      diskScan: [file('.harness/engine/../../package.json', 'old')],
+    });
+    assert.deepEqual(reconcileRemovals(plan), []);
+  });
 });
 
 describe('scanVendorTree', () => {

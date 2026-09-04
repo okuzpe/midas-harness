@@ -60,7 +60,8 @@ Findings are **mechanical** (adapter drift, version mismatch, MCP wiring, missin
 | `skills:frontmatter` | Each `<paths.engine>/skills/*/SKILL.md` has valid frontmatter |
 | `gate:records` | Frozen sprint `audit-*` / `verify-*` tallies match `state.yaml` sprint status |
 | `gate:phase-*` / `gate:sprint-continuity` | Passed phases have assumption or on-disk artifacts; active sprints have progress when stale |
-| `gitignore:midas-block` | Root `.gitignore` has the managed Midas block (secrets, deps, volatile paths) |
+| `gitignore:midas-block` | Root `.gitignore` has the managed Midas block (secrets, deps, vendor kit ignore, volatile paths) |
+| `gitignore:kit-not-tracked` | Product git repos do not still track `.harness/engine` / host skill mirrors |
 | `layout:root-allowlist` | No orphan Midas host paths for deselected `tools` (ADR-008) |
 
 ## Phase 3 — Apply fixes (`--fix`)
