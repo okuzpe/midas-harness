@@ -3,9 +3,9 @@
   "channel": "edge",
   "version": "3.0.1",
   "ref": "main",
-  "commit": "0d4cf2a2d4ca6e6edff55c800c3e1ecc7b3f4ed7",
-  "tree_sha256": "2723aa7bf5a75ef20442bfce2741a1a50a6a2b42ad71eee6b7e60e12dc208eff",
-  "published_at": "2026-09-04T22:14:16.009Z",
+  "commit": "d34dd9b53c93002872b03f264fb6f2a194e74de5",
+  "tree_sha256": "99e1367575d25f6d84bfd70928691cabdf7f689a1d60f7e32ab2eb2870bcd236",
+  "published_at": "2026-09-04T22:50:30.347Z",
   "migrations": [
     "0001-record-update-channel"
   ],
@@ -64,7 +64,7 @@
     },
     {
       "path": ".harness/engine/docs/skill-flows.md",
-      "sha256": "a43e8f716a83ffbf6fc28774094b7da94e0436952364aab9a99db4f347b6d315"
+      "sha256": "d167ec8787a43bcc626d2f50a8c31a9120369593e237254909c3da506f0a4796"
     },
     {
       "path": ".harness/engine/docs/skill-quality-gate.md",
@@ -72,7 +72,7 @@
     },
     {
       "path": ".harness/engine/docs/skills.md",
-      "sha256": "2c9f3c3b60038b484503c47400d760d3528c920c7b4e7aabe9220fea765a5894"
+      "sha256": "74bafe641990352b8c24179adf15a852f224adbd4aa7da5848fc2a9228d0be74"
     },
     {
       "path": ".harness/engine/gates.json",
@@ -84,7 +84,11 @@
     },
     {
       "path": ".harness/engine/migrations/README.md",
-      "sha256": "38d79f32a1c30d08bad7a4e1150f5ad84c018a0c07715397723342bc0c92daa5"
+      "sha256": "8e10ee1aa17ba8cf8dfef4711e9319e3fe59bec026fed4821eb8b7b517400f59"
+    },
+    {
+      "path": ".harness/engine/migrations/auto-pilot-directed-loop.md",
+      "sha256": "efb1673703bf87fb03e2985769c30ad44eaa77a267cc24bf6d9b61505243f902"
     },
     {
       "path": ".harness/engine/migrations/auto-pilot-slash-rename.md",
@@ -312,11 +316,11 @@
     },
     {
       "path": ".harness/engine/skills/midas-auto-pilot/SKILL.md",
-      "sha256": "79b5d724a470e70379af10eae4c55c2e1bdad61fd2341e06ccd3affb95a08e70"
+      "sha256": "194640b8fc969647ab696a984f534b2ade973d99ea5a79def541710dd51566bc"
     },
     {
       "path": ".harness/engine/skills/midas-auto-pilot/sprint-checklist.md",
-      "sha256": "08356c7ef40fbe2910aaaf2f9a7d9b0cf369c2c6f92ca072df7f737689c9138d"
+      "sha256": "a7582ddba12b2fd780570468a7d27b2006d4e2483038990a2cc7fbf646eedab8"
     },
     {
       "path": ".harness/engine/skills/midas-bundle/SKILL.md",
@@ -348,7 +352,7 @@
     },
     {
       "path": ".harness/engine/skills/midas-help/response-map.md",
-      "sha256": "4958cdf8e3624bd7f6f11306d50aabe8798782839f6e89f0922ecb0ecb86e345"
+      "sha256": "fc94238823103746a9dbeb029c43e80f83f7f7e5f386f4e12371d1736e82539e"
     },
     {
       "path": ".harness/engine/skills/midas-hygiene/SKILL.md",
@@ -412,7 +416,7 @@
     },
     {
       "path": ".harness/engine/skills/start-sprint/SKILL.md",
-      "sha256": "6db09d4d73697cf7f7d337cabec34ca2c46989f6613e9222f49982bdb12efa8c"
+      "sha256": "1dddbf406d471f1e133e573c435b05e920dc271805d43240d0cade8430460c82"
     },
     {
       "path": ".harness/engine/stage-command-table.yaml",
@@ -456,11 +460,15 @@
     },
     {
       "path": ".harness/engine/templates/auto-pilot-journal.md",
-      "sha256": "10db0c2aa392db9be5038bab43ada9f33e9b68c74cc0ac1b285abecf217b92e0"
+      "sha256": "6f07fe91d2a66093cf39f97fe050440a14985d0b34d7125c12700dc048dd58c3"
     },
     {
       "path": ".harness/engine/templates/auto-pilot-runbook.md.tmpl",
-      "sha256": "6d1e41ed23e901bc55fd3aabaf8a8cb6b5f5ccd414852823374ccd9428840543"
+      "sha256": "5af46438d1ea18dacead5b8b46b38859e43fd1783e24b6338c08d9b034be7552"
+    },
+    {
+      "path": ".harness/engine/templates/auto-pilot-tick.md",
+      "sha256": "250e387f3ad1062da5cb0cd0184253536b51eb058d041b8233f45400c896583e"
     },
     {
       "path": ".harness/engine/templates/business-plan.md",
@@ -536,7 +544,7 @@
     },
     {
       "path": ".harness/engine/templates/playbooks/auto-pilot-cycle.md",
-      "sha256": "ac1744047e4bc8e16817a4e73eb2b1ae6ccc2f8a7ce90efe680e23a4dca76713"
+      "sha256": "0d9f9188f8576034bb94835722a09aebc65ca2e09211ee637a5b20c36218d14a"
     },
     {
       "path": ".harness/engine/templates/playbooks/debug-root-cause.md",
