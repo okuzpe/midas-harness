@@ -3,9 +3,9 @@
   "channel": "edge",
   "version": "3.0.1",
   "ref": "main",
-  "commit": "40f575eb2b24884ccddd2a05ef97f0558ec3432f",
-  "tree_sha256": "bdc706f7940b7748d3be4e4031456a08ebe1e175a02cd84b60fd8ffea1b308fc",
-  "published_at": "2026-09-04T20:54:27.454Z",
+  "commit": "0d4cf2a2d4ca6e6edff55c800c3e1ecc7b3f4ed7",
+  "tree_sha256": "2723aa7bf5a75ef20442bfce2741a1a50a6a2b42ad71eee6b7e60e12dc208eff",
+  "published_at": "2026-09-04T22:14:16.009Z",
   "migrations": [
     "0001-record-update-channel"
   ],
@@ -16,7 +16,7 @@
     },
     {
       "path": ".harness/engine/.windsurf/rules/01-midas-checks.md",
-      "sha256": "4bf437ff9014941166fbf16f5d6bd178ef3b74560baed2b6733cf7d7eda36644"
+      "sha256": "5be9f229a4a5bd465f711d355116a1bc6efb975e0c682ed60961695b5f01963d"
     },
     {
       "path": ".harness/engine/VERSION",
@@ -36,7 +36,7 @@
     },
     {
       "path": ".harness/engine/checks.json",
-      "sha256": "643124200cc5319e12dec4110beffca606c8c67492153926df986bdea1547d13"
+      "sha256": "0c6cf9c6106b2b477fd41048ec49cb773733e17b86e6dbb4fe946525ebe285f0"
     },
     {
       "path": ".harness/engine/conventions.md",
@@ -252,7 +252,7 @@
     },
     {
       "path": ".harness/engine/rules/skill-quality.md",
-      "sha256": "955c2e4ddbdff6e74f6ad72544709fd36f463c15d967bb92540c06fcaad6d474"
+      "sha256": "b6b9822d21ae1e05e8fb03acd40a1a6a1bb1959f2c9d5bf3adaaac919e22a815"
     },
     {
       "path": ".harness/engine/rules/soft-pass.md",
@@ -336,7 +336,7 @@
     },
     {
       "path": ".harness/engine/skills/midas-doctor/SKILL.md",
-      "sha256": "66c913c4bc38a8c988ccdab6ce2c5af7f2a04126e2d37330ee5ec22e97ed9a5f"
+      "sha256": "dcaf7b255a0ad2de8d10c949f1b24f478f07a3f023f8c077ad2955dba7aa0616"
     },
     {
       "path": ".harness/engine/skills/midas-explore/SKILL.md",
@@ -356,7 +356,7 @@
     },
     {
       "path": ".harness/engine/skills/midas-init/SKILL.md",
-      "sha256": "75ecfc69d7da4ad38cd373a42c8ad6ee2c64a44a608adadde26c69da6baa2d93"
+      "sha256": "c023c37bd4ac3f59daa3a878451b8778bd3397fab25fe333cce10520d0cb038b"
     },
     {
       "path": ".harness/engine/skills/midas-investigate/SKILL.md",
@@ -380,7 +380,7 @@
     },
     {
       "path": ".harness/engine/skills/midas-reconcile/SKILL.md",
-      "sha256": "09681904d864bb7316bee221af2ef75b37f6b9fe484d2579ef2c61076df8d9e9"
+      "sha256": "c07334d50eb3a74073a1b41cb52e58038b27af5ac6abfaa06a265b8d1b6e299a"
     },
     {
       "path": ".harness/engine/skills/midas-retro/SKILL.md",
@@ -504,7 +504,7 @@
     },
     {
       "path": ".harness/engine/templates/gitignore-midas.snippet",
-      "sha256": "6c69c52fe27f4c53b70e2ae20b49e5af07a51d24a4e8a12cbb9457701db05dbe"
+      "sha256": "d2a4284b391b60145d4af05d8c590876645ca90f40192c3b23e5d7bc6ed6bc19"
     },
     {
       "path": ".harness/engine/templates/idea.md",
@@ -608,7 +608,7 @@
     },
     {
       "path": ".harness/scripts/design-system.mjs",
-      "sha256": "8d6c97399cb3ad3532b642b16041151d35a337cac7a6e18477feecd13caaf8a3"
+      "sha256": "e87e0b92d4cf6d142fb8a2a81b5846a42f4f31daeceaf050fbdbcf28cb155910"
     },
     {
       "path": ".harness/scripts/doctor.mjs",
@@ -624,7 +624,7 @@
     },
     {
       "path": ".harness/scripts/doctor/checks/mcp.mjs",
-      "sha256": "2c9d8e7a67babbe7b17c44bdfcd637cddfdd3695dc978532d772766b8599da64"
+      "sha256": "9bb032f6580641d709021f8907a6b01d7203edac8b33126fa90f832a59869e42"
     },
     {
       "path": ".harness/scripts/doctor/checks/registries.mjs",
@@ -644,7 +644,7 @@
     },
     {
       "path": ".harness/scripts/doctor/registry.mjs",
-      "sha256": "a50a546fd87d423db5e414cd5420921c3c9928df96a19a4b57b5073ed5e56a2f"
+      "sha256": "ee7b5b5c017a8d625619f67cdcd7df8350b2d127c94893795f94ad87c822de71"
     },
     {
       "path": ".harness/scripts/gates/conformance-gate.mjs",
@@ -668,7 +668,7 @@
     },
     {
       "path": ".harness/scripts/gitignore-merge.mjs",
-      "sha256": "dee8e5fe1881a3740853026efde2c2c99dd2d7e3d73043b1041144e312ebc045"
+      "sha256": "ad5e2e33d70cf36dc6b0ad654615528e176e114269fb26b1e578b1c6c44b1dc2"
     },
     {
       "path": ".harness/scripts/install-context.mjs",
@@ -676,7 +676,7 @@
     },
     {
       "path": ".harness/scripts/install-diagnose.mjs",
-      "sha256": "96a741244bd2c876e88c3dcd98a68ff2e69d76513c37cac4810ab5b2d0aca284"
+      "sha256": "c1e2785b4f1aaa299ee4ad04f5f0bfb931dbf06934aa6e97e04ce61664020440"
     },
     {
       "path": ".harness/scripts/lib/cache-paths.mjs",
@@ -736,7 +736,7 @@
     },
     {
       "path": ".harness/scripts/lib/posix.mjs",
-      "sha256": "fd90edc8d29cd0ceb3cb83862824f67d3caa532e800d8a7fb604acd3a9f855ea"
+      "sha256": "f1ecb0106764dc5f45f937c8c7f8addb5cf0a338b9eb518f438fcf83c471cbbd"
     },
     {
       "path": ".harness/scripts/lib/quality-log.mjs",
@@ -752,7 +752,7 @@
     },
     {
       "path": ".harness/scripts/lib/reconcile.mjs",
-      "sha256": "87c17d67481bb3f7c80247ebbc49ca01950ff578e01675f55da37d1dcf63f25b"
+      "sha256": "4fbbb32a9b8e8a9be4f47a5ca9c604d6ac624d37670a037bd5ee44eb190de3f8"
     },
     {
       "path": ".harness/scripts/lib/trace-models.mjs",
@@ -792,7 +792,7 @@
     },
     {
       "path": ".harness/scripts/paths.mjs",
-      "sha256": "d3a74db48a469b1a295a2d27fc60f4744d217a66a03f73699b7bea50aab46580"
+      "sha256": "9ccbab4fd25d02987f52445431cceafc2e8fef481e4d3a15e8bf8118a5b22b1b"
     },
     {
       "path": ".harness/scripts/portable-skills.mjs",
@@ -808,7 +808,7 @@
     },
     {
       "path": ".harness/scripts/render-adapters.mjs",
-      "sha256": "5fa257eb04e63bf7e33f920e43fb4af3d4ecb1697d49770f24faae3ebe6adcd4"
+      "sha256": "ddfde9535a003edef2a060292f5cd22a2f569373e265c2de13267fd90811c125"
     },
     {
       "path": ".harness/scripts/safety/destructive-shell.mjs",
